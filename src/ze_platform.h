@@ -1,0 +1,9 @@
+#ifndef ZE_PLATFORM_H
+#define ZE_PLATFORM_H
+
+#define ZE_DEFAULT_WINDOW_DLL_NAME "wingl.dll"
+
+#define ZE_MUTEX_DRAW_QUEUE 0
+#define ZE_MUTEX_WINDOW_EVENTS 1
+
+#endif // ZE_PLATFORM_H

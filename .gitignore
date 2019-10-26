@@ -1,0 +1,26 @@
+# IDEs/Debuggers
+/.vs/
+/.vscode/
+
+# Temp directories for compile
+/buildwin_platform/
+/buildwin_platform_libs/
+/buildwin_window/
+/buildwin_renderer/
+
+# For 3rd party DLLs
+/bin/*
+!/bin/glfw3.dll
+
+# Shaders file is auto-generated
+/lib/shaders.h
+
+# IDEs
+*.db
+/xercise.VC.VC.opendb
+*.i
+*.sln
+*.vcxproj*
+
+# Compiles
+*.out
