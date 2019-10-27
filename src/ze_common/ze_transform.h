@@ -6,12 +6,64 @@
 /////////////////////////////////////////////////////////////////////
 // Position
 /////////////////////////////////////////////////////////////////////
+extern "C"
 static void Transform_SetToIdentity(Transform* t)
 {
 	*t = {};
     t->pos = { 0, 0, 0 };
     t->scale = { 1, 1, 1 };
     M3x3_SetToIdentity(t->rotation.cells);
+}
+
+/////////////////////////////////////////////////////////////////////
+// Conversion
+/////////////////////////////////////////////////////////////////////
+extern "C"
+internal void Transform_ToM4x4(Transform* t, M4x4* result)
+{
+    M4x4_SetToIdentity(result->cells);
+    result->x0 = t->rotation.x0;
+    result->x1 = t->rotation.x1;
+    result->x2 = t->rotation.x2;
+
+    result->y0 = t->rotation.y0;
+    result->y1 = t->rotation.y1;
+    result->y2 = t->rotation.y2;
+
+    result->z0 = t->rotation.z0;
+    result->z1 = t->rotation.z1;
+    result->z2 = t->rotation.z2;
+
+    result->w0 = t->pos.x;
+    result->w1 = t->pos.y;
+    result->w2 = t->pos.z;
+    result->w3 = 1;
+
+    Vec4_SetMagnitude(&result->xAxis, t->scale.x);
+    Vec4_SetMagnitude(&result->yAxis, t->scale.y);
+    Vec4_SetMagnitude(&result->zAxis, t->scale.z);
+}
+
+extern "C"
+internal void Transform_ToM4x4NoScale(Transform* t, M4x4* result)
+{
+    M4x4_SetToIdentity(result->cells);
+    result->x0 = t->rotation.x0;
+    result->x1 = t->rotation.x1;
+    result->x2 = t->rotation.x2;
+
+    result->y0 = t->rotation.y0;
+    result->y1 = t->rotation.y1;
+    result->y2 = t->rotation.y2;
+
+    result->z0 = t->rotation.z0;
+    result->z1 = t->rotation.z1;
+    result->z2 = t->rotation.z2;
+
+    result->w0 = t->pos.x;
+    result->w1 = t->pos.y;
+    result->w2 = t->pos.z;
+    result->w3 = 1;
 }
 
 #endif // ZE_TRANSFORM_H

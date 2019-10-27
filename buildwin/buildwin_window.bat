@@ -19,11 +19,12 @@ set compilerDefines=/DPARANOID=1
 @rem set linkInputB=user32.lib Gdi32.lib
 set linkInputA=../lib/glfw3_vc2015/glfw3dll.lib
 set linkInputB=../buildwin_platform_libs/platlibs.lib
-set compilerInputA=../src/win_window/win_window.cpp
-set compilerInputB=../src/zqf_renderer/zr_groups.cpp
+set compInA=../src/win_window/win_window.cpp
+set compInB=../src/zqf_renderer/zr_groups.cpp ../src/zqf_renderer/zrgl.cpp
+set compInC=../src/zr_embedded/zr_embedded.cpp
 set outputDLL=/Fe../bin/wingl.dll
 @echo on
-@cl %compilerFlags% %compilerDefines% %compilerInputA% %compilerInputB% %outputDLL% %linkInputA% %linkInputB%
+@cl %compilerFlags% %compilerDefines% %compInA% %compInB% %compInC% %outputDLL% %linkInputA% %linkInputB%
 @echo off
 set compilerFlags=
 set compilerDefines=

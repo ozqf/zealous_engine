@@ -286,9 +286,27 @@ i32 Vec3_AreDifferent(Vec3* a, Vec3* b, f32 epsilon);
 // VECTOR 3 OPERATIONS
 /////////////////////////////////////////////////////////////////////////////
 
-f32 Vec4_Magnitude(Vec4* v);
-void Vec4_Normalise(Vec4* v);
-void Vec4_SetMagnitude(Vec4* v, f32 newMagnitude);
+internal f32 Vec4_Magnitude(Vec4* v)
+{
+    return (f32)sqrt((f32)(v->x * v->x) + (v->y * v->y) + (v->z * v->z));
+}
+
+internal void Vec4_Normalise(Vec4* v)
+{
+    f32 vectorMagnitude = Vec4_Magnitude(v);
+    v->x /= vectorMagnitude;
+    v->y /= vectorMagnitude;
+    v->z /= vectorMagnitude;
+}
+
+internal void Vec4_SetMagnitude(Vec4* v, f32 newMagnitude)
+{
+    Vec4_Normalise(v);
+    v->x = v->x * newMagnitude;
+    v->y = v->y * newMagnitude;
+    v->z = v->z * newMagnitude;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // M3x3 OPERATIONS
 /////////////////////////////////////////////////////////////////////////////
@@ -610,11 +628,17 @@ Vec4 M4x4_GetPosition(f32* m);
 Vec3 M4x4_GetEulerAnglesRadians(f32* m);
 Vec3 M4x4_GetEulerAnglesDegrees(f32* m);
 void M4x4_SetEulerAnglesByRadians(f32* m, f32 roll, f32 pitch, f32 yaw);
-void M4x4_SetProjection(f32* m, f32 prjNear, f32 prjFar, f32 prjLeft, f32 prjRight, f32 prjTop, f32 prjBottom);
-void M4x4_SetOrthoProjection(f32* m, f32 left, f32 right, f32 top, f32 bottom, f32 prjNear, f32 prjFar);
 
 void M4x4_ApplyScale(f32* m, f32 x, f32 y, f32 z);
-void M4x4_SetScale(f32* m, f32 x, f32 y, f32 z);
+
+inline void M4x4_SetScale(f32* m, f32 x, f32 y, f32 z)
+{
+    M4x4* mat = (M4x4*)m;
+    Vec4_SetMagnitude(&mat->xAxis, x);
+    Vec4_SetMagnitude(&mat->yAxis, y);
+    Vec4_SetMagnitude(&mat->zAxis, z);
+}
+
 void M4x4_SetToScaling(f32* m, f32 x, f32 y, f32 z);
 void M4x4_SetToTranslation(f32* m, f32 x, f32 y, f32 z);
 

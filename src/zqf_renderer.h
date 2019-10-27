@@ -388,6 +388,15 @@ struct ZRSceneView
 // Render commands and resources
 ///////////////////////////////////////////////////////////
 
+struct MeshData
+{
+	u32 numVerts;
+
+	f32* verts;
+	f32* uvs;
+    f32* normals;    
+};
+
 struct ZRShader
 {
     i32 handle; // considered invalid if this is 0
@@ -483,6 +492,117 @@ inline void ZR_BuildViewMatrix(M4x4* view, Transform* camT)
 	M4x4_RotateByAxis(view->cells, -camEuler.y, 0, 1, 0);
 	// inverse camera translation
 	M4x4_Translate(view->cells, -camT->pos.x, -camT->pos.y, -camT->pos.z);
+}
+
+////////////////////////////////////////////////////////////////////
+// Projection
+////////////////////////////////////////////////////////////////////
+
+internal void M4x4_SetProjection(f32* m, f32 prjNear, f32 prjFar, f32 prjLeft, f32 prjRight, f32 prjTop, f32 prjBottom)
+{
+    m[0] = (2 * prjNear) / (prjRight - prjLeft);
+	m[4] = 0;
+	m[8] = (prjRight + prjLeft) / (prjLeft - prjRight);
+	m[12] = 0;
+	
+	m[1] = 0;
+	m[5] = (2 * prjNear) / (prjTop - prjBottom);
+	m[9] = (prjTop + prjBottom) / (prjTop - prjBottom);
+	m[13] = 0;
+	
+	m[2] = 0;
+	m[6] = 0;
+	m[10] = -(prjFar + prjNear) / (prjFar - prjNear);
+	m[14] = (-2 * prjFar * prjNear) / (prjFar - prjNear);
+	
+	m[3] = 0;
+	m[7] = 0;
+	m[11] = -1;
+	m[15] = 0;
+}
+
+internal void M4x4_SetOrthoProjection(f32* m, f32 left, f32 right, f32 top, f32 bottom, f32 prjNear, f32 prjFar)
+{
+    #if 1
+    M4x4_SetToIdentity(m);
+    m[0] = 2 / (right - left);
+    m[5] = 2 / (top - bottom);
+    m[10] = -2 / (prjFar - prjNear);
+
+    m[12] = -(right + left) / (right - left);
+    m[13] = -(top + bottom) / (top - bottom);
+    m[14] = -(prjFar + prjNear) / (prjFar - prjNear);
+    m[15] = 1;
+    #endif
+    #if 0
+    m[0] = 2; 
+    m[5] = 2;
+    m[10] = -0.22f;
+
+    m[14] = -1.22f;
+    m[15] = 1;
+    #endif
+}
+
+inline void COM_SetupOrthoProjection(f32* m)
+{
+	//M4x4_SetOrthoProjection(m, -1, 1, 1, -1, 0.1f, 20.f);
+	float size = 40;
+	M4x4_SetOrthoProjection(m, -40, size, size, -size, 0.1f, 60.f);
+}
+
+inline void COM_Setup3DProjection(
+	f32* m4x4,
+	i32 fov,
+	f32 prjScaleFactor,
+	f32 prjNear,
+	f32 prjFar,
+	f32 aspectRatio)
+{
+	if (fov <= 0) { fov = 90; }
+	M4x4_SetToIdentity(m4x4);
+	
+	f32 prjLeft = -prjScaleFactor * aspectRatio;
+	f32 prjRight = prjScaleFactor * aspectRatio;
+	f32 prjTop = prjScaleFactor;
+	f32 prjBottom = -prjScaleFactor;
+
+	M4x4_SetProjection(
+		m4x4, prjNear, prjFar, prjLeft, prjRight, prjTop, prjBottom);
+}
+
+inline void COM_SetupDefault3DProjection(
+	f32* m4x4, f32 aspectRatio)
+{
+	//COM_Setup3DProjection(m4x4, 90, 0.5f, 1.0f, 1000.0f, aspectRatio);
+	COM_Setup3DProjection(m4x4, 90, 0.07f, 0.1f, 1000.0f, aspectRatio);
+}
+
+////////////////////////////////////////////////////////////////////
+// convert homogeneous (-1 to 1) coords to 0 to 1 uv coords
+// (for shadow map sampling)
+////////////////////////////////////////////////////////////////////
+inline void M4x4_HomogeneousToUV(f32* m)
+{
+	m[0] = 0.5f;
+	m[1] = 0;
+	m[2] = 0;
+	m[3] = 0;
+
+	m[4] = 0;
+	m[5] = 0.5f;
+	m[6] = 0;
+	m[7] = 0;
+
+	m[8] = 0;
+	m[9] = 0;
+	m[10] = 0.5f;
+	m[11] = 0;
+
+	m[12] = 0.5f;
+	m[13] = 0.5f;
+	m[14] = 0.5f;
+	m[15] = 1;
 }
 
 #endif // _ZQF_RENDERER_H
