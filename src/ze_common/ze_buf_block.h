@@ -36,7 +36,7 @@ internal ErrorCode BufBlock_Validate(BufferBlock* block)
     return ZE_ERROR_NONE;
 }
 
-internal void BufBlock_Print(ze_byte_buffer* b)
+internal void BufBlock_Print(ZEByteBuffer* b)
 {
     u8* read = b->start;
     u8* end = b->cursor;

@@ -40,6 +40,6 @@ internal GLFWwindow* g_window;
 
 //internal u8 g_platformEventsBuf
 
-internal ze_byte_buffer g_events;
+internal ZEByteBuffer g_events;
 
 #endif // ZE_WINDOW_GLOBALS_H

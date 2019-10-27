@@ -21,7 +21,7 @@ struct ze_key_event
     i32 value;
 };
 
-internal void ZKeys_WriteEvent(ze_byte_buffer* buf, i32 inputId, i32 value)
+internal void ZKeys_WriteEvent(ZEByteBuffer* buf, i32 inputId, i32 value)
 {
     ze_key_event ev = {};
     BufBlock_PrepareHeader(

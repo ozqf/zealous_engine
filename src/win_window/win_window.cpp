@@ -1,6 +1,8 @@
 #ifndef ZE_WIN64_WINDOW_H
 #define ZE_WIN64_WINDOW_H
-
+/*
+Zealous Engine Windows renderer
+*/
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 
@@ -17,6 +19,8 @@
 
 #include "ze_window_globals.h"
 #include "ze_window_callbacks.h"
+
+#include "../zqf_renderer.h"
 
 static void ZR_Error(const char* msg, const char* heading)
 {

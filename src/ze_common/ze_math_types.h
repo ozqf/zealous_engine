@@ -1,0 +1,591 @@
+#ifndef ZE_MATH_TYPES_H
+#define ZE_MATH_TYPES_H
+
+#include "ze_common.h"
+
+#include <math.h>
+
+//#define ArrayCount(array) (sizeof(array) / sizeof(array)[0]))
+
+#define VEC_X 0
+#define VEC_Y 1
+#define VEC_Z 2
+#define VEC_W 3
+
+/* Matrix use
+OpenGL uses column major, y/x matrices
+/   0   4   8   12  \
+|   1   5   9   13  |
+|   2   6   10  14  |
+\   3   7   11  15  /
+
+*/
+
+// Access Matrix Arrays
+#define M3x3_X0 0
+#define M3x3_X1 1
+#define M3x3_X2 2
+
+#define M3x3_Y0 3
+#define M3x3_Y1 4
+#define M3x3_Y2 5
+
+#define M3x3_Z0 6
+#define M3x3_Z1 7
+#define M3x3_Z2 8
+
+
+
+#define M4x4_X0 0
+#define M4x4_X1 1
+#define M4x4_X2 2
+#define M4x4_X3 3
+
+#define M4x4_Y0 4
+#define M4x4_Y1 5
+#define M4x4_Y2 6
+#define M4x4_Y3 7
+
+#define M4x4_Z0 8
+#define M4x4_Z1 9
+#define M4x4_Z2 10
+#define M4x4_Z3 11
+
+#define M4x4_W0 12
+#define M4x4_W1 13
+#define M4x4_W2 14
+#define M4x4_W3 15
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Vector
+/////////////////////////////////////////////////////////////////////////////
+struct Point
+{
+    union
+    {
+        struct
+        {
+            i32 x, y;
+        };
+        i32 parts[2];
+    };
+};
+
+struct Vec2
+{
+    union 
+    {
+        struct
+        {
+            f32 x, y;
+        };    
+        f32 parts[2];
+    };
+};
+
+struct Vec3
+{
+    union 
+    {
+        struct
+        {
+            f32 x, y, z;
+        };    
+        f32 parts[3];
+    };
+    // f32 x, y, z, w;
+    // // overload array operator to return a pointer to x + index
+    // f32 &operator[](int index) { return ((&x)[index]); }
+};
+
+const Vec3 vec3_zero = { };
+
+struct Vec4
+{
+    union 
+    {
+        struct
+        {
+            f32 x, y, z, w;
+        };    
+        f32 e[4];
+    };
+    // f32 x, y, z, w;
+    // // overload array operator to return a pointer to x + index
+    // f32 &operator[](int index) { return ((&x)[index]); }
+};
+
+inline Vec4 COM_Vec3ToVec4(Vec3 v3, f32 w)
+{
+    return { v3.x, v3.y, v3.z, w };
+}
+
+struct AABB
+{
+    Vec3 min;
+    Vec3 max;
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// MATRIX 3x3
+/////////////////////////////////////////////////////////////////////////////
+struct M3x3
+{
+    union
+    {
+        /* Careful! Column order!
+            X   Y   Z   W
+            0   3   6
+            1   4   7
+            2   5   8
+            */
+        struct
+        {
+            f32
+            x0, x1, x2,
+            y0, y1, y2,
+            z0, z1, z2;
+        };
+        struct
+        {
+            f32
+            // xAxisX, yAxisX, zAxisX, posX,
+            // xAxisY, yAxisY, zAxisY, posY,
+            // xAxisZ, yAxisZ, zAxisZ, posZ,
+            // xAxisW, yAxisW, zAxisW, posW;
+
+            xAxisX, xAxisY, xAxisZ,
+            yAxisX, yAxisY, yAxisZ,
+            zAxisX, zAxisY, zAxisZ;
+        };
+        struct
+        {
+            Vec3 xAxis;
+            Vec3 yAxis;
+            Vec3 zAxis;
+        };
+        f32 cells[9];
+    };
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// MATRIX 4x4
+/////////////////////////////////////////////////////////////////////////////
+struct M4x4
+{
+    union
+    {
+        /* Careful! Column order!
+            X   Y   Z   W
+            0   4   8   12
+            1   5   9   13 
+            2   6   10  14
+            3   7   11  15
+            */
+        struct
+        {
+            f32
+            x0, x1, x2, x3,
+            y0, y1, y2, y3,
+            z0, z1, z2, z3,
+            w0, w1, w2, w3;
+        };
+        struct
+        {
+            f32
+            // xAxisX, yAxisX, zAxisX, posX,
+            // xAxisY, yAxisY, zAxisY, posY,
+            // xAxisZ, yAxisZ, zAxisZ, posZ,
+            // xAxisW, yAxisW, zAxisW, posW;
+
+            xAxisX, xAxisY, xAxisZ, xAxisW,
+            yAxisX, yAxisY, yAxisZ, yAxisW,
+            zAxisX, zAxisY, zAxisZ, zAxisW,
+            posX, posY, posZ, posW;
+        };
+        struct
+        {
+            Vec4 xAxis;
+            Vec4 yAxis;
+            Vec4 zAxis;
+            Vec4 wAxis;
+        };
+        f32 cells[16];
+    };
+};
+
+
+#define M3x3_CREATE(varName) M3x3 varName##; M3x3_SetToIdentity(##varName.cells##);
+#define M4x4_CREATE(varName) M4x4 varName##; M4x4_SetToIdentity(##varName.cells##);
+
+#define M3X3_MUL(ptrM3x4a, ptrM3x3b, ptrM3x3result) M3x3_Multiply(ptrM3x4a.cells, ptrM3x3b.cells, ptrM3x3result.cells);
+
+struct Transform
+{
+    Vec3 pos;
+    Vec3 scale;
+    M3x3 rotation;
+};
+
+//internal i32 g_z_inf = 0x7F800000;
+f32 ZINFINITY();
+
+//internal i32 g_z_nan = 0x7F800001;
+f32 ZNaN();
+
+internal i32 COM_STDRandI32();
+internal u8 COM_STDRandU8();
+internal f32 COM_STDRandf32();
+internal f32 COM_STDRandomInRange(f32 min, f32 max);
+internal void COM_ClampF32(f32* val, f32 min, f32 max);
+internal void COM_ClampI32(i32* val, i32 min, i32 max);
+internal f32 COM_LerpF32(f32 start, f32 end, f32 lerp);
+internal float COM_LinearEase(
+    f32 currentIteration,
+    f32 startValue,
+    f32 changeInValue,
+    f32 totalIterations);
+internal f32 COM_CapAngleDegrees(f32 angle);
+
+/////////////////////////////////////////////////////////////////////////////
+// VECTOR 3 OPERATIONS
+/////////////////////////////////////////////////////////////////////////////
+f32 Vec3_Magnitude(Vec3* v);
+void Vec3_Normalise(Vec3* v);
+void Vec3_SetMagnitude(Vec3* v, f32 newMagnitude);
+f32 Vec3_Distance(Vec3 a, Vec3 b);
+void Vec3_CrossProduct(Vec3* a, Vec3* b, Vec3* result);
+f32 Vec3_DotProduct(Vec3* a, Vec3* b);
+void Vec3_NormaliseOrForward(Vec3* v);
+Vec3 Vec3_MultiplyByM4x4(Vec3* v, f32* m);
+i32 Vec3_AreDifferent(Vec3* a, Vec3* b, f32 epsilon);
+
+/////////////////////////////////////////////////////////////////////////////
+// VECTOR 3 OPERATIONS
+/////////////////////////////////////////////////////////////////////////////
+
+f32 Vec4_Magnitude(Vec4* v);
+void Vec4_Normalise(Vec4* v);
+void Vec4_SetMagnitude(Vec4* v, f32 newMagnitude);
+/////////////////////////////////////////////////////////////////////////////
+// M3x3 OPERATIONS
+/////////////////////////////////////////////////////////////////////////////
+inline void M3x3_SetToIdentity(f32* m)
+{
+    m[M3x3_X0] = 1;
+    m[M3x3_X1] = 0;
+    m[M3x3_X2] = 0;
+
+    m[M3x3_Y0] = 0;
+    m[M3x3_Y1] = 1;
+    m[M3x3_Y2] = 0;
+
+    m[M3x3_Z0] = 0;
+    m[M3x3_Z1] = 0;
+    m[M3x3_Z2] = 1;
+}
+
+inline void  M3x3_Multiply(f32* a, f32* b, f32* result)
+{
+    /*
+                0   3   6
+                1   4   7 
+                2   5   8
+                |   |   | 
+    0   3   6 -
+    1   4   7 -
+    2   5   8-
+
+    result 3 = (0 x 3) + (3 x 4) + (6 x 5)
+    result 4 = (1 x 3) + (4 x 4) + (7 x 5)
+    result 5 = (2 x 3) + (5 x 4) + (8 x 5)
+
+    result 6 = (0 x 6) + (3 x 7) + (6 x 8)
+    result 7 = (1 x 6) + (4 x 7) + (7 x 8)
+    result 8 = (2 x 6) + (5 x 7) + (8 x 8)
+
+    */
+    f32 r[9];
+    r[0] = (a[0] * b[0]) + (a[3] * b[1]) + (a[6] * b[2]);
+    r[1] = (a[1] * b[0]) + (a[4] * b[1]) + (a[7] * b[2]);
+    r[2] = (a[2] * b[0]) + (a[5] * b[1]) + (a[8] * b[2]);
+
+    r[3] = (a[0] * b[3]) + (a[3] * b[4]) + (a[6] * b[5]);
+    r[4] = (a[1] * b[3]) + (a[4] * b[4]) + (a[7] * b[5]);
+    r[5] = (a[2] * b[3]) + (a[5] * b[4]) + (a[8] * b[5]);
+
+    r[6] = (a[0] * b[6]) + (a[3] * b[7]) + (a[6] * b[8]);
+    r[7] = (a[1] * b[6]) + (a[4] * b[7]) + (a[7] * b[8]);
+    r[8] = (a[2] * b[6]) + (a[5] * b[7]) + (a[8] * b[8]);
+    
+    result[0] = r[0];
+    result[1] = r[1];
+    result[2] = r[2];
+    result[3] = r[3];
+    result[4] = r[4];
+    result[5] = r[5];
+    result[6] = r[6];
+    result[7] = r[7];
+    result[8] = r[8];
+}
+inline void M3x3_BuildRotateByAxis(f32* m, f32 radians, f32 x, f32 y, f32 z)
+{
+    f32 c = cosf(radians);
+    f32 s = sinf(radians);
+    m[0] = (x * x) * (1 - c) + (c);
+    m[1] = (y * x) * (1 - c) + (z * s);
+    m[2] = (x * z) * (1 - c) - (y * s);
+
+    m[3] = (x * y) * (1 - c) - (z * s);
+    m[4] = (y * y) * (1 - c) + (c);
+    m[5] = (y * z) * (1 - c) + (x * s);
+    
+    m[6] = (x * z) * (1 - c) + (y * s);
+    m[7] = (y * z) * (1 - c) - (x * s);
+    m[8] = (z * z) * (1 - c) + (c);
+}
+// Rotate m radians degrees around the axis x/y/z
+inline void M3x3_RotateByAxis(f32* m, f32 radians, f32 x, f32 y, f32 z)
+{
+    f32 temp[16];
+    M3x3_BuildRotateByAxis(temp, radians, x, y, z);
+    M3x3_Multiply(m, temp, m);
+}
+void M3x3_SetX(f32* m, f32 x0, f32 x1, f32 x2);
+void M3x3_SetY(f32* m, f32 y0, f32 y1, f32 y2);
+void M3x3_SetZ(f32* m, f32 z0, f32 z1, f32 z2);
+void M3x3_Copy(f32* src, f32* tar);
+void M3x3_RotateX(f32* m, f32 radiansX);
+void M3x3_RotateY(f32* m, f32 radiansY);
+void M3x3_RotateZ(f32* m, f32 radiansZ);
+f32 M3x3_GetAngleX(f32* m);
+f32 M3x3_GetAngleY(f32* m);
+f32 M3x3_GetAngleZ(f32* m);
+Vec3 M3x3_GetEulerAnglesRadians(f32* m);
+Vec3 M3x3_GetEulerAnglesDegrees(f32* m);
+void M3x3_SetEulerAnglesByRadians(f32* m, f32 roll, f32 pitch, f32 yaw);
+
+void M3x3_CopyFromM4x4(f32* m3x3, f32* m4x4);
+
+/////////////////////////////////////////////////////////////////////////////
+// M4x4 OPERATIONS
+/////////////////////////////////////////////////////////////////////////////
+inline void M4x4_SetToIdentity(f32* m)
+{
+    m[M4x4_X0] = 1;
+    m[M4x4_X1] = 0;
+    m[M4x4_X2] = 0;
+    m[M4x4_X3] = 0;
+
+    m[M4x4_Y0] = 0;
+    m[M4x4_Y1] = 1;
+    m[M4x4_Y2] = 0;
+    m[M4x4_Y3] = 0;
+
+    m[M4x4_Z0] = 0;
+    m[M4x4_Z1] = 0;
+    m[M4x4_Z2] = 1;
+    m[M4x4_Z3] = 0;
+
+    m[M4x4_W0] = 0;
+    m[M4x4_W1] = 0;
+    m[M4x4_W2] = 0;
+    m[M4x4_W3] = 1;
+}
+
+inline void M4x4_Multiply(f32* m0, f32* m1, f32* result)
+{
+    /*
+                    0   4   8   12
+                    1   5   9   13
+                    2   6   10  14
+                    3   7   11  15
+                    |   |   |   |
+    0   4   8   12-
+    1   5   9   13-
+    2   6   10  14-
+    3   7   11  15-
+    */
+
+    f32 r[16];
+    
+    r[0] = (m0[0] * m1[0]) + (m0[4] * m1[1]) + (m0[8] * m1[2]) + (m0[12] * m1[3]);
+    r[1] = (m0[1] * m1[0]) + (m0[5] * m1[1]) + (m0[9] * m1[2]) + (m0[13] * m1[3]);
+    r[2] = (m0[2] * m1[0]) + (m0[6] * m1[1]) + (m0[10] * m1[2]) + (m0[14] * m1[3]);
+    r[3] = (m0[3] * m1[0]) + (m0[7] * m1[1]) + (m0[11] * m1[2]) + (m0[15] * m1[3]);
+
+    r[4] = (m0[0] * m1[4]) + (m0[4] * m1[5]) + (m0[8] * m1[6]) + (m0[12] * m1[7]);
+    r[5] = (m0[1] * m1[4]) + (m0[5] * m1[5]) + (m0[9] * m1[6]) + (m0[13] * m1[7]);
+    r[6] = (m0[2] * m1[4]) + (m0[6] * m1[5]) + (m0[10] * m1[6]) + (m0[14] * m1[7]);
+    r[7] = (m0[3] * m1[4]) + (m0[7] * m1[5]) + (m0[11] * m1[6]) + (m0[15] * m1[7]);
+    
+    r[8] = (m0[0] * m1[8]) + (m0[4] * m1[9]) + (m0[8] * m1[10]) + (m0[12] * m1[11]);
+    r[9] = (m0[1] * m1[8]) + (m0[5] * m1[9]) + (m0[9] * m1[10]) + (m0[13] * m1[11]);
+    r[10] = (m0[2] * m1[8]) + (m0[6] * m1[9]) + (m0[10] * m1[10]) + (m0[14] * m1[11]);
+    r[11] = (m0[3] * m1[8]) + (m0[7] * m1[9]) + (m0[11] * m1[10]) + (m0[15] * m1[11]);
+    
+    r[12] = (m0[0] * m1[12]) + (m0[4] * m1[13]) + (m0[8] * m1[14]) + (m0[12] * m1[15]);
+    r[13] = (m0[1] * m1[12]) + (m0[5] * m1[13]) + (m0[9] * m1[14]) + (m0[13] * m1[15]);
+    r[14] = (m0[2] * m1[12]) + (m0[6] * m1[13]) + (m0[10] * m1[14]) + (m0[14] * m1[15]);
+    r[15] = (m0[3] * m1[12]) + (m0[7] * m1[13]) + (m0[11] * m1[14]) + (m0[15] * m1[15]);
+
+    // copy result
+    result[0] = r[0];
+    result[1] = r[1];
+    result[2] = r[2];
+    result[3] = r[3];
+    result[4] = r[4];
+    result[5] = r[5];
+    result[6] = r[6];
+    result[7] = r[7];
+    result[8] = r[8];
+    result[9] = r[9];
+    result[10] = r[10];
+    result[11] = r[11];
+    result[12] = r[12];
+    result[13] = r[13];
+    result[14] = r[14];
+    result[15] = r[15];
+}
+// Rotate m radians degrees around the axis x/y/z
+inline void M4x4_BuildRotateByAxis(f32* m, f32 radians, f32 x, f32 y, f32 z)
+{
+    f32 c = cosf(radians);
+    f32 s = sinf(radians);
+    m[0] = (x * x) * (1 - c) + (c);
+    m[1] = (y * x) * (1 - c) + (z * s);
+    m[2] = (x * z) * (1 - c) - (y * s);
+    m[3] = 0;
+
+    m[4] = (x * y) * (1 - c) - (z * s);
+    m[5] = (y * y) * (1 - c) + (c);
+    m[6] = (y * z) * (1 - c) + (x * s);
+    m[7] = 0;
+    
+    m[8] = (x * z) * (1 - c) + (y * s);
+    m[9] = (y * z) * (1 - c) - (x * s);
+    m[10] = (z * z) * (1 - c) + (c);
+    m[11] = 0;
+
+    m[12] = 0;
+    m[13] = 0;
+    m[14] = 0;
+    m[15] = 1;
+}
+inline void M4x4_RotateByAxis(f32* m, f32 radians, f32 x, f32 y, f32 z)
+{
+    f32 temp[16];
+    M4x4_BuildRotateByAxis(temp, radians, x, y, z);
+    M4x4_Multiply(m, temp, m);
+}
+inline void M4x4_BuildTranslation(f32* m, f32 x, f32 y, f32 z)
+{
+    m[0] = 1;
+    m[1] = 0;
+    m[2] = 0;
+    m[3] = 0;
+
+    m[4] = 0;
+    m[5] = 1;
+    m[6] = 0;
+    m[7] = 0;
+    
+    m[8] = 0;
+    m[9] = 0;
+    m[10] = 1;
+    m[11] = 0;
+
+    m[12] = x;
+    m[13] = y;
+    m[14] = z;
+    m[15] = 1;
+}
+inline void M4x4_Translate(f32* m, f32 x, f32 y, f32 z)
+{
+    f32 temp[16];
+    M4x4_BuildTranslation(temp, x, y, z);
+    M4x4_Multiply(m, temp, m);
+}
+
+inline void M4x4_BuildScale(f32* m, f32 x, f32 y, f32 z)
+{
+    m[M4x4_X0] = x;
+    m[M4x4_X1] = 0;
+    m[M4x4_X2] = 0;
+    m[M4x4_X3] = 0;
+
+    m[M4x4_Y0] = 0;
+    m[M4x4_Y1] = y;
+    m[M4x4_Y2] = 0;
+    m[M4x4_Y3] = 0;
+
+    m[M4x4_Z0] = 0;
+    m[M4x4_Z1] = 0;
+    m[M4x4_Z2] = z;
+    m[M4x4_Z3] = 0;
+
+    m[M4x4_W0] = 0;
+    m[M4x4_W1] = 0;
+    m[M4x4_W2] = 0;
+    m[M4x4_W3] = 1;
+}
+
+inline void M4x4_Scale(f32* m, f32 x, f32 y, f32 z)
+{
+    f32 temp[16];
+    M4x4_BuildScale(temp, x, y, z);
+    M4x4_Multiply(m, temp, m);
+}
+// Exact compare, no epsilon atm
+inline i32 M4x4_Equals(f32* a, f32* b)
+{
+    if (a[0] != b[0]) { return NO; }
+    if (a[1] != b[1]) { return NO; }
+    if (a[2] != b[2]) { return NO; }
+    if (a[3] != b[3]) { return NO; }
+    if (a[4] != b[4]) { return NO; }
+    if (a[5] != b[5]) { return NO; }
+    if (a[6] != b[6]) { return NO; }
+    if (a[7] != b[7]) { return NO; }
+    if (a[8] != b[8]) { return NO; }
+    if (a[9] != b[9]) { return NO; }
+    if (a[10] != b[10]) { return NO; }
+    if (a[11] != b[11]) { return NO; }
+    if (a[12] != b[12]) { return NO; }
+    if (a[13] != b[13]) { return NO; }
+    if (a[14] != b[14]) { return NO; }
+    if (a[15] != b[15]) { return NO; }
+    return YES;
+}
+extern "C" void M4x4_InvertRotation(f32* m);
+void M4x4_SetX(f32* m, f32 x0, f32 x1, f32 x2, f32 x3);
+void M4x4_SetY(f32* m, f32 y0, f32 y1, f32 y2, f32 y3);
+void M4x4_SetZ(f32* m, f32 z0, f32 z1, f32 z2, f32 z3);
+void M4x4_SetW(f32* m, f32 w0, f32 w1, f32 w2, f32 w3);
+void M4x4_Multiply(f32* m0, f32* m1, f32* result);
+void M4x4_Copy(f32* src, f32* tar);
+void M4x4_RotateX(f32* m, f32 radiansX);
+void M4x4_RotateY(f32* m, f32 radiansY);
+void M4x4_RotateZ(f32* m, f32 radiansY);
+f32 M4x4_GetAngleX(f32* m);
+f32 M4x4_GetAngleY(f32* m);
+f32 M4x4_GetAngleZ(f32* m);
+void M4x4_SetPosition(f32* m, f32 x, f32 y, f32 z);
+Vec4 M4x4_GetPosition(f32* m);
+Vec3 M4x4_GetEulerAnglesRadians(f32* m);
+Vec3 M4x4_GetEulerAnglesDegrees(f32* m);
+void M4x4_SetEulerAnglesByRadians(f32* m, f32 roll, f32 pitch, f32 yaw);
+void M4x4_SetProjection(f32* m, f32 prjNear, f32 prjFar, f32 prjLeft, f32 prjRight, f32 prjTop, f32 prjBottom);
+void M4x4_SetOrthoProjection(f32* m, f32 left, f32 right, f32 top, f32 bottom, f32 prjNear, f32 prjFar);
+
+void M4x4_ApplyScale(f32* m, f32 x, f32 y, f32 z);
+void M4x4_SetScale(f32* m, f32 x, f32 y, f32 z);
+void M4x4_SetToScaling(f32* m, f32 x, f32 y, f32 z);
+void M4x4_SetToTranslation(f32* m, f32 x, f32 y, f32 z);
+
+void M4x4_Invert(f32* src);
+void M4x4_ClearPosition(f32* src);
+void M4x4_ClearRotation(f32* src);
+
+#endif // ZE_MATH_TYPES_H

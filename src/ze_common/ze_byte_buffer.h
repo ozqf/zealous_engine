@@ -8,7 +8,7 @@
 {##ptrToByteBuffer##->cursor += \
     COM_COPY((u8*)##ptrToByteArray##, ##ptrToByteBuffer##->cursor##, numOfBytesInArray##);}
 
-struct ze_byte_buffer
+struct ZEByteBuffer
 {
     u8* start;
     //u8* end;
@@ -43,24 +43,24 @@ struct ze_byte_buffer
     }
 };
 
-internal i32 Buf_IsValid(ze_byte_buffer* b)
+internal i32 Buf_IsValid(ZEByteBuffer* b)
 {
     if (b == NULL) { return NO; }
     return b->IsValid();
 }
 
-internal ze_byte_buffer Buf_FromBytes(u8* ptr, i32 numBytes)
+internal ZEByteBuffer Buf_FromBytes(u8* ptr, i32 numBytes)
 {
-    ze_byte_buffer b = {};
+    ZEByteBuffer b = {};
     b.start = ptr;
     b.cursor = ptr;
     b.capacity = numBytes;
     return b;
 }
 
-internal ze_byte_buffer Buf_FromMalloc(void* ptr, i32 size)
+internal ZEByteBuffer Buf_FromMalloc(void* ptr, i32 size)
 {
-    ze_byte_buffer b = {};
+    ZEByteBuffer b = {};
     b.start = (u8*)ptr;
     b.cursor = b.start;
     b.capacity = size;
