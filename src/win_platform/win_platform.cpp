@@ -87,6 +87,16 @@ static void Win_InitTimer()
 	g_clockBase = counter.QuadPart;
 }
 
+static void Win_InitMutexes()
+{
+    g_mutexes[ZE_MUTEX_DRAW_QUEUE] = CreateMutexA(0, 0, "DrawQueue");
+    g_mutexes[ZE_MUTEX_WINDOW_EVENTS] = CreateMutexA(0, 0, "WindowEventQueue");
+}
+
+////////////////////////////////////////////////////////
+// Exported function implementations
+////////////////////////////////////////////////////////
+
 static f64 PlatformImpl_QueryClock()
 {
     LARGE_INTEGER counter;
@@ -96,21 +106,6 @@ static f64 PlatformImpl_QueryClock()
 		(f64)((f64)ticksSinceStart / (f64)g_timerFrequency.QuadPart);
 	//printf("%f seconds since startup\n", secondsSinceStart);
     return secondsSinceStart;
-}
-
-static void Win_InitMutexes()
-{
-    g_mutexes[ZE_MUTEX_DRAW_QUEUE] = CreateMutexA(0, 0, "DrawQueue");
-    g_mutexes[ZE_MUTEX_WINDOW_EVENTS] = CreateMutexA(0, 0, "WindowEventQueue");
-}
-
-
-static ze_kernel_export Win_BuildExport()
-{
-    ze_kernel_export result = {};
-    result.Warning = Win_Warning;
-    result.Error = Win_Error;
-    return result;
 }
 
 static void PlatformImpl_LockMutex(i32 index, i32 tag)
@@ -136,6 +131,30 @@ static void PlatformImpl_UnlockMutex(i32 index, i32 tag)
 		printf("Release result is 0x%X err 0x%X\n", result, err);
 		ILLEGAL_CODE_PATH
 	}
+}
+
+static void* PlatformImpl_Allocate(i32 numBytes)
+{
+    // TODO: Track allocations!
+    return malloc(numBytes);
+}
+
+static void PlatformImpl_Free(void* ptr)
+{
+    free(ptr);
+}
+
+static ze_kernel_export Win_BuildExport()
+{
+    ze_kernel_export result = {};
+    result.Warning = Win_Warning;
+    result.Error = Win_Error;
+    result.QueryClock = PlatformImpl_QueryClock;
+    result.Allocate = PlatformImpl_Allocate;
+    result.Free = PlatformImpl_Free;
+    result.LockMutex = PlatformImpl_LockMutex;
+    result.UnlockMutex = PlatformImpl_UnlockMutex;
+    return result;
 }
 
 ////////////////////////////////////////////////////////

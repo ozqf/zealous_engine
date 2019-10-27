@@ -17,10 +17,10 @@ Zealous Engine Windows renderer
 #include "../win_platform2window.h"
 #include "../ze_common/ze_common.h"
 
+#include "../zqf_renderer.h"
+
 #include "ze_window_globals.h"
 #include "ze_window_callbacks.h"
-
-#include "../zqf_renderer.h"
 
 static void ZR_Error(const char* msg, const char* heading)
 {
@@ -84,6 +84,12 @@ static i32 ZR_Init()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glfwSwapBuffers(g_window);
+
+    ZRPlatform platform = {};
+    platform.Allocate = g_platform.Allocate;
+    platform.Free = g_platform.Free;
+    platform.QueryClock = g_platform.QueryClock;
+    g_renderer = ZR_Link(platform);
 
 	return ZE_ERROR_NONE;
 }

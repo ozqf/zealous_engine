@@ -13,6 +13,13 @@ struct ze_kernel_export
 {
     void (*Warning)(char* msg, char* title);
     void (*Error)(char* msg, char* title);
+
+    double (*QueryClock)();
+    void* (*Allocate)(i32 numBytes);
+    void (*Free)(void* ptr);
+
+    void (*LockMutex)(i32 index, i32 tag);
+    void (*UnlockMutex)(i32 index, i32 tag);
 };
 
 #define ZE_WINDOW_LINK_FUNC_NAME "ZE_LinkToWindowModule"
