@@ -1,0 +1,217 @@
+#ifndef ZR_GROUPS_CPP
+#define ZR_GROUPS_CPP
+
+#include "zr_groups.h"
+
+internal void ZDraw_FindLightsForObject(
+    ZRDrawObj* objects, i32 numObjects,
+    ZRDrawObj* obj, ZRSceneView* view,
+    ZRDrawObjLightData* lights)
+{
+	*lights = {};
+    // TODO: No object <-> light grouping: Iterating all lights for all objects
+    // Pick top four lights!
+    i32 lightsAdded = 0;
+    for (i32 i = 0; i < view->numLights; ++i)
+    {
+		i32 lightIndex = view->lights[i];
+        ZRDrawObj* lightObj = &objects[lightIndex];
+        Vec3 potentialPos = lightObj->t.pos;
+        f32 potentialDist = Vec3_Distance(potentialPos, obj->t.pos);
+        if (lightsAdded < ZR_MAX_POINT_LIGHTS_PER_MODEL)
+        {
+            // easy case, add light and carry on
+            lights->pointPositions[lightsAdded] = potentialPos;
+            lights->colours[lightsAdded] = lightObj->data.light.colour;
+            lights->distances[lightsAdded] = potentialDist;
+            lights->settings[lightsAdded] = lightObj->data.light.settings;
+            lightsAdded++;
+            continue;
+        }
+        // harder case. Find a light to replace
+        i32 replaceIndex = -1;
+        f32 replaceDistance = 0;
+        for (i32 j = 0; j < ZR_MAX_POINT_LIGHTS_PER_MODEL; ++j)
+        {
+            f32 dist = lights->distances[j];
+            // is the potential light closer?
+            if (potentialDist < dist)
+            {
+                // we may already have a light to replace. Is this a better candidate?
+                if (dist > replaceDistance)
+                {
+                    replaceIndex = j;
+                    replaceDistance = dist;
+                }
+            }
+        }
+        if (replaceIndex >= 0)
+        {
+            lights->pointPositions[replaceIndex] = potentialPos;
+            lights->colours[replaceIndex] = lightObj->data.light.colour;
+            lights->distances[replaceIndex] = potentialDist;
+            lights->settings[replaceIndex] = lightObj->data.light.settings;
+        }
+    }
+    // Patch empty lights
+    for (i32 i = lightsAdded; i < ZR_MAX_POINT_LIGHTS_PER_MODEL; ++i)
+    {
+        lights->settings[i].x = 1;
+    }
+}
+
+///////////////////////////////////////////////////////
+// External
+///////////////////////////////////////////////////////
+
+extern "C" inline Point ZR_IndexToPixel(int index, int imageWidth)
+{
+    return {
+        index % imageWidth,
+        int(index / imageWidth)
+    };
+}
+
+extern "C" inline i32 ZR_PixelToIndex(i32 x, i32 y, int imageWidth)
+{
+    return x + (y * imageWidth);
+}
+
+extern "C" void ZR_WriteGroupsToTextureByIndex(
+    ZRDrawObj* objects, i32 numObjects,
+    Transform* camT, ZRSceneView* groups, 
+    ZRDataTexture* tex)
+{
+	for (i32 i = 0; i < groups->numGroups; ++i)
+    {
+        ZRDrawGroup* group = groups->groups[i];
+        if (group->shader == NULL) { continue; }
+
+        if (group->shader->bBatchable == NO)
+        {
+            continue;
+        }
+        
+		// Record in the group where its data starts
+        //i32 pixelIndex = ZR_PixelToIndex(tex->cursor.x, tex->cursor.y, tex->width);
+        group->dataPixelIndex = tex->cursor;
+        group->pixelsPerItem = ZR_BATCH_DATA_STRIDE;
+		
+        for (i32 j = 0; j < group->numItems; ++j)
+        {
+            i32 objIndex = group->indices[j];
+            ZRDrawObj* obj = &objects[objIndex];
+            
+			// Write ModelView data
+			i32 indexCheckStart = tex->cursor;
+			
+			// Build model view matrix
+			M4x4_CREATE(model)
+            M4x4_CREATE(view)
+            M4x4_CREATE(modelView)
+
+			ZR_BuildModelMatrix(&model, &obj->t);
+
+			// Separate view is used for moving lights into view space
+			
+			ZR_BuildViewMatrix(&view, camT);
+			M4x4_Multiply(modelView.cells, view.cells, modelView.cells);
+			M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
+
+			// Write model view pixels
+			tex->mem[tex->cursor++] = modelView.xAxis;
+			tex->mem[tex->cursor++] = modelView.yAxis;
+			tex->mem[tex->cursor++] = modelView.zAxis;
+			tex->mem[tex->cursor++] = modelView.wAxis;
+			
+
+			// Write lighting data
+            ZRDrawObjLightData objLights = {};
+            ZDraw_FindLightsForObject(objects, numObjects, obj, groups, &objLights);
+
+            // Ambient
+            tex->mem[tex->cursor++] = { 0, 0, 0, 1 };
+            for (i32 k = 0; k < ZR_MAX_POINT_LIGHTS_PER_MODEL; ++k)
+            {
+				Vec3 worldPos = objLights.pointPositions[k];
+				Vec3 colour = objLights.colours[k];
+                Vec4 settings = objLights.settings[k];
+                // TODO: light radius of zero causes a divide by 0 in shader
+                // make sure all lights have a positive radius before copying in
+                ZE_ASSERT(settings.x > 0, "Light has a radius of 0!");
+				Vec3 viewPos = Vec3_MultiplyByM4x4(&worldPos, view.cells);
+
+                tex->mem[tex->cursor++] = COM_Vec3ToVec4(viewPos, 1);
+                tex->mem[tex->cursor++] = COM_Vec3ToVec4(objLights.colours[k], 1);
+                tex->mem[tex->cursor++] = settings;
+            }
+			i32 indexCheckEnd = tex->cursor;
+			ZE_ASSERT(indexCheckEnd - indexCheckStart == ZR_BATCH_DATA_STRIDE,
+				"Did not write correct data pixel count")
+        }
+    }
+}
+
+extern "C" ZRSceneView* ZR_BuildDrawGroups(
+    ZRDrawObj* objects, i32 numObjects, ZEByteBuffer* scratch, ZRGroupingStats* stats)
+{
+    ZRSceneView* drawGroups = (ZRSceneView*)scratch->cursor;
+    scratch->cursor += sizeof(ZRSceneView);
+    
+	// NOTE: Scratch buffer will not have been cleared to zero etc,
+	// so garbage will be there instead!
+	drawGroups->numGroups = 0;
+	drawGroups->numLights = 0;
+
+    // TODO: linear search, no culling!
+    for (i32 i = 0; i < numObjects; ++i)
+    {
+        ZRDrawObj* obj = &objects[i];
+        //i32 objPrefabId;
+
+        ZRGroupId objGroupId = ZRGroupId_Set(obj->type, obj->program, obj->prefabId);
+
+        // lights have their own groups
+        if (obj->type == ZR_DRAWOBJ_TYPE_LIGHT)
+        {
+            i32 lightIndex = drawGroups->numLights++;
+            ZE_ASSERT(lightIndex < ZR_MAX_DRAW_GROUPS, "Too many lights for draw groups")
+            drawGroups->lights[lightIndex] = i;
+            continue;
+        }
+        else if (obj->type == ZR_DRAWOBJ_TYPE_NONE)
+        {
+            // ignore this object
+            continue;
+        }
+        
+        // Find a group for this object
+        // TODO: sort objects and keep current group around?
+        ZRDrawGroup* group = NULL;
+        for (i32 j = 0; j < drawGroups->numGroups; ++j)
+        {
+            ZRDrawGroup* potentialGroup = drawGroups->groups[j];
+            // TODO: Groups have a maximum size. Can this be changed?
+            if (//potentialGroup->prefab == objPrefabId
+                ZRGroupId_Equal(objGroupId, potentialGroup->id)
+                && potentialGroup->numItems < ZR_MAX_BATCH_SIZE)
+            {
+                group = potentialGroup;
+                break;
+            }
+        }
+        if (group == NULL)
+        {
+            // Create a new group
+            group = (ZRDrawGroup*)scratch->cursor;
+			group->numItems = 0;
+            group->id = objGroupId;
+            scratch->cursor += sizeof(ZRDrawGroup);
+            drawGroups->groups[drawGroups->numGroups++] = group;
+        }
+        group->indices[group->numItems++] = i;
+    }
+    return drawGroups;
+}
+
+#endif // ZR_GROUPS_CPP

@@ -10,6 +10,7 @@ TODO: This renderer is using some data types and functions from the common modul
 These shouldn't be in common! Move them into this module
  */
 #include "ze_common/ze_common.h"
+#include "ze_common/ze_byte_buffer.h"
 #include "ze_common/ze_math_types.h"
 #include "ze_common/ze_string_utils.h"
 
@@ -458,5 +459,30 @@ struct ZRDrawCmd_Text
 
 #include "zr_scene.h"
 
+inline void ZR_BuildModelMatrix(M4x4* model, Transform* modelT)
+{
+	// Model
+	M4x4_SetToIdentity(model->cells);
+	Vec3 modelEuler = M3x3_GetEulerAnglesRadians(modelT->rotation.cells);
+	// model translation
+	M4x4_Translate(model->cells, modelT->pos.x, modelT->pos.y, modelT->pos.z);
+	// model rotation
+	M4x4_RotateByAxis(model->cells, modelEuler.y, 0, 1, 0);
+	M4x4_RotateByAxis(model->cells, modelEuler.x, 1, 0, 0);
+	M4x4_RotateByAxis(model->cells, modelEuler.z, 0, 0, 1);
+	M4x4_Scale(model->cells, modelT->scale.x, modelT->scale.y, modelT->scale.z);
+}
+
+inline void ZR_BuildViewMatrix(M4x4* view, Transform* camT)
+{
+	// View
+	M4x4_SetToIdentity(view->cells);
+	Vec3 camEuler = M3x3_GetEulerAnglesRadians(camT->rotation.cells);
+	M4x4_RotateByAxis(view->cells, -camEuler.z, 0, 0, 1);
+	M4x4_RotateByAxis(view->cells, -camEuler.x, 1, 0, 0);
+	M4x4_RotateByAxis(view->cells, -camEuler.y, 0, 1, 0);
+	// inverse camera translation
+	M4x4_Translate(view->cells, -camT->pos.x, -camT->pos.y, -camT->pos.z);
+}
 
 #endif // _ZQF_RENDERER_H

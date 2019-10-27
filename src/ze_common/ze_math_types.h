@@ -254,11 +254,32 @@ internal f32 COM_CapAngleDegrees(f32 angle);
 f32 Vec3_Magnitude(Vec3* v);
 void Vec3_Normalise(Vec3* v);
 void Vec3_SetMagnitude(Vec3* v, f32 newMagnitude);
-f32 Vec3_Distance(Vec3 a, Vec3 b);
+
+internal f32 Vec3_Magnitudef(f32 x, f32 y, f32 z)
+{
+	return (f32)sqrt((f32)(x * x) + (y * y) + (z * z));
+}
+
+internal f32 Vec3_Distance(Vec3 a, Vec3 b)
+{
+    return Vec3_Magnitudef(b.x - a.x, b.y - a.y, b.z - a.z);
+}
+
 void Vec3_CrossProduct(Vec3* a, Vec3* b, Vec3* result);
 f32 Vec3_DotProduct(Vec3* a, Vec3* b);
 void Vec3_NormaliseOrForward(Vec3* v);
-Vec3 Vec3_MultiplyByM4x4(Vec3* v, f32* m);
+
+internal Vec3 Vec3_MultiplyByM4x4(Vec3* v, f32* m)
+{
+	Vec3 r;
+    f32 w = 1;
+    r = {};
+	r.x = (m[M4x4_X0] * v->x) + (m[M4x4_Y0] * v->y) + (m[M4x4_Z0] * v->z) + (m[M4x4_W0] * w);
+	r.y = (m[M4x4_X1] * v->x) + (m[M4x4_Y1] * v->y) + (m[M4x4_Z1] * v->z) + (m[M4x4_W1] * w);
+	r.z = (m[M4x4_X2] * v->x) + (m[M4x4_Y2] * v->y) + (m[M4x4_Z2] * v->z) + (m[M4x4_W2] * w);
+	return r;
+}
+
 i32 Vec3_AreDifferent(Vec3* a, Vec3* b, f32 epsilon);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -362,7 +383,20 @@ void M3x3_RotateZ(f32* m, f32 radiansZ);
 f32 M3x3_GetAngleX(f32* m);
 f32 M3x3_GetAngleY(f32* m);
 f32 M3x3_GetAngleZ(f32* m);
-Vec3 M3x3_GetEulerAnglesRadians(f32* m);
+
+internal Vec3 M3x3_GetEulerAnglesRadians(f32* m)
+{
+    Vec3 result;
+    /*result.x = (f32)-asinf(m[9]);
+    result.y = (f32)atan2(m[8], m[10]);
+    result.z = (f32)atan2(m[1], m[5]);*/
+	result.x = (f32)-asinf(m[M3x3_Z1]);
+	result.y = (f32)atan2(m[M3x3_Z0], m[M3x3_Z2]);
+	result.z = (f32)atan2(m[M3x3_X1], m[M3x3_Y1]);
+    //result.w = 1;
+    return result;
+}
+
 Vec3 M3x3_GetEulerAnglesDegrees(f32* m);
 void M3x3_SetEulerAnglesByRadians(f32* m, f32 roll, f32 pitch, f32 yaw);
 
