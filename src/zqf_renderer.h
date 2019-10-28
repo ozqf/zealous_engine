@@ -36,6 +36,48 @@ struct ScreenInfo
 };
 
 ///////////////////////////////////////////////////////////
+// Colours
+///////////////////////////////////////////////////////////
+union Colour
+{
+	f32 array[4];
+	struct
+	{
+		f32 red, green, blue, alpha;
+	};
+    struct
+	{
+		f32 r, g, b, a;
+	};
+};
+
+#define COL_U32_WHITE { 1, 1, 1, 1 }
+#define COL_U32_BLACK { 0, 0, 0, 1 }
+#define COL_U32_RED { 1, 0, 0, 1 }
+#define COL_U32_GREEN { 0, 1, 0, 1 }
+#define COL_U32_BLUE { 0, 0, 1, 1 }
+#define COL_U32_YELLOW { 1, 1, 0, 1 }
+#define COL_U32_CYAN { 0, 1, 1, 1 }
+#define COL_U32_PURPLE { 1, 0, 1, 1 }
+
+union ColourU32
+{
+    u8 array[4];
+	struct
+	{
+		u8 red, green, blue, alpha;
+	};
+    struct
+	{
+		u8 r, g, b, a;
+	};
+    struct
+    {
+        u32 value;
+    };
+};
+
+///////////////////////////////////////////////////////////
 // Profiling data
 ///////////////////////////////////////////////////////////
 struct ZRGroupingStats

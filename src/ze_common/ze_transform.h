@@ -66,4 +66,27 @@ internal void Transform_ToM4x4NoScale(Transform* t, M4x4* result)
     result->w3 = 1;
 }
 
+/////////////////////////////////////////////////////////////////////
+// Scale
+/////////////////////////////////////////////////////////////////////
+internal void  Transform_SetScaleF(Transform* t, f32 scaleX, f32 scaleY, f32 scaleZ)
+{
+	t->scale.x = scaleX;
+	t->scale.y = scaleY;
+	t->scale.z = scaleZ;
+}
+
+// Avoid zero scales
+internal void  Transform_SetScaleSafe(Transform* t, Vec3 scale)
+{
+    if (scale.x != 0 && scale.y != 0 && scale.z != 0)
+    {
+        t->scale = scale;
+    }
+    else
+    {
+        t->scale = { 1, 1, 1 };
+    }
+}
+
 #endif // ZE_TRANSFORM_H
