@@ -2,6 +2,13 @@
 
 @echo --------------------------------------------------------
 @echo Build Zealous Engine Windows Renderer
+@echo --------------------------------------------------------
+
+@echo Shaders
+@node prep_shaders.js
+@echo --------------------------------------------------------
+
+@echo Code
 
 cd..
 if not exist bin mkdir bin

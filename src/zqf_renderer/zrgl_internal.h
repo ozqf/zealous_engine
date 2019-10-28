@@ -30,9 +30,9 @@
 
 #include <stdio.h>
 
-#include "../../../lib/glad/glad.h"
+#include "../../lib/glad/glad.h"
 #include "../ze_common/ze_common.h"
-#include "../../../lib/shaders.h"
+#include "../../lib/shaders.h"
 
 // External interface
 #include "../zqf_renderer.h"

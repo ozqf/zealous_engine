@@ -5,9 +5,9 @@
 
 // Asset libraries:
 #define STB_IMAGE_IMPLEMENTATION
-#include "../../../lib/stb_image.h"
+#include "../../lib/stb_image.h"
 
-#include "../../../lib/openfbx/ofbx.h"
+#include "../../lib/openfbx/ofbx.h"
 
 #define ZQF_R_DEFAULT_DIFFUSE_TEX "data/W33_5.bmp"
 

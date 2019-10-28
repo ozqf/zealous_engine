@@ -33,7 +33,7 @@ shaders.forEach((shader, i)  => {
 	output += `// ${files[i]}\r\n`;
 	output += `//////////////////////////////////////////////////\r\n`;
 	let name = files[i].replace(/\.[^/.]+$/, "")
-	console.log(`Writing ${name} (${shader.length} chars)`);
+	//console.log(`Writing ${name} (${shader.length} chars)`);
 	output += `static const char* ${name}_text =\r\n`;
 	let lines = shader.split("\r\n");
 	lines.forEach(line => output += `"${line}\\n"\n`);
