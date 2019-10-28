@@ -6,6 +6,7 @@
 ///////////////////////////////////////////////////////////
 #include "../ze_common/ze_common_full.h"
 #include "commands_base.h"
+#include "net_reliability.h"
 
 #define MAX_PACKET_TRANSMISSION_MESSAGES 64
 #define MAX_PACKET_SYNC_MESSAGES 128
