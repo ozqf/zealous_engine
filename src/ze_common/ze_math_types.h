@@ -258,7 +258,7 @@ internal f32 COM_CapAngleDegrees(f32 angle);
 // VECTOR 3 OPERATIONS
 /////////////////////////////////////////////////////////////////////////////
 
-f32 Vec3_Magnitude(Vec3* v)
+internal f32 Vec3_Magnitude(Vec3* v)
 {
     return (f32)sqrt((f32)(v->x * v->x) + (v->y * v->y) + (v->z * v->z));
 }
