@@ -31,8 +31,8 @@ set in5=
 @rem -- Stub App input --
 @rem set in2=../src/app_stub/app_stub.cpp ../src/app/app_textures.cpp
 
-@rem set compIn=%in1% %in2% %in3% %in4% %in5%
-set compIn=../src/sim/sim_module.cpp
+set compIn=%in1% %in2% %in3% %in4% %in5%
+@rem set compIn=../src/sim/sim_module.cpp
 
 set compOut=/Fe../bin/base/game.dll
 

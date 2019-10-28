@@ -160,7 +160,7 @@ internal i32 SVP_WriteReliableSection(
         
         //packet->cursor += Cmd_Serialise(packet->cursor, cmd, seqOffset);
         // Everything is okay, copy from staging to packet
-        packet->cursor += COM_COPY(staging, packet->cursor, cmdBytesWritten);
+        packet->cursor += ZE_COPY(staging, packet->cursor, cmdBytesWritten);
         stats->numReliableMessages += 1;
 		
 		// Record message

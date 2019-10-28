@@ -37,7 +37,7 @@ internal i32 Cmd_Deserialise(
             }
             else if (subType == S2C_ENTITY_SYNC_TYPE_UPDATE)
             {
-                //i32 totalRead = COM_COPY_STRUCT(source, buffer, S2C_EntitySync);
+                //i32 totalRead = ZE_COPY_STRUCT(source, buffer, S2C_EntitySync);
                 //return totalRead;
 
                 i32 serial = COM_ReadI32(&read);
@@ -64,12 +64,12 @@ internal i32 Cmd_Deserialise(
             }
             else
             {
-                //return COM_COPY_STRUCT(source, buffer, S2C_EntitySync);
+                //return ZE_COPY_STRUCT(source, buffer, S2C_EntitySync);
                 ZE_ASSERT(0, "Unknown entity sync type");
                 return 0;
             }
             #else
-            return COM_COPY_STRUCT(source, buffer, S2C_EntitySync);
+            return ZE_COPY_STRUCT(source, buffer, S2C_EntitySync);
             #endif
         } break;
         case CMD_TYPE_S2C_BULK_SPAWN:
@@ -126,38 +126,38 @@ internal i32 Cmd_Deserialise(
             //ZE_ASSERT(0, "foo")
             return (read - source);
             #else
-            return COM_COPY_STRUCT(source, buffer, S2C_BulkSpawn);
+            return ZE_COPY_STRUCT(source, buffer, S2C_BulkSpawn);
             #endif
         } break;
         case CMD_TYPE_IMPULSE:
-        return COM_COPY_STRUCT(source, buffer, CmdImpulse);
+        return ZE_COPY_STRUCT(source, buffer, CmdImpulse);
         break;
         case CMD_TYPE_S2C_HANDSHAKE:
-        return COM_COPY_STRUCT(source, buffer, S2C_Handshake);
+        return ZE_COPY_STRUCT(source, buffer, S2C_Handshake);
         break;
         case CMD_TYPE_S2C_SET_SCENE:
-        return COM_COPY_STRUCT(source, buffer, CmdSetScene);
+        return ZE_COPY_STRUCT(source, buffer, CmdSetScene);
         break;
         case CMD_TYPE_S2C_RESTORE_ENTITY:
-        return COM_COPY_STRUCT(source, buffer, S2C_RestoreEntity);
+        return ZE_COPY_STRUCT(source, buffer, S2C_RestoreEntity);
         break;
         case CMD_TYPE_S2C_SESSION_SYNC:
-        return COM_COPY_STRUCT(source, buffer, S2C_Sync);
+        return ZE_COPY_STRUCT(source, buffer, S2C_Sync);
         break;
         case CMD_TYPE_C2S_INPUT:
-        return COM_COPY_STRUCT(source, buffer, C2S_Input);
+        return ZE_COPY_STRUCT(source, buffer, C2S_Input);
         break;
         case CMD_TYPE_PING:
-        return COM_COPY_STRUCT(source, buffer, CmdPing);
+        return ZE_COPY_STRUCT(source, buffer, CmdPing);
         break;
         case CMD_TYPE_S2C_INPUT_RESPONSE:
-        return COM_COPY_STRUCT(source, buffer, S2C_InputResponse);
+        return ZE_COPY_STRUCT(source, buffer, S2C_InputResponse);
         break;
         case CMD_TYPE_S2C_REMOVE_ENTITY:
-        return COM_COPY_STRUCT(source, buffer, S2C_RemoveEntity);
+        return ZE_COPY_STRUCT(source, buffer, S2C_RemoveEntity);
         break;
         case CMD_TYPE_S2C_REMOVE_ENTITY_GROUP:
-        return COM_COPY_STRUCT(source, buffer, S2C_RemoveEntityGroup);
+        return ZE_COPY_STRUCT(source, buffer, S2C_RemoveEntityGroup);
         break;
         default:
         // Don't know size of command automatically, so

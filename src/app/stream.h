@@ -161,7 +161,7 @@ internal void Stream_DeleteCommand(ZEByteBuffer* b, Command* cmd, i32 remainingS
     u8* copyBlockStart = (u8*)cmd + cmd->size;
     i32 bytesToCopy = bufEnd - copyBlockStart;
     // printf("Deleting %d bytes. Copying %d bytes\n", bytesToDelete, bytesToCopy);
-	COM_CopyMemory(copyBlockStart, copyBlockDest, bytesToCopy);
+	ZE_COPY(copyBlockStart, copyBlockDest, bytesToCopy);
 	b->cursor -= bytesToDelete;
 }
 
@@ -180,7 +180,7 @@ internal void Stream_DeleteCommand_Original(ZEByteBuffer* b, Command* cmd, i32 r
     u8* copyBlockStart = (u8*)cmd + bytesToDelete;
     i32 bytesToCopy = bufEnd - copyBlockStart;
     // printf("Deleting %d bytes. Copying %d bytes\n", bytesToDelete, bytesToCopy);
-	COM_CopyMemory(copyBlockStart, copyBlockDest, bytesToCopy);
+	ZE_COPY(copyBlockStart, copyBlockDest, bytesToCopy);
 	b->cursor -= bytesToDelete;
 }
 
@@ -239,7 +239,7 @@ internal i32 Stream_EnqueueUnreliableInput(
     }
     ZEByteBuffer* b = &stream->inputBuffer;
     ZE_ASSERT(b->Space() >= cmd->size, "Unreliable stream is full");
-    b->cursor += COM_CopyMemory((u8*)cmd, b->cursor, cmd->size);
+    b->cursor += ZE_COPY((u8*)cmd, b->cursor, cmd->size);
     return cmd->size;
 } 
 
@@ -271,7 +271,7 @@ internal i32 Stream_EnqueueReliableInput(
     {
         //printf("CL Enqueuing CMD %d\n", cmd->sequence);
         ZE_ASSERT(b->Space() >= cmd->size, "Reliable stream is full");
-        b->cursor += COM_CopyMemory((u8*)cmd, b->cursor, cmd->size);
+        b->cursor += ZE_COPY((u8*)cmd, b->cursor, cmd->size);
         return cmd->size;
     }
     else
@@ -296,5 +296,5 @@ internal void Stream_EnqueueOutput(NetStream* stream, Command* cmd)
     ZEByteBuffer* b = &stream->outputBuffer;
     ZE_ASSERT(b->Space() >= cmd->size, "Not space for output Cmd");
     // TODO: Replace direct copy with customised encoding functions when protocol is ready for it
-    b->cursor += COM_CopyMemory((u8*)cmd, b->cursor, cmd->size);
+    b->cursor += ZE_COPY((u8*)cmd, b->cursor, cmd->size);
 }

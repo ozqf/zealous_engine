@@ -47,7 +47,7 @@ internal i32 Cmd_Serialise(
                 return (write - bufStart);
             }
             #else
-            return COM_COPY_STRUCT(h, bufStart, S2C_EntitySync);
+            return ZE_COPY_STRUCT(h, bufStart, S2C_EntitySync);
             #endif
         } break;
         case CMD_TYPE_S2C_BULK_SPAWN:
@@ -104,14 +104,14 @@ internal i32 Cmd_Serialise(
             //printf("Serialised %d of bulk spawn data\n", write - bufStart);
            return (write - bufStart);
            #else
-           return COM_COPY_STRUCT(h, write, S2C_BulkSpawn);
+           return ZE_COPY_STRUCT(h, write, S2C_BulkSpawn);
            #endif
         } break;
 
         case CMD_TYPE_IMPULSE:
-        return COM_COPY_STRUCT(h, write, CmdImpulse);
+        return ZE_COPY_STRUCT(h, write, CmdImpulse);
         // Just dumb copy the bytes
         default:
-        return COM_COPY(h, write, h->size);
+        return ZE_COPY(h, write, h->size);
     }
 }

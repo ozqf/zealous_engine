@@ -136,7 +136,7 @@ struct FakeSocket
         
         handles[i] = h;
         u8* ptr = (u8*)h + sizeof(FakeSocketPacketHeader);
-        COM_COPY(data, ptr, numBytes);
+        ZE_COPY(data, ptr, numBytes);
         //printf("Fake Socket storing %d bytes. Packet delay: %.2f\n", h->size, h->tick);
     }
 

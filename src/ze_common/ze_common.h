@@ -127,7 +127,7 @@ inline u32 ZE_Copy(void* dest, void* source, u32 numBytes)
 #if 1
     #ifndef ZE_COPY
         #define ZE_COPY(ptrSource, ptrDestination, numBytes) \
-        ZE_Copy(##ptrDestination##, ptrSource##, numBytes##);
+        ZE_Copy((void*)##ptrDestination##, (void*)##ptrSource##, numBytes##);
     #endif
 #endif
 
@@ -141,7 +141,7 @@ inline u32 ZE_Copy(void* dest, void* source, u32 numBytes)
 // copy but automatically do a size of
 #ifndef ZE_COPY_STRUCT
     #define ZE_COPY_STRUCT(ptrSource, ptrDestination, structType) \
-    ZE_Copy(##ptrDestination##, ptrSource##, sizeof(##structType##));
+    ZE_Copy((void*)##ptrDestination##, (void*)##ptrSource##, sizeof(##structType##));
 #endif
 
 #ifndef ZE_SET_ZERO

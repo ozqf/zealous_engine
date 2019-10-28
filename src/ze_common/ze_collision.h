@@ -67,8 +67,8 @@ internal u8 LineSegmentVsAABB_2D(
     //f32 vz = lineEndZ - lineOriginZ;
 
     // avoid divide by zero
-    f32 dirFracX = (vx != 0) ? (1.0f / vx) : (ZINFINITY());
-    f32 dirFracY = (vy != 0) ? (1.0f / vy) : (ZINFINITY());
+    f32 dirFracX = (vx != 0) ? (1.0f / vx) : (Z_INFINITY);
+    f32 dirFracY = (vy != 0) ? (1.0f / vy) : (Z_INFINITY);
     //f32 dirFracZ = (vz != 0) ? (1.0f / vz) : (INFINITE);
     
     f32 t1 = (boxMinX - lineOriginX) * dirFracX;
@@ -118,9 +118,9 @@ internal u8 LineSegmentVsAABB(
     f32 vz = lineEndZ - lineOriginZ;
 
     // avoid divide by zero
-    f32 dirFracX = (vx != 0) ? (1.0f / vx) : (ZINFINITY());
-    f32 dirFracY = (vy != 0) ? (1.0f / vy) : (ZINFINITY());
-    f32 dirFracZ = (vz != 0) ? (1.0f / vz) : (ZINFINITY());
+    f32 dirFracX = (vx != 0) ? (1.0f / vx) : (Z_INFINITY);
+    f32 dirFracY = (vy != 0) ? (1.0f / vy) : (Z_INFINITY);
+    f32 dirFracZ = (vz != 0) ? (1.0f / vz) : (Z_INFINITY);
     //f32 dirFracZ = (vz != 0) ? (1.0f / vz) : (INFINITE);
     
     f32 t1 = (boxMinX - lineOriginX) * dirFracX;

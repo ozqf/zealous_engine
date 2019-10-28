@@ -6,7 +6,7 @@
 
 #define BUF_COPY(ptrToByteBuffer, ptrToByteArray, numOfBytesInArray) \
 {##ptrToByteBuffer##->cursor += \
-    COM_COPY((u8*)##ptrToByteArray##, ##ptrToByteBuffer##->cursor##, numOfBytesInArray##);}
+    ZE_COPY((u8*)##ptrToByteArray##, ##ptrToByteBuffer##->cursor##, numOfBytesInArray##);}
 
 struct ZEByteBuffer
 {

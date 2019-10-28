@@ -72,7 +72,7 @@ internal i32 Cmd_IsSequenceDiffOkay(i32 diff)
     ErrorCode err = Cmd_Validate(cmd);
     ZE_ASSERT(!err, "Command failed validation")
     ZE_ASSERT(b->Space() >= cmd->size, "No space for command")
-    b->cursor += COM_COPY(cmd, b->cursor, cmd->size);
+    b->cursor += ZE_COPY(cmd, b->cursor, cmd->size);
 }*/
 
 internal void Cmd_Prepare(Command* cmd, i32 tick)

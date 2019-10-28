@@ -257,14 +257,27 @@ internal f32 COM_CapAngleDegrees(f32 angle);
 /////////////////////////////////////////////////////////////////////////////
 // VECTOR 3 OPERATIONS
 /////////////////////////////////////////////////////////////////////////////
-f32 Vec3_Magnitude(Vec3* v);
-void Vec3_Normalise(Vec3* v);
-void Vec3_SetMagnitude(Vec3* v, f32 newMagnitude);
+
+f32 Vec3_Magnitude(Vec3* v)
+{
+    return (f32)sqrt((f32)(v->x * v->x) + (v->y * v->y) + (v->z * v->z));
+}
 
 internal f32 Vec3_Magnitudef(f32 x, f32 y, f32 z)
 {
 	return (f32)sqrt((f32)(x * x) + (y * y) + (z * z));
 }
+
+internal void Vec3_Normalise(Vec3* v)
+{
+    f32 vectorMagnitude = Vec3_Magnitude(v);
+    if (vectorMagnitude == 0) { return; }
+    v->x /= vectorMagnitude;
+    v->y /= vectorMagnitude;
+    v->z /= vectorMagnitude;
+}
+
+void Vec3_SetMagnitude(Vec3* v, f32 newMagnitude);
 
 internal f32 Vec3_Distance(Vec3 a, Vec3 b)
 {

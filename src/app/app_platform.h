@@ -281,7 +281,7 @@ internal void App_Input(PlatformTime* time, ZEByteBuffer commands)
                 SysInputEvent* ev = (SysInputEvent*)header;
                 //printf("APP input Event: %d value %d\n", ev->inputID, ev->value);
                 ZEByteBuffer* b = g_clientLoopback.GetWrite();
-                b->cursor += COM_COPY(header, b->cursor, header->size);
+                b->cursor += ZE_COPY(header, b->cursor, header->size);
             } break;
             case SYS_EVENT_PACKET:
             {

@@ -219,7 +219,7 @@ internal void SVU_ClearStaleOutput(User* user, SimScene* sim, ZEByteBuffer* outp
 
         i32 spaceRequired = sizeof(S2C_RemoveEntityGroup);
         Stream_DeleteCommand(output, cmd, spaceRequired);
-        COM_COPY(&grp, cmd, spaceRequired);
+        ZE_COPY(&grp, cmd, spaceRequired);
 		read = (u8*)cmd + spaceRequired;
         end = output->start + output->Written();
         
