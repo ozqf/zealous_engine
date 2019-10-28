@@ -27,6 +27,11 @@
 
 #define SIM_ENT_NULL_SERIAL 0
 
+// Render prefabs
+#define SIM_PREFAB_NONE 0
+#define SIM_PREFAB_CUBE 1
+#define SIM_PREFAB_SPIKE 1
+
 // Spawn functions
 typedef u8 simFactoryType;
 

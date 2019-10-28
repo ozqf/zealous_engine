@@ -33,10 +33,10 @@ internal void Sim_SetEntityDisplay(
     SimEntity* ent,
     Colour colourA,
     Colour colourB,
-    i32 meshIndex,
+    i32 prefabIndex,
     u8 deathType)
 {
-    ent->display.meshIndex = meshIndex;
+    ent->display.prefabIndex = prefabIndex;
     ent->deathType = deathType;
     ent->display.colourA = colourA;
     ent->display.colourB = colourB;

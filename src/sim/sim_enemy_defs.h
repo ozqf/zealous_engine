@@ -18,7 +18,7 @@ internal i32 Sim_InitWanderer(
     Sim_SetEntityDisplay(ent,
         { 1, 0, 1, 1 },
         { 1, 0, 1, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_EXPLOSION);
     ent->flags = SIM_ENT_FLAG_SHOOTABLE
         | SIM_ENT_FLAG_POSITION_SYNC
@@ -39,7 +39,7 @@ internal i32 Sim_InitRubble(
     Sim_SetEntityDisplay(ent,
         { 0.7f, 0.7f, 1, 1 },
         { 0.7f, 0.7f, 1, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_EXPLOSION);
     ent->flags = SIM_ENT_FLAG_SHOOTABLE
         | SIM_ENT_FLAG_POSITION_SYNC
@@ -64,7 +64,7 @@ internal i32 Sim_InitBouncer(
     Sim_SetEntityDisplay(ent,
         { 0.5f, 0.5f, 0.7f, 1 },
         { 0.5f, 0.5f, 0.7f, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_EXPLOSION);
     ent->flags = SIM_ENT_FLAG_SHOOTABLE
         | SIM_ENT_FLAG_POSITION_SYNC
@@ -85,7 +85,7 @@ internal i32 Sim_InitDart(
     Sim_SetEntityDisplay(ent,
         { 1, 0.7f, 0.3f, 1 },
         { 1, 0.7f, 0.3f, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_EXPLOSION);
     ent->flags = SIM_ENT_FLAG_SHOOTABLE
         | SIM_ENT_FLAG_POSITION_SYNC
@@ -112,7 +112,7 @@ internal i32 Sim_InitSeeker(
     Sim_SetEntityDisplay(ent,
         { 0, 0.7f, 0.7f, 1 },
         { 0, 0.7f, 0.7f, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_EXPLOSION);
     ent->flags =
           SIM_ENT_FLAG_SHOOTABLE
@@ -142,7 +142,7 @@ internal i32 Sim_InitGrunt(
     Sim_SetEntityDisplay(ent,
         { 1, 0.2f, 0.2f, 1 },
         { 1, 0.2f, 0.2f, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_EXPLOSION);
     return ZE_ERROR_NONE;
 }
@@ -162,7 +162,7 @@ internal i32 Sim_InitBrute(
     Sim_SetEntityDisplay(ent,
         { 1, 0.2f, 0.2f, 1 },
         { 1, 0.2f, 0.2f, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_EXPLOSION);
     return ZE_ERROR_NONE;
 }

@@ -240,7 +240,13 @@ internal f32 COM_STDRandf32();
 internal f32 COM_STDRandomInRange(f32 min, f32 max);
 internal void COM_ClampF32(f32* val, f32 min, f32 max);
 internal void COM_ClampI32(i32* val, i32 min, i32 max);
-internal f32 COM_LerpF32(f32 start, f32 end, f32 lerp);
+
+internal f32 COM_LerpF32(f32 start, f32 end, f32 lerp)
+{
+    //return start + lerp * (end - start);
+    return start + ((end - start) * lerp);
+}
+
 internal float COM_LinearEase(
     f32 currentIteration,
     f32 startValue,

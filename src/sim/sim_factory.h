@@ -110,7 +110,7 @@ internal i32 Sim_InitActor(
     Sim_SetEntityDisplay(ent,
         { 0, 1, 0, 1 },
         { 0, 1, 0, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_EXPLOSION);
     //ent->flags = SIM_ENT_FLAG_POSITION_SYNC;
     return ZE_ERROR_NONE;
@@ -126,7 +126,7 @@ internal i32 Sim_InitBot(
     Sim_SetEntityDisplay(ent,
         { 0, 0.6f, 0, 1 },
         { 0, 0.6f, 0, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_EXPLOSION);
     //ent->flags = SIM_ENT_FLAG_POSITION_SYNC;
     return ZE_ERROR_NONE;
@@ -145,7 +145,7 @@ internal i32 Sim_InitWorldVolume(
     Sim_SetEntityDisplay(ent,
         { 0.2f, 0.2f, 0.2f, 1 },
         { 0.2f, 0.2f, 0.2f, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_NONE);
     #ifdef SIM_USE_PHYSICS_ENGINE
     ent->shape.SetAsBox(def->pos, def->scale, ZCOLLIDER_FLAG_STATIC, SIM_LAYER_WORLD, SIM_LAYER_WORLD, 0);
@@ -194,7 +194,7 @@ internal i32 Sim_InitExplosion(
     Sim_SetEntityDisplay(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        COM_MESH_CUBE_INDEX,
+        SIM_PREFAB_CUBE,
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 2, 1, 2 };
@@ -216,7 +216,7 @@ internal i32 Sim_InitProjBase(
     Sim_SetEntityDisplay(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        COM_MESH_SPIKE_INDEX,
+        SIM_PREFAB_SPIKE,
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
@@ -243,7 +243,7 @@ internal i32 Sim_InitProjPrediction(
     Sim_SetEntityDisplay(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        COM_MESH_SPIKE_INDEX,
+        SIM_PREFAB_SPIKE,
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
@@ -270,7 +270,7 @@ internal i32 Sim_InitProjTest(
     Sim_SetEntityDisplay(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        COM_MESH_SPIKE_INDEX,
+        SIM_PREFAB_SPIKE,
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
