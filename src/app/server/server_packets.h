@@ -350,7 +350,7 @@ internal void SVP_ReadPacket(
 	ZEByteBuffer b = {};
     b.start = data + p.unreliableOffset;
     b.cursor = b.start + p.numUnreliableBytes;
-    b.ptrEnd = b.cursor;
+    b.capacity = p.numUnreliableBytes;
     
     SVP_ReadUnreliableSection(user, &b, quantise);
 }

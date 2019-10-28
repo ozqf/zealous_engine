@@ -20,7 +20,8 @@ struct FakeSocketInfo
 
     i32 RollDelay()
     {
-        f32 num = COM_Randf32(this->randomIndex++);
+        //f32 num = ZE_Randf32(this->randomIndex++);
+        f32 num = COM_STDRandf32();
         return (i32)((f32)(maxMS - minMS) * num) + minMS;
     }
 };
@@ -64,7 +65,7 @@ struct FakeSocket
     void Init(i32 minLagMS, i32 maxLagMS, f32 normalisedPacketLossChance)
     {
         delayRecalcTime = 0;
-        COM_ZeroMemory((u8*)this, sizeof(FakeSocket));
+        ZE_SET_ZERO((u8*)this, sizeof(FakeSocket));
         SetLagStats(minLagMS, maxLagMS, normalisedPacketLossChance);
     }
 

@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include "../../ze_common/ze_common_full.h"
 #include "client.h"
-#include "../../interface/sys_events.h"
-#include "../../interface/renderer_interface.h"
+#include "../../sys_events.h"
 #include "../../sim/sim.h"
 #include "client_input.h"
 
@@ -64,8 +63,8 @@ internal InputActionSet g_inputActions = {
 // Buffer transmitted inputs
 internal C2S_Input g_sentCommands[CL_MAX_SENT_INPUT_COMMANDS];
 
-#define CL_MAX_RENDER_COMMANDS 1024
-internal RenderCommand* g_renderCommands;
+//#define CL_MAX_RENDER_COMMANDS 1024
+//internal RenderCommand* g_renderCommands;
 
 internal SimActorInput g_actorInput = {};
 
@@ -232,12 +231,14 @@ void CL_Init(ZNetAddress serverAddress)
         Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize)
     );
 
+    /*
     i32 numRenderCommandBytes = sizeof(RenderCommand) *
 		CL_MAX_RENDER_COMMANDS;
     u8* bytes = (u8*)CL_Malloc(numRenderCommandBytes);
-    COM_SET_ZERO(bytes, numRenderCommandBytes);
+    ZE_SET_ZERO(bytes, numRenderCommandBytes);
 
     g_renderCommands = (RenderCommand*)bytes;
+    */
 
     CL_InitInputs(&g_inputActions);
 
@@ -501,7 +502,7 @@ internal void CL_RunUnreliableCommands(
 		if (err != ZE_ERROR_NONE)
 		{
 			APP_PRINT(128, "CL Run unreliable - invalid cmd code %d\n", err);
-			Buf_Clear(b);
+            b->Clear(NO);
 			return;
 		}
         

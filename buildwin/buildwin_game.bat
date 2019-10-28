@@ -21,7 +21,8 @@ del *.* /q
 set in1=
 
 @rem -- Main App input --
-set in2=../src/app/app_module.cpp ../src/app/app_textures.cpp
+@rem set in2=../src/app/app_module.cpp ../src/app/app_textures.cpp
+set in2=../src/app/app_module.cpp
 @rem set in3=../src/sim/sim_module.cpp ../src/network/znet_module.cpp
 set in3=../src/sim/sim_module.cpp
 set in4=../src/app/server/server.cpp ../src/app/client/client.cpp

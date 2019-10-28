@@ -67,4 +67,26 @@ internal ZEByteBuffer Buf_FromMalloc(void* ptr, i32 size)
     return b;
 }
 
+struct ZEDoubleByteBuffer
+{
+    i32 swapped;
+    ZEByteBuffer a;
+    ZEByteBuffer b;
+
+    ZEByteBuffer* GetRead()
+    {
+        return this->swapped ? &this->b : &this->a;
+    }
+
+    ZEByteBuffer* GetWrite()
+    {
+        return this->swapped ? &this->a : &this->b;
+    }
+
+    void Swap()
+    {
+        swapped = !swapped;
+    }
+};
+
 #endif // ZE_BYTE_BUFFER_H

@@ -89,4 +89,22 @@ internal void  Transform_SetScaleSafe(Transform* t, Vec3 scale)
     }
 }
 
+/////////////////////////////////////////////////////////////////////
+// Rotation
+/////////////////////////////////////////////////////////////////////
+internal void Transform_SetRotationDegrees(Transform* t, f32 degreesX, f32 degreesY, f32 degreesZ)
+{
+    M3x3_RotateZ(t->rotation.cells, degreesZ * DEG2RAD);
+    M3x3_RotateY(t->rotation.cells, degreesY * DEG2RAD);
+	M3x3_RotateX(t->rotation.cells, degreesX * DEG2RAD);
+}
+
+internal void Transform_SetRotation(Transform* t, f32 radiansX, f32 radiansY, f32 radiansZ)
+{
+    M3x3_RotateZ(t->rotation.cells, radiansZ);
+    M3x3_RotateY(t->rotation.cells, radiansY);
+	M3x3_RotateX(t->rotation.cells, radiansX);
+}
+
+
 #endif // ZE_TRANSFORM_H

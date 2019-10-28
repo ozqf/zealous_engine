@@ -8,7 +8,10 @@
 #include "ze_net_types.h"
 #include "ze_buf_block.h"
 #include "ze_byte_buffer.h"
+#include "ze_char_buffer.h"
 #include "ze_transform.h"
 #include "ze_input.h"
+#include "ze_alloc.h"
+#include "ze_random_table.h"
 
 #endif // ZE_COMMON_FULL_H

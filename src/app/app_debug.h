@@ -2,6 +2,7 @@
 
 #include "app_internal.h"
 
+#if 0
 internal void App_DebugInit()
 {
     RScene_Init(
@@ -13,6 +14,7 @@ internal void App_DebugInit()
 
 internal void App_SetStringRenderObj(RendObj* obj, CharBuffer* str)
 {
+    
     //"textures\\charset_128x128.bmp"
     RendObj_SetAsAsciCharArray(
         obj,
@@ -104,4 +106,6 @@ internal void App_WriteDebugStrings()
         r->transform = t;
         App_SetStringRenderObj(&r->obj, &sub);
     }
+    
 }
+#endif

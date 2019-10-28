@@ -1,14 +1,13 @@
 #pragma once
 
 
-#include "../interface/app_interface.h"
-#include "../interface/platform_interface.h"
+#include "../app_interface.h"
+#include "../platform_interface.h"
 
 #include "app.h"
 #include "server/server.h"
 #include "client/client.h"
-#include "app_textures.h"
-#include "../network/znet_interface.h"
+//#include "../network/znet_interface.h"
 #include "app_fake_socket.h"
 
 #define APP_SESSION_TYPE_NONE 0
@@ -29,15 +28,12 @@ internal u32 g_renderCalls = 0;
 /////////////////////////////////////////////////////////////////
 // MEMORY
 
-// TODO: Remove this
-internal Heap g_heap;
-
 internal i32 g_isRunningClient = 0;
 internal i32 g_isRunningServer = 0;
 
 // Client/Server input buffers
-internal DoubleByteBuffer g_serverLoopback;
-internal DoubleByteBuffer g_clientLoopback;
+internal ZEDoubleByteBuffer g_serverLoopback;
+internal ZEDoubleByteBuffer g_clientLoopback;
 
 #define APP_MAX_MALLOCS 1024
 internal MallocItem g_mallocItems[APP_MAX_MALLOCS];
@@ -54,11 +50,11 @@ internal i32 g_fakeLagMaxMS = 200;
 internal f32 g_fakeLoss = 0.1f;
 
 internal FakeSocket g_loopbackSocket;
-
+/*
 #define MAX_WORLD_SCENE_ITEMS 2048
 internal RenderScene g_worldScene;
 internal RenderListItem g_worldSceneItems[MAX_WORLD_SCENE_ITEMS];
-
+*/
 internal ZNetAddress g_localServerAddress;
 
 /////////////////////////////////////////////////////////////////
@@ -72,12 +68,13 @@ internal AppPerformanceStat g_performanceStats[APP_STAT_COUNT];
 #define DEBUG_NUM_STRINGS 8
 internal char g_debugStrBuffer[DEBUG_STRING_LENGTH];
 internal CharBuffer g_debugStr;
+/*
 internal RendObj g_debugRendObjs[DEBUG_NUM_STRINGS];
 
 #define MAX_DEBUG_SCENE_ITEMS 64
 internal RenderScene g_debugScene;
 internal RenderListItem g_debugSceneItems[MAX_DEBUG_SCENE_ITEMS];
-
+*/
 #define APP_REND_FLAG_SERVER_SCENE (1 << 0)
 #define APP_REND_FLAG_SERVER_TESTS (1 << 1)
 #define APP_REND_FLAG_CLIENT_PREDICTIONS (1 << 2)

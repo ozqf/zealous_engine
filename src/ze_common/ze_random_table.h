@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ZE_RANDOM_TABLE_H
+#define ZE_RANDOM_TABLE_H
 
 #include "ze_common.h"
 
@@ -539,3 +540,26 @@ internal f32 ZE_Randf32(i32 index)
     return result;
 	#endif
 }
+
+// Wrap rand for now...
+internal i32 COM_STDRandI32()
+{
+    return rand();
+}
+
+internal u8 COM_STDRandU8()
+{
+    return rand() % UINT8_MAX;
+}
+
+internal f32 COM_STDRandf32()
+{
+    return (f32)rand() / (f32)RAND_MAX;
+}
+
+internal f32 COM_STDRandomInRange(f32 min, f32 max)
+{
+    return COM_STDRandf32() * (max - min) + min;
+}
+
+#endif // ZE_RANDOM_TABLE_H

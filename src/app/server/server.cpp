@@ -10,7 +10,7 @@
 #include "../stream.h"
 #include "../packet.h"
 #include "../packet.h"
-#include "../../interface/sys_events.h"
+#include "../../sys_events.h"
 #include "../../sim/sim.h"
 #include "server.h"
 #include "server_priority.h"
@@ -95,7 +95,7 @@ u8 SV_ParseCommandString(char* str, char** tokens, i32 numTokens)
 	}
     else if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "RATE"))
     {
-        i32 value = COM_AsciToInt32(tokens[1]);
+        i32 value = ZE_AsciToInt32(tokens[1]);
         printf("SV Set Sync rate %d\n", value);
         switch (value)
         {
@@ -273,7 +273,7 @@ internal void SV_ResetEntityPositionRecords()
         g_entityRecords = (SVEntityFrame*)COM_Malloc(
             &g_mallocs, bytesTotal, "Entity Frames");
     }
-    COM_ZeroMemory((u8*)g_entityRecords, bytesTotal);
+    ZE_SET_ZERO((u8*)g_entityRecords, bytesTotal);
 }
 
 void SV_Init()
@@ -447,7 +447,7 @@ void SV_Tick(ZEByteBuffer* sysEvents, f32 deltaTime)
 	g_elapsed += deltaTime;
     SV_SendUserPackets(&g_sim, deltaTime);
 }
-
+/*
 void SV_PopulateRenderScene(
     RenderScene* scene,
     i32 maxObjects,
@@ -496,5 +496,5 @@ void SV_PopulateRenderScene(
         }
     }
 }
-
+*/
 #endif // SERVER_CPP

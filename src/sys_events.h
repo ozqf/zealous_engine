@@ -1,9 +1,13 @@
-#pragma once
+#ifndef SYS_EVENTS_H
+#define SYS_EVENTS_H
+
 /*
 Defines event queue from platform resources
 (input, packets, OS messages etc) to App modules
 */
-#include "../common/common.h"
+#include "ze_common/ze_common.h"
+#include "ze_common/ze_net_types.h"
+#include "ze_common/ze_byte_buffer.h"
 
 #define SYS_EVENT_SENTINEL 0xDEADBEEF
 #define SYS_EVENT_NULL 0
@@ -48,18 +52,18 @@ static i32 Sys_ValidateEvent(SysEvent* ev)
 {
     if (ev == NULL || ev->type == SYS_EVENT_NULL || ev->size <= 0)
     {
-        return COM_ERROR_NULL_ARGUMENT;
+        return ZE_ERROR_NULL_ARGUMENT;
     }
-    return COM_ERROR_NONE;
+    return ZE_ERROR_NONE;
 }
 
-static void Sys_EnqueueEvent(ByteBuffer* buf, SysEvent* ev)
+static void Sys_EnqueueEvent(ZEByteBuffer* buf, SysEvent* ev)
 {
     ErrorCode err = Sys_ValidateEvent(ev);
-    COM_ASSERT(err == COM_ERROR_NONE, "Invalid SysEvent")
-    COM_ASSERT(buf->Space() >= ev->size, "No space for SysEvent")
+    ZE_ASSERT(err == ZE_ERROR_NONE, "Invalid SysEvent")
+    ZE_ASSERT(buf->Space() >= ev->size, "No space for SysEvent")
     //printf("SYS Enqueue ev %d size %d\n", ev->type, ev->size);
-    buf->ptrWrite += COM_COPY(ev, buf->ptrWrite, ev->size);
+    buf->cursor += ZE_COPY(ev, buf->cursor, ev->size);
 }
 
 
@@ -76,7 +80,7 @@ static void Sys_CreateInputEvent(SysInputEvent* ev, u32 inputID, i32 value)
     ev->value = value;
 }
 
-static void Sys_WriteInputEvent(ByteBuffer* b, u32 inputID, i32 value)
+static void Sys_WriteInputEvent(ZEByteBuffer* b, u32 inputID, i32 value)
 {
     SysInputEvent ev = {};
     Sys_CreateInputEvent(&ev, inputID, value);
@@ -87,7 +91,7 @@ static void Sys_WriteInputEvent(ByteBuffer* b, u32 inputID, i32 value)
 // Packet
 
 static void Sys_WritePacketEvent(
-	ByteBuffer* b, i32 socketIndex, ZNetAddress* addr, u8* data, i32 dataSize)
+	ZEByteBuffer* b, i32 socketIndex, ZNetAddress* addr, u8* data, i32 dataSize)
 {
     SysPacketEvent ev = {};
     i32 totalSize = sizeof(SysPacketEvent) + dataSize;
@@ -96,6 +100,8 @@ static void Sys_WritePacketEvent(
     ev.sender = *addr;
     //BUF_COPY(b, &ev, sizeof(SysPacketEvent))
     //BUF_COPY(b, data, dataSize)
-    b->ptrWrite += COM_COPY(&ev, b->ptrWrite, sizeof(SysPacketEvent));
-    b->ptrWrite += COM_COPY(data, b->ptrWrite, dataSize);
+    b->cursor += ZE_COPY(&ev, b->cursor, sizeof(SysPacketEvent));
+    b->cursor += ZE_COPY(data, b->cursor, dataSize);
 }
+
+#endif // SYS_EVENTS_H

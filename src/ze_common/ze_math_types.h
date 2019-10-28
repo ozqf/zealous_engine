@@ -665,4 +665,25 @@ void M4x4_Invert(f32* src);
 void M4x4_ClearPosition(f32* src);
 void M4x4_ClearRotation(f32* src);
 
+
+// TODO: Change to using modulo or something...
+internal f32 COM_CapAngleDegrees(f32 angle)
+{
+    u32 loopCount = 0;
+    while (angle > 360)
+    {
+        angle -= 360;
+        loopCount++;
+        ZE_ASSERT(loopCount < 99999, "Loop ran away");
+    }
+    loopCount = 0;
+    while (angle < 0)
+    {
+        angle += 360;
+        loopCount++;
+        ZE_ASSERT(loopCount < 99999, "Loop ran away");
+    }
+    return angle;
+}
+
 #endif // ZE_MATH_TYPES_H

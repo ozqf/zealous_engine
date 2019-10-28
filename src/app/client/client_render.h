@@ -1,5 +1,5 @@
 #pragma once
-
+#if 0
 #include "client.h"
 
 
@@ -333,3 +333,4 @@ void CL_GetRenderCommands(
     #endif
 }
 
+#endif

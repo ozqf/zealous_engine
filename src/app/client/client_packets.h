@@ -4,7 +4,7 @@ Read/Write packets for client
 */
 #include "../../ze_common/ze_common_full.h"
 #include "../packet.h"
-#include "../../interface/sys_events.h"
+#include "../../sys_events.h"
 
 internal void CL_LogCommandBuffer(ZEByteBuffer* b, char* label)
 {
@@ -187,7 +187,6 @@ internal i32 CL_ReadPacket(
     //printf("  Reliable bytes: %d\n", p.numReliableBytes);
     reliableSection.start = data + Packet_GetHeaderSize();
     reliableSection.cursor = reliableSection.start + p.numReliableBytes;
-    reliableSection.ptrEnd = reliableSection.cursor;
     reliableSection.capacity = p.numReliableBytes;
     CL_ReadPacketReliableInput(&reliableSection, reliableStream, quantise);
     //Cmd_PrintBuffer(reliableSection.start, reliableSection.Written());
@@ -198,7 +197,6 @@ internal i32 CL_ReadPacket(
     unreliableSection.cursor =
         unreliableSection.start +
         p.numUnreliableBytes;
-    unreliableSection.ptrEnd = unreliableSection.cursor;
     err = CL_ReadPacketUnreliableInput(
         &unreliableSection, unreliableStream, quantise);
     if (err)

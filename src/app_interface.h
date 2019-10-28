@@ -3,7 +3,7 @@
 // App data visible to platform
 //////////////////////////////////////////////////////////////////////
 #include <stdio.h>
-#include "../common/common.h"
+#include "ze_common/ze_common.h"
 #include "sys_events.h"
 #include "platform_interface.h"
 
@@ -18,9 +18,6 @@ struct AppInterface
     i32     (*AppInit)();
     i32     (*AppShutdown)();
     i32     (*AppRendererReloaded)();
-    void    (*AppInput)(PlatformTime* time, ByteBuffer commands);
-    void    (*AppUpdate)(PlatformTime* time);
-	void    (*AppRender)(PlatformTime* time, ScreenInfo info);
     u8      (*AppParseCommandString)(char* str, char** tokens, i32 numTokens);
 };
 

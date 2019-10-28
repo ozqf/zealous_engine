@@ -1,6 +1,8 @@
 #pragma once
 
 #include "commands.h"
+#include "../ze_common/ze_bitpack.h"
+#include "../ze_common/ze_memory_utils.h"
 
 // Returns bytes written
 internal i32 Cmd_Serialise(
@@ -79,7 +81,7 @@ internal i32 Cmd_Serialise(
 
             // forward/pos/radius/arc
             Vec3* forward = &cmd->def.base.forward;
-            i32 normal = COM_PackVec3NormalToI32(forward->parts);
+            i32 normal = ZE_PackVec3NormalToI32(forward->parts);
             //printf("Serialised forward %f, %f, %f to %d\n",
             //    forward->x, forward->y, forward->z, normal);
             write += COM_WriteI32(normal, write);

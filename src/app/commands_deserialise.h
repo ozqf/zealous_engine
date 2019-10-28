@@ -1,6 +1,8 @@
 #pragma once
 
 #include "commands.h"
+#include "../ze_common/ze_bitpack.h"
+#include "../ze_common/ze_memory_utils.h"
 
 // returns bytes read
 internal i32 Cmd_Deserialise(
@@ -84,7 +86,7 @@ internal i32 Cmd_Deserialise(
 
             // forward/pos/radius
             i32 packedNormal = COM_ReadI32(&read);
-            Vec3 forward = COM_UnpackVec3Normal(
+            Vec3 forward = ZE_UnpackVec3Normal(
                 packedNormal);
             //printf("Deserialised %d to forward %f, %f, %f\n",
             //    packedNormal, forward.x, forward.y, forward.z);

@@ -1,11 +1,12 @@
 #pragma once
 
 #include "../user.h"
-#include "../../common/com_defines.h"
+#include "../../ze_common/ze_common.h"
+#include "../../ze_common/ze_char_buffer.h"
 #include "../app.h"
 #include "../commands.h"
 #include "../stream.h"
-#include "../../interface/renderer_interface.h"
+//#include "../../renderer_interface.h"
 
 #define CL_MAX_SENT_INPUT_COMMANDS 60
 
@@ -17,6 +18,7 @@ void    CL_Tick(
 			ZEByteBuffer* sysEvents,
 			f32 deltaTime,
 			u32 platformFrame);
+/*
 void    CL_PopulateRenderScene(
 			Transform* cam,
 			RenderScene* scene,
@@ -28,6 +30,7 @@ void    CL_GetRenderCommands(
 			i32* numCommands,
 			i32 texIndex,
 			f32 interpolateTime);
+*/
 void    CL_SetLocalUser(UserIds ids);
 void    CL_WriteDebugString(CharBuffer* str);
 u8      CL_ParseCommandString(

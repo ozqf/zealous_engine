@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stdlib.h"
-#include "../interface/sys_events.h"
+#include "../sys_events.h"
 
 /***************************************
 * Public (app.h)
@@ -93,13 +93,14 @@ internal i32  App_Init()
     //App_Log("Test Log\n");
 	
     //App_Win32_AttachErrorHandlers();
-	COM_SetFatalError(App_Fatal);
+	ZE_SetFatalError(App_Fatal);
 
     // Memory
 
     // Acquiring an old 'heap object here. Various platform functions
     // still use it for loading assets so can't remove. Future allocations
     // should just use the basic malloc tracker until further notice
+    #if 0
     u32 heapMB = 64;
     u32 mainMemorySize = MegaBytes(heapMB);
     MemoryBlock mem = {};
@@ -135,7 +136,7 @@ internal i32  App_Init()
     Tex_LoadTextureList(textures);
 
     COM_InitEmbeddedAssets();
-
+    #endif
     // proc gen textures here
     //i32 texIndex = Tex_GetTextureIndexByName(sourceTextureName);
     //Texture2DHeader* h = &g_textureHandles.textureHeaders[texIndex];
