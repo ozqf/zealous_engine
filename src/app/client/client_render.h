@@ -120,16 +120,16 @@ void CL_PopulateRenderScene(
                 //printf("Percent %f\n", percent);
                 Colour c = 
 				{
-                    COM_LerpF32(ent->display.colourA.r, 0, percent),
-                    COM_LerpF32(ent->display.colourA.g, 0, percent),
-                    COM_LerpF32(ent->display.colourA.b, 0, percent),
+                    ZE_LerpF32(ent->display.colourA.r, 0, percent),
+                    ZE_LerpF32(ent->display.colourA.g, 0, percent),
+                    ZE_LerpF32(ent->display.colourA.b, 0, percent),
                     1
 				};
                 /*Colour c = 
 				{
-                    COM_LerpF32(1, ent->display.colour.r, percent),
-                    COM_LerpF32(1, ent->display.colour.g, percent),
-                    COM_LerpF32(1, ent->display.colour.b, percent),
+                    ZE_LerpF32(1, ent->display.colour.r, percent),
+                    ZE_LerpF32(1, ent->display.colour.g, percent),
+                    ZE_LerpF32(1, ent->display.colour.b, percent),
                     1
 				};*/
 				/*Colour c = 

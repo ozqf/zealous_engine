@@ -1,6 +1,12 @@
-#pragma once
+#ifndef APP_DEBUG_H
+#define APP_DEBUG_H
 
 #include "app_internal.h"
+
+internal void App_DebugInit()
+{
+
+}
 
 #if 0
 internal void App_DebugInit()
@@ -109,3 +115,5 @@ internal void App_WriteDebugStrings()
     
 }
 #endif
+
+#endif // APP_DEBUG_H

@@ -229,7 +229,7 @@ struct Transform
 };
 
 //internal i32 g_z_inf = 0x7F800000;
-f32 ZINFINITY();
+//f32 Z_INFINITY;
 
 //internal i32 g_z_nan = 0x7F800001;
 f32 ZNaN();
@@ -238,10 +238,20 @@ internal i32 COM_STDRandI32();
 internal u8 COM_STDRandU8();
 internal f32 COM_STDRandf32();
 internal f32 COM_STDRandomInRange(f32 min, f32 max);
-internal void COM_ClampF32(f32* val, f32 min, f32 max);
-internal void COM_ClampI32(i32* val, i32 min, i32 max);
 
-internal f32 COM_LerpF32(f32 start, f32 end, f32 lerp)
+internal void ZE_ClampF32(f32* val, f32 min, f32 max)
+{
+    if (*val < min) { *val = min; }
+    if (*val > max) { *val = max; }
+}
+
+internal void ZE_ClampI32(i32* val, i32 min, i32 max)
+{
+    if (*val < min) { *val = min; }
+    if (*val > max) { *val = max; }
+}
+
+internal f32 ZE_LerpF32(f32 start, f32 end, f32 lerp)
 {
     //return start + lerp * (end - start);
     return start + ((end - start) * lerp);
@@ -277,16 +287,31 @@ internal void Vec3_Normalise(Vec3* v)
     v->z /= vectorMagnitude;
 }
 
-void Vec3_SetMagnitude(Vec3* v, f32 newMagnitude);
+internal void Vec3_SetMagnitude(Vec3* v, f32 newMagnitude);
 
 internal f32 Vec3_Distance(Vec3 a, Vec3 b)
 {
     return Vec3_Magnitudef(b.x - a.x, b.y - a.y, b.z - a.z);
 }
 
-void Vec3_CrossProduct(Vec3* a, Vec3* b, Vec3* result);
-f32 Vec3_DotProduct(Vec3* a, Vec3* b);
-void Vec3_NormaliseOrForward(Vec3* v);
+internal void Vec3_CrossProduct(Vec3* a, Vec3* b, Vec3* result);
+internal f32 Vec3_DotProduct(Vec3* a, Vec3* b);
+
+internal void Vec3_NormaliseOrForward(Vec3* v)
+{
+    f32 mag = Vec3_Magnitude(v);
+    if (mag == 0)
+    {
+        v->x = 0;
+        v->y = 0;
+        v->z = 1;
+        return;
+    }
+    v->x = v->x /= mag;
+    v->y = v->y /= mag;
+    v->z = v->z /= mag;
+}
+
 
 internal Vec3 Vec3_MultiplyByM4x4(Vec3* v, f32* m)
 {
@@ -299,7 +324,21 @@ internal Vec3 Vec3_MultiplyByM4x4(Vec3* v, f32* m)
 	return r;
 }
 
-i32 Vec3_AreDifferent(Vec3* a, Vec3* b, f32 epsilon);
+
+// returns 1 if vectors are different
+internal i32 Vec3_AreDifferent(Vec3* a, Vec3* b, f32 epsilon)
+{
+    f32 diff;
+    diff = ZAbsf((b->x - a->x));
+    if (diff > epsilon) { return 1; }
+    diff = ZAbsf((b->y - a->y));
+    if (diff > epsilon) { return 1; }
+    diff = ZAbsf((b->z - a->z));
+    if (diff > epsilon) { return 1; }
+
+    return 0;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // VECTOR 3 OPERATIONS
@@ -410,16 +449,47 @@ inline void M3x3_RotateByAxis(f32* m, f32 radians, f32 x, f32 y, f32 z)
     M3x3_BuildRotateByAxis(temp, radians, x, y, z);
     M3x3_Multiply(m, temp, m);
 }
-void M3x3_SetX(f32* m, f32 x0, f32 x1, f32 x2);
-void M3x3_SetY(f32* m, f32 y0, f32 y1, f32 y2);
-void M3x3_SetZ(f32* m, f32 z0, f32 z1, f32 z2);
-void M3x3_Copy(f32* src, f32* tar);
-void M3x3_RotateX(f32* m, f32 radiansX);
-void M3x3_RotateY(f32* m, f32 radiansY);
-void M3x3_RotateZ(f32* m, f32 radiansZ);
-f32 M3x3_GetAngleX(f32* m);
-f32 M3x3_GetAngleY(f32* m);
-f32 M3x3_GetAngleZ(f32* m);
+internal void M3x3_SetX(f32* m, f32 x0, f32 x1, f32 x2);
+internal void M3x3_SetY(f32* m, f32 y0, f32 y1, f32 y2);
+internal void M3x3_SetZ(f32* m, f32 z0, f32 z1, f32 z2);
+internal void M3x3_Copy(f32* src, f32* tar);
+
+internal void M3x3_RotateX(f32* m, f32 radiansX)
+{
+	M3x3 rotM = {};
+    rotM.xAxisX = 1;
+    rotM.yAxisY = (f32)cos(radiansX);
+    rotM.yAxisZ = (f32)sin(radiansX);
+    rotM.zAxisY = (f32)-sin(radiansX);
+    rotM.zAxisZ = (f32)cos(radiansX);
+    M3x3_Multiply(m, rotM.cells, m);
+}
+
+internal void M3x3_RotateY(f32* m, f32 radiansY)
+{
+	M3x3 rotM = {};
+    rotM.yAxisY = 1;
+    rotM.xAxisX = (f32)cos(radiansY);
+    rotM.xAxisZ = (f32)-sin(radiansY);
+    rotM.zAxisX = (f32)sin(radiansY);
+    rotM.zAxisZ = (f32)cos(radiansY);
+    M3x3_Multiply(m, rotM.cells, m);
+}
+
+internal void M3x3_RotateZ(f32* m, f32 radiansZ)
+{
+	M3x3 rotM = {};
+    rotM.zAxisZ = 1;
+    rotM.xAxisX = (f32)cos(radiansZ);
+    rotM.xAxisY = (f32)sin(radiansZ);
+    rotM.yAxisX = (f32)-sin(radiansZ);
+    rotM.yAxisY = (f32)cos(radiansZ);
+    M3x3_Multiply(m, rotM.cells, m);
+}
+
+internal f32 M3x3_GetAngleX(f32* m);
+internal f32 M3x3_GetAngleY(f32* m);
+internal f32 M3x3_GetAngleZ(f32* m);
 
 internal Vec3 M3x3_GetEulerAnglesRadians(f32* m)
 {
@@ -434,10 +504,9 @@ internal Vec3 M3x3_GetEulerAnglesRadians(f32* m)
     return result;
 }
 
-Vec3 M3x3_GetEulerAnglesDegrees(f32* m);
-void M3x3_SetEulerAnglesByRadians(f32* m, f32 roll, f32 pitch, f32 yaw);
-
-void M3x3_CopyFromM4x4(f32* m3x3, f32* m4x4);
+internal Vec3 M3x3_GetEulerAnglesDegrees(f32* m);
+internal void M3x3_SetEulerAnglesByRadians(f32* m, f32 roll, f32 pitch, f32 yaw);
+internal void M3x3_CopyFromM4x4(f32* m3x3, f32* m4x4);
 
 /////////////////////////////////////////////////////////////////////////////
 // M4x4 OPERATIONS

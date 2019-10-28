@@ -11,7 +11,7 @@ internal void SVP_CalculatePriorities(
     SimScene* sim, SimEntity* subject, PriorityLink* links, i32 numLinks)
 {
     Vec3 pos = subject->body.t.pos;
-    f32 closest = ZINFINITY(), furthest = 0;
+    f32 closest = Z_INFINITY, furthest = 0;
     // Scan over links, finding nearest and furthest
     // Do in reverse so links can be removed
     for (i32 i = numLinks - 1; i >= 0; --i)

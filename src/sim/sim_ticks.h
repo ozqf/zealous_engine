@@ -22,9 +22,9 @@ i32 Sim_TickSpawn(
         i32 progress = sim->tick - ent->timing.lastThink;
         
         f32 time = (f32)progress / (f32)totalWait;
-        ent->body.t.scale.x = COM_LerpF32(0.01f, 0.5f, time);
-        ent->body.t.scale.y = COM_LerpF32(50.0f, 1.0f, time);
-        ent->body.t.scale.z = COM_LerpF32(0.01f, 0.5f, time);
+        ent->body.t.scale.x = ZE_LerpF32(0.01f, 0.5f, time);
+        ent->body.t.scale.y = ZE_LerpF32(50.0f, 1.0f, time);
+        ent->body.t.scale.z = ZE_LerpF32(0.01f, 0.5f, time);
     }
     return ZE_ERROR_NONE;
 }

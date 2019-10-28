@@ -54,7 +54,7 @@ struct FakeSocket
     void SetLagStats(i32 minLagMS, i32 maxLagMS, f32 normalisedPacketLossChance)
     {
         if (minLagMS > maxLagMS) { minLagMS = maxLagMS; }
-        COM_ClampF32(&normalisedPacketLossChance, 0, 0.9f);
+        ZE_ClampF32(&normalisedPacketLossChance, 0, 0.9f);
         // Half the given round trip time to get the delay for
         // an individual packet
         info.minMS = minLagMS / 2;

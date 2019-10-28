@@ -107,25 +107,25 @@ inline f32 COM_DequantiseI2F_Slow(
  * Reference for bitwise operators because I keep forgetting
  * them
  */
-u8 ZE_IsFlagDifferent(u32 flagsA, u32 flagsB, u32 flag)
+internal u8 ZE_IsFlagDifferent(u32 flagsA, u32 flagsB, u32 flag)
 {
     return ((flagsA & flag) != (flagsB & flag));
 }
 
-void ZE_DisableBits(u32* flags, u32 mask)
+internal void ZE_DisableBits(u32* flags, u32 mask)
 {
     // bitwise AND and bitwise NOT to disable bit
     // expanded: flags = flags & ~mask
     *flags &= ~mask;
 }
 
-void ZE_ToggleBit(u32* bits, u32 mask)
+internal void ZE_ToggleBit(u32* bits, u32 mask)
 {
     *bits ^= mask;
 }
 
 // Used to generate the mask constants used above
-i32 ZE_CreateBitmask(i32 numBits)
+internal i32 ZE_CreateBitmask(i32 numBits)
 {
     i32 m = 0;
     i32 bit = 0;
@@ -143,7 +143,7 @@ i32 ZE_CreateBitmask(i32 numBits)
  * multiple by 500 to move each vector component into
  * the range 0 - 1000)
 */
-i32 ZE_PackVec3NormalToI32(f32 x, f32 y, f32 z)
+internal i32 ZE_PackVec3NormalToI32(f32 x, f32 y, f32 z)
 {
     i32 intX = (i32)((x + 1) * 500);
     i32 intY = (i32)((y + 1) * 500);
@@ -155,12 +155,12 @@ i32 ZE_PackVec3NormalToI32(f32 x, f32 y, f32 z)
     return r;
 }
 
-i32 ZE_PackVec3NormalToI32(f32* vector3)
+internal i32 ZE_PackVec3NormalToI32(f32* vector3)
 {
     return ZE_PackVec3NormalToI32(vector3[0], vector3[1], vector3[2]);
 }
 
-Vec3 ZE_UnpackVec3Normal(i32 source)
+internal Vec3 ZE_UnpackVec3Normal(i32 source)
 {
     Vec3 r = {};
     //i32 mask = COM_CreateBitmask(10);

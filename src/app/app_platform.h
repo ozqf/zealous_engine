@@ -140,7 +140,7 @@ internal i32  App_Init()
     // proc gen textures here
     //i32 texIndex = Tex_GetTextureIndexByName(sourceTextureName);
     //Texture2DHeader* h = &g_textureHandles.textureHeaders[texIndex];
-    Texture2DHeader* h = Tex_GetTextureByName(DEFAULT_CONSOLE_CHARSET_PATH);
+    //Texture2DHeader* h = Tex_GetTextureByName(DEFAULT_CONSOLE_CHARSET_PATH);
     //Tex_GenerateBW(h);
 
     ///////////////////////////////////////////////////////////////
@@ -172,14 +172,14 @@ internal i32  App_Init()
     
     g_localServerAddress = {};
     g_localServerAddress.port = APP_SERVER_LOOPBACK_PORT;
-
+    #if 0
     // Render Scenes - orient camera
     RScene_Init(&g_worldScene, g_worldSceneItems, MAX_WORLD_SCENE_ITEMS,
 		90, RENDER_PROJECTION_MODE_3D, 8);
     g_worldScene.cameraTransform.pos.z = 10;
     g_worldScene.cameraTransform.pos.y += 34;
     Transform_SetRotation(&g_worldScene.cameraTransform, -(80.0f    * DEG2RAD), 0, 0);
-
+    #endif
     // server and client areas currently acquiring their own memory
     App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER);
 
@@ -191,11 +191,12 @@ internal i32  App_Shutdown()
     APP_LOG(128, "App Shutdown\n");
     
     // Free memory, assuming a new APP might be loaded in it's place
+    /*
     MemoryBlock mem = {};
     mem.ptrMemory = g_heap.ptrMemory;
     mem.size = g_heap.size;
     g_platform.Free(&mem);
-	
+	*/
     //g_localClientSocket.Destroy();
     //g_localServerSocket.Destroy();
 
@@ -255,7 +256,7 @@ internal i32 App_StartSession(i32 sessionType)
 
 internal i32  App_RendererReloaded()
 {
-    Tex_RenderModuleReloaded();
+    //Tex_RenderModuleReloaded();
     return ZE_ERROR_NONE;
 }
 
@@ -310,13 +311,13 @@ internal void App_SimFrame(f32 interval)
     if (g_isRunningServer)
     {
         g_serverLoopback.Swap();
-	    Buf_Clear(g_serverLoopback.GetWrite());
+        g_serverLoopback.GetWrite()->Clear(NO);
         SV_Tick(g_serverLoopback.GetRead(), interval);
     }
     if (g_isRunningClient)
     {
         g_clientLoopback.Swap();
-        Buf_Clear(g_clientLoopback.GetWrite());
+        g_clientLoopback.GetWrite()->Clear(NO);
         CL_Tick(g_clientLoopback.GetRead(), interval, g_lastPlatformFrame);
     }
 }
@@ -367,7 +368,7 @@ internal void App_Render(PlatformTime* time, ScreenInfo info)
 	g_screenInfo = info;
     char* texName = "textures\\white_bordered.bmp";
     //char* texName = "textures\\W33_5.bmp";
-    i32 texIndex = Tex_GetTextureIndexByName(texName);
+    //i32 texIndex = Tex_GetTextureIndexByName(texName);
     f32 interval = App_GetSimFrameInterval();
     f32 interpolationTime = App_CalcInterpolationTime(
         g_simFrameAcculator, interval);
@@ -387,7 +388,7 @@ internal void App_Render(PlatformTime* time, ScreenInfo info)
 
     #endif
 
-    #if 1 // Old route
+    #if 0 // Old route
     
     // Have to remember to do this or things explode:
     g_worldScene.numObjects = 0;
@@ -432,9 +433,9 @@ internal u8 App_ParseCommandString(char* str, char** tokens, i32 numTokens)
     }
     if (numTokens == 4 && !ZE_CompareStrings(tokens[0], "LAG"))
     {
-        i32 minMS = COM_AsciToInt32(tokens[1]);
-        i32 maxMS = COM_AsciToInt32(tokens[2]);
-        f32 loss = (f32)COM_AsciToInt32(tokens[3]) / 100.0f;
+        i32 minMS = ZE_AsciToInt32(tokens[1]);
+        i32 maxMS = ZE_AsciToInt32(tokens[2]);
+        f32 loss = (f32)ZE_AsciToInt32(tokens[3]) / 100.0f;
         g_loopbackSocket.SetLagStats(minMS, maxMS, loss);
         return 1;
     }
@@ -461,10 +462,10 @@ AppInterface __declspec(dllexport) LinkToApp(AppPlatform platInterface)
     app.AppShutdown = App_Shutdown;
     app.AppRendererReloaded = App_RendererReloaded;
     //app.AppFixedUpdate = App_FixedFrame;
-    app.AppInput = App_Input;
-    app.AppUpdate = App_Update;
+    //app.AppInput = App_Input;
+    //app.AppUpdate = App_Update;
+    //app.AppRender = App_Render;
     app.AppParseCommandString = App_ParseCommandString;
-	app.AppRender = App_Render;
     return app;
 }
 
