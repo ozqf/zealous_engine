@@ -174,8 +174,9 @@ typedef int ErrorCode;
 #define ZE_ERROR_OPERATION_FAILED 15
 #define ZE_ERROR_FUNC_RAN_AWAY 16
 #define ZE_ERROR_OUT_OF_BOUNDS 17
+#define ZE_ERROR_LINK_UP_FAILED 18
 
-typedef void (*ZE_FatalErrorFunction)(const char* message, const char* heading);
+typedef void (*ZE_FatalErrorFunction)(const char* message);
 
 static ZE_FatalErrorFunction ze_fatalErrorFunc = NULL;
 
@@ -188,7 +189,7 @@ static void ZE_SetFatalError(ZE_FatalErrorFunction func)
 static void ZE_Fatal(char* msg)
 {
 	if (ze_fatalErrorFunc == NULL) { ILLEGAL_CODE_PATH; }
-	ze_fatalErrorFunc(msg, "Fatal error");
+	ze_fatalErrorFunc(msg);
 }
 
 

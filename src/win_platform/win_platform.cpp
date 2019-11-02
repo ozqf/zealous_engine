@@ -38,6 +38,8 @@ struct ze_windows_thread
     HANDLE handle;
 };
 
+static ze_platform_export Win_BuildExport();
+
 ////////////////////////////////////////////////////////
 // Globals
 ////////////////////////////////////////////////////////
@@ -46,6 +48,10 @@ static volatile i32 g_bExitAppThread = NO;
 
 static HMODULE g_windowDLL;
 static ze_window_export g_window;
+
+static HMODULE g_appDLL;
+static ze_app_export g_app;
+
 global_variable HWND consoleHandle;
 
 #define MAX_MUTEXES 2
@@ -60,17 +66,17 @@ static i64 g_clockBase;
 ////////////////////////////////////////////////////////
 // Error handling
 ////////////////////////////////////////////////////////
-static void Win_Error(char *msg, char *title)
+static void Win_Error(char *msg)
 {
-	printf("FATAL: %s: %s\n", title, msg);
-    MessageBox(0, msg, title, MB_OK | MB_ICONINFORMATION);
+	printf("FATAL: %s\n", msg);
+    MessageBox(0, msg, "Error", MB_OK | MB_ICONINFORMATION);
 	DebugBreak();
 }
 
-static void Win_Warning(char *msg, char *title)
+static void Win_Warning(char *msg)
 {
-	printf("FATAL: %s: %s\n", title, msg);
-    MessageBox(0, msg, title, MB_OK | MB_ICONINFORMATION);
+	printf("WARNING: %s\n", msg);
+    MessageBox(0, msg, "Warning", MB_OK | MB_ICONINFORMATION);
 }
 
 ////////////////////////////////////////////////////////
@@ -91,6 +97,71 @@ static void Win_InitMutexes()
 {
     g_mutexes[ZE_MUTEX_DRAW_QUEUE] = CreateMutexA(0, 0, "DrawQueue");
     g_mutexes[ZE_MUTEX_WINDOW_EVENTS] = CreateMutexA(0, 0, "WindowEventQueue");
+}
+
+////////////////////////////////////////////////////////
+// DLL Linking
+////////////////////////////////////////////////////////
+
+static ErrorCode LinkToGameDLL(char* directoryName, char* dllName)
+{
+    char str[128];
+    i32 strLen = sprintf_s(str, 128, "%s\\%s", directoryName, dllName);
+    printf("Loading App DLL \"%s\"\n", str);
+    g_appDLL = LoadLibraryA(str);
+    if (g_appDLL == NULL)
+    {
+        return ZE_ERROR_LINK_UP_FAILED;
+    }
+    Func_LinkToApp* linkPtr = (Func_LinkToApp*)GetProcAddress(g_appDLL, ZE_GAME_LINK_FUNC_NAME);
+    if (linkPtr == NULL)
+    {
+        return ZE_ERROR_LINK_UP_FAILED;
+    }
+    ze_platform_export kernel_export = Win_BuildExport();
+    g_app = {};
+
+    g_app = linkPtr(kernel_export);
+    if (g_app.sentinel != ZE_SENTINEL)
+    {
+        return ZE_ERROR_LINK_UP_FAILED;
+    }
+    ErrorCode err = g_app.Init();
+    if (err != ZE_ERROR_NONE)
+    {
+        return ZE_ERROR_LINK_UP_FAILED;
+    }
+    return ZE_ERROR_NONE;
+}
+
+static ErrorCode LinkToWindowDLL(char* dllName)
+{
+    printf("Loading window DLL \"%s\"\n", dllName);
+    g_windowDLL = LoadLibraryA(dllName);
+    if (g_windowDLL == NULL)
+    {
+        return 1;
+    }
+    Func_LinkToWindow* linkPtr = (Func_LinkToWindow*)GetProcAddress(g_windowDLL, ZE_WINDOW_LINK_FUNC_NAME);
+    if (linkPtr == NULL)
+    {
+        return 1;
+    }
+    ze_platform_export kernelExport = Win_BuildExport();
+    g_window = {};
+
+	g_window = linkPtr(kernelExport);
+    if (g_window.Init == NULL)
+    {
+        return 1;
+    }
+    ErrorCode err = g_window.Init();
+    if (err != ZE_ERROR_NONE)
+    {
+        return 1;
+    }
+
+    return ZE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////
@@ -163,6 +234,14 @@ static ze_platform_export Win_BuildExport()
 static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
 {
     printf("Start App Thread\n");
+    
+    ErrorCode err = LinkToGameDLL(ZE_DEFAULT_APP_DIR, ZE_DEFAULT_APP_DLL_NAME);
+    if (err != ZE_ERROR_NONE)
+    {
+        Win_Error("Error linking to App DLL");
+        return 1;
+    }
+
 	f64 startTime = PlatformImpl_QueryClock();
 	f64 time = startTime;
 	f64 lastTick = time;
@@ -195,45 +274,6 @@ static void MainLoop()
 	g_window.MainLoop();
 }
 
-static ErrorCode LinkToGameDLL()
-{
-    return ZE_ERROR_NONE;
-}
-
-static ErrorCode LinkToWindowDLL()
-{
-    printf("Loading window DLL \"%s\"\n", ZE_DEFAULT_WINDOW_DLL_NAME);
-    HMODULE dll = LoadLibraryA(ZE_DEFAULT_WINDOW_DLL_NAME);
-    if (dll == NULL)
-    {
-        Win_Warning("Failed to locate dll", "Warning");
-        return 1;
-    }
-    Func_LinkToWindow* linkPtr = (Func_LinkToWindow*)GetProcAddress(dll, ZE_WINDOW_LINK_FUNC_NAME);
-    if (linkPtr == NULL)
-    {
-        Win_Warning("Failed to find linking function", "Warning");
-        return 1;
-    }
-    ze_platform_export kernelExport = Win_BuildExport();
-    g_window = {};
-
-	g_window = linkPtr(kernelExport);
-    if (g_window.Init == NULL)
-    {
-        Win_Warning("Unexpected result from module link", "Warning");
-        return 1;
-    }
-    ErrorCode err = g_window.Init();
-    if (err != ZE_ERROR_NONE)
-    {
-        Win_Warning("Error initialising window", "Warning");
-        return 1;
-    }
-
-    return ZE_ERROR_NONE;
-}
-
 ////////////////////////////////////////////////////////
 // Entry point
 ////////////////////////////////////////////////////////
@@ -260,16 +300,10 @@ int CALLBACK WinMain(
     ErrorCode err;
 
     // Attach to window
-    err = LinkToWindowDLL();
+    err = LinkToWindowDLL(ZE_DEFAULT_WINDOW_DLL_NAME);
     if (err != ZE_ERROR_NONE)
     {
-        Win_Error("Error connecting to window DLL", "Error");
-        return 1;
-    }
-    err = LinkToGameDLL();
-    if (err != ZE_ERROR_NONE)
-    {
-        Win_Error("Error connecting to game DLL", "Error");
+        Win_Error("Error connecting to window DLL");
         return 1;
     }
     

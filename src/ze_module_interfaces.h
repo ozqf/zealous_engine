@@ -7,9 +7,11 @@
 struct ze_app_export
 {
     i32     isValid;
-    i32     (*AppInit)();
-    i32     (*AppShutdown)();
+    i32     (*Init)();
+    i32     (*Shutdown)();
+    i32     (*RendererReloaded)();
     i32     sentinel;
+    i32     (*ParseCommandString)(char* str, char** tokens, i32 numTokens);
 };
 
 // window module function pointers
@@ -23,8 +25,8 @@ struct ze_window_export
 // platform module function pointers
 struct ze_platform_export
 {
-    void (*Warning)(char* msg, char* title);
-    void (*Error)(char* msg, char* title);
+    void (*Warning)(char* msg);
+    void (*Error)(char* msg);
 
     double (*QueryClock)();
     void* (*Allocate)(i32 numBytes);

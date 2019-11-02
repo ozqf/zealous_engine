@@ -22,9 +22,9 @@ Zealous Engine Windows renderer
 #include "ze_window_globals.h"
 #include "ze_window_callbacks.h"
 
-static void ZR_Error(const char* msg, const char* heading)
+static void ZR_Error(const char* msg)
 {
-    g_platform.Error((char*)msg, (char*)heading);
+    g_platform.Error((char*)msg);
 }
 
 static i32 ZR_Init()

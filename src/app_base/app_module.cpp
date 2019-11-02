@@ -2,12 +2,10 @@
 #define APP_MODULE_CPP
 
 #include "../ze_common/ze_common.h"
-// export
-#include "../app_interface.h"
-// import
-#include "../platform_interface.h"
 
-static AppPlatform g_platform = {};
+#include "../ze_module_interfaces.h"
+
+static ze_platform_export g_platform = {};
 
 internal i32 AppImpl_Init()
 {
@@ -22,20 +20,22 @@ internal i32 AppImpl_RendererReloaded()
 {
     return ZE_ERROR_NONE;
 }
-internal u8 AppImpl_ParseCommandString(char* str, char** tokens, i32 numTokens)
+internal i32 AppImpl_ParseCommandString(char* str, char** tokens, i32 numTokens)
 {
     return NO;
 }
 
 extern "C"
-internal AppInterface ZE_LinkToApp(AppPlatform platform)
+ze_app_export __declspec(dllexport) ZE_LinkToGameModule(ze_platform_export platform)
 {
+    printf("APP linking to platform\n");
     g_platform = platform;
-    AppInterface appExport = {};
-    appExport.AppInit = AppImpl_Init;
-    appExport.AppParseCommandString = AppImpl_ParseCommandString;
-    appExport.AppRendererReloaded = AppImpl_RendererReloaded;
-    appExport.AppShutdown = AppImpl_Shutdown;
+    ze_app_export appExport = {};
+    appExport.Init = AppImpl_Init;
+    appExport.ParseCommandString = AppImpl_ParseCommandString;
+    appExport.RendererReloaded = AppImpl_RendererReloaded;
+    appExport.Shutdown = AppImpl_Shutdown;
+    appExport.sentinel = ZE_SENTINEL;
     return appExport;
 }
 
