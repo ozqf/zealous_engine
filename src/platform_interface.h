@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PLATFORM_INTERFACE_H
+#define PLATFORM_INTERFACE_H
 
 #include "ze_common/ze_common.h"
 #include "ze_common/ze_byte_buffer.h"
@@ -28,6 +29,7 @@ struct PlatformTime
     u32 frameNumber;
 };
 
+#if 0
 struct AppPlatform
 {
     // Oops
@@ -45,13 +47,13 @@ struct AppPlatform
     // Loading assets
     u32 (*MeasureFile)              (char* fileName);
     ErrorCode (*LoadFileIntoMemory) (char* fileName, u8* destination, u32 capacity);
-    /*
+    
     // Old Asset loading
     u8 (*LoadFileIntoHeap)          (Heap* heap, BlockRef* destRef, char* fileName, u8 assertOnFailure);
     //void (*LoadTexture)             (Heap* heap, BlockRef* destRef, char* path);
     Texture2DHeader* (*LoadTextureB) (Com_AllocateTexture callback, char* path);
     void (*BindTexture)             (void* rgbaPixels, u32 width, u32 height, u32 textureIndex);
-    */
+    
     // Need to know the base directory for writing files
     i32 (*GetBaseDirectoryName)     (char* buffer, i32 bufferSize);
 	
@@ -78,14 +80,17 @@ struct AppPlatform
     void (*LoadSound)               (u8* data, i32 numBytes);
 
     // Network
-    /*
+    
     i32  (*Init)                    ();
     i32  (*Shutdown)                ();
     i32  (*OpenSocket)              (u16 port, u16* portResult);
     i32  (*CloseSocket)             (i32 socketIndex);
     i32  (*Read)                    (i32 socketIndex, ZNetAddress* sender,  ZEByteBuffer* dataPtr);
     i32  (*SendTo)                  (i32 transmittingSocketIndex, ZNetAddress* address, u16 port, u8* data, i32 dataSize);
-    */
+    
 
     //void (*Net_RunLoopbackTest) ();
 };
+#endif
+
+#endif // PLATFORM_INTERFACE_H

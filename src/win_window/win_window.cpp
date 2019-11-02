@@ -14,7 +14,7 @@ Zealous Engine Windows renderer
 #include "../../lib/glad/glad.h"
 #include "../../lib/glfw3_vc2015/glfw3.h"
 
-#include "../win_platform2window.h"
+#include "../ze_module_interfaces.h"
 #include "../ze_common/ze_common.h"
 
 #include "../zqf_renderer.h"
@@ -106,7 +106,7 @@ static i32 ZR_MainLoop()
 }
 
 extern "C"
-ze_window_export __declspec(dllexport) ZE_LinkToWindowModule(ze_kernel_export platform)
+ze_window_export __declspec(dllexport) ZE_LinkToWindowModule(ze_platform_export platform)
 {
 	g_platform = platform;
 	ze_window_export result = {};

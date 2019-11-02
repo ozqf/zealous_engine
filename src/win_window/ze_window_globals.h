@@ -29,7 +29,7 @@ struct Win32_Thread
 };
 #endif
 
-static ze_kernel_export g_platform = {};
+static ze_platform_export g_platform = {};
 static ZRRenderer g_renderer = {};
 static volatile i32 g_bExit = NO;
 
