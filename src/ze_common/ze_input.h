@@ -95,7 +95,7 @@ struct InputAction
 {
     u32 keyCode;
     i32 value;
-    u32 lastFrame;
+    frameInt lastFrame;
     char label[16];
 };
 
@@ -140,7 +140,7 @@ internal i32 Input_GetActionValue(InputActionSet* actions, char* actionName)
     return Input_GetActionValue(actions->actions, actions->count, actionName);
 }
 
-internal u8 Input_CheckActionToggledOn(InputActionSet* actions, char* actionName, u32 frameNumber)
+internal u8 Input_CheckActionToggledOn(InputActionSet* actions, char* actionName, frameInt frameNumber)
 {
     InputAction* action = Input_FindAction(actions->actions, actions->count, actionName);
     ZE_ASSERT(action != NULL, actionName);
@@ -148,7 +148,7 @@ internal u8 Input_CheckActionToggledOn(InputActionSet* actions, char* actionName
     return (action->value != 0 && action->lastFrame == frameNumber);
 }
 
-internal u8 Input_CheckActionToggledOff(InputActionSet* actions, char* actionName, u32 frameNumber)
+internal u8 Input_CheckActionToggledOff(InputActionSet* actions, char* actionName, frameInt frameNumber)
 {
     InputAction* action = Input_FindAction(actions->actions, actions->count, actionName);
     ZE_ASSERT(action != NULL, actionName);
@@ -157,7 +157,7 @@ internal u8 Input_CheckActionToggledOff(InputActionSet* actions, char* actionNam
 }
 
 // Test an input event vs actions array. Return an input if it has changed, NULL if nothing changed
-internal InputAction* Input_TestForAction(InputActionSet* actions, i32 inputValue, u32 inputKeyCode, u32 frameNumber)
+internal InputAction* Input_TestForAction(InputActionSet* actions, i32 inputValue, u32 inputKeyCode, frameInt frameNumber)
 {
 	for (i32 i = 0; i < actions->count; ++i)
     {

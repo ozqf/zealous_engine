@@ -282,7 +282,7 @@ internal void CL_ReadReliableCommands(NetStream* stream)
 }
 #endif
 internal void CL_ReadSystemEvents(
-	ZEByteBuffer* sysEvents, f32 deltaTime, u32 platformFrame)
+	ZEByteBuffer* sysEvents, f32 deltaTime, frameInt platformFrame)
 {
     AppTimer timer(APP_STAT_CL_INPUT, g_sim.tick);
     //printf("CL Reading platform events (%d bytes)\n", sysEvents->Written());
@@ -560,7 +560,7 @@ internal void CL_CalcPings(f32 deltaTime)
 	g_jitter = (g_acks.delayMax - g_acks.delayMin);
 }
 
-void CL_Tick(ZEByteBuffer* sysEvents, f32 deltaTime, u32 platformFrame)
+void CL_Tick(ZEByteBuffer* sysEvents, f32 deltaTime, i64 platformFrame)
 {
     APP_LOG(64, "*** CL TICK %d (Server Sync Tick %d. T %.3f) ***\n",
         g_ticks, g_serverTick, g_elapsed);

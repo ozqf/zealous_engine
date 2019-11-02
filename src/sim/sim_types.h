@@ -262,7 +262,7 @@ struct SimScene
     i32 cmdSequence;
     i32 tick;
 	
-	i64 timeInAABBSearch;
+	timeFloat timeInAABBSearch;
 
     // for client. server has remote sequence anyway
     i32 highestAssignedSequence;

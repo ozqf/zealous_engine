@@ -1,8 +1,10 @@
 #pragma once
 
 
-#include "../app_interface.h"
-#include "../platform_interface.h"
+//#include "../app_interface.h"
+//#include "../platform_interface.h"
+#include "../sys_events.h"
+#include "../ze_module_interfaces.h"
 
 #include "app.h"
 #include "server/server.h"
@@ -14,14 +16,15 @@
 #define APP_SESSION_TYPE_SINGLE_PLAYER 1
 
 // Access to platform info
-internal AppPlatform g_platform = {};
+internal ze_platform_export g_platform = {};
+internal f64 g_lastTimeSample;
 internal ScreenInfo g_screenInfo;
 
 /////////////////////////////////////////////////////////////////
 // TIMING
 internal i32 g_simFrameRate = 60;
 internal f32 g_simFrameAcculator = 0;
-internal u32 g_lastPlatformFrame = 0;
+internal i64 g_lastPlatformFrame = 0;
 
 internal u32 g_renderCalls = 0;
 

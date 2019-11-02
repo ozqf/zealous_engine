@@ -9,11 +9,12 @@
 extern "C" void App_SendTo(i32 socketIndex, ZNetAddress* addr, u8* data, i32 dataSize);
 extern "C" void App_Log(char* msg);
 extern "C" void App_Print(char* msg);
-extern "C" void App_SetMouseMode(ZMouseMode mode);
-extern "C" void App_Error(char* msg, char* heading);
+extern "C" void AppImpl_SetMouseCaptured();
+extern "C" void AppImpl_SetMouseFree();
+extern "C" void App_Error(char* msg);
 extern "C" f32 App_GetSimFrameInterval();
 extern "C" i32 App_CalcTickInterval(f32 seconds);
-extern "C" i64 App_SampleClock();
+extern "C" f64 App_SampleClock();
 extern "C" ScreenInfo App_GetScreenInfo();
 
 extern "C"
@@ -45,7 +46,7 @@ struct AppPerformanceStat
 class AppTimer
 {
     public:
-    i64 start;
+    f64 start;
     i32 statIndex;
     i32 statTick;
 
@@ -57,7 +58,7 @@ class AppTimer
     }
     ~AppTimer()
     {
-        i64 end = App_SampleClock();
+        f64 end = App_SampleClock();
         f32 val = (f32)(end - start) / 1000.0f;
         App_SetPerformanceTime(statIndex, statTick, val);
     }

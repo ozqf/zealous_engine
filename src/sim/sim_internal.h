@@ -2,7 +2,7 @@
 
 // TODO: Remove: This include is purely due to requiring access to
 // APP_LOG and APP_PRINT!
-#include "../app/app.h"
+#include "../app_base/app.h"
 #include "sim.h"
 #include <math.h>
 

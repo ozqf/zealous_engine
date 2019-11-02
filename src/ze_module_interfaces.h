@@ -9,6 +9,7 @@ struct ze_app_export
     i32     isValid;
     i32     (*Init)();
     i32     (*Shutdown)();
+    i32     (*Tick)();
     i32     (*RendererReloaded)();
     i32     sentinel;
     i32     (*ParseCommandString)(char* str, char** tokens, i32 numTokens);
@@ -27,8 +28,10 @@ struct ze_platform_export
 {
     void (*Warning)(char* msg);
     void (*Error)(char* msg);
+    void (*Log)(char* msg);
+    void (*Print)(char* msg);
 
-    double (*QueryClock)();
+    f64 (*QueryClock)();
     void* (*Allocate)(i32 numBytes);
     void (*Free)(void* ptr);
 

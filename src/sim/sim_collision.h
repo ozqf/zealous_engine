@@ -18,7 +18,7 @@ inline i32 Sim_FindByAABB(
     )
 {
 	//AppTimer timer(APP_STAT_AABB_SEARCH, g_apptick++);
-	i64 start = App_SampleClock();
+	timeFloat start = App_SampleClock();
     i32 resultIndex = 0;
     i32 count = 0;
 	
@@ -73,7 +73,7 @@ inline i32 Sim_FindByAABB(
             }
         }
     }
-	i64 end = App_SampleClock();
+	timeFloat end = App_SampleClock();
 	sim->timeInAABBSearch += (end - start);
     return count;
 }

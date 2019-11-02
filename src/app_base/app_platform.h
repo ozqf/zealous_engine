@@ -2,6 +2,7 @@
 
 #include "stdlib.h"
 #include "../sys_events.h"
+#include "../ze_module_interfaces.h"
 
 /***************************************
 * Public (app.h)
@@ -19,15 +20,21 @@ void App_Print(char* msg)
 }
 
 extern "C"
-void App_SetMouseMode(ZMouseMode mode)
+void AppImpl_SetMouseCaptured()
 {
-	g_platform.SetMouseMode(mode);
+
 }
 
 extern "C"
-void App_Error(char* msg, char* heading)
+void AppImpl_SetMouseFree()
 {
-    g_platform.Error(msg, heading);
+
+}
+
+extern "C"
+void App_Error(char* msg)
+{
+    g_platform.Error(msg);
 }
 
 extern "C"
@@ -51,9 +58,9 @@ i32 App_CalcTickInterval(f32 seconds)
 }
 
 extern "C"
-i64 App_SampleClock()
+f64 App_SampleClock()
 {
-    return g_platform.SampleClock();
+    return g_platform.QueryClock();
 }
 
 extern "C"
@@ -77,9 +84,9 @@ internal f32 App_CalcInterpolationTime(f32 accumulator, f32 interval)
     return (accumulator / interval);
 }
 
-internal void App_Fatal(const char* msg, const char* heading)
+internal void App_Fatal(const char* msg)
 {
-	g_platform.Error((char*)msg, (char*)heading);
+	g_platform.Error((char*)msg);
 }
 
 /***************************************
@@ -87,7 +94,7 @@ internal void App_Fatal(const char* msg, const char* heading)
 ***************************************/
 internal i32  g_isValid = 0;
 
-internal i32  App_Init()
+internal i32  AppImpl_Init()
 {
     APP_LOG(128, "App initialising. Build data %s - %s\n", __DATE__, __TIME__);
     //App_Log("Test Log\n");
@@ -186,7 +193,7 @@ internal i32  App_Init()
     return ZE_ERROR_NONE;
 }
 
-internal i32  App_Shutdown()
+internal i32  AppImpl_Shutdown()
 {
     APP_LOG(128, "App Shutdown\n");
     
@@ -254,15 +261,13 @@ internal i32 App_StartSession(i32 sessionType)
     
 }
 
-internal i32  App_RendererReloaded()
-{
-    //Tex_RenderModuleReloaded();
-    return ZE_ERROR_NONE;
-}
+//////////////////////////////////////////////////////////////
+// Exported to platform
+//////////////////////////////////////////////////////////////
 
-internal void App_Input(PlatformTime* time, ZEByteBuffer commands)
+internal void App_Input(i64 frameNumber, ZEByteBuffer commands)
 {
-    g_lastPlatformFrame = time->frameNumber;
+    g_lastPlatformFrame = frameNumber;
 	i32 inputBytes = commands.Written();
 	//printf("APP input %d bytes\n", inputBytes);
 	
@@ -322,9 +327,9 @@ internal void App_SimFrame(f32 interval)
     }
 }
 
-internal void App_Update(PlatformTime* time)
+internal void App_Update(f32 deltaTime)
 {
-    g_simFrameAcculator += time->deltaTime;
+    g_simFrameAcculator += deltaTime;
     f32 interval = App_GetSimFrameInterval();
     #if APP_DEBUG_LOG_FRAME_TIMING
         APP_LOG(128, "App Update DT: %.8f Accumulator: %.8f Interval: %.8f\n",
@@ -362,10 +367,10 @@ internal void App_OffsetRenderObjects(RenderScene* scene, i32 firstItem, f32 x)
 }
 #endif
 
-internal void App_Render(PlatformTime* time, ScreenInfo info)
+internal i32 AppImpl_RendererReloaded()
 {
     AppTimer timer(APP_STAT_RENDER_TOTAL, g_renderCalls++);
-	g_screenInfo = info;
+
     char* texName = "textures\\white_bordered.bmp";
     //char* texName = "textures\\W33_5.bmp";
     //i32 texIndex = Tex_GetTextureIndexByName(texName);
@@ -408,9 +413,10 @@ internal void App_Render(PlatformTime* time, ScreenInfo info)
     
     g_platform.RenderScene(&g_debugScene);
     #endif
+    return ZE_ERROR_NONE;
 }
 
-internal u8 App_ParseCommandString(char* str, char** tokens, i32 numTokens)
+internal i32 AppImpl_ParseCommandString(char* str, char** tokens, i32 numTokens)
 {
     if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "DRAW"))
     {
@@ -444,11 +450,40 @@ internal u8 App_ParseCommandString(char* str, char** tokens, i32 numTokens)
     return 0;
 }
 
+internal i32 AppImpl_Tick()
+{
+    f64 time = g_platform.QueryClock();
+    f64 diff = time - g_lastTimeSample;
+    if (diff >= 1.0)
+    {
+        g_lastTimeSample = time;
+        printf("App TOCK\n");
+    }
+    return ZE_ERROR_NONE;
+}
+
 /***************************************
 * Export Windows DLL functions
 ***************************************/
 #include <Windows.h>
 
+
+extern "C"
+ze_app_export __declspec(dllexport) ZE_LinkToGameModule(ze_platform_export platform)
+{
+    printf("APP linking to platform\n");
+    g_platform = platform;
+    ze_app_export appExport = {};
+    appExport.Init = AppImpl_Init;
+    appExport.Tick = AppImpl_Tick;
+    appExport.ParseCommandString = AppImpl_ParseCommandString;
+    appExport.RendererReloaded = AppImpl_RendererReloaded;
+    appExport.Shutdown = AppImpl_Shutdown;
+    appExport.sentinel = ZE_SENTINEL;
+    return appExport;
+}
+
+#if 0
 extern "C"
 AppInterface __declspec(dllexport) LinkToApp(AppPlatform platInterface)
 {
@@ -458,17 +493,17 @@ AppInterface __declspec(dllexport) LinkToApp(AppPlatform platInterface)
 
     AppInterface app;
     app.isValid = true;
-    app.AppInit = App_Init;
+    app.AppInit = AppImpl_Init;
     app.AppShutdown = App_Shutdown;
     app.AppRendererReloaded = App_RendererReloaded;
     //app.AppFixedUpdate = App_FixedFrame;
     //app.AppInput = App_Input;
     //app.AppUpdate = App_Update;
     //app.AppRender = App_Render;
-    app.AppParseCommandString = App_ParseCommandString;
+    app.AppParseCommandString = AppImpl_ParseCommandString;
     return app;
 }
-
+#endif
 extern "C"
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {

@@ -18,4 +18,4 @@
 // TODO: Uncouple me!
 // This should be so that the sim module can access 
 // the platform performance counter
-#include "../app/app.h"
+//#include "../app_base/app.h"

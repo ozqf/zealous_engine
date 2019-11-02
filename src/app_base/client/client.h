@@ -17,7 +17,7 @@ void	CL_CopyCameraTransform(Transform* target);
 void    CL_Tick(
 			ZEByteBuffer* sysEvents,
 			f32 deltaTime,
-			u32 platformFrame);
+			i64 platformFrame);
 /*
 void    CL_PopulateRenderScene(
 			Transform* cam,

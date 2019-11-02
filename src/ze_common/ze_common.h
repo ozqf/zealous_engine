@@ -28,6 +28,9 @@
 #define YES 1
 #define NO 0
 
+typedef i64 frameInt;
+typedef f64 timeFloat;
+
 static_assert(sizeof(char) == 1, "Code requires char size == 1");
 static_assert(sizeof(i8) == 1, "Code requires i8 size == 1");
 static_assert(sizeof(u8) == 1, "Code requires u8 size == 1");

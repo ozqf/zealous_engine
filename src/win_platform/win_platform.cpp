@@ -242,6 +242,18 @@ static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
         return 1;
     }
 
+    while (!g_bExitAppThread)
+    {
+        err = g_app.Tick();
+        if (err != ZE_ERROR_NONE)
+        {
+            Win_Error("Error during app tick");
+            g_app.Shutdown();
+            g_bExitAppThread = YES;
+        }
+    }
+
+    #if 0 // timing test
 	f64 startTime = PlatformImpl_QueryClock();
 	f64 time = startTime;
 	f64 lastTick = time;
@@ -256,6 +268,7 @@ static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
 			printf("App tick\n");
 		}
     }
+    #endif 
     printf("Exit App Thread\n");
     return 0;
 }
