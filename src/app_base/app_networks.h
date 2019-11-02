@@ -20,7 +20,7 @@ void App_SendTo(i32 socketIndex, ZNetAddress* addr, u8* data, i32 dataSize)
 	#endif
 }
 
-internal void App_UpdateLoopbackSocket(FakeSocket* socket, f32 deltaTime)
+internal void App_UpdateLoopbackSocket(FakeSocket* socket, timeFloat deltaTime)
 {
 	socket->Tick(deltaTime);
 	

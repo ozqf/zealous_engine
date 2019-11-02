@@ -36,7 +36,7 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
 }
 
 #define CLG_DEFINE_ENT_UPDATE(entityTypeName) internal void \
-    CLG_Update##entityTypeName##(SimScene* sim, SimEntity* ent, f32 deltaTime)
+    CLG_Update##entityTypeName##(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 
 CLG_DEFINE_ENT_UPDATE(Explosion)
 {
@@ -48,7 +48,7 @@ CLG_DEFINE_ENT_UPDATE(Explosion)
 
 CLG_DEFINE_ENT_UPDATE(Projectile)
 {
-	i32 numSteps = 1 + ent->timing.fastForwardTicks;
+	frameInt numSteps = 1 + ent->timing.fastForwardTicks;
     ent->timing.fastForwardTicks = 0;
     //APP_LOG(64, "CL Prj %d steps: %d\n", ent->id.serial, numSteps);
 	if (numSteps < 1) { numSteps = 1; }
@@ -170,8 +170,9 @@ internal void CLG_StepActor(
     SimScene* sim,
     SimEntity* ent,
     SimActorInput* input,
-    f32 deltaTime)
+    timeFloat interval)
 {
+    f32 deltaTime = (f32)interval;
     Vec3 move = {};
 	f32 speed = ent->body.speed;//5.0f;
 	if (input->buttons & ACTOR_INPUT_MOVE_FORWARD)
@@ -468,7 +469,7 @@ CLG_DEFINE_ENT_UPDATE(Dart)
     }
 }
 
-internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, f32 deltaTime)
+internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
     switch (ent->tickType)
     {
@@ -499,7 +500,7 @@ internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, f32 deltaTime)
     }
 }
 
-internal void CLG_TickGame(SimScene* sim, f32 deltaTime)
+internal void CLG_TickGame(SimScene* sim, timeFloat deltaTime)
 {
     AppTimer timer(APP_STAT_CL_SIM, sim->tick);
     for (i32 i = 0; i < g_sim.maxEnts; ++i)

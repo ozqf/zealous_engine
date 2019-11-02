@@ -126,7 +126,7 @@ void SV_WriteDebugString(CharBuffer* str)
                 AckRecord* rec = &acks->awaitingAck[j];
                 if (rec->acked)
                 {
-                    f32 time = rec->receivedTime - rec->sentTime;
+                    timeFloat time = rec->receivedTime - rec->sentTime;
                     written += sprintf_s(chars + written, str->maxLength - written,
                         "%.3f Sent: %.3f Rec: %.3f\n", time, rec->sentTime, rec->receivedTime
                     );

@@ -38,7 +38,7 @@ struct FakeSocketPacketHeader
 	i32 socketIndex;
     ZNetAddress address;
     i32 size;
-    f32 tick;
+    timeFloat tick;
 };
 
 struct FakeSocket
@@ -46,10 +46,10 @@ struct FakeSocket
     i32 isActive;
     FakeSocketInfo info;
     FakeSocketPacketHeader* handles[FAKE_SOCKET_MAX_HANDLES];
-    f32 delayRecalcTime;
-    f32 dropRecalcTime;
-    f32 nextDelayTime;
-    f32 nextDropTime;
+    timeFloat delayRecalcTime;
+    timeFloat dropRecalcTime;
+    timeFloat nextDelayTime;
+    timeFloat nextDropTime;
 
     void SetLagStats(i32 minLagMS, i32 maxLagMS, f32 normalisedPacketLossChance)
     {
@@ -102,7 +102,7 @@ struct FakeSocket
 
     void SendPacket(i32 socketIndex, ZNetAddress* address, u8* data, i32 numBytes)
     {
-        f32 delay = nextDelayTime;
+        timeFloat delay = nextDelayTime;
         #if 1 // Report internal packets:
         if (address->port == APP_CLIENT_LOOPBACK_PORT)
         {
@@ -141,7 +141,7 @@ struct FakeSocket
         //printf("Fake Socket storing %d bytes. Packet delay: %.2f\n", h->size, h->tick);
     }
 
-    void Tick(f32 deltaTime)
+    void Tick(timeFloat deltaTime)
     {
         if (delayRecalcTime <= 0)
         {

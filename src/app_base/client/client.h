@@ -16,7 +16,7 @@ i32     CL_IsRunning();
 void	CL_CopyCameraTransform(Transform* target);
 void    CL_Tick(
 			ZEByteBuffer* sysEvents,
-			f32 deltaTime,
+			timeFloat deltaTime,
 			i64 platformFrame);
 /*
 void    CL_PopulateRenderScene(

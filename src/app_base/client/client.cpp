@@ -18,10 +18,10 @@ internal i32 g_clientState = CLIENT_STATE_NONE;
 internal i32 g_isRunning = 0;
 internal SimScene g_sim;
 internal i32 g_ticks = 0;
-internal f32 g_elapsed = 0;
+internal timeFloat g_elapsed = 0;
 internal i32 g_serverTick = 0;
-internal f32 g_ping;
-internal f32 g_jitter;
+internal timeFloat g_ping;
+internal timeFloat g_jitter;
 
 internal i32 g_avatarSerial = 0;
 
@@ -114,7 +114,7 @@ internal void CL_WriteNetworkDebug(CharBuffer* str)
 		AckRecord* rec = &g_acks.awaitingAck[i];
 		if (rec->acked)
 		{
-			f32 time = rec->receivedTime - rec->sentTime;
+			timeFloat time = rec->receivedTime - rec->sentTime;
 			written += sprintf_s(chars + written, str->maxLength,
 				"%.3f Sent: %.3f Rec: %.3f\n",
 				time, rec->sentTime, rec->receivedTime
@@ -282,7 +282,7 @@ internal void CL_ReadReliableCommands(NetStream* stream)
 }
 #endif
 internal void CL_ReadSystemEvents(
-	ZEByteBuffer* sysEvents, f32 deltaTime, frameInt platformFrame)
+	ZEByteBuffer* sysEvents, timeFloat deltaTime, frameInt platformFrame)
 {
     AppTimer timer(APP_STAT_CL_INPUT, g_sim.tick);
     //printf("CL Reading platform events (%d bytes)\n", sysEvents->Written());
@@ -362,7 +362,7 @@ internal i32 CL_GetServerTick()
 }
 
 internal i32 CL_ExecReliableCommand(
-    SimScene* sim, Command* h, f32 deltaTime, i32 tickDiff)
+    SimScene* sim, Command* h, timeFloat deltaTime, i32 tickDiff)
 {
     //APP_LOG(64, "CL exec input seq %d\n", h->sequence);
 
@@ -438,7 +438,7 @@ internal i32 CL_ExecReliableCommand(
 }
 
 internal void CL_RunReliableCommands(
-    SimScene* sim, NetStream* stream, f32 deltaTime)
+    SimScene* sim, NetStream* stream, timeFloat deltaTime)
 {
 	ZEByteBuffer* b = &stream->inputBuffer;
 	
@@ -486,7 +486,7 @@ internal void CL_RunReliableCommands(
 }
 
 internal void CL_RunUnreliableCommands(
-    SimScene* sim, NetStream* stream, f32 deltaTime)
+    SimScene* sim, NetStream* stream, timeFloat deltaTime)
 {
 	ZEByteBuffer* b = &stream->inputBuffer;
     u8* read = b->start;
@@ -554,13 +554,13 @@ internal void CL_RunUnreliableCommands(
     }
 }
 
-internal void CL_CalcPings(f32 deltaTime)
+internal void CL_CalcPings(timeFloat deltaTime)
 {
 	g_ping = Ack_CalculateAverageDelay(&g_acks);
 	g_jitter = (g_acks.delayMax - g_acks.delayMin);
 }
 
-void CL_Tick(ZEByteBuffer* sysEvents, f32 deltaTime, i64 platformFrame)
+void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
 {
     APP_LOG(64, "*** CL TICK %d (Server Sync Tick %d. T %.3f) ***\n",
         g_ticks, g_serverTick, g_elapsed);

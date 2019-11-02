@@ -94,17 +94,17 @@ struct SimEntity
 
     struct
     {
-        i32 lastThink;
-        i32 nextThink;
+        frameInt lastThink;
+        frameInt nextThink;
 
-        i32 birthTick;
+        frameInt birthTick;
         // This entity was spawned in the past this many ticks ago
         // and needs to catch up
-	    i32 fastForwardTicks;
+	    frameInt fastForwardTicks;
     } timing;
 
-    f32 attackTick;
-    f32 attackTime;
+    timeFloat attackTick;
+    timeFloat attackTime;
 
     SimEntDisplay display;
     u8 deathType;

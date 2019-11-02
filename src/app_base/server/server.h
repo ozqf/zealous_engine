@@ -7,7 +7,7 @@ void    SV_Init();
 void    SV_Shutdown();
 UserIds SVU_CreateLocalUser();
 i32     SV_IsRunning();
-void    SV_Tick(ZEByteBuffer* platformCommands, f32 deltaTime);
+void    SV_Tick(ZEByteBuffer* platformCommands, timeFloat deltaTime);
 /*
 void    SV_PopulateRenderScene(
             RenderScene* scene,

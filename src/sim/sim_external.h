@@ -12,7 +12,7 @@ extern "C"
 i32 Sim_GetFrameNumber(SimScene* sim){ return sim->tick; }
 
 extern "C"
-void Sim_SimpleMove(SimEntity* ent, f32 deltaTime)
+void Sim_SimpleMove(SimEntity* ent, timeFloat deltaTime)
 {
     Vec3* pos = &ent->body.t.pos;
     ent->body.previousPos.x = pos->x;
@@ -20,9 +20,9 @@ void Sim_SimpleMove(SimEntity* ent, f32 deltaTime)
     ent->body.previousPos.z = pos->z;
     Vec3 move =
     {
-        ent->body.velocity.x * deltaTime,
-        ent->body.velocity.y * deltaTime,
-        ent->body.velocity.z * deltaTime
+        ent->body.velocity.x * (f32)deltaTime,
+        ent->body.velocity.y * (f32)deltaTime,
+        ent->body.velocity.z * (f32)deltaTime
     };
     
     ent->body.t.pos.x += move.x;

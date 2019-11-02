@@ -12,16 +12,16 @@ extern "C" void App_Print(char* msg);
 extern "C" void AppImpl_SetMouseCaptured();
 extern "C" void AppImpl_SetMouseFree();
 extern "C" void App_Error(char* msg);
-extern "C" f32 App_GetSimFrameInterval();
-extern "C" i32 App_CalcTickInterval(f32 seconds);
-extern "C" f64 App_SampleClock();
+extern "C" timeFloat App_GetSimFrameInterval();
+extern "C" frameInt App_CalcTickInterval(timeFloat seconds);
+extern "C" timeFloat App_SampleClock();
 extern "C" ScreenInfo App_GetScreenInfo();
 
 extern "C"
-void App_SetPerformanceTime(i32 index, i32 tick, f32 milliSeconds);
+void App_SetPerformanceTime(i32 index, i32 tick, timeFloat milliSeconds);
 
 extern "C"
-f32 App_GetPerformanceTime(i32 index);
+timeFloat App_GetPerformanceTime(i32 index);
 /////////////////////////////////////////////////////////////////
 // Structs
 /////////////////////////////////////////////////////////////////
@@ -31,10 +31,10 @@ f32 App_GetPerformanceTime(i32 index);
 struct AppPerformanceStat
 {
     char* label;
-    f32 frames[APP_MAX_PERFORMANCE_FRAMES];
-    f32 Sum()
+    timeFloat frames[APP_MAX_PERFORMANCE_FRAMES];
+    timeFloat Sum()
     {
-        f32 total = 0.0f;
+        timeFloat total = 0.0f;
         for (i32 i = 0; i < APP_MAX_PERFORMANCE_FRAMES; ++i)
         {
             total += frames[i];

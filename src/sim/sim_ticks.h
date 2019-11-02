@@ -7,7 +7,7 @@ Tick functions shared between client and server
 
 extern "C"
 i32 Sim_TickSpawn(
-    SimScene* sim, SimEntity* ent, f32 deltaTime)
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
     if (sim->tick >= ent->timing.nextThink)
     {
@@ -18,8 +18,8 @@ i32 Sim_TickSpawn(
     else
     {
         ent->flags |= SIM_ENT_FLAG_OUT_OF_PLAY;
-        i32 totalWait = ent->timing.nextThink - ent->timing.lastThink;
-        i32 progress = sim->tick - ent->timing.lastThink;
+        frameInt totalWait = ent->timing.nextThink - ent->timing.lastThink;
+        frameInt progress = sim->tick - ent->timing.lastThink;
         
         f32 time = (f32)progress / (f32)totalWait;
         ent->body.t.scale.x = ZE_LerpF32(0.01f, 0.5f, time);

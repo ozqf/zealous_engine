@@ -24,7 +24,7 @@ struct PlatformEventHeader
 
 struct PlatformTime
 {
-    f32 deltaTime;
+    timeFloat deltaTime;
     f32 sessionEllapsed;
     u32 frameNumber;
 };

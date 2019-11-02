@@ -42,7 +42,7 @@ internal UserList g_users;
 internal SimScene g_sim;
 
 internal i32 g_isRunning = 0;
-internal f32 g_elapsed = 0;
+internal timeFloat g_elapsed = 0;
 internal i32 g_lagCompensateProjectiles = 1;
 internal i32 g_unreliableProjectileDeaths = 1;
 
@@ -315,7 +315,7 @@ void SV_Shutdown()
     }
 }
 
-internal void SV_ReadSystemEvents(ZEByteBuffer* sysEvents, f32 deltaTime)
+internal void SV_ReadSystemEvents(ZEByteBuffer* sysEvents, timeFloat deltaTime)
 {
     AppTimer timer(APP_STAT_SV_INPUT, g_sim.tick);
 
@@ -355,7 +355,7 @@ internal void SV_ReadSystemEvents(ZEByteBuffer* sysEvents, f32 deltaTime)
 	}
 }
 
-internal void SV_SendUserPackets(SimScene* sim, f32 deltaTime)
+internal void SV_SendUserPackets(SimScene* sim, timeFloat deltaTime)
 {
     AppTimer timer(APP_STAT_SV_OUTPUT, g_sim.tick);
     for (i32 i = 0; i < g_users.max; ++i)
@@ -424,7 +424,7 @@ internal void SV_SendUserPackets(SimScene* sim, f32 deltaTime)
 	}
 }
 
-internal void SV_CalcPings(f32 deltaTime)
+internal void SV_CalcPings(timeFloat deltaTime)
 {
     for (i32 i = 0; i < g_users.max; ++i)
     {
@@ -436,7 +436,7 @@ internal void SV_CalcPings(f32 deltaTime)
     }
 }
 
-void SV_Tick(ZEByteBuffer* sysEvents, f32 deltaTime)
+void SV_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime)
 {
     APP_LOG(64, "*** SV TICK %d (T %.3f) ***\n", g_sim.tick, g_elapsed);
     SV_ReadSystemEvents(sysEvents, deltaTime);

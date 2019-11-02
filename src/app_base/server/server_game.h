@@ -116,12 +116,12 @@ internal void SVG_SpawnLineSegment(SimScene* sim, Vec3 origin, Vec3 dest)
 }
 
 #define SVG_DEFINE_ENT_UPDATE(entityTypeName) internal void \
-    SVG_Update##entityTypeName##(SimScene* sim, SimEntity* ent, f32 deltaTime)
+    SVG_Update##entityTypeName##(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 
 //////////////////////////////////////////////////////
 // ENEMIES
 //////////////////////////////////////////////////////
-//internal void SVG_UpdateWanderer(SimScene* sim, SimEntity* ent, f32 deltaTime)
+//internal void SVG_UpdateWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 SVG_DEFINE_ENT_UPDATE(Wanderer)
 {
     if (ent->timing.nextThink >= sim->tick)
@@ -274,7 +274,7 @@ SVG_DEFINE_ENT_UPDATE(Spawn)
 }
 
 internal i32 SVG_StepProjectile(
-    SimScene* sim, SimEntity* ent, f32 deltaTime)
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
     Sim_SimpleMove(ent, deltaTime);
 
@@ -412,7 +412,7 @@ internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
         // 1: By estimating current lag
         // Works well until jitter is introduced, and then becomes
         // inaccurate (though test jitter is excessive...)
-        f32 time = u->ping;// * 0.5f;
+        timeFloat time = u->ping;// * 0.5f;
         ticksEllapsed = (i32)(time / App_GetSimFrameInterval());
         //ticksEllapsed += APP_DEFAULT_JITTER_TICKS;
         #if 0
@@ -513,23 +513,24 @@ SVG_DEFINE_ENT_UPDATE(LineTrace)
 
 SVG_DEFINE_ENT_UPDATE(Actor)
 {
+    f32 dt = (f32)deltaTime;
 	Vec3 move = {};
 	f32 speed = ent->body.speed;//5.0f;
 	if (ent->input.buttons & ACTOR_INPUT_MOVE_FORWARD)
 	{
-		move.z -= speed * deltaTime;
+		move.z -= speed * dt;
 	}
 	if (ent->input.buttons & ACTOR_INPUT_MOVE_BACKWARD)
 	{
-		move.z += speed * deltaTime;
+		move.z += speed * dt;
 	}
 	if (ent->input.buttons & ACTOR_INPUT_MOVE_LEFT)
 	{
-		move.x -= speed * deltaTime;
+		move.x -= speed * dt;
 	}
 	if (ent->input.buttons & ACTOR_INPUT_MOVE_RIGHT)
 	{
-		move.x += speed * deltaTime;
+		move.x += speed * dt;
 	}
 	ent->body.previousPos = ent->body.t.pos;
 	ent->body.t.pos.x += move.x;
@@ -579,7 +580,7 @@ SVG_DEFINE_ENT_UPDATE(Bot)
 }
 
 internal void SVG_TickEntity(
-    SimScene* sim, SimEntity* ent, f32 deltaTime)
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
     #if 0
     #ifdef SIM_QUANTISE_SYNC
@@ -624,7 +625,7 @@ internal void SVG_TickEntity(
     }
 }
 
-internal void SVG_TickSim(SimScene* sim, f32 deltaTime)
+internal void SVG_TickSim(SimScene* sim, timeFloat deltaTime)
 {
     AppTimer timer(APP_STAT_SV_SIM, g_sim.tick);
 	sim->timeInAABBSearch = 0;

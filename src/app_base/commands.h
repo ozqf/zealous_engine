@@ -24,11 +24,11 @@ struct CmdPing
 {
 	Command header;
 	i32 pingSequence;
-    f32 sendTime;
+    timeFloat sendTime;
 };
 
 internal void Cmd_InitPing(
-    CmdPing* cmd, i32 tick, f32 time)
+    CmdPing* cmd, i32 tick, timeFloat time)
 {
     Cmd_Prepare(&cmd->header, tick);
     cmd->header.type = CMD_TYPE_PING;
@@ -93,7 +93,7 @@ struct C2S_Input
     i32 userInputSequence;
 	SimActorInput input;
 	Vec3 avatarPos;
-    f32 deltaTime;
+    timeFloat deltaTime;
 };
 
 internal void Cmd_InitClientInput(
@@ -102,7 +102,7 @@ internal void Cmd_InitClientInput(
 	SimActorInput* input,
 	Vec3* avatarPos,
 	i32 tick,
-    f32 deltaTime
+    timeFloat deltaTime
 	)
 {
 	*cmd = {};

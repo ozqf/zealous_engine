@@ -79,6 +79,16 @@ static void Win_Warning(char *msg)
     MessageBox(0, msg, "Warning", MB_OK | MB_ICONINFORMATION);
 }
 
+static void Win_Log(char *msg)
+{
+	printf(msg);
+}
+
+static void Win_Print(char *msg)
+{
+	printf(msg);
+}
+
 ////////////////////////////////////////////////////////
 // Init
 ////////////////////////////////////////////////////////
@@ -220,6 +230,8 @@ static ze_platform_export Win_BuildExport()
     ze_platform_export result = {};
     result.Warning = Win_Warning;
     result.Error = Win_Error;
+    result.Log = Win_Log;
+    result.Print = Win_Print;
     result.QueryClock = PlatformImpl_QueryClock;
     result.Allocate = PlatformImpl_Allocate;
     result.Free = PlatformImpl_Free;

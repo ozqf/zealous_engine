@@ -44,17 +44,17 @@ ScreenInfo App_GetScreenInfo()
 }
 
 extern "C"
-f32 App_GetSimFrameInterval()
+timeFloat App_GetSimFrameInterval()
 {
-    return (1.0f / g_simFrameRate);
+    return (timeFloat)(1.0f / g_simFrameRate);
 }
 
 extern "C"
-i32 App_CalcTickInterval(f32 seconds)
+frameInt App_CalcTickInterval(timeFloat seconds)
 {
-    f32 result = seconds / App_GetSimFrameInterval();
+    timeFloat result = seconds / App_GetSimFrameInterval();
     // round
-    return (i32)(result + 0.5f);
+    return (frameInt)(result + 0.5);
 }
 
 extern "C"
@@ -64,13 +64,13 @@ f64 App_SampleClock()
 }
 
 extern "C"
-void App_SetPerformanceTime(i32 index, i32 tick, f32 time)
+void App_SetPerformanceTime(i32 index, i32 tick, timeFloat time)
 {
     g_performanceStats[index].frames[tick % APP_MAX_PERFORMANCE_FRAMES] = time;
 }
 
 extern "C"
-f32 App_GetPerformanceTime(i32 index)
+timeFloat App_GetPerformanceTime(i32 index)
 {
     return g_performanceStats[index].Sum();
 }
@@ -79,7 +79,7 @@ f32 App_GetPerformanceTime(i32 index)
 * Private
 ***************************************/
 
-internal f32 App_CalcInterpolationTime(f32 accumulator, f32 interval)
+internal timeFloat App_CalcInterpolationTime(timeFloat accumulator, timeFloat interval)
 {
     return (accumulator / interval);
 }
@@ -306,7 +306,7 @@ internal void App_Input(i64 frameNumber, ZEByteBuffer commands)
 }
 
 i32 g_apptick = 0;
-internal void App_SimFrame(f32 interval)
+internal void App_SimFrame(timeFloat interval)
 {
     AppTimer timer(APP_STAT_FRAME_TOTAL, g_apptick++);
     #if APP_DEBUG_LOG_FRAME_TIMING
@@ -326,8 +326,8 @@ internal void App_SimFrame(f32 interval)
         CL_Tick(g_clientLoopback.GetRead(), interval, g_lastPlatformFrame);
     }
 }
-
-internal void App_Update(f32 deltaTime)
+#if 0
+internal void App_Update(timeFloat deltaTime)
 {
     g_simFrameAcculator += deltaTime;
     f32 interval = App_GetSimFrameInterval();
@@ -354,7 +354,7 @@ internal void App_Update(f32 deltaTime)
     }
     #endif
 }
-
+#endif
 #if 0
 // offset blocks of render objects left or right to show SV and CL side by side
 internal void App_OffsetRenderObjects(RenderScene* scene, i32 firstItem, f32 x)
@@ -374,8 +374,8 @@ internal i32 AppImpl_RendererReloaded()
     char* texName = "textures\\white_bordered.bmp";
     //char* texName = "textures\\W33_5.bmp";
     //i32 texIndex = Tex_GetTextureIndexByName(texName);
-    f32 interval = App_GetSimFrameInterval();
-    f32 interpolationTime = App_CalcInterpolationTime(
+    timeFloat interval = App_GetSimFrameInterval();
+    timeFloat interpolationTime = App_CalcInterpolationTime(
         g_simFrameAcculator, interval);
     #if APP_DEBUG_LOG_FRAME_TIMING
         APP_LOG(128, "APP Interpolate: %.8f Accumulator %.8f interval: %.8f\n",
@@ -452,12 +452,15 @@ internal i32 AppImpl_ParseCommandString(char* str, char** tokens, i32 numTokens)
 
 internal i32 AppImpl_Tick()
 {
+    timeFloat frameInterval = App_GetSimFrameInterval();
     f64 time = g_platform.QueryClock();
     f64 diff = time - g_lastTimeSample;
-    if (diff >= 1.0)
+    if (diff >= frameInterval)
     {
         g_lastTimeSample = time;
-        printf("App TOCK\n");
+        //App_Update(frameInterval);
+        App_SimFrame(frameInterval);
+        //printf("App TOCK\n");
     }
     return ZE_ERROR_NONE;
 }

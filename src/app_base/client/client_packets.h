@@ -50,7 +50,7 @@ internal i32 CL_WriteUnreliableSection(
 }
 
 internal void CL_WritePacket(
-    QuantiseSet* quantise, f32 time, C2S_Input* userInput)
+    QuantiseSet* quantise, timeFloat time, C2S_Input* userInput)
 {
     AppTimer timer(APP_STAT_CL_OUTPUT, g_sim.tick);
     #if 1
@@ -145,7 +145,7 @@ internal i32 CL_ReadPacket(
     NetStream* reliableStream,
     NetStream* unreliableStream,
     QuantiseSet* quantise,
-    f32 time)
+    timeFloat time)
 {
     // -- Descriptor --
     i32 headerSize = sizeof(SysPacketEvent);

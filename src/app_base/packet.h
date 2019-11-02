@@ -53,7 +53,7 @@ struct PacketHeader
 	u32 ackBits;
 	// timing
     i32 transmissionTickNumber;
-	f32 transmissionTime;
+	timeFloat transmissionTime;
     i32 lastReceivedTickNumber;
 	// payload
     u16 numReliableBytes;
@@ -84,7 +84,7 @@ internal void Packet_StartWrite(
 	u32 ackSequence,
 	u32 ackBits,
 	i32 simFrame,
-	f32 time,
+	timeFloat time,
 	i32 lastReceivedTickNumber)
 {
 	PacketHeader* h = (PacketHeader*)packet->start;

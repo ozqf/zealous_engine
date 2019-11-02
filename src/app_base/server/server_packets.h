@@ -179,7 +179,7 @@ internal i32 SVP_WriteReliableSection(
     return packet->Written();
 }
 
-internal PacketStats SVP_WriteUserPacket(SimScene* sim, User* user, f32 time)
+internal PacketStats SVP_WriteUserPacket(SimScene* sim, User* user, timeFloat time)
 {
 	// enqueue
 	PacketStats stats = {};
@@ -293,7 +293,7 @@ internal void SVP_ReadUnreliableSection(
 }
 
 internal void SVP_ReadPacket(
-    SysPacketEvent* ev, QuantiseSet* quantise, f32 time)
+    SysPacketEvent* ev, QuantiseSet* quantise, timeFloat time)
 {
 	i32 headerSize = sizeof(SysPacketEvent);
     i32 dataSize = ev->header.size - headerSize;

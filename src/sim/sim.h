@@ -121,13 +121,13 @@ extern "C" i32      Sim_ExecuteBulkSpawn(
                         f32* spawnedEntityPriority);
 
 // Entity behaviour
-extern "C" void     Sim_SimpleMove(SimEntity* ent, f32 deltaTime);
+extern "C" void     Sim_SimpleMove(SimEntity* ent, timeFloat deltaTime);
 extern "C" i32      Sim_InBounds(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryBounce(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryStop(SimEntity* ent, Vec3* min, Vec3* max);
 
 extern "C" i32      Sim_TickSpawn(
-    SimScene* sim, SimEntity* ent, f32 deltaTime);
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime);
 
 // Searching/Querying
 extern "C" i32        Sim_IsEntInPlay(SimEntity* ent);

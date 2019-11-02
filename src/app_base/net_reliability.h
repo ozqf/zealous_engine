@@ -18,8 +18,8 @@ struct AckRecord
 {
     u32 sequence;
     u32 acked;
-	f32 sentTime;
-	f32 receivedTime;
+	timeFloat sentTime;
+	timeFloat receivedTime;
 };
 
 struct AckStream
@@ -35,12 +35,12 @@ struct AckStream
 	u32 received[ACK_CAPACITY];
 	
 	// used to calculate jitter
-	f32 delayMin;
-	f32 delayMax;
+	timeFloat delayMin;
+	timeFloat delayMax;
 };
 
 static void Ack_RecordPacketTransmission(
-	AckStream* astream, u32 outputSequence, f32 time)
+	AckStream* astream, u32 outputSequence, timeFloat time)
 {
 	AckRecord* rec = &astream->awaitingAck[outputSequence % ACK_CAPACITY];
 	// Check whether we are replacing a previous record
@@ -83,19 +83,19 @@ static f32 Ack_EstimateLoss(AckStream* astream)
 	return 100.0f - (((f32)acked / (f32)total) * 100.0f);
 }
 
-static f32 Ack_CalculateAverageDelay(AckStream* astream)
+static timeFloat Ack_CalculateAverageDelay(AckStream* astream)
 {
 	i32 records = 0;
-	f32 total = 0;
-	f32 min = 9999;
-	f32 max = -9999;
+	timeFloat total = 0;
+	timeFloat min = 9999;
+	timeFloat max = -9999;
 	for (i32 i = 0; i < ACK_CAPACITY; ++i)
 	{
 		AckRecord* rec = &astream->awaitingAck[i];
 		if (rec->acked)
 		{
 			records++;
-			f32 delay = (rec->receivedTime - rec->sentTime);
+			timeFloat delay = (rec->receivedTime - rec->sentTime);
 			if (delay < min)
 			{
 				min = delay;
@@ -116,7 +116,7 @@ static f32 Ack_CalculateAverageDelay(AckStream* astream)
 // Returns number of acknowledged packet sequences written to results
 // Max results must == (ACK_CAPACITY + 1)!
 static i32 Ack_CheckIncomingAcks(
-	AckStream* astream, u32 packetAck, u32 packetAckBits, u32* results, f32 time)
+	AckStream* astream, u32 packetAck, u32 packetAckBits, u32* results, timeFloat time)
 {
 	i32 resultIndex = 0;
 	i32 index = packetAck % ACK_CAPACITY;

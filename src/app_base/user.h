@@ -30,8 +30,8 @@ struct User
 
     i32 entSerial;
 
-    f32 ping;
-    f32 jitter;
+    timeFloat ping;
+    timeFloat jitter;
     i32 latestServerTick;
     i32 smoothingTicks;
     i32 userInputSequence;
