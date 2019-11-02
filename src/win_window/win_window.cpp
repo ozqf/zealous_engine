@@ -6,7 +6,7 @@ Zealous Engine Windows renderer
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 
-#include <windows.h>
+//#include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -50,6 +50,9 @@ static i32 ZR_Init()
 
     const i32 scrWidth = 1280;
     const i32 scrHeight = 768;
+    g_scrInfo.width = scrWidth;
+    g_scrInfo.height = scrHeight;
+    g_scrInfo.aspectRatio = scrWidth / scrHeight;
 
     g_window = glfwCreateWindow(scrWidth, scrHeight, "Zealous Engine", NULL, NULL);
     #endif
@@ -91,6 +94,13 @@ static i32 ZR_Init()
     platform.QueryClock = g_platform.QueryClock;
     g_renderer = ZR_Link(platform);
 
+    ErrorCode err = g_renderer.Init(g_scrInfo.width, g_scrInfo.height);
+    if (err != ZE_ERROR_NONE)
+    {
+        g_platform.Error("Error initialising renderer");
+        return ZE_ERROR_UNKNOWN;
+    }
+
 	return ZE_ERROR_NONE;
 }
 
@@ -98,9 +108,24 @@ static i32 ZR_MainLoop()
 {
     while(!glfwWindowShouldClose(g_window))
     {
-        // Run
+        u8* listPtr;
+        i32 listBytes;
+        u8* dataPtr;
+        i32 dataBytes;
+        g_platform.Acquire_AppDrawBuffers(&listPtr, &listBytes, &dataPtr, &dataBytes);
+        // Draw
+        glClearColor(1, 0, 1, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        ZEByteBuffer list = Buf_FromBytes(listPtr, listBytes);
+        ZEByteBuffer data = Buf_FromBytes(dataPtr, dataBytes);
+        g_renderer.DrawFrame(&list, &data, g_scrInfo);
+        // Finish Frame
+        g_platform.Release_AppDrawBuffers();
+        glfwSwapBuffers(g_window);
 
+        g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
 		glfwPollEvents();
+        g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
     }
     return ZE_ERROR_NONE;
 }

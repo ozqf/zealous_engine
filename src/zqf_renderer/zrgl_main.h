@@ -295,8 +295,8 @@ static ZRPerformanceStats ZRImpl_DrawFrame(
     if (Buf_IsValid(drawData) == NO) { return stats; }
 	// This will almost always happen
 	// whilst the app thread starts up
-	i32 dataBytes = drawList->Written();
-	if (dataBytes == 0)
+	i32 listBytes = drawList->Written();
+	if (listBytes == 0)
 	{
 		return stats;
 	}

@@ -522,6 +522,7 @@ static ZRPrefab* ZRGL_GetPrefab(i32 index)
 
 static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
 {
+    printf("ZRGL - load default prefabs\n");
     char* paths[6];
     #if 0 // Star field
     paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/ame_starfield/starfield_ft.tga";

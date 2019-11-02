@@ -32,6 +32,7 @@ struct Win32_Thread
 static ze_platform_export g_platform = {};
 static ZRRenderer g_renderer = {};
 static volatile i32 g_bExit = NO;
+static ScreenInfo g_scrInfo;
 
 //internal Win32_Thread g_appThread;
 internal GLFWwindow* g_window;

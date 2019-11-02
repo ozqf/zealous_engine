@@ -17,7 +17,6 @@ Provides:
 #include <windows.h>
 #include <stdio.h>
 #include "../ze_module_interfaces.h"
-#include "../ze_platform.h"
 
 #include "../ze_common/ze_common.h"
 
@@ -81,12 +80,12 @@ static void Win_Warning(char *msg)
 
 static void Win_Log(char *msg)
 {
-	printf(msg);
+	//printf(msg);
 }
 
 static void Win_Print(char *msg)
 {
-	printf(msg);
+	//printf(msg);
 }
 
 ////////////////////////////////////////////////////////
@@ -225,6 +224,20 @@ static void PlatformImpl_Free(void* ptr)
     free(ptr);
 }
 
+static void PlatformImpl_GetAppDrawbuffers(u8** listPtr, i32* listBytes, u8** dataPtr, i32* dataBytes)
+{
+    PlatformImpl_LockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
+    *listPtr = NULL;
+    *listBytes = 0;
+    *dataPtr = NULL;
+    *dataBytes = 0;
+}
+
+static void PlatformImpl_ReleaseAppDrawBuffers()
+{
+    PlatformImpl_UnlockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
+}
+
 static ze_platform_export Win_BuildExport()
 {
     ze_platform_export result = {};
@@ -232,11 +245,17 @@ static ze_platform_export Win_BuildExport()
     result.Error = Win_Error;
     result.Log = Win_Log;
     result.Print = Win_Print;
+
     result.QueryClock = PlatformImpl_QueryClock;
     result.Allocate = PlatformImpl_Allocate;
     result.Free = PlatformImpl_Free;
+
     result.LockMutex = PlatformImpl_LockMutex;
     result.UnlockMutex = PlatformImpl_UnlockMutex;
+
+    result.Acquire_AppDrawBuffers = PlatformImpl_GetAppDrawbuffers;
+    result.Release_AppDrawBuffers = PlatformImpl_ReleaseAppDrawBuffers;
+
     return result;
 }
 

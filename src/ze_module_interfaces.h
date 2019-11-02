@@ -35,6 +35,9 @@ struct ze_platform_export
     void* (*Allocate)(i32 numBytes);
     void (*Free)(void* ptr);
 
+    void (*Acquire_AppDrawBuffers)(u8** listPtr, i32* listBytes, u8** dataPtr, i32* dataBytes);
+    void (*Release_AppDrawBuffers)();
+
     void (*LockMutex)(i32 index, i32 tag);
     void (*UnlockMutex)(i32 index, i32 tag);
     i32 sentinel;
@@ -42,6 +45,13 @@ struct ze_platform_export
 
 #define ZE_WINDOW_LINK_FUNC_NAME "ZE_LinkToWindowModule"
 #define ZE_GAME_LINK_FUNC_NAME "ZE_LinkToGameModule"
+
+#define ZE_DEFAULT_WINDOW_DLL_NAME "wingl.dll"
+#define ZE_DEFAULT_APP_DLL_NAME "game.dll"
+#define ZE_DEFAULT_APP_DIR "base"
+
+#define ZE_MUTEX_DRAW_QUEUE 0
+#define ZE_MUTEX_WINDOW_EVENTS 1
 
 // Signature of platform <-> window linking function exported
 // from window DLL
