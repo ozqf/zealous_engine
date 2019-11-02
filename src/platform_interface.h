@@ -78,12 +78,14 @@ struct AppPlatform
     void (*LoadSound)               (u8* data, i32 numBytes);
 
     // Network
+    /*
     i32  (*Init)                    ();
     i32  (*Shutdown)                ();
     i32  (*OpenSocket)              (u16 port, u16* portResult);
     i32  (*CloseSocket)             (i32 socketIndex);
     i32  (*Read)                    (i32 socketIndex, ZNetAddress* sender,  ZEByteBuffer* dataPtr);
     i32  (*SendTo)                  (i32 transmittingSocketIndex, ZNetAddress* address, u16 port, u8* data, i32 dataSize);
+    */
 
     //void (*Net_RunLoopbackTest) ();
 };

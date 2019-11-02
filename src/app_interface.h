@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////
 #include <stdio.h>
 #include "ze_common/ze_common.h"
-#include "sys_events.h"
+//#include "sys_events.h"
 #include "platform_interface.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@ struct AppInterface
     i32     (*AppInit)();
     i32     (*AppShutdown)();
     i32     (*AppRendererReloaded)();
+    // return YES if command was read and executed, no otherwise
     u8      (*AppParseCommandString)(char* str, char** tokens, i32 numTokens);
 };
 
