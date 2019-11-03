@@ -1,16 +1,18 @@
 #ifndef CLIENT_RENDER_H
 #define CLIENT_RENDER_H
 
+#include "../../ze_common/ze_common.h"
 #include "client.h"
+#include "../../sim/sim.h"
 
-extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
-{
-    // write client draw data. World, view model, HUD, menus.
-    for (i32 i = 0; i < g_sim.maxEnts; ++i)
-    {
-        SimEntity* ent = &g_sim.ents[i];
-    }
-}
+/**
+ * Write Client state to draw buffers
+ */
+extern "C" void CLR_WriteDrawFrame(
+    ZEByteBuffer* list,
+    ZEByteBuffer* data,
+    SimScene* sim
+);
 
 #if 0
 void CL_PopulateRenderScene(

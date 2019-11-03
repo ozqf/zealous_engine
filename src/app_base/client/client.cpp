@@ -73,8 +73,14 @@ internal SimActorInput g_actorInput = {};
 #include "../commands_serialise.h"
 #include "../commands_deserialise.h"
 #include "client_packets.h"
+#include "client_render.h"
 
 extern "C" i32 CL_IsRunning() { return g_isRunning; }
+
+extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
+{
+    CLR_WriteDrawFrame(list, data, &g_sim);
+}
 
 internal void CL_WriteNetworkDebug(CharBuffer* str)
 {
