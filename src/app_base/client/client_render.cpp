@@ -44,6 +44,17 @@ extern "C" void CLR_WriteDrawFrame(
     i32 objCount = 0;
     u8* listStart = list->cursor;
     // write client draw data. World, view model, HUD, menus.
+
+    // DEBUG: Add a main light or objects are invisible
+    ZRDrawObj* light = CLR_InitDrawObjInPlace(&list->cursor);
+    objCount++;
+    ZRDrawObj_SetAsPointLight(NULL, light, { 1, 1, 1 }, 999.f);
+    light->data.light.bCastShadows = YES;
+    light->t.pos.x = -10;
+    light->t.pos.y = 15;
+    light->t.pos.z = 10;
+    Transform_SetRotation(&light->t, -45 * DEG2RAD, -55 * DEG2RAD, 0);
+
     for (i32 i = 0; i < sim->maxEnts; ++i)
     {
         SimEntity* ent = &sim->ents[i];
@@ -71,8 +82,6 @@ extern "C" void CLR_WriteDrawFrame(
     scene->sentinel = ZR_SENTINEL;
     frame->sentinel = ZR_SENTINEL;
     frame->numScenes++;
-    //frame->dataSize
-    printf("CLR Wrote %dB for draw frame\n", scene->params.dataBytes);
 }
 
 #endif // CLIENT_RENDER_CPP

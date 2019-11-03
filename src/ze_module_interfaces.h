@@ -39,6 +39,9 @@ struct ze_platform_export
     void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();
 
+    void (*Acquire_EventBuffer)(ZEByteBuffer** buf);
+    void (*Release_EventBuffer)();
+
     void (*LockMutex)(i32 index, i32 tag);
     void (*UnlockMutex)(i32 index, i32 tag);
     i32 sentinel;

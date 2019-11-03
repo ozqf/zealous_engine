@@ -1,7 +1,10 @@
 #ifndef ZE_WINDOW_CALLBACKS_H
 #define ZE_WINDOW_CALLBACKS_H
 
-#include "../ze_platform_events.h"
+//#include "../ze_platform_events.h"
+#include "../sys_events.h"
+#include "../ze_common/ze_input.h"
+#include "win_map_glfw_input.h"
 
 // TODO: App thread can cause a 'GLFW is not initialised' error here
 // by call into main thread during shutdown. Make sure App has closed before
@@ -30,12 +33,28 @@ static void window_close_callback(GLFWwindow* window)
     */
 }
 
+static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+        return YES;
+    }
+    return NO;
+}
+
 /**
  * Input mutex should already be locked when events are polled
  * so no sync is done in this callback
  */
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    if (handle_window_key(window, key, scancode, action, mods) == YES)
+    {
+        return;
+    }
+
+    zeInputCode code = Win_GlfwToZEKey(key);
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
@@ -43,13 +62,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
     if (action == GLFW_PRESS)
     {
-        ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")
-        ZKeys_WriteEvent(&g_events, key, 1);
+        //ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")
+        Sys_WriteInputEvent(&g_events, key, 1);
+        //ZKeys_WriteEvent(&g_events, key, 1);
     }
     else if (action == GLFW_RELEASE)
     {
-        ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")
-        ZKeys_WriteEvent(&g_events, key, 0);
+        //ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")
+        Sys_WriteInputEvent(&g_events, key, 0);
+        //ZKeys_WriteEvent(&g_events, key, 0);
     }
 }
 

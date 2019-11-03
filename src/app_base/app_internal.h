@@ -27,6 +27,7 @@ internal f32 g_simFrameAcculator = 0;
 internal i64 g_lastPlatformFrame = 0;
 
 internal u32 g_renderCalls = 0;
+internal i32 g_apptick = 0;
 
 /////////////////////////////////////////////////////////////////
 // MEMORY

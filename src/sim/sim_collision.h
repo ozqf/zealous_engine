@@ -17,7 +17,6 @@ inline i32 Sim_FindByAABB(
 	i32 replicatedOnly
     )
 {
-	//AppTimer timer(APP_STAT_AABB_SEARCH, g_apptick++);
 	timeFloat start = App_SampleClock();
     i32 resultIndex = 0;
     i32 count = 0;

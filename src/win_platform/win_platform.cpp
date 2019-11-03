@@ -48,6 +48,7 @@ static volatile i32 g_bExitAppThread = NO;
 
 static ZEByteBuffer g_drawListBuffer;
 static ZEByteBuffer g_drawDataBuffer;
+static ZEByteBuffer g_eventBuffer;
 
 static HMODULE g_windowDLL;
 static ze_window_export g_window;
@@ -240,6 +241,17 @@ static void PlatformImpl_ReleaseAppDrawBuffers()
     PlatformImpl_UnlockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
 }
 
+static void PlatformImpl_AcquireEventBuffer(ZEByteBuffer** buf)
+{
+    PlatformImpl_LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+    *buf = &g_eventBuffer;
+}
+
+static void PlatformImpl_ReleaseEventBuffer()
+{
+    PlatformImpl_UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+}
+
 static ze_platform_export Win_BuildExport()
 {
     ze_platform_export result = {};
@@ -257,6 +269,8 @@ static ze_platform_export Win_BuildExport()
 
     result.Acquire_AppDrawBuffers = PlatformImpl_GetAppDrawbuffers;
     result.Release_AppDrawBuffers = PlatformImpl_ReleaseAppDrawBuffers;
+    result.Acquire_EventBuffer = PlatformImpl_AcquireEventBuffer;
+    result.Release_EventBuffer = PlatformImpl_ReleaseEventBuffer;
 
     return result;
 }
@@ -343,6 +357,7 @@ int CALLBACK WinMain(
     i32 bytes = MegaBytes(1);
     g_drawListBuffer = Buf_FromMalloc(malloc(bytes), bytes);
     g_drawDataBuffer = Buf_FromMalloc(malloc(bytes), bytes);
+    g_eventBuffer = Buf_FromMalloc(malloc(bytes), bytes);
 
     // Create Mutexes
     Win_InitMutexes();

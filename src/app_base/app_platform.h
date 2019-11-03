@@ -264,7 +264,7 @@ internal i32 App_StartSession(i32 sessionType)
 //////////////////////////////////////////////////////////////
 // Exported to platform
 //////////////////////////////////////////////////////////////
-
+#if 0
 internal void App_Input(i64 frameNumber, ZEByteBuffer commands)
 {
     g_lastPlatformFrame = frameNumber;
@@ -304,8 +304,18 @@ internal void App_Input(i64 frameNumber, ZEByteBuffer commands)
         }
     }
 }
+#endif
 
-i32 g_apptick = 0;
+internal void App_ReadSysEvents(ZEByteBuffer* events)
+{
+    u8* read = buf->start;
+    u8* end = buf->cursor;
+    while (read < end)
+    {
+        SysEvent* ev = (SysEvent)
+    }
+}
+
 internal void App_SimFrame(timeFloat interval)
 {
     AppTimer timer(APP_STAT_FRAME_TOTAL, g_apptick++);
@@ -313,6 +323,12 @@ internal void App_SimFrame(timeFloat interval)
         APP_LOG(64, "App Sim tick %.8f\n", interval);
     #endif
     App_UpdateLoopbackSocket(&g_loopbackSocket, interval);
+    ZEByteBuffer* events;
+    g_platform.Acquire_EventBuffer(&events);
+
+    events->Clear();
+    g_platform.Release_EventBuffer();
+
     if (g_isRunningServer)
     {
         g_serverLoopback.Swap();

@@ -349,7 +349,6 @@ struct ZRViewFrame
 {
     u32 sentinel;
     f64 prebuildTime;
-    //i32 dataSize;
     i32 numScenes;
 };
 

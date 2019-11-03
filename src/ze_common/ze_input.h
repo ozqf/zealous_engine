@@ -5,6 +5,8 @@
 
 enum ZMouseMode { Free = 0, Captured = 1 };
 
+typedef int zeInputCode;
+
 //////////////////////////////////////////////////////////////////////
 // Input codes
 //////////////////////////////////////////////////////////////////////
@@ -43,9 +45,9 @@ enum ZMouseMode { Free = 0, Captured = 1 };
 #define Z_INPUT_CODE_Y                      32
 #define Z_INPUT_CODE_Z                      33
 #define Z_INPUT_CODE_SPACE                  34
-#define Z_INPUT_CODE_SHIFT                  35
+#define Z_INPUT_CODE_LEFT_SHIFT             35
 #define Z_INPUT_CODE_RIGHT_SHIFT            36
-#define Z_INPUT_CODE_CONTROL                37
+#define Z_INPUT_CODE_LEFT_CONTROL           37
 #define Z_INPUT_CODE_RIGHT_CONTROL          38
 #define Z_INPUT_CODE_ESCAPE                 39
 #define Z_INPUT_CODE_RETURN                 40
