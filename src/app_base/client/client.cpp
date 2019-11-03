@@ -17,6 +17,7 @@ internal i32 g_clientState = CLIENT_STATE_NONE;
 
 internal i32 g_isRunning = 0;
 internal SimScene g_sim;
+internal Transform g_camera;
 internal i32 g_ticks = 0;
 internal timeFloat g_elapsed = 0;
 internal i32 g_serverTick = 0;
@@ -237,6 +238,12 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
         Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize)
     );
 
+    g_camera = {};
+    g_camera.pos.z = 10;
+    g_camera.pos.y += 34;
+    Transform_SetRotation(&g_camera, -(80.0f    * DEG2RAD), 0, 0);
+
+    CLR_Init();
     /*
     i32 numRenderCommandBytes = sizeof(RenderCommand) *
 		CL_MAX_RENDER_COMMANDS;
@@ -254,6 +261,7 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
 
 extern "C" void CL_Shutdown()
 {
+    CLR_Shutdown();
 	for (i32 i = 0; i < g_numAllocations; ++i)
 	{
 		free(g_allocations[i]);

@@ -7,6 +7,11 @@
 {##ptrToByteBuffer##->cursor += \
     ZE_COPY((u8*)##ptrToByteArray##, ##ptrToByteBuffer##->cursor##, numOfBytesInArray##);}
 
+#define ZE_INIT_PTR_IN_PLACE(ptrVariableName, structTypeName, ptrToByteBuffer) \
+structTypeName##* ptrVariableName = (##structTypeName##*)##ptrToByteBuffer##->cursor; \
+ptrToByteBuffer##->cursor += sizeof(##structTypeName##); \
+*##ptrVariableName = {};
+
 struct ZEByteBuffer
 {
     u8* start;
