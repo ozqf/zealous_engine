@@ -14,7 +14,8 @@ extern "C" void CLR_Shutdown();
 extern "C" void CLR_WriteDrawFrame(
     ZEByteBuffer* list,
     ZEByteBuffer* data,
-    SimScene* sim
+    SimScene* sim,
+    Transform* camera
 );
 
 #if 0

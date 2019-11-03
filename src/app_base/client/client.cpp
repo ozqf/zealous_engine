@@ -80,7 +80,7 @@ extern "C" i32 CL_IsRunning() { return g_isRunning; }
 
 extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
 {
-    CLR_WriteDrawFrame(list, data, &g_sim);
+    CLR_WriteDrawFrame(list, data, &g_sim, &g_camera);
 }
 
 internal void CL_WriteNetworkDebug(CharBuffer* str)
@@ -238,7 +238,7 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
         Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize)
     );
 
-    g_camera = {};
+    Transform_SetToIdentity(&g_camera);
     g_camera.pos.z = 10;
     g_camera.pos.y += 34;
     Transform_SetRotation(&g_camera, -(80.0f    * DEG2RAD), 0, 0);

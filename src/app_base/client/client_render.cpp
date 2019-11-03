@@ -25,7 +25,8 @@ extern "C" void CLR_Shutdown()
 extern "C" void CLR_WriteDrawFrame(
     ZEByteBuffer* list,
     ZEByteBuffer* data,
-    SimScene* sim)
+    SimScene* sim,
+    Transform* camera)
 {
     i32 requiredCapacity = sizeof(ZRViewFrame) + (sizeof(ZRDrawObj) * sim->maxEnts);
 
@@ -39,7 +40,9 @@ extern "C" void CLR_WriteDrawFrame(
     scene->params.bIsInteresting = NO;
     scene->params.bSkybox = NO;
     scene->params.projectionMode = ZR_PROJECTION_MODE_3D;
+    scene->params.camera = *camera;
     i32 objCount = 0;
+    u8* listStart = list->cursor;
     // write client draw data. World, view model, HUD, menus.
     for (i32 i = 0; i < sim->maxEnts; ++i)
     {
@@ -48,6 +51,12 @@ extern "C" void CLR_WriteDrawFrame(
 
         switch (ent->factoryType)
         {
+            case SIM_FACTORY_TYPE_WORLD:
+
+            case SIM_FACTORY_TYPE_BOUNCER:
+            case SIM_FACTORY_TYPE_WANDERER:
+            case SIM_FACTORY_TYPE_DART:
+            case SIM_FACTORY_TYPE_SEEKER:
             case SIM_FACTORY_TYPE_ACTOR:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
@@ -57,7 +66,13 @@ extern "C" void CLR_WriteDrawFrame(
         }
         objCount++;
     }
+    scene->params.dataBytes = list->cursor - listStart;
     scene->params.numObjects = objCount;
+    scene->sentinel = ZR_SENTINEL;
+    frame->sentinel = ZR_SENTINEL;
+    frame->numScenes++;
+    //frame->dataSize
+    printf("CLR Wrote %dB for draw frame\n", scene->params.dataBytes);
 }
 
 #endif // CLIENT_RENDER_CPP
