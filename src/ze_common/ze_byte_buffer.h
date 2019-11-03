@@ -1,7 +1,6 @@
 #ifndef ZE_BYTE_BUFFER_H
 #define ZE_BYTE_BUFFER_H
 
-
 #include "ze_common.h"
 
 #define BUF_COPY(ptrToByteBuffer, ptrToByteArray, numOfBytesInArray) \
@@ -11,7 +10,6 @@
 struct ZEByteBuffer
 {
     u8* start;
-    //u8* end;
     u8* cursor;
     i32 capacity;
 
@@ -29,6 +27,7 @@ struct ZEByteBuffer
         if (start == NULL) { return NO; }
         if (cursor == NULL) { return NO; }
         if (capacity == 0) { return NO; }
+        if (Written() > Space()) { return NO; }
         return YES;
     }
 
@@ -38,7 +37,6 @@ struct ZEByteBuffer
         {
             ZE_SET_ZERO(start, capacity);
         }
-	    //end = start;
 	    cursor = start;
     }
 };

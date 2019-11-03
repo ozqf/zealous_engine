@@ -2,6 +2,7 @@
 #define ZE_MODULE_INTERFACES_H
 
 #include "../ze_common/ze_common.h"
+#include "../ze_common/ze_byte_buffer.h"
 
 // app module function pointers
 struct ze_app_export
@@ -35,7 +36,7 @@ struct ze_platform_export
     void* (*Allocate)(i32 numBytes);
     void (*Free)(void* ptr);
 
-    void (*Acquire_AppDrawBuffers)(u8** listPtr, i32* listBytes, u8** dataPtr, i32* dataBytes);
+    void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();
 
     void (*LockMutex)(i32 index, i32 tag);

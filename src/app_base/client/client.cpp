@@ -74,7 +74,7 @@ internal SimActorInput g_actorInput = {};
 #include "../commands_deserialise.h"
 #include "client_packets.h"
 
-i32 CL_IsRunning() { return g_isRunning; }
+extern "C" i32 CL_IsRunning() { return g_isRunning; }
 
 internal void CL_WriteNetworkDebug(CharBuffer* str)
 {
@@ -144,7 +144,7 @@ internal void CL_WriteCameraDebug(CharBuffer* str)
 	
 }
 
-void CL_WriteDebugString(CharBuffer* str)
+extern "C" void CL_WriteDebugString(CharBuffer* str)
 {
 	CL_WriteNetworkDebug(str);
 	//CL_WriteTransformDebug(str);
@@ -161,7 +161,7 @@ internal void* CL_Malloc(i32 numBytes)
     return g_allocations[index];
 }
 
-u8 CL_ParseCommandString(char* str, char** tokens, i32 numTokens)
+extern "C" u8 CL_ParseCommandString(char* str, char** tokens, i32 numTokens)
 {
     return 0;
 }
@@ -190,7 +190,7 @@ void CL_LoadTestScene()
 }
 
 // Public so that local user can be instantly set from outside
-void CL_SetLocalUser(UserIds ids)
+extern "C" void CL_SetLocalUser(UserIds ids)
 {
     ZE_ASSERT(g_clientState == CLIENT_STATE_REQUESTING,
         "Client is not requesting a connection")
@@ -204,7 +204,7 @@ void CL_SetLocalUser(UserIds ids)
 ////////////////////////////////////////////////////////////////////
 // Init
 ////////////////////////////////////////////////////////////////////
-void CL_Init(ZNetAddress serverAddress)
+extern "C" void CL_Init(ZNetAddress serverAddress)
 {
     ZE_ASSERT(g_clientState == CLIENT_STATE_NONE,
         "Client State is not clear")
@@ -246,7 +246,7 @@ void CL_Init(ZNetAddress serverAddress)
         g_numAllocations, (u32)BytesAsKB(g_bytesAllocated));
 }
 
-void CL_Shutdown()
+extern "C" void CL_Shutdown()
 {
 	for (i32 i = 0; i < g_numAllocations; ++i)
 	{

@@ -19,6 +19,7 @@ Provides:
 #include "../ze_module_interfaces.h"
 
 #include "../ze_common/ze_common.h"
+#include "../ze_common/ze_byte_buffer.h"
 
 ////////////////////////////////////////////////////////
 // Data types
@@ -44,6 +45,9 @@ static ze_platform_export Win_BuildExport();
 ////////////////////////////////////////////////////////
 static ze_windows_thread g_appThread = {};
 static volatile i32 g_bExitAppThread = NO;
+
+static ZEByteBuffer g_drawListBuffer;
+static ZEByteBuffer g_drawDataBuffer;
 
 static HMODULE g_windowDLL;
 static ze_window_export g_window;
@@ -224,13 +228,11 @@ static void PlatformImpl_Free(void* ptr)
     free(ptr);
 }
 
-static void PlatformImpl_GetAppDrawbuffers(u8** listPtr, i32* listBytes, u8** dataPtr, i32* dataBytes)
+static void PlatformImpl_GetAppDrawbuffers(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf)
 {
     PlatformImpl_LockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
-    *listPtr = NULL;
-    *listBytes = 0;
-    *dataPtr = NULL;
-    *dataBytes = 0;
+    *listBuf = &g_drawListBuffer;
+    *dataBuf = &g_drawDataBuffer;
 }
 
 static void PlatformImpl_ReleaseAppDrawBuffers()
@@ -337,6 +339,10 @@ int CALLBACK WinMain(
     printf("[%s] Console initialized.\n", __FILE__);
 	
 	Win_InitTimer();
+
+    i32 bytes = MegaBytes(1);
+    g_drawListBuffer = Buf_FromMalloc(malloc(bytes), bytes);
+    g_drawDataBuffer = Buf_FromMalloc(malloc(bytes), bytes);
 
     // Create Mutexes
     Win_InitMutexes();

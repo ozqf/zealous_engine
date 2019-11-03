@@ -450,6 +450,22 @@ internal i32 AppImpl_ParseCommandString(char* str, char** tokens, i32 numTokens)
     return 0;
 }
 
+internal void App_DrawFrame()
+{
+    // Acquire buffers
+    ZEByteBuffer* list;
+    ZEByteBuffer* data;
+    g_platform.Acquire_AppDrawBuffers(&list, &data);
+    list->Clear(NO);
+    data->Clear(NO);
+
+    // Add draw data
+    CL_WriteDrawFrame(list, data);
+
+    // release
+    g_platform.Release_AppDrawBuffers();
+}
+
 internal i32 AppImpl_Tick()
 {
     timeFloat frameInterval = App_GetSimFrameInterval();
@@ -460,6 +476,7 @@ internal i32 AppImpl_Tick()
         g_lastTimeSample = time;
         //App_Update(frameInterval);
         App_SimFrame(frameInterval);
+        App_DrawFrame();
         //printf("App TOCK\n");
     }
     return ZE_ERROR_NONE;

@@ -1,8 +1,18 @@
-#pragma once
-#if 0
+#ifndef CLIENT_RENDER_H
+#define CLIENT_RENDER_H
+
 #include "client.h"
 
+extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
+{
+    // write client draw data. World, view model, HUD, menus.
+    for (i32 i = 0; i < g_sim.maxEnts; ++i)
+    {
+        SimEntity* ent = &g_sim.ents[i];
+    }
+}
 
+#if 0
 void CL_PopulateRenderScene(
 	Transform* cam,
 	RenderScene* scene,
@@ -334,3 +344,5 @@ void CL_GetRenderCommands(
 }
 
 #endif
+
+#endif // CLIENT_RENDER_H

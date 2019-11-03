@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CLIENT_H
+#define CLIENT_H
 
 #include "../user.h"
 #include "../../ze_common/ze_common.h"
@@ -10,14 +11,15 @@
 
 #define CL_MAX_SENT_INPUT_COMMANDS 60
 
-void    CL_Init(ZNetAddress serverAddress);
-void    CL_Shutdown();
-i32     CL_IsRunning();
-void	CL_CopyCameraTransform(Transform* target);
-void    CL_Tick(
+extern "C" void CL_Init(ZNetAddress serverAddress);
+extern "C" void CL_Shutdown();
+extern "C" i32 CL_IsRunning();
+extern "C" void CL_CopyCameraTransform(Transform* target);
+extern "C" void CL_Tick(
 			ZEByteBuffer* sysEvents,
 			timeFloat deltaTime,
 			i64 platformFrame);
+extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data);
 /*
 void    CL_PopulateRenderScene(
 			Transform* cam,
@@ -31,9 +33,11 @@ void    CL_GetRenderCommands(
 			i32 texIndex,
 			f32 interpolateTime);
 */
-void    CL_SetLocalUser(UserIds ids);
-void    CL_WriteDebugString(CharBuffer* str);
-u8      CL_ParseCommandString(
+extern "C" void    CL_SetLocalUser(UserIds ids);
+extern "C" void    CL_WriteDebugString(CharBuffer* str);
+extern "C" u8      CL_ParseCommandString(
 			char* str,
 			char** tokens,
 			i32 numTokens);
+
+#endif // CLIENT_H

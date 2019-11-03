@@ -108,17 +108,13 @@ static i32 ZR_MainLoop()
 {
     while(!glfwWindowShouldClose(g_window))
     {
-        u8* listPtr;
-        i32 listBytes;
-        u8* dataPtr;
-        i32 dataBytes;
-        g_platform.Acquire_AppDrawBuffers(&listPtr, &listBytes, &dataPtr, &dataBytes);
+        ZEByteBuffer* list;
+        ZEByteBuffer* data;
+        g_platform.Acquire_AppDrawBuffers(&list, &data);
         // Draw
         glClearColor(1, 0, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        ZEByteBuffer list = Buf_FromBytes(listPtr, listBytes);
-        ZEByteBuffer data = Buf_FromBytes(dataPtr, dataBytes);
-        g_renderer.DrawFrame(&list, &data, g_scrInfo);
+        g_renderer.DrawFrame(list, data, g_scrInfo);
         // Finish Frame
         g_platform.Release_AppDrawBuffers();
         glfwSwapBuffers(g_window);
