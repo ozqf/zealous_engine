@@ -50,6 +50,7 @@ extern "C" void CLR_WriteDrawFrame(
     objCount++;
     ZRDrawObj_SetAsPointLight(NULL, light, { 1, 1, 1 }, 999.f);
     light->data.light.bCastShadows = YES;
+    Transform_SetToIdentity(&light->t);
     light->t.pos.x = -10;
     light->t.pos.y = 15;
     light->t.pos.z = 10;
@@ -63,6 +64,8 @@ extern "C" void CLR_WriteDrawFrame(
         switch (ent->factoryType)
         {
             case SIM_FACTORY_TYPE_WORLD:
+
+            case SIM_FACTORY_TYPE_PROJ_PLAYER:
 
             case SIM_FACTORY_TYPE_BOUNCER:
             case SIM_FACTORY_TYPE_WANDERER:
