@@ -54,6 +54,10 @@ static i32 Sys_ValidateEvent(SysEvent* ev)
     {
         return ZE_ERROR_NULL_ARGUMENT;
     }
+    if (ev->sentinel != SYS_EVENT_SENTINEL)
+    {
+        return ZE_ERROR_DESERIALISE_FAILED;
+    }
     return ZE_ERROR_NONE;
 }
 

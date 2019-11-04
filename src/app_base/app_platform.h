@@ -312,7 +312,17 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
     u8* end = buf->cursor;
     while (read < end)
     {
-        SysEvent* ev = (SysEvent)
+        SysEvent* ev = (SysEvent)read;
+        read += ev->size;
+        ErrorCode err = Sys_ValidateEvent(ev);
+        if (err != ZE_ERROR_NONE)
+        {
+            ZE_ASSERT(NO, "Invalid system event");
+        }
+        if (ev->type == SYS_EVENT_INPUT)
+        {
+            
+        }
     }
 }
 
@@ -325,7 +335,7 @@ internal void App_SimFrame(timeFloat interval)
     App_UpdateLoopbackSocket(&g_loopbackSocket, interval);
     ZEByteBuffer* events;
     g_platform.Acquire_EventBuffer(&events);
-
+    App_ReadSysEvents(events);
     events->Clear();
     g_platform.Release_EventBuffer();
 
