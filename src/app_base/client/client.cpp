@@ -329,6 +329,7 @@ internal void CL_ReadSystemEvents(
             case SYS_EVENT_INPUT:
             {
                 SysInputEvent* inputEv = (SysInputEvent*)ev;
+                printf("CL Reading input %d\n", inputEv->inputID);
                 Input_TestForAction(
 					&g_inputActions,
 					inputEv->value,

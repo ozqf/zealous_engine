@@ -47,15 +47,15 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
  * Input mutex should already be locked when events are polled
  * so no sync is done in this callback
  */
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+static void key_callback(GLFWwindow* window, int glfwKey, int scancode, int action, int mods)
 {
-    if (handle_window_key(window, key, scancode, action, mods) == YES)
+    if (handle_window_key(window, glfwKey, scancode, action, mods) == YES)
     {
         return;
     }
 
-    zeInputCode code = Win_GlfwToZEKey(key);
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    zeInputCode keyCode = Win_GlfwToZEKey(glfwKey);
+    if (keyCode == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
         return;
@@ -63,13 +63,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     if (action == GLFW_PRESS)
     {
         //ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")
-        Sys_WriteInputEvent(&g_events, key, 1);
+        //printf("WINDOW Writing key %d pressed\n", key);
+        Sys_WriteInputEvent(g_events, keyCode, 1);
         //ZKeys_WriteEvent(&g_events, key, 1);
     }
     else if (action == GLFW_RELEASE)
     {
         //ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")
-        Sys_WriteInputEvent(&g_events, key, 0);
+        //printf("WINDOW Writing key %d released\n", key);
+        Sys_WriteInputEvent(g_events, keyCode, 0);
         //ZKeys_WriteEvent(&g_events, key, 0);
     }
 }
@@ -81,7 +83,7 @@ static ErrorCode ZR_InitCallbacks(GLFWwindow* window)
 {
 	// Prepare buffer for platform events
     i32 eventBufferSize = KiloBytes(64);
-    g_events = Buf_FromMalloc(malloc(eventBufferSize), eventBufferSize);
+    //g_events = Buf_FromMalloc(malloc(eventBufferSize), eventBufferSize);
 
     glfwSetWindowCloseCallback(window, window_close_callback);
     glfwSetKeyCallback(window, key_callback);

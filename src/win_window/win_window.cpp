@@ -119,9 +119,12 @@ static i32 ZR_MainLoop()
         g_platform.Release_AppDrawBuffers();
         glfwSwapBuffers(g_window);
 
-        g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+        g_platform.Acquire_EventBuffer(&g_events);
+        //g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
 		glfwPollEvents();
-        g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+        g_platform.Release_EventBuffer();
+        g_events = NULL;
+        //g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
     }
     return ZE_ERROR_NONE;
 }

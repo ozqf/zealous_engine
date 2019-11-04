@@ -42,6 +42,8 @@ internal GLFWwindow* g_window;
 
 //internal u8 g_platformEventsBuf
 
-internal ZEByteBuffer g_events;
+// This pointer is valid only during event callback processing and
+// must be acquired from the platform module.
+internal ZEByteBuffer* g_events;
 
 #endif // ZE_WINDOW_GLOBALS_H

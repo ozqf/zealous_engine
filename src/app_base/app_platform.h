@@ -3,6 +3,7 @@
 #include "stdlib.h"
 #include "../sys_events.h"
 #include "../ze_module_interfaces.h"
+#include "app_internal.h"
 
 /***************************************
 * Public (app.h)
@@ -308,20 +309,31 @@ internal void App_Input(i64 frameNumber, ZEByteBuffer commands)
 
 internal void App_ReadSysEvents(ZEByteBuffer* events)
 {
-    u8* read = buf->start;
-    u8* end = buf->cursor;
+    u8* read = events->start;
+    u8* end = events->cursor;
+    i32 diff = end - read;
+    if (diff == 0) { return; }
+    printf("APP Reading %d of system events\n", diff);
+    ZEByteBuffer* serverInput = g_serverLoopback.GetWrite();
+    ZEByteBuffer* clientInput = g_clientLoopback.GetWrite();
     while (read < end)
     {
-        SysEvent* ev = (SysEvent)read;
+        SysEvent* ev = (SysEvent*)read;
         read += ev->size;
         ErrorCode err = Sys_ValidateEvent(ev);
         if (err != ZE_ERROR_NONE)
         {
             ZE_ASSERT(NO, "Invalid system event");
         }
-        if (ev->type == SYS_EVENT_INPUT)
+        if (ev->type == SYS_EVENT_PACKET)
         {
-            
+            // Is packet for client or server?
+        }
+        else if (ev->type == SYS_EVENT_INPUT)
+        {
+            //printf("Copying %d bytes of input ev to client loopback\n", ev->size);
+            // Copy input events to client buffer
+            BUF_COPY(clientInput, ev, ev->size);
         }
     }
 }
@@ -336,7 +348,7 @@ internal void App_SimFrame(timeFloat interval)
     ZEByteBuffer* events;
     g_platform.Acquire_EventBuffer(&events);
     App_ReadSysEvents(events);
-    events->Clear();
+    events->Clear(NO);
     g_platform.Release_EventBuffer();
 
     if (g_isRunningServer)
