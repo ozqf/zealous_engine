@@ -140,7 +140,7 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 
 
 
-
+#define ZR_MAX_PREFABS 64
 
 // Indices to render pre-configured objects
 #define ZR_PREFAB_TYPE_CUBE 0
@@ -153,6 +153,7 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 #define ZR_PREFAB_TYPE_QUAD 7
 #define ZR_PREFAB_TYPE_QUAD_DYNAMIC 8
 #define ZR_PREFAB_TYPE_MAGE_TEST 9
+#define ZR_PREFAB_TYPE_SPIKE 10
 
 #define ZR_CUBEMAP_LOAD_INDEX_RIGHT 0
 #define ZR_CUBEMAP_LOAD_INDEX_LEFT 1

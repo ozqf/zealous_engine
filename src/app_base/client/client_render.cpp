@@ -63,15 +63,30 @@ extern "C" void CLR_WriteDrawFrame(
 
         switch (ent->factoryType)
         {
-            case SIM_FACTORY_TYPE_WORLD:
-
             case SIM_FACTORY_TYPE_PROJ_PLAYER:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_SPIKE);
+                obj->t = ent->body.t;
+            } break;
 
+            case SIM_FACTORY_TYPE_WORLD:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_WALL);
+                obj->t = ent->body.t;
+            } break;
             case SIM_FACTORY_TYPE_BOUNCER:
             case SIM_FACTORY_TYPE_WANDERER:
             case SIM_FACTORY_TYPE_DART:
             case SIM_FACTORY_TYPE_SEEKER:
             case SIM_FACTORY_TYPE_ACTOR:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_WALL);
+                obj->t = ent->body.t;
+            } break;
+            case SIM_FACTORY_TYPE_EXPLOSION:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_WALL);

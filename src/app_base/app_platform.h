@@ -313,7 +313,7 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
     u8* end = events->cursor;
     i32 diff = end - read;
     if (diff == 0) { return; }
-    printf("APP Reading %d of system events\n", diff);
+    
     ZEByteBuffer* serverInput = g_serverLoopback.GetWrite();
     ZEByteBuffer* clientInput = g_clientLoopback.GetWrite();
     while (read < end)

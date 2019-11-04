@@ -597,7 +597,11 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     d = ZR_Embed_Quad();
     g_quadVAO = ZRGL_CreateVAOf(
         d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
-
+    
+    d = ZR_Embed_Spike();
+    g_spikeVAO = ZRGL_CreateVAOf(
+        d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    
     g_defaultDiffuseHandle = 
         ZRGL_LoadTexture2D(ZQF_R_DEFAULT_DIFFUSE_TEX, bVerbose);
 
@@ -674,7 +678,7 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     d = ZR_Embed_Quad();
     prefab->geometry = ZRGL_CreateVAOf(
         d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
-    prefab->geometry.vertexCount = d->numVerts;
+    prefab->geometry.vertexCount = g_quadVAO.vertexCount;
     #endif
 
     prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD_DYNAMIC];
@@ -682,9 +686,14 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     // Note: Or not... just render one at a time for now!
     prefab->geometry = g_quadVAO;
     prefab->textures.diffuse = ZRGL_LoadTexture2D("data/charset.bmp", bVerbose);
-    prefab->geometry.vertexCount = d->numVerts;
+    prefab->geometry.vertexCount = g_quadVAO.vertexCount;
     prefab->program = ZR_SHADER_TYPE_TEXT;
 
+    // Projectile Spike
+    prefab = &g_prefabs[ZR_PREFAB_TYPE_SPIKE];
+    prefab->geometry = g_spikeVAO;
+    prefab->textures.diffuse = g_defaultDiffuseHandle;
+    prefab->geometry.vertexCount = g_spikeVAO.vertexCount;
     
     // Character animation test
     prefab = &g_prefabs[ZR_PREFAB_TYPE_MAGE_TEST];

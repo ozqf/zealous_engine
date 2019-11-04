@@ -136,6 +136,7 @@ static ZRGBuffer g_gBuffer;
 static ZRMeshHandles g_cubeVAO;
 static ZRMeshHandles g_inverseCubeVAO;
 static ZRMeshHandles g_quadVAO;
+static ZRMeshHandles g_spikeVAO;
 
 static GLint g_defaultDiffuseHandle;
 
@@ -190,8 +191,7 @@ static ZEByteBuffer g_scratch;
 // so a 1D texture cannot be 1024 * 1024 wide!
 #define ZQF_GL_DATA_TEXTURE_WIDTH 512
 
-#define ZQF_GL_MAX_PREFABS 64
-static ZRPrefab g_prefabs[ZQF_GL_MAX_PREFABS];
+static ZRPrefab g_prefabs[ZR_MAX_PREFABS];
 
 ////////////////////////////////////////////////////////////
 // internal functions
