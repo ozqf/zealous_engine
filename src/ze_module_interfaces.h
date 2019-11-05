@@ -21,6 +21,10 @@ struct ze_window_export
 {
     i32 (*Init)();
     i32 (*MainLoop)();
+    void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
+    void (*Release_AppDrawBuffers)();
+    void (*Acquire_EventBuffer)(ZEByteBuffer** buf);
+    void (*Release_EventBuffer)();
     i32 sentinel;
 };
 
@@ -35,10 +39,10 @@ struct ze_platform_export
     f64 (*QueryClock)();
     void* (*Allocate)(i32 numBytes);
     void (*Free)(void* ptr);
-
+    
+    // Acquire is passed through to window if it is availables
     void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();
-
     void (*Acquire_EventBuffer)(ZEByteBuffer** buf);
     void (*Release_EventBuffer)();
 

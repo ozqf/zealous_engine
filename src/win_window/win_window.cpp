@@ -27,10 +27,15 @@ static void ZR_Error(const char* msg)
     g_platform.Error((char*)msg);
 }
 
-static i32 ZR_Init()
+static i32 WindowImpl_Init()
 {
     //g_platform.Warning("Hello from window DLL", "666");
     ZE_SetFatalError(ZR_Error);
+
+    i32 bytes = MegaBytes(1);
+    g_drawListBuffer = Buf_FromMalloc(malloc(bytes), bytes);
+    g_drawDataBuffer = Buf_FromMalloc(malloc(bytes), bytes);
+    g_eventBuffer = Buf_FromMalloc(malloc(bytes), bytes);
 
     //////////////////////////////////////////////////////////////////
     // GLFW - Build opengl context, window and callbacks
@@ -104,7 +109,82 @@ static i32 ZR_Init()
 	return ZE_ERROR_NONE;
 }
 
-static i32 ZR_MainLoop()
+static void ZR_PollMouseForApp()
+{
+    f64 posX, posY;
+    glfwGetCursorPos(g_window, &posX, &posY);
+    f64 diffX = posX - g_lastMouseSampleX;
+    f64 diffY = posY - g_lastMouseSampleY;
+    i32 bMouseMoved = NO;
+    if (diffX != 0)
+    {
+        bMouseMoved = YES;
+        g_lastMouseSampleX = posX;
+        g_mouseAccumulatorSampleX += (diffX / g_scrInfo.width);
+    }
+    if (diffY != 0)
+    {
+        bMouseMoved = YES;
+        g_lastMouseSampleY = posY;
+        g_mouseAccumulatorSampleY += (diffY / g_scrInfo.height);
+    }
+    #if 0 // dump mouse input samples
+    if (bMouseMoved == YES)
+    {
+        printf("Mouse Pos: %.3f, %.3f\n", posX, posY);
+        printf("\tNormalised: %.3f, %.3f\n",
+            posX / g_scrInfo.width, posY / g_scrInfo.height);
+        printf("\tMouse accumulator: %.3f, %.3f\n",
+            g_mouseAccumulatorSampleX, g_mouseAccumulatorSampleY);
+    }
+    #endif
+}
+
+static void ZR_PollInput()
+{
+    g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+	glfwPollEvents();
+    g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+}
+
+static void WindowImpl_Acquire_AppDrawBuffers(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf)
+{
+    g_platform.LockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
+    *listBuf = &g_drawListBuffer;
+    *dataBuf = &g_drawDataBuffer;
+}
+
+static void WindowImpl_Release_AppDrawBuffers()
+{
+    g_platform.UnlockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
+}
+
+static void WindowImpl_Acquire_EventBuffer(ZEByteBuffer** buf)
+{
+    g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+    *buf = &g_eventBuffer;
+    // Write current mouse state for app to read
+    ZR_PollMouseForApp();
+    //if (g_mouseAccumulatorSampleX != 0 || g_mouseAccumulatorSampleY != 0)
+    //{
+        // inputs take integers...
+        i32 mouseMoveIntX = (i32)(g_mouseAccumulatorSampleX * Z_INPUT_MOUSE_SCALAR);
+        i32 mouseMoveIntY = (i32)(g_mouseAccumulatorSampleY * Z_INPUT_MOUSE_SCALAR);
+        //printf("WIN mouse moved %d / %d\n", mouseMoveIntX, mouseMoveIntY);
+        Sys_WriteInputEvent(&g_eventBuffer, Z_INPUT_CODE_MOUSE_MOVE_X, mouseMoveIntX);
+        Sys_WriteInputEvent(&g_eventBuffer, Z_INPUT_CODE_MOUSE_MOVE_Y, mouseMoveIntY);
+        // Clear for next sample
+        g_mouseAccumulatorSampleX = 0;
+        g_mouseAccumulatorSampleY = 0;
+    //}
+}
+
+static void WindowImpl_Release_EventBuffer()
+{
+    g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+}
+
+static i32 WindowImpl_MainLoop()
 {
     while(!glfwWindowShouldClose(g_window))
     {
@@ -119,12 +199,7 @@ static i32 ZR_MainLoop()
         g_platform.Release_AppDrawBuffers();
         glfwSwapBuffers(g_window);
 
-        g_platform.Acquire_EventBuffer(&g_events);
-        //g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
-		glfwPollEvents();
-        g_platform.Release_EventBuffer();
-        g_events = NULL;
-        //g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+        ZR_PollInput();
     }
     return ZE_ERROR_NONE;
 }
@@ -134,8 +209,13 @@ ze_window_export __declspec(dllexport) ZE_LinkToWindowModule(ze_platform_export 
 {
 	g_platform = platform;
 	ze_window_export result = {};
-	result.Init = ZR_Init;
-    result.MainLoop = ZR_MainLoop;
+	result.Init = WindowImpl_Init;
+    result.MainLoop = WindowImpl_MainLoop;
+    result.Acquire_EventBuffer = WindowImpl_Acquire_EventBuffer;
+    result.Release_EventBuffer = WindowImpl_Release_EventBuffer;
+    result.Acquire_AppDrawBuffers = WindowImpl_Acquire_AppDrawBuffers;
+    result.Release_AppDrawBuffers = WindowImpl_Release_AppDrawBuffers;
+    result.sentinel = ZE_SENTINEL;
 	return result;
 }
 

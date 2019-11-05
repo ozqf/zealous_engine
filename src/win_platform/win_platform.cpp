@@ -46,10 +46,6 @@ static ze_platform_export Win_BuildExport();
 static ze_windows_thread g_appThread = {};
 static volatile i32 g_bExitAppThread = NO;
 
-static ZEByteBuffer g_drawListBuffer;
-static ZEByteBuffer g_drawDataBuffer;
-static ZEByteBuffer g_eventBuffer;
-
 static HMODULE g_windowDLL;
 static ze_window_export g_window;
 
@@ -231,25 +227,31 @@ static void PlatformImpl_Free(void* ptr)
 
 static void PlatformImpl_GetAppDrawbuffers(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf)
 {
-    PlatformImpl_LockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
-    *listBuf = &g_drawListBuffer;
-    *dataBuf = &g_drawDataBuffer;
+    if (g_window.sentinel == ZE_SENTINEL)
+    {
+        g_window.Acquire_AppDrawBuffers(listBuf, dataBuf);
+    }
 }
 
 static void PlatformImpl_ReleaseAppDrawBuffers()
 {
-    PlatformImpl_UnlockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
+    if (g_window.sentinel == ZE_SENTINEL)
+    {
+        g_window.Release_AppDrawBuffers();
+    }
 }
 
 static void PlatformImpl_AcquireEventBuffer(ZEByteBuffer** buf)
 {
-    PlatformImpl_LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
-    *buf = &g_eventBuffer;
+    if (g_window.sentinel == ZE_SENTINEL)
+    { g_window.Acquire_EventBuffer(buf); }
+    else { *buf = NULL; }
 }
 
 static void PlatformImpl_ReleaseEventBuffer()
 {
-    PlatformImpl_UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+    if (g_window.sentinel == ZE_SENTINEL)
+    { g_window.Release_EventBuffer(); }
 }
 
 static ze_platform_export Win_BuildExport()
@@ -353,11 +355,6 @@ int CALLBACK WinMain(
     printf("[%s] Console initialized.\n", __FILE__);
 	
 	Win_InitTimer();
-
-    i32 bytes = MegaBytes(1);
-    g_drawListBuffer = Buf_FromMalloc(malloc(bytes), bytes);
-    g_drawDataBuffer = Buf_FromMalloc(malloc(bytes), bytes);
-    g_eventBuffer = Buf_FromMalloc(malloc(bytes), bytes);
 
     // Create Mutexes
     Win_InitMutexes();
