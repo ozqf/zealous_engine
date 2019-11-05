@@ -6,6 +6,25 @@
 #include "../ze_common/ze_input.h"
 #include "win_map_glfw_input.h"
 
+static i32 Win_IsCursorDisabled()
+{
+    return (g_bMouseCaptured && (g_consoleActive == NO));
+}
+
+static void Window_ApplyMouseState(GLFWwindow* window)
+{
+    i32 bCursorDisabled = Win_IsCursorDisabled();
+    printf("Cursor disabled: %d\n", bCursorDisabled);
+    if (bCursorDisabled)
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+    else
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+}
+
 // TODO: App thread can cause a 'GLFW is not initialised' error here
 // by call into main thread during shutdown. Make sure App has closed before
 // closing GLFW
@@ -35,9 +54,22 @@ static void window_close_callback(GLFWwindow* window)
 
 static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    if (key == GLFW_KEY_ESCAPE)
     {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
+        if (action == GLFW_PRESS)
+        {
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+        return YES;
+    }
+    // (not) tilde key console toggle:
+    if (key == GLFW_KEY_GRAVE_ACCENT)
+    {
+        if (action == GLFW_PRESS)
+        {
+            g_consoleActive = !g_consoleActive;
+            Window_ApplyMouseState(window);
+        }
         return YES;
     }
     return NO;
@@ -53,7 +85,7 @@ static void key_callback(GLFWwindow* window, int glfwKey, int scancode, int acti
     {
         return;
     }
-
+    
     zeInputCode keyCode = Win_GlfwToZEKey(glfwKey);
     if (keyCode == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {

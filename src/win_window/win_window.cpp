@@ -121,13 +121,19 @@ static void ZR_PollMouseForApp()
     {
         bMouseMoved = YES;
         g_lastMouseSampleX = posX;
-        g_mouseAccumulatorSampleX += (diffX / g_scrInfo.width);
+        if (Win_IsCursorDisabled())
+        {
+            g_mouseAccumulatorSampleX += (diffX / g_scrInfo.width);
+        }
     }
     if (diffY != 0)
     {
         bMouseMoved = YES;
         g_lastMouseSampleY = posY;
-        g_mouseAccumulatorSampleY += (diffY / g_scrInfo.height);
+        if (Win_IsCursorDisabled())
+        {
+            g_mouseAccumulatorSampleY += (diffY / g_scrInfo.height);
+        }
     }
     #if 0 // dump mouse input samples
     if (bMouseMoved == YES)

@@ -34,6 +34,9 @@ static ZEByteBuffer g_drawListBuffer;
 static ZEByteBuffer g_drawDataBuffer;
 static ZEByteBuffer g_eventBuffer;
 
+static i32 g_bMouseCaptured = YES;
+static i32 g_consoleActive = NO;
+
 static f64 g_lastMouseSampleX = 0;
 static f64 g_lastMouseSampleY = 0;
 static f64 g_mouseAccumulatorSampleX = 0;
