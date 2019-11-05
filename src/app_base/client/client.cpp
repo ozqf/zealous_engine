@@ -5,7 +5,6 @@
 #include "client.h"
 #include "../../sys_events.h"
 #include "../../sim/sim.h"
-#include "client_input.h"
 
 #define CLIENT_STATE_NONE 0
 #define CLIENT_STATE_REQUESTING 1
@@ -18,6 +17,7 @@ internal i32 g_clientState = CLIENT_STATE_NONE;
 internal i32 g_isRunning = 0;
 internal SimScene g_sim;
 internal Transform g_camera;
+internal Vec3 g_testCameraDegrees = {};
 internal i32 g_ticks = 0;
 internal timeFloat g_elapsed = 0;
 internal i32 g_serverTick = 0;
@@ -69,17 +69,20 @@ internal C2S_Input g_sentCommands[CL_MAX_SENT_INPUT_COMMANDS];
 
 internal SimActorInput g_actorInput = {};
 
+#include "client_input.h"
 #include "client_render.h"
 #include "client_game.h"
 #include "../commands_serialise.h"
 #include "../commands_deserialise.h"
 #include "client_packets.h"
-#include "client_render.h"
 
 extern "C" i32 CL_IsRunning() { return g_isRunning; }
 
 extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
 {
+    M3x3_SetToIdentity(g_camera.rotation.cells);
+    M3x3_RotateY(g_camera.rotation.cells, g_testCameraDegrees.y * DEG2RAD);
+    M3x3_RotateX(g_camera.rotation.cells, g_testCameraDegrees.x * DEG2RAD);
     CLR_WriteDrawFrame(list, data, &g_sim, &g_camera);
 }
 
@@ -242,6 +245,8 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
     g_camera.pos.z = 10;
     g_camera.pos.y += 34;
     Transform_SetRotation(&g_camera, -(80.0f    * DEG2RAD), 0, 0);
+
+    g_testCameraDegrees.x = -80.0f * DEG2RAD;
 
     CLR_Init();
     /*

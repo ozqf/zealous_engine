@@ -78,7 +78,7 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     // Clear buttons and rebuild. Keep mouse position values
     u32 flags = 0;
 
-    f32 mouseMoveMultiplier = 1;
+    f32 mouseMoveMultiplier = 50;
     f32 mouseInvertedMultiplier = -1;
 
     CL_InputCheckButton(actions, "Move Forward", &flags, ACTOR_INPUT_MOVE_FORWARD);
@@ -94,7 +94,7 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     f32 val;
     f32 mouseX = ((f32)Input_GetActionValue(actions, "Mouse Move X") / (f32)Z_INPUT_MOUSE_SCALAR);
     f32 mouseY = ((f32)Input_GetActionValue(actions, "Mouse Move Y") / (f32)Z_INPUT_MOUSE_SCALAR);
-    printf("CL Mouse Pos %.3f, %.3f\n", mouseX, mouseY);
+    //printf("CL Mouse Pos %.3f, %.3f\n", mouseX, mouseY);
     val = mouseX * mouseMoveMultiplier;
     input->degrees.y -= val;
     input->degrees.y = COM_CapAngleDegrees(input->degrees.y);
@@ -115,6 +115,7 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 	{
 		input->degrees.x = 89;
 	}
+    g_testCameraDegrees = input->degrees;
 
     input->buttons = flags;
     //printf("CL Mouse angles %.3f, %.3f\n", input->degrees.y, input->degrees.y);

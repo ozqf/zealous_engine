@@ -57,7 +57,8 @@ static i32 WindowImpl_Init()
     const i32 scrHeight = 768;
     g_scrInfo.width = scrWidth;
     g_scrInfo.height = scrHeight;
-    g_scrInfo.aspectRatio = scrWidth / scrHeight;
+    g_scrInfo.aspectRatio = (f32)scrWidth / (f32)scrHeight;
+    printf("Aspect ratio %.3f\n", g_scrInfo.aspectRatio);
 
     g_window = glfwCreateWindow(scrWidth, scrHeight, "Zealous Engine", NULL, NULL);
     #endif
