@@ -5,6 +5,7 @@
 #include "../sys_events.h"
 #include "../ze_common/ze_input.h"
 #include "win_map_glfw_input.h"
+#include "win_console.h"
 
 static i32 Win_IsCursorDisabled()
 {
@@ -68,7 +69,21 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
         if (action == GLFW_PRESS)
         {
             g_consoleActive = !g_consoleActive;
+            Console_Reset();
             Window_ApplyMouseState(window);
+        }
+        return YES;
+    }
+    if (g_consoleActive == YES)
+    {
+        if (action == GLFW_PRESS)
+        {
+            char* str = Console_AddChar((char)key);
+            if (str != NULL)
+            {
+                // execute command
+                printf("EXEC: %s\n", str);
+            }
         }
         return YES;
     }
