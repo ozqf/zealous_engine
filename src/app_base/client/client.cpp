@@ -80,9 +80,11 @@ extern "C" i32 CL_IsRunning() { return g_isRunning; }
 
 extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
 {
+    /*
     M3x3_SetToIdentity(g_camera.rotation.cells);
     M3x3_RotateY(g_camera.rotation.cells, g_testCameraDegrees.y * DEG2RAD);
     M3x3_RotateX(g_camera.rotation.cells, g_testCameraDegrees.x * DEG2RAD);
+    */
     CLR_WriteDrawFrame(list, data, &g_sim, &g_camera);
 }
 

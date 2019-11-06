@@ -71,9 +71,13 @@ internal SimEntity* Sim_GetFreeReplicatedEntity(
     {
         scene->highestAssignedSequence = newSerial;
     }
-	APP_LOG(64,
-        "SIM assigned replicated ent serial %d (slot %d/%d)\n",
-        ent->id.serial, ent->id.slot.iteration, ent->id.slot.index);
+    if (scene->bVerbose)
+    {
+        APP_LOG(64,
+            "SIM assigned replicated ent serial %d (slot %d/%d)\n",
+            ent->id.serial, ent->id.slot.iteration, ent->id.slot.index);
+    }
+	
     ent->isLocal = 0;
     return ent;
 }
@@ -91,8 +95,11 @@ internal SimEntity* Sim_GetFreeLocalEntity(
     ent->status = SIM_ENT_STATUS_IN_USE;
     ent->id.slot.index = (u16)slotIndex;
 	ent->id.serial = newSerial;
-	APP_LOG(64, "SIM assigned local ent serial %d (slot %d/%d)\n",
-        ent->id.serial, ent->id.slot.iteration, ent->id.slot.index);
+    if (scene->bVerbose)
+    {
+        APP_LOG(64, "SIM assigned local ent serial %d (slot %d/%d)\n",
+            ent->id.serial, ent->id.slot.iteration, ent->id.slot.index);
+    }
     ent->isLocal = 1;
     return ent;
 }
@@ -368,8 +375,11 @@ internal i32 Sim_RecycleEntity(
     if (ent)
     {
         SimEntIndex slot = ent->id.slot;
-        APP_LOG(64, "SIM Removing ent %d (slot %d/%d)\n",
-            entitySerialNumber, slot.iteration, slot.index);
+        if (sim->bVerbose)
+        {
+            APP_LOG(64, "SIM Removing ent %d (slot %d/%d)\n",
+                entitySerialNumber, slot.iteration, slot.index);
+        }
         #ifdef SIM_USE_PHYSICS_ENGINE
         if (ent->shape.handleId > 0)
         {
@@ -384,8 +394,11 @@ internal i32 Sim_RecycleEntity(
     }
     else
     {
-        APP_LOG(64, "SIM Found no ent %d to remove\n",
-            entitySerialNumber);
+        if (sim->bVerbose)
+        {
+            APP_LOG(64, "SIM Found no ent %d to remove\n",
+                entitySerialNumber);
+        }
         return ZE_ERROR_BAD_ARGUMENT;
     }
 }

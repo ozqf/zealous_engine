@@ -48,7 +48,9 @@ internal MallocList g_mallocs;
 // FAKE NETWORK QUALITY
 // Should be 0 0 0 when not debugging (obviously)
 
-internal i32 g_fakeLagMinMS = 150;
+// 100 ms == approx 6 frames at 60fps
+// 200 ms == approx 12 frames at 60fps
+internal i32 g_fakeLagMinMS = 150; // approx 9 frames at 60fps
 internal i32 g_fakeLagMaxMS = 200;
 // 0 to 1 values.
 internal f32 g_fakeLoss = 0.1f;

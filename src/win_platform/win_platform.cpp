@@ -52,6 +52,8 @@ static ze_window_export g_window;
 static HMODULE g_appDLL;
 static ze_app_export g_app;
 
+static FILE* g_logFile = NULL;
+
 global_variable HWND consoleHandle;
 
 #define MAX_MUTEXES 2
@@ -81,12 +83,15 @@ static void Win_Warning(char *msg)
 
 static void Win_Log(char *msg)
 {
-	//printf(msg);
+	if (g_logFile != NULL)
+    {
+        fprintf(g_logFile, "%s", msg);
+    }
 }
 
 static void Win_Print(char *msg)
 {
-	//printf(msg);
+	printf(msg);
 }
 
 ////////////////////////////////////////////////////////
@@ -345,6 +350,7 @@ int CALLBACK WinMain(
     LPSTR lpCmdLine,
     int nCmdShow)
 {
+    // init live debug console
     FILE *stream;
     AllocConsole();
     freopen_s(&stream, "conin$", "r", stdin);
@@ -353,6 +359,28 @@ int CALLBACK WinMain(
     consoleHandle = GetConsoleWindow();
     MoveWindow(consoleHandle, 1, 1, 680, 600, 1);
     printf("[%s] Console initialized.\n", __FILE__);
+
+    //////////////////////////////////////////////////////
+    // Init log file
+
+    // Build file name
+    SYSTEMTIME time;
+    GetSystemTime(&time);
+    ZE_BUILD_STRING(logFileName, 128, "ex90_log_%d_%d_%d - %d_%d_%d.txt",
+        time.wYear,
+        time.wMonth,
+        time.wDay,
+        time.wHour,
+        time.wMinute,
+        time.wSecond
+    );
+    
+    // open
+    errno_t fileErr = fopen_s(&g_logFile, logFileName, "w");
+    if (fileErr != 0)
+    {
+        printf("Failed to open log file %s for writing\n", logFileName);
+    }
 	
 	Win_InitTimer();
 

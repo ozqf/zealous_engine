@@ -253,6 +253,7 @@ struct SimScene
 {
     SimEntity* ents;
     i32 maxEnts;
+    i32 bVerbose;
 
     WorldHandle* world;
 

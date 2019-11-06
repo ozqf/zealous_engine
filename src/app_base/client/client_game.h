@@ -200,7 +200,7 @@ internal void CLG_StepActor(
 
 internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
 {
-    const i32 verbose = 0;
+    const i32 verbose = YES;
     if (g_latestUserInputAck >= cmd->lastUserInputSequence)
     {
         // APP_PRINT(64, "CL Ignore response %d (current %d)\n",
@@ -235,19 +235,30 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     Vec3 currentLocalPos = ent->body.t.pos;
     Vec3 remotePos = cmd->latestAvatarPos;
     
+    i32 bIsCorrecting = NO;
     if (Vec3_AreDifferent(&originalLocalPos, &remotePos, F32_EPSILON))
     {
         // Server disagrees with our recorded position at this time.
         // Therefore we must correct.
         ent->body.t.pos = remotePos;
         ent->body.previousPos = remotePos;
+        bIsCorrecting = YES;
+        //ILLEGAL_CODE_PATH
         if (verbose)
         {
-            APP_PRINT(256,
+            APP_LOG(256,
                 "  Correcting CL vs SV: %.3f, %.3f, %.3f vs %.3f, %.3f, %.3f\n",
                 originalLocalPos.x, originalLocalPos.y, originalLocalPos.z,
                 remotePos.x, remotePos.y, remotePos.z
             );
+        }
+        // Check that there is a timing issue. Does the client have a record at this position?
+        C2S_Input* matchingInput =
+            CL_FindSentInputByPosition(g_sentCommands, remotePos, F32_EPSILON);
+        if (matchingInput != NULL)
+        {
+            APP_LOG(128, "Client has matching record on tick %d vs SV response tick %d!\n",
+                matchingInput->userInputSequence, cmd->lastUserInputSequence);
         }
     }
     else
@@ -261,8 +272,9 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
             );
         }
         
-        ent->body.t.pos = originalLocalPos;
-        ent->body.previousPos = originalLocalPos;
+        //ent->body.t.pos = originalLocalPos;
+        //ent->body.previousPos = originalLocalPos;
+        return;
     }
 
     // Mark that this entity has been moved this frame already

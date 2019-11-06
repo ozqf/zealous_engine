@@ -199,20 +199,27 @@ i32 Sim_ReserveEntitySerials(
         first = scene->localEntitySequence;
         last = first - count;
         scene->localEntitySequence = last;
-        APP_LOG(128,
-            "SIM Reserving %d local entity serials (%d to %d)\n",
-            count, first, (last - 1)
+        if (scene->bVerbose)
+        {
+            APP_LOG(128,
+                "SIM Reserving %d local entity serials (%d to %d)\n",
+                count, first, (last - 1)
             );
+        }
     }
     else
     {
         first = scene->remoteEntitySequence;
         last = first + count;
         scene->remoteEntitySequence = last;
-        APP_LOG(128,
-            "SIM Reserving %d replicated entity serials (%d to %d)\n",
-            count, first, (last - 1)
+        if (scene->bVerbose)
+        {
+            APP_LOG(128,
+                "SIM Reserving %d replicated entity serials (%d to %d)\n",
+                count, first, (last - 1)
             );
+        }
+        
     }
     return first;
 }
@@ -336,6 +343,7 @@ void Sim_Init(
     
     sim->ents = entityMemory;
     sim->maxEnts = maxEntities;
+    sim->bVerbose = NO;
 	Sim_Reset(sim);
     #ifdef SIM_USE_PHYSICS_ENGINE
     sim->world = PhysExt_Create(label, Sim_PhysicsError);

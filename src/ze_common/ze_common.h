@@ -103,7 +103,7 @@ internal f32 ZAbsf(f32 value)
 
 #define DLL_EXPORT __declspec(dllexport)
 
-#define ZE_STRING(stringBufName, stringBufSize, stringFormat, ...) \
+#define ZE_BUILD_STRING(stringBufName, stringBufSize, stringFormat, ...) \
 char stringBufName##[##stringBufSize##]; \
 snprintf(##stringBufName##, stringBufSize##, stringFormat##, ##__VA_ARGS__##); \
 

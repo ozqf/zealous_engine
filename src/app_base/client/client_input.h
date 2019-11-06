@@ -26,6 +26,20 @@ internal C2S_Input* CL_RecallSentInputCommand(
     return result;
 }
 
+internal C2S_Input* CL_FindSentInputByPosition(
+    C2S_Input* list, Vec3 queryPos, f32 epsilon)
+{
+    for (i32 i = 0; i < CL_MAX_SENT_INPUT_COMMANDS; ++i)
+    {
+        Vec3 pos = list[i].avatarPos;
+        if (Vec3_AreDifferent(&queryPos, &pos, epsilon) == NO)
+        {
+            return &list[i];
+        }
+    }
+    return NULL;
+}
+
 internal void CL_InitInputs(InputActionSet* actions)
 {
     Input_InitAction(actions, Z_INPUT_CODE_V, "Cycle Debug");
