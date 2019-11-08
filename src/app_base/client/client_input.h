@@ -26,6 +26,22 @@ internal C2S_Input* CL_RecallSentInputCommand(
     return result;
 }
 
+internal void CL_DumpSentInputs(
+    C2S_Input* list, i32 numInputs)
+{
+	APP_LOG(64, "CL Stored Inputs\n");
+    for (i32 i = 0; i < numInputs; ++i)
+	{
+		C2S_Input* input = &list[i];
+		APP_LOG(256,
+			"\tSeq %d, Local SV Tick %d - pos %.3f, %.3f, %.3f\n",
+			input->userInputSequence, input->header.tick,
+			input->avatarPos.x, input->avatarPos.y, input->avatarPos.z
+		);
+	}
+}
+
+
 internal C2S_Input* CL_RecallSentInputCommandByServerTick(
     C2S_Input* list, i32 serverTick)
 {

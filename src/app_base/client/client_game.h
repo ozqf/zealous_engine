@@ -228,9 +228,16 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
             g_userInputSequence
         );
     }
+	
+	////////////////////////////////////
+    // DEBUG Dump stored inputs to log for analysis
+	#if 1
+	CL_DumpSentInputs(g_sentCommands, CL_MAX_SENT_INPUT_COMMANDS);
+	#endif
     
     ////////////////////////////////////
     // DEBUG Compare by server tick
+	#if 1
     C2S_Input* tickBasedInput = CL_RecallSentInputCommandByServerTick(
         g_sentCommands, cmd->header.tick);
     if (tickBasedInput != NULL)
@@ -244,6 +251,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
         APP_LOG(128, "CL cannot compare by server tick CL %d vs SV %d...\n",
             g_serverTick, cmd->header.tick);
     }
+	#endif
     ////////////////////////////////////
     
     // this is the input sequence matching the response. Replay will
