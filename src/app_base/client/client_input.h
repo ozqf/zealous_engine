@@ -26,6 +26,20 @@ internal C2S_Input* CL_RecallSentInputCommand(
     return result;
 }
 
+internal C2S_Input* CL_RecallSentInputCommandByServerTick(
+    C2S_Input* list, i32 serverTick)
+{
+    for (i32 i = 0; i < CL_MAX_SENT_INPUT_COMMANDS; ++i)
+    {
+        C2S_Input* result = &list[i];
+        if (result->header.tick == serverTick)
+        {
+            return result;
+        }
+    }
+    return NULL;
+}
+
 internal C2S_Input* CL_FindSentInputByPosition(
     C2S_Input* list, Vec3 queryPos, f32 epsilon)
 {

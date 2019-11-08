@@ -237,7 +237,7 @@ internal i32 App_StartSession(i32 sessionType)
             //g_localServerSocket.isActive = 1;
             SV_Init();
             UserIds ids = SVU_CreateLocalUser();
-            g_isRunningServer = 1;
+            g_isRunningServer = YES;
 
             /*ZNet_StartSession(
                 g_clientNet,
@@ -249,7 +249,7 @@ internal i32 App_StartSession(i32 sessionType)
             addr.port = APP_SERVER_LOOPBACK_PORT;
             CL_Init(addr);
             CL_SetLocalUser(ids);
-            g_isRunningClient = 1;
+            g_isRunningClient = YES;
 
             return ZE_ERROR_NONE;
         } break;
@@ -350,6 +350,7 @@ internal void App_SimFrame(timeFloat interval)
     App_ReadSysEvents(events);
     events->Clear(NO);
     g_platform.Release_EventBuffer();
+    APP_LOG(64, "\nAPP Frame\n");
 
     if (g_isRunningServer)
     {

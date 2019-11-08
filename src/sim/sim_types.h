@@ -260,7 +260,7 @@ struct SimScene
     // sequential, unrelated to blocks
     i32 remoteEntitySequence;
     i32 localEntitySequence;
-    i32 cmdSequence;
+    //i32 cmdSequence;
     i32 tick;
 	
 	timeFloat timeInAABBSearch;

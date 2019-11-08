@@ -319,7 +319,7 @@ void Sim_Reset(SimScene* sim)
 	i32 arraySize = Sim_CalcEntityArrayBytes(sim->maxEnts);
 	i32 numBytes = sim->maxEnts * sizeof(SimEntity);
     ZE_SET_ZERO(sim->ents, arraySize)
-	sim->cmdSequence = 0;
+	//sim->cmdSequence = 0;
 	sim->tick = 0;
 	// 0 == an invalid serial for error handling. Means once less
 	// replicated entity, oh well

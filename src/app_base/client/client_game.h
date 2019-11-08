@@ -212,6 +212,9 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     SimEntity* ent = Sim_GetEntityBySerial(
         &g_sim, g_avatarSerial);
     if (!ent) { return; }
+
+    APP_LOG(256, "CL - Sync Avatar on sv tick %d (input seq %d) vs SV response tick %d (seq %d)\n",
+        CL_GetServerTick(), g_userInputSequence, cmd->header.tick, cmd->lastUserInputSequence);
     
     g_latestUserInputAck = cmd->lastUserInputSequence;
     g_latestAvatarPos = cmd->latestAvatarPos;
@@ -226,6 +229,23 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
         );
     }
     
+    ////////////////////////////////////
+    // DEBUG Compare by server tick
+    C2S_Input* tickBasedInput = CL_RecallSentInputCommandByServerTick(
+        g_sentCommands, cmd->header.tick);
+    if (tickBasedInput != NULL)
+    {
+        Vec3 posTickBased = tickBasedInput->avatarPos;
+        APP_LOG(256, "CL compare pos by server tick\n\tCL %.3f, %.3f, %.3f vs SV %.3f, %.3f, %.3f\n",
+            posTickBased.x, posTickBased.y, posTickBased.z, g_latestAvatarPos.x, g_latestAvatarPos.y, g_latestAvatarPos.z);
+    }
+    else
+    {
+        APP_LOG(128, "CL cannot compare by server tick CL %d vs SV %d...\n",
+            g_serverTick, cmd->header.tick);
+    }
+    ////////////////////////////////////
+    
     // this is the input sequence matching the response. Replay will
     // occur from this point.
     C2S_Input* sourceInput = CL_RecallSentInputCommand(
@@ -234,7 +254,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     Vec3 originalLocalPos = sourceInput->avatarPos;
     Vec3 currentLocalPos = ent->body.t.pos;
     Vec3 remotePos = cmd->latestAvatarPos;
-    
+
     i32 bIsCorrecting = NO;
     if (Vec3_AreDifferent(&originalLocalPos, &remotePos, F32_EPSILON))
     {
@@ -297,8 +317,9 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
 		Vec3 after = ent->body.t.pos;
         if (verbose)
         {
-            APP_LOG(256, "\t\tSeq %d Buttons %d: %.3f, %.3f, %.3f to %.3f, %.3f, %.3f\n",
+            APP_LOG(256, "\t\tSeq %d, svtick %d, Buttons %d: %.3f, %.3f, %.3f to %.3f, %.3f, %.3f\n",
 			    replaySequence,
+                input->header.tick,
                 input->input.buttons,
 			    before.x, before.y, before.z,
 			    after.x, after.y, after.z

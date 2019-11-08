@@ -69,6 +69,24 @@ internal C2S_Input g_sentCommands[CL_MAX_SENT_INPUT_COMMANDS];
 
 internal SimActorInput g_actorInput = {};
 
+/////////////////////////////////////////////////////////////
+// Configures this client's time-base relative
+// to the server.
+// Client will be ((ping / 2) + jitter delay) behind
+// the server
+/////////////////////////////////////////////////////////////
+internal void CL_SetServerTick(i32 value)
+{
+	g_serverTick = value - APP_DEFAULT_JITTER_TICKS;
+    APP_LOG(64, "CL Set Server Tick base at %d\n", g_serverTick);
+}
+
+// Can be changed during command execute so always retreive from here:
+internal i32 CL_GetServerTick()
+{
+	return g_serverTick;
+}
+
 #include "client_input.h"
 #include "client_render.h"
 #include "client_game.h"
@@ -364,23 +382,6 @@ internal i32 CL_IsCommandTickSensitive(i32 cmdType)
 	return true;
 }
 
-/////////////////////////////////////////////////////////////
-// Configures this client's time-base relative
-// to the server.
-// Client will be ((ping / 2) + jitter delay) behind
-// the server
-/////////////////////////////////////////////////////////////
-internal void CL_SetServerTick(i32 value)
-{
-	g_serverTick = value - APP_DEFAULT_JITTER_TICKS;
-}
-
-// Can be changed during command execute so always retreive from here:
-internal i32 CL_GetServerTick()
-{
-	return g_serverTick;
-}
-
 internal i32 CL_ExecReliableCommand(
     SimScene* sim, Command* h, timeFloat deltaTime, i32 tickDiff)
 {
@@ -612,7 +613,7 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
         g_userInputSequence++,
         &g_actorInput,
         &pos,
-        g_serverTick,
+        CL_GetServerTick(),
         deltaTime);
 	CL_StoreSentInputCommand(g_sentCommands, &cmd);
 	// Run

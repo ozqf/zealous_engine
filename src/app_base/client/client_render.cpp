@@ -38,7 +38,7 @@ extern "C" void CLR_WriteDrawFrame(
     *scene = {};
     scene->params.bDeferred = YES;
     scene->params.bIsInteresting = NO;
-    scene->params.bSkybox = NO;
+    scene->params.bSkybox = YES;
     scene->params.projectionMode = ZR_PROJECTION_MODE_3D;
     scene->params.camera = *camera;
     i32 objCount = 0;

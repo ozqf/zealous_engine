@@ -142,6 +142,7 @@ static ErrorCode ZR_InitCallbacks(GLFWwindow* window)
     }
 
     glfwGetCursorPos(window, &g_lastMouseSampleX, &g_lastMouseSampleY);
+    Window_ApplyMouseState(window);
     return ZE_ERROR_NONE;
 }
 

@@ -15,6 +15,7 @@ internal i32 SVP_WriteUnreliableSection(
     // - sim tick for these commands
     packet->cursor += COM_WriteI32(sim->tick, packet->cursor);
 
+    ////////////////////////////////////////////////////////////////
     // send input confirmation
     SimEntity* avatar = Sim_GetEntityBySerial(&g_sim, user->entSerial);
     Vec3 pos = {};
@@ -29,6 +30,8 @@ internal i32 SVP_WriteUnreliableSection(
     packet->cursor += Cmd_Serialise(
         &sim->quantise, packet->cursor, &response.header, 0);
     stats->numUnreliableMessages += 1;
+
+    ////////////////////////////////////////////////////////////////
     // ENTITY SYNC
     #if 1
     PriorityLink* links = user->entSync.links;
