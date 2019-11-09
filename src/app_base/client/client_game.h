@@ -203,10 +203,12 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     const i32 verbose = YES;
     if (g_latestUserInputAck >= cmd->lastUserInputSequence)
     {
-        // APP_PRINT(64, "CL Ignore response %d (current %d)\n",
-        //     cmd->lastUserInputSequence,
-        //     g_latestUserInputAck
-        // );
+        if (verbose)
+        {
+            APP_LOG(64, "CL Ignore response %d (current %d)\n",
+                cmd->lastUserInputSequence,
+                g_latestUserInputAck);
+        }
         return;
     }
     SimEntity* ent = Sim_GetEntityBySerial(
@@ -225,8 +227,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
         APP_LOG(128, "CL Replay %d frames (%d to %d)\n",
             framesSinceResponse,
             cmd->lastUserInputSequence,
-            g_userInputSequence
-        );
+            g_userInputSequence);
     }
 	
 	////////////////////////////////////
@@ -249,7 +250,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     else
     {
         APP_LOG(128, "CL cannot compare by server tick CL %d vs SV %d...\n",
-            g_serverTick, cmd->header.tick);
+            CL_GetServerTick(), cmd->header.tick);
     }
 	#endif
     ////////////////////////////////////
@@ -264,7 +265,9 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     Vec3 remotePos = cmd->latestAvatarPos;
 
     i32 bIsCorrecting = NO;
-    if (Vec3_AreDifferent(&originalLocalPos, &remotePos, F32_EPSILON))
+    i32 bPositionsDiffer = Vec3_AreDifferent(&originalLocalPos, &remotePos, F32_EPSILON);
+    if (g_bClientAlwaysRepredict == YES
+        || bPositionsDiffer == NO)
     {
         // Server disagrees with our recorded position at this time.
         // Therefore we must correct.
@@ -274,11 +277,20 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
         //ILLEGAL_CODE_PATH
         if (verbose)
         {
-            APP_LOG(256,
-                "  Correcting CL vs SV: %.3f, %.3f, %.3f vs %.3f, %.3f, %.3f\n",
-                originalLocalPos.x, originalLocalPos.y, originalLocalPos.z,
-                remotePos.x, remotePos.y, remotePos.z
-            );
+            if (bPositionsDiffer == YES)
+            {
+                APP_LOG(256,
+                    "  Correcting CL vs SV: %.3f, %.3f, %.3f vs %.3f, %.3f, %.3f\n",
+                    originalLocalPos.x, originalLocalPos.y, originalLocalPos.z,
+                    remotePos.x, remotePos.y, remotePos.z);
+            }
+            else
+            {
+                APP_LOG(256,
+                    "  No correction repredict CL vs SV: %.3f, %.3f, %.3f vs %.3f, %.3f, %.3f\n",
+                    originalLocalPos.x, originalLocalPos.y, originalLocalPos.z,
+                    remotePos.x, remotePos.y, remotePos.z);
+            }
         }
         // Check that there is a timing issue. Does the client have a record at this position?
         C2S_Input* matchingInput =
@@ -296,8 +308,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
             APP_LOG(256,
                 "  No correction for local vs server positions: %.3f, %.3f, %.3f vs %.3f, %.3f, %.3f\n",
                 originalLocalPos.x, originalLocalPos.y, originalLocalPos.z,
-                remotePos.x, remotePos.y, remotePos.z
-            );
+                remotePos.x, remotePos.y, remotePos.z);
         }
         
         //ent->body.t.pos = originalLocalPos;

@@ -26,29 +26,37 @@ internal void CL_LogCommandBuffer(ZEByteBuffer* b, char* label)
     }
 }
 
+/**
+ * Input passed in may be null
+ */
 internal i32 CL_WriteUnreliableSection(
     QuantiseSet* quantise, ZEByteBuffer* packet, C2S_Input* userInput)
 {
     u8* start = packet->cursor;
     // Write header
-    packet->cursor += COM_WriteI32(g_ticks, packet->cursor);
+    packet->cursor += COM_WriteI32(CL_GetServerTick(), packet->cursor);
     // Send ping
 	CmdPing ping = {};
 	// TODO: Stream enqueue will set the sequence for us
 	// so remove sending 0 here.
-	Cmd_Prepare(&ping.header, g_ticks);
+	Cmd_Prepare(&ping.header, CL_GetServerTick());
 	ping.sendTime = g_elapsed;
     packet->cursor += Cmd_Serialise(
         quantise, packet->cursor, &ping.header, 0);
 	
-	// TODO: Encode userInput
-    APP_LOG(64, "CL Write input\n");
-    packet->cursor += Cmd_Serialise(
-        quantise, packet->cursor, &userInput->header, 0);
+    if (userInput != NULL)
+    {
+        APP_LOG(64, "CL Write input\n");
+        packet->cursor += Cmd_Serialise(
+            quantise, packet->cursor, &userInput->header, 0);
+    }
 	
     return (packet->cursor - start);
 }
 
+/**
+ * Input passed in may be null
+ */
 internal void CL_WritePacket(
     QuantiseSet* quantise, timeFloat time, C2S_Input* userInput)
 {

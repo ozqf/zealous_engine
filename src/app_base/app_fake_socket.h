@@ -12,17 +12,26 @@ struct FakeSocketInfo
 
     i32 RollDropPacket()
     {
+        if (lossNormal == 0) { return NO; }
         //f32 num = COM_Randf32(&this->randomIndex);
         f32 num = COM_STDRandf32();
         //printf("Drop? %.2f vs %.2f\n", num, this->lossNormal);
         return (num < lossNormal);
     }
 
-    i32 RollDelay()
+    i32 RollDelay(i32 currentDelayTime)
     {
         //f32 num = ZE_Randf32(this->randomIndex++);
+        #if 0 // Realistic variable ping
         f32 num = COM_STDRandf32();
         return (i32)((f32)(maxMS - minMS) * num) + minMS;
+        #endif
+        #if 1 // Ping will oscilate between two values:
+        if (currentDelayTime == maxMS)
+        { return minMS; }
+        else
+        { return maxMS; }
+        #endif
     }
 };
 
@@ -48,7 +57,7 @@ struct FakeSocket
     FakeSocketPacketHeader* handles[FAKE_SOCKET_MAX_HANDLES];
     timeFloat delayRecalcTime;
     timeFloat dropRecalcTime;
-    timeFloat nextDelayTime;
+    i32 nextDelayTimeMS;
     timeFloat nextDropTime;
 
     void SetLagStats(i32 minLagMS, i32 maxLagMS, f32 normalisedPacketLossChance)
@@ -102,7 +111,7 @@ struct FakeSocket
 
     void SendPacket(i32 socketIndex, ZNetAddress* address, u8* data, i32 numBytes)
     {
-        timeFloat delay = nextDelayTime;
+        timeFloat delay = (f32)nextDelayTimeMS / 1000.f;
         #if 1 // Report internal packets:
         if (address->port == APP_CLIENT_LOOPBACK_PORT)
         {
@@ -115,7 +124,7 @@ struct FakeSocket
         #endif
         if (this->info.RollDropPacket())
         {
-            //APP_PRINT(16, "GULP\n");
+            APP_LOG(16, "GULP\n");
             return;
         }
         i32 i = this->GetFreeHandleIndex();
@@ -146,7 +155,11 @@ struct FakeSocket
         if (delayRecalcTime <= 0)
         {
             delayRecalcTime = 1;
-            nextDelayTime = (f32)this->info.RollDelay() / 1000.0f;
+            i32 newDelayTimeMS = this->info.RollDelay(nextDelayTimeMS);
+
+            APP_LOG(128, "APP - FAKE SOCKET DELAY CHANGE %d to %d\n",
+                nextDelayTimeMS, newDelayTimeMS);
+            nextDelayTimeMS = newDelayTimeMS;
         }
         else
         {

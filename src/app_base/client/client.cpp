@@ -16,13 +16,15 @@ internal i32 g_clientState = CLIENT_STATE_NONE;
 
 internal i32 g_isRunning = 0;
 internal SimScene g_sim;
+internal i32 g_bHasSimSynced = NO;
 internal Transform g_camera;
 internal Vec3 g_testCameraDegrees = {};
-internal i32 g_ticks = 0;
 internal timeFloat g_elapsed = 0;
-internal i32 g_serverTick = 0;
+//internal i32 g_ticks = 0;
+//internal i32 g_serverTick = 0;
 internal timeFloat g_ping;
 internal timeFloat g_jitter;
+internal i32 g_bClientAlwaysRepredict = YES;
 
 internal i32 g_avatarSerial = 0;
 
@@ -77,14 +79,23 @@ internal SimActorInput g_actorInput = {};
 /////////////////////////////////////////////////////////////
 internal void CL_SetServerTick(i32 value)
 {
-	g_serverTick = value - APP_DEFAULT_JITTER_TICKS;
-    APP_LOG(64, "CL Set Server Tick base at %d\n", g_serverTick);
+    i32 result = value - APP_DEFAULT_JITTER_TICKS;
+	//g_serverTick = result;
+    g_sim.tick = result;
+    g_bHasSimSynced = YES;
+    APP_LOG(64, "CL Set Sim Tick base at %d\n", result);
+}
+
+internal i32 CL_HasSimSynced()
+{
+    return g_bHasSimSynced;
 }
 
 // Can be changed during command execute so always retreive from here:
 internal i32 CL_GetServerTick()
 {
-	return g_serverTick;
+	//return g_serverTick;
+    return g_sim.tick;
 }
 
 #include "client_input.h"
@@ -113,8 +124,8 @@ internal void CL_WriteNetworkDebug(CharBuffer* str)
     str->cursor += sprintf_s(
         str->cursor,
         str->Space(),
-        "CLIENT:\nServer Tick: %d\nTick: %d\nElapsed: %.3f\nOutput Seq: %d\nAck Seq: %d\nDelay: %.3f\nJitter %.3f\n",
-        g_serverTick, g_ticks, g_elapsed, g_acks.outputSequence,
+        "CLIENT:\nSim Tick: %d\nElapsed: %.3f\nOutput Seq: %d\nAck Seq: %d\nDelay: %.3f\nJitter %.3f\n",
+        CL_GetServerTick(), g_elapsed, g_acks.outputSequence,
 		g_acks.remoteSequence, g_ping, g_jitter
     );
 
@@ -584,11 +595,13 @@ internal void CL_CalcPings(timeFloat deltaTime)
 
 void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
 {
-    APP_LOG(64, "*** CL TICK %d (Server Sync Tick %d. T %.3f) ***\n",
-        g_ticks, g_serverTick, g_elapsed);
+    APP_LOG(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",
+        CL_GetServerTick(), g_userInputSequence, g_elapsed);
+    APP_LOG(128, "\tLatest input ack before packet read: %d\n", g_latestUserInputAck);
     CL_ReadSystemEvents(sysEvents, deltaTime, platformFrame);
 
     CL_CalcPings(deltaTime);
+    APP_LOG(128, "CL Measured Ping %.5f, Jitter %.5f\n", g_ping, g_jitter);
     
 	CL_RunReliableCommands(&g_sim, &g_reliableStream, deltaTime);
     //CL_LogCommandBuffer(&g_unreliableStream.inputBuffer, "Unreliable input");
@@ -602,43 +615,58 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
             latestResponse->header.tick);
         C2S_Input* matchingInput = CL_RecallSentInputCommandByServerTick
             (g_sentCommands, latestResponse->header.tick);
-        APP_LOG(256, "CL tick record %.3f, %.3f, %.3f vs sv response %.3f, %.3f, %.3f",
-            matchingInput->avatarPos.x,
-            matchingInput->avatarPos.y,
-            matchingInput->avatarPos.z,
-            latestResponse->latestAvatarPos.x,
-            latestResponse->latestAvatarPos.y,
-            latestResponse->latestAvatarPos.z
-        );
+		if (matchingInput != NULL)
+		{
+			APP_LOG(256, "CL tick record %.3f, %.3f, %.3f vs sv response %.3f, %.3f, %.3f\n",
+				matchingInput->avatarPos.x,
+				matchingInput->avatarPos.y,
+				matchingInput->avatarPos.z,
+				latestResponse->latestAvatarPos.x,
+				latestResponse->latestAvatarPos.y,
+				latestResponse->latestAvatarPos.z
+			);
+		}
+        
     }
     
-    // Update input
-    CL_UpdateActorInput(&g_inputActions, &g_actorInput);
-	// Create and store input to server
-	C2S_Input cmd;
-	SimEntity* plyr = Sim_GetEntityBySerial(&g_sim, g_avatarSerial);
-	Vec3 pos = {};
-	if (plyr)
-	{
-		plyr->input = g_actorInput;
-		pos = plyr->body.t.pos;
-	}
-	else
-	{
-		APP_LOG(64, "No player!\n");
-	}
-	Cmd_InitClientInput(
-        &cmd,
-        g_userInputSequence++,
-        &g_actorInput,
-        &pos,
-        CL_GetServerTick(),
-        deltaTime);
-	CL_StoreSentInputCommand(g_sentCommands, &cmd);
+    // Until Sim sync has begun, input is ignored!
+    C2S_Input cmd = {};
+    if (CL_HasSimSynced() == YES)
+    {
+        // Update input
+        CL_UpdateActorInput(&g_inputActions, &g_actorInput);
+	    // Create and store input to server
+	    SimEntity* plyr = Sim_GetEntityBySerial(&g_sim, g_avatarSerial);
+	    Vec3 pos = {};
+	    if (plyr)
+	    {
+	    	plyr->input = g_actorInput;
+	    	pos = plyr->body.t.pos;
+	    }
+	    else
+	    {
+	    	APP_LOG(64, "No player!\n");
+	    }
+	    Cmd_InitClientInput(
+            &cmd,
+            g_userInputSequence++,
+            &g_actorInput,
+            &pos,
+            CL_GetServerTick(),
+            deltaTime);
+	    CL_StoreSentInputCommand(g_sentCommands, &cmd);
+    }
 	// Run
     CLG_TickGame(&g_sim, deltaTime);
-	g_ticks++;
-	g_serverTick++;
     g_elapsed += deltaTime;
-    CL_WritePacket(&g_sim.quantise, g_elapsed, &cmd);
+
+    if (CL_HasSimSynced() == YES)
+    {
+        CL_WritePacket(&g_sim.quantise, g_elapsed, &cmd);
+    }
+    else
+    {
+        CL_WritePacket(&g_sim.quantise, g_elapsed, NULL);
+    }
+    
 }

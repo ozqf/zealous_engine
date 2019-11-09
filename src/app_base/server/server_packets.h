@@ -275,15 +275,23 @@ internal void SVP_ReadUnreliableSection(
             case CMD_TYPE_C2S_INPUT:
             {
                 C2S_Input* cmd = (C2S_Input*)header;
-                if (cmd->userInputSequence > user->userInputSequence)
-                {
-                    user->userInputSequence = cmd->userInputSequence;
-                }
                 if (cmd->header.tick > user->latestServerTick)
                 {
                     user->latestServerTick = cmd->header.tick;
                 }
-                Sim_SetActorInput(&g_sim, &cmd->input, user->entSerial);
+                if (cmd->userInputSequence > user->userInputSequence)
+                {
+                    user->userInputSequence = cmd->userInputSequence;
+                    APP_LOG(128, "SVP Read CL input seq %d (sim tick %d) on SV sim tick %d\n",
+                        cmd->userInputSequence, cmd->header.tick, g_sim.tick
+                        );
+                    Sim_SetActorInput(&g_sim, &cmd->input, user->entSerial);
+                }
+                else
+                {
+                    APP_LOG(128, "SVP Ignoring outdated Client input. Last was %d vs Seq %d (sim tick %d)\n",
+                        user->userInputSequence, cmd->userInputSequence, cmd->header.tick);
+                }
             } break;
 
             default:

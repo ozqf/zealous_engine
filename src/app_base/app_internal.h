@@ -22,7 +22,7 @@ internal ScreenInfo g_screenInfo;
 
 /////////////////////////////////////////////////////////////////
 // TIMING
-internal i32 g_simFrameRate = 60;
+internal i32 g_simFrameRate = 10;//60;
 internal f32 g_simFrameAcculator = 0;
 internal i64 g_lastPlatformFrame = 0;
 
@@ -50,10 +50,10 @@ internal MallocList g_mallocs;
 
 // 100 ms == approx 6 frames at 60fps
 // 200 ms == approx 12 frames at 60fps
-internal i32 g_fakeLagMinMS = 150; // approx 9 frames at 60fps
-internal i32 g_fakeLagMaxMS = 200;
+internal i32 g_fakeLagMinMS = 0;//50;//100;
+internal i32 g_fakeLagMaxMS = 500;//350;
 // 0 to 1 values.
-internal f32 g_fakeLoss = 0.1f;
+internal f32 g_fakeLoss = 0;//0.1f;
 
 internal FakeSocket g_loopbackSocket;
 /*

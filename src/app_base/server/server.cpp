@@ -299,6 +299,8 @@ void SV_Init()
     SimEntity* mem = (SimEntity*)COM_Malloc(&g_mallocs, size, "Sim Ents");
     Sim_Init("Server", &g_sim, mem, maxEnts);
 	Sim_Reset(&g_sim);
+    // Inflate sim frame number - debugging
+    g_sim.tick += 123;
     SV_LoadTestScene();
 
     SV_ListAllocs();
@@ -440,6 +442,16 @@ void SV_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime)
 {
     APP_LOG(64, "*** SV TICK %d (T %.3f) ***\n", g_sim.tick, g_elapsed);
     SV_ReadSystemEvents(sysEvents, deltaTime);
+
+    ZNetAddress addr = {};
+    addr.port = APP_CLIENT_LOOPBACK_PORT;
+    User* user = User_FindByAddress(&g_users, &addr);
+    if (user != NULL)
+    {
+        APP_LOG(256, "SV Local player ping %.5f, jitter %.5f, Sim tick %d, Input Seq %d\n",
+            user->ping, user->jitter, user->latestServerTick, user->userInputSequence
+        );
+    }
     
     SV_CalcPings(deltaTime);
     SVG_TickSim(&g_sim, deltaTime);
