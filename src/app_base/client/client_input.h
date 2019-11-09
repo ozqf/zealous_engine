@@ -2,6 +2,44 @@
 
 #include "client.h"
 
+#define CLI_MAX_RESPONSE_RECORDS 60
+
+internal S2C_InputResponse g_serverResponses[CLI_MAX_RESPONSE_RECORDS];
+
+/////////////////////////////////////
+// Record server responses
+/////////////////////////////////////
+internal void CLI_RecordServerResponse(
+    S2C_InputResponse* list, S2C_InputResponse* item)
+{
+    i32 i = item->header.tick % CLI_MAX_RESPONSE_RECORDS;
+    list[i] = *item;
+}
+
+internal S2C_InputResponse* CLI_FindLatestInputResponse(
+    S2C_InputResponse* list, i32 localTick)
+{
+    i32 latest = 0;
+    S2C_InputResponse* result = NULL;
+    for (i32 i = 0; i < CLI_MAX_RESPONSE_RECORDS; ++i)
+    {
+        S2C_InputResponse* item = &list[i];
+        if (item->header.tick == 0) { continue; }
+
+        if (item->header.tick < localTick
+            && item->header.tick > latest)
+        {
+            latest = item->header.tick;
+            result = item;
+        }
+    }
+    return result;
+}
+
+/////////////////////////////////////
+// Recording sent client inputs
+/////////////////////////////////////
+
 internal void CL_StoreSentInputCommand(
     C2S_Input* list, C2S_Input* input)
 {

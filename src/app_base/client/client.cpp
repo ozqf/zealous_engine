@@ -549,6 +549,7 @@ internal void CL_RunUnreliableCommands(
                     S2C_InputResponse* cmd = (S2C_InputResponse*)h;
                     CLG_SyncAvatar(sim, cmd);
                     executed = 1;
+                    CLI_RecordServerResponse(g_serverResponses, cmd);
                 } break;
 
                 case CMD_TYPE_PING:
@@ -593,6 +594,24 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
     //CL_LogCommandBuffer(&g_unreliableStream.inputBuffer, "Unreliable input");
     CL_RunUnreliableCommands(&g_sim, &g_unreliableStream, deltaTime);
 
+    S2C_InputResponse* latestResponse =
+        CLI_FindLatestInputResponse(g_serverResponses, CL_GetServerTick());
+    if (latestResponse != NULL)
+    {
+        APP_LOG(96, "CLI Latest historical server response is SV tick %d\n",
+            latestResponse->header.tick);
+        C2S_Input* matchingInput = CL_RecallSentInputCommandByServerTick
+            (g_sentCommands, latestResponse->header.tick);
+        APP_LOG(256, "CL tick record %.3f, %.3f, %.3f vs sv response %.3f, %.3f, %.3f",
+            matchingInput->avatarPos.x,
+            matchingInput->avatarPos.y,
+            matchingInput->avatarPos.z,
+            latestResponse->latestAvatarPos.x,
+            latestResponse->latestAvatarPos.y,
+            latestResponse->latestAvatarPos.z
+        );
+    }
+    
     // Update input
     CL_UpdateActorInput(&g_inputActions, &g_actorInput);
 	// Create and store input to server
