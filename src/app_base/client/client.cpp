@@ -53,6 +53,8 @@ internal i32 g_clDebugFlags = 0
     //| CL_DEBUG_FLAG_NO_ENEMY_TICK
 ;
 
+internal f32 g_debugSkipReportDistance;
+
 // Menus
 internal i32 g_mainMenuOn;
 
@@ -545,37 +547,28 @@ internal void CL_RunUnreliableCommands(
 		
 		// If executed,   delete command from buffer
         i32 executed = 0;
-        if (diff <= 0)
+
+        // some sync events are related to server tick...
+        if (h->type == CMD_TYPE_S2C_SYNC_ENTITY
+            && diff <= 0)
         {
-            switch (h->type)
-            {
-                case CMD_TYPE_S2C_SYNC_ENTITY:
-                {
-                    S2C_EntitySync* cmd = (S2C_EntitySync*)h;
-                    executed = CLG_SyncEntity(sim, cmd);
-                } break;
-
-                case CMD_TYPE_S2C_INPUT_RESPONSE:
-                {
-                    S2C_InputResponse* cmd = (S2C_InputResponse*)h;
-                    CLG_SyncAvatar(sim, cmd);
-                    executed = 1;
-                    CLI_RecordServerResponse(g_serverResponses, cmd);
-                } break;
-
-                case CMD_TYPE_PING:
-                {
-                    CmdPing* cmd = (CmdPing*)h;
-                    executed = 1;
-                } break;
-
-                default:
-                {
-                    APP_PRINT(64, "CL Unknown unreliable type %d\n", h->type);
-                } break;
-            }
+            S2C_EntitySync* cmd = (S2C_EntitySync*)h;
+                executed = CLG_SyncEntity(sim, cmd);
         }
-        
+        // ...some should be executed immediately
+        else if (h->type == CMD_TYPE_S2C_INPUT_RESPONSE)
+        {
+            S2C_InputResponse* cmd = (S2C_InputResponse*)h;
+            CLG_SyncAvatar(sim, cmd);
+            executed = 1;
+            CLI_RecordServerResponse(g_serverResponses, cmd);
+        }
+        else if (h->type == CMD_TYPE_PING)
+        {
+            CmdPing* cmd = (CmdPing*)h;
+            executed = 1;
+        }
+
         if (executed)
         {
             Stream_DeleteCommand(b, h, 0);

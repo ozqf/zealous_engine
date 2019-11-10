@@ -115,12 +115,6 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
         ZR_SHADOW_MAP_HEIGHT);
     
     /////////////////////////////////////////
-    // Assets
-    /////////////////////////////////////////
-    
-    ZRGL_LoadDefaultPrefabs(NO);
-
-    /////////////////////////////////////////
     // Programs
     /////////////////////////////////////////
     
@@ -214,6 +208,14 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
         NO,
         &g_programs[ZR_SHADER_TYPE_COMBINE_GBUFFER]);
     if (err != ZE_ERROR_NONE) { return err; }
+
+    /////////////////////////////////////////
+    // Assets
+    /////////////////////////////////////////
+
+    ZE_SET_ZERO(g_prefabs, sizeof(ZRPrefab) * ZR_MAX_PREFABS);
+    
+    ZRGL_LoadDefaultPrefabs(NO);
 
     return ZE_ERROR_NONE;
 }

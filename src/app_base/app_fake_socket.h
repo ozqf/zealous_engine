@@ -157,6 +157,8 @@ struct FakeSocket
             delayRecalcTime = 1;
             i32 newDelayTimeMS = this->info.RollDelay(nextDelayTimeMS);
 
+            APP_PRINT(128, "APP - FAKE SOCKET DELAY CHANGE %d to %d\n",
+                nextDelayTimeMS, newDelayTimeMS);
             APP_LOG(128, "APP - FAKE SOCKET DELAY CHANGE %d to %d\n",
                 nextDelayTimeMS, newDelayTimeMS);
             nextDelayTimeMS = newDelayTimeMS;

@@ -17,6 +17,9 @@ extern "C" frameInt App_CalcTickInterval(timeFloat seconds);
 extern "C" timeFloat App_SampleClock();
 extern "C" ScreenInfo App_GetScreenInfo();
 
+// For debug inspection purposes ONLY!
+extern "C" void App_Debug_GetServerSim(void** ptr);
+
 extern "C"
 void App_SetPerformanceTime(i32 index, i32 tick, timeFloat milliSeconds);
 

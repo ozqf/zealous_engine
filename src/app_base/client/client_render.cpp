@@ -22,6 +22,107 @@ extern "C" void CLR_Shutdown()
     
 }
 
+/**
+ * returns number of objects added
+ */
+internal i32 CLR_Debug_AddSimObjectsToRenderScene(
+    SimScene* sim,
+    ZEByteBuffer* list,
+    ZEByteBuffer* data)
+{
+    i32 objCount = 0;
+    for (i32 i = 0; i < sim->maxEnts; ++i)
+    {
+        SimEntity* ent = &sim->ents[i];
+        if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
+
+        switch (ent->factoryType)
+        {
+            case SIM_FACTORY_TYPE_PROJ_PREDICTION:
+            case SIM_FACTORY_TYPE_PROJECTILE_BASE:
+            case SIM_FACTORY_TYPE_PROJ_PLAYER:
+            case SIM_FACTORY_TYPE_BOUNCER:
+            case SIM_FACTORY_TYPE_WANDERER:
+            case SIM_FACTORY_TYPE_DART:
+            case SIM_FACTORY_TYPE_SEEKER:
+            case SIM_FACTORY_TYPE_ACTOR:
+            case SIM_FACTORY_TYPE_EXPLOSION:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX);
+                obj->t = ent->body.t;
+            } break;
+        }
+        objCount++;
+    }
+    return objCount;
+}
+
+/**
+ * returns number of objects added
+ */
+internal i32 CLR_AddSimObjectsToRenderScene(
+    SimScene* sim,
+    ZEByteBuffer* list,
+    ZEByteBuffer* data)
+{
+    i32 objCount = 0;
+    for (i32 i = 0; i < sim->maxEnts; ++i)
+    {
+        SimEntity* ent = &sim->ents[i];
+        if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
+
+        #if 0
+        ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+            ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
+            obj->t = ent->body.t;
+        objCount++;
+        #endif
+        #if 1
+        switch (ent->factoryType)
+        {
+            case SIM_FACTORY_TYPE_PROJ_PREDICTION:
+            case SIM_FACTORY_TYPE_PROJECTILE_BASE:
+            case SIM_FACTORY_TYPE_PROJ_PLAYER:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE);
+                obj->t = ent->body.t;
+            } break;
+            case SIM_FACTORY_TYPE_WORLD:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_WALL);
+                obj->t = ent->body.t;
+            } break;
+            case SIM_FACTORY_TYPE_BOUNCER:
+            case SIM_FACTORY_TYPE_WANDERER:
+            case SIM_FACTORY_TYPE_DART:
+            case SIM_FACTORY_TYPE_SEEKER:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ENEMY);
+                obj->t = ent->body.t;
+            } break;
+            case SIM_FACTORY_TYPE_ACTOR:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
+                obj->t = ent->body.t;
+            } break;
+            case SIM_FACTORY_TYPE_EXPLOSION:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_EXPLOSION);
+                obj->t = ent->body.t;
+            } break;
+        }
+        objCount++;
+        #endif
+    }
+    return objCount;
+}
+
 extern "C" void CLR_WriteDrawFrame(
     ZEByteBuffer* list,
     ZEByteBuffer* data,
@@ -56,45 +157,20 @@ extern "C" void CLR_WriteDrawFrame(
     light->t.pos.z = 10;
     Transform_SetRotation(&light->t, -45 * DEG2RAD, -55 * DEG2RAD, 0);
 
-    for (i32 i = 0; i < sim->maxEnts; ++i)
+    //////////////////////////////////////////////////
+    // For debugging local listen servers ONLY!
+    //////////////////////////////////////////////////
+    #if 1
+    SimScene* serverSim;
+    App_Debug_GetServerSim((void**)&serverSim);
+    if (serverSim != NULL)
     {
-        SimEntity* ent = &sim->ents[i];
-        if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
-
-        switch (ent->factoryType)
-        {
-            case SIM_FACTORY_TYPE_PROJ_PLAYER:
-            {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_SPIKE);
-                obj->t = ent->body.t;
-            } break;
-
-            case SIM_FACTORY_TYPE_WORLD:
-            {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_WALL);
-                obj->t = ent->body.t;
-            } break;
-            case SIM_FACTORY_TYPE_BOUNCER:
-            case SIM_FACTORY_TYPE_WANDERER:
-            case SIM_FACTORY_TYPE_DART:
-            case SIM_FACTORY_TYPE_SEEKER:
-            case SIM_FACTORY_TYPE_ACTOR:
-            {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_WALL);
-                obj->t = ent->body.t;
-            } break;
-            case SIM_FACTORY_TYPE_EXPLOSION:
-            {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_WALL);
-                obj->t = ent->body.t;
-            } break;
-        }
-        objCount++;
+        objCount += CLR_Debug_AddSimObjectsToRenderScene(serverSim, list, data);
     }
+    #endif
+
+    objCount += CLR_AddSimObjectsToRenderScene(sim, list, data);
+
     scene->params.dataBytes = list->cursor - listStart;
     scene->params.numObjects = objCount;
     scene->sentinel = ZR_SENTINEL;

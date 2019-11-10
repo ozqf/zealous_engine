@@ -200,8 +200,11 @@ internal void CLG_StepActor(
 
 internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
 {
+    f32 skipReportDistance = SIM_ENT_STAT_ACTOR_SPEED * (f32)App_GetSimFrameInterval();
+    //printf("CL Skip report dist: %.5f\n", skipReportDistance);
+
     const i32 verbose = YES;
-    if (g_latestUserInputAck >= cmd->lastUserInputSequence)
+    if (g_latestUserInputAck > cmd->lastUserInputSequence)
     {
         if (verbose)
         {
@@ -215,6 +218,8 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
         &g_sim, g_avatarSerial);
     if (!ent) { return; }
 
+    Vec3 prePredictionEntPos = ent->body.t.pos;
+
     APP_LOG(256, "CL - Sync Avatar on sv tick %d (input seq %d) vs SV response tick %d (seq %d)\n",
         CL_GetServerTick(), g_userInputSequence, cmd->header.tick, cmd->lastUserInputSequence);
     
@@ -224,6 +229,10 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     
     if (verbose)
     {
+        APP_PRINT(128, "CL Replay %d frames (%d to %d)\n",
+            framesSinceResponse,
+            cmd->lastUserInputSequence,
+            g_userInputSequence);
         APP_LOG(128, "CL Replay %d frames (%d to %d)\n",
             framesSinceResponse,
             cmd->lastUserInputSequence,
@@ -232,7 +241,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
 	
 	////////////////////////////////////
     // DEBUG Dump stored inputs to log for analysis
-	#if 1
+	#if 0
 	CL_DumpSentInputs(g_sentCommands, CL_MAX_SENT_INPUT_COMMANDS);
 	#endif
     
@@ -259,6 +268,11 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     // occur from this point.
     C2S_Input* sourceInput = CL_RecallSentInputCommand(
         g_sentCommands, cmd->lastUserInputSequence);
+	if (sourceInput == NULL)
+	{
+		APP_LOG(128, "CL unable to recall input seq %d\n", cmd->lastUserInputSequence);
+		return;
+	}
     
     Vec3 originalLocalPos = sourceInput->avatarPos;
     Vec3 currentLocalPos = ent->body.t.pos;
@@ -334,6 +348,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
 		Vec3 before = ent->body.t.pos;
 		CLG_StepActor(sim, ent, &input->input, input->deltaTime);
 		Vec3 after = ent->body.t.pos;
+        #if 0
         if (verbose)
         {
             APP_LOG(256, "\t\tSeq %d, svtick %d, Buttons %d: %.3f, %.3f, %.3f to %.3f, %.3f, %.3f\n",
@@ -344,7 +359,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
 			    after.x, after.y, after.z
 			);
         }
-		
+		#endif
     }
     #endif
     #if 0
@@ -360,6 +375,18 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     }
     #endif
     //printf("\n");
+
+    Vec3 postPredictionEntPos = ent->body.t.pos;
+    f32 diffX = postPredictionEntPos.x - prePredictionEntPos.x;
+    ZABS(diffX);
+    f32 diffY = postPredictionEntPos.y - prePredictionEntPos.y;
+    ZABS(diffY);
+    if (diffX > skipReportDistance
+        || diffY > skipReportDistance)
+    {
+        APP_PRINT(128, "CL - POSITION SKIP!\n");
+        APP_LOG(128, "CL - POSITION SKIP DETECTED\n");
+    }
 }
 
 internal void CLG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)

@@ -29,8 +29,14 @@
 
 // Render prefabs
 #define SIM_PREFAB_NONE 0
-#define SIM_PREFAB_CUBE 1
-#define SIM_PREFAB_SPIKE 1
+#define SIM_PREFAB_PLAYER 1
+#define SIM_PREFAB_PLAYER_PROJECTILE 2
+#define SIM_PREFAB_BOT 3
+#define SIM_PREFAB_WALL 4
+#define SIM_PREFAB_ENEMY 5
+#define SIM_PREFAB_ENEMY_PROJECTILE 6
+#define SIM_PREFAB_ITEM 7
+#define SIM_PREFAB_EXPLOSION 8
 
 // Spawn functions
 typedef u8 simFactoryType;
@@ -88,6 +94,8 @@ typedef u8 simFactoryType;
 
 #define SIM_DEATH_GFX_NONE 0
 #define SIM_DEATH_GFX_EXPLOSION 1
+
+#define SIM_ENT_STAT_ACTOR_SPEED 6.5f
 
 #include "sim_types.h"
 

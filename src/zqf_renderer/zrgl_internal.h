@@ -94,6 +94,7 @@ struct ZRMeshHandles
 struct ZRPrefab
 {
     i32 program;
+    i32 bInitialised;
     ZRMeshHandles geometry;
     struct
     {

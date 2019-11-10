@@ -46,7 +46,7 @@ internal timeFloat g_elapsed = 0;
 internal i32 g_lagCompensateProjectiles = 1;
 internal i32 g_unreliableProjectileDeaths = 1;
 
-internal i32 g_maxSyncRate = APP_CLIENT_SYNC_RATE_20HZ;
+internal i32 g_maxSyncRate = APP_CLIENT_SYNC_RATE_60HZ;
 
 internal i32 g_debugFlags = 0
     //| SV_DEBUG_TIMING 
@@ -60,14 +60,19 @@ Access by Frame number, then entity slot.
 #define SV_NUM_POSITION_FRAMES_RECORDED 60
 internal SVEntityFrame* g_entityRecords = NULL;
 
-i32 SV_IsRunning() { return g_isRunning; }
+extern "C" i32 SV_IsRunning() { return g_isRunning; }
+
+extern "C" void SV_Debug_GetSimInstance(void** ptr)
+{
+    *ptr = &g_sim;
+}
 
 #include "server_users.h"
 #include "server_game.h"
 #include "server_packets.h"
 #include "server_debug.h"
 
-u8 SV_ParseCommandString(char* str, char** tokens, i32 numTokens)
+extern "C" u8 SV_ParseCommandString(char* str, char** tokens, i32 numTokens)
 {
 	if (!ZE_CompareStrings(tokens[0], "SPAWN"))
 	{
@@ -276,7 +281,7 @@ internal void SV_ResetEntityPositionRecords()
     ZE_SET_ZERO((u8*)g_entityRecords, bytesTotal);
 }
 
-void SV_Init()
+extern "C" void SV_Init()
 {
     APP_PRINT(64, "SV Init scene\n");
 
@@ -306,7 +311,7 @@ void SV_Init()
     SV_ListAllocs();
 }
 
-void SV_Shutdown()
+extern "C" void SV_Shutdown()
 {
     for (i32 i = 0; i < g_mallocs.max; ++i)
     {
@@ -438,7 +443,7 @@ internal void SV_CalcPings(timeFloat deltaTime)
     }
 }
 
-void SV_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime)
+extern "C" void SV_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime)
 {
     APP_LOG(64, "*** SV TICK %d (T %.3f) ***\n", g_sim.tick, g_elapsed);
     SV_ReadSystemEvents(sysEvents, deltaTime);

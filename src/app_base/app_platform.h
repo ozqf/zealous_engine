@@ -76,6 +76,11 @@ timeFloat App_GetPerformanceTime(i32 index)
     return g_performanceStats[index].Sum();
 }
 
+extern "C" void App_Debug_GetServerSim(void** ptr)
+{
+    return SV_Debug_GetSimInstance(ptr);
+}
+
 /***************************************
 * Private
 ***************************************/

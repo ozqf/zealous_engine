@@ -113,11 +113,11 @@ internal i32 Sim_InitActor(
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_ACTOR;
     ent->coreTickType = SIM_TICK_TYPE_ACTOR;
-    Sim_SetEntityStats(ent, 6.5f, 1, 0.05f);
+    Sim_SetEntityStats(ent, SIM_ENT_STAT_ACTOR_SPEED, 1, 0.05f);
     Sim_SetEntityDisplay(ent,
         { 0, 1, 0, 1 },
         { 0, 1, 0, 1 },
-        SIM_PREFAB_CUBE,
+        SIM_PREFAB_PLAYER,
         SIM_DEATH_GFX_EXPLOSION);
     //ent->flags = SIM_ENT_FLAG_POSITION_SYNC;
     return ZE_ERROR_NONE;
@@ -133,7 +133,7 @@ internal i32 Sim_InitBot(
     Sim_SetEntityDisplay(ent,
         { 0, 0.6f, 0, 1 },
         { 0, 0.6f, 0, 1 },
-        SIM_PREFAB_CUBE,
+        SIM_PREFAB_BOT,
         SIM_DEATH_GFX_EXPLOSION);
     //ent->flags = SIM_ENT_FLAG_POSITION_SYNC;
     return ZE_ERROR_NONE;
@@ -152,7 +152,7 @@ internal i32 Sim_InitWorldVolume(
     Sim_SetEntityDisplay(ent,
         { 0.2f, 0.2f, 0.2f, 1 },
         { 0.2f, 0.2f, 0.2f, 1 },
-        SIM_PREFAB_CUBE,
+        SIM_PREFAB_WALL,
         SIM_DEATH_GFX_NONE);
     #ifdef SIM_USE_PHYSICS_ENGINE
     ent->shape.SetAsBox(def->pos, def->scale, ZCOLLIDER_FLAG_STATIC, SIM_LAYER_WORLD, SIM_LAYER_WORLD, 0);
@@ -201,7 +201,7 @@ internal i32 Sim_InitExplosion(
     Sim_SetEntityDisplay(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_CUBE,
+        SIM_PREFAB_EXPLOSION,
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 2, 1, 2 };
@@ -223,7 +223,7 @@ internal i32 Sim_InitProjBase(
     Sim_SetEntityDisplay(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_SPIKE,
+        SIM_PREFAB_ENEMY_PROJECTILE,
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
@@ -250,7 +250,7 @@ internal i32 Sim_InitProjPrediction(
     Sim_SetEntityDisplay(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_SPIKE,
+        SIM_PREFAB_PLAYER_PROJECTILE,
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
@@ -277,7 +277,7 @@ internal i32 Sim_InitProjTest(
     Sim_SetEntityDisplay(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_SPIKE,
+        SIM_PREFAB_PLAYER_PROJECTILE,
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;

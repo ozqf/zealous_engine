@@ -54,6 +54,7 @@ internal void CL_StoreSentInputCommand(
 internal C2S_Input* CL_RecallSentInputCommand(
     C2S_Input* list, i32 sequence)
 {
+    if (sequence == 0) { return NULL; }
     i32 i = sequence % CL_MAX_SENT_INPUT_COMMANDS;
     C2S_Input* result = &list[i];
     if (result->header.sentinel == 0
