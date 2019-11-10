@@ -41,6 +41,8 @@ internal ZNetAddress g_serverAddress;
 internal i32 g_userInputSequence = 0;
 internal i32 g_latestUserInputAck = 0;
 internal Vec3 g_latestAvatarPos = {};
+internal i32 g_bHasNewResponse = NO;
+internal S2C_InputResponse g_lastInputResponse = {};
 
 internal Vec3 g_testHitPos = { 0, 2, 0 };
 internal M4x4 g_matrix;
@@ -559,9 +561,23 @@ internal void CL_RunUnreliableCommands(
         else if (h->type == CMD_TYPE_S2C_INPUT_RESPONSE)
         {
             S2C_InputResponse* cmd = (S2C_InputResponse*)h;
-            CLG_SyncAvatar(sim, cmd);
-            executed = 1;
+
+            #if 1
             CLI_RecordServerResponse(g_serverResponses, cmd);
+            if (g_lastInputResponse.lastUserInputSequence < cmd->lastUserInputSequence)
+            {
+                // New input record
+                g_lastInputResponse = *cmd;
+                g_bHasNewResponse = YES;
+            }
+
+            #endif
+            
+            #if 0 // Old - execute immediately
+            CLG_SyncAvatar(sim, cmd);
+            CLI_RecordServerResponse(g_serverResponses, cmd);
+            #endif
+            executed = 1;
         }
         else if (h->type == CMD_TYPE_PING)
         {
@@ -588,6 +604,8 @@ internal void CL_CalcPings(timeFloat deltaTime)
 
 void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
 {
+    APP_PRINT(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",
+        CL_GetServerTick(), g_userInputSequence, g_elapsed);
     APP_LOG(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",
         CL_GetServerTick(), g_userInputSequence, g_elapsed);
     APP_LOG(128, "\tLatest input ack before packet read: %d\n", g_latestUserInputAck);
@@ -619,7 +637,12 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
 				latestResponse->latestAvatarPos.z
 			);
 		}
-        
+    }
+
+    if (g_bHasNewResponse == YES)
+    {
+        g_bHasNewResponse = NO;
+        CLG_SyncAvatar(&g_sim, &g_lastInputResponse);
     }
     
     // Until Sim sync has begun, input is ignored!

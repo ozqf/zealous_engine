@@ -200,6 +200,53 @@ internal void CLG_StepActor(
 
 internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
 {
+    i32 verbose = NO;
+    
+    // gather pre-replay position to detect skips
+    SimEntity* ent = Sim_GetEntityBySerial(
+        &g_sim, g_avatarSerial);
+    if (!ent) { return; }
+
+    Vec3 prePredictionEntPos = ent->body.t.pos;
+    f32 skipReportDistance = SIM_ENT_STAT_ACTOR_SPEED * (f32)App_GetSimFrameInterval();
+
+    APP_LOG(256, "CL - Sync Avatar on sv tick %d (input seq %d) vs SV response tick %d (seq %d)\n",
+        CL_GetServerTick(), g_userInputSequence, cmd->header.tick, cmd->lastUserInputSequence);
+    
+    i32 inputsSinceResponse = (g_userInputSequence - 1) - cmd->lastUserInputSequence;
+    printf("CL - %d inputs since response (CL %d vs SV response %d)\n",
+        inputsSinceResponse, g_userInputSequence, cmd->lastUserInputSequence);
+    
+    // Replay
+    ent->body.t.pos = cmd->latestAvatarPos;
+    i32 replaySeq = cmd->lastUserInputSequence;
+    i32 replayEnd = g_userInputSequence;
+    printf("CL - replay seq %d to %d\n", replaySeq, replayEnd - 1);
+    for (; replaySeq < replayEnd; ++replaySeq)
+    {
+        C2S_Input* input = CL_RecallSentInputCommand(
+            g_sentCommands, replaySeq);
+        if (!input) { continue; }
+		Vec3 before = ent->body.t.pos;
+		CLG_StepActor(sim, ent, &input->input, input->deltaTime);
+		Vec3 after = ent->body.t.pos;
+    }
+    
+    Vec3 postPredictionEntPos = ent->body.t.pos;
+    f32 diffX = postPredictionEntPos.x - prePredictionEntPos.x;
+    ZABS(diffX);
+    f32 diffY = postPredictionEntPos.y - prePredictionEntPos.y;
+    ZABS(diffY);
+    if (diffX > skipReportDistance
+        || diffY > skipReportDistance)
+    {
+        APP_PRINT(128, "CL - POSITION SKIP!\n");
+        APP_LOG(128, "CL - POSITION SKIP DETECTED\n");
+    }
+}
+
+internal void CLG_SyncAvatar_Broken(SimScene* sim, S2C_InputResponse* cmd)
+{
     f32 skipReportDistance = SIM_ENT_STAT_ACTOR_SPEED * (f32)App_GetSimFrameInterval();
     //printf("CL Skip report dist: %.5f\n", skipReportDistance);
 
@@ -253,8 +300,8 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     if (tickBasedInput != NULL)
     {
         Vec3 posTickBased = tickBasedInput->avatarPos;
-        APP_LOG(256, "CL compare pos by server tick\n\tCL %.3f, %.3f, %.3f vs SV %.3f, %.3f, %.3f\n",
-            posTickBased.x, posTickBased.y, posTickBased.z, g_latestAvatarPos.x, g_latestAvatarPos.y, g_latestAvatarPos.z);
+        // APP_LOG(256, "CL compare pos by server tick\n\tCL %.3f, %.3f, %.3f vs SV %.3f, %.3f, %.3f\n",
+        //     posTickBased.x, posTickBased.y, posTickBased.z, g_latestAvatarPos.x, g_latestAvatarPos.y, g_latestAvatarPos.z);
     }
     else
     {
@@ -270,7 +317,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
         g_sentCommands, cmd->lastUserInputSequence);
 	if (sourceInput == NULL)
 	{
-		APP_LOG(128, "CL unable to recall input seq %d\n", cmd->lastUserInputSequence);
+		//APP_LOG(128, "CL unable to recall input seq %d\n", cmd->lastUserInputSequence);
 		return;
 	}
     
@@ -289,6 +336,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
         ent->body.previousPos = remotePos;
         bIsCorrecting = YES;
         //ILLEGAL_CODE_PATH
+        #if 0
         if (verbose)
         {
             if (bPositionsDiffer == YES)
@@ -306,6 +354,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
                     remotePos.x, remotePos.y, remotePos.z);
             }
         }
+        #endif
         // Check that there is a timing issue. Does the client have a record at this position?
         C2S_Input* matchingInput =
             CL_FindSentInputByPosition(g_sentCommands, remotePos, F32_EPSILON);
@@ -336,7 +385,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     // Replay frames
     i32 replaySequence = cmd->lastUserInputSequence;
     if (replaySequence < 0) { replaySequence = 0;  }
-    i32 lastSequence = g_userInputSequence;
+    i32 lastSequence = g_userInputSequence - 1;
     //framesSinceResponse = 0;
     #if 1
     for (i32 i = 0; i <= framesSinceResponse; ++i)
@@ -417,6 +466,8 @@ internal void CLG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
 
 CLG_DEFINE_ENT_UPDATE(Actor)
 {
+    // -1 as sequence has been incremented before sim update
+    printf("CL actor update and step Seq %d\n", (g_userInputSequence - 1));
     // Movement
     CLG_StepActor(sim, ent, &ent->input, deltaTime); 
     
