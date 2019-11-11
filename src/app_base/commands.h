@@ -70,6 +70,8 @@ struct S2C_InputResponse
 {
     Command header;
     i32 lastUserInputSequence;
+    timeFloat clientTimestamp;
+    timeFloat serverTimestamp;
     Vec3 latestAvatarPos;
 };
 
@@ -77,6 +79,8 @@ internal void Cmd_InitInputResponse(
     S2C_InputResponse* cmd,
     i32 tick,
     i32 lastInputSequence,
+    timeFloat clientTimestamp,
+    timeFloat serverTimestamp,
     Vec3 avatarPos
 )
 {
@@ -84,6 +88,8 @@ internal void Cmd_InitInputResponse(
     cmd->header.type = CMD_TYPE_S2C_INPUT_RESPONSE;
     cmd->header.size = sizeof(S2C_InputResponse);
     cmd->lastUserInputSequence = lastInputSequence;
+    cmd->clientTimestamp = clientTimestamp;
+    cmd->serverTimestamp = serverTimestamp;
     cmd->latestAvatarPos = avatarPos;
 }
 
@@ -93,6 +99,7 @@ struct C2S_Input
     i32 userInputSequence;
 	SimActorInput input;
 	Vec3 avatarPos;
+    timeFloat time;
     timeFloat deltaTime;
 };
 
@@ -102,6 +109,7 @@ internal void Cmd_InitClientInput(
 	SimActorInput* input,
 	Vec3* avatarPos,
 	i32 tick,
+    timeFloat time,
     timeFloat deltaTime
 	)
 {
@@ -110,6 +118,7 @@ internal void Cmd_InitClientInput(
 	cmd->header.type = CMD_TYPE_C2S_INPUT;
 	cmd->header.size = sizeof(C2S_Input);
     cmd->userInputSequence = userInputSequence;
+    cmd->time = time;
     cmd->deltaTime = deltaTime;
 	if (input)
 	{

@@ -669,6 +669,7 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
             &g_actorInput,
             &pos,
             CL_GetServerTick(),
+            g_elapsed,
             deltaTime);
 	    CL_StoreSentInputCommand(g_sentCommands, &cmd);
     }

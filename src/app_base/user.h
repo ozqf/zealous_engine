@@ -32,6 +32,7 @@ struct User
 
     timeFloat ping;
     timeFloat jitter;
+    timeFloat lastTimestamp;
     i32 latestServerTick;
     i32 smoothingTicks;
     i32 userInputSequence;

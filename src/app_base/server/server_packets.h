@@ -19,18 +19,25 @@ internal i32 SVP_WriteUnreliableSection(
     // send input confirmation
     SimEntity* avatar = Sim_GetEntityBySerial(&g_sim, user->entSerial);
     Vec3 pos = {};
-    if (avatar) { pos = avatar->body.previousPos; }
-    S2C_InputResponse response = {};
-    Cmd_InitInputResponse(
-        &response,
-        sim->tick,
-        user->userInputSequence,
-        pos
-        );
-    packet->cursor += Cmd_Serialise(
-        &sim->quantise, packet->cursor, &response.header, 0);
-    stats->numUnreliableMessages += 1;
-
+    if (avatar)
+    {
+        pos = avatar->body.previousPos;
+        S2C_InputResponse response = {};
+        APP_LOG(256, "SVP Send response seq %d - pos %.3f, %.3f, %.3f\n",
+            user->userInputSequence, pos.x, pos.y, pos.z);
+        Cmd_InitInputResponse(
+            &response,
+            sim->tick,
+            user->userInputSequence,
+            user->lastTimestamp,
+            g_elapsed,
+            pos
+            );
+        packet->cursor += Cmd_Serialise(
+            &sim->quantise, packet->cursor, &response.header, 0);
+        stats->numUnreliableMessages += 1;
+    }
+    
     ////////////////////////////////////////////////////////////////
     // ENTITY SYNC
     #if 1
@@ -282,6 +289,7 @@ internal void SVP_ReadUnreliableSection(
                 if (cmd->userInputSequence > user->userInputSequence)
                 {
                     user->userInputSequence = cmd->userInputSequence;
+                    user->lastTimestamp = cmd->time;
                     APP_LOG(128, "SVP Read CL input seq %d (sim tick %d) on SV sim tick %d\n",
                         cmd->userInputSequence, cmd->header.tick, g_sim.tick
                         );

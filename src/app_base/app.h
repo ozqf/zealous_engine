@@ -100,7 +100,7 @@ class AppTimer
 #define APP_SERVER_LOOPBACK_PORT 666
 #define APP_CLIENT_LOOPBACK_PORT 667
 
-#define APP_DEFAULT_JITTER_TICKS 8
+#define APP_DEFAULT_JITTER_TICKS 2
 
 // comment out to disable logging/printing by app layer
 #define APP_FULL_LOGGING

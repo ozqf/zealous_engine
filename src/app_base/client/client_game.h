@@ -214,14 +214,24 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
         CL_GetServerTick(), g_userInputSequence, cmd->header.tick, cmd->lastUserInputSequence);
     
     i32 inputsSinceResponse = (g_userInputSequence - 1) - cmd->lastUserInputSequence;
-    printf("CL - %d inputs since response (CL %d vs SV response %d)\n",
+    APP_LOG(256, "CL - %d inputs since response (CL %d vs SV response %d)\n",
         inputsSinceResponse, g_userInputSequence, cmd->lastUserInputSequence);
+    
     
     // Replay
     ent->body.t.pos = cmd->latestAvatarPos;
-    i32 replaySeq = cmd->lastUserInputSequence;
+    
+    timeFloat delay = (g_elapsed - cmd->clientTimestamp) * 0.5f;
+    i32 timeFrames = (i32)(delay / App_GetSimFrameInterval());
+    APP_LOG(256, "    Time diff %.5f replay frames count %d\n", delay, timeFrames);
+
     i32 replayEnd = g_userInputSequence;
-    printf("CL - replay seq %d to %d\n", replaySeq, replayEnd - 1);
+    //i32 replaySeq = cmd->lastUserInputSequence;
+    i32 replaySeq = g_userInputSequence - timeFrames;
+    APP_LOG(256, "CL - replay seq %d to %d\n", replaySeq, replayEnd - 1);
+    APP_LOG(256, "\tOrigin %.3f, %.3f, %.3f\n",
+        cmd->latestAvatarPos.x, cmd->latestAvatarPos.y, cmd->latestAvatarPos.z);
+
     for (; replaySeq < replayEnd; ++replaySeq)
     {
         C2S_Input* input = CL_RecallSentInputCommand(
@@ -242,6 +252,7 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
     {
         APP_PRINT(128, "CL - POSITION SKIP!\n");
         APP_LOG(128, "CL - POSITION SKIP DETECTED\n");
+
     }
 }
 

@@ -22,7 +22,7 @@ internal ScreenInfo g_screenInfo;
 
 /////////////////////////////////////////////////////////////////
 // TIMING
-internal i32 g_simFrameRate = 10;//60;
+internal i32 g_simFrameRate = 20;//60;
 internal f32 g_simFrameAcculator = 0;
 internal i64 g_lastPlatformFrame = 0;
 
