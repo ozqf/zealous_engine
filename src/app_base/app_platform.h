@@ -11,13 +11,13 @@
 extern "C"
 void App_Log(char* msg)
 {
-    g_platform.Log(msg);
+    //g_platform.Log(msg);
 }
 
 extern "C"
 void App_Print(char* msg)
 {
-    g_platform.Print(msg);
+    //g_platform.Print(msg);
 }
 
 extern "C"
