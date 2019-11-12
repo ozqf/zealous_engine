@@ -12,6 +12,13 @@
 #define CLIENT_STATE_SYNC 3
 #define CLIENT_STATE_PLAY 4
 
+internal u32 g_clDebugFlags = 0
+    //| CL_DEBUG_FLAG_DRAW_LOCAL_SERVER
+    //| CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION
+    //| CL_DEBUG_FLAG_NO_ENEMY_TICK
+    //| CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING
+;
+
 internal i32 g_clientState = CLIENT_STATE_NONE;
 
 internal i32 g_isRunning = 0;
@@ -32,6 +39,7 @@ internal i32 g_avatarSerial = 0;
 internal void* g_allocations[CL_MAX_ALLOCATIONS];
 internal i32 g_bytesAllocated = 0;
 internal i32 g_numAllocations = 0;
+internal f32 g_avatarSmoothingRate = 0.8f;
 
 internal NetStream g_reliableStream;
 internal NetStream g_unreliableStream;
@@ -49,13 +57,6 @@ internal M4x4 g_matrix;
 
 internal i32 g_interpolateRenderScene = 0;
 //internal i32 g_tickEnemies = 1;
-
-internal u32 g_clDebugFlags = 0
-    //| CL_DEBUG_FLAG_DRAW_LOCAL_SERVER
-    //| CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION
-    //| CL_DEBUG_FLAG_NO_ENEMY_TICK
-    //| CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING
-;
 
 internal f32 g_debugSkipReportDistance;
 

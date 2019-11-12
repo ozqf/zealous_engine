@@ -148,7 +148,7 @@ internal i32 Sim_InitWorldVolume(
     ent->tickType = SIM_TICK_TYPE_WORLD;
     ent->coreTickType = SIM_TICK_TYPE_WORLD;
     // world volumes can't move (yet!)
-    ent->body.velocity = {};
+    ent->movement.velocity = {};
     Sim_SetEntityDisplay(ent,
         { 0.2f, 0.2f, 0.2f, 1 },
         { 0.2f, 0.2f, 0.2f, 1 },
@@ -172,9 +172,9 @@ internal i32 Sim_InitSpawner(
     ent->relationships.totalChildren = def->numChildren;
     //printf("Spawned Spawner, Ticktype %d Vel %.3f, %.3f, %.3f\n",
     //    ent->tickType,
-    //    ent->body.velocity.x,
-    //    ent->body.velocity.y,
-    //    ent->body.velocity.z);
+    //    ent->movement.velocity.x,
+    //    ent->movement.velocity.y,
+    //    ent->movement.velocity.z);
     return ZE_ERROR_NONE;
 }
 

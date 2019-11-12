@@ -72,7 +72,9 @@ struct S2C_InputResponse
     i32 lastUserInputSequence;
     timeFloat clientTimestamp;
     timeFloat serverTimestamp;
+    // avatar state
     Vec3 latestAvatarPos;
+    SimEntMovement movement;
 };
 
 internal void Cmd_InitInputResponse(
@@ -80,8 +82,7 @@ internal void Cmd_InitInputResponse(
     i32 tick,
     i32 lastInputSequence,
     timeFloat clientTimestamp,
-    timeFloat serverTimestamp,
-    Vec3 avatarPos
+    timeFloat serverTimestamp
 )
 {
     Cmd_Prepare(&cmd->header, tick);
@@ -90,7 +91,6 @@ internal void Cmd_InitInputResponse(
     cmd->lastUserInputSequence = lastInputSequence;
     cmd->clientTimestamp = clientTimestamp;
     cmd->serverTimestamp = serverTimestamp;
-    cmd->latestAvatarPos = avatarPos;
 }
 
 struct C2S_Input
@@ -161,7 +161,7 @@ internal void Cmd_InitRestoreEntity(
     cmd->factoryType = (u8)ent->factoryType;
     cmd->networkId = ent->id.serial;
     cmd->pos = ent->body.t.pos;
-    cmd->vel = ent->body.velocity;
+    cmd->vel = ent->movement.velocity;
     cmd->pitch = ent->body.pitch;
     cmd->yaw = ent->body.yaw;
 }
@@ -253,7 +253,7 @@ internal void Cmd_WriteEntitySyncAsUpdate(
     cmd->networkId = ent->id.serial;
     cmd->subType = S2C_ENTITY_SYNC_TYPE_UPDATE;
 	cmd->update.pos = ent->body.t.pos;
-	cmd->update.vel = ent->body.velocity;
+	cmd->update.vel = ent->movement.velocity;
     cmd->update.priority = ent->priority;
     cmd->update.targetId = ent->relationships.targetId.serial;
 }

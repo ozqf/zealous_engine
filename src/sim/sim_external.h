@@ -20,9 +20,9 @@ void Sim_SimpleMove(SimEntity* ent, timeFloat deltaTime)
     ent->body.previousPos.z = pos->z;
     Vec3 move =
     {
-        ent->body.velocity.x * (f32)deltaTime,
-        ent->body.velocity.y * (f32)deltaTime,
-        ent->body.velocity.z * (f32)deltaTime
+        ent->movement.velocity.x * (f32)deltaTime,
+        ent->movement.velocity.y * (f32)deltaTime,
+        ent->movement.velocity.z * (f32)deltaTime
     };
     
     ent->body.t.pos.x += move.x;
@@ -48,19 +48,19 @@ void Sim_BoundaryBounce(SimEntity* ent, Vec3* min, Vec3* max)
 {
     Vec3* p = &ent->body.t.pos;
     if (p->x < min->x)
-    { p->x = min->x; ent->body.velocity.x = -ent->body.velocity.x; }
+    { p->x = min->x; ent->movement.velocity.x = -ent->movement.velocity.x; }
     if (p->x > max->x)
-    { p->x = max->x; ent->body.velocity.x = -ent->body.velocity.x; }
+    { p->x = max->x; ent->movement.velocity.x = -ent->movement.velocity.x; }
 
     if (p->y < min->y)
-    { p->y = min->y; ent->body.velocity.y = -ent->body.velocity.y; }
+    { p->y = min->y; ent->movement.velocity.y = -ent->movement.velocity.y; }
     if (p->y > max->y)
-    { p->y = max->y; ent->body.velocity.y = -ent->body.velocity.y; }
+    { p->y = max->y; ent->movement.velocity.y = -ent->movement.velocity.y; }
 
     if (p->z < min->z)
-    { p->z = min->z; ent->body.velocity.z = -ent->body.velocity.z; }
+    { p->z = min->z; ent->movement.velocity.z = -ent->movement.velocity.z; }
     if (p->z > max->z)
-    { p->z = max->z; ent->body.velocity.z = -ent->body.velocity.z; }
+    { p->z = max->z; ent->movement.velocity.z = -ent->movement.velocity.z; }
 }
 
 extern "C"
@@ -299,9 +299,9 @@ i32 Sim_ExecuteBulkSpawn(
         entDef.parentSerial = event->base.sourceSerial;
         SimEntity* ent = Sim_RestoreEntity(sim, &entDef);
         
-        ent->body.velocity.x = item->forward.x * ent->body.speed;
-        ent->body.velocity.y = item->forward.y * ent->body.speed;
-        ent->body.velocity.z = item->forward.z * ent->body.speed;
+        ent->movement.velocity.x = item->forward.x * ent->movement.speed;
+        ent->movement.velocity.y = item->forward.y * ent->movement.speed;
+        ent->movement.velocity.z = item->forward.z * ent->movement.speed;
         
         // TODO: Hack! Find Better way to return new entity info
         // The caller needs to know whether or not to track these

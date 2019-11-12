@@ -63,7 +63,7 @@ CLG_DEFINE_ENT_UPDATE(Projectile)
 			return;
 		}
 	}
-    f32 yaw = atan2f(-ent->body.velocity.z, ent->body.velocity.x);
+    f32 yaw = atan2f(-ent->movement.velocity.z, ent->movement.velocity.x);
     yaw -= 90.0f * DEG2RAD;
     f32 pitch = 0;//90.0f * DEG2RAD;
     M3x3_SetToIdentity(ent->body.t.rotation.cells);
@@ -140,7 +140,7 @@ internal i32 CLG_SyncEntity(SimScene* sim, S2C_EntitySync* cmd)
             ent->body.previousPos = ent->body.t.pos;
             ent->body.t.pos = cmd->update.pos;
             ent->priority = cmd->update.priority;
-            ent->body.velocity = cmd->update.vel;
+            ent->movement.velocity = cmd->update.vel;
             ent->relationships.targetId.serial = cmd->update.targetId;
             ent->clientOnly.lastSync = sim->tick;
         }
@@ -172,7 +172,7 @@ internal void CLG_StepActor(
 {
     f32 deltaTime = (f32)interval;
     Vec3 move = {};
-	f32 speed = ent->body.speed;//5.0f;
+	f32 speed = ent->movement.speed;//5.0f;
 	if (input->buttons & ACTOR_INPUT_MOVE_FORWARD)
 	{
 		move.z -= speed * deltaTime;
@@ -324,11 +324,11 @@ CLG_DEFINE_ENT_UPDATE(Seeker)
             toTarget.y += avoid.dir.y * avoid.numNeighbours;
             toTarget.z += avoid.dir.z * avoid.numNeighbours;
             Vec3_Normalise(&toTarget);
-            ent->body.velocity =
+            ent->movement.velocity =
             {
-                toTarget.x * ent->body.speed,
-                toTarget.y * ent->body.speed,
-                toTarget.z * ent->body.speed,
+                toTarget.x * ent->movement.speed,
+                toTarget.y * ent->movement.speed,
+                toTarget.z * ent->movement.speed,
             };
         }
     }
@@ -350,9 +350,9 @@ CLG_DEFINE_ENT_UPDATE(Dart)
     Sim_SimpleMove(ent, deltaTime);
     if (!Sim_InBounds(ent, &sim->boundaryMin, &sim->boundaryMax))
     {
-        ent->body.velocity.x *= -1;
-        ent->body.velocity.y *= -1;
-        ent->body.velocity.z *= -1;
+        ent->movement.velocity.x *= -1;
+        ent->movement.velocity.y *= -1;
+        ent->movement.velocity.z *= -1;
         ent->body.t.pos = previousPos;
     }
 }

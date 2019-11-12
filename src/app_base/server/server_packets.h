@@ -30,9 +30,12 @@ internal i32 SVP_WriteUnreliableSection(
             sim->tick,
             user->userInputSequence,
             user->lastTimestamp,
-            g_elapsed,
-            pos
+            g_elapsed
             );
+        // more state not in params
+        response.latestAvatarPos = pos;
+        response.movement = avatar->movement;
+        
         packet->cursor += Cmd_Serialise(
             &sim->quantise, packet->cursor, &response.header, 0);
         stats->numUnreliableMessages += 1;

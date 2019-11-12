@@ -133,8 +133,8 @@ SVG_DEFINE_ENT_UPDATE(Wanderer)
             (f32)App_CalcTickInterval(6)
         );
         f32 radians = COM_STDRandomInRange(0, 360) * DEG2RAD;
-        ent->body.velocity.x = cosf(radians) * ent->body.speed;
-        ent->body.velocity.z = sinf(radians) * ent->body.speed;
+        ent->movement.velocity.x = cosf(radians) * ent->movement.speed;
+        ent->movement.velocity.z = sinf(radians) * ent->movement.speed;
     }
     Sim_SimpleMove(ent, deltaTime);
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
@@ -159,16 +159,16 @@ SVG_DEFINE_ENT_UPDATE(Seeker)
         toTarget.y += avoid.dir.y * avoid.numNeighbours;
         toTarget.z += avoid.dir.z * avoid.numNeighbours;
         Vec3_Normalise(&toTarget);
-        ent->body.velocity =
+        ent->movement.velocity =
         {
-            toTarget.x * ent->body.speed,
-            toTarget.y * ent->body.speed,
-            toTarget.z * ent->body.speed,
+            toTarget.x * ent->movement.speed,
+            toTarget.y * ent->movement.speed,
+            toTarget.z * ent->movement.speed,
         };
     }
     else
     {
-        ent->body.velocity = { 0, 0, 0 };
+        ent->movement.velocity = { 0, 0, 0 };
     }
     Sim_SimpleMove(ent, deltaTime);
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
@@ -186,9 +186,9 @@ SVG_DEFINE_ENT_UPDATE(Dart)
     Sim_SimpleMove(ent, deltaTime);
     if (!Sim_InBounds(ent, &sim->boundaryMin, &sim->boundaryMax))
     {
-        ent->body.velocity.x *= -1;
-        ent->body.velocity.y *= -1;
-        ent->body.velocity.z *= -1;
+        ent->movement.velocity.x *= -1;
+        ent->movement.velocity.y *= -1;
+        ent->movement.velocity.z *= -1;
         ent->body.t.pos = previousPos;
     }
 }
@@ -300,7 +300,7 @@ internal i32 SVG_StepProjectile(
         sim, min, max, ent->id.serial, ents, 16, YES);
     
     i32 killed = 0;
-    Vec3 dir = ent->body.velocity;
+    Vec3 dir = ent->movement.velocity;
     Vec3_NormaliseOrForward(&dir);
     for (i32 i = 0; i < overlaps; ++i)
     {
@@ -315,7 +315,7 @@ internal i32 SVG_StepProjectile(
             // Testing: Bounce Rubble around!
             case SIM_FACTORY_TYPE_RUBBLE:
             {
-                Vec3 vel = victim->body.velocity;
+                Vec3 vel = victim->movement.velocity;
                 vel.x += dir.x * 3;
                 vel.y += dir.y * 3;
                 vel.z += dir.z * 3;
@@ -515,7 +515,7 @@ SVG_DEFINE_ENT_UPDATE(Actor)
 {
     f32 dt = (f32)deltaTime;
 	Vec3 move = {};
-	f32 speed = ent->body.speed;//5.0f;
+	f32 speed = ent->movement.speed;//5.0f;
 	if (ent->input.buttons & ACTOR_INPUT_MOVE_FORWARD)
 	{
 		move.z -= speed * dt;
@@ -589,7 +589,7 @@ internal void SVG_TickEntity(
     {
         // quantise position, velocity and rotation
         COM_QuantiseVec3(&ent->body.t.pos, &sim->quantise.pos);
-        COM_QuantiseVec3(&ent->body.velocity, &sim->quantise.vel);
+        COM_QuantiseVec3(&ent->movement.velocity, &sim->quantise.vel);
     }
     #endif
     #endif
@@ -660,9 +660,9 @@ internal void SVG_TickSim(SimScene* sim, timeFloat deltaTime)
                         t->matrix[M4x4_W1],
                         t->matrix[M4x4_W2]
                     };
-                    ent->body.velocity.x = t->vel[0];
-                    ent->body.velocity.y = t->vel[1];
-                    ent->body.velocity.z = t->vel[2];
+                    ent->movement.velocity.x = t->vel[0];
+                    ent->movement.velocity.y = t->vel[1];
+                    ent->movement.velocity.z = t->vel[2];
                     ent->body.t.pos = pos;
                     /*if (ent->id.serial > 0)
                     {

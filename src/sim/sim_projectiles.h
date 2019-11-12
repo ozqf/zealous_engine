@@ -23,8 +23,8 @@ internal void Sim_InitProjectile(
     if (v->z <= 0) { v->z = 1; }
     
 	ent->body.t.pos = *pos;
-    ent->body.velocity = *velocity;
-    ent->body.speed = type->speed;
+    ent->movement.velocity = *velocity;
+    ent->movement.speed = type->speed;
 
     ent->timing.nextThink = ent->timing.birthTick +
         App_CalcTickInterval(type->lifeTime);

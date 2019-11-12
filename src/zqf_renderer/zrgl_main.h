@@ -382,7 +382,7 @@ static ZRPerformanceStats ZRImpl_DrawFrame(
     #endif
 
     // Draw debug cack
-    #if 1
+    #if 0
     ZRGL_DrawDebugQuads(scrInfo.aspectRatio);
     #endif
 

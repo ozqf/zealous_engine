@@ -5,6 +5,12 @@
 #include "client_input.h"
 #include "client_game.h"
 
+internal void CLG_RestoreAvatarState(
+    SimEntity* ent, S2C_InputResponse* cmd)
+{
+    ent->body.t.pos = cmd->latestAvatarPos;
+    ent->movement = cmd->movement;
+}
 
 internal void CLG_SyncAvatar(
     SimScene* sim,
@@ -83,7 +89,8 @@ internal void CLG_SyncAvatar(
         cmd->latestAvatarPos.x, cmd->latestAvatarPos.y, cmd->latestAvatarPos.z);
 
     // replay
-    ent->body.t.pos = cmd->latestAvatarPos;
+    CLG_RestoreAvatarState(ent, cmd);
+
     for (; replaySeq < replayEnd; ++replaySeq)
     {
         C2S_Input* input = CL_RecallSentInputCommand(
@@ -96,7 +103,7 @@ internal void CLG_SyncAvatar(
     
     // calculate smoothing for corrections
     Vec3 postPredictionEntPos = ent->body.t.pos;
-	ent->body.errorRate = 0.8f;
+	ent->body.errorRate = g_avatarSmoothingRate;
 	#if 0
 	 // TODO: This calculation is currently resetting any errors
     // that have not finished interpolating.

@@ -5,7 +5,6 @@
 #include "client.h"
 #include "../../sim/sim.h"
 
-
 extern "C" void CLR_Init();
 extern "C" void CLR_Shutdown();
 /**

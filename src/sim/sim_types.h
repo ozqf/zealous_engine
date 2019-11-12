@@ -64,6 +64,17 @@ struct SimEntDisplay
     Colour colourB;
 };
 
+struct SimEntMovement
+{
+    f32 speed;
+    Vec3 velocity;
+    i32 moveMode;
+    timeFloat moveTime;
+    // An abritrary position this entity is moving toward
+    Vec3 destination;
+};
+
+
 struct SimEntity
 {
     i32 status;
@@ -89,9 +100,6 @@ struct SimEntity
         i32 totalChildren;
     } relationships;
     
-    // An abritrary position this entity is moving toward
-    Vec3 destination;
-
     struct
     {
         frameInt lastThink;
@@ -112,6 +120,8 @@ struct SimEntity
     u32 flags;
     u32 localFlags;
 
+    SimEntMovement movement;
+    
     // physical
     struct
     {
@@ -119,8 +129,6 @@ struct SimEntity
         Vec3 previousPos;
         Vec3 error;
         f32 errorRate;
-        f32 speed;
-        Vec3 velocity;
         f32 pitch;
         f32 yaw;
         Vec3 halfSize;
@@ -139,7 +147,6 @@ struct SimEntity
     {
         i32 lastSync;
     } clientOnly;
-    
 };
 
 struct SimEntSpawnData

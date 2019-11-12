@@ -756,13 +756,13 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_ENEMY_PROJECTILE];
     prefab->bInitialised = YES;
-    prefab->geometry = g_cubeVAO;
+    prefab->geometry = g_spikeVAO;
     prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_cyan.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
 
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE];
     prefab->bInitialised = YES;
-    prefab->geometry = g_cubeVAO;
+    prefab->geometry = g_spikeVAO;
     prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_orange.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     

@@ -108,6 +108,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
             } break;
+            case SIM_FACTORY_TYPE_BOT:
             case SIM_FACTORY_TYPE_ACTOR:
             {
                 ZRDrawObj* obj;

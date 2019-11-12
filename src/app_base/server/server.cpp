@@ -46,7 +46,7 @@ internal timeFloat g_elapsed = 0;
 internal i32 g_lagCompensateProjectiles = 1;
 internal i32 g_unreliableProjectileDeaths = 1;
 
-internal i32 g_maxSyncRate = APP_CLIENT_SYNC_RATE_60HZ;
+internal i32 g_maxSyncRate = APP_CLIENT_SYNC_RATE_30HZ;
 
 internal i32 g_debugFlags = 0
     //| SV_DEBUG_TIMING 
