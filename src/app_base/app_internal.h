@@ -50,8 +50,8 @@ internal MallocList g_mallocs;
 
 // 100 ms == approx 6 frames at 60fps
 // 200 ms == approx 12 frames at 60fps
-internal i32 g_fakeLagMinMS = 100;//0;//50;//100;
-internal i32 g_fakeLagMaxMS = 150;//500;//350;
+internal i32 g_fakeLagMinMS = 100;//50;//100;
+internal i32 g_fakeLagMaxMS = 150;//350;
 // 0 to 1 values.
 internal f32 g_fakeLoss = 0.01f;//0.1f;
 
@@ -95,6 +95,9 @@ internal i32 g_debugRenderFlags = 0
 
 internal i32 g_debugPrintFlags = 0
     | APP_PRINT_FLAG_SPEEDS
+;
+internal i32 g_debugLogFlags = 0
+    | APP_LOG_CATEGORY_GAME
 ;
 
 #define APP_MAX_DEBUG_STRING_POSITIONS 6

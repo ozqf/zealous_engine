@@ -57,7 +57,7 @@ internal C2S_Input* CL_RecallSentInputCommandByServerTick(
 internal C2S_Input* CLI_RecallOldestInputAfterTimestamp(
     C2S_Input* list, timeFloat timestamp)
 {
-    timeFloat latestTime = Z_INFINITY;
+    timeFloat latestTime = 525600;
     C2S_Input* result = NULL;
     for (i32 i = 0; i < CL_MAX_SENT_INPUT_COMMANDS; ++i)
     {
@@ -70,7 +70,7 @@ internal C2S_Input* CLI_RecallOldestInputAfterTimestamp(
             latestTime = record->time;
         }
     }
-    return NULL;
+    return result;
 }
 
 internal void CL_StoreSentInputCommand(

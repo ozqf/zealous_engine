@@ -9,15 +9,21 @@
 * Public (app.h)
 ***************************************/
 extern "C"
-void App_Log(char* msg)
+void App_Log(char* msg, i32 categoryMask)
 {
-    //g_platform.Log(msg);
+    if (categoryMask & g_debugLogFlags)
+    {
+        g_platform.Log(msg);
+    }
 }
 
 extern "C"
-void App_Print(char* msg)
+void App_Print(char* msg, i32 categoryMask)
 {
-    //g_platform.Print(msg);
+    if (categoryMask & g_debugLogFlags)
+    {
+        g_platform.Print(msg);
+    }
 }
 
 extern "C"

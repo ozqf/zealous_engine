@@ -605,8 +605,8 @@ internal void CL_CalcPings(timeFloat deltaTime)
 
 void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
 {
-    APP_PRINT(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",
-        CL_GetServerTick(), g_userInputSequence, g_elapsed);
+    // APP_PRINT(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",
+    //     CL_GetServerTick(), g_userInputSequence, g_elapsed);
     APP_LOG(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",
         CL_GetServerTick(), g_userInputSequence, g_elapsed);
     APP_LOG(128, "\tLatest input ack before packet read: %d\n", g_latestUserInputAck);
@@ -643,7 +643,7 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
     if (g_bHasNewResponse == YES)
     {
         g_bHasNewResponse = NO;
-        CLG_SyncAvatar(&g_sim, &g_lastInputResponse);
+        CLG_SyncAvatar(&g_sim, &g_lastInputResponse, g_ping);
     }
     
     // Until Sim sync has begun, input is ignored!

@@ -6,7 +6,9 @@
 #include "client_game.h"
 
 
-internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
+internal void CLG_SyncAvatar(SimScene* sim,
+    S2C_InputResponse* cmd,
+    timeFloat latency)
 {
     i32 verbose = NO;
     
@@ -26,28 +28,48 @@ internal void CLG_SyncAvatar(SimScene* sim, S2C_InputResponse* cmd)
         inputsSinceResponse, g_userInputSequence, cmd->lastUserInputSequence);
     
     
-    // Replay
-    ent->body.t.pos = cmd->latestAvatarPos;
+    // Calculate replay frames
 
-    timeFloat delay = (g_elapsed - cmd->clientTimestamp) * 0.5f;
-    i32 timeFrames = (i32)(delay / App_GetSimFrameInterval());
-    timeFrames += 1;
-    APP_LOG(256, "    Time diff %.5f replay frames count %d\n", delay, timeFrames);
+    C2S_Input* timestampInput = CL_RecallSentInputCommand(
+        g_sentCommands, cmd->lastUserInputSequence);
+    if (timestampInput == NULL)
+    {
+        APP_LOG(128, "CL ERROR No input for seq %d\n", cmd->lastUserInputSequence);
+        return;
+    }
+    // calculate latency - half RTT for sever response
+    //timeFloat latency = (g_elapsed - timestampInput->time) / 2;
+    //timeFloat latency = (g_elapsed - timestampInput->time);
+    timeFloat replayTime = g_elapsed - latency;
+    
+    // timeFloat delay = (g_elapsed - cmd->clientTimestamp) * 0.5f;
+    // i32 timeFrames = (i32)(delay / App_GetSimFrameInterval());
+    // timeFrames += 1;
+    // APP_LOG(256, "    Time diff %.5f replay frames count %d\n", delay, timeFrames);
 
-    C2S_Input* timeInput = CLI_RecallOldestInputAfterTimestamp(g_sentCommands, g_elapsed - delay);
+    C2S_Input* timeInput = CLI_RecallOldestInputAfterTimestamp(
+        g_sentCommands, replayTime);
     if (timeInput != NULL)
     {
-        printf("CL latest input - seq %d, timestamp %.5f\n",
+        APP_LOG(128, "CL latest input - seq %d, timestamp %.5f\n",
             timeInput->userInputSequence, timeInput->time);
     }
-
+    else
+    {
+        APP_LOG(128, "CL ERROR No input found after timestamp %.5f - ellapsed %.5f\n",
+            replayTime, g_elapsed);
+        return;
+    }
+    
     i32 replayEnd = g_userInputSequence;
     //i32 replaySeq = cmd->lastUserInputSequence;
-    i32 replaySeq = g_userInputSequence - timeFrames;
+    i32 replaySeq = timeInput->userInputSequence;
     APP_LOG(256, "CL - replay seq %d to %d\n", replaySeq, replayEnd - 1);
     APP_LOG(256, "\tOrigin %.3f, %.3f, %.3f\n",
         cmd->latestAvatarPos.x, cmd->latestAvatarPos.y, cmd->latestAvatarPos.z);
 
+    // replay
+    ent->body.t.pos = cmd->latestAvatarPos;
     for (; replaySeq < replayEnd; ++replaySeq)
     {
         C2S_Input* input = CL_RecallSentInputCommand(

@@ -7,8 +7,8 @@
 // Functions
 /////////////////////////////////////////////////////////////////
 extern "C" void App_SendTo(i32 socketIndex, ZNetAddress* addr, u8* data, i32 dataSize);
-extern "C" void App_Log(char* msg);
-extern "C" void App_Print(char* msg);
+extern "C" void App_Log(char* msg, i32 categoryMask);
+extern "C" void App_Print(char* msg, i32 categoryMask);
 extern "C" void AppImpl_SetMouseCaptured();
 extern "C" void AppImpl_SetMouseFree();
 extern "C" void App_Error(char* msg);
@@ -102,6 +102,12 @@ class AppTimer
 
 #define APP_DEFAULT_JITTER_TICKS 2
 
+#define APP_LOG_CATEGORY_SYSTEM (1 << 0)
+#define APP_LOG_CATEGORY_GAME (1 << 1)
+#define APP_LOG_CATEGORY_NET (1 << 2)
+#define APP_LOG_CATEGORY_RENDER (1 << 3)
+#define APP_LOG_CATEGORY_INPUT (1 << 4)
+
 // comment out to disable logging/printing by app layer
 #define APP_FULL_LOGGING
 
@@ -110,16 +116,17 @@ class AppTimer
 { \
     char appLogBuf[##messageBufSize##]; \
     sprintf_s(appLogBuf, messageBufSize##, format##, ##__VA_ARGS__##); \
-    App_Log(appLogBuf); \
+    App_Log(appLogBuf, APP_LOG_CATEGORY_GAME); \
 }
 
 #define APP_PRINT(messageBufSize, format, ...) \
 { \
     char appLogBuf[##messageBufSize##]; \
     sprintf_s(appLogBuf, messageBufSize##, format##, ##__VA_ARGS__##); \
-    App_Print(appLogBuf); \
+    App_Print(appLogBuf, APP_LOG_CATEGORY_GAME); \
 }
 #else
 #define APP_LOG(messageBufSize, format, ...)
 #define APP_PRINT(messageBufSize, format, ...)
 #endif
+

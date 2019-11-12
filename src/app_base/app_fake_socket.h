@@ -22,11 +22,11 @@ struct FakeSocketInfo
     i32 RollDelay(i32 currentDelayTime)
     {
         //f32 num = ZE_Randf32(this->randomIndex++);
-        #if 0 // Realistic variable ping
+        #if 1 // Realistic variable ping
         f32 num = COM_STDRandf32();
         return (i32)((f32)(maxMS - minMS) * num) + minMS;
         #endif
-        #if 1 // Ping will oscilate between two values:
+        #if 0 // Ping will oscilate between two values:
         if (currentDelayTime == maxMS)
         { return minMS; }
         else
@@ -56,6 +56,7 @@ struct FakeSocket
     FakeSocketInfo info;
     FakeSocketPacketHeader* handles[FAKE_SOCKET_MAX_HANDLES];
     timeFloat delayRecalcTime;
+    timeFloat delayRecalcMax;
     timeFloat dropRecalcTime;
     i32 nextDelayTimeMS;
     timeFloat nextDropTime;
@@ -74,6 +75,7 @@ struct FakeSocket
     void Init(i32 minLagMS, i32 maxLagMS, f32 normalisedPacketLossChance)
     {
         delayRecalcTime = 0;
+        delayRecalcMax = 0;
         ZE_SET_ZERO((u8*)this, sizeof(FakeSocket));
         SetLagStats(minLagMS, maxLagMS, normalisedPacketLossChance);
     }
@@ -154,14 +156,15 @@ struct FakeSocket
     {
         if (delayRecalcTime <= 0)
         {
-            delayRecalcTime = 1;
+            delayRecalcTime = delayRecalcMax;
             i32 newDelayTimeMS = this->info.RollDelay(nextDelayTimeMS);
-
+            #if 0
             APP_PRINT(128, "APP - FAKE SOCKET DELAY CHANGE %d to %d\n",
                 nextDelayTimeMS, newDelayTimeMS);
             APP_LOG(128, "APP - FAKE SOCKET DELAY CHANGE %d to %d\n",
                 nextDelayTimeMS, newDelayTimeMS);
             nextDelayTimeMS = newDelayTimeMS;
+            #endif
         }
         else
         {
