@@ -15,7 +15,8 @@ extern "C" void CLR_WriteDrawFrame(
     ZEByteBuffer* list,
     ZEByteBuffer* data,
     SimScene* sim,
-    Transform* camera
+    Transform* camera,
+    u32 debugFlags
 );
 
 #if 0

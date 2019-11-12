@@ -11,6 +11,11 @@
 
 #define CL_MAX_SENT_INPUT_COMMANDS 60
 
+#define CL_DEBUG_FLAG_DRAW_LOCAL_SERVER (1 << 0)
+#define CL_DEBUG_FLAG_NO_ENEMY_TICK (1 << 1)
+#define CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING (1 << 2)
+#define CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION (1 << 3)
+
 extern "C" void CL_Init(ZNetAddress serverAddress);
 extern "C" void CL_Shutdown();
 extern "C" i32 CL_IsRunning();

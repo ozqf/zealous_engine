@@ -64,14 +64,15 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
 internal i32 CLR_AddSimObjectsToRenderScene(
     SimScene* sim,
     ZEByteBuffer* list,
-    ZEByteBuffer* data)
+    ZEByteBuffer* data,
+    u32 debugFlags)
 {
     i32 objCount = 0;
     for (i32 i = 0; i < sim->maxEnts; ++i)
     {
         SimEntity* ent = &sim->ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
-
+        i32 rendObjectsAdded = 0;
         #if 0
         ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
             ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
@@ -88,12 +89,14 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE);
                 obj->t = ent->body.t;
+                rendObjectsAdded++;
             } break;
             case SIM_FACTORY_TYPE_WORLD:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_WALL);
                 obj->t = ent->body.t;
+                rendObjectsAdded++;
             } break;
             case SIM_FACTORY_TYPE_BOUNCER:
             case SIM_FACTORY_TYPE_WANDERER:
@@ -103,21 +106,53 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ENEMY);
                 obj->t = ent->body.t;
+                rendObjectsAdded++;
             } break;
             case SIM_FACTORY_TYPE_ACTOR:
             {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj* obj;
+                if (debugFlags & CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION)
+                {
+                    obj = CLR_InitDrawObjInPlace(&list->cursor);
+                    ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ITEM);
+                    rendObjectsAdded++;
+                    obj->t = ent->body.t;
+                }
+                obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
-                obj->t = ent->body.t;
+                rendObjectsAdded++;
+                if (debugFlags & CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING)
+                {
+                    obj->t = ent->body.t;
+                }
+                else
+                {
+                    // calculate smoothed position
+                    Vec3 pos = ent->body.t.pos;
+                    pos.x -= ent->body.error.x;
+                    pos.y -= ent->body.error.y;
+                    pos.z -= ent->body.error.z;
+                    ent->body.error.x *= ent->body.errorRate;
+                    ent->body.error.y *= ent->body.errorRate;
+                    ent->body.error.z *= ent->body.errorRate;
+
+                    Vec3 errorPos = ent->body.error;
+                    //printf("CLR Actor error %.3f, %.3f, %.3f\n",
+                    //    errorPos.x, errorPos.y, errorPos.z);
+                    obj->t.pos = pos;
+                    obj->t.rotation = ent->body.t.rotation;
+                    obj->t.scale = ent->body.t.scale;
+                }
             } break;
             case SIM_FACTORY_TYPE_EXPLOSION:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_EXPLOSION);
                 obj->t = ent->body.t;
+                rendObjectsAdded++;
             } break;
         }
-        objCount++;
+        objCount += rendObjectsAdded;
         #endif
     }
     return objCount;
@@ -127,7 +162,8 @@ extern "C" void CLR_WriteDrawFrame(
     ZEByteBuffer* list,
     ZEByteBuffer* data,
     SimScene* sim,
-    Transform* camera)
+    Transform* camera,
+    u32 debugFlags)
 {
     i32 requiredCapacity = sizeof(ZRViewFrame) + (sizeof(ZRDrawObj) * sim->maxEnts);
 
@@ -160,16 +196,17 @@ extern "C" void CLR_WriteDrawFrame(
     //////////////////////////////////////////////////
     // For debugging local listen servers ONLY!
     //////////////////////////////////////////////////
-    #if 1
-    SimScene* serverSim;
-    App_Debug_GetServerSim((void**)&serverSim);
-    if (serverSim != NULL)
+    if (debugFlags & CL_DEBUG_FLAG_DRAW_LOCAL_SERVER)
     {
-        objCount += CLR_Debug_AddSimObjectsToRenderScene(serverSim, list, data);
+        SimScene* serverSim;
+        App_Debug_GetServerSim((void**)&serverSim);
+        if (serverSim != NULL)
+        {
+            objCount += CLR_Debug_AddSimObjectsToRenderScene(serverSim, list, data);
+        }
     }
-    #endif
 
-    objCount += CLR_AddSimObjectsToRenderScene(sim, list, data);
+    objCount += CLR_AddSimObjectsToRenderScene(sim, list, data, debugFlags);
 
     scene->params.dataBytes = list->cursor - listStart;
     scene->params.numObjects = objCount;

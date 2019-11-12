@@ -15,6 +15,19 @@
 #define APP_SESSION_TYPE_NONE 0
 #define APP_SESSION_TYPE_SINGLE_PLAYER 1
 
+/////////////////////////////////////////////////////////////////
+// FAKE NETWORK QUALITY
+// Should be 0 0 0 when not debugging (obviously)
+
+// 100 ms == approx 6 frames at 60fps
+// 200 ms == approx 12 frames at 60fps
+internal i32 g_fakeLagMinMS = 100;//50;//100;
+internal i32 g_fakeLagMaxMS = 150;//350;
+// 0 to 1 values.
+internal f32 g_fakeLoss = 0.01f;//0.1f;
+
+internal FakeSocket g_loopbackSocket;
+
 // Access to platform info
 internal ze_platform_export g_platform = {};
 internal f64 g_lastTimeSample;
@@ -22,7 +35,7 @@ internal ScreenInfo g_screenInfo;
 
 /////////////////////////////////////////////////////////////////
 // TIMING
-internal i32 g_simFrameRate = 60;//60;
+internal i32 g_simFrameRate = 30;//60;
 internal f32 g_simFrameAcculator = 0;
 internal i64 g_lastPlatformFrame = 0;
 
@@ -43,19 +56,6 @@ internal ZEDoubleByteBuffer g_clientLoopback;
 internal MallocItem g_mallocItems[APP_MAX_MALLOCS];
 internal MallocList g_mallocs;
 
-
-/////////////////////////////////////////////////////////////////
-// FAKE NETWORK QUALITY
-// Should be 0 0 0 when not debugging (obviously)
-
-// 100 ms == approx 6 frames at 60fps
-// 200 ms == approx 12 frames at 60fps
-internal i32 g_fakeLagMinMS = 100;//50;//100;
-internal i32 g_fakeLagMaxMS = 150;//350;
-// 0 to 1 values.
-internal f32 g_fakeLoss = 0.01f;//0.1f;
-
-internal FakeSocket g_loopbackSocket;
 /*
 #define MAX_WORLD_SCENE_ITEMS 2048
 internal RenderScene g_worldScene;

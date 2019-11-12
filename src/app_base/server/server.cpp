@@ -182,8 +182,8 @@ internal void SV_LoadTestScene()
     f32 outer = 12;
 	switch (stage)
     {
-        case -1:
         // No spawners
+        case -1:
         break;
         case 1:
         SV_AddSpawner(sim, { inner, 0, inner }, SIM_FACTORY_TYPE_RUBBLE, count);

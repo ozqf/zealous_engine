@@ -163,8 +163,8 @@ struct FakeSocket
                 nextDelayTimeMS, newDelayTimeMS);
             APP_LOG(128, "APP - FAKE SOCKET DELAY CHANGE %d to %d\n",
                 nextDelayTimeMS, newDelayTimeMS);
-            nextDelayTimeMS = newDelayTimeMS;
             #endif
+            nextDelayTimeMS = newDelayTimeMS;
         }
         else
         {

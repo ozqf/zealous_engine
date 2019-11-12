@@ -6,49 +6,63 @@
 #include "client_game.h"
 
 
-internal void CLG_SyncAvatar(SimScene* sim,
+internal void CLG_SyncAvatar(
+    SimScene* sim,
+    i32 avatarSerialNumber,
     S2C_InputResponse* cmd,
-    timeFloat latency)
+    C2S_Input* sentCommands,
+    i32 localInputSequence,
+    timeFloat latency,
+    timeFloat time)
 {
     i32 verbose = NO;
     
     // gather pre-replay position to detect skips
     SimEntity* ent = Sim_GetEntityBySerial(
-        &g_sim, g_avatarSerial);
+        sim, avatarSerialNumber);
     if (!ent) { return; }
 
     Vec3 prePredictionEntPos = ent->body.t.pos;
     f32 skipReportDistance = SIM_ENT_STAT_ACTOR_SPEED * (f32)App_GetSimFrameInterval();
 
     APP_LOG(256, "CL - Sync Avatar on sv tick %d (input seq %d) vs SV response tick %d (seq %d)\n",
-        CL_GetServerTick(), g_userInputSequence, cmd->header.tick, cmd->lastUserInputSequence);
+        CL_GetServerTick(), localInputSequence, cmd->header.tick, cmd->lastUserInputSequence);
     
-    i32 inputsSinceResponse = (g_userInputSequence - 1) - cmd->lastUserInputSequence;
+    i32 inputsSinceResponse = (localInputSequence - 1) - cmd->lastUserInputSequence;
     APP_LOG(256, "CL - %d inputs since response (CL %d vs SV response %d)\n",
-        inputsSinceResponse, g_userInputSequence, cmd->lastUserInputSequence);
-    
+        inputsSinceResponse, localInputSequence, cmd->lastUserInputSequence);
     
     // Calculate replay frames
 
     C2S_Input* timestampInput = CL_RecallSentInputCommand(
-        g_sentCommands, cmd->lastUserInputSequence);
+        sentCommands, cmd->lastUserInputSequence);
     if (timestampInput == NULL)
     {
         APP_LOG(128, "CL ERROR No input for seq %d\n", cmd->lastUserInputSequence);
         return;
     }
+    if (Vec3_AreDifferent(&timestampInput->avatarPos, &cmd->latestAvatarPos, F32_EPSILON) == NO)
+    {
+        //printf("CL - No correction required!\n");
+        return;
+    }
+
     // calculate latency - half RTT for sever response
-    //timeFloat latency = (g_elapsed - timestampInput->time) / 2;
-    //timeFloat latency = (g_elapsed - timestampInput->time);
-    timeFloat replayTime = g_elapsed - latency;
+    //timeFloat latency = (time - timestampInput->time) / 2;
+
+    // calculate time via timestamp of command
+    latency = (time - timestampInput->time);
+
+    // Calculate replay time via average latency param
+    timeFloat replayTime = time - latency;
     
-    // timeFloat delay = (g_elapsed - cmd->clientTimestamp) * 0.5f;
+    // timeFloat delay = (time - cmd->clientTimestamp) * 0.5f;
     // i32 timeFrames = (i32)(delay / App_GetSimFrameInterval());
     // timeFrames += 1;
     // APP_LOG(256, "    Time diff %.5f replay frames count %d\n", delay, timeFrames);
 
     C2S_Input* timeInput = CLI_RecallOldestInputAfterTimestamp(
-        g_sentCommands, replayTime);
+        sentCommands, replayTime);
     if (timeInput != NULL)
     {
         APP_LOG(128, "CL latest input - seq %d, timestamp %.5f\n",
@@ -57,11 +71,11 @@ internal void CLG_SyncAvatar(SimScene* sim,
     else
     {
         APP_LOG(128, "CL ERROR No input found after timestamp %.5f - ellapsed %.5f\n",
-            replayTime, g_elapsed);
+            replayTime, time);
         return;
     }
     
-    i32 replayEnd = g_userInputSequence;
+    i32 replayEnd = localInputSequence;
     //i32 replaySeq = cmd->lastUserInputSequence;
     i32 replaySeq = timeInput->userInputSequence;
     APP_LOG(256, "CL - replay seq %d to %d\n", replaySeq, replayEnd - 1);
@@ -73,14 +87,38 @@ internal void CLG_SyncAvatar(SimScene* sim,
     for (; replaySeq < replayEnd; ++replaySeq)
     {
         C2S_Input* input = CL_RecallSentInputCommand(
-            g_sentCommands, replaySeq);
+            sentCommands, replaySeq);
         if (!input) { continue; }
 		Vec3 before = ent->body.t.pos;
 		CLG_StepActor(sim, ent, &input->input, input->deltaTime);
 		Vec3 after = ent->body.t.pos;
     }
     
+    // calculate smoothing for corrections
     Vec3 postPredictionEntPos = ent->body.t.pos;
+	ent->body.errorRate = 0.8f;
+	#if 0
+	 // TODO: This calculation is currently resetting any errors
+    // that have not finished interpolating.
+    // instead of taking prePrediction pos, take prePredictionPos - error
+    // like when rendering
+    ent->body.error.x = postPredictionEntPos.x - prePredictionEntPos.x;
+    ent->body.error.y = postPredictionEntPos.y - prePredictionEntPos.y;
+    ent->body.error.z = postPredictionEntPos.z - prePredictionEntPos.z;
+	#endif
+	#if 1
+	Vec3 errPos = ent->body.error;
+	Vec3 rendPos;
+	rendPos.x = prePredictionEntPos.x - errPos.x;
+	rendPos.y = prePredictionEntPos.y - errPos.y;
+	rendPos.z = prePredictionEntPos.z - errPos.z;
+	ent->body.error.x = postPredictionEntPos.x - rendPos.x;
+    ent->body.error.y = postPredictionEntPos.y - rendPos.y;
+    ent->body.error.z = postPredictionEntPos.z - rendPos.z;
+	#endif
+
+    // For debugging - report mis-predictions
+    #if 0
     f32 diffX = postPredictionEntPos.x - prePredictionEntPos.x;
     ZABS(diffX);
     f32 diffY = postPredictionEntPos.y - prePredictionEntPos.y;
@@ -90,10 +128,10 @@ internal void CLG_SyncAvatar(SimScene* sim,
     {
         APP_PRINT(128, "CL - POSITION SKIP!\n");
         APP_LOG(128, "CL - POSITION SKIP DETECTED\n");
-
     }
+    #endif
 }
-
+#if 0
 internal void CLG_SyncAvatar_Broken(SimScene* sim, S2C_InputResponse* cmd)
 {
     f32 skipReportDistance = SIM_ENT_STAT_ACTOR_SPEED * (f32)App_GetSimFrameInterval();
@@ -117,22 +155,22 @@ internal void CLG_SyncAvatar_Broken(SimScene* sim, S2C_InputResponse* cmd)
     Vec3 prePredictionEntPos = ent->body.t.pos;
 
     APP_LOG(256, "CL - Sync Avatar on sv tick %d (input seq %d) vs SV response tick %d (seq %d)\n",
-        CL_GetServerTick(), g_userInputSequence, cmd->header.tick, cmd->lastUserInputSequence);
+        CL_GetServerTick(), localInputSequence, cmd->header.tick, cmd->lastUserInputSequence);
     
     g_latestUserInputAck = cmd->lastUserInputSequence;
     g_latestAvatarPos = cmd->latestAvatarPos;
-    i32 framesSinceResponse = g_userInputSequence - cmd->lastUserInputSequence;
+    i32 framesSinceResponse = localInputSequence - cmd->lastUserInputSequence;
     
     if (verbose)
     {
         APP_PRINT(128, "CL Replay %d frames (%d to %d)\n",
             framesSinceResponse,
             cmd->lastUserInputSequence,
-            g_userInputSequence);
+            localInputSequence);
         APP_LOG(128, "CL Replay %d frames (%d to %d)\n",
             framesSinceResponse,
             cmd->lastUserInputSequence,
-            g_userInputSequence);
+            localInputSequence);
     }
 	
 	////////////////////////////////////
@@ -234,7 +272,7 @@ internal void CLG_SyncAvatar_Broken(SimScene* sim, S2C_InputResponse* cmd)
     // Replay frames
     i32 replaySequence = cmd->lastUserInputSequence;
     if (replaySequence < 0) { replaySequence = 0;  }
-    i32 lastSequence = g_userInputSequence - 1;
+    i32 lastSequence = localInputSequence - 1;
     //framesSinceResponse = 0;
     #if 1
     for (i32 i = 0; i <= framesSinceResponse; ++i)
@@ -286,6 +324,6 @@ internal void CLG_SyncAvatar_Broken(SimScene* sim, S2C_InputResponse* cmd)
         APP_LOG(128, "CL - POSITION SKIP DETECTED\n");
     }
 }
-
+#endif
 
 #endif // CLIENT_USER_SYNC_H

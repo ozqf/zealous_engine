@@ -88,15 +88,13 @@ internal i32 CLG_SyncEntity(SimScene* sim, S2C_EntitySync* cmd)
         // use the highest spawned Id and compare
         if (cmd->subType == S2C_ENTITY_SYNC_TYPE_DEATH)
         {
+            // the highest serial number spawned locally is less
+            // that the serial in this command. We must wait for the 
+            // delayed entity spawn before we can kill it!
             if (cmd->networkId > g_sim.highestAssignedSequence)
             {
-                //printf("CL GHOST WARNING\n");
-                //return 1;
-                //printf("CL Death of %d postponed (highest %d)!\n",
-                //    cmd->networkId, g_sim.highestAssignedSequence);
                 return 0;
             }
-            //printf("CL Death repeat of %d, dicarding\n", cmd->networkId);
         }
         return 1;
         #if 0
@@ -227,7 +225,7 @@ internal void CLG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
 CLG_DEFINE_ENT_UPDATE(Actor)
 {
     // -1 as sequence has been incremented before sim update
-    APP_PRINT(128, "CL actor update and step Seq %d\n", (g_userInputSequence - 1));
+    //APP_PRINT(128, "CL actor update and step Seq %d\n", (g_userInputSequence - 1));
     // Movement
     CLG_StepActor(sim, ent, &ent->input, deltaTime); 
     

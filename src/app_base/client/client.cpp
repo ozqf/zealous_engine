@@ -50,9 +50,11 @@ internal M4x4 g_matrix;
 internal i32 g_interpolateRenderScene = 0;
 //internal i32 g_tickEnemies = 1;
 
-#define CL_DEBUG_FLAG_NO_ENEMY_TICK (1 << 0)
-internal i32 g_clDebugFlags = 0
+internal u32 g_clDebugFlags = 0
+    //| CL_DEBUG_FLAG_DRAW_LOCAL_SERVER
+    //| CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION
     //| CL_DEBUG_FLAG_NO_ENEMY_TICK
+    //| CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING
 ;
 
 internal f32 g_debugSkipReportDistance;
@@ -119,7 +121,7 @@ extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
     M3x3_RotateY(g_camera.rotation.cells, g_testCameraDegrees.y * DEG2RAD);
     M3x3_RotateX(g_camera.rotation.cells, g_testCameraDegrees.x * DEG2RAD);
     */
-    CLR_WriteDrawFrame(list, data, &g_sim, &g_camera);
+    CLR_WriteDrawFrame(list, data, &g_sim, &g_camera, g_clDebugFlags);
 }
 
 internal void CL_WriteNetworkDebug(CharBuffer* str)
@@ -643,7 +645,14 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
     if (g_bHasNewResponse == YES)
     {
         g_bHasNewResponse = NO;
-        CLG_SyncAvatar(&g_sim, &g_lastInputResponse, g_ping);
+        CLG_SyncAvatar(
+            &g_sim,
+            g_avatarSerial,
+            &g_lastInputResponse,
+            g_sentCommands,
+            g_userInputSequence,
+            g_ping,
+            g_elapsed);
     }
     
     // Until Sim sync has begun, input is ignored!
