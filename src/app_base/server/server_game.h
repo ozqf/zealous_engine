@@ -511,63 +511,68 @@ SVG_DEFINE_ENT_UPDATE(LineTrace)
     }
 }
 
+internal void SVG_UpdateActorAttackInput(SimScene* sim, SimEntity* ent, f32 dt)
+{
+	if (ent->attackTick <= 0)
+	{
+		Vec3 shoot {};
+		if (ent->input.buttons & ACTOR_INPUT_SHOOT_LEFT)
+		{
+			shoot.x -= 1;
+		}
+		if (ent->input.buttons & ACTOR_INPUT_SHOOT_RIGHT)
+		{
+			shoot.x += 1;
+		}
+		if (ent->input.buttons & ACTOR_INPUT_SHOOT_UP)
+		{
+			shoot.z -= 1;
+		}
+		if (ent->input.buttons & ACTOR_INPUT_SHOOT_DOWN)
+		{
+			shoot.z += 1;
+		}
+		if (shoot.x != 0 || shoot.z != 0)
+		{
+			ent->attackTick = ent->attackTime;
+			Vec3_Normalise(&shoot);
+			SVG_FireActorAttack(sim, ent, &shoot);
+		}
+	}
+	else
+	{
+		ent->attackTick -= dt;
+	}
+}
+
 SVG_DEFINE_ENT_UPDATE(Actor)
 {
     f32 dt = (f32)deltaTime;
-	Vec3 move = {};
-	f32 speed = ent->movement.speed;//5.0f;
-	if (ent->input.buttons & ACTOR_INPUT_MOVE_FORWARD)
-	{
-		move.z -= speed * dt;
-	}
-	if (ent->input.buttons & ACTOR_INPUT_MOVE_BACKWARD)
-	{
-		move.z += speed * dt;
-	}
-	if (ent->input.buttons & ACTOR_INPUT_MOVE_LEFT)
-	{
-		move.x -= speed * dt;
-	}
-	if (ent->input.buttons & ACTOR_INPUT_MOVE_RIGHT)
-	{
-		move.x += speed * dt;
-	}
-	ent->body.previousPos = ent->body.t.pos;
-	ent->body.t.pos.x += move.x;
-	ent->body.t.pos.y += move.y;
-	ent->body.t.pos.z += move.z;
-    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+    SimEnt_StepActorMovement(sim, ent, NULL, dt);
 
-    if (ent->attackTick <= 0)
-    {
-        Vec3 shoot {};
-        if (ent->input.buttons & ACTOR_INPUT_SHOOT_LEFT)
-        {
-            shoot.x -= 1;
-        }
-        if (ent->input.buttons & ACTOR_INPUT_SHOOT_RIGHT)
-        {
-            shoot.x += 1;
-        }
-        if (ent->input.buttons & ACTOR_INPUT_SHOOT_UP)
-        {
-            shoot.z -= 1;
-        }
-        if (ent->input.buttons & ACTOR_INPUT_SHOOT_DOWN)
-        {
-            shoot.z += 1;
-        }
-        if (shoot.x != 0 || shoot.z != 0)
-        {
-            ent->attackTick = ent->attackTime;
-            Vec3_Normalise(&shoot);
-            SVG_FireActorAttack(sim, ent, &shoot);
-        }
-    }
-    else
-    {
-        ent->attackTick -= deltaTime;
-    }
+    // Attacks - server side only atm
+	switch (ent->movement.moveMode)
+	{
+		case 0: // Walking
+		{
+			//SVG_UpdateActorWalk(sim, ent, dt);
+			SVG_UpdateActorAttackInput(sim, ent, dt);
+		} break;
+		
+		case 1: // Dodging
+		{
+			//SVG_UpdateActorEvade(sim, ent, dt);
+		} break;
+		
+		default:
+		{
+			
+		} break;
+	}
+	
+	
+
+
 }
 
 SVG_DEFINE_ENT_UPDATE(Bot)

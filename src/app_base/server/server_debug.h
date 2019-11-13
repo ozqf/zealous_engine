@@ -15,6 +15,11 @@ internal void SV_PrintMsgSizes()
         sizeof(S2C_BulkSpawn))
     APP_PRINT(64, "SV sizeof S2C_RestoreEntity: %d\n",
         sizeof(S2C_RestoreEntity))
+    APP_PRINT(64, "SV sizeof S2C_InputResponse: %d\n",
+        sizeof(S2C_InputResponse))
+    
+    APP_PRINT(64, "SV sizeof SimEntity: %d\n",
+        sizeof(SimEntity))
 }
 
 void SV_WriteDebugString(CharBuffer* str)

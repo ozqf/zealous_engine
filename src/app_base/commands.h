@@ -146,8 +146,8 @@ struct S2C_RestoreEntity
     u8 factoryType;
     Vec3 pos;
 	Vec3 vel;
-    f32 pitch;
-    f32 yaw;
+    f32 pitchDegrees;
+    f32 yawDegrees;
 };
 
 // TODO: Any entity specific spawning stuff here
@@ -162,8 +162,8 @@ internal void Cmd_InitRestoreEntity(
     cmd->networkId = ent->id.serial;
     cmd->pos = ent->body.t.pos;
     cmd->vel = ent->movement.velocity;
-    cmd->pitch = ent->body.pitch;
-    cmd->yaw = ent->body.yaw;
+    cmd->pitchDegrees = ent->body.pitchDegrees;
+    cmd->yawDegrees = ent->body.yawDegrees;
 }
 
 struct S2C_RemoveEntity

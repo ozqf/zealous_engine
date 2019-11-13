@@ -4,6 +4,7 @@
 
 #include <math.h>
 
+// For debugging - the only time enemies change is on server update
 #define CLG_NO_ENEMY_TICK_DROPOUT { if ((g_clDebugFlags & CL_DEBUG_FLAG_NO_ENEMY_TICK)) return; }
 
 internal void CLG_SpawnLineSegment(SimScene* sim, Vec3 origin, Vec3 dest)
@@ -170,6 +171,8 @@ internal void CLG_StepActor(
     SimActorInput* input,
     timeFloat interval)
 {
+    SimEnt_StepActorMovement(sim, ent, input, interval);
+    #if 0
     f32 deltaTime = (f32)interval;
     Vec3 move = {};
 	f32 speed = ent->movement.speed;//5.0f;
@@ -194,6 +197,7 @@ internal void CLG_StepActor(
 	ent->body.t.pos.y += move.y;
 	ent->body.t.pos.z += move.z;
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+    #endif
 }
 
 internal void CLG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)

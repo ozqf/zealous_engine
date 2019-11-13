@@ -136,6 +136,8 @@ extern "C" void     Sim_BoundaryStop(SimEntity* ent, Vec3* min, Vec3* max);
 
 extern "C" i32      Sim_TickSpawn(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime);
+extern "C" void     SimEnt_StepActorMovement(
+        SimScene* sim, SimEntity* ent, SimActorInput* input, timeFloat deltaTime);
 
 // Searching/Querying
 extern "C" i32        Sim_IsEntInPlay(SimEntity* ent);

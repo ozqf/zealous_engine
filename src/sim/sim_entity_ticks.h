@@ -1,0 +1,169 @@
+#pragma once
+
+#include "sim.h"
+/*
+Tick functions shared between client and server
+*/
+
+extern "C" i32 Sim_TickSpawn(
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+{
+    if (sim->tick >= ent->timing.nextThink)
+    {
+        ent->flags &= ~SIM_ENT_FLAG_OUT_OF_PLAY;
+        ent->tickType = ent->coreTickType;
+        ent->body.t.scale = { 1, 1, 1 };
+    }
+    else
+    {
+        ent->flags |= SIM_ENT_FLAG_OUT_OF_PLAY;
+        frameInt totalWait = ent->timing.nextThink - ent->timing.lastThink;
+        frameInt progress = sim->tick - ent->timing.lastThink;
+        
+        f32 time = (f32)progress / (f32)totalWait;
+        ent->body.t.scale.x = ZE_LerpF32(0.01f, 0.5f, time);
+        ent->body.t.scale.y = ZE_LerpF32(50.0f, 1.0f, time);
+        ent->body.t.scale.z = ZE_LerpF32(0.01f, 0.5f, time);
+    }
+    return ZE_ERROR_NONE;
+}
+
+extern "C" void SimEnt_TickSeeker(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+{
+	
+}
+
+extern "C" void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+{
+	
+}
+
+extern "C" void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+{
+	
+}
+
+extern "C" void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+{
+	
+}
+
+internal void SimEnt_UpdateActorEvade(
+    SimScene* sim,
+    SimEntity* ent, 
+    SimActorInput* input,
+    f32 dt)
+{
+    // apply movement
+    Vec3 move = {};
+    move.x = ent->movement.velocity.x * dt;
+	move.z = ent->movement.velocity.z * dt;
+
+    ent->body.previousPos = ent->body.t.pos;
+	ent->body.t.pos.x += move.x;
+	ent->body.t.pos.y += move.y;
+	ent->body.t.pos.z += move.z;
+	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+
+    // timer
+    if (ent->movement.moveTime <= 0)
+    {
+        ent->movement.velocity = {};
+        ent->movement.moveTime = ACTOR_EVADE_RESET_SECONDS;
+        ent->movement.moveMode = 0;
+    }
+    else
+    {
+        ent->movement.moveTime -= dt;
+    }
+}
+
+internal void SimEnt_UpdateActorWalk(
+    SimScene* sim,
+    SimEntity* ent,
+    SimActorInput* input,
+    f32 dt)
+{
+    Vec3 dir = {};
+	f32 speed = ent->movement.speed;
+	if (input->buttons & ACTOR_INPUT_MOVE_FORWARD)
+	{
+        dir.z -= 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_BACKWARD)
+	{
+        dir.z += 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_LEFT)
+	{
+        dir.x -= 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_RIGHT)
+	{
+        dir.x += 1;
+	}
+	Vec3_Normalise(&dir);
+    i32 hasDirectionInput = (dir.x != 0 || dir.y != 0 || dir.z != 0);
+
+    if (ent->movement.moveTime > 0)
+    { ent->movement.moveTime -= dt; }
+
+	Vec3 move = {};
+	if (input->buttons & ACTOR_INPUT_MOVE_SPECIAL1
+        && hasDirectionInput
+        && ent->movement.moveTime <= 0)
+	{
+        // Begin evade
+        ent->movement.moveMode = 1;
+		ent->movement.moveTime = ACTOR_EVADE_SECONDS;
+        ent->movement.velocity.x = dir.x * ACTOR_EVADE_SPEED;
+        ent->movement.velocity.z = dir.z * ACTOR_EVADE_SPEED;
+		move.x = ent->movement.velocity.x * dt;
+	    move.z = ent->movement.velocity.z * dt;
+	}
+    else
+    {
+        // normal walk
+        move.x = dir.x * (speed * dt);
+	    move.z = dir.z * (speed * dt);
+    }
+    
+	ent->body.previousPos = ent->body.t.pos;
+	ent->body.t.pos.x += move.x;
+	ent->body.t.pos.y += move.y;
+	ent->body.t.pos.z += move.z;
+	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+}
+
+/**
+ * Input is optional to override the input attachd to ent for client prediction
+ */
+extern "C" void SimEnt_StepActorMovement(
+    SimScene* sim,
+    SimEntity* ent,
+    SimActorInput* input,
+    timeFloat deltaTime)
+{
+    if (input == NULL)
+    {
+        input = &ent->input;
+    }
+    f32 dt = (f32)deltaTime;
+	switch (ent->movement.moveMode)
+	{
+		case 0: // Walking
+		{
+			SimEnt_UpdateActorWalk(sim, ent, input, dt);
+		} break;
+		
+		case 1: // Dodging
+		{
+			SimEnt_UpdateActorEvade(sim, ent, input, dt);
+		} break;
+		
+		default:
+		{
+			
+		} break;
+	}
+}

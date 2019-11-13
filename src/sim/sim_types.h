@@ -5,6 +5,10 @@
 #include "../zqf_renderer.h"
 #include "../physics/physics.h"
 
+#define ACTOR_EVADE_SPEED 20
+#define ACTOR_EVADE_SECONDS 0.25f;
+#define ACTOR_EVADE_RESET_SECONDS 0.5f;
+
 #define ACTOR_INPUT_MOVE_FORWARD (1 << 0)
 #define ACTOR_INPUT_MOVE_BACKWARD (1 << 1)
 #define ACTOR_INPUT_MOVE_LEFT (1 << 2)
@@ -129,8 +133,8 @@ struct SimEntity
         Vec3 previousPos;
         Vec3 error;
         f32 errorRate;
-        f32 pitch;
-        f32 yaw;
+        f32 pitchDegrees;
+        f32 yawDegrees;
         Vec3 halfSize;
     } body;
 

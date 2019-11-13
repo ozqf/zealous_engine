@@ -203,7 +203,7 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     err = ZRGL_CreateProgram(
         gbuffer_combine_vert_text,
         gbuffer_combine_frag_text,
-        "BuildGBuffer",
+        "CombineGBuffer",
         ZR_DRAWOBJ_TYPE_MODEL,
         NO,
         &g_programs[ZR_SHADER_TYPE_COMBINE_GBUFFER]);
