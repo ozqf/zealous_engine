@@ -1,4 +1,5 @@
-#pragma once
+#ifndef APP_H
+#define APP_H
 
 #include "../ze_common/ze_common_full.h"
 #include "../zqf_renderer.h"
@@ -25,47 +26,10 @@ void App_SetPerformanceTime(i32 index, i32 tick, timeFloat milliSeconds);
 
 extern "C"
 timeFloat App_GetPerformanceTime(i32 index);
-/////////////////////////////////////////////////////////////////
-// Structs
-/////////////////////////////////////////////////////////////////
 
 #define APP_MAX_PERFORMANCE_FRAMES 60
 
-struct AppPerformanceStat
-{
-    char* label;
-    timeFloat frames[APP_MAX_PERFORMANCE_FRAMES];
-    timeFloat Sum()
-    {
-        timeFloat total = 0.0f;
-        for (i32 i = 0; i < APP_MAX_PERFORMANCE_FRAMES; ++i)
-        {
-            total += frames[i];
-        }
-        return total / APP_MAX_PERFORMANCE_FRAMES;
-    }
-};
-
-class AppTimer
-{
-    public:
-    f64 start;
-    i32 statIndex;
-    i32 statTick;
-
-    AppTimer(i32 index, i32 tick)
-    {
-        statIndex = index;
-        statTick = tick;
-        start = App_SampleClock();
-    }
-    ~AppTimer()
-    {
-        f64 end = App_SampleClock();
-        f32 val = (f32)(end - start) / 1000.0f;
-        App_SetPerformanceTime(statIndex, statTick, val);
-    }
-};
+#define APP_MAX_PACKET_SIZE 1400
 
 /////////////////////////////////////////////////////////////////
 // MACROS
@@ -130,3 +94,44 @@ class AppTimer
 #define APP_PRINT(messageBufSize, format, ...)
 #endif
 
+/////////////////////////////////////////////////////////////////
+// Structs
+/////////////////////////////////////////////////////////////////
+
+struct AppPerformanceStat
+{
+    char* label;
+    timeFloat frames[APP_MAX_PERFORMANCE_FRAMES];
+    timeFloat Sum()
+    {
+        timeFloat total = 0.0f;
+        for (i32 i = 0; i < APP_MAX_PERFORMANCE_FRAMES; ++i)
+        {
+            total += frames[i];
+        }
+        return total / APP_MAX_PERFORMANCE_FRAMES;
+    }
+};
+
+class AppTimer
+{
+    public:
+    f64 start;
+    i32 statIndex;
+    i32 statTick;
+
+    AppTimer(i32 index, i32 tick)
+    {
+        statIndex = index;
+        statTick = tick;
+        start = App_SampleClock();
+    }
+    ~AppTimer()
+    {
+        f64 end = App_SampleClock();
+        f32 val = (f32)(end - start) / 1000.0f;
+        App_SetPerformanceTime(statIndex, statTick, val);
+    }
+};
+
+#endif // APP_H

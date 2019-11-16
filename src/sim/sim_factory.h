@@ -227,6 +227,7 @@ internal i32 Sim_InitProjBase(
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
+    ent->touchDamage = 10;
 
     Sim_InitProjectile(
         ent,
@@ -254,6 +255,7 @@ internal i32 Sim_InitProjPrediction(
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
+    ent->touchDamage = 10;
 
     Sim_InitProjectile(
         ent,
@@ -281,6 +283,7 @@ internal i32 Sim_InitProjTest(
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
+    ent->touchDamage = 10;
 
     Sim_InitProjectile(
         ent,

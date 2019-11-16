@@ -78,6 +78,16 @@ struct SimEntMovement
     Vec3 destination;
 };
 
+// Fields replicated to clients
+struct SimEntSyncData
+{
+    Vec3 pos;
+	Vec3 rot;
+	Vec3 vel;
+    i32 targetId;
+    i32 tickType;
+    timeFloat thinkTime;
+};
 
 struct SimEntity
 {
@@ -86,16 +96,16 @@ struct SimEntity
     SimEntId id;
 
     simFactoryType factoryType;
-    i32 tickType;
+    i32 tickType; // REPLICATED
     i32 coreTickType;
 
     ZShapeDef shape;
 
-    struct 
+    struct
     {
         // TODO: For the client only the serial of targetid is safe.
         // Slot is not!!
-        SimEntId targetId;  // current enemy
+        SimEntId targetId;  // current enemy // REPLICATED
         SimEntId parentId;  // Who spawned this entity
         simFactoryType childFactoryType;
         i32 childSpawnCount;
@@ -140,10 +150,16 @@ struct SimEntity
 
     struct
     {
-        i16 health;
+        i32 health;
+        i32 healthMax;
+        i32 healthOverchargeMax;
+        i32 stunThreshold;
+        timeFloat stunDuration;
     } life;
     
 	SimActorInput input;
+
+    i32 touchDamage;
 
     f32 priority;
     f32 basePriority;

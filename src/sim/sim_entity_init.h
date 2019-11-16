@@ -22,7 +22,10 @@ internal void Sim_SetEntityBase(
 }
 
 internal void Sim_SetEntityStats(
-    SimEntity* ent, f32 speed, i16 health, f32 attackTime)
+    SimEntity* ent,
+    f32 speed,
+    i32 health,
+    f32 attackTime)
 {
     ent->movement.speed = speed;
     ent->life.health = health;
@@ -40,5 +43,11 @@ internal void Sim_SetEntityDisplay(
     ent->deathType = deathType;
     ent->display.colourA = colourA;
     ent->display.colourB = colourB;
+}
+
+internal void Sim_SetupEnemyDefaultStats(
+    SimEntity* ent)
+{
+
 }
 

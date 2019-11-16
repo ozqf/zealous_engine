@@ -27,7 +27,6 @@ struct SVEntityFrame
 
 #define SV_MAX_MALLOCS 1024
 
-#define SV_PACKET_MAX_BYTES 1400
 #define SV_PACKET_RELIABLE_MAX_BYTES 700
 
 #define SV_CMD_SLOW_RESEND_ATTEMPTS 3
@@ -46,7 +45,7 @@ internal timeFloat g_elapsed = 0;
 internal i32 g_lagCompensateProjectiles = 1;
 internal i32 g_unreliableProjectileDeaths = 1;
 
-internal i32 g_maxSyncRate = APP_CLIENT_SYNC_RATE_30HZ;
+internal i32 g_maxSyncRate = APP_CLIENT_SYNC_RATE_60HZ;
 
 internal i32 g_debugFlags = 0
     //| SV_DEBUG_TIMING 
@@ -175,7 +174,7 @@ internal void SV_LoadTestScene()
 {
     SimScene* sim = &g_sim;
     Sim_LoadScene(sim, 0);
-    const i32 stage = -1;
+    const i32 stage = 1;
 
     u8 count = 64;
     f32 inner = 8;
@@ -187,6 +186,7 @@ internal void SV_LoadTestScene()
         break;
         case 1:
         SV_AddSpawner(sim, { inner, 0, inner }, SIM_FACTORY_TYPE_RUBBLE, count);
+        //SV_AddSpawner(sim, { 0, 0, 0 }, SIM_FACTORY_TYPE_SEEKER, count);
         break;
         case 2:
         SV_AddSpawner(sim, { 10, 0, 10 }, SIM_FACTORY_TYPE_SEEKER, count);

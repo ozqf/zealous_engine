@@ -196,7 +196,7 @@ internal PacketStats SVP_WriteUserPacket(SimScene* sim, User* user, timeFloat ti
 {
 	// enqueue
 	PacketStats stats = {};
-	const i32 packetSize = SV_PACKET_MAX_BYTES;
+	const i32 packetSize = APP_MAX_PACKET_SIZE;
 	// unreliable may use whatever space is remaining, but
 	// we always want to send *some* unreliable sync info.
 	// so leave some space.
@@ -247,8 +247,8 @@ internal PacketStats SVP_WriteUserPacket(SimScene* sim, User* user, timeFloat ti
 /*internal void SVP_WriteTestPacket()
 {
     // Make a packet, no messages just a header
-    u8 buf[1400];
-    ZEByteBuffer b = Buf_FromBytes(buf, 1400);
+    u8 buf[APP_MAX_PACKET_SIZE];
+    ZEByteBuffer b = Buf_FromBytes(buf, APP_MAX_PACKET_SIZE);
     Packet_StartWrite(&b, 0, 0, 0, 0, g_ticks, g_elapsed, 0);
     b.cursor += COM_WriteI32(ZE_SENTINEL, b.cursor);
     Packet_FinishWrite(&b, 0, 0);

@@ -68,8 +68,8 @@ internal void CL_WritePacket(
 	// enqueue
 	//ZEByteBuffer* buf = App_GetLocalClientPacketForWrite();
 	
-	u8 buf[1400];
-    ZEByteBuffer packet = Buf_FromBytes(buf, 1400);
+	u8 buf[APP_MAX_PACKET_SIZE];
+    ZEByteBuffer packet = Buf_FromBytes(buf, APP_MAX_PACKET_SIZE);
     u32 packetSequence = g_acks.outputSequence++;
 	Ack_RecordPacketTransmission(&g_acks, packetSequence, time);
 	
@@ -90,7 +90,7 @@ internal void CL_WritePacket(
 	//Packet_WriteFromStream(
     //    &user->reliableStream,
     //    &user->unreliableStream,
-    //    buf, 1400, g_elapsed, g_ticks, 0);
+    //    buf, APP_MAX_PACKET_SIZE, g_elapsed, g_ticks, 0);
     #endif
 }
 

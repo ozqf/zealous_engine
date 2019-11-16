@@ -117,12 +117,18 @@ extern "C" i32 CL_IsRunning() { return g_isRunning; }
 
 extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
 {
-    /*
+    Transform* camera = &g_camera;
+    #if 0
     M3x3_SetToIdentity(g_camera.rotation.cells);
     M3x3_RotateY(g_camera.rotation.cells, g_testCameraDegrees.y * DEG2RAD);
     M3x3_RotateX(g_camera.rotation.cells, g_testCameraDegrees.x * DEG2RAD);
-    */
-    CLR_WriteDrawFrame(list, data, &g_sim, &g_camera, g_clDebugFlags);
+    #endif
+    SimEntity* plyr = Sim_GetEntityBySerial(&g_sim, g_avatarSerial);
+    if (plyr != NULL)
+    {
+        camera = &plyr->body.t;
+    }
+    CLR_WriteDrawFrame(list, data, &g_sim, camera, g_clDebugFlags);
 }
 
 internal void CL_WriteNetworkDebug(CharBuffer* str)

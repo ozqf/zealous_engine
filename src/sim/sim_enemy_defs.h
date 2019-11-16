@@ -104,7 +104,7 @@ internal i32 Sim_InitSeeker(
     SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityStats(ent, 4, 1, 1);
+    Sim_SetEntityStats(ent, 4, 60, 1);
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_SEEKER;
     ent->timing.lastThink = ent->timing.birthTick;

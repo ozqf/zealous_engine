@@ -84,6 +84,55 @@ internal void SimEnt_UpdateActorWalk(
     SimActorInput* input,
     f32 dt)
 {
+    ent->body.pitchDegrees = input->degrees.x;
+    ent->body.yawDegrees = input->degrees.y;
+    // printf("CL player degrees pitch %.3f, yaw %.3f\n",
+    //     ent->body.pitchDegrees, ent->body.yawDegrees
+    // );
+
+    // Rotation
+    Transform* t = &ent->body.t;
+    M3x3_SetToIdentity(t->rotation.cells);
+    M3x3_RotateY(t->rotation.cells, input->degrees.y * DEG2RAD);
+    M3x3_RotateX(t->rotation.cells, input->degrees.x * DEG2RAD);
+
+    f32 stepSpeed = ent->movement.speed * dt;
+
+    // Movement
+    Vec3 dir = {};
+    if (input->buttons & ACTOR_INPUT_MOVE_FORWARD)
+	{
+        dir.z -= 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_BACKWARD)
+	{
+        dir.z += 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_LEFT)
+	{
+        dir.x -= 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_RIGHT)
+	{
+        dir.x += 1;
+	}
+    Vec3 forward;//, left, up;
+    forward.x = (t->rotation.zAxis.x * stepSpeed) * dir.z;
+    forward.y = (t->rotation.zAxis.y * stepSpeed) * dir.z;
+    forward.z = (t->rotation.zAxis.z * stepSpeed) * dir.z;
+
+    t->pos.x += forward.x;// + left.x + up.x;
+    t->pos.y += forward.y;// + left.y + up.y;
+    t->pos.z += forward.z;// + left.z + up.z;
+	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+}
+
+internal void SimEnt_UpdateActorWalk_TopDown(
+    SimScene* sim,
+    SimEntity* ent,
+    SimActorInput* input,
+    f32 dt)
+{
     Vec3 dir = {};
 	f32 speed = ent->movement.speed;
 	if (input->buttons & ACTOR_INPUT_MOVE_FORWARD)
