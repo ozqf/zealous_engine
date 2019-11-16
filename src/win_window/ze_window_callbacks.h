@@ -123,6 +123,26 @@ static void key_callback(GLFWwindow* window, int glfwKey, int scancode, int acti
     }
 }
 
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    zeInputCode keyCode = Z_INPUT_CODE_NULL;
+    switch (button)
+    {
+        case GLFW_MOUSE_BUTTON_LEFT: keyCode = Z_INPUT_CODE_MOUSE_1; break;
+        case GLFW_MOUSE_BUTTON_RIGHT: keyCode = Z_INPUT_CODE_MOUSE_2; break;
+        case GLFW_MOUSE_BUTTON_MIDDLE: keyCode = Z_INPUT_CODE_MOUSE_3; break;
+    }
+    if (keyCode == Z_INPUT_CODE_NULL) { return; }
+    if (action == GLFW_PRESS)
+    {
+        Sys_WriteInputEvent(&g_eventBuffer, keyCode, 1);
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        Sys_WriteInputEvent(&g_eventBuffer, keyCode, 0);
+    }
+}
+
 /**
  * Initialised GLFW event callbacks and event buffer
  */
@@ -134,6 +154,7 @@ static ErrorCode ZR_InitCallbacks(GLFWwindow* window)
 
     glfwSetWindowCloseCallback(window, window_close_callback);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     if (glfwRawMouseMotionSupported())
     {

@@ -84,13 +84,18 @@ internal void SimEnt_UpdateActorWalk(
     SimActorInput* input,
     f32 dt)
 {
+    if (ent->movement.moveTime > 0)
+    { ent->movement.moveTime -= dt; }
+
     ent->body.pitchDegrees = input->degrees.x;
     ent->body.yawDegrees = input->degrees.y;
     // printf("CL player degrees pitch %.3f, yaw %.3f\n",
     //     ent->body.pitchDegrees, ent->body.yawDegrees
     // );
 
+    ////////////////////////////////////////////////////////////////////
     // Rotation
+    ////////////////////////////////////////////////////////////////////
     Transform* t = &ent->body.t;
     M3x3_SetToIdentity(t->rotation.cells);
     M3x3_RotateY(t->rotation.cells, input->degrees.y * DEG2RAD);
@@ -98,7 +103,11 @@ internal void SimEnt_UpdateActorWalk(
 
     f32 stepSpeed = ent->movement.speed * dt;
 
+    ////////////////////////////////////////////////////////////////////
     // Movement
+    ////////////////////////////////////////////////////////////////////
+
+    // Gather direction input
     Vec3 dir = {};
     if (input->buttons & ACTOR_INPUT_MOVE_FORWARD)
 	{
@@ -116,6 +125,7 @@ internal void SimEnt_UpdateActorWalk(
 	{
         dir.x += 1;
 	}
+    // Calculate velocity components
     f32 radiansForward = input->degrees.y * DEG2RAD;
     f32 radiansLeft = (input->degrees.y * DEG2RAD) + (90 * DEG2RAD);
     Vec3 forward;
@@ -126,14 +136,48 @@ internal void SimEnt_UpdateActorWalk(
     Vec3 left;
     left.x = (sinf(radiansLeft) * stepSpeed) * dir.x;
     left.y = 0;
-    left.z = (sinf(radiansLeft) * stepSpeed) * dir.x;
+    left.z = (cosf(radiansLeft) * stepSpeed) * dir.x;
 
-    //Vec3 up;
+    Vec3 up = {};
+
+    // Enter evade?
+	Vec3 move = {};
+    i32 hasDirectionInput = (dir.x != 0 || dir.y != 0 || dir.z != 0);
+	if (input->buttons & ACTOR_INPUT_MOVE_SPECIAL1
+        && hasDirectionInput
+        && ent->movement.moveTime <= 0)
+	{
+        // calculate evade direction - only horizontal
+        // but allows diagonals
+        Vec3 evadeForward, evadeLeft;
+        evadeForward.x = sinf(radiansForward) * dir.z;
+        evadeForward.z = cosf(radiansForward) * dir.z;
+        evadeLeft.x = sinf(radiansLeft) * dir.x;
+        evadeLeft.z = cosf(radiansLeft) * dir.x;
+        Vec3 evadeDir = {};
+        evadeDir.x = evadeForward.x + evadeLeft.x;
+        evadeDir.z = evadeForward.z + evadeLeft.z;
+        Vec3_Normalise(&evadeDir);
+        // Begin evade
+        ent->movement.moveMode = 1;
+		ent->movement.moveTime = ACTOR_EVADE_SECONDS;
+        ent->movement.velocity.x = evadeDir.x * ACTOR_EVADE_SPEED;
+        ent->movement.velocity.z = evadeDir.z * ACTOR_EVADE_SPEED;
+		move.x = ent->movement.velocity.x * dt;
+	    move.z = ent->movement.velocity.z * dt;
+	}
+    else
+    {
+        // normal walk
+        move.x = forward.x + left.x + up.x;
+        move.z = forward.z + left.z + up.z;
+    }
+    
 
     ent->body.previousPos = t->pos;
-    t->pos.x += forward.x + left.x;
-    t->pos.y += forward.y + left.y;
-    t->pos.z += forward.z + left.z;
+    t->pos.x += move.x;
+    t->pos.y += move.y;
+    t->pos.z += move.z;
 
 	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }

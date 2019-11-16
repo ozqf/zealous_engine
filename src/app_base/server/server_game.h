@@ -521,6 +521,16 @@ internal void SVG_UpdateActorAttackInput(SimScene* sim, SimEntity* ent, f32 dt)
 {
 	if (ent->attackTick <= 0)
 	{
+        if (ent->input.buttons & ACTOR_INPUT_ATTACK)
+        {
+            Vec3 forward = ent->body.t.rotation.zAxis;
+            // flip
+            forward.x = -forward.x;
+            forward.y = -forward.y;
+            forward.z = -forward.z;
+			SVG_FireActorAttack(sim, ent, &forward);
+        }
+        #if 0
 		Vec3 shoot {};
 		if (ent->input.buttons & ACTOR_INPUT_SHOOT_LEFT)
 		{
@@ -544,6 +554,7 @@ internal void SVG_UpdateActorAttackInput(SimScene* sim, SimEntity* ent, f32 dt)
 			Vec3_Normalise(&shoot);
 			SVG_FireActorAttack(sim, ent, &shoot);
 		}
+        #endif
 	}
 	else
 	{

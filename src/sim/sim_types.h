@@ -169,6 +169,7 @@ struct SimEntity
     } clientOnly;
 };
 
+// Configurable data for spawning an entity.
 struct SimEntSpawnData
 {
     i32 serial;

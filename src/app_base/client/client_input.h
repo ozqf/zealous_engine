@@ -194,6 +194,9 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     CL_InputCheckButton(actions, "Shoot Left", &flags, ACTOR_INPUT_SHOOT_LEFT);
     CL_InputCheckButton(actions, "Shoot Right", &flags, ACTOR_INPUT_SHOOT_RIGHT);
 
+    CL_InputCheckButton(actions, "Attack1", &flags, ACTOR_INPUT_ATTACK);
+    CL_InputCheckButton(actions, "Attack2", &flags, ACTOR_INPUT_ATTACK2);
+
     f32 val;
     f32 mouseX = ((f32)Input_GetActionValue(actions, "Mouse Move X") / (f32)Z_INPUT_MOUSE_SCALAR);
     f32 mouseY = ((f32)Input_GetActionValue(actions, "Mouse Move Y") / (f32)Z_INPUT_MOUSE_SCALAR);

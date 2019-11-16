@@ -104,12 +104,53 @@ internal SimEntity* Sim_GetFreeLocalEntity(
     return ent;
 }
 
+internal i32 Sim_RecycleEntity(
+    SimScene* sim, i32 entitySerialNumber)
+{
+    SimEntity* ent = Sim_FindEntityBySerialNumber(
+        sim, entitySerialNumber);
+    if (ent)
+    {
+        SimEntIndex slot = ent->id.slot;
+        if (sim->bVerbose)
+        {
+            APP_LOG(64, "SIM Removing ent %d (slot %d/%d)\n",
+                entitySerialNumber, slot.iteration, slot.index);
+        }
+        #ifdef SIM_USE_PHYSICS_ENGINE
+        if (ent->shape.handleId > 0)
+        {
+            PhysCmd_RemoveShape(sim->world, ent->shape.handleId);
+            ent->shape = {};
+        }
+        #endif
+        u16 iteration = ent->id.slot.iteration + 1;
+        *ent = {};
+        ent->status = SIM_ENT_STATUS_FREE;
+        ent->id.slot.iteration = iteration;
+        return ZE_ERROR_NONE;
+    }
+    else
+    {
+        if (sim->bVerbose)
+        {
+            APP_LOG(64, "SIM Found no ent %d to remove\n",
+                entitySerialNumber);
+        }
+        return ZE_ERROR_BAD_ARGUMENT;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////
 // Entity initialisation
 ////////////////////////////////////////////////////////////////////
 internal i32 Sim_InitActor(
     SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
 {
+    printf("SIM Create actor, scale %.3f, %.3f, %.3f\n",
+        def->scale.x, def->scale.y, def->scale.z
+    );
+    def->scale = { 1, 2, 1 };
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_ACTOR;
     ent->coreTickType = SIM_TICK_TYPE_ACTOR;
@@ -275,7 +316,7 @@ internal i32 Sim_InitProjTest(
     t.patternDef.numItems = 4;
     t.lifeTime = 1.5f;
     t.patternDef.patternId = SIM_PATTERN_RADIAL;
-    t.scale = { 1, 1, 1 };
+    t.scale = { 0.25f, 0.25f, 1 };
     Sim_SetEntityDisplay(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
@@ -368,40 +409,4 @@ internal SimEntity* Sim_SpawnEntity(
     }
 
     return ent;
-}
-
-internal i32 Sim_RecycleEntity(
-    SimScene* sim, i32 entitySerialNumber)
-{
-    SimEntity* ent = Sim_FindEntityBySerialNumber(
-        sim, entitySerialNumber);
-    if (ent)
-    {
-        SimEntIndex slot = ent->id.slot;
-        if (sim->bVerbose)
-        {
-            APP_LOG(64, "SIM Removing ent %d (slot %d/%d)\n",
-                entitySerialNumber, slot.iteration, slot.index);
-        }
-        #ifdef SIM_USE_PHYSICS_ENGINE
-        if (ent->shape.handleId > 0)
-        {
-            PhysCmd_RemoveShape(sim->world, ent->shape.handleId);
-            ent->shape = {};
-        }
-        #endif
-        u16 iteration = ent->id.slot.iteration + 1;
-        *ent = {};
-        ent->id.slot.iteration = iteration;
-        return ZE_ERROR_NONE;
-    }
-    else
-    {
-        if (sim->bVerbose)
-        {
-            APP_LOG(64, "SIM Found no ent %d to remove\n",
-                entitySerialNumber);
-        }
-        return ZE_ERROR_BAD_ARGUMENT;
-    }
 }

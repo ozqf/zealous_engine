@@ -287,6 +287,17 @@ internal void Vec3_Normalise(Vec3* v)
     v->z /= vectorMagnitude;
 }
 
+internal Vec3 Vec3_GetNormal(Vec3* v)
+{
+    Vec3 result = {};
+    f32 vectorMagnitude = Vec3_Magnitude(v);
+    if (vectorMagnitude == 0) { return result; }
+    result.x = v->x / vectorMagnitude;
+    result.y = v->y / vectorMagnitude;
+    result.z = v->z / vectorMagnitude;
+    return result;
+}
+
 internal void Vec3_SetMagnitude(Vec3* v, f32 newMagnitude);
 
 internal f32 Vec3_Distance(Vec3 a, Vec3 b)

@@ -167,8 +167,8 @@ internal void SVU_SpawnUserAvatar(User* u)
 	u->entSerial = avatarSerial;
     def.serial = avatarSerial;
 	def.factoryType = SIM_FACTORY_TYPE_ACTOR;
-    def.pos = { -6, 0, 6 };
-    def.scale = { 1, 1, 1 };
+    def.pos = { -6, 1, 6 };
+    //def.scale = { 1, 1, 1 };
     Sim_RestoreEntity(&g_sim, &def);
 }
 
