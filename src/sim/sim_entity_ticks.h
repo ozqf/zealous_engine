@@ -116,14 +116,25 @@ internal void SimEnt_UpdateActorWalk(
 	{
         dir.x += 1;
 	}
-    Vec3 forward;//, left, up;
-    forward.x = (t->rotation.zAxis.x * stepSpeed) * dir.z;
-    forward.y = (t->rotation.zAxis.y * stepSpeed) * dir.z;
-    forward.z = (t->rotation.zAxis.z * stepSpeed) * dir.z;
+    f32 radiansForward = input->degrees.y * DEG2RAD;
+    f32 radiansLeft = (input->degrees.y * DEG2RAD) + (90 * DEG2RAD);
+    Vec3 forward;
+    forward.x = (sinf(radiansForward) * stepSpeed) * dir.z;
+    forward.y = 0;
+    forward.z = (cosf(radiansForward) * stepSpeed) * dir.z;
 
-    t->pos.x += forward.x;// + left.x + up.x;
-    t->pos.y += forward.y;// + left.y + up.y;
-    t->pos.z += forward.z;// + left.z + up.z;
+    Vec3 left;
+    left.x = (sinf(radiansLeft) * stepSpeed) * dir.x;
+    left.y = 0;
+    left.z = (sinf(radiansLeft) * stepSpeed) * dir.x;
+
+    //Vec3 up;
+
+    ent->body.previousPos = t->pos;
+    t->pos.x += forward.x + left.x;
+    t->pos.y += forward.y + left.y;
+    t->pos.z += forward.z + left.z;
+
 	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
 
@@ -185,7 +196,7 @@ internal void SimEnt_UpdateActorWalk_TopDown(
 }
 
 /**
- * Input is optional to override the input attachd to ent for client prediction
+ * Input is optional to override the input attached to ent for client prediction
  */
 extern "C" void SimEnt_StepActorMovement(
     SimScene* sim,

@@ -557,9 +557,9 @@ SVG_DEFINE_ENT_UPDATE(Actor)
     // printf("SV Actor look %.3f, %.3f\n",
     //     ent->input.degrees.x, ent->input.degrees.y
     // );
-    printf("SV Step actor %.3f, %.3f, %.3f\n",
-        ent->body.t.pos.x, ent->body.t.pos.y, ent->body.t.pos.z
-    );
+    //printf("SV Step actor %.3f, %.3f, %.3f\n",
+    //    ent->body.t.pos.x, ent->body.t.pos.y, ent->body.t.pos.z
+    //);
     SimEnt_StepActorMovement(sim, ent, NULL, dt);
 
     // Attacks - server side only atm

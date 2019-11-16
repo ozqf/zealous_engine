@@ -14,7 +14,7 @@ internal i32 SVP_WriteUnreliableSection(
     // write the unreliable section header
     // - sim tick for these commands
     packet->cursor += COM_WriteI32(sim->tick, packet->cursor);
-
+    
     ////////////////////////////////////////////////////////////////
     // send input confirmation
     SimEntity* avatar = Sim_GetEntityBySerial(&g_sim, user->entSerial);
