@@ -59,7 +59,7 @@ internal i32 Cmd_Deserialise(
                 vel.z = COM_DequantiseI2F(
                     COM_ReadU16(&read), &quantise->vel);
                 
-                Cmd_EntSyncSetUpdate(cmd,
+                Cmd_ReadEntSyncUpdate(cmd,
                     baseTick, serial, targetSerial, pos, vel);
 
                 return (read - source);

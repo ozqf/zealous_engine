@@ -188,6 +188,7 @@ internal i32 Sim_InitWorldVolume(
         def->pos.x, def->pos.y, def->pos.z);
     ent->tickType = SIM_TICK_TYPE_WORLD;
     ent->coreTickType = SIM_TICK_TYPE_WORLD;
+    ent->flags = SIM_ENT_FLAG_SHOOTABLE | SIM_ENT_FLAG_INVULNERABLE;
     // world volumes can't move (yet!)
     ent->movement.velocity = {};
     Sim_SetEntityDisplay(ent,
@@ -248,6 +249,21 @@ internal i32 Sim_InitExplosion(
     ent->body.t.scale = { 2, 1, 2 };
     return ZE_ERROR_NONE;
 }
+internal i32 Sim_InitBulletImpact(
+    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+{
+    Sim_SetEntityBase(ent, def);
+    ent->tickType = SIM_TICK_TYPE_EXPLOSION;
+    ent->coreTickType = SIM_TICK_TYPE_EXPLOSION;
+    Sim_SetEntityDisplay(ent,
+        { 1, 1, 0, 1 },
+        { 1, 1, 0, 1 },
+        SIM_PREFAB_EXPLOSION,
+        SIM_DEATH_GFX_NONE);
+    ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
+    ent->body.t.scale = { 0.25f, 0.25f, 0.25f };
+    return ZE_ERROR_NONE;
+}
 
 ///////////////////////////////////////////////////////
 // Projectiles
@@ -266,6 +282,7 @@ internal i32 Sim_InitProjBase(
         { 1, 1, 0, 1 },
         SIM_PREFAB_ENEMY_PROJECTILE,
         SIM_DEATH_GFX_EXPLOSION);
+    ent->deathType = SIM_DEATH_GFX_EXPLOSION;
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
     ent->touchDamage = 10;
@@ -308,15 +325,15 @@ internal i32 Sim_InitProjPrediction(
     return ZE_ERROR_NONE;
 }
 
-internal i32 Sim_InitProjTest(
+internal i32 Sim_InitPlayerProjectile(
     SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
 {
     SimProjectileType t;
     t.speed = 45.0f;
     t.patternDef.numItems = 4;
     t.lifeTime = 1.5f;
-    t.patternDef.patternId = SIM_PATTERN_RADIAL;
-    t.scale = { 0.25f, 0.25f, 1 };
+    t.patternDef.patternId = SIM_PATTERN_FLAT_RADIAL;
+    t.scale = { 0.15f, 0.15f, 1 };
     Sim_SetEntityDisplay(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
@@ -364,18 +381,22 @@ internal SimEntity* Sim_SpawnEntity(
 
     switch (def->factoryType)
     {
+        ////////////////////////////////////////////////////////
+        // Projectiles
         case SIM_FACTORY_TYPE_PROJECTILE_BASE:
             err =  Sim_InitProjBase(sim, ent, def); break;
         case SIM_FACTORY_TYPE_PROJ_PREDICTION:
             err =  Sim_InitProjPrediction(sim, ent, def); break;
         case SIM_FACTORY_TYPE_PROJ_PLAYER:
-            err =  Sim_InitProjTest(sim, ent, def); break;
+            err =  Sim_InitPlayerProjectile(sim, ent, def); break;
+        ////////////////////////////////////////////////////////
+        // GFX
+        case SIM_FACTORY_TYPE_BULLET_IMPACT:
+            err = Sim_InitBulletImpact(sim, ent, def); break;
         case SIM_FACTORY_TYPE_EXPLOSION:
             err = Sim_InitExplosion(sim, ent, def); break;
-        case SIM_FACTORY_TYPE_ACTOR:
-            err =  Sim_InitActor(sim, ent, def); break;
-        case SIM_FACTORY_TYPE_BOT:
-            err =  Sim_InitBot(sim, ent, def); break;
+        ////////////////////////////////////////////////////////
+        // Mobs
         case SIM_FACTORY_TYPE_SEEKER:
             err =  Sim_InitSeeker(sim, ent, def); break;
         case SIM_FACTORY_TYPE_WANDERER:
@@ -388,12 +409,19 @@ internal SimEntity* Sim_SpawnEntity(
             err = Sim_InitRubble(sim, ent, def); break;
         case SIM_FACTORY_TYPE_GRUNT:
             err = Sim_InitGrunt(sim, ent, def); break;
+        ////////////////////////////////////////////////////////
+        // Misc
+        case SIM_FACTORY_TYPE_ACTOR:
+            err =  Sim_InitActor(sim, ent, def); break;
+        case SIM_FACTORY_TYPE_BOT:
+            err =  Sim_InitBot(sim, ent, def); break;
         case SIM_FACTORY_TYPE_WORLD:
             err =  Sim_InitWorldVolume(sim, ent, def); break;
         case SIM_FACTORY_TYPE_SPAWNER:
 			err = Sim_InitSpawner(sim, ent, def); break;
         case SIM_FACTORY_TYPE_LINE_TRACE:
 		    err =  Sim_InitLineTrace(sim, ent, def); break;
+        ////////////////////////////////////////////////////////
 		case SIM_FACTORY_TYPE_NONE:
         {
             printf("SIM Cannot spawn, entity type not set!\n");

@@ -13,7 +13,7 @@
 // but will need to be applied as vector magnitude to work properly
 #define SIM_MAX_AXIS_SPEED 127
 
-#define SIM_QUANTISE_SYNC
+//#define SIM_QUANTISE_SYNC
 #define SIM_QUANTISE_SPAWNS
 
 #define SIM_NET_MIN_PRIORITY 1
@@ -59,6 +59,7 @@ typedef u8 simFactoryType;
 #define SIM_FACTORY_TYPE_GRUNT 15
 #define SIM_FACTORY_TYPE_BRUTE 16
 #define SIM_FACTORY_TYPE_CHARGER 17
+#define SIM_FACTORY_TYPE_BULLET_IMPACT 18
 
 // Update functions
 #define SIM_TICK_TYPE_NONE 0
@@ -78,11 +79,12 @@ typedef u8 simFactoryType;
 
 // Spawn pattern types.
 #define SIM_PATTERN_NONE 0
-#define SIM_PATTERN_SPREAD 1
-#define SIM_PATTERN_RADIAL 2
-#define SIM_PATTERN_SCATTER 3
-#define SIM_PATTERN_LINE 4
-#define SIM_PATTERN_CIRCLE 5
+#define SIM_PATTERN_FLAT_CONE 1
+#define SIM_PATTERN_3D_CONE 2
+#define SIM_PATTERN_FLAT_RADIAL 3
+#define SIM_PATTERN_FLAT_SCATTER 4
+#define SIM_PATTERN_LINE 5
+#define SIM_PATTERN_CIRCLE 6
 
 // Sim Entity flags
 #define SIM_ENT_FLAG_OUT_OF_PLAY (1 << 0)
@@ -91,6 +93,7 @@ typedef u8 simFactoryType;
 #define SIM_ENT_FLAG_MOVE_AVOID (1 << 3)
 #define SIM_ENT_FLAG_TARGET_SEEKING (1 << 4)
 #define SIM_ENT_FLAG_USE_OVERRIDE_SCALE (1 << 5)
+#define SIM_ENT_FLAG_INVULNERABLE (1 << 6)
 
 #define SIM_DEATH_GFX_NONE 0
 #define SIM_DEATH_GFX_EXPLOSION 1
@@ -143,6 +146,15 @@ extern "C" void     SimEnt_StepActorMovement(
 extern "C" i32        Sim_IsEntInPlay(SimEntity* ent);
 extern "C" SimEntity* Sim_FindTargetForEnt(SimScene* sim, SimEntity* subject);
 extern "C" i32        Sim_IsEntTargetable(SimEntity* ent);
+
+extern "C"
+i32 Sim_FindByRaycast(
+    SimScene* sim,
+    Vec3 origin,
+    Vec3 dest,
+    i32 ignoreSerial,
+    SimRaycastResult* results,
+    i32 maxResults);
 
 extern "C"
 inline i32 Sim_FindByAABB(

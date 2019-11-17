@@ -29,6 +29,8 @@ struct PriorityLink
 
     // used for calculating priority
     f32 distance;
+	// record position this entity died at for death sync events
+	Vec3 deathPosition;
 };
 
 struct PriorityLinkSet
@@ -159,7 +161,7 @@ internal void Priority_DeleteLinkRange(
     }
 }
 
-internal void Priority_FlagLinkAsDead(PriorityLinkSet* list, i32 id)
+internal PriorityLink* Priority_FlagLinkAsDead(PriorityLinkSet* list, i32 id)
 {
     // Find link
     PriorityLink* link = NULL;
@@ -188,6 +190,8 @@ internal void Priority_FlagLinkAsDead(PriorityLinkSet* list, i32 id)
     // status change
     link->baselineSequence = 0;
     //printf("Entity Link %d flagged as dead\n", id);
+    // Return link so it can be further configured
+    return link;
 }
 #if 0
 internal void Priority_RemoveLinkBySerial(

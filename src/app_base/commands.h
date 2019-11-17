@@ -227,7 +227,7 @@ struct S2C_EntitySync
     };
 };
 
-inline void Cmd_EntSyncSetUpdate(
+inline void Cmd_ReadEntSyncUpdate(
     S2C_EntitySync* cmd,
     i32 tick, i32 serial, i32 targetSerial, Vec3 pos, Vec3 vel
 )
@@ -258,16 +258,29 @@ internal void Cmd_WriteEntitySyncAsUpdate(
     cmd->update.targetId = ent->relationships.targetId.serial;
 }
 
+internal void Cmd_ReadEntSyncAsDeath(
+    S2C_EntitySync* cmd, i32 tick, i32 serial, Vec3 pos)
+{
+    Cmd_Prepare(&cmd->header, tick);
+    cmd->header.type = CMD_TYPE_S2C_SYNC_ENTITY;
+    cmd->header.size = sizeof(S2C_EntitySync);
+    cmd->networkId = serial;
+    cmd->subType = S2C_ENTITY_SYNC_TYPE_DEATH;
+    cmd->death.pos = pos;
+}
+
 internal void Cmd_WriteEntitySyncAsDeath(
     S2C_EntitySync* cmd,
     i32 tick,
-    i32 entitySerial)
+	i32 serial,
+    Vec3 pos)
 {
     Cmd_Prepare(&cmd->header, tick);
     cmd->header.type = CMD_TYPE_S2C_SYNC_ENTITY;
     cmd->header.size = sizeof(S2C_EntitySync);
     cmd->subType = S2C_ENTITY_SYNC_TYPE_DEATH;
-    cmd->networkId = entitySerial;
+    cmd->death.pos = pos;
+    cmd->networkId = serial;
 }
 
 // Return bytes written

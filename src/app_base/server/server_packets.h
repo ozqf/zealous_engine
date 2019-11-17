@@ -63,11 +63,13 @@ internal i32 SVP_WriteUnreliableSection(
         if (ent)
         {
             Cmd_WriteEntitySyncAsUpdate(&cmd, sim->tick, ent);
+            // Record last read position
+            link->deathPosition = ent->body.t.pos;
         }
         else
         {
             // No entity? must be dead!
-            Cmd_WriteEntitySyncAsDeath(&cmd, sim->tick, link->id);
+            Cmd_WriteEntitySyncAsDeath(&cmd, sim->tick, link->id, link->deathPosition);
         }
 
         // Write sync to packet

@@ -48,34 +48,21 @@ extern "C" void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat del
 	
 }
 
-internal void SimEnt_UpdateActorEvade(
+internal void SimEnt_UpdateActorLook(
     SimScene* sim,
-    SimEntity* ent, 
+    SimEntity* ent,
     SimActorInput* input,
     f32 dt)
 {
-    // apply movement
-    Vec3 move = {};
-    move.x = ent->movement.velocity.x * dt;
-	move.z = ent->movement.velocity.z * dt;
+    ent->body.pitchDegrees = input->degrees.x;
+    ent->body.yawDegrees = input->degrees.y;
+    
+    // Apply Rotate
+    Transform* t = &ent->body.t;
+    M3x3_SetToIdentity(t->rotation.cells);
+    M3x3_RotateY(t->rotation.cells, input->degrees.y * DEG2RAD);
+    M3x3_RotateX(t->rotation.cells, input->degrees.x * DEG2RAD);
 
-    ent->body.previousPos = ent->body.t.pos;
-	ent->body.t.pos.x += move.x;
-	ent->body.t.pos.y += move.y;
-	ent->body.t.pos.z += move.z;
-	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
-
-    // timer
-    if (ent->movement.moveTime <= 0)
-    {
-        ent->movement.velocity = {};
-        ent->movement.moveTime = ACTOR_EVADE_RESET_SECONDS;
-        ent->movement.moveMode = 0;
-    }
-    else
-    {
-        ent->movement.moveTime -= dt;
-    }
 }
 
 internal void SimEnt_UpdateActorWalk(
@@ -84,23 +71,12 @@ internal void SimEnt_UpdateActorWalk(
     SimActorInput* input,
     f32 dt)
 {
+    // Rotation
+    SimEnt_UpdateActorLook(sim, ent, input, dt);
+
     if (ent->movement.moveTime > 0)
     { ent->movement.moveTime -= dt; }
-
-    ent->body.pitchDegrees = input->degrees.x;
-    ent->body.yawDegrees = input->degrees.y;
-    // printf("CL player degrees pitch %.3f, yaw %.3f\n",
-    //     ent->body.pitchDegrees, ent->body.yawDegrees
-    // );
-
-    ////////////////////////////////////////////////////////////////////
-    // Rotation
-    ////////////////////////////////////////////////////////////////////
-    Transform* t = &ent->body.t;
-    M3x3_SetToIdentity(t->rotation.cells);
-    M3x3_RotateY(t->rotation.cells, input->degrees.y * DEG2RAD);
-    M3x3_RotateX(t->rotation.cells, input->degrees.x * DEG2RAD);
-
+    
     f32 stepSpeed = ent->movement.speed * dt;
 
     ////////////////////////////////////////////////////////////////////
@@ -173,13 +149,46 @@ internal void SimEnt_UpdateActorWalk(
         move.z = forward.z + left.z + up.z;
     }
     
-
+    Transform* t = &ent->body.t;
     ent->body.previousPos = t->pos;
     t->pos.x += move.x;
     t->pos.y += move.y;
     t->pos.z += move.z;
 
 	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+}
+
+internal void SimEnt_UpdateActorEvade(
+    SimScene* sim,
+    SimEntity* ent, 
+    SimActorInput* input,
+    f32 dt)
+{
+    // Look
+    SimEnt_UpdateActorLook(sim, ent, input, dt);
+
+    // apply movement
+    Vec3 move = {};
+    move.x = ent->movement.velocity.x * dt;
+	move.z = ent->movement.velocity.z * dt;
+
+    ent->body.previousPos = ent->body.t.pos;
+	ent->body.t.pos.x += move.x;
+	ent->body.t.pos.y += move.y;
+	ent->body.t.pos.z += move.z;
+	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+
+    // timer
+    if (ent->movement.moveTime <= 0)
+    {
+        ent->movement.velocity = {};
+        ent->movement.moveTime = ACTOR_EVADE_RESET_SECONDS;
+        ent->movement.moveMode = 0;
+    }
+    else
+    {
+        ent->movement.moveTime -= dt;
+    }
 }
 
 internal void SimEnt_UpdateActorWalk_TopDown(

@@ -333,4 +333,104 @@ internal void CLG_SyncAvatar_Broken(SimScene* sim, S2C_InputResponse* cmd)
 }
 #endif
 
+
+
+// Return 1 if the command was successfully executed.
+internal i32 CLG_SyncEntity(SimScene* sim, S2C_EntitySync* cmd)
+{
+    i32 executed = 0;
+    SimEntity* ent = Sim_GetEntityBySerial(&g_sim, cmd->networkId);
+    if (!ent)
+    {
+        // Must return executed or this dead command will stay
+        // in the buffer!
+        // ... actually
+        // This isn't a bug, and could happen naturally due to
+        // out-of-order updates vs in order reliable updates
+        // If it is a 'death' sync, we need to hang onto it
+        // so that it can be refired when the entity has been spawned.
+        // Because entity spawns are always in order and reserved,
+        // use the highest spawned Id and compare
+        if (cmd->subType == S2C_ENTITY_SYNC_TYPE_DEATH)
+        {
+            // the highest serial number spawned locally is less
+            // that the serial in this command. We must wait for the 
+            // delayed entity spawn before we can kill it!
+            if (cmd->networkId > g_sim.highestAssignedSequence)
+            {
+                return 0;
+            }
+        }
+        return 1;
+        #if 0
+        //APP_PRINT(128, "CL No ent %d for sync\n", cmd->networkId);
+        ZE_ASSERT(cmd->type != S2C_ENTITY_SYNC_TYPE_DEATH,
+            "CL death sync but no entity!\n");
+        
+        executed = 1;
+        #endif
+    }
+    else
+    {
+        if (cmd->networkId == g_avatarSerial)
+        {
+            // TODO: Don't bother sending client avatar syncs
+            // Do NOT sync the client's avatar here.
+            // There's a special command for that!
+            return 1;
+        }
+        if (cmd->subType == S2C_ENTITY_SYNC_TYPE_UPDATE)
+        {
+            Vec3 currentPos =
+            {
+                ent->body.t.pos.x + ent->body.error.x,
+                ent->body.t.pos.y + ent->body.error.y,
+                ent->body.t.pos.z + ent->body.error.z,
+            };
+            //ent->body.error.x = cmd->pos.x - currentPos.x;
+            //ent->body.error.y = cmd->pos.y - currentPos.y;
+            //ent->body.error.z = cmd->pos.z - currentPos.z;
+            ent->body.error.x = currentPos.x - cmd->update.pos.x;
+            ent->body.error.y = currentPos.y - cmd->update.pos.y;
+            ent->body.error.z = currentPos.z - cmd->update.pos.z;
+            if (Vec3_Magnitude(&ent->body.error) > 2)
+            {
+                ent->body.errorRate = 0.8f;    
+            }
+            else
+            {
+                ent->body.errorRate = 0.98f;
+            }
+            
+            ent->body.previousPos = ent->body.t.pos;
+            ent->body.t.pos = cmd->update.pos;
+            ent->priority = cmd->update.priority;
+            ent->movement.velocity = cmd->update.vel;
+            ent->relationships.targetId.serial = cmd->update.targetId;
+            ent->clientOnly.lastSync = sim->tick;
+        }
+        else if (cmd->subType == S2C_ENTITY_SYNC_TYPE_DEATH)
+        {
+            if (ent->tickType == SIM_TICK_TYPE_PROJECTILE)
+            {
+               printf("CL Sync prj death of %d\n", cmd->networkId);
+            }
+            ent->body.t.pos = cmd->death.pos;
+            CLG_HandleEntityDeath(&g_sim, cmd->networkId);
+            Sim_RemoveEntity(sim, cmd->networkId);
+        }
+        else
+        {
+            ZE_ASSERT(0, "Unknown entity sync type\n");
+        }
+        
+        
+        executed = 1;
+    }
+    return executed;
+}
+
+
+
+
 #endif // CLIENT_USER_SYNC_H

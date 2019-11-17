@@ -277,6 +277,15 @@ struct SimEntBlock
     i32 capacity;
 };
 #endif
+
+struct SimRaycastResult
+{
+    Vec3 hitPos;
+    Vec3 normal;
+    f32 distSqr;
+    SimEntity* ent;
+};
+
 struct SimScene
 {
     SimEntity* ents;

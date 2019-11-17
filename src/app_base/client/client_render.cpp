@@ -47,6 +47,7 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_SEEKER:
             case SIM_FACTORY_TYPE_ACTOR:
             case SIM_FACTORY_TYPE_EXPLOSION:
+            case SIM_FACTORY_TYPE_BULLET_IMPACT:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX);
@@ -145,6 +146,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                     obj->t.scale = ent->body.t.scale;
                 }
             } break;
+            case SIM_FACTORY_TYPE_BULLET_IMPACT:
             case SIM_FACTORY_TYPE_EXPLOSION:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);

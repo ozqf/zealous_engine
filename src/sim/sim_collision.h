@@ -86,7 +86,7 @@ i32 Sim_FindByRaycast(
     Vec3 origin,
     Vec3 dest,
     i32 ignoreSerial,
-    SimEntity** results,
+    SimRaycastResult* results,
     i32 maxResults
     )
 {
@@ -95,34 +95,39 @@ i32 Sim_FindByRaycast(
     for (i32 i = 0; i < sim->maxEnts; ++i)
     {
         SimEntity* ent = &sim->ents[i];
-        if (ent->status != SIM_ENT_STATUS_IN_USE
-            || ent->id.serial == ignoreSerial)
-        { continue; }
-        if (ent->tickType != SIM_TICK_TYPE_WANDERER)
-        { continue; }
+        if (Sim_IsEntInPlay(ent) == NO) { continue; }
+        if ((ent->flags & SIM_ENT_FLAG_SHOOTABLE) == 0) { continue; }
+        if (ent->factoryType != SIM_FACTORY_TYPE_WORLD) { continue; }
         // create aabb for ent and line test
         Vec3* p = &ent->body.t.pos;
+        Vec3* halfSize = &ent->body.t.scale;
         Vec3 min;
-        min.x = p->x - 0.5f;
-        min.y = p->y - 0.5f;
-        min.z = p->z - 0.5f;
+        min.x = p->x - halfSize->x;
+        min.y = p->y - halfSize->y;
+        min.z = p->z - halfSize->z;
         Vec3 max;
-        max.x = p->x + 0.5f;
-        max.y = p->y + 0.5f;
-        max.z = p->z + 0.5f;
-        
+        max.x = p->x + halfSize->x;
+        max.y = p->y + halfSize->y;
+        max.z = p->z + halfSize->z;
+        Vec3 hitPos;
         u8 hit = LineSegmentVsAABB(
             origin.x, origin.y, origin.z,
             dest.x, dest.y, dest.z,
             min.x, min.y, min.z,
-            min.x, min.y, min.z,
-            NULL
+            max.x, max.y, max.z,
+            hitPos.parts
         );
-        if (!hit) { continue; }
+        if (!hit)
+        {
+            continue;
+        }
         count++;
         if (results)
         {
-            results[resultIndex] = ent;
+            printf("SIM ray hit at %.3f, %.3f, %.3f\n", hitPos.x, hitPos.y, hitPos.z);
+            results[resultIndex].hitPos = hitPos;
+            results[resultIndex].normal = { 0, 1, 0 };
+            results[resultIndex].ent = ent;
             if (count >= maxResults)
             {
                 break;
