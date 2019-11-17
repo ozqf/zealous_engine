@@ -58,11 +58,11 @@ CLG_DEFINE_ENT_UPDATE(Projectile)
 		numSteps--;
 		Sim_SimpleMove(ent, deltaTime);
         
-		if (sim->tick >= ent->timing.nextThink)
+		/*if (sim->tick >= ent->timing.nextThink)
 		{
 			Sim_RemoveEntity(sim, ent->id.serial);
 			return;
-		}
+		}*/
 	}
     f32 yaw = atan2f(-ent->movement.velocity.z, ent->movement.velocity.x);
     yaw -= 90.0f * DEG2RAD;
@@ -267,6 +267,33 @@ CLG_DEFINE_ENT_UPDATE(Dart)
     }
 }
 
+internal void CLG_UpdateTargetPoint(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+{
+    SimEntity* plyr = Sim_GetEntityBySerial(sim, g_avatarSerial);
+    if (plyr == NULL) { return; }
+    Vec3 entPos = plyr->body.t.pos;
+    Vec3 forward = plyr->body.t.rotation.zAxis;
+    Vec3 dest;
+    dest.x = entPos.x + (-forward.x * 50);
+    dest.y = entPos.y + (-forward.y * 50);
+    dest.z = entPos.z + (-forward.z * 50);
+
+    const i32 max_overlaps = 16;
+    SimRaycastResult results[max_overlaps];
+    i32 overlaps = 0;
+    overlaps = Sim_FindByRaycast(
+        sim, entPos, dest, ent->id.serial, results, max_overlaps);
+    for (i32 i = 0; i < overlaps; ++i)
+    {
+        SimEntity* victim = results[i].ent;
+        if (Sim_IsEntTargetable(victim) == NO) { continue; }
+
+        dest = results[i].hitPos;
+        break;
+    }
+    ent->body.t.pos = dest;
+}
+
 internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
     switch (ent->tickType)
@@ -284,8 +311,9 @@ internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 		case SIM_TICK_TYPE_ACTOR:
         { CLG_UpdateActor(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_SPAWN:
-        //{ CLG_UpdateSpawn(sim, ent, deltaTime); } break;
         { Sim_TickSpawn(sim, ent, deltaTime); } break;
+        case SIM_TICK_TYPE_TARGET_POINT:
+        { CLG_UpdateTargetPoint(sim, ent, deltaTime); break; }
         case SIM_TICK_TYPE_LINE_TRACE:
         { CLG_UpdateLineTrace(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_EXPLOSION:

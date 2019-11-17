@@ -88,14 +88,15 @@ internal void SVU_AddBulkEntityLinksForAllUsers(
 }
 
 internal void SVU_RemoveEntityForAllUsers(
-    UserList* users, i32 entSerial)
+    SimEntity* ent, UserList* users, i32 entSerial)
 {
     for (i32 i = 0; i < g_users.max; ++i)
     {
         User* u = &g_users.items[i];
         if (u->state == USER_STATE_FREE) { continue; }
         //SV_RemovePriorityLinkBySerial(&u->entSync, entSerial);
-        Priority_FlagLinkAsDead(&u->entSync, entSerial);
+        PriorityLink* link = Priority_FlagLinkAsDead(&u->entSync, entSerial);
+        link->deathPosition = ent->body.t.pos;
     }
 }
 

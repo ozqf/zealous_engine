@@ -97,18 +97,21 @@ i32 Sim_FindByRaycast(
         SimEntity* ent = &sim->ents[i];
         if (Sim_IsEntInPlay(ent) == NO) { continue; }
         if ((ent->flags & SIM_ENT_FLAG_SHOOTABLE) == 0) { continue; }
-        if (ent->factoryType != SIM_FACTORY_TYPE_WORLD) { continue; }
         // create aabb for ent and line test
         Vec3* p = &ent->body.t.pos;
-        Vec3* halfSize = &ent->body.t.scale;
+        Vec3* size = &ent->body.t.scale;
+        Vec3 halfSize;
+        halfSize.x = size->x / 2;
+        halfSize.y = size->y / 2;
+        halfSize.z = size->z / 2;
         Vec3 min;
-        min.x = p->x - halfSize->x;
-        min.y = p->y - halfSize->y;
-        min.z = p->z - halfSize->z;
+        min.x = p->x - halfSize.x;
+        min.y = p->y - halfSize.y;
+        min.z = p->z - halfSize.z;
         Vec3 max;
-        max.x = p->x + halfSize->x;
-        max.y = p->y + halfSize->y;
-        max.z = p->z + halfSize->z;
+        max.x = p->x + halfSize.x;
+        max.y = p->y + halfSize.y;
+        max.z = p->z + halfSize.z;
         Vec3 hitPos;
         u8 hit = LineSegmentVsAABB(
             origin.x, origin.y, origin.z,
@@ -124,7 +127,10 @@ i32 Sim_FindByRaycast(
         count++;
         if (results)
         {
-            printf("SIM ray hit at %.3f, %.3f, %.3f\n", hitPos.x, hitPos.y, hitPos.z);
+            //printf("SIM ray hit at %.3f, %.3f, %.3f\n", hitPos.x, hitPos.y, hitPos.z);
+            //printf("SIM ray dest was %.3f, %.3f, %.3f\n",
+            //    dest.x, dest.y, dest.z
+            //);
             results[resultIndex].hitPos = hitPos;
             results[resultIndex].normal = { 0, 1, 0 };
             results[resultIndex].ent = ent;

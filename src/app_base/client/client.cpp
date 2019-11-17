@@ -34,6 +34,7 @@ internal timeFloat g_jitter;
 internal i32 g_bClientAlwaysRepredict = YES;
 
 internal i32 g_avatarSerial = 0;
+internal i32 g_userTargetSerial = 0;
 
 #define CL_MAX_ALLOCATIONS 256
 internal void* g_allocations[CL_MAX_ALLOCATIONS];
@@ -242,6 +243,16 @@ void CL_LoadTestScene()
     def.scale[2] = 1;
     Sim_RestoreEntity(&g_sim, &def);
 	#endif
+
+    #if 1 // Create target sight
+    
+    SimEntSpawnData def = {};
+    def.isLocal = 1;
+    def.serial = Sim_ReserveEntitySerial(&g_sim, def.isLocal);
+    def.factoryType = SIM_FACTORY_TYPE_TARGET_POINT;
+    g_userTargetSerial = def.serial;
+    Sim_RestoreEntity(&g_sim, &def);
+    #endif
 }
 
 // Public so that local user can be instantly set from outside

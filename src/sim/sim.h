@@ -60,6 +60,7 @@ typedef u8 simFactoryType;
 #define SIM_FACTORY_TYPE_BRUTE 16
 #define SIM_FACTORY_TYPE_CHARGER 17
 #define SIM_FACTORY_TYPE_BULLET_IMPACT 18
+#define SIM_FACTORY_TYPE_TARGET_POINT 19
 
 // Update functions
 #define SIM_TICK_TYPE_NONE 0
@@ -76,6 +77,7 @@ typedef u8 simFactoryType;
 #define SIM_TICK_TYPE_SPAWN 12
 #define SIM_TICK_TYPE_BOT 13
 #define SIM_TICK_TYPE_GRUNT 14
+#define SIM_TICK_TYPE_TARGET_POINT 15
 
 // Spawn pattern types.
 #define SIM_PATTERN_NONE 0

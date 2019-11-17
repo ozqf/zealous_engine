@@ -387,9 +387,6 @@ internal i32 CLG_SyncEntity(SimScene* sim, S2C_EntitySync* cmd)
                 ent->body.t.pos.y + ent->body.error.y,
                 ent->body.t.pos.z + ent->body.error.z,
             };
-            //ent->body.error.x = cmd->pos.x - currentPos.x;
-            //ent->body.error.y = cmd->pos.y - currentPos.y;
-            //ent->body.error.z = cmd->pos.z - currentPos.z;
             ent->body.error.x = currentPos.x - cmd->update.pos.x;
             ent->body.error.y = currentPos.y - cmd->update.pos.y;
             ent->body.error.z = currentPos.z - cmd->update.pos.z;
@@ -411,10 +408,6 @@ internal i32 CLG_SyncEntity(SimScene* sim, S2C_EntitySync* cmd)
         }
         else if (cmd->subType == S2C_ENTITY_SYNC_TYPE_DEATH)
         {
-            if (ent->tickType == SIM_TICK_TYPE_PROJECTILE)
-            {
-               printf("CL Sync prj death of %d\n", cmd->networkId);
-            }
             ent->body.t.pos = cmd->death.pos;
             CLG_HandleEntityDeath(&g_sim, cmd->networkId);
             Sim_RemoveEntity(sim, cmd->networkId);

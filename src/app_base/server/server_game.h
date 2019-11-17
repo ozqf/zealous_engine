@@ -81,11 +81,14 @@ internal void SVG_HandleEntityDeath(
     {
         parent->relationships.liveChildren--;
     }
-
+    
+    SVU_RemoveEntityForAllUsers(victim, &g_users, victim->id.serial);
+    
     // deterministic deaths will occur naturally on the client without server info
+    #if 0
     if (!deathIsDeterministic)
     {
-        SVU_RemoveEntityForAllUsers(&g_users, victim->id.serial);
+        SVU_RemoveEntityForAllUsers(victim, &g_users, victim->id.serial);
 
         // Alter replication of event depending on relationship
         // to a user
@@ -102,6 +105,7 @@ internal void SVG_HandleEntityDeath(
         }
         #endif
     }
+    #endif
 	// Remove Ent AFTER command as sim may
 	// clear entity details immediately
 	Sim_RemoveEntity(sim, victim->id.serial);
@@ -276,6 +280,10 @@ SVG_DEFINE_ENT_UPDATE(Spawn)
     Sim_TickSpawn(sim, ent, deltaTime);
 }
 
+
+//////////////////////////////////////////////////////
+// Projectiles
+//////////////////////////////////////////////////////
 internal i32 SVG_StepProjectile(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
@@ -334,100 +342,6 @@ internal i32 SVG_StepProjectile(
         SVG_HandleEntityDeath(sim, ent, NULL, 0, 1);
         return 0;
 	}
-
-
-
-    /////////////////////////////////////////////////////////////////
-    // By AABB
-    /////////////////////////////////////////////////////////////////
-    #if 0
-    Sim_SimpleMove(ent, deltaTime);
-    // find victims
-    Vec3 halfSize =
-    {
-        ent->body.t.scale.x / 2,
-        ent->body.t.scale.y / 2,
-        ent->body.t.scale.z / 2
-    };
-    Vec3 p = ent->body.t.pos;
-    Vec3 min;
-    min.x = p.x - halfSize.x;
-    min.y = p.y - halfSize.y;
-    min.z = p.z - halfSize.z;
-    Vec3 max;
-    max.x = p.x + halfSize.x;
-    max.y = p.y + halfSize.y;
-    max.z = p.z + halfSize.z;
-
-    const i32 max_overlaps = 16;
-    SimEntity* ents[max_overlaps];
-    i32 overlaps = 0;
-    // Basic, by AABB
-    // overlaps = Sim_FindByAABB(
-    //     sim, min, max, ent->id.serial, ents, max_overlaps, NO);
-    
-    i32 killed = NO;
-    Vec3 dir = ent->movement.velocity;
-    Vec3_NormaliseOrForward(&dir);
-    for (i32 i = 0; i < overlaps; ++i)
-    {
-        // TODO: For now just hit first valid entity in list
-        SimEntity* victim = ents[i];
-        if (Sim_IsEntTargetable(victim) == NO) { continue; }
-		ZE_ASSERT(victim->id.serial, "SV overlap victim serial is 0")
-
-        // TODO: Change this not rely on factory type but entity settings
-        /*switch (victim->factoryType)
-        {
-            // Testing: Bounce Rubble around!
-            case SIM_FACTORY_TYPE_RUBBLE:
-            {
-                Vec3 vel = victim->movement.velocity;
-                vel.x += dir.x * 3;
-                vel.y += dir.y * 3;
-                vel.z += dir.z * 3;
-                PhysCmd_ChangeVelocity(
-                    sim->world, victim->shape.handleId, vel.x, vel.y, vel.z);
-            } break;
-
-            case SIM_FACTORY_TYPE_WORLD:
-            {
-                continue;
-            } break;
-            default:
-            {
-                // Murder Death Kill
-                SVG_HandleEntityDeath(sim, victim, ent, 0, 0);
-            } break;
-        }
-        */
-        
-        if ((victim->flags & SIM_ENT_FLAG_INVULNERABLE) == 0)
-        {
-            // Hurt/kill victim
-            victim->life.health -= ent->touchDamage;
-            if (victim->life.health <= 0)
-            {
-                SVG_HandleEntityDeath(sim, victim, ent, 0, 0);
-            }
-        }
-        killed = YES;
-        break;
-    }
-    
-    if (killed == YES)
-    {
-        SVG_HandleEntityDeath(sim, ent, NULL, 0, 0);
-        return 0;
-    }
-    
-    // Timeout
-	if (sim->tick >= ent->timing.nextThink)
-	{
-        SVG_HandleEntityDeath(sim, ent, NULL, 0, 1);
-        return 0;
-	}
-    #endif
     return 1;
 }
 

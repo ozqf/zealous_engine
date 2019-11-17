@@ -161,6 +161,7 @@ internal i32 Sim_InitActor(
         SIM_PREFAB_PLAYER,
         SIM_DEATH_GFX_EXPLOSION);
     //ent->flags = SIM_ENT_FLAG_POSITION_SYNC;
+    ent->attackTime = 0.25f;
     return ZE_ERROR_NONE;
 }
 
@@ -249,6 +250,7 @@ internal i32 Sim_InitExplosion(
     ent->body.t.scale = { 2, 1, 2 };
     return ZE_ERROR_NONE;
 }
+
 internal i32 Sim_InitBulletImpact(
     SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
 {
@@ -262,6 +264,22 @@ internal i32 Sim_InitBulletImpact(
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 0.25f, 0.25f, 0.25f };
+    return ZE_ERROR_NONE;
+}
+
+internal i32 Sim_InitTargetPoint(
+    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+{
+    Sim_SetEntityBase(ent, def);
+    ent->tickType = SIM_TICK_TYPE_TARGET_POINT;
+    ent->coreTickType = SIM_TICK_TYPE_TARGET_POINT;
+    Sim_SetEntityDisplay(ent,
+        { 1, 1, 0, 1 },
+        { 1, 1, 0, 1 },
+        SIM_PREFAB_EXPLOSION,
+        SIM_DEATH_GFX_NONE);
+    ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
+    ent->body.t.scale = { 0.5f, 0.5f, 0.5f };
     return ZE_ERROR_NONE;
 }
 
@@ -395,6 +413,8 @@ internal SimEntity* Sim_SpawnEntity(
             err = Sim_InitBulletImpact(sim, ent, def); break;
         case SIM_FACTORY_TYPE_EXPLOSION:
             err = Sim_InitExplosion(sim, ent, def); break;
+        case SIM_FACTORY_TYPE_TARGET_POINT:
+            err = Sim_InitTargetPoint(sim, ent, def); break;
         ////////////////////////////////////////////////////////
         // Mobs
         case SIM_FACTORY_TYPE_SEEKER:
