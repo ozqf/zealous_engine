@@ -35,6 +35,7 @@ struct ze_platform_export
     void (*Error)(char* msg);
     void (*Log)(char* msg);
     void (*Print)(char* msg);
+    void (*DebugBreak)();
 
     f64 (*QueryClock)();
     void* (*Allocate)(i32 numBytes);

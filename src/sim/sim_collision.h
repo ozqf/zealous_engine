@@ -77,6 +77,22 @@ inline i32 Sim_FindByAABB(
     return count;
 }
 
+extern "C" i32 Sim_FindClosestRayhit(SimRaycastResult* results, i32 numResults)
+{
+    i32 resultIndex = -1;
+    f32 resultDist = Z_INFINITY;
+    for (i32 i = 0; i < numResults; ++i)
+    {
+        SimRaycastResult* item = &results[i];
+        if (item->dist < resultDist)
+        {
+            resultIndex = i;
+            resultDist = item->dist;
+        }
+    }
+    return resultIndex;
+}
+
 /**
  * Returns number of overlapping entities
  */
@@ -95,8 +111,8 @@ i32 Sim_FindByRaycast(
     for (i32 i = 0; i < sim->maxEnts; ++i)
     {
         SimEntity* ent = &sim->ents[i];
-        if (Sim_IsEntInPlay(ent) == NO) { continue; }
-        if ((ent->flags & SIM_ENT_FLAG_SHOOTABLE) == 0) { continue; }
+        if (Sim_IsEntTargetable(ent) == NO) { continue; }
+        if (ent->id.serial == ignoreSerial) { continue; }
         // create aabb for ent and line test
         Vec3* p = &ent->body.t.pos;
         Vec3* size = &ent->body.t.scale;
@@ -134,6 +150,7 @@ i32 Sim_FindByRaycast(
             results[resultIndex].hitPos = hitPos;
             results[resultIndex].normal = { 0, 1, 0 };
             results[resultIndex].ent = ent;
+            results[resultIndex].dist = Vec3_Distance(origin, hitPos);
             if (count >= maxResults)
             {
                 break;

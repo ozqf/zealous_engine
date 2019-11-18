@@ -183,6 +183,11 @@ static ErrorCode LinkToWindowDLL(char* dllName)
 // Exported function implementations
 ////////////////////////////////////////////////////////
 
+static void PlatformImpl_DebugBreak()
+{
+    DebugBreak();
+}
+
 static f64 PlatformImpl_QueryClock()
 {
     LARGE_INTEGER counter;
@@ -266,6 +271,7 @@ static ze_platform_export Win_BuildExport()
     result.Error = Win_Error;
     result.Log = Win_Log;
     result.Print = Win_Print;
+    result.DebugBreak = PlatformImpl_DebugBreak;
 
     result.QueryClock = PlatformImpl_QueryClock;
     result.Allocate = PlatformImpl_Allocate;

@@ -149,6 +149,8 @@ extern "C" i32        Sim_IsEntInPlay(SimEntity* ent);
 extern "C" SimEntity* Sim_FindTargetForEnt(SimScene* sim, SimEntity* subject);
 extern "C" i32        Sim_IsEntTargetable(SimEntity* ent);
 
+extern "C" i32 Sim_FindClosestRayhit(SimRaycastResult* results, i32 numResults);
+
 extern "C"
 i32 Sim_FindByRaycast(
     SimScene* sim,

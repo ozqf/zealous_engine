@@ -278,11 +278,27 @@ internal void CLG_UpdateTargetPoint(SimScene* sim, SimEntity* ent, timeFloat del
     dest.y = entPos.y + (-forward.y * 50);
     dest.z = entPos.z + (-forward.z * 50);
 
-    const i32 max_overlaps = 16;
+    const i32 max_overlaps = 32;
     SimRaycastResult results[max_overlaps];
     i32 overlaps = 0;
     overlaps = Sim_FindByRaycast(
         sim, entPos, dest, ent->id.serial, results, max_overlaps);
+    i32 hitIndex = Sim_FindClosestRayhit(results, overlaps);
+    //App_DebugBreak();
+    if (hitIndex >= 0)
+    {
+        dest = results[hitIndex].hitPos;
+        if (results[hitIndex].ent != NULL)
+        {
+            printf("Hit index %d - ent type %d\n",
+                hitIndex, results[hitIndex].ent->factoryType);
+        }
+        else
+        {
+            printf("Hit index %d entity is null!\n", hitIndex);
+        }
+    }
+    #if 0
     for (i32 i = 0; i < overlaps; ++i)
     {
         SimEntity* victim = results[i].ent;
@@ -291,6 +307,7 @@ internal void CLG_UpdateTargetPoint(SimScene* sim, SimEntity* ent, timeFloat del
         dest = results[i].hitPos;
         break;
     }
+    #endif
     ent->body.t.pos = dest;
 }
 

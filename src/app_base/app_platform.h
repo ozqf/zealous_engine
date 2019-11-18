@@ -87,6 +87,11 @@ extern "C" void App_Debug_GetServerSim(void** ptr)
     return SV_Debug_GetSimInstance(ptr);
 }
 
+extern "C" void App_DebugBreak()
+{
+    g_platform.DebugBreak();
+}
+
 /***************************************
 * Private
 ***************************************/

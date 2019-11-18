@@ -105,10 +105,12 @@ internal i32 Sim_InitSeeker(
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityStats(ent, 4, 60, 1);
+    ent->factoryType = SIM_FACTORY_TYPE_SEEKER;
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_SEEKER;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(1.5f);
+    ent->body.t.scale = { 1, 2, 1 };
     Sim_SetEntityDisplay(ent,
         { 0, 0.7f, 0.7f, 1 },
         { 0, 0.7f, 0.7f, 1 },

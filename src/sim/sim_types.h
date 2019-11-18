@@ -145,7 +145,7 @@ struct SimEntity
         f32 errorRate;
         f32 pitchDegrees;
         f32 yawDegrees;
-        Vec3 halfSize;
+        //Vec3 halfSize;
     } body;
 
     struct
@@ -282,7 +282,7 @@ struct SimRaycastResult
 {
     Vec3 hitPos;
     Vec3 normal;
-    f32 distSqr;
+    f32 dist;
     SimEntity* ent;
 };
 

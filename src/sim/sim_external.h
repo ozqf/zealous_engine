@@ -102,17 +102,18 @@ inline i32 Sim_IsEntInPlay(SimEntity* ent)
 extern "C"
 inline i32 Sim_IsEntTargetable(SimEntity* ent)
 {
-    if (!(ent->flags & SIM_ENT_FLAG_SHOOTABLE)) { return NO; }
-    return Sim_IsEntInPlay(ent);
+    i32 result = Sim_IsEntInPlay(ent);
+    if (result == NO) { return NO; }
+    return ((ent->flags & SIM_ENT_FLAG_SHOOTABLE) != NO);
 }
 
 // If no then this ent cannot be attacked
-extern "C"
+/*extern "C"
 inline i32 Sim_IsEntHurtable(SimEntity* ent)
 {
     if (!(ent->flags & SIM_ENT_FLAG_SHOOTABLE)) { return NO; }
     return Sim_IsEntInPlay(ent);
-}
+}*/
 
 /**
  * Returns NULL if no suitable target can be found

@@ -13,6 +13,7 @@ extern "C" void App_Print(char* msg, i32 categoryMask);
 extern "C" void AppImpl_SetMouseCaptured();
 extern "C" void AppImpl_SetMouseFree();
 extern "C" void App_Error(char* msg);
+extern "C" void App_DebugBreak();
 extern "C" timeFloat App_GetSimFrameInterval();
 extern "C" frameInt App_CalcTickInterval(timeFloat seconds);
 extern "C" timeFloat App_SampleClock();

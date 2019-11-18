@@ -507,6 +507,7 @@ internal void SVG_UpdateActorAttackInput(SimScene* sim, SimEntity* ent, f32 dt)
 	{
         if (ent->input.buttons & ACTOR_INPUT_ATTACK)
         {
+            ent->attackTick = ent->attackTime;
             Vec3 forward = ent->body.t.rotation.zAxis;
             // flip
             forward.x = -forward.x;
