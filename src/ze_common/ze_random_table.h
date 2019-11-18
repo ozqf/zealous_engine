@@ -541,6 +541,12 @@ internal f32 ZE_Randf32(i32 index)
 	#endif
 }
 
+internal f32 ZE_Randf32InRange(i32 index, f32 min, f32 max)
+{
+	f32 val = ZE_Randf32(index);
+	return val * (max - min) + min;
+}
+
 // Wrap rand for now...
 internal i32 COM_STDRandI32()
 {

@@ -137,6 +137,75 @@ internal i32 Sim_Create3DConePattern(
 	}
 	// Multiple items
 	i32 serialIncrement = isLocal ? -1 : 1;
+	i32 randomIndex = event->seedIndex;
+	#if 1
+	M3x3 matrix;
+	for (i32 i = 0; i < def->numItems; ++i)
+    {
+		M3x3_SetToIdentity(matrix.cells);
+		f32 offsetX = ZE_Randf32InRange(randomIndex++, -def->arc, def->arc);
+		f32 offsetY = ZE_Randf32InRange(randomIndex++, -def->arc, def->arc);
+		M3x3_RotateX(matrix.cells, offsetX);
+		M3x3_RotateY(matrix.cells, offsetY);
+		Vec3 dir = Vec3_MultiplyByM3x3(&event->forward, matrix.cells);
+        items[i].forward = dir;
+		items[i].pos.x = event->pos.x + (dir.x * def->radius);
+		items[i].pos.y = event->pos.y + (dir.y * def->radius);
+		items[i].pos.z = event->pos.z + (dir.z * def->radius);
+		items[i].entSerial = serial;
+		serial += serialIncrement;
+	}
+	#endif
+	#if 0
+    for (i32 i = 0; i < def->numItems; ++i)
+    {
+		// create a point some random distance away
+		Vec3 origin = { 0, 0, 0 };
+		Vec3 dest = { ZE_Randf32(randomIndex++), ZE_Randf32(randomIndex++), 10 };
+		// Stretch out a vector and offset it.
+		Vec3 offset;
+		offset.x = dest.x - origin.x;
+		offset.y = dest.y - origin.y;
+		offset.z = dest.z - origin.z;
+		// offset by a random amount
+		Vec3_Normalise(&offset);
+		Vec3 dir = event->forward;
+		dir.x += offset.x;
+		dir.y += offset.y;
+		dir.z += offset.z;
+
+        items[i].forward = dir;
+		items[i].pos.x = event->pos.x + (dir.x * def->radius);
+		items[i].pos.y = event->pos.y + (dir.y * def->radius);
+		items[i].pos.z = event->pos.z + (dir.z * def->radius);
+		items[i].entSerial = serial;
+		serial += serialIncrement;
+    }
+	#endif
+	return def->numItems;
+}
+
+internal i32 Sim_Create3DConePattern_Old(
+	SimSpawnBase* event,
+	SimSpawnPatternDef* def,
+	SimSpawnPatternItem* items,
+	i32 serial,
+	i32 isLocal)
+{
+	if (def->numItems == 1)
+	{
+		// just launch one straight forward...
+		items[0].forward.x = event->forward.x;
+		items[0].forward.y = event->forward.y;
+		items[0].forward.z = event->forward.z;
+		items[0].pos.x = event->pos.x + (event->forward.x * def->radius);
+		items[0].pos.y = event->pos.y + (event->forward.y * def->radius);
+		items[0].pos.z = event->pos.z + (event->forward.z * def->radius);
+		items[0].entSerial = serial;
+		return 1;
+	}
+	// Multiple items
+	i32 serialIncrement = isLocal ? -1 : 1;
 	f32 forwardRadians = atan2f(event->forward.z, event->forward.x);
 	f32 upRadians = atan2f(event->forward.y, event->forward.z);
     f32 arc = def->arc;
