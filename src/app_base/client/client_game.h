@@ -288,12 +288,7 @@ internal void CLG_UpdateTargetPoint(SimScene* sim, SimEntity* ent, timeFloat del
     if (hitIndex >= 0)
     {
         dest = results[hitIndex].hitPos;
-        if (results[hitIndex].ent != NULL)
-        {
-            printf("Hit index %d - ent type %d\n",
-                hitIndex, results[hitIndex].ent->factoryType);
-        }
-        else
+        if (results[hitIndex].ent == NULL)
         {
             printf("Hit index %d entity is null!\n", hitIndex);
         }

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SIM_COLLISION_H
+#define SIM_COLLISION_H
 
 #include "sim_internal.h"
 #include "../ze_common/ze_collision.h"
@@ -79,6 +80,7 @@ inline i32 Sim_FindByAABB(
 
 extern "C" i32 Sim_FindClosestRayhit(SimRaycastResult* results, i32 numResults)
 {
+    //printf("Find closest: ");
     i32 resultIndex = -1;
     f32 resultDist = Z_INFINITY;
     for (i32 i = 0; i < numResults; ++i)
@@ -86,10 +88,12 @@ extern "C" i32 Sim_FindClosestRayhit(SimRaycastResult* results, i32 numResults)
         SimRaycastResult* item = &results[i];
         if (item->dist < resultDist)
         {
+            //printf("%.3f < %.3f - ", item->dist, resultDist);
             resultIndex = i;
             resultDist = item->dist;
         }
     }
+    //printf("\n");
     return resultIndex;
 }
 
@@ -106,7 +110,6 @@ i32 Sim_FindByRaycast(
     i32 maxResults
     )
 {
-    i32 resultIndex = 0;
     i32 count = 0;
     for (i32 i = 0; i < sim->maxEnts; ++i)
     {
@@ -136,26 +139,20 @@ i32 Sim_FindByRaycast(
             max.x, max.y, max.z,
             hitPos.parts
         );
-        if (!hit)
-        {
-            continue;
-        }
-        count++;
+        if (!hit) { continue; }
+
         if (results)
         {
-            //printf("SIM ray hit at %.3f, %.3f, %.3f\n", hitPos.x, hitPos.y, hitPos.z);
-            //printf("SIM ray dest was %.3f, %.3f, %.3f\n",
-            //    dest.x, dest.y, dest.z
-            //);
-            results[resultIndex].hitPos = hitPos;
-            results[resultIndex].normal = { 0, 1, 0 };
-            results[resultIndex].ent = ent;
-            results[resultIndex].dist = Vec3_Distance(origin, hitPos);
-            if (count >= maxResults)
-            {
-                break;
-            }
+            SimRaycastResult* result = &results[count];
+            result->hitPos = hitPos;
+            result->normal = { 0, 1, 0 };
+            result->ent = ent;
+            result->dist = Vec3_Distance(origin, hitPos);
+
+            if (count >= maxResults) { break; }
         }
+
+        count++;
     }
     return count;
 }
@@ -216,3 +213,5 @@ SimAvoidInfo Sim_BuildAvoidVector(
     return info;
     #endif
 }
+
+#endif // SIM_COLLISION_H

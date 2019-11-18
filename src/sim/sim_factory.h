@@ -161,7 +161,7 @@ internal i32 Sim_InitActor(
         SIM_PREFAB_PLAYER,
         SIM_DEATH_GFX_EXPLOSION);
     //ent->flags = SIM_ENT_FLAG_POSITION_SYNC;
-    ent->attackTime = 0.25f;
+    ent->attackTime = 0.1f;
     return ZE_ERROR_NONE;
 }
 

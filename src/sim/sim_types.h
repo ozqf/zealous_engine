@@ -145,7 +145,9 @@ struct SimEntity
         f32 errorRate;
         f32 pitchDegrees;
         f32 yawDegrees;
-        //Vec3 halfSize;
+        // use this to store the default scale of an entity, as the transform
+        // scale may be changed by game logic
+        Vec3 baseHalfSize;
     } body;
 
     struct

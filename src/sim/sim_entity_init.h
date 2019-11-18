@@ -45,9 +45,27 @@ internal void Sim_SetEntityDisplay(
     ent->display.colourB = colourB;
 }
 
-internal void Sim_SetupEnemyDefaultStats(
-    SimEntity* ent)
+internal void Sim_SetEntityBody(
+    SimEntity* ent, Vec3 size)
 {
-
+    ent->body.t.scale = size;
+    ent->body.baseHalfSize.x = size.x / 2;
+    ent->body.baseHalfSize.y = size.y / 2;
+    ent->body.baseHalfSize.z = size.z / 2;
 }
+
+internal void Sim_SetEnemyDefaultFlags(SimEntity* ent)
+{
+    ent->flags =
+          SIM_ENT_FLAG_SHOOTABLE
+        | SIM_ENT_FLAG_POSITION_SYNC
+        | SIM_ENT_FLAG_MOVE_AVOID
+        | SIM_ENT_FLAG_OUT_OF_PLAY;
+}
+
+// internal void Sim_SetupEnemyDefaultStats(
+//     SimEntity* ent)
+// {
+
+// }
 
