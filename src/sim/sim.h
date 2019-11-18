@@ -61,6 +61,7 @@ typedef u8 simFactoryType;
 #define SIM_FACTORY_TYPE_CHARGER 17
 #define SIM_FACTORY_TYPE_BULLET_IMPACT 18
 #define SIM_FACTORY_TYPE_TARGET_POINT 19
+#define SIM_FACTORY_TYPE_SEEKER_FLYING 20
 
 // Update functions
 #define SIM_TICK_TYPE_NONE 0
@@ -78,6 +79,7 @@ typedef u8 simFactoryType;
 #define SIM_TICK_TYPE_BOT 13
 #define SIM_TICK_TYPE_GRUNT 14
 #define SIM_TICK_TYPE_TARGET_POINT 15
+#define SIM_TICK_TYPE_SEEKER_FLYING 16
 
 // Spawn pattern types.
 #define SIM_PATTERN_NONE 0
@@ -87,6 +89,7 @@ typedef u8 simFactoryType;
 #define SIM_PATTERN_FLAT_SCATTER 4
 #define SIM_PATTERN_LINE 5
 #define SIM_PATTERN_CIRCLE 6
+#define SIM_PATTERN_3D_SCATTER 7
 
 // Sim Entity flags
 #define SIM_ENT_FLAG_OUT_OF_PLAY (1 << 0)
@@ -171,4 +174,5 @@ inline i32 Sim_FindByAABB(
 extern "C"
 inline SimAvoidInfo Sim_BuildAvoidVector(
     SimScene* sim,
-    SimEntity* mover);
+    SimEntity* mover,
+    f32 boundingBoxScale);

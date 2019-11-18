@@ -147,6 +147,7 @@ SVG_DEFINE_ENT_UPDATE(Wanderer)
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
 
+
 SVG_DEFINE_ENT_UPDATE(Seeker)
 {
     SimEntity* target = Sim_FindTargetForEnt(sim, ent);
@@ -159,7 +160,7 @@ SVG_DEFINE_ENT_UPDATE(Seeker)
             target->body.t.pos.z - ent->body.t.pos.z,
         };
         Vec3_Normalise(&toTarget);
-        SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent);
+        SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent, 2);
         // Multiply by number of neighbours found
         // to scale move vector up when surrounded
         toTarget.x += avoid.dir.x * avoid.numNeighbours;
@@ -180,6 +181,44 @@ SVG_DEFINE_ENT_UPDATE(Seeker)
     Sim_SimpleMove(ent, deltaTime);
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
+
+SVG_DEFINE_ENT_UPDATE(SeekerFlying)
+{
+    SimEntity* target = Sim_FindTargetForEnt(sim, ent);
+    if (target)
+    {
+        Vec3 toTarget = 
+        {
+            target->body.t.pos.x - ent->body.t.pos.x,
+            target->body.t.pos.y - ent->body.t.pos.y,
+            target->body.t.pos.z - ent->body.t.pos.z,
+        };
+        //printf("Flying seeker to target %.3f, %.3f, %.3f\n",
+        //    toTarget.x, toTarget.y, toTarget.z);
+        Vec3_Normalise(&toTarget);
+        SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent, 0.5f);
+        // Multiply by number of neighbours found
+        // to scale move vector up when surrounded
+        toTarget.x += avoid.dir.x * avoid.numNeighbours;
+        toTarget.y += avoid.dir.y * avoid.numNeighbours;
+        toTarget.z += avoid.dir.z * avoid.numNeighbours;
+        Vec3_Normalise(&toTarget);
+        ent->movement.velocity =
+        {
+            toTarget.x * ent->movement.speed,
+            toTarget.y * ent->movement.speed,
+            toTarget.z * ent->movement.speed
+        };
+    }
+    else
+    {
+        ent->movement.velocity = { 0, 0, 0 };
+    }
+    Sim_SimpleMove(ent, deltaTime);
+    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+}
+
+
 
 SVG_DEFINE_ENT_UPDATE(Bouncer)
 {
@@ -240,7 +279,7 @@ SVG_DEFINE_ENT_UPDATE(Spawner)
             { 0, 0, 1 },
             sim->tick,
             ent->relationships.childFactoryType,
-            SIM_PATTERN_FLAT_RADIAL,
+            SIM_PATTERN_3D_SCATTER,//SIM_PATTERN_FLAT_RADIAL,
             (u8)ent->relationships.childSpawnCount,
             COM_STDRandU8(),
             10.0f,
@@ -421,7 +460,6 @@ internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
                 "Prj ping %.3f, ticksEllapsed - %d ticks (diff %d)\n",
                 u->ping, ticksEllapsed, diff);
         }
-        
     }
 
     // Declare when the event took place:
@@ -599,6 +637,8 @@ internal void SVG_TickEntity(
         { SVG_UpdateProjectile(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_SEEKER:
         { SVG_UpdateSeeker(sim, ent, deltaTime); } break;
+        case SIM_TICK_TYPE_SEEKER_FLYING:
+        { SVG_UpdateSeekerFlying(sim, ent, deltaTime); } break;
         //{  } break;
 		case SIM_TICK_TYPE_WANDERER:
         { SVG_UpdateWanderer(sim, ent, deltaTime); } break;

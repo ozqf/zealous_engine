@@ -104,6 +104,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_DART:
             case SIM_FACTORY_TYPE_TARGET_POINT:
             case SIM_FACTORY_TYPE_SEEKER:
+            case SIM_FACTORY_TYPE_SEEKER_FLYING:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ENEMY);

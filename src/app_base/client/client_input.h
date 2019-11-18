@@ -179,7 +179,7 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     // Clear buttons and rebuild. Keep mouse position values
     u32 flags = 0;
 
-    f32 mouseMoveMultiplier = 50;
+    f32 mouseMoveMultiplier = 80;
     f32 mouseInvertedMultiplier = -1;
 
     CL_InputCheckButton(actions, "Move Forward", &flags, ACTOR_INPUT_MOVE_FORWARD);

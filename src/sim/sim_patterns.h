@@ -67,6 +67,36 @@ internal i32 Sim_CreateFlatScatterPattern(
 	return def->numItems;
 }
 
+internal i32 Sim_Create3DScatterPattern(
+	SimSpawnBase* event,
+	SimSpawnPatternDef* def,
+	SimSpawnPatternItem* items,
+	i32 serial,
+	i32 isLocal)
+{
+	i32 serialIncrement = isLocal ? -1 : 1;
+	i32 randomIndex = event->seedIndex;
+	for(i32 i = 0; i < def->numItems; ++i)
+	{
+		Vec3 offset;
+		offset.x = ZE_Randf32InRange(randomIndex++, -def->radius, def->radius);
+		offset.y = ZE_Randf32InRange(randomIndex++, -def->radius, def->radius);
+		offset.z = ZE_Randf32InRange(randomIndex++, -def->radius, def->radius);
+		Vec3 dir = offset;
+		Vec3_Normalise(&dir);
+		items[i].forward.x = dir.x;
+		items[i].forward.y = dir.y;
+		items[i].forward.z = dir.z;
+		items[i].pos.x = event->pos.x + offset.x;
+		items[i].pos.y = event->pos.y + offset.y;
+		items[i].pos.z = event->pos.z + offset.z;
+		items[i].entSerial = serial;
+
+		serial += serialIncrement;
+	}
+	return def->numItems;
+}
+
 internal i32 Sim_CreateFlatConePattern(
 	SimSpawnBase* event,
 	SimSpawnPatternDef* def,
@@ -257,6 +287,9 @@ internal i32 Sim_CreateSpawnPattern(
 			event, def, results, firstSerial, isLocal);
 		case SIM_PATTERN_3D_CONE:
 		return Sim_Create3DConePattern(
+			event, def, results, firstSerial, isLocal);
+		case SIM_PATTERN_3D_SCATTER:
+		return Sim_Create3DScatterPattern(
 			event, def, results, firstSerial, isLocal);
 		case SIM_PATTERN_FLAT_CONE:
 		return Sim_CreateFlatConePattern(

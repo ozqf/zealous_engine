@@ -160,7 +160,8 @@ i32 Sim_FindByRaycast(
 extern "C"
 SimAvoidInfo Sim_BuildAvoidVector(
     SimScene* sim,
-    SimEntity* mover)
+    SimEntity* mover,
+    f32 boundingBoxScale)
 {
     SimAvoidInfo info = {};
     #if 0
@@ -173,9 +174,9 @@ SimAvoidInfo Sim_BuildAvoidVector(
         // Actually, don't divide by 2. Inflat volume
         // to include more objects, keeping things
         // further apart
-        mover->body.t.scale.x,// / 2,
-        mover->body.t.scale.y,// / 2,
-        mover->body.t.scale.z// / 2
+        (mover->body.t.scale.x / 2) * boundingBoxScale,
+        (mover->body.t.scale.y / 2) * boundingBoxScale,
+        (mover->body.t.scale.z / 2) * boundingBoxScale
     };
     Vec3 p = mover->body.t.pos;
     Vec3 min;

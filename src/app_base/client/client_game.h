@@ -213,6 +213,7 @@ CLG_DEFINE_ENT_UPDATE(Wanderer)
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
 
+
 CLG_DEFINE_ENT_UPDATE(Seeker)
 {
     CLG_NO_ENEMY_TICK_DROPOUT
@@ -229,7 +230,7 @@ CLG_DEFINE_ENT_UPDATE(Seeker)
                 target->body.t.pos.z - ent->body.t.pos.z,
             };
             Vec3_Normalise(&toTarget);
-            SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent);
+            SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent, 2);
             toTarget.x += avoid.dir.x * avoid.numNeighbours;
             toTarget.y += avoid.dir.y * avoid.numNeighbours;
             toTarget.z += avoid.dir.z * avoid.numNeighbours;
@@ -245,6 +246,40 @@ CLG_DEFINE_ENT_UPDATE(Seeker)
     Sim_SimpleMove(ent, deltaTime);
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
+
+CLG_DEFINE_ENT_UPDATE(SeekerFlying)
+{
+    CLG_NO_ENEMY_TICK_DROPOUT
+    i32 targetId = ent->relationships.targetId.serial;
+    if (targetId != 0)
+    {
+        SimEntity* target = Sim_GetEntityBySerial(sim, targetId);
+        if (target != NULL)
+        {
+            Vec3 toTarget = 
+            {
+                target->body.t.pos.x - ent->body.t.pos.x,
+                target->body.t.pos.y - ent->body.t.pos.y,
+                target->body.t.pos.z - ent->body.t.pos.z,
+            };
+            Vec3_Normalise(&toTarget);
+            SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent, 1);
+            toTarget.x += avoid.dir.x * avoid.numNeighbours;
+            toTarget.y += avoid.dir.y * avoid.numNeighbours;
+            toTarget.z += avoid.dir.z * avoid.numNeighbours;
+            Vec3_Normalise(&toTarget);
+            ent->movement.velocity =
+            {
+                toTarget.x * ent->movement.speed,
+                toTarget.y * ent->movement.speed,
+                toTarget.z * ent->movement.speed,
+            };
+        }
+    }
+    Sim_SimpleMove(ent, deltaTime);
+    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+}
+
 
 CLG_DEFINE_ENT_UPDATE(Bouncer)
 {
@@ -316,6 +351,8 @@ internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
         { CLG_UpdateBouncer(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_SEEKER:
         { CLG_UpdateSeeker(sim, ent, deltaTime); } break;
+        case SIM_TICK_TYPE_SEEKER_FLYING:
+        { CLG_UpdateSeekerFlying(sim, ent, deltaTime); } break;
 		case SIM_TICK_TYPE_WANDERER:
         { CLG_UpdateWanderer(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_DART:

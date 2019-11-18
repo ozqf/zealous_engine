@@ -160,8 +160,8 @@ internal i32 Sim_InitActor(
         SIM_DEATH_GFX_EXPLOSION);
     ent->tickType = SIM_TICK_TYPE_ACTOR;
     ent->coreTickType = SIM_TICK_TYPE_ACTOR;
-    ent->attackTime = 0.1f;
-    ent->relationships.childSpawnCount = 5;
+    ent->attackTime = 0.25f;
+    ent->relationships.childSpawnCount = 12;
     return ZE_ERROR_NONE;
 }
 
@@ -347,7 +347,7 @@ internal i32 Sim_InitPlayerProjectile(
     SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
 {
     SimProjectileType t;
-    t.speed = 45.0f;
+    t.speed = SIM_PLAYER_PROJECTILE_SPEED;
     t.patternDef.numItems = 4;
     t.lifeTime = 1.5f;
     t.patternDef.patternId = SIM_PATTERN_FLAT_RADIAL;
@@ -419,6 +419,8 @@ internal SimEntity* Sim_SpawnEntity(
         // Mobs
         case SIM_FACTORY_TYPE_SEEKER:
             err =  Sim_InitSeeker(sim, ent, def); break;
+        case SIM_FACTORY_TYPE_SEEKER_FLYING:
+            err =  Sim_InitSeekerFlying(sim, ent, def); break;
         case SIM_FACTORY_TYPE_WANDERER:
             err =  Sim_InitWanderer(sim, ent, def); break;
         case SIM_FACTORY_TYPE_BOUNCER:

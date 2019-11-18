@@ -102,9 +102,29 @@ internal i32 Sim_InitSeeker(
         { 0, 0.7f, 0.7f, 1 },
         SIM_PREFAB_ENEMY,
         SIM_DEATH_GFX_EXPLOSION);
-    ent->factoryType = SIM_FACTORY_TYPE_SEEKER;
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_SEEKER;
+    ent->timing.lastThink = ent->timing.birthTick;
+    ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(1.5f);
+    ent->deathType = SIM_DEATH_GFX_EXPLOSION;
+    ent->basePriority = 8;
+    return ZE_ERROR_NONE;
+}
+
+internal i32 Sim_InitSeekerFlying(
+    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+{
+    Sim_SetEntityBase(ent, def);
+    Sim_SetEntityStats(ent, 6, 60, 1);
+    Sim_SetEntityBody(ent, { 1.5f, 1.5f, 1.5f });
+    Sim_SetEnemyDefaultFlags(ent);
+    Sim_SetEntityDisplay(ent,
+        { 0, 0.7f, 0.7f, 1 },
+        { 0, 0.7f, 0.7f, 1 },
+        SIM_PREFAB_ENEMY,
+        SIM_DEATH_GFX_EXPLOSION);
+    ent->tickType = SIM_TICK_TYPE_SPAWN;
+    ent->coreTickType = SIM_TICK_TYPE_SEEKER_FLYING;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(1.5f);
     ent->deathType = SIM_DEATH_GFX_EXPLOSION;
