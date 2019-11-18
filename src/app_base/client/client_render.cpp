@@ -108,7 +108,26 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ENEMY);
+                #if 1
                 obj->t = ent->body.t;
+                #endif
+                #if 0
+                // calculate smoothed position
+                Vec3 pos = ent->body.t.pos;
+                pos.x -= ent->body.error.x;
+                pos.y -= ent->body.error.y;
+                pos.z -= ent->body.error.z;
+                ent->body.error.x *= ent->body.errorRate;
+                ent->body.error.y *= ent->body.errorRate;
+                ent->body.error.z *= ent->body.errorRate;
+
+                Vec3 errorPos = ent->body.error;
+                //printf("CLR Actor error %.3f, %.3f, %.3f\n",
+                //    errorPos.x, errorPos.y, errorPos.z);
+                obj->t.pos = pos;
+                obj->t.rotation = ent->body.t.rotation;
+                obj->t.scale = ent->body.t.scale;
+                #endif
                 rendObjectsAdded++;
             } break;
             case SIM_FACTORY_TYPE_BOT:

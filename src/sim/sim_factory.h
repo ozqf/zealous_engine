@@ -160,8 +160,8 @@ internal i32 Sim_InitActor(
         SIM_DEATH_GFX_EXPLOSION);
     ent->tickType = SIM_TICK_TYPE_ACTOR;
     ent->coreTickType = SIM_TICK_TYPE_ACTOR;
-    ent->attackTime = 0.25f;
-    ent->relationships.childSpawnCount = 12;
+    ent->attackTime = 0.5f;
+    ent->relationships.childSpawnCount = 20;
     return ZE_ERROR_NONE;
 }
 
@@ -213,11 +213,7 @@ internal i32 Sim_InitSpawner(
     ent->relationships.childSpawnCount = def->numChildren;
     ent->relationships.maxLiveChildren = def->numChildren;
     ent->relationships.totalChildren = def->numChildren;
-    //printf("Spawned Spawner, Ticktype %d Vel %.3f, %.3f, %.3f\n",
-    //    ent->tickType,
-    //    ent->movement.velocity.x,
-    //    ent->movement.velocity.y,
-    //    ent->movement.velocity.z);
+    ent->relationships.patternType = def->patternType;
     return ZE_ERROR_NONE;
 }
 

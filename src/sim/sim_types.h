@@ -115,6 +115,7 @@ struct SimEntity
         i32 liveChildren;
         i32 maxLiveChildren;
         i32 totalChildren;
+        u8 patternType;
     } relationships;
     
     struct
@@ -187,6 +188,7 @@ struct SimEntSpawnData
     // Spawner info... could be used for attacks too...?
     simFactoryType factoryType;
     simFactoryType childFactoryType;
+    u8 patternType;
     u8 numChildren;
 
     Vec3 pos;

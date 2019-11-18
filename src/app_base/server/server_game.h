@@ -279,7 +279,7 @@ SVG_DEFINE_ENT_UPDATE(Spawner)
             { 0, 0, 1 },
             sim->tick,
             ent->relationships.childFactoryType,
-            SIM_PATTERN_3D_SCATTER,//SIM_PATTERN_FLAT_RADIAL,
+            ent->relationships.patternType,
             (u8)ent->relationships.childSpawnCount,
             COM_STDRandU8(),
             10.0f,
