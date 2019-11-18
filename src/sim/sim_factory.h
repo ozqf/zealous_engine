@@ -150,18 +150,18 @@ internal i32 Sim_InitActor(
     printf("SIM Create actor, scale %.3f, %.3f, %.3f\n",
         def->scale.x, def->scale.y, def->scale.z
     );
-    def->scale = { 1, 2, 1 };
     Sim_SetEntityBase(ent, def);
-    ent->tickType = SIM_TICK_TYPE_ACTOR;
-    ent->coreTickType = SIM_TICK_TYPE_ACTOR;
-    Sim_SetEntityStats(ent, SIM_ENT_STAT_ACTOR_SPEED, 1, 0.05f);
+    Sim_SetEntityBody(ent, { 1, 2, 1 });
+    Sim_SetEntityStats(ent, ACTOR_BASE_SPEED, 1, 0.05f);
     Sim_SetEntityDisplay(ent,
         { 0, 1, 0, 1 },
         { 0, 1, 0, 1 },
         SIM_PREFAB_PLAYER,
         SIM_DEATH_GFX_EXPLOSION);
-    //ent->flags = SIM_ENT_FLAG_POSITION_SYNC;
+    ent->tickType = SIM_TICK_TYPE_ACTOR;
+    ent->coreTickType = SIM_TICK_TYPE_ACTOR;
     ent->attackTime = 0.1f;
+    ent->relationships.childSpawnCount = 5;
     return ZE_ERROR_NONE;
 }
 
@@ -169,14 +169,14 @@ internal i32 Sim_InitBot(
     SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
 {
     Sim_SetEntityBase(ent, def);
-    ent->tickType = SIM_TICK_TYPE_BOT;
-    ent->coreTickType = SIM_TICK_TYPE_BOT;
     Sim_SetEntityStats(ent, 6.5f, 1, 0.05f);
     Sim_SetEntityDisplay(ent,
         { 0, 0.6f, 0, 1 },
         { 0, 0.6f, 0, 1 },
         SIM_PREFAB_BOT,
         SIM_DEATH_GFX_EXPLOSION);
+    ent->tickType = SIM_TICK_TYPE_BOT;
+    ent->coreTickType = SIM_TICK_TYPE_BOT;
     //ent->flags = SIM_ENT_FLAG_POSITION_SYNC;
     return ZE_ERROR_NONE;
 }

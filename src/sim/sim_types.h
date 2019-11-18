@@ -5,7 +5,8 @@
 #include "../zqf_renderer.h"
 #include "../physics/physics.h"
 
-#define ACTOR_EVADE_SPEED 20
+#define ACTOR_BASE_SPEED 6.5f
+#define ACTOR_EVADE_SPEED 30
 #define ACTOR_EVADE_SECONDS 0.25f;
 #define ACTOR_EVADE_RESET_SECONDS 0.5f;
 
@@ -54,7 +55,7 @@ union SimEntIndex
 struct SimEntId
 {
     // Location in local entity memory
-    // Will differ between client and server!
+    // Will differ between/ client and server!
     SimEntIndex slot;
     // unique, replicated Id.
     i32 serial;

@@ -29,7 +29,7 @@ internal void CLG_SyncAvatar(
     if (!ent) { return; }
 
     Vec3 prePredictionEntPos = ent->body.t.pos;
-    f32 skipReportDistance = SIM_ENT_STAT_ACTOR_SPEED * (f32)App_GetSimFrameInterval();
+    f32 skipReportDistance = ACTOR_BASE_SPEED * (f32)App_GetSimFrameInterval();
 
     APP_LOG(256, "CL - Sync Avatar on sv tick %d (input seq %d) vs SV response tick %d (seq %d)\n",
         CL_GetServerTick(), localInputSequence, cmd->header.tick, cmd->lastUserInputSequence);
@@ -141,7 +141,7 @@ internal void CLG_SyncAvatar(
 #if 0
 internal void CLG_SyncAvatar_Broken(SimScene* sim, S2C_InputResponse* cmd)
 {
-    f32 skipReportDistance = SIM_ENT_STAT_ACTOR_SPEED * (f32)App_GetSimFrameInterval();
+    f32 skipReportDistance = ACTOR_BASE_SPEED * (f32)App_GetSimFrameInterval();
     //printf("CL Skip report dist: %.5f\n", skipReportDistance);
 
     const i32 verbose = YES;

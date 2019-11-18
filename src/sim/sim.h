@@ -100,7 +100,7 @@ typedef u8 simFactoryType;
 #define SIM_DEATH_GFX_NONE 0
 #define SIM_DEATH_GFX_EXPLOSION 1
 
-#define SIM_ENT_STAT_ACTOR_SPEED 6.5f
+#define ACTOR_BASE_SPEED 6.5f
 
 #include "sim_types.h"
 

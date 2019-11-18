@@ -432,23 +432,11 @@ internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
             sim->tick, eventTick, fastForwardTicks);
     }
 
-    i32 numProjectiles = 1;
+    i32 numProjectiles = ent->relationships.childSpawnCount;
+    if (numProjectiles <= 0) { numProjectiles = 1; }
     
     SimBulkSpawnEvent event = {};
-    /*
-    event.base.firstSerial = Sim_ReserveEntitySerials(
-        sim, 0, numProjectiles);
-    event.base.pos = ent->body.t.pos;
-    event.base.forward = *dir;
-    event.base.tick = sim->tick;
-    event.base.seedIndex = COM_STDRandU8();
-
-    event.factoryType = SIM_FACTORY_TYPE_PROJ_PLAYER;
-    event.patternDef.patternId = SIM_PATTERN_FLAT_CONE;
-    event.patternDef.numItems = numProjectiles;
-    event.patternDef.radius = 0;
-    event.patternDef.arc = 0.25f;
-    */
+    
     Sim_SetBulkSpawn(
         &event, Sim_ReserveEntitySerials(sim, 0, numProjectiles),
         ent->id.serial,
@@ -456,11 +444,11 @@ internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
         *dir,
         sim->tick,
         SIM_FACTORY_TYPE_PROJ_PLAYER,
-        SIM_PATTERN_FLAT_CONE,
+        SIM_PATTERN_3D_CONE,
         (u8)numProjectiles,
         COM_STDRandU8(),
         0,
-        0.25f
+        0.1f
     );
 
     i32 flags;
@@ -482,8 +470,7 @@ internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
             event.base.firstSerial,
             event.patternDef.numItems, priority);
     }
-
-
+    
     /* Debug - Create a line trace */
     Vec3 origin = ent->body.t.pos;
     Vec3 dest {};

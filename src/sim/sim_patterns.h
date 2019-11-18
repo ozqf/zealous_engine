@@ -138,25 +138,29 @@ internal i32 Sim_Create3DConePattern(
 	// Multiple items
 	i32 serialIncrement = isLocal ? -1 : 1;
 	f32 forwardRadians = atan2f(event->forward.z, event->forward.x);
+	f32 upRadians = atan2f(event->forward.y, event->forward.z);
     f32 arc = def->arc;
 	// -1 items here to cover the full sweep. Otherwise the last angle
 	// is missed off
     f32 step = arc / (def->numItems - 1);
-    f32 radians = forwardRadians - (arc / 2.0f);
+    f32 forwardRadianStep = forwardRadians - (arc / 2.0f);
+	f32 upRadianStep = upRadians - (arc / 2.0f);
+	
     for (i32 i = 0; i < def->numItems; ++i)
     {
 		Vec3 dir =
 		{
-			cosf(radians),
-			0,
-			sinf(radians)
+			cosf(forwardRadianStep),
+			sinf(upRadianStep),
+			sinf(forwardRadianStep)
 		};
         items[i].forward = dir;
 		items[i].pos.x = event->pos.x + (dir.x * def->radius);
 		items[i].pos.y = event->pos.y + (dir.y * def->radius);
 		items[i].pos.z = event->pos.z + (dir.z * def->radius);
 		items[i].entSerial = serial;
-        radians += step;
+        forwardRadianStep += step;
+		upRadianStep += step;
 		serial += serialIncrement;
     }
 	return def->numItems;
