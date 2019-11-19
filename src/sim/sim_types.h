@@ -32,6 +32,10 @@ struct SimActorInput
     Vec3 degrees;
 };
 
+struct SimScene;
+struct SimEntity;
+typedef void (*SimEnt_Tick)(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
+
 struct SimAvoidInfo
 {
     Vec3 dir;

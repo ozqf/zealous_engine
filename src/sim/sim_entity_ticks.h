@@ -1,11 +1,33 @@
-#pragma once
+#ifndef SIM_ENTITY_TICKS_H
+#define SIM_ENTITY_TICKS_H
 
 #include "sim.h"
-/*
-Tick functions shared between client and server
-*/
+/////////////////////////////////////////////////////////
+// Utility functions for entity ticks
+/////////////////////////////////////////////////////////
+/**
+ * Returns a target if the entity has one, NULL if not
+ */
+internal SimEntity* SimEnt_UpdateTargetting(SimScene* sim, SimEntity* ent, i32 bIsServer)
+{
+    SimEntity* target = NULL;
+	if (bIsServer == YES)
+    {
+        // acquire/check target
+        target = Sim_FindTargetForEnt(sim, ent);
+    }
+    else if (ent->relationships.targetId.serial != 0)
+    {
+        // check by target Id
+        target = Sim_GetEntityBySerial(sim, ent->relationships.targetId.serial);
+    }
+    return target;
+}
 
-extern "C" i32 Sim_TickSpawn(
+/////////////////////////////////////////////////////////
+// Entity tick functions shared between client and server
+/////////////////////////////////////////////////////////
+extern "C" i32 SimEnt_TickSpawnAnimation(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
     Vec3* halfSize = &ent->body.baseHalfSize;
@@ -29,24 +51,118 @@ extern "C" i32 Sim_TickSpawn(
     return ZE_ERROR_NONE;
 }
 
-extern "C" void SimEnt_TickSeeker(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+extern "C" void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+{
+    if (sim->tick >= ent->timing.nextThink)
+    {
+        ent->tickType = ent->coreTickType;
+    }
+}
+
+extern "C" void SimEnt_TickSeeker(
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+{
+    SimEntity* target = SimEnt_UpdateTargetting(sim, ent, bIsServer);
+    // Have we got a target?
+    if (target == NULL)
+    {
+        ent->movement.velocity = { 0, 0, 0 };
+    }
+    else
+    {
+        Vec3 toTarget =
+        {
+            target->body.t.pos.x - ent->body.t.pos.x,
+            0,
+            target->body.t.pos.z - ent->body.t.pos.z
+        };
+        Vec3_Normalise(&toTarget);
+        if (ent->flags & SIM_ENT_FLAG_MOVE_AVOID)
+        {
+            SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent, 1);
+            // Multiply by number of neighbours found
+            // to scale move vector up when surrounded
+            toTarget.x += avoid.dir.x * avoid.numNeighbours;
+            toTarget.y += 0,
+            toTarget.z += avoid.dir.z * avoid.numNeighbours;
+            Vec3_Normalise(&toTarget);
+        }
+        ent->movement.velocity =
+        {
+            toTarget.x * ent->movement.speed,
+            0,
+            toTarget.z * ent->movement.speed,
+        };
+    }
+    Sim_SimpleMove(ent, deltaTime);
+    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+}
+
+extern "C" void SimEnt_TickSeekerFlying(
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+{
+    SimEntity* target = SimEnt_UpdateTargetting(sim, ent, bIsServer);
+    // Have we got a target?
+    if (target == NULL)
+    {
+        ent->movement.velocity = { 0, 0, 0 };
+    }
+    else
+    {
+        Vec3 toTarget =
+        {
+            target->body.t.pos.x - ent->body.t.pos.x,
+            target->body.t.pos.y - ent->body.t.pos.y,
+            target->body.t.pos.z - ent->body.t.pos.z
+        };
+        Vec3_Normalise(&toTarget);
+        if (ent->flags & SIM_ENT_FLAG_MOVE_AVOID)
+        {
+            SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent, 1);
+            // Multiply by number of neighbours found
+            // to scale move vector up when surrounded
+            toTarget.x += avoid.dir.x * avoid.numNeighbours;
+            toTarget.y += avoid.dir.y * avoid.numNeighbours;
+            toTarget.z += avoid.dir.z * avoid.numNeighbours;
+            Vec3_Normalise(&toTarget);
+        }
+        ent->movement.velocity =
+        {
+            toTarget.x * ent->movement.speed,
+            toTarget.y * ent->movement.speed,
+            toTarget.z * ent->movement.speed,
+        };
+    }
+    Sim_SimpleMove(ent, deltaTime);
+    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+}
+
+extern "C" void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
 	
 }
 
-extern "C" void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+extern "C" void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
 	
 }
 
-extern "C" void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+extern "C" void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
-	
-}
-
-extern "C" void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
-{
-	
+	if (ent->timing.nextThink >= sim->tick)
+    {
+        ent->timing.lastThink = ent->timing.nextThink;
+        
+        ent->timing.nextThink += (i32)COM_STDRandomInRange(
+            (f32)App_CalcTickInterval(1),
+            (f32)App_CalcTickInterval(6)
+        );
+        f32 radians = COM_STDRandomInRange(0, 360) * DEG2RAD;
+        ent->movement.velocity.x = cosf(radians) * ent->movement.speed;
+        ent->movement.velocity.z = sinf(radians) * ent->movement.speed;
+    }
+    Sim_SimpleMove(ent, deltaTime);
+    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
 
 internal void SimEnt_UpdateActorLook(
@@ -281,3 +397,5 @@ extern "C" void SimEnt_StepActorMovement(
 		} break;
 	}
 }
+
+#endif // SIM_ENTITY_TICKS_H

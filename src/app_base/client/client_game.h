@@ -343,6 +343,7 @@ internal void CLG_UpdateTargetPoint(SimScene* sim, SimEntity* ent, timeFloat del
 
 internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
+	const i32 bIsServer = NO;
     switch (ent->tickType)
     {
         case SIM_TICK_TYPE_PROJECTILE:
@@ -350,9 +351,9 @@ internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 		case SIM_TICK_TYPE_BOUNCER:
         { CLG_UpdateBouncer(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_SEEKER:
-        { CLG_UpdateSeeker(sim, ent, deltaTime); } break;
+        { SimEnt_TickSeeker(sim, ent, deltaTime, bIsServer); } break;
         case SIM_TICK_TYPE_SEEKER_FLYING:
-        { CLG_UpdateSeekerFlying(sim, ent, deltaTime); } break;
+		{ SimEnt_TickSeekerFlying(sim, ent, deltaTime, bIsServer); } break;
 		case SIM_TICK_TYPE_WANDERER:
         { CLG_UpdateWanderer(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_DART:
@@ -360,7 +361,7 @@ internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 		case SIM_TICK_TYPE_ACTOR:
         { CLG_UpdateActor(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_SPAWN:
-        { Sim_TickSpawn(sim, ent, deltaTime); } break;
+        { SimEnt_TickSpawnAnimation(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_TARGET_POINT:
         { CLG_UpdateTargetPoint(sim, ent, deltaTime); break; }
         case SIM_TICK_TYPE_LINE_TRACE:

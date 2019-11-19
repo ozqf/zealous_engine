@@ -128,25 +128,6 @@ internal void SVG_SpawnLineSegment(SimScene* sim, Vec3 origin, Vec3 dest)
 //////////////////////////////////////////////////////
 // ENEMIES
 //////////////////////////////////////////////////////
-//internal void SVG_UpdateWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
-SVG_DEFINE_ENT_UPDATE(Wanderer)
-{
-    if (ent->timing.nextThink >= sim->tick)
-    {
-        ent->timing.lastThink = ent->timing.nextThink;
-        
-        ent->timing.nextThink += (i32)COM_STDRandomInRange(
-            (f32)App_CalcTickInterval(1),
-            (f32)App_CalcTickInterval(6)
-        );
-        f32 radians = COM_STDRandomInRange(0, 360) * DEG2RAD;
-        ent->movement.velocity.x = cosf(radians) * ent->movement.speed;
-        ent->movement.velocity.z = sinf(radians) * ent->movement.speed;
-    }
-    Sim_SimpleMove(ent, deltaTime);
-    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
-}
-
 
 SVG_DEFINE_ENT_UPDATE(Seeker)
 {
@@ -309,16 +290,6 @@ SVG_DEFINE_ENT_UPDATE(Spawner)
         #endif
     }
 }
-
-//////////////////////////////////////////////////////
-// Spawner
-//////////////////////////////////////////////////////
-SVG_DEFINE_ENT_UPDATE(Spawn)
-{
-    SimEntity* target = Sim_FindTargetForEnt(sim, ent);
-    Sim_TickSpawn(sim, ent, deltaTime);
-}
-
 
 //////////////////////////////////////////////////////
 // Projectiles
@@ -631,17 +602,17 @@ internal void SVG_TickEntity(
     }
     #endif
     #endif
+	const i32 bIsServer = YES;
     switch (ent->tickType)
     {
 		case SIM_TICK_TYPE_PROJECTILE:
         { SVG_UpdateProjectile(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_SEEKER:
-        { SVG_UpdateSeeker(sim, ent, deltaTime); } break;
+        { SimEnt_TickSeeker(sim, ent, deltaTime, bIsServer); } break;
         case SIM_TICK_TYPE_SEEKER_FLYING:
-        { SVG_UpdateSeekerFlying(sim, ent, deltaTime); } break;
-        //{  } break;
+		{ SimEnt_TickSeekerFlying(sim, ent, deltaTime, bIsServer); } break;
 		case SIM_TICK_TYPE_WANDERER:
-        { SVG_UpdateWanderer(sim, ent, deltaTime); } break;
+        { SimEnt_TickWanderer(sim, ent, deltaTime, bIsServer); break; }
         case SIM_TICK_TYPE_BOUNCER:
         { SVG_UpdateBouncer(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_DART:
@@ -655,8 +626,7 @@ internal void SVG_TickEntity(
         case SIM_TICK_TYPE_LINE_TRACE:
         { SVG_UpdateLineTrace(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_SPAWN:
-        { SVG_UpdateSpawn(sim, ent, deltaTime); } break;
-        //{ Sim_TickSpawn(sim, ent, deltaTime); } break;
+        { SimEnt_TickSpawnAnimation(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_WORLD: { } break;
         case SIM_TICK_TYPE_NONE: { } break;
         //case SIM_TICK_TYPE_NONE: { } break;

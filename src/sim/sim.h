@@ -80,6 +80,7 @@ typedef u8 simFactoryType;
 #define SIM_TICK_TYPE_GRUNT 14
 #define SIM_TICK_TYPE_TARGET_POINT 15
 #define SIM_TICK_TYPE_SEEKER_FLYING 16
+#define SIM_TICK_TYPE_PROJECTILE_VOLUME 17
 
 // Spawn pattern types.
 #define SIM_PATTERN_NONE 0
@@ -140,10 +141,29 @@ extern "C" i32      Sim_InBounds(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryBounce(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryStop(SimEntity* ent, Vec3* min, Vec3* max);
 
-extern "C" i32      Sim_TickSpawn(
+// Entity Frame Updates
+extern "C" i32      SimEnt_TickSpawnAnimation(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime);
+
+extern "C" void     SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
+
+extern "C" void     SimEnt_TickSeeker(
+                        SimScene* sim,
+                        SimEntity* ent,
+                        timeFloat deltaTime,
+                        i32 bIsServer);
+
+extern "C" void     SimEnt_TickSeekerFlying(
+                        SimScene* sim,
+                        SimEntity* ent,
+                        timeFloat deltaTime,
+                        i32 bIsServer);
+                        
 extern "C" void     SimEnt_StepActorMovement(
-        SimScene* sim, SimEntity* ent, SimActorInput* input, timeFloat deltaTime);
+                        SimScene* sim,
+                        SimEntity* ent,
+                        SimActorInput* input,
+                        timeFloat deltaTime);
 
 // Searching/Querying
 extern "C" i32        Sim_IsEntInPlay(SimEntity* ent);
