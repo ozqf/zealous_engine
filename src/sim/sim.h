@@ -107,11 +107,7 @@ typedef u8 simFactoryType;
 #include "sim_types.h"
 
 // Scene management
-extern "C" void     Sim_Init(
-                        char* label,
-                        SimScene* sim,
-                        SimEntity* entityMemory,
-                        i32 maxEntities);
+extern "C" void     Sim_Init(char* label, SimScene* sim, SimEntity* entityMemory, i32 maxEntities);
 extern "C" void 	Sim_Reset(SimScene* sim);
 extern "C" i32 	    Sim_LoadScene(SimScene* sim, i32 index);
 extern "C" i32      Sim_CalcEntityArrayBytes(i32 capacity);
@@ -126,8 +122,7 @@ extern "C" i32      Sim_ReserveEntitySerials(
                         SimScene* scene, i32 isLocal, i32 count);
 extern "C" SimEntity* Sim_RestoreEntity(SimScene* sim, SimEntSpawnData* def);
 extern "C" i32      Sim_RemoveEntity(SimScene* sim, i32 serialNumber);
-extern "C" i32      Sim_SetActorInput(
-    SimScene* sim, SimActorInput* input, i32 entitySerial);
+extern "C" i32      Sim_SetActorInput(SimScene* sim, SimActorInput* input, i32 entitySerial);
 extern "C" i32      Sim_ExecuteBulkSpawn(
                         SimScene* sim,
                         SimBulkSpawnEvent* def,
@@ -142,59 +137,40 @@ extern "C" void     Sim_BoundaryBounce(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryStop(SimEntity* ent, Vec3* min, Vec3* max);
 
 // Entity Frame Updates
-extern "C" i32      SimEnt_TickSpawnAnimation(
-    SimScene* sim, SimEntity* ent, timeFloat deltaTime);
+extern "C" i32      SimEnt_TickSpawnAnimation(SimScene* sim, SimEntity* ent, timeFloat deltaTime);
 
 extern "C" void     SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
 extern "C" void     SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
 extern "C" void     SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
+extern "C" void     SimEnt_TickSeeker(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
+extern "C" void     SimEnt_TickSeekerFlying(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
 
-extern "C" void     SimEnt_TickSeeker(
-                        SimScene* sim,
-                        SimEntity* ent,
-                        timeFloat deltaTime,
-                        i32 bIsServer);
-
-extern "C" void     SimEnt_TickSeekerFlying(
-                        SimScene* sim,
-                        SimEntity* ent,
-                        timeFloat deltaTime,
-                        i32 bIsServer);
-                        
-extern "C" void     SimEnt_StepActorMovement(
-                        SimScene* sim,
-                        SimEntity* ent,
-                        SimActorInput* input,
-                        timeFloat deltaTime);
+extern "C" void     SimEnt_StepActorMovement(SimScene* sim, SimEntity* ent, SimActorInput* input, timeFloat deltaTime);
 
 // Searching/Querying
 extern "C" i32        Sim_IsEntInPlay(SimEntity* ent);
 extern "C" SimEntity* Sim_FindTargetForEnt(SimScene* sim, SimEntity* subject);
 extern "C" i32        Sim_IsEntTargetable(SimEntity* ent);
+extern "C" i32      Sim_FindClosestRayhit(SimRaycastResult* results, i32 numResults);
 
-extern "C" i32 Sim_FindClosestRayhit(SimRaycastResult* results, i32 numResults);
+extern "C" i32      Sim_FindByRaycast(
+                        SimScene* sim,
+                        Vec3 origin,
+                        Vec3 dest,
+                        i32 ignoreSerial,
+                        SimRaycastResult* results,
+                        i32 maxResults);
 
-extern "C"
-i32 Sim_FindByRaycast(
-    SimScene* sim,
-    Vec3 origin,
-    Vec3 dest,
-    i32 ignoreSerial,
-    SimRaycastResult* results,
-    i32 maxResults);
+extern "C" i32      Sim_FindByAABB(
+                        SimScene* sim,
+                        Vec3 boundsMin,
+                        Vec3 boundsMax,
+                        i32 ignoreSerial,
+                        SimEntity** results,
+                        i32 maxResults,
+	                    i32 replicatedOnly);
 
-extern "C"
-inline i32 Sim_FindByAABB(
-    SimScene* sim,
-    Vec3 boundsMin,
-    Vec3 boundsMax,
-    i32 ignoreSerial,
-    SimEntity** results,
-    i32 maxResults,
-	i32 replicatedOnly);
-
-extern "C"
-inline SimAvoidInfo Sim_BuildAvoidVector(
-    SimScene* sim,
-    SimEntity* mover,
-    f32 boundingBoxScale);
+extern "C" SimAvoidInfo Sim_BuildAvoidVector(
+                        SimScene* sim,
+                        SimEntity* mover,
+                        f32 boundingBoxScale);

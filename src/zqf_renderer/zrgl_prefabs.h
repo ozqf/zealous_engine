@@ -693,6 +693,7 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     prefab->program = ZR_SHADER_TYPE_BLOCK_COLOUR;
     prefab->bInitialised = YES;
 
+    // QUAD
     prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD];
     prefab->bInitialised = YES;
     // Billboard should use this quad mesh, but for debugging, draw a cube as it
@@ -702,8 +703,11 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     prefab->geometry = ZRGL_CreateVAOf(
         d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
     prefab->geometry.vertexCount = g_quadVAO.vertexCount;
+    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/BKEYB0.png", bVerbose);
     #endif
 
+    // Charset quad -
+    // TODO: dynamic was going to mean 'verts are rewritten' or something...? clear this up
     prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD_DYNAMIC];
     prefab->bInitialised = YES;
     // VBO Should be dynamic!
