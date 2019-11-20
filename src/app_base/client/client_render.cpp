@@ -130,6 +130,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 #endif
                 rendObjectsAdded++;
             } break;
+            case SIM_FACTORY_TYPE_PROP:
             case SIM_FACTORY_TYPE_SEEKER_FLYING:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);

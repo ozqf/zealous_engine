@@ -305,8 +305,18 @@ internal f32 Vec3_Distance(Vec3 a, Vec3 b)
     return Vec3_Magnitudef(b.x - a.x, b.y - a.y, b.z - a.z);
 }
 
-internal void Vec3_CrossProduct(Vec3* a, Vec3* b, Vec3* result);
-internal f32 Vec3_DotProduct(Vec3* a, Vec3* b);
+internal Vec3 Vec3_CrossProduct(Vec3* a, Vec3* b)
+{
+    return 
+    {
+        (a->y * b->z) - (a->z * b->y),
+        (a->x * b->y) - (a->y * b->x),
+        (a->z * b->x) - (a->x * b->z)
+    };
+}
+
+internal f32 Vec3_DotProduct(Vec3* a, Vec3* b)
+{ return (a->x * b->x) + (a->y * b->y) + (a->z * b->z); }
 
 internal void Vec3_NormaliseOrForward(Vec3* v)
 {

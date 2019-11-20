@@ -360,6 +360,16 @@ void Sim_Init(
     //PhysExt_Init(NULL, 0, NULL, 0, NULL);
 }
 
+internal void Sim_AddTestProp(SimScene* sim, Vec3 pos)
+{
+    SimEntSpawnData def = {};
+    def.serial = Sim_ReserveEntitySerial(sim, 1);
+    def.isLocal = 1;
+	def.factoryType = SIM_FACTORY_TYPE_PROP;
+    def.pos = pos;
+    Sim_RestoreEntity(sim, &def);
+}
+
 extern "C"
 i32 Sim_LoadScene(SimScene* sim, i32 index)
 {
@@ -379,12 +389,19 @@ i32 Sim_LoadScene(SimScene* sim, i32 index)
 
     Sim_RestoreEntity(sim, &def);
 
+    Sim_AddTestProp(sim, { 15, 0, 15 });
+    Sim_AddTestProp(sim, { 15, 0, -15 });
+    Sim_AddTestProp(sim, { -15, 0, 15 });
+    Sim_AddTestProp(sim, { -15, 0, -15 });
+
     halfX -= 1;
     halfY -= 1;
     halfZ -= 1;
 
     sim->boundaryMin = { -halfX, -halfY, -halfZ };
     sim->boundaryMax = { halfX, halfY, halfZ };
+
+
 
     // Configure quantisation tables based on arena size
     // TODO: largest axis must be passed in here, auto detect this instead!

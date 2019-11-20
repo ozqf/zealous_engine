@@ -62,6 +62,7 @@ typedef u8 simFactoryType;
 #define SIM_FACTORY_TYPE_BULLET_IMPACT 18
 #define SIM_FACTORY_TYPE_TARGET_POINT 19
 #define SIM_FACTORY_TYPE_SEEKER_FLYING 20
+#define SIM_FACTORY_TYPE_PROP 21
 
 // Update functions
 #define SIM_TICK_TYPE_NONE 0

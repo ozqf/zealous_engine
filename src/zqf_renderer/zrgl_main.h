@@ -386,14 +386,14 @@ static ZRPerformanceStats ZRImpl_DrawFrame(
     ZRGL_DrawDebugQuads(scrInfo.aspectRatio);
     #endif
 
-    #if 0 // draw gbuffer in middle of screen
+    #if 1 // draw gbuffer in middle of screen
     ZRGL_CombineGBuffer(&g_gBuffer);
     #endif
     
     /////////////////////////////////////////////////////////////
     // Done. Gather stats
     g_bDrawLocked = NO;
-
+    
     f64 drawEnd = g_platform.QueryClock();
     stats.prepareTime = (prepareEnd - prepareStart) * 1000;
 	stats.uploadTime = (uploadEnd - uploadStart) * 1000;

@@ -279,6 +279,22 @@ internal i32 Sim_InitTargetPoint(
     return ZE_ERROR_NONE;
 }
 
+internal i32 Sim_InitProp(
+    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+{
+    Sim_SetEntityBase(ent, def);
+    Sim_SetEntityDisplay(ent,
+        { 1, 1, 0, 1 },
+        { 1, 1, 0, 1 },
+        SIM_PREFAB_ITEM,
+        SIM_DEATH_GFX_NONE);
+    ent->tickType = SIM_TICK_TYPE_NONE;
+    ent->coreTickType = SIM_TICK_TYPE_NONE;
+    ent->timing.nextThink = 0;
+    ent->body.t.scale = { 1, 1, 1 };
+    return ZE_ERROR_NONE;
+}
+
 ///////////////////////////////////////////////////////
 // Projectiles
 ///////////////////////////////////////////////////////
@@ -429,6 +445,8 @@ internal SimEntity* Sim_SpawnEntity(
             err = Sim_InitGrunt(sim, ent, def); break;
         ////////////////////////////////////////////////////////
         // Misc
+        case SIM_FACTORY_TYPE_PROP:
+            err = Sim_InitProp(sim, ent, def); break;
         case SIM_FACTORY_TYPE_ACTOR:
             err =  Sim_InitActor(sim, ent, def); break;
         case SIM_FACTORY_TYPE_BOT:
