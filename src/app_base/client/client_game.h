@@ -183,125 +183,6 @@ CLG_DEFINE_ENT_UPDATE(LineTrace)
     }
 }
 
-CLG_DEFINE_ENT_UPDATE(Spawn)
-{
-    /*
-    if (ent->fastForwardTicks > 0)
-    {
-        printf("CL Fast forward ent by %d!\n", ent->fastForwardTicks);
-    }
-    if (ent->thinkTick <= 0)
-    {
-        ent->tickType = ent->coreTickType;
-    }
-    else
-    {
-        ent->thinkTick -= deltaTime;
-    }
-    */
-}
-
-
-//////////////////////////////////////////////////////
-// ENEMIES
-//////////////////////////////////////////////////////
-CLG_DEFINE_ENT_UPDATE(Wanderer)
-{
-    CLG_NO_ENEMY_TICK_DROPOUT
-    
-    Sim_SimpleMove(ent, deltaTime);
-    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
-}
-
-
-CLG_DEFINE_ENT_UPDATE(Seeker)
-{
-    CLG_NO_ENEMY_TICK_DROPOUT
-    i32 targetId = ent->relationships.targetId.serial;
-    if (targetId != 0)
-    {
-        SimEntity* target = Sim_GetEntityBySerial(sim, targetId);
-        if (target != NULL)
-        {
-            Vec3 toTarget = 
-            {
-                target->body.t.pos.x - ent->body.t.pos.x,
-                target->body.t.pos.y - ent->body.t.pos.y,
-                target->body.t.pos.z - ent->body.t.pos.z,
-            };
-            Vec3_Normalise(&toTarget);
-            SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent, 2);
-            toTarget.x += avoid.dir.x * avoid.numNeighbours;
-            toTarget.y += avoid.dir.y * avoid.numNeighbours;
-            toTarget.z += avoid.dir.z * avoid.numNeighbours;
-            Vec3_Normalise(&toTarget);
-            ent->movement.velocity =
-            {
-                toTarget.x * ent->movement.speed,
-                toTarget.y * ent->movement.speed,
-                toTarget.z * ent->movement.speed,
-            };
-        }
-    }
-    Sim_SimpleMove(ent, deltaTime);
-    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
-}
-
-CLG_DEFINE_ENT_UPDATE(SeekerFlying)
-{
-    CLG_NO_ENEMY_TICK_DROPOUT
-    i32 targetId = ent->relationships.targetId.serial;
-    if (targetId != 0)
-    {
-        SimEntity* target = Sim_GetEntityBySerial(sim, targetId);
-        if (target != NULL)
-        {
-            Vec3 toTarget = 
-            {
-                target->body.t.pos.x - ent->body.t.pos.x,
-                target->body.t.pos.y - ent->body.t.pos.y,
-                target->body.t.pos.z - ent->body.t.pos.z,
-            };
-            Vec3_Normalise(&toTarget);
-            SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent, 1);
-            toTarget.x += avoid.dir.x * avoid.numNeighbours;
-            toTarget.y += avoid.dir.y * avoid.numNeighbours;
-            toTarget.z += avoid.dir.z * avoid.numNeighbours;
-            Vec3_Normalise(&toTarget);
-            ent->movement.velocity =
-            {
-                toTarget.x * ent->movement.speed,
-                toTarget.y * ent->movement.speed,
-                toTarget.z * ent->movement.speed,
-            };
-        }
-    }
-    Sim_SimpleMove(ent, deltaTime);
-    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
-}
-
-
-CLG_DEFINE_ENT_UPDATE(Bouncer)
-{
-    CLG_NO_ENEMY_TICK_DROPOUT
-    Sim_SimpleMove(ent, deltaTime);
-    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
-}
-
-CLG_DEFINE_ENT_UPDATE(Dart)
-{
-    CLG_NO_ENEMY_TICK_DROPOUT
-    Vec3 previousPos = ent->body.t.pos;
-    Sim_SimpleMove(ent, deltaTime);
-    if (!Sim_InBounds(ent, &sim->boundaryMin, &sim->boundaryMax))
-    {
-        ent->movement.velocity.x *= -1;
-        ent->movement.velocity.y *= -1;
-        ent->movement.velocity.z *= -1;
-        ent->body.t.pos = previousPos;
-    }
-}
-
 internal void CLG_UpdateTargetPoint(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
     SimEntity* plyr = Sim_GetEntityBySerial(sim, g_avatarSerial);
@@ -349,15 +230,15 @@ internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
         case SIM_TICK_TYPE_PROJECTILE:
         { CLG_UpdateProjectile(sim, ent, deltaTime); } break;
 		case SIM_TICK_TYPE_BOUNCER:
-        { CLG_UpdateBouncer(sim, ent, deltaTime); } break;
+        { SimEnt_TickBouncer(sim, ent, deltaTime, bIsServer); } break;
         case SIM_TICK_TYPE_SEEKER:
         { SimEnt_TickSeeker(sim, ent, deltaTime, bIsServer); } break;
         case SIM_TICK_TYPE_SEEKER_FLYING:
 		{ SimEnt_TickSeekerFlying(sim, ent, deltaTime, bIsServer); } break;
 		case SIM_TICK_TYPE_WANDERER:
-        { CLG_UpdateWanderer(sim, ent, deltaTime); } break;
+        { SimEnt_TickWanderer(sim, ent, deltaTime, bIsServer); } break;
         case SIM_TICK_TYPE_DART:
-        { CLG_UpdateDart(sim, ent, deltaTime); } break;
+        { SimEnt_TickDart(sim, ent, deltaTime, bIsServer); } break;
 		case SIM_TICK_TYPE_ACTOR:
         { CLG_UpdateActor(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_SPAWN:

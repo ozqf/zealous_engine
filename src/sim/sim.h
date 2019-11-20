@@ -146,6 +146,8 @@ extern "C" i32      SimEnt_TickSpawnAnimation(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime);
 
 extern "C" void     SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
+extern "C" void     SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
+extern "C" void     SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
 
 extern "C" void     SimEnt_TickSeeker(
                         SimScene* sim,

@@ -139,12 +139,21 @@ extern "C" void SimEnt_TickSeekerFlying(
 
 extern "C" void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
-	
+	Vec3 previousPos = ent->body.t.pos;
+    Sim_SimpleMove(ent, deltaTime);
+    if (!Sim_InBounds(ent, &sim->boundaryMin, &sim->boundaryMax))
+    {
+        ent->movement.velocity.x *= -1;
+        ent->movement.velocity.y *= -1;
+        ent->movement.velocity.z *= -1;
+        ent->body.t.pos = previousPos;
+    }
 }
 
 extern "C" void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
-	
+	Sim_SimpleMove(ent, deltaTime);
+    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
 
 extern "C" void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)

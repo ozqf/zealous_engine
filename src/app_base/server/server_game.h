@@ -126,101 +126,6 @@ internal void SVG_SpawnLineSegment(SimScene* sim, Vec3 origin, Vec3 dest)
     SVG_Update##entityTypeName##(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 
 //////////////////////////////////////////////////////
-// ENEMIES
-//////////////////////////////////////////////////////
-
-SVG_DEFINE_ENT_UPDATE(Seeker)
-{
-    SimEntity* target = Sim_FindTargetForEnt(sim, ent);
-    if (target)
-    {
-        Vec3 toTarget = 
-        {
-            target->body.t.pos.x - ent->body.t.pos.x,
-            0,//target->body.t.pos.y - ent->body.t.pos.y,
-            target->body.t.pos.z - ent->body.t.pos.z,
-        };
-        Vec3_Normalise(&toTarget);
-        SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent, 2);
-        // Multiply by number of neighbours found
-        // to scale move vector up when surrounded
-        toTarget.x += avoid.dir.x * avoid.numNeighbours;
-        toTarget.y += 0;//avoid.dir.y * avoid.numNeighbours;
-        toTarget.z += avoid.dir.z * avoid.numNeighbours;
-        Vec3_Normalise(&toTarget);
-        ent->movement.velocity =
-        {
-            toTarget.x * ent->movement.speed,
-            0,//toTarget.y * ent->movement.speed,
-            toTarget.z * ent->movement.speed,
-        };
-    }
-    else
-    {
-        ent->movement.velocity = { 0, 0, 0 };
-    }
-    Sim_SimpleMove(ent, deltaTime);
-    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
-}
-
-SVG_DEFINE_ENT_UPDATE(SeekerFlying)
-{
-    SimEntity* target = Sim_FindTargetForEnt(sim, ent);
-    if (target)
-    {
-        Vec3 toTarget = 
-        {
-            target->body.t.pos.x - ent->body.t.pos.x,
-            target->body.t.pos.y - ent->body.t.pos.y,
-            target->body.t.pos.z - ent->body.t.pos.z,
-        };
-        //printf("Flying seeker to target %.3f, %.3f, %.3f\n",
-        //    toTarget.x, toTarget.y, toTarget.z);
-        Vec3_Normalise(&toTarget);
-        SimAvoidInfo avoid = Sim_BuildAvoidVector(sim, ent, 0.5f);
-        // Multiply by number of neighbours found
-        // to scale move vector up when surrounded
-        toTarget.x += avoid.dir.x * avoid.numNeighbours;
-        toTarget.y += avoid.dir.y * avoid.numNeighbours;
-        toTarget.z += avoid.dir.z * avoid.numNeighbours;
-        Vec3_Normalise(&toTarget);
-        ent->movement.velocity =
-        {
-            toTarget.x * ent->movement.speed,
-            toTarget.y * ent->movement.speed,
-            toTarget.z * ent->movement.speed
-        };
-    }
-    else
-    {
-        ent->movement.velocity = { 0, 0, 0 };
-    }
-    Sim_SimpleMove(ent, deltaTime);
-    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
-}
-
-
-
-SVG_DEFINE_ENT_UPDATE(Bouncer)
-{
-    Sim_SimpleMove(ent, deltaTime);
-    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
-}
-
-SVG_DEFINE_ENT_UPDATE(Dart)
-{
-    Vec3 previousPos = ent->body.t.pos;
-    Sim_SimpleMove(ent, deltaTime);
-    if (!Sim_InBounds(ent, &sim->boundaryMin, &sim->boundaryMax))
-    {
-        ent->movement.velocity.x *= -1;
-        ent->movement.velocity.y *= -1;
-        ent->movement.velocity.z *= -1;
-        ent->body.t.pos = previousPos;
-    }
-}
-
-//////////////////////////////////////////////////////
 // Spawner
 //////////////////////////////////////////////////////
 SVG_DEFINE_ENT_UPDATE(Spawner)
@@ -614,9 +519,9 @@ internal void SVG_TickEntity(
 		case SIM_TICK_TYPE_WANDERER:
         { SimEnt_TickWanderer(sim, ent, deltaTime, bIsServer); break; }
         case SIM_TICK_TYPE_BOUNCER:
-        { SVG_UpdateBouncer(sim, ent, deltaTime); } break;
+        { SimEnt_TickBouncer(sim, ent, deltaTime, bIsServer); } break;
         case SIM_TICK_TYPE_DART:
-        { SVG_UpdateDart(sim, ent, deltaTime); } break;
+        { SimEnt_TickDart(sim, ent, deltaTime, bIsServer); } break;
 		case SIM_TICK_TYPE_ACTOR:
         { SVG_UpdateActor(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_BOT:
@@ -629,7 +534,6 @@ internal void SVG_TickEntity(
         { SimEnt_TickSpawnAnimation(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_WORLD: { } break;
         case SIM_TICK_TYPE_NONE: { } break;
-        //case SIM_TICK_TYPE_NONE: { } break;
         default:
         { ZE_ASSERT(0, "Unknown Ent Tick Type"); } break;
     }
