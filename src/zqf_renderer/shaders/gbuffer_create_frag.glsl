@@ -12,7 +12,15 @@ in vec3 m_normal;
 
 void main()
 {
-    gPosition = m_worldPos;
-    gNormal = m_normal;
-    gColour = texture2D(u_colourTex, m_texCoord);
+    vec4 colour = texture2D(u_colourTex, m_texCoord);
+    if (colour.w > 0.5)
+    {
+        gPosition = m_worldPos;
+        gNormal = m_normal;
+        gColour = colour;
+    }
+    else
+    {
+        discard;
+    }
 }
