@@ -64,6 +64,7 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
  */
 internal i32 CLR_AddSimObjectsToRenderScene(
     SimScene* sim,
+    Transform* camera,
     ZEByteBuffer* list,
     ZEByteBuffer* data,
     u32 debugFlags)
@@ -133,7 +134,15 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_QUAD);
+                // Setup buildboard
+                // extract euler angles from camera
+                Vec3 euler = M3x3_GetEulerAnglesRadians(camera->rotation.cells);
+                // rotate object toward camera
                 obj->t = ent->body.t;
+                M3x3* rot = &obj->t.rotation;
+                M3x3_SetToIdentity(rot->cells);
+                M3x3_RotateY(rot->cells, euler.y);
+                M3x3_RotateX(rot->cells, euler.x);
                 rendObjectsAdded++;
             } break;
             case SIM_FACTORY_TYPE_BOT:
@@ -236,7 +245,7 @@ extern "C" void CLR_WriteDrawFrame(
         }
     }
 
-    objCount += CLR_AddSimObjectsToRenderScene(sim, list, data, debugFlags);
+    objCount += CLR_AddSimObjectsToRenderScene(sim, camera, list, data, debugFlags);
 
     scene->params.dataBytes = list->cursor - listStart;
     scene->params.numObjects = objCount;

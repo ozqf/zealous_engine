@@ -39,6 +39,8 @@
 
 // embedded assets
 #include "../zr_embedded/zr_embedded.h"
+// loaded assets
+#include "zr_asset_db.h"
 
 #include "../zqf_renderer.h"
 #include "opengl_utils.h"
