@@ -1,6 +1,11 @@
 #ifndef ZQF_DRAW_SCENE_H
 #define ZQF_DRAW_SCENE_H
 
+#include "zqf_renderer.h"
+#include "../ze_common/ze_transform.h"
+
+#if 0
+
 /**
  * TODO: REPLACE THIS IMPLEMENTATION
  * This scene graph is a placeholder implementation
@@ -10,8 +15,6 @@
 /**
  * Draw Scene - store of render objects
  */
-#include "zqf_renderer.h"
-#include "../ze_common/ze_transform.h"
 
 #define ZR_SCENE_BAD_ID 0
 #define ZR_SCENE_BAD_INDEX -1
@@ -180,5 +183,7 @@ static ZRViewFrame* ZRScene_BeginViewFrame(
 
     return header;
 }
+
+#endif
 
 #endif // ZQF_DRAW_SCENE_H

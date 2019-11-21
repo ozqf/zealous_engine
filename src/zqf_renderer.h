@@ -13,6 +13,7 @@ These shouldn't be in common! Move them into this module
 #include "ze_common/ze_byte_buffer.h"
 #include "ze_common/ze_math_types.h"
 #include "ze_common/ze_string_utils.h"
+#include "ze_common/ze_memory_utils.h"
 
 #define ZR_SENTINEL 0xDEADBEEF
 
@@ -201,9 +202,11 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 ///////////////////////////////////////////////////////////
 
 #define ZR_DRAWOBJ_TYPE_NONE 0
-#define ZR_DRAWOBJ_TYPE_MODEL 1
+#define ZR_DRAWOBJ_TYPE_PREFAB 1
 #define ZR_DRAWOBJ_TYPE_LIGHT 2
 #define ZR_DRAWOBJ_TYPE_TEXT 3
+#define ZR_DRAWOBJ_TYPE_BILLBOARD 4
+#define ZR_DRAWOBJ_TYPE_MODEL 5
 
 #define ZR_DRAWOBJ_STATUS_FREE 0
 #define ZR_DRAWOBJ_STATUS_ASSIGNED 1
@@ -233,6 +236,24 @@ union ZRDrawObjUnion
 
 struct ZRDrawObj
 {
+    // prefab this object is using
+    // This is stored outside the union as it is required by all objects
+    // for grouping
+    i32 prefabId;
+
+    // shader program used, see above
+    i32 program;
+	
+    Transform t;
+    
+    // --- discriminated union ---
+    // type is also used as part of the grouping Id of this object
+	i32 type;
+    ZRDrawObjUnion data;
+};
+
+struct ZRSceneObj
+{
     i32 id; // incremental identifier
     i32 status; // check for 'deleted' status if list removal is all done post-frame.
 	i32 frameMarker; // Used to mark if the object is relevant to the current frame
@@ -242,21 +263,10 @@ struct ZRDrawObj
 	Vec3 aabbMin;
 	Vec3 aabbMax;
 	
-    // prefab this object is using
-    // This is stored outside the union as it is required by all objects
-    // for grouping
-    i32 prefabId;
-    // shader program used, see above
-    i32 program;
-	
-	i32 parentId;
-    Transform t;
     Transform localT;
 
-    // --- discriminated union ---
-    // type is also used as part of the grouping Id of this object
-	i32 type;
-    ZRDrawObjUnion data;
+
+	i32 parentId;
 };
 
 struct ZRScene
@@ -280,10 +290,10 @@ struct ZRScene
 // Quick object initialisation
 ///////////////////////////////////////////////////////////
 
-static void ZRDrawObj_SetAsModel(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
+static void ZRDrawObj_SetAsPrefab(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
 {
     obj->data = {};
-    obj->type = ZR_DRAWOBJ_TYPE_MODEL;
+    obj->type = ZR_DRAWOBJ_TYPE_PREFAB;
     obj->program = ZR_SHADER_TYPE_BATCHED;
     obj->prefabId = prefabId;
     obj->data.model.foo = YES;
@@ -381,6 +391,8 @@ struct ZRDrawObjLightData
     Vec4 settings[ZR_MAX_POINT_LIGHTS_PER_MODEL];
 };
 
+// Old grouping implementation
+#if 0
 struct ZRGroupId
 {
     i32 objType;
@@ -402,6 +414,83 @@ inline static ZRGroupId ZRGroupId_Set(i32 objType, i32 program, i32 prefab)
     id.objType = objType;
     id.program = program;
     id.prefab = prefab;
+    return id;
+}
+#endif
+
+// New, more expandable grouping implementation
+#if 1
+#pragma pack(push, 1)
+struct ZRGroupId
+{
+    i32 objType;
+    i32 program;
+    // Store unique group Ids for each object type here:
+    union
+    {
+        struct
+        {
+            i32 id;
+        } prefab;
+        struct
+        {
+            i32 mesh;
+            i32 diffuseTexture;
+        } model;
+        struct
+        {
+            i32 diffuseTexture;
+        } billboard;
+    };
+};
+#pragma pack(pop)
+
+#define ZRGROUP_EQUAL(a, b) \
+(ZE_CompareMemory((u8*)a, (u8*)b, sizeof(ZRGroupId)))
+
+inline static i32 ZRGroupId_Equal(ZRGroupId* a, ZRGroupId* b)
+{
+    return ZRGROUP_EQUAL(a, b);
+}
+
+inline static ZRGroupId ZRGroupId_SetForPrefab(
+    i32 prefabId)
+{
+    // make sure all custom fields are cleared:
+    ZRGroupId id = {};
+    id.objType = ZR_DRAWOBJ_TYPE_PREFAB;
+    id.program = ZR_SHADER_TYPE_TEST;
+
+    id.prefab.id = prefabId;
+    return id;
+}
+inline static ZRGroupId ZRGroupId_SetForModel(
+    i32 meshIndex, i32 diffuseTexIndex)
+{
+    // make sure all custom fields are cleared:
+    ZRGroupId id = {};
+    id.objType = ZR_DRAWOBJ_TYPE_PREFAB;
+    id.program = ZR_SHADER_TYPE_TEST;
+    // unique elements of model draw
+    id.model.mesh = meshIndex;
+    id.model.diffuseTexture = diffuseTexIndex;
+    return id;
+}
+#endif
+
+inline static ZRGroupId ZRGroupId_FromDrawObj(ZRDrawObj* obj)
+{
+    ZRGroupId id = {};
+    switch (obj->type)
+    {
+        case ZR_DRAWOBJ_TYPE_PREFAB:
+        return ZRGroupId_SetForPrefab(obj->prefabId);
+        
+        case ZR_DRAWOBJ_TYPE_LIGHT:
+        id.objType = ZR_DRAWOBJ_TYPE_LIGHT;
+        return id;
+    }
+    id = {};
     return id;
 }
 

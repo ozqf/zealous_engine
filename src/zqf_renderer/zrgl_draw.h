@@ -283,7 +283,7 @@ static void ZR_DrawMeshGroupFallback(
     ZR_BuildViewMatrix(&view, camera);
     
     // Prepare geometry
-    ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab);
+    ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab.id);
     glBindVertexArray(prefab->geometry.vao);
 	CHECK_GL_ERR
     for (i32 i = 0; i < group->numItems; ++i)
@@ -347,7 +347,7 @@ static void ZR_DrawMeshGroupTest(
     Vec3 lightDir = camera->rotation.zAxis;
     
     // Prepare geometry
-    ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab);
+    ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab.id);
     glBindVertexArray(prefab->geometry.vao);
 	CHECK_GL_ERR    
     ZR_PrepareTextureUnit2D(
@@ -415,7 +415,7 @@ static void ZR_DrawMeshGroupBatched(
     ZR_SetProg1i(programId, "u_numLights", ZR_MAX_POINT_LIGHTS_PER_MODEL);
 
     // Prepare geometry
-    ZRPrefab* obj = ZRGL_GetPrefab(group->id.prefab);
+    ZRPrefab* obj = ZRGL_GetPrefab(group->id.prefab.id);
     glBindVertexArray(obj->geometry.vao);
 	CHECK_GL_ERR
 
@@ -463,7 +463,7 @@ static void ZR_DrawGroup(
 	
     // Draw batched meshes
     if (id->program == ZR_SHADER_TYPE_BATCHED
-        && id->objType == ZR_DRAWOBJ_TYPE_MODEL)
+        && id->objType == ZR_DRAWOBJ_TYPE_PREFAB)
     {
         #if 0
         ZR_DrawMeshGroupBatched(projection, group, stats);
@@ -488,8 +488,8 @@ static void ZR_DrawGroup(
         return;
     }
 
-    printf("No render function for group Id: obj %d, prog %d, prefab %d\n",
-        id->objType, id->program, id->prefab);
+    printf("No render function for group Id: obj type %d, prog %d\n",
+        id->objType, id->program);
 }
 
 #endif // ZRGL_DRAW

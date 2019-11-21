@@ -116,15 +116,15 @@ static void ZRGL_FillGBuffer(
     for (i32 i = 0; i < numGroups; ++i)
     {
         ZRDrawGroup* group = groups[i];
-        if (group->id.objType != ZR_DRAWOBJ_TYPE_MODEL) { continue; }
-        ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab);
+        if (group->id.objType != ZR_DRAWOBJ_TYPE_PREFAB) { continue; }
+        ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab.id);
         glBindVertexArray(prefab->geometry.vao);
         glBindTexture(GL_TEXTURE_2D, prefab->textures.diffuse);
         for (i32 j = 0; j < group->numItems; ++j)
         {
             i32 objIndex = group->indices[j];
             ZRDrawObj* obj = &objects[objIndex];
-            ZE_ASSERT(obj->type == ZR_DRAWOBJ_TYPE_MODEL,
+            ZE_ASSERT(obj->type == ZR_DRAWOBJ_TYPE_PREFAB,
                 "GBuffer fill by non model obj");
             ZR_BuildModelMatrix(&model, &obj->t);
             M4x4_SetToIdentity(modelView.cells);

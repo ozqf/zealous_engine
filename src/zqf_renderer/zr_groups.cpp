@@ -169,10 +169,46 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
         ZRDrawObj* obj = &objects[i];
         //i32 objPrefabId;
 
-        ZRGroupId objGroupId = ZRGroupId_Set(obj->type, obj->program, obj->prefabId);
+        //ZRGroupId objGroupId = ZRGroupId_Set(obj->type, obj->program, obj->prefabId);
+        ZRGroupId objGroupId = ZRGroupId_FromDrawObj(obj);
 
+        // Most common primitive
+        if (obj->type == ZR_DRAWOBJ_TYPE_PREFAB)
+        {
+            // Find a group for this object
+            // TODO: sort objects and keep current group around?
+            ZRDrawGroup* group = NULL;
+            for (i32 j = 0; j < drawGroups->numGroups; ++j)
+            {
+                ZRDrawGroup* potentialGroup = drawGroups->groups[j];
+                // TODO: Groups have a maximum size. Can this be changed?
+                if (//potentialGroup->prefab == objPrefabId
+                    //ZRGroupId_Equal(objGroupId, potentialGroup->id)
+                    ZRGROUP_EQUAL(&objGroupId, &potentialGroup->id)
+                    && potentialGroup->numItems < ZR_MAX_BATCH_SIZE)
+                {
+                    group = potentialGroup;
+                    break;
+                }
+            }
+            if (group == NULL)
+            {
+                // Create a new group
+                group = (ZRDrawGroup*)scratch->cursor;
+		    	group->numItems = 0;
+                group->id = objGroupId;
+                scratch->cursor += sizeof(ZRDrawGroup);
+                drawGroups->groups[drawGroups->numGroups++] = group;
+            }
+            group->indices[group->numItems++] = i;
+        }
+        else if (obj->type == ZR_DRAWOBJ_TYPE_BILLBOARD)
+        {
+            // TODO
+            continue;
+        }
         // lights have their own groups
-        if (obj->type == ZR_DRAWOBJ_TYPE_LIGHT)
+        else if (obj->type == ZR_DRAWOBJ_TYPE_LIGHT)
         {
             i32 lightIndex = drawGroups->numLights++;
             ZE_ASSERT(lightIndex < ZR_MAX_DRAW_GROUPS, "Too many lights for draw groups")
@@ -184,32 +220,10 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
             // ignore this object
             continue;
         }
-        
-        // Find a group for this object
-        // TODO: sort objects and keep current group around?
-        ZRDrawGroup* group = NULL;
-        for (i32 j = 0; j < drawGroups->numGroups; ++j)
+        else
         {
-            ZRDrawGroup* potentialGroup = drawGroups->groups[j];
-            // TODO: Groups have a maximum size. Can this be changed?
-            if (//potentialGroup->prefab == objPrefabId
-                ZRGroupId_Equal(objGroupId, potentialGroup->id)
-                && potentialGroup->numItems < ZR_MAX_BATCH_SIZE)
-            {
-                group = potentialGroup;
-                break;
-            }
+            // Unknown type... no idea what to do...
         }
-        if (group == NULL)
-        {
-            // Create a new group
-            group = (ZRDrawGroup*)scratch->cursor;
-			group->numItems = 0;
-            group->id = objGroupId;
-            scratch->cursor += sizeof(ZRDrawGroup);
-            drawGroups->groups[drawGroups->numGroups++] = group;
-        }
-        group->indices[group->numItems++] = i;
     }
     return drawGroups;
 }

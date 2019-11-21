@@ -6,6 +6,8 @@
 static void ZR_DrawMeshGroupShadowMap(
     ZRShadowCaster* shadow,
     ZRDrawGroup* group,
+    i32 vaoHandle,
+    i32 vertexCount,
     ZRDrawObj* objects,
     i32 numObjects,
     ZRGroupingStats* stats)
@@ -16,11 +18,9 @@ static void ZR_DrawMeshGroupShadowMap(
     CHECK_GL_ERR
     ZR_SetProgM4x4(prog, "u_projection", shadow->projection.cells);
     M4x4_CREATE(model)
-    M4x4_CREATE(modelView)    
-
+    M4x4_CREATE(modelView)
     // Prepare geometry
-    ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab);
-    glBindVertexArray(prefab->geometry.vao);
+    glBindVertexArray(vaoHandle);
 	CHECK_GL_ERR
     for (i32 i = 0; i < group->numItems; ++i)
     {
@@ -32,7 +32,7 @@ static void ZR_DrawMeshGroupShadowMap(
         M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
         
         ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
-        glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+        glDrawArrays(GL_TRIANGLES, 0, vertexCount);
         CHECK_GL_ERR
         stats->drawCallsShadows++;
     }
@@ -83,16 +83,35 @@ static void ZRGL_WriteTestShadowMap(
     for (i32 i = 0; i < numGroups; ++i)
     {
         ZRDrawGroup* group = groups[i];
-        // filter objects that will not cast shadows
-        if (group->id.objType != ZR_DRAWOBJ_TYPE_MODEL) { continue; }
-        
-        ZR_DrawMeshGroupShadowMap(
-            shadow,
-            group,
-            objects,
-            numObjects,
-            stats
-        );
+        switch (group->id.objType)
+        {
+            /*case ZR_DRAWOBJ_TYPE_MODEL:
+            {
+                ZR_DrawMeshGroupShadowMap(
+                    shadow,
+                    group,
+                    prefab->geometry.vao,
+                    prefab->geometry.vertexCount,
+                    objects,
+                    numObjects,
+                    stats
+                );
+            } break;*/
+
+            case ZR_DRAWOBJ_TYPE_PREFAB:
+            {
+                ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab.id);
+                ZR_DrawMeshGroupShadowMap(
+                    shadow,
+                    group,
+                    prefab->geometry.vao,
+                    prefab->geometry.vertexCount,
+                    objects,
+                    numObjects,
+                    stats
+                );
+            } break;
+        }
     }
     
 	// Restore previous settings

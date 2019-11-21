@@ -50,7 +50,7 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_BULLET_IMPACT:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX);
+                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX);
                 obj->t = ent->body.t;
             } break;
         }
@@ -77,7 +77,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
         i32 rendObjectsAdded = 0;
         #if 0
         ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-            ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
+            ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
             obj->t = ent->body.t;
         objCount++;
         #endif
@@ -89,14 +89,14 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_PROJ_PLAYER:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE);
+                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
             } break;
             case SIM_FACTORY_TYPE_WORLD:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_WALL);
+                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_WALL);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
             } break;
@@ -107,7 +107,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_SEEKER:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ENEMY);
+                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ENEMY);
                 #if 1
                 obj->t = ent->body.t;
                 #endif
@@ -134,7 +134,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_SEEKER_FLYING:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_QUAD);
+                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_QUAD);
                 // Setup buildboard
                 // extract euler angles from camera
                 Vec3 euler = M3x3_GetEulerAnglesRadians(camera->rotation.cells);
@@ -153,12 +153,12 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 if (debugFlags & CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION)
                 {
                     obj = CLR_InitDrawObjInPlace(&list->cursor);
-                    ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ITEM);
+                    ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ITEM);
                     rendObjectsAdded++;
                     obj->t = ent->body.t;
                 }
                 obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
+                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
                 rendObjectsAdded++;
                 if (debugFlags & CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING)
                 {
@@ -187,7 +187,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_EXPLOSION:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsModel(NULL, obj, ZR_PREFAB_TYPE_DEBUG_EXPLOSION);
+                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_EXPLOSION);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
             } break;

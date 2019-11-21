@@ -147,7 +147,7 @@ COM_MEM_FUNC_INTERNAL i32 COM_PeekI32(u8* target)
 }
 
 // returns 1 if two blocks of memory are identical. 0 if otherwise.
-COM_MEM_FUNC_INTERNAL i32 COM_CompareMemory(u8* ptrA, u8* ptrB, u32 numBytes)
+COM_MEM_FUNC_INTERNAL i32 ZE_CompareMemory(u8* ptrA, u8* ptrB, u32 numBytes)
 {
 	u8* end = ptrA + numBytes;
 	do

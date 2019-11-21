@@ -147,7 +147,7 @@ internal User* User_FindByAddress(UserList* users, ZNetAddress* addr)
     {
         User* user = &users->items[i];
         if (user->state == USER_STATE_FREE) { continue; }
-        if (COM_CompareMemory(
+        if (ZE_CompareMemory(
             (u8*)&user->address,
             (u8*)addr,
             sizeof(ZNetAddress)
