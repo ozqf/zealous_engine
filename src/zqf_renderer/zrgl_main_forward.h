@@ -108,6 +108,7 @@ static ZRGroupingStats ZR_PrepareScene(
 
     ///////////////////////////////////////////////////////////
     // Deferred
+    #if 0
     if (sceneCmd->params.bDeferred)
     {
         f64 gBufStart = g_platform.QueryClock();
@@ -122,6 +123,7 @@ static ZRGroupingStats ZR_PrepareScene(
             &stats);
         stats.gBufferTime = (g_platform.QueryClock() - gBufStart) * 1000;
     }
+    #endif
 
     ///////////////////////////////////////////////////////////
     // locate programs
@@ -237,55 +239,10 @@ static void ZR_DrawScene(
     #endif
 }
 
-static void ZRGL_DrawDebugQuads(f32 aspectRatio)
-{
-    f32 debugQuadSize = 0.5f;
-    f32 debugQuadPosOuter = 0.75f;
-    f32 debugQuadPosInner = 0.25f;
-    #if 1 // Draw render texture debug A
-    i32 texA = g_gBuffer.positionTex;
-    i32 texB = g_gBuffer.normalTex;
-    i32 texC = g_gBuffer.colourTex;
-    //i32 texC = g_rendToTexFB.colourTex;
-    i32 texD = g_shadowMapFB.depthTex;
-    ZRGL_DrawDebugQuad(
-        { -debugQuadPosOuter, -debugQuadPosOuter },
-        { debugQuadSize, debugQuadSize },
-        { 0, 0 },
-        { 1, 1 },
-        texA, aspectRatio);
-    #endif
-    #if 1 // B
-    ZRGL_DrawDebugQuad(
-        { -debugQuadPosInner, -debugQuadPosOuter },
-        { debugQuadSize, debugQuadSize },
-        { 0, 0 },
-        { 1, 1 },
-        texB, aspectRatio);
-    #endif
-    #if 1 // C
-    ZRGL_DrawDebugQuad(
-        { debugQuadPosInner, -debugQuadPosOuter },
-        { debugQuadSize, debugQuadSize },
-        { 0, 0 },
-        { 1, 1 },
-        texC, aspectRatio);
-    #endif
-    #if 1 // D
-    ZRGL_DrawDebugQuad(
-        { debugQuadPosOuter, -debugQuadPosOuter },
-        { debugQuadSize, debugQuadSize },
-        { 0, 0 },
-        { 1, 1 },
-        texD, aspectRatio);
-    #endif
-
-}
-
 ///////////////////////////////////////////////////////////
 // Frame draw entry point
 ///////////////////////////////////////////////////////////
-static ZRPerformanceStats ZRImpl_DrawFrame(
+static ZRPerformanceStats ZRImpl_DrawFrameForward(
     ZEByteBuffer* drawList,
     ZEByteBuffer* drawData,
     ScreenInfo scrInfo)
@@ -382,11 +339,11 @@ static ZRPerformanceStats ZRImpl_DrawFrame(
     #endif
 
     // Draw debug cack
-    #if 1
+    #if 0
     ZRGL_DrawDebugQuads(scrInfo.aspectRatio);
     #endif
 
-    #if 1 // draw gbuffer in middle of screen
+    #if 0 // draw gbuffer in middle of screen
     ZRGL_CombineGBuffer(&g_gBuffer);
     #endif
     

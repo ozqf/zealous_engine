@@ -201,7 +201,8 @@ static i32 WindowImpl_MainLoop()
         // Draw
         glClearColor(1, 0, 1, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        g_renderer.DrawFrame(list, data, g_scrInfo);
+        //g_renderer.DrawFrameForward(list, data, g_scrInfo);
+        g_renderer.DrawFrameDeferred(list, data, g_scrInfo);
         // Finish Frame
         g_platform.Release_AppDrawBuffers();
         glfwSwapBuffers(g_window);

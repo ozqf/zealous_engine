@@ -19,7 +19,8 @@
 #include "zrgl_shadows.h"
 #include "zrgl_gbuffer.h"
 #include "zrgl_draw.h"
-#include "zrgl_main.h"
+#include "zrgl_main_forward.h"
+#include "zrgl_main_deferred.h"
 #include "zrgl_init.h"
 
 #endif // ZRGL_H

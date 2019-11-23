@@ -200,6 +200,7 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
         ZR_DRAWOBJ_TYPE_PREFAB,
         NO,
         &g_programs[ZR_SHADER_TYPE_BUILD_GBUFFER]);
+    
     err = ZRGL_CreateProgram(
         gbuffer_combine_vert_text,
         gbuffer_combine_frag_text,
@@ -207,6 +208,15 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
         ZR_DRAWOBJ_TYPE_PREFAB,
         NO,
         &g_programs[ZR_SHADER_TYPE_COMBINE_GBUFFER]);
+    if (err != ZE_ERROR_NONE) { return err; }
+
+    err = ZRGL_CreateProgram(
+        gbuffer_light_vert_text,
+        gbuffer_light_frag_text,
+        "GBufferLight",
+        ZR_DRAWOBJ_TYPE_PREFAB,
+        NO,
+        &g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT]);
     if (err != ZE_ERROR_NONE) { return err; }
 
     /////////////////////////////////////////
@@ -226,7 +236,8 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform)
     g_platform = platform;
     ZRRenderer r = {};
     r.Init = ZRGL_Impl_Init;
-    r.DrawFrame = ZRImpl_DrawFrame;
+    r.DrawFrameForward = ZRImpl_DrawFrameForward;
+    r.DrawFrameDeferred = ZRImpl_DrawFrameDeferred;
     r.isValid = YES;
     return r;
 }

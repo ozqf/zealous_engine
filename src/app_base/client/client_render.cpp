@@ -228,10 +228,10 @@ extern "C" void CLR_WriteDrawFrame(
     ZRDrawObj_SetAsPointLight(NULL, light, { 1, 1, 1 }, 999.f);
     light->data.light.bCastShadows = YES;
     Transform_SetToIdentity(&light->t);
-    light->t.pos.x = -10;
-    light->t.pos.y = 15;
-    light->t.pos.z = 10;
-    Transform_SetRotation(&light->t, -45 * DEG2RAD, -55 * DEG2RAD, 0);
+    light->t.pos.x = -20;
+    light->t.pos.y = 20;
+    light->t.pos.z = 20;
+    Transform_SetRotation(&light->t, -45 * DEG2RAD, -45 * DEG2RAD, 0);
 
     //////////////////////////////////////////////////
     // For debugging local listen servers ONLY!

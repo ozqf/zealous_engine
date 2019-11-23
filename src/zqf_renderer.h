@@ -131,7 +131,8 @@ struct ZRRenderer
 {
     i32 isValid;
     ErrorCode (*Init)(i32 scrWidth, i32 scrHeight);
-    ZRPerformanceStats (*DrawFrame)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
+    ZRPerformanceStats (*DrawFrameForward)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
+    ZRPerformanceStats (*DrawFrameDeferred)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
 };
 
 ///////////////////////////////////////////////////////////
@@ -191,7 +192,8 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 #define ZR_SHADER_TYPE_SHADOW_MAP_DEBUG 8
 #define ZR_SHADER_TYPE_BUILD_GBUFFER 9
 #define ZR_SHADER_TYPE_COMBINE_GBUFFER 11
-#define ZR_SHADER_TYPE_LAST__ 11
+#define ZR_SHADER_TYPE_GBUFFER_LIGHT 12
+#define ZR_SHADER_TYPE_LAST__ 12
 
 #define ZR_MAX_BATCH_SIZE 100
 
@@ -459,7 +461,7 @@ inline static ZRGroupId ZRGroupId_SetForPrefab(
     // make sure all custom fields are cleared:
     ZRGroupId id = {};
     id.objType = ZR_DRAWOBJ_TYPE_PREFAB;
-    id.program = ZR_SHADER_TYPE_TEST;
+    id.program = ZR_SHADER_TYPE_BATCHED;
 
     id.prefab.id = prefabId;
     return id;

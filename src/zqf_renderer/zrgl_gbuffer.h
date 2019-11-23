@@ -151,8 +151,10 @@ static void ZRGL_CombineGBuffer(ZRGBuffer* gBuf)
     M4x4_CREATE(projection)
     ZR_SetProgM4x4(prog, "u_projection", projection.cells);
     M4x4_CREATE(modelView)
-    ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
+    // gbuffer quad is drawn in screen space, -1 to 1 so scale up:
     M4x4_SetScale(modelView.cells, 2, 2, 2);
+    //M4x4_SetScale(modelView.cells, 1, 1, 1);
+    ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
 
     ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_colourTex", gBuf->colourTex, g_samplerDataTex2D);
@@ -168,6 +170,54 @@ static void ZRGL_CombineGBuffer(ZRGBuffer* gBuf)
     glBindTexture(GL_TEXTURE_2D, gBuf->colourTex);
 
     glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+}
+
+/**
+ * Draw gbuffer components for debug
+ */
+static void ZRGL_DrawGBufferDebugQuads(f32 aspectRatio)
+{
+    f32 debugQuadSize = 0.5f;
+    f32 debugQuadPosOuter = 0.75f;
+    f32 debugQuadPosInner = 0.25f;
+    #if 1 // Draw render texture debug A
+    i32 texA = g_gBuffer.positionTex;
+    i32 texB = g_gBuffer.normalTex;
+    i32 texC = g_gBuffer.colourTex;
+    //i32 texC = g_rendToTexFB.colourTex;
+    i32 texD = g_shadowMapFB.depthTex;
+    ZRGL_DrawDebugQuad(
+        { -debugQuadPosOuter, -debugQuadPosOuter },
+        { debugQuadSize, debugQuadSize },
+        { 0, 0 },
+        { 1, 1 },
+        texA, aspectRatio);
+    #endif
+    #if 1 // B
+    ZRGL_DrawDebugQuad(
+        { -debugQuadPosInner, -debugQuadPosOuter },
+        { debugQuadSize, debugQuadSize },
+        { 0, 0 },
+        { 1, 1 },
+        texB, aspectRatio);
+    #endif
+    #if 1 // C
+    ZRGL_DrawDebugQuad(
+        { debugQuadPosInner, -debugQuadPosOuter },
+        { debugQuadSize, debugQuadSize },
+        { 0, 0 },
+        { 1, 1 },
+        texC, aspectRatio);
+    #endif
+    #if 1 // D
+    ZRGL_DrawDebugQuad(
+        { debugQuadPosOuter, -debugQuadPosOuter },
+        { debugQuadSize, debugQuadSize },
+        { 0, 0 },
+        { 1, 1 },
+        texD, aspectRatio);
+    #endif
+
 }
 
 #endif // ZRGL_GBUFFER_H

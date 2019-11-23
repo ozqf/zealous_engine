@@ -176,7 +176,7 @@ internal void SV_LoadTestScene()
     SimScene* sim = &g_sim;
     Sim_LoadScene(sim, 0);
 
-    const i32 stage = 1;
+    const i32 stage = -1;
     u8 count = 4;//64;
     f32 inner = 8;
     f32 outer = 12;
