@@ -133,6 +133,9 @@ static void ZR_DrawDeferredLight(
     ZR_SetProgM4x4(prog, "u_projection", projection.cells);
     ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
     ZR_SetProgM4x4(prog, "u_model", model.cells);
+
+    ZR_SetProg1i(prog, "u_windowWidth", scrInfo->width);
+    ZR_SetProg1i(prog, "u_windowHeight", scrInfo->height);
     
     /////////////////////////////////////////////////////////
     // upload gbuffer params
@@ -147,6 +150,27 @@ static void ZR_DrawDeferredLight(
     
     glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
     CHECK_GL_ERR
+}
+
+static void ZR_DrawDeferredLights(ZRGBuffer* gBuf, Transform* camera, ScreenInfo* scrInfo)
+{
+    // enable blending for each light to add result
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ONE);
+
+
+    Transform light;
+    Transform_SetToIdentity(&light);
+    light.scale = { 4, 24, 4 };
+
+    light.pos = { 4, 0, 1 };
+    ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
+
+    light.pos = { -4, 0, 1 };
+    ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
+    
+    glDisable(GL_BLEND);
 }
 
 ///////////////////////////////////////////////////////////
@@ -224,10 +248,7 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     // Draw lights
     // take camera from first scene:
     Transform* cam = &firstScene->params.camera;
-    Transform light;
-    Transform_SetToIdentity(&light);
-    light.scale = { 4, 4, 4 };
-    ZR_DrawDeferredLight(&g_gBuffer, cam, &light, &scrInfo);
+    ZR_DrawDeferredLights(&g_gBuffer, cam, &scrInfo);
     
     // Draw gbuffer result to screen
     //ZRGL_CombineGBuffer(&g_gBuffer);

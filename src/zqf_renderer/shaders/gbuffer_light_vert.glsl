@@ -16,11 +16,13 @@ layout (location = 2) in vec3 i_normal;
 out vec3 m_worldPos;
 out vec2 m_texCoord;
 out vec3 m_normal;
+out vec4 m_screenPos;
 
 void main()
 {
 	vec4 positionV4 = vec4(i_position, 1.0);
    	gl_Position = u_projection * u_modelView * positionV4;
+    m_screenPos = gl_Position;
 	// outputs for gbuffer
    	m_texCoord = i_uv;
 	// world space
