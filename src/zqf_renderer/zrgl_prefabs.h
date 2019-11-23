@@ -790,6 +790,16 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     prefab->geometry = g_cubeVAO;
     prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_blue.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
+
+    
+    // ZR_PREFAB_TYPE_SPHERE
+    prefab = &g_prefabs[ZR_PREFAB_TYPE_SPHERE];
+    prefab->geometry = ZRGL_LoadFBX(
+        "data/Sphere.fbx", &prefab->geometry.vertexCount, { 1, 1, 1 }, NO, bVerbose);
+    prefab->textures.diffuse = g_defaultDiffuseHandle;
+    prefab->program = ZR_SHADER_TYPE_FALLBACK;
+    prefab->bInitialised = YES;
+
 }
 
 #endif // ZRGL_PREFABS

@@ -106,7 +106,8 @@ static void ZR_DrawDeferredLight(
 
     GLint prog = g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT].handle;
     glUseProgram(prog);
-    ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_CUBE];
+    ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_SPHERE];
+    //ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_CUBE];
 	glBindVertexArray(prefab->geometry.vao);
     
     /////////////////////////////////////////////////////////
@@ -126,7 +127,6 @@ static void ZR_DrawDeferredLight(
     M4x4_SetToIdentity(modelView.cells);
     M4x4_Multiply(modelView.cells, view.cells, modelView.cells);
     M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
-    
     
     /////////////////////////////////////////////////////////
     // upload FS params
@@ -155,20 +155,20 @@ static void ZR_DrawDeferredLight(
 static void ZR_DrawDeferredLights(ZRGBuffer* gBuf, Transform* camera, ScreenInfo* scrInfo)
 {
     // enable blending for each light to add result
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_ONE, GL_ONE);
+    // glEnable(GL_BLEND);
+    // glBlendEquation(GL_FUNC_ADD);
+    // glBlendFunc(GL_ONE, GL_ONE);
 
 
     Transform light;
     Transform_SetToIdentity(&light);
-    light.scale = { 4, 24, 4 };
+    light.scale = { 1, 1, 1 };
 
     light.pos = { 4, 0, 1 };
     ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
 
-    light.pos = { -4, 0, 1 };
-    ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
+    // light.pos = { -4, 0, 1 };
+    // ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
     
     glDisable(GL_BLEND);
 }

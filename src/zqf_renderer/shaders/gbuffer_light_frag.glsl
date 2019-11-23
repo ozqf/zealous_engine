@@ -18,11 +18,6 @@ out vec4 outputColor;
 
 void main()
 {
-    // outputColor = vec4(1, 1, 1, 1);
-    // vec4 screenPos = m_screenPos;
-    // screenPos.x = (screenPos.x + 1) / 2;
-    // screenPos.y = (screenPos.y + 1) / 2;
-    // screenPos.z = (screenPos.z + 1) / 2;
     vec2 screenSize = vec2(u_windowWidth, u_windowHeight);
     vec2 screenPos = gl_FragCoord.xy / screenSize;
 
