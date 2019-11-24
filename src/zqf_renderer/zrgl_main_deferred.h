@@ -302,10 +302,14 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     #endif
     
     // Draw gbuffer debug result to screen
-    ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
+    //ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
 
     // Draw gbuffer debug result to screen
-    ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
+    ZRGL_GBufferDrawDirectLight(
+        &g_gBuffer,
+        { 0, 0, 0 },
+        { 0, -1, 0 },
+        { 1, 0, 0 });
 
     // Draw debug cack
     #if 1
