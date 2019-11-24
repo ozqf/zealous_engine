@@ -144,7 +144,7 @@ static void ZR_DrawDeferredLight(
     
     /////////////////////////////////////////////////////////
     // upload FS params
-    prog = g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT].handle;
+    prog = g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_VOLUME].handle;
     glUseProgram(prog);
 
     ZR_SetProgM4x4(prog, "u_projection", projection.cells);
@@ -201,10 +201,10 @@ static void ZR_DrawDeferredVolumeLights(ZRGBuffer* gBuf, Transform* camera, Scre
     Transform_SetToIdentity(&light);
     light.scale = { 4, 4, 4 };
 
-    light.pos = { 4, 0, 1 };
+    light.pos = { 4, 0, 0 };
     ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
 
-    light.pos = { -4, 0, 1 };
+    light.pos = { -4, 0, 0 };
     ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
 
     //////////////////////////////////////////////
@@ -301,8 +301,11 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     ZR_DrawDeferredVolumeLights(&g_gBuffer, cam, &scrInfo);
     #endif
     
-    // Draw gbuffer result to screen
-    ZRGL_CombineGBuffer(&g_gBuffer);
+    // Draw gbuffer debug result to screen
+    ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
+
+    // Draw gbuffer debug result to screen
+    ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
 
     // Draw debug cack
     #if 1

@@ -5,11 +5,6 @@ uniform sampler2D u_colourTex;
 uniform sampler2D u_normalTex;
 uniform sampler2D u_positionTex;
 
-// light params
-uniform vec3 u_lightWorldPos;
-uniform vec3 u_lightWorldDir;
-uniform vec3 u_lightColour;
-
 in vec2 m_texCoord;
 out vec4 outputColor;
 

@@ -344,7 +344,7 @@ static ZRPerformanceStats ZRImpl_DrawFrameForward(
     #endif
 
     #if 0 // draw gbuffer in middle of screen
-    ZRGL_CombineGBuffer(&g_gBuffer);
+    ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
     #endif
     
     /////////////////////////////////////////////////////////////
