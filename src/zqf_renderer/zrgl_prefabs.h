@@ -752,7 +752,8 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_WALL];
     prefab->bInitialised = YES;
     prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_grey_dark.png", bVerbose);
+    //prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_grey_dark.png", bVerbose);
+    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/WALL03_7.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_ENEMY];

@@ -104,8 +104,6 @@ static void ZR_DrawDeferredLight(
     /////////////////////////////////////////////////////////
     // set program and geometry
 
-    GLint prog = g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT].handle;
-    glUseProgram(prog);
     ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_SPHERE];
     //ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_CUBE];
 	glBindVertexArray(prefab->geometry.vao);
@@ -127,9 +125,28 @@ static void ZR_DrawDeferredLight(
     M4x4_SetToIdentity(modelView.cells);
     M4x4_Multiply(modelView.cells, view.cells, modelView.cells);
     M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
+
+    /////////////////////////////////////////////////////////
+    // prepare basic 
+    /////////////////////////////////////////////////////////
+    GLint prog = g_programs[ZR_SHADER_TYPE_BLOCK_COLOUR].handle;
+    glUseProgram(prog);
+    ZR_SetProgM4x4(prog, "u_projection", projection.cells);
+    ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
+    ZR_SetProgVec3f(prog, "u_colour", { 1, 1, 1 });
+    
+    /////////////////////////////////////////////////////////
+    // Draw stencil
+    glDrawBuffer(GL_NONE);
+    glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+    CHECK_GL_ERR
+    glDrawBuffer(GL_BACK);
     
     /////////////////////////////////////////////////////////
     // upload FS params
+    prog = g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT].handle;
+    glUseProgram(prog);
+
     ZR_SetProgM4x4(prog, "u_projection", projection.cells);
     ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
     ZR_SetProgM4x4(prog, "u_model", model.cells);
@@ -148,11 +165,13 @@ static void ZR_DrawDeferredLight(
     ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE2, 2, "u_positionTex", gBuf->positionTex, g_samplerDataTex2D);
     
+    /////////////////////////////////////////////////////////
+    // Draw Light
     glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
     CHECK_GL_ERR
 }
 
-static void ZR_DrawDeferredLights(ZRGBuffer* gBuf, Transform* camera, ScreenInfo* scrInfo)
+static void ZR_DrawDeferredVolumeLights(ZRGBuffer* gBuf, Transform* camera, ScreenInfo* scrInfo)
 {
     //////////////////////////////////////////////
     // configure state
@@ -162,6 +181,7 @@ static void ZR_DrawDeferredLights(ZRGBuffer* gBuf, Transform* camera, ScreenInfo
     // Disable depth and allow backface drawing
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
     // enable blending for each light to add result
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
@@ -175,6 +195,7 @@ static void ZR_DrawDeferredLights(ZRGBuffer* gBuf, Transform* camera, ScreenInfo
     //////////////////////////////////////////////
     // Draw lights
     glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+    glDepthMask(GL_FALSE);
 
     Transform light;
     Transform_SetToIdentity(&light);
@@ -183,11 +204,12 @@ static void ZR_DrawDeferredLights(ZRGBuffer* gBuf, Transform* camera, ScreenInfo
     light.pos = { 4, 0, 1 };
     ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
 
-    // light.pos = { -4, 0, 1 };
-    // ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
+    light.pos = { -4, 0, 1 };
+    ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
 
     //////////////////////////////////////////////
     // clean up
+    glDepthMask(GL_TRUE);
     glStencilFunc(GL_ALWAYS, 0, 0);
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -240,6 +262,7 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     // Clear
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     CHECK_GL_ERR
+    glClearColor(0, 0, 0, 1);
 	glClear(GL_DEPTH_BUFFER_BIT);
     CHECK_GL_ERR
     glClear(GL_COLOR_BUFFER_BIT);
@@ -266,13 +289,20 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
         }
     }
 
-    // Draw lights
+    // TODO: Move this into scene specific stuff:
     // take camera from first scene:
     Transform* cam = &firstScene->params.camera;
-    ZR_DrawDeferredLights(&g_gBuffer, cam, &scrInfo);
+
+    // draw skybox
+    ZR_DrawSkybox(&firstScene->drawTime.projection, cam);
+
+    // Draw lights
+    #if 0
+    ZR_DrawDeferredVolumeLights(&g_gBuffer, cam, &scrInfo);
+    #endif
     
     // Draw gbuffer result to screen
-    //ZRGL_CombineGBuffer(&g_gBuffer);
+    ZRGL_CombineGBuffer(&g_gBuffer);
 
     // Draw debug cack
     #if 1

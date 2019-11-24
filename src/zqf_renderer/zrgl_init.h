@@ -13,6 +13,10 @@ static void ZRGL_PrintGPUInfo()
     printf("Max combined texture units: %d\n", g_gpuLimits.maxCombinedTextureUnits);
     printf("Maximum vertex attribs: %d\n", g_gpuLimits.maxVertexAttribs);
     printf("Batch data pixel count: %d\n", ZR_BATCH_DATA_STRIDE);
+
+    i32 drawBuffer;
+    glGetIntegerv(GL_DRAW_BUFFER, &drawBuffer);
+    printf("Default draw buffer value: %d (0x%X)\n", drawBuffer, drawBuffer);
 }
 
 static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)

@@ -254,7 +254,7 @@ static void ZRGL_DrawDebugQuad(
 
 static void ZRGL_ClearColourDefault()
 {
-    glClearColor(1, 0, 1, 1);
+    glClearColor(0, 0, 0, 1);
 }
 
 #endif // ZQF_GL_INTERNAL_H

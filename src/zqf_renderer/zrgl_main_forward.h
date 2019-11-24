@@ -168,7 +168,7 @@ static void ZRGL_DrawSceneToTexture(
     i32 numObjects,
     ZRGroupingStats* stats)
 {
-    glClearColor(0, 1, 0, 1);
+    ZRGL_ClearColourDefault();
     ZRFrameBuffer* fb = &g_rendToTexFB;
     stats->shadowMaps++;
 	glBindFramebuffer(GL_FRAMEBUFFER, fb->fbo);

@@ -360,10 +360,21 @@ void Sim_Init(
     //PhysExt_Init(NULL, 0, NULL, 0, NULL);
 }
 
-internal void Sim_AddTestProp(SimScene* sim, Vec3 pos)
+internal void Sim_AddWorldVolume(SimScene* sim, Vec3 pos, Vec3 size)
 {
     SimEntSpawnData def = {};
     def.serial = Sim_ReserveEntitySerial(sim, 1);
+    def.isLocal = 1;
+	def.factoryType = SIM_FACTORY_TYPE_WORLD;
+    def.pos = pos;
+    def.scale = size;
+    Sim_RestoreEntity(sim, &def);
+}
+
+internal void Sim_AddTestProp(SimScene* sim, Vec3 pos)
+{
+    SimEntSpawnData def = {};
+    def.serial = Sim_ReserveEntitySerial(sim, YES);
     def.isLocal = 1;
 	def.factoryType = SIM_FACTORY_TYPE_PROP;
     def.pos = pos;
@@ -378,17 +389,18 @@ i32 Sim_LoadScene(SimScene* sim, i32 index)
     f32 halfZ = 25;
     const i32 largestHalfAxis = 35 + 10;
 
-    SimEntSpawnData def = {};
-    def.serial = Sim_ReserveEntitySerial(sim, 1);
-    def.isLocal = 1;
-	def.factoryType = SIM_FACTORY_TYPE_WORLD;
-    def.pos.y = -1;
-    def.scale.x = halfX * 2;
-    def.scale.y = 1;
-    def.scale.z = halfZ * 2;
+    // Floor
+    Sim_AddWorldVolume(sim, { 0, -1, 0 }, { halfX * 2, 1, halfY * 2});
 
-    Sim_RestoreEntity(sim, &def);
+    // pillars
+    f32 pillarY = 4;
+    Sim_AddWorldVolume(sim, { 0, pillarY, -10 }, { 1, 10, 1 });
+    Sim_AddWorldVolume(sim, { 0, pillarY, 10 }, { 1, 10, 1 });
 
+    Sim_AddWorldVolume(sim, { -10, pillarY, 0 }, { 1, 10, 1 });
+    Sim_AddWorldVolume(sim, { 10, pillarY, 0 }, { 1, 10, 1 });
+
+    // static sprites
     Sim_AddTestProp(sim, { 15, 0, 15 });
     Sim_AddTestProp(sim, { 15, 0, -15 });
     Sim_AddTestProp(sim, { -15, 0, 15 });
