@@ -294,7 +294,7 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     Transform* cam = &firstScene->params.camera;
 
     // draw skybox
-    ZR_DrawSkybox(&firstScene->drawTime.projection, cam);
+    //ZR_DrawSkybox(&firstScene->drawTime.projection, cam);
 
     // Draw lights
     #if 0

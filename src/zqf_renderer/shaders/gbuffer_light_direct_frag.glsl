@@ -21,7 +21,7 @@ void main()
     vec3 fragWorldPos = vec3(texture2D(u_positionTex, m_texCoord));
     //vec3 fragWorldPos = vec3(texture2D(u_normalTex, m_texCoord));
     float dist = distance(fragWorldPos, u_lightWorldPos);
-    #if 1
+    #if 0
     outputColor = vec4(fragWorldPos, 1);
     //outputColor = vec4(normal, 1);
     //outputColor = vec4(colour, 1);
@@ -36,13 +36,13 @@ void main()
         outputColor = vec4(1, 0, 0, 1);
     }
     #endif
-    #if 0
+    #if 1
     if (dist > u_lightRange)
     {
         discard;
     }
     //outputColor = vec4((colour * 0.5) + (normal * 0.5), 1);
     //outputColor = vec4(m_texCoord, 0, 1);
-    outputColor = vec4(colour, 1) * dist;
+    outputColor = vec4(colour, 1);
     #endif
 }
