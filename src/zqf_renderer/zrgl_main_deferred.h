@@ -154,23 +154,44 @@ static void ZR_DrawDeferredLight(
 
 static void ZR_DrawDeferredLights(ZRGBuffer* gBuf, Transform* camera, ScreenInfo* scrInfo)
 {
+    //////////////////////////////////////////////
+    // configure state
+    
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+    // Disable depth and allow backface drawing
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
     // enable blending for each light to add result
-    // glEnable(GL_BLEND);
-    // glBlendEquation(GL_FUNC_ADD);
-    // glBlendFunc(GL_ONE, GL_ONE);
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ONE);
 
+    glStencilFunc(GL_ALWAYS, 0, 0);
+
+    glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+    glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+
+    //////////////////////////////////////////////
+    // Draw lights
+    glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 
     Transform light;
     Transform_SetToIdentity(&light);
-    light.scale = { 1, 1, 1 };
+    light.scale = { 4, 4, 4 };
 
     light.pos = { 4, 0, 1 };
     ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
 
     // light.pos = { -4, 0, 1 };
     // ZR_DrawDeferredLight(&g_gBuffer, camera, &light, scrInfo);
-    
+
+    //////////////////////////////////////////////
+    // clean up
+    glStencilFunc(GL_ALWAYS, 0, 0);
     glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 }
 
 ///////////////////////////////////////////////////////////

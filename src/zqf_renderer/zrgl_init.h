@@ -219,6 +219,15 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
         &g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT]);
     if (err != ZE_ERROR_NONE) { return err; }
 
+    err = ZRGL_CreateProgram(
+        gbuffer_light_volume_vert_text,
+        gbuffer_light_volume_frag_text,
+        "GBufferLightVolume",
+        ZR_DRAWOBJ_TYPE_PREFAB,
+        NO,
+        &g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_VOLUME]);
+    if (err != ZE_ERROR_NONE) { return err; }
+
     /////////////////////////////////////////
     // Assets
     /////////////////////////////////////////
