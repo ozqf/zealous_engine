@@ -75,7 +75,7 @@ static ZRGroupingStats ZR_PrepareScene(
     {
         i32 lightObjIndex = view->lights[i];
         ZRDrawObj* lightObj = &sceneCmd->drawTime.objects[lightObjIndex];
-        ZE_ASSERT(lightObj->type == ZR_DRAWOBJ_TYPE_LIGHT,
+        ZE_ASSERT(lightObj->type == ZR_DRAWOBJ_TYPE_POINT_LIGHT,
             "Object in light list is not a light!")
         
         if (lightObj->data.light.bCastShadows)

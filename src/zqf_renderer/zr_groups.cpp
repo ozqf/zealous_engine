@@ -22,7 +22,9 @@ internal void ZDraw_FindLightsForObject(
         {
             // easy case, add light and carry on
             lights->pointPositions[lightsAdded] = potentialPos;
-            lights->colours[lightsAdded] = lightObj->data.light.colour;
+            lights->colours[lightsAdded].x = lightObj->data.light.colour.r;
+            lights->colours[lightsAdded].y = lightObj->data.light.colour.g;
+            lights->colours[lightsAdded].z = lightObj->data.light.colour.b;
             lights->distances[lightsAdded] = potentialDist;
             lights->settings[lightsAdded] = lightObj->data.light.settings;
             lightsAdded++;
@@ -48,7 +50,9 @@ internal void ZDraw_FindLightsForObject(
         if (replaceIndex >= 0)
         {
             lights->pointPositions[replaceIndex] = potentialPos;
-            lights->colours[replaceIndex] = lightObj->data.light.colour;
+            lights->colours[replaceIndex].x = lightObj->data.light.colour.r;
+            lights->colours[replaceIndex].y = lightObj->data.light.colour.g;
+            lights->colours[replaceIndex].z = lightObj->data.light.colour.b;
             lights->distances[replaceIndex] = potentialDist;
             lights->settings[replaceIndex] = lightObj->data.light.settings;
         }
@@ -208,7 +212,7 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
             continue;
         }
         // lights have their own groups
-        else if (obj->type == ZR_DRAWOBJ_TYPE_LIGHT)
+        else if (obj->type == ZR_DRAWOBJ_TYPE_POINT_LIGHT)
         {
             i32 lightIndex = drawGroups->numLights++;
             ZE_ASSERT(lightIndex < ZR_MAX_DRAW_GROUPS, "Too many lights for draw groups")

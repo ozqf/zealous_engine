@@ -43,7 +43,7 @@ static ZRGroupingStats ZR_PrepareSceneDeferred(
     {
         i32 lightObjIndex = view->lights[i];
         ZRDrawObj* lightObj = &sceneCmd->drawTime.objects[lightObjIndex];
-        ZE_ASSERT(lightObj->type == ZR_DRAWOBJ_TYPE_LIGHT,
+        ZE_ASSERT(lightObj->type == ZR_DRAWOBJ_TYPE_POINT_LIGHT,
             "Object in light list is not a light!")
         
         if (lightObj->data.light.bCastShadows)
@@ -328,20 +328,20 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
         &g_gBuffer,
         { 0, 5, 0 },
         rot.zAxis,
-        white, 0.5f, 25);
-
+        white, 0.4f, 25);
+    
     ZRGL_GBufferDrawPointLight(
         &g_gBuffer,
         { 15, 5, 15 },
         { 0, -1, 0 },
         lightRed, 2, 25);
-
+    
     ZRGL_GBufferDrawPointLight(
         &g_gBuffer,
         { -15, 5, -15 },
         { 0, -1, 0 },
         lightGreen, 2, 25);
-    
+    #if 0
     ZRGL_GBufferDrawPointLight(
         &g_gBuffer,
         { -15, 5, 15 },
@@ -353,7 +353,7 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
         { 15, 5, -15 },
         { 0, -1, 0 },
         lightYellow, 2, 25);
-    
+    #endif
     glDisable(GL_BLEND);
 
     // reenable depth test

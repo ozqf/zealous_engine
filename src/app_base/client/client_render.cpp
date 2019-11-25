@@ -191,6 +191,16 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
             } break;
+            case SIM_FACTORY_TYPE_POINT_LIGHT:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsPointLight(
+                    NULL,
+                    obj,
+                    ent->display.colourA,
+                    ent->display.colourB.array[0],
+                    ent->display.colourB.array[1]);
+            } break;
         }
         objCount += rendObjectsAdded;
         #endif
@@ -225,7 +235,7 @@ extern "C" void CLR_WriteDrawFrame(
     // DEBUG: Add a main light or objects are invisible
     ZRDrawObj* light = CLR_InitDrawObjInPlace(&list->cursor);
     objCount++;
-    ZRDrawObj_SetAsPointLight(NULL, light, { 1, 1, 1 }, 999.f);
+    ZRDrawObj_SetAsPointLight(NULL, light, { 1, 1, 1 }, 0.3f, 999.f);
     light->data.light.bCastShadows = YES;
     Transform_SetToIdentity(&light->t);
     light->t.pos.x = -20;

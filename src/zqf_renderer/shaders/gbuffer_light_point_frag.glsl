@@ -37,15 +37,4 @@ void main()
         u_lightWorldPos, u_lightColour, u_lightRange, fragWorldPos, normal);
     lightResult *= u_lightMultiplier;
     outputColor = vec4(colour, 1) * lightResult;
-    //outputColor = lightResult;
-    #if 0 // debug fullbright if in range
-    float dist = distance(fragWorldPos, u_lightWorldPos);
-    if (dist > u_lightRange)
-    {
-        //outputColor = vec4(0, 0, 0, 1);
-        //return;
-        discard;
-    }
-    outputColor = vec4(colour, 1);
-    #endif
 }

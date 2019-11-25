@@ -181,6 +181,22 @@ internal i32 Sim_InitBot(
     return ZE_ERROR_NONE;
 }
 
+internal i32 Sim_InitSpawner(
+    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+{
+    Sim_SetEntityBase(ent, def);
+    ent->tickType = SIM_TICK_TYPE_SPAWNER;
+    ent->coreTickType = SIM_TICK_TYPE_SPAWNER;
+    ent->relationships.childSpawnCount = def->numChildren;
+    ent->relationships.maxLiveChildren = def->numChildren;
+    ent->relationships.totalChildren = def->numChildren;
+    ent->relationships.patternType = def->patternType;
+    return ZE_ERROR_NONE;
+}
+
+///////////////////////////////////////////////////////
+// WORLD
+///////////////////////////////////////////////////////
 internal i32 Sim_InitWorldVolume(
     SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
 {
@@ -204,16 +220,20 @@ internal i32 Sim_InitWorldVolume(
     return ZE_ERROR_NONE;
 }
 
-internal i32 Sim_InitSpawner(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+internal i32 Sim_InitLight(
+    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
 {
+    Vec3 settings = def->scale;
+    def->scale = { 1, 1, 1 };
     Sim_SetEntityBase(ent, def);
-    ent->tickType = SIM_TICK_TYPE_SPAWNER;
-    ent->coreTickType = SIM_TICK_TYPE_SPAWNER;
-    ent->relationships.childSpawnCount = def->numChildren;
-    ent->relationships.maxLiveChildren = def->numChildren;
-    ent->relationships.totalChildren = def->numChildren;
-    ent->relationships.patternType = def->patternType;
+    ent->tickType = SIM_TICK_TYPE_NONE;
+    ent->coreTickType = SIM_TICK_TYPE_NONE;
+    Sim_SetEntityDisplay(ent,
+        { 0, 0, 1, 1 },
+        // TODO: Encoding light settings in the light's second channel? HACK! At least use a union...
+        { def->pointLight.multiplier, def->pointLight.range, 0, 1 },
+        SIM_PREFAB_WALL,
+        SIM_DEATH_GFX_NONE);
     return ZE_ERROR_NONE;
 }
 
@@ -453,6 +473,8 @@ internal SimEntity* Sim_SpawnEntity(
             err =  Sim_InitBot(sim, ent, def); break;
         case SIM_FACTORY_TYPE_WORLD:
             err =  Sim_InitWorldVolume(sim, ent, def); break;
+        case SIM_FACTORY_TYPE_POINT_LIGHT:
+            err = Sim_InitLight(sim, ent, def); break;
         case SIM_FACTORY_TYPE_SPAWNER:
 			err = Sim_InitSpawner(sim, ent, def); break;
         case SIM_FACTORY_TYPE_LINE_TRACE:

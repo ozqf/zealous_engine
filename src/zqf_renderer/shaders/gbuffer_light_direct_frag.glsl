@@ -15,17 +15,6 @@ uniform float u_lightRange;
 in vec2 m_texCoord;
 out vec4 outputColor;
 
-vec4 CalcPointLight(vec3 lightPos, vec3 colour, float lightRange, vec3 fragPos, vec3 fragNormal)
-{
-	vec3 dir = normalize(lightPos - fragPos);
-	float diff = max(dot(fragNormal, dir), 0.0);
-	float dist = distance(fragPos, lightPos);
-	//float maxRange = 50;
-	float maxRange = lightRange;
-	float scalar = 1 - (dist / maxRange);
-	return vec4(diff * (colour * scalar), 1);
-}
-
 float CalcDirectLightFactor(vec3 dir, vec3 fragPos, vec3 fragNormal)
 {
 	float diff = max(dot(fragNormal, dir), 0.0);

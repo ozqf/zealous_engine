@@ -195,7 +195,7 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 #define ZR_SHADER_TYPE_GBUFFER_LIGHT_DIRECT 12
 #define ZR_SHADER_TYPE_GBUFFER_LIGHT_POINT 13
 #define ZR_SHADER_TYPE_GBUFFER_LIGHT_VOLUME 14
-#define ZR_SHADER_TYPE_LAST__ 13
+#define ZR_SHADER_TYPE_LAST__ 14
 
 #define ZR_MAX_BATCH_SIZE 100
 
@@ -207,10 +207,11 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 
 #define ZR_DRAWOBJ_TYPE_NONE 0
 #define ZR_DRAWOBJ_TYPE_PREFAB 1
-#define ZR_DRAWOBJ_TYPE_LIGHT 2
-#define ZR_DRAWOBJ_TYPE_TEXT 3
-#define ZR_DRAWOBJ_TYPE_BILLBOARD 4
-#define ZR_DRAWOBJ_TYPE_MODEL 5
+#define ZR_DRAWOBJ_TYPE_POINT_LIGHT 2
+#define ZR_DRAWOBJ_TYPE_DIRECT_LIGHT 3
+#define ZR_DRAWOBJ_TYPE_TEXT 4
+#define ZR_DRAWOBJ_TYPE_BILLBOARD 5
+#define ZR_DRAWOBJ_TYPE_MODEL 6
 
 #define ZR_DRAWOBJ_STATUS_FREE 0
 #define ZR_DRAWOBJ_STATUS_ASSIGNED 1
@@ -228,7 +229,7 @@ union ZRDrawObjUnion
     {
 		i32 type;
         i32 bCastShadows;
-		Vec3 colour;
+		Colour colour;
         Vec4 settings;
     } light;
     struct
@@ -303,14 +304,16 @@ static void ZRDrawObj_SetAsPrefab(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
     obj->data.model.foo = YES;
 }
 
-static void ZRDrawObj_SetAsPointLight(ZRScene* s, ZRDrawObj* obj, Vec3 colour, f32 radius)
+static void ZRDrawObj_SetAsPointLight(
+    ZRScene* s, ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius)
 {
     obj->data = {};
     obj->program = ZR_SHADER_TYPE_NONE;
-    obj->type = ZR_DRAWOBJ_TYPE_LIGHT;
+    obj->type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
     obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
     obj->data.light.colour = colour;
     obj->data.light.settings.x = radius;
+    obj->data.light.settings.y = multiplier;
 }
 
 static void ZRDrawObj_SetAsText(ZRScene* s, ZRDrawObj* obj, char* text)
@@ -490,8 +493,8 @@ inline static ZRGroupId ZRGroupId_FromDrawObj(ZRDrawObj* obj)
         case ZR_DRAWOBJ_TYPE_PREFAB:
         return ZRGroupId_SetForPrefab(obj->prefabId);
         
-        case ZR_DRAWOBJ_TYPE_LIGHT:
-        id.objType = ZR_DRAWOBJ_TYPE_LIGHT;
+        case ZR_DRAWOBJ_TYPE_POINT_LIGHT:
+        id.objType = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
         return id;
     }
     id = {};

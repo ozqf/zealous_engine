@@ -10,7 +10,6 @@ layout (location = 1) in vec2 i_uv;
 // Vertex Attrib 2
 layout (location = 2) in vec3 i_normal;
 
-
 void main()
 {
     gl_Position = u_projection * u_modelView * vec4(i_position, 1.0);
