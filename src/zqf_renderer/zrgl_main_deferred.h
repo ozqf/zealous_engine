@@ -96,6 +96,7 @@ static ZRGroupingStats ZR_PrepareSceneDeferred(
     return stats;
 }
 
+#if 0
 static void ZR_DrawDeferredLight(
     ZRGBuffer* gBuf, Transform* cameraTrans, Transform* lightTrans, ScreenInfo* scrInfo)
 {
@@ -215,7 +216,7 @@ static void ZR_DrawDeferredVolumeLights(ZRGBuffer* gBuf, Transform* camera, Scre
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 }
-
+#endif
 ///////////////////////////////////////////////////////////
 // Frame draw entry point
 ///////////////////////////////////////////////////////////
@@ -304,12 +305,61 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     // Draw gbuffer debug result to screen
     //ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
 
+    // disable depth testing
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+
+    // enable blending
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ONE);
+    
+    M3x3_CREATE(rot);
+    M3x3_RotateX(rot.cells, -45 * DEG2RAD);
+    M3x3_RotateY(rot.cells, 45 * DEG2RAD);
     // Draw gbuffer debug result to screen
+    Vec3 lightRed = { 1, 0, 0 };
+    Vec3 lightGreen = { 0, 1, 0 };
+    Vec3 lightBlue = { 0, 0, 1 };
+    Vec3 lightYellow = { 1, 1, 0 };
+    Vec3 white = { 1, 1, 1 };
     ZRGL_GBufferDrawDirectLight(
         &g_gBuffer,
-        { 0, 0, 0 },
+        { 0, 5, 0 },
+        rot.zAxis,
+        white, 0.5f, 25);
+
+    ZRGL_GBufferDrawPointLight(
+        &g_gBuffer,
+        { 15, 5, 15 },
         { 0, -1, 0 },
-        { 1, 0, 0 });
+        lightRed, 2, 25);
+
+    ZRGL_GBufferDrawPointLight(
+        &g_gBuffer,
+        { -15, 5, -15 },
+        { 0, -1, 0 },
+        lightGreen, 2, 25);
+    
+    ZRGL_GBufferDrawPointLight(
+        &g_gBuffer,
+        { -15, 5, 15 },
+        { 0, -1, 0 },
+        lightBlue, 2, 25);
+    
+    ZRGL_GBufferDrawPointLight(
+        &g_gBuffer,
+        { 15, 5, -15 },
+        { 0, -1, 0 },
+        lightYellow, 2, 25);
+    
+    glDisable(GL_BLEND);
+
+    // reenable depth test
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE);
 
     // Draw debug cack
     #if 1

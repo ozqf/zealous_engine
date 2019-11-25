@@ -26,12 +26,6 @@ vec4 CalcPointLight(vec3 lightPos, vec3 colour, float lightRange, vec3 fragPos, 
 	return vec4(diff * (colour * scalar), 1);
 }
 
-float CalcDirectLightFactor(vec3 dir, vec3 fragPos, vec3 fragNormal)
-{
-	float diff = max(dot(fragNormal, dir), 0.0);
-	return diff;
-}
-
 void main()
 {
     // gather gbuffer info
@@ -39,12 +33,19 @@ void main()
     vec3 normal = vec3(texture2D(u_normalTex, m_texCoord));
     vec3 fragWorldPos = vec3(texture2D(u_positionTex, m_texCoord));
 
-    float dirLightFactor = CalcDirectLightFactor(u_lightWorldDir, fragWorldPos, normal);
-    dirLightFactor *= u_lightMultiplier;
-    vec4 lightResult;
-    lightResult.x = u_lightColour.x * dirLightFactor;
-    lightResult.y = u_lightColour.y * dirLightFactor;
-    lightResult.z = u_lightColour.z * dirLightFactor;
-    lightResult.w = 1;
-    outputColor = vec4(vec4(colour, 1) * lightResult);
+    vec4 lightResult = CalcPointLight(
+        u_lightWorldPos, u_lightColour, u_lightRange, fragWorldPos, normal);
+    lightResult *= u_lightMultiplier;
+    outputColor = vec4(colour, 1) * lightResult;
+    //outputColor = lightResult;
+    #if 0 // debug fullbright if in range
+    float dist = distance(fragWorldPos, u_lightWorldPos);
+    if (dist > u_lightRange)
+    {
+        //outputColor = vec4(0, 0, 0, 1);
+        //return;
+        discard;
+    }
+    outputColor = vec4(colour, 1);
+    #endif
 }

@@ -179,7 +179,8 @@ static void ZRGL_DrawDebugGBufferCombine(ZRGBuffer* gBuf)
  * Draw GBuffer quad with a directional light
  */
 static void ZRGL_GBufferDrawDirectLight(
-    ZRGBuffer* gBuf, Vec3 lightWorldPos, Vec3 lightWorldDir, Vec3 lightColour)
+    ZRGBuffer* gBuf, Vec3 lightWorldPos, Vec3 lightWorldDir, Vec3 lightColour,
+    f32 lightMultiplier, f32 lightRange)
 {
     GLint prog = g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_DIRECT].handle;
     glUseProgram(prog);
@@ -206,13 +207,62 @@ static void ZRGL_GBufferDrawDirectLight(
     ZR_SetProgVec3f(prog, "u_lightWorldPos", lightWorldPos);
     ZR_SetProgVec3f(prog, "u_lightWorldDir", lightWorldDir);
     ZR_SetProgVec3f(prog, "u_lightColour", lightColour);
-    ZR_SetProg1f(prog, "u_lightRange", 10);
+    
+    ZR_SetProg1f(prog, "u_lightMultiplier", lightMultiplier);
+    ZR_SetProg1f(prog, "u_lightRange", lightRange);
 
     ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD];
 	glBindVertexArray(prefab->geometry.vao);
     glBindTexture(GL_TEXTURE_2D, gBuf->colourTex);
 
     glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+
+   
+}
+
+/**
+ * Draw GBuffer quad with a point light
+ */
+static void ZRGL_GBufferDrawPointLight(
+    ZRGBuffer* gBuf, Vec3 lightWorldPos, Vec3 lightWorldDir, Vec3 lightColour,
+    f32 lightMultiplier, f32 lightRange)
+{
+    GLint prog = g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_POINT].handle;
+    glUseProgram(prog);
+
+    M4x4_CREATE(projection)
+    ZR_SetProgM4x4(prog, "u_projection", projection.cells);
+    M4x4_CREATE(modelView)
+    // gbuffer quad is drawn in screen space, -1 to 1 so scale up:
+    M4x4_SetScale(modelView.cells, 2, 2, 2);
+    //M4x4_SetScale(modelView.cells, 1, 1, 1);
+    ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
+
+    ZR_PrepareTextureUnit2D(
+        prog, GL_TEXTURE0, 0, "u_positionTex", gBuf->positionTex, g_samplerDataTex2D);
+    
+    ZR_PrepareTextureUnit2D(
+        prog, GL_TEXTURE1, 1, "u_normalTex", gBuf->normalTex, g_samplerDataTex2D);
+    ZR_PrepareTextureUnit2D(
+        prog, GL_TEXTURE2, 2, "u_colourTex", gBuf->colourTex, g_samplerDataTex2D);
+    
+    //printf("GBuf light at %.3f, %.3f, %.3f - range %.3f\n",
+    //    lightWorldPos.x, lightWorldPos.y, lightWorldPos.z, 10.f
+    //);
+    ZR_SetProgVec3f(prog, "u_lightWorldPos", lightWorldPos);
+    ZR_SetProgVec3f(prog, "u_lightWorldDir", lightWorldDir);
+    ZR_SetProgVec3f(prog, "u_lightColour", lightColour);
+    
+    ZR_SetProg1f(prog, "u_lightMultiplier", lightMultiplier);
+    ZR_SetProg1f(prog, "u_lightRange", lightRange);
+
+    ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD];
+	glBindVertexArray(prefab->geometry.vao);
+    glBindTexture(GL_TEXTURE_2D, gBuf->colourTex);
+
+    glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+
+   
 }
 
 /**

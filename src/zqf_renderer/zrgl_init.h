@@ -216,13 +216,22 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
 
     err = ZRGL_CreateProgram(
         gbuffer_light_direct_vert_text,
+        gbuffer_light_point_frag_text,
+        "GBufferLightPoint",
+        ZR_DRAWOBJ_TYPE_PREFAB,
+        NO,
+        &g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_POINT]);
+    if (err != ZE_ERROR_NONE) { return err; }
+    
+    err = ZRGL_CreateProgram(
+        gbuffer_light_direct_vert_text,
         gbuffer_light_direct_frag_text,
         "GBufferLightDirect",
         ZR_DRAWOBJ_TYPE_PREFAB,
         NO,
         &g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_DIRECT]);
     if (err != ZE_ERROR_NONE) { return err; }
-
+    
     err = ZRGL_CreateProgram(
         gbuffer_light_volume_vert_text,
         gbuffer_light_volume_frag_text,
