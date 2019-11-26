@@ -22,11 +22,11 @@ internal void ZDraw_FindLightsForObject(
         {
             // easy case, add light and carry on
             lights->pointPositions[lightsAdded] = potentialPos;
-            lights->colours[lightsAdded].x = lightObj->data.light.colour.r;
-            lights->colours[lightsAdded].y = lightObj->data.light.colour.g;
-            lights->colours[lightsAdded].z = lightObj->data.light.colour.b;
+            lights->colours[lightsAdded].x = lightObj->data.pointLight.colour.r;
+            lights->colours[lightsAdded].y = lightObj->data.pointLight.colour.g;
+            lights->colours[lightsAdded].z = lightObj->data.pointLight.colour.b;
             lights->distances[lightsAdded] = potentialDist;
-            lights->settings[lightsAdded] = lightObj->data.light.settings;
+            lights->settings[lightsAdded] = lightObj->data.pointLight.settings;
             lightsAdded++;
             continue;
         }
@@ -50,11 +50,11 @@ internal void ZDraw_FindLightsForObject(
         if (replaceIndex >= 0)
         {
             lights->pointPositions[replaceIndex] = potentialPos;
-            lights->colours[replaceIndex].x = lightObj->data.light.colour.r;
-            lights->colours[replaceIndex].y = lightObj->data.light.colour.g;
-            lights->colours[replaceIndex].z = lightObj->data.light.colour.b;
+            lights->colours[replaceIndex].x = lightObj->data.pointLight.colour.r;
+            lights->colours[replaceIndex].y = lightObj->data.pointLight.colour.g;
+            lights->colours[replaceIndex].z = lightObj->data.pointLight.colour.b;
             lights->distances[replaceIndex] = potentialDist;
-            lights->settings[replaceIndex] = lightObj->data.light.settings;
+            lights->settings[replaceIndex] = lightObj->data.pointLight.settings;
         }
     }
     // Patch empty lights

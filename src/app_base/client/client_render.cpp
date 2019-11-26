@@ -200,6 +200,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                     ent->display.colourA,
                     ent->display.colourB.array[0],
                     ent->display.colourB.array[1]);
+				obj->t.pos = ent->body.t.pos;
             } break;
         }
         objCount += rendObjectsAdded;
@@ -232,7 +233,7 @@ extern "C" void CLR_WriteDrawFrame(
     u8* listStart = list->cursor;
     // write client draw data. World, view model, HUD, menus.
 
-    // DEBUG: Add a main light or objects are invisible
+    #if 0 // DEBUG: Add a main light or objects are invisible
     ZRDrawObj* light = CLR_InitDrawObjInPlace(&list->cursor);
     objCount++;
     ZRDrawObj_SetAsPointLight(NULL, light, { 0, 1, 0 }, 2, 999.f);
@@ -242,7 +243,7 @@ extern "C" void CLR_WriteDrawFrame(
     light->t.pos.y = 5;// 20;
     light->t.pos.z = 0;// 20;
     Transform_SetRotation(&light->t, -45 * DEG2RAD, -45 * DEG2RAD, 0);
-
+    #endif
     //////////////////////////////////////////////////
     // For debugging local listen servers ONLY!
     //////////////////////////////////////////////////

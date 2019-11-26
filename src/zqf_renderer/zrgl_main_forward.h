@@ -78,7 +78,7 @@ static ZRGroupingStats ZR_PrepareScene(
         ZE_ASSERT(lightObj->type == ZR_DRAWOBJ_TYPE_POINT_LIGHT,
             "Object in light list is not a light!")
         
-        if (lightObj->data.light.bCastShadows)
+        if (lightObj->data.pointLight.bCastShadows)
         {
             #if 1
             ZRGL_WriteTestShadowMap(

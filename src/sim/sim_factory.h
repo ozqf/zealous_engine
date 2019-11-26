@@ -228,8 +228,13 @@ internal i32 Sim_InitLight(
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_NONE;
     ent->coreTickType = SIM_TICK_TYPE_NONE;
+    Colour colour;
+    colour.r = def->pointLight.colour.x;
+    colour.g = def->pointLight.colour.y;
+    colour.b = def->pointLight.colour.z;
+    colour.a = 1;
     Sim_SetEntityDisplay(ent,
-        { 0, 0, 1, 1 },
+        colour,
         // TODO: Encoding light settings in the light's second channel? HACK! At least use a union...
         { def->pointLight.multiplier, def->pointLight.range, 0, 1 },
         SIM_PREFAB_WALL,

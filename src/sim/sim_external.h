@@ -371,6 +371,19 @@ internal void Sim_AddWorldVolume(SimScene* sim, Vec3 pos, Vec3 size)
     Sim_RestoreEntity(sim, &def);
 }
 
+internal void Sim_AddPointLight(SimScene* sim, Vec3 pos, Vec3 colour, f32 multiplier, f32 range)
+{
+    SimEntSpawnData def = {};
+    def.serial = Sim_ReserveEntitySerial(sim, 1);
+    def.isLocal = 1;
+	def.factoryType = SIM_FACTORY_TYPE_POINT_LIGHT;
+    def.pos = pos;
+    def.pointLight.colour = colour;
+    def.pointLight.multiplier = multiplier;
+    def.pointLight.range = range;
+    Sim_RestoreEntity(sim, &def);
+}
+
 internal void Sim_AddTestProp(SimScene* sim, Vec3 pos)
 {
     SimEntSpawnData def = {};
@@ -399,6 +412,9 @@ i32 Sim_LoadScene(SimScene* sim, i32 index)
 
     Sim_AddWorldVolume(sim, { -10, pillarY, 0 }, { 1, 10, 1 });
     Sim_AddWorldVolume(sim, { 10, pillarY, 0 }, { 1, 10, 1 });
+
+    Sim_AddPointLight(sim, { 15, 2, 15 }, { 1, 0.3f, 0.3f }, 4, 40);
+	Sim_AddPointLight(sim, { -15, 2, -15 }, { 0.3f, 0.3f, 1 }, 4, 40);
 
     // static sprites
     Sim_AddTestProp(sim, { 15, 0, 15 });

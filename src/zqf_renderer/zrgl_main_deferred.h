@@ -193,12 +193,12 @@ static ZRGroupingStats ZR_PrepareSceneDeferred(
         ZRDrawObj* lightObj = &sceneCmd->drawTime.objects[lightObjIndex];
         // TODO: Grouped on point light here. no way to put direct lights in
         Vec3 dir = lightObj->t.rotation.zAxis;
-        f32 multiplier = lightObj->data.light.settings.x;
-        f32 range = lightObj->data.light.settings.y;
-        Colour c = lightObj->data.light.colour;
+        f32 multiplier = lightObj->data.pointLight.settings.x;
+        f32 range = lightObj->data.pointLight.settings.y;
+        Colour c = lightObj->data.pointLight.colour;
         Vec3 pos = lightObj->t.pos;
-        printf("ZRGL Draw light obj multiplier pos %.3f, %.3f, %.3f - %.3f, range %.3f\n",
-            pos.x, pos.y, pos.z, multiplier, range);
+        //printf("ZRGL Draw light obj multiplier pos %.3f, %.3f, %.3f - %.3f, range %.3f\n",
+        //    pos.x, pos.y, pos.z, multiplier, range);
         ZRGL_GBufferDrawPointLight(
             &g_gBuffer,
             lightObj->t.pos,

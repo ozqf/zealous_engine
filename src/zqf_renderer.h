@@ -227,11 +227,10 @@ union ZRDrawObjUnion
     } model;
     struct
     {
-		i32 type;
         i32 bCastShadows;
 		Colour colour;
         Vec4 settings;
-    } light;
+    } pointLight;
     struct
     {
         char* text;
@@ -311,9 +310,9 @@ static void ZRDrawObj_SetAsPointLight(
     obj->program = ZR_SHADER_TYPE_NONE;
     obj->type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
     obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
-    obj->data.light.colour = colour;
-    obj->data.light.settings.x = multiplier;
-    obj->data.light.settings.y = radius;
+    obj->data.pointLight.colour = colour;
+    obj->data.pointLight.settings.x = multiplier;
+    obj->data.pointLight.settings.y = radius;
 }
 
 static void ZRDrawObj_SetAsText(ZRScene* s, ZRDrawObj* obj, char* text)
