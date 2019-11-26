@@ -3,99 +3,6 @@
 
 #include "zrgl_internal.h"
 
-static ZRGroupingStats ZR_PrepareSceneDeferred(
-    ZRSceneFrame* sceneCmd, ZEByteBuffer* scratch, ScreenInfo scrInfo)
-{
-    ZRGroupingStats stats = {};
-    f64 start = g_platform.QueryClock();
-
-    M4x4* projection = &sceneCmd->drawTime.projection;
-    // Setup
-    if (sceneCmd->params.projectionMode == ZR_PROJECTION_MODE_IDENTITY)
-    {
-        M4x4_SetToIdentity(projection->cells);
-    }
-    else
-    {
-        COM_SetupDefault3DProjection(projection->cells,
-            scrInfo.aspectRatio);
-    }
-    M4x4_CREATE(camera)
-    Transform_ToM4x4(&sceneCmd->params.camera, &camera);
-    // Group objects
-    // TODO: Urrgh ugly:
-    sceneCmd->drawTime.objects = (ZRDrawObj*)(((u8*)sceneCmd) + sizeof(ZRSceneFrame));
-    ZRDrawObj* objects = sceneCmd->drawTime.objects;
-
-    ///////////////////////////////////////////////////////////
-    // Build Groups
-    sceneCmd->drawTime.view = ZR_BuildDrawGroups(
-        objects, sceneCmd->params.numObjects, scratch, &stats);
-    
-    ZRSceneView* view = sceneCmd->drawTime.view;
-    stats.numGroups = view->numGroups;
-    stats.numLights = view->numLights;
-
-    ///////////////////////////////////////////////////////////
-    // draw shadow maps
-    #if 1
-    for (i32 i = 0; i < view->numLights; ++i)
-    {
-        i32 lightObjIndex = view->lights[i];
-        ZRDrawObj* lightObj = &sceneCmd->drawTime.objects[lightObjIndex];
-        ZE_ASSERT(lightObj->type == ZR_DRAWOBJ_TYPE_POINT_LIGHT,
-            "Object in light list is not a light!")
-        
-        if (lightObj->data.light.bCastShadows)
-        {
-            #if 1
-            ZRGL_WriteTestShadowMap(
-                //&sceneCmd->params.camera,
-                &lightObj->t,
-                scrInfo,
-                view->groups,
-                view->numGroups,
-                objects,
-                sceneCmd->params.numObjects,
-                &stats);
-            #endif
-            #if 1 // Debug, draw scene to colour texture
-            ZRGL_DrawSceneToTexture(
-                //&sceneCmd->params.camera,
-                &lightObj->t,
-                scrInfo,
-                view->groups,
-                view->numGroups,
-                objects,
-                sceneCmd->params.numObjects,
-                &stats);
-            #endif
-        }
-    }
-    #endif
-
-    ///////////////////////////////////////////////////////////
-    // Deferred
-    if (sceneCmd->params.bDeferred)
-    {
-        f64 gBufStart = g_platform.QueryClock();
-        ZRGL_FillGBuffer(
-            &g_gBuffer,
-            &sceneCmd->params.camera,
-            scrInfo,
-            view->groups,
-            view->numGroups,
-            objects,
-            sceneCmd->params.numObjects,
-            &stats);
-        stats.gBufferTime = (g_platform.QueryClock() - gBufStart) * 1000;
-    }
-
-    f64 end = g_platform.QueryClock();
-    stats.time = end - start;
-    return stats;
-}
-
 #if 0
 static void ZR_DrawDeferredLight(
     ZRGBuffer* gBuf, Transform* cameraTrans, Transform* lightTrans, ScreenInfo* scrInfo)
@@ -217,6 +124,103 @@ static void ZR_DrawDeferredVolumeLights(ZRGBuffer* gBuf, Transform* camera, Scre
     glEnable(GL_CULL_FACE);
 }
 #endif
+
+static ZRGroupingStats ZR_PrepareSceneDeferred(
+    ZRSceneFrame* sceneCmd, ZEByteBuffer* scratch, ScreenInfo scrInfo)
+{
+    ZRGroupingStats stats = {};
+    f64 start = g_platform.QueryClock();
+
+    M4x4* projection = &sceneCmd->drawTime.projection;
+    // Setup
+    if (sceneCmd->params.projectionMode == ZR_PROJECTION_MODE_IDENTITY)
+    {
+        M4x4_SetToIdentity(projection->cells);
+    }
+    else
+    {
+        COM_SetupDefault3DProjection(projection->cells,
+            scrInfo.aspectRatio);
+    }
+    M4x4_CREATE(camera)
+    Transform_ToM4x4(&sceneCmd->params.camera, &camera);
+    // Group objects
+    // TODO: Urrgh ugly:
+    sceneCmd->drawTime.objects = (ZRDrawObj*)(((u8*)sceneCmd) + sizeof(ZRSceneFrame));
+    ZRDrawObj* objects = sceneCmd->drawTime.objects;
+
+    ///////////////////////////////////////////////////////////
+    // Build Groups
+    sceneCmd->drawTime.view = ZR_BuildDrawGroups(
+        objects, sceneCmd->params.numObjects, scratch, &stats);
+    
+    ZRSceneView* view = sceneCmd->drawTime.view;
+    stats.numGroups = view->numGroups;
+    stats.numLights = view->numLights;
+
+    ///////////////////////////////////////////////////////////
+    // Deferred Geometry pass
+    f64 gBufStart = g_platform.QueryClock();
+        ZRGL_FillGBuffer(
+            &g_gBuffer,
+            &sceneCmd->params.camera,
+            scrInfo,
+            view->groups,
+            view->numGroups,
+            objects,
+            sceneCmd->params.numObjects,
+            &stats);
+        stats.gBufferTime = (g_platform.QueryClock() - gBufStart) * 1000;
+
+    ///////////////////////////////////////////////////////////
+    // draw lights
+    
+    // disable depth testing
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+
+    // enable blending
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ONE);
+    
+
+
+    for (i32 i = 0; i < view->numLights; ++i)
+    {
+        i32 lightObjIndex = view->lights[i];
+        ZRDrawObj* lightObj = &sceneCmd->drawTime.objects[lightObjIndex];
+        // TODO: Grouped on point light here. no way to put direct lights in
+        Vec3 dir = lightObj->t.rotation.zAxis;
+        f32 multiplier = lightObj->data.light.settings.x;
+        f32 range = lightObj->data.light.settings.y;
+        Colour c = lightObj->data.light.colour;
+        Vec3 pos = lightObj->t.pos;
+        printf("ZRGL Draw light obj multiplier pos %.3f, %.3f, %.3f - %.3f, range %.3f\n",
+            pos.x, pos.y, pos.z, multiplier, range);
+        ZRGL_GBufferDrawPointLight(
+            &g_gBuffer,
+            lightObj->t.pos,
+            dir,
+            { c.r, c.g, c.b },
+            multiplier,
+            range);
+    
+    }
+
+    glDisable(GL_BLEND);
+
+    // reenable depth test
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE);
+
+    f64 end = g_platform.QueryClock();
+    stats.time = end - start;
+    return stats;
+}
+
 ///////////////////////////////////////////////////////////
 // Frame draw entry point
 ///////////////////////////////////////////////////////////
@@ -271,10 +275,12 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
 
     /////////////////////////////////////////////////////////////
     // Prepare scenes
-    ZRSceneFrame* firstScene = NULL;
+    ZRSceneFrame* firstScene = (ZRSceneFrame*)cursor;
+    cursor += sizeof(ZRSceneFrame) + firstScene->params.dataBytes;
+    ZRGroupingStats result = ZR_PrepareSceneDeferred(firstScene, &g_scratch, scrInfo);
 
     // Group objects
-    f64 prepareStart = g_platform.QueryClock();
+    /*f64 prepareStart = g_platform.QueryClock();
     for (i32 i = 0; i < header->numScenes; ++i)
     {
         ZRSceneFrame* cmd = (ZRSceneFrame*)cursor;
@@ -288,7 +294,7 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
         {
             stats.grouping = result;
         }
-    }
+    }*/
 
     // TODO: Move this into scene specific stuff:
     // take camera from first scene:
@@ -304,7 +310,7 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     
     // Draw gbuffer debug result to screen
     //ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
-
+    #if 0
     // disable depth testing
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -341,7 +347,7 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
         { -15, 5, -15 },
         { 0, -1, 0 },
         lightGreen, 2, 25);
-    #if 0
+    
     ZRGL_GBufferDrawPointLight(
         &g_gBuffer,
         { -15, 5, 15 },
@@ -353,14 +359,14 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
         { 15, 5, -15 },
         { 0, -1, 0 },
         lightYellow, 2, 25);
-    #endif
+    
     glDisable(GL_BLEND);
 
     // reenable depth test
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glDepthMask(GL_TRUE);
-
+    #endif
     // Draw debug cack
     #if 1
     ZRGL_DrawGBufferDebugQuads(scrInfo.aspectRatio);

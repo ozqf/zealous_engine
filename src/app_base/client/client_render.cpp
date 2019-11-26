@@ -235,12 +235,12 @@ extern "C" void CLR_WriteDrawFrame(
     // DEBUG: Add a main light or objects are invisible
     ZRDrawObj* light = CLR_InitDrawObjInPlace(&list->cursor);
     objCount++;
-    ZRDrawObj_SetAsPointLight(NULL, light, { 1, 1, 1 }, 0.3f, 999.f);
+    ZRDrawObj_SetAsPointLight(NULL, light, { 1, 5, 1 }, 0.3f, 999.f);
     light->data.light.bCastShadows = YES;
     Transform_SetToIdentity(&light->t);
-    light->t.pos.x = -20;
-    light->t.pos.y = 20;
-    light->t.pos.z = 20;
+    light->t.pos.x = 0;// -20;
+    light->t.pos.y = 5;// 20;
+    light->t.pos.z = 0;// 20;
     Transform_SetRotation(&light->t, -45 * DEG2RAD, -45 * DEG2RAD, 0);
 
     //////////////////////////////////////////////////
