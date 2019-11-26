@@ -229,8 +229,16 @@ union ZRDrawObjUnion
     {
         i32 bCastShadows;
 		Colour colour;
-        Vec4 settings;
+        f32 multiplier;
+        f32 range;
     } pointLight;
+    struct
+    {
+        i32 bCastShadows;
+        Colour colour;
+        f32 multiplier;
+        f32 range;
+    } directLight;
     struct
     {
         char* text;
@@ -311,8 +319,23 @@ static void ZRDrawObj_SetAsPointLight(
     obj->type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
     obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
     obj->data.pointLight.colour = colour;
-    obj->data.pointLight.settings.x = multiplier;
-    obj->data.pointLight.settings.y = radius;
+    obj->data.pointLight.multiplier = multiplier;
+    obj->data.pointLight.range = radius;
+}
+
+static void ZRDrawObj_SetAsDirectLight(
+    ZRScene* s, ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius, f32 pitch, f32 yaw)
+{
+    obj->data = {};
+    obj->program = ZR_SHADER_TYPE_NONE;
+    obj->type = ZR_DRAWOBJ_TYPE_DIRECT_LIGHT;
+    obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
+    obj->data.directLight.colour = colour;
+    obj->data.directLight.multiplier = multiplier;
+    obj->data.directLight.range = radius;
+    Transform_SetToIdentity(&obj->t);
+    M3x3_RotateX(obj->t.rotation.cells, pitch);
+    M3x3_RotateX(obj->t.rotation.cells, yaw);
 }
 
 static void ZRDrawObj_SetAsText(ZRScene* s, ZRDrawObj* obj, char* text)

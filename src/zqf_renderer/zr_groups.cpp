@@ -26,7 +26,9 @@ internal void ZDraw_FindLightsForObject(
             lights->colours[lightsAdded].y = lightObj->data.pointLight.colour.g;
             lights->colours[lightsAdded].z = lightObj->data.pointLight.colour.b;
             lights->distances[lightsAdded] = potentialDist;
-            lights->settings[lightsAdded] = lightObj->data.pointLight.settings;
+            f32 multiplier = lightObj->data.pointLight.multiplier;
+            f32 range = lightObj->data.pointLight.range;
+            lights->settings[lightsAdded] = { multiplier, range, 0, 0 };
             lightsAdded++;
             continue;
         }
@@ -54,7 +56,9 @@ internal void ZDraw_FindLightsForObject(
             lights->colours[replaceIndex].y = lightObj->data.pointLight.colour.g;
             lights->colours[replaceIndex].z = lightObj->data.pointLight.colour.b;
             lights->distances[replaceIndex] = potentialDist;
-            lights->settings[replaceIndex] = lightObj->data.pointLight.settings;
+            f32 multiplier = lightObj->data.pointLight.multiplier;
+            f32 range = lightObj->data.pointLight.range;
+            lights->settings[replaceIndex] = { multiplier, range, 0, 0 };
         }
     }
     // Patch empty lights
