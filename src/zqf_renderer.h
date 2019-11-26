@@ -312,8 +312,8 @@ static void ZRDrawObj_SetAsPointLight(
     obj->type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
     obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
     obj->data.light.colour = colour;
-    obj->data.light.settings.x = radius;
-    obj->data.light.settings.y = multiplier;
+    obj->data.light.settings.x = multiplier;
+    obj->data.light.settings.y = radius;
 }
 
 static void ZRDrawObj_SetAsText(ZRScene* s, ZRDrawObj* obj, char* text)
