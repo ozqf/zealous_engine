@@ -38,6 +38,7 @@
 #define SIM_PREFAB_ITEM 7
 #define SIM_PREFAB_EXPLOSION 8
 #define SIM_PREFAB_POINT_LIGHT 9
+#define SIM_PREFAB_DIRECT_LIGHT 10
 
 // Spawn functions
 typedef u8 simFactoryType;
@@ -65,6 +66,7 @@ typedef u8 simFactoryType;
 #define SIM_FACTORY_TYPE_SEEKER_FLYING 20
 #define SIM_FACTORY_TYPE_PROP 21
 #define SIM_FACTORY_TYPE_POINT_LIGHT 22
+#define SIM_FACTORY_TYPE_DIRECT_LIGHT 23
 
 // Update functions
 #define SIM_TICK_TYPE_NONE 0

@@ -384,6 +384,23 @@ internal void Sim_AddPointLight(SimScene* sim, Vec3 pos, Vec3 colour, f32 multip
     Sim_RestoreEntity(sim, &def);
 }
 
+internal void Sim_AddDirectLight(
+    SimScene* sim, Vec3 pos, Vec3 colour, f32 multiplier, f32 range,
+    f32 pitchDegrees, f32 yawDegrees)
+{
+    SimEntSpawnData def = {};
+    def.serial = Sim_ReserveEntitySerial(sim, 1);
+    def.isLocal = 1;
+	def.factoryType = SIM_FACTORY_TYPE_POINT_LIGHT;
+    def.pos = pos;
+    def.pointLight.colour = colour;
+    def.pointLight.multiplier = multiplier;
+    def.pointLight.range = range;
+    def.pitchDegrees = pitchDegrees;
+    def.yawDegrees = yawDegrees;
+    Sim_RestoreEntity(sim, &def);
+}
+
 internal void Sim_AddTestProp(SimScene* sim, Vec3 pos)
 {
     SimEntSpawnData def = {};

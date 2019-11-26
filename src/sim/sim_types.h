@@ -199,6 +199,8 @@ struct SimEntSpawnData
     Vec3 scale;
     Vec3 velocity;
     Vec3 destination;
+    f32 pitchDegrees;
+    f32 yawDegrees; 
 
     union
     {

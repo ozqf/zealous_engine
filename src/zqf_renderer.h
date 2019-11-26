@@ -324,7 +324,7 @@ static void ZRDrawObj_SetAsPointLight(
 }
 
 static void ZRDrawObj_SetAsDirectLight(
-    ZRScene* s, ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius, f32 pitch, f32 yaw)
+    ZRScene* s, ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius)
 {
     obj->data = {};
     obj->program = ZR_SHADER_TYPE_NONE;
@@ -333,9 +333,9 @@ static void ZRDrawObj_SetAsDirectLight(
     obj->data.directLight.colour = colour;
     obj->data.directLight.multiplier = multiplier;
     obj->data.directLight.range = radius;
-    Transform_SetToIdentity(&obj->t);
-    M3x3_RotateX(obj->t.rotation.cells, pitch);
-    M3x3_RotateX(obj->t.rotation.cells, yaw);
+    // M3x3_SetToIdentity(obj->t.rotation.cells);
+    // M3x3_RotateX(obj->t.rotation.cells, pitch);
+    // M3x3_RotateX(obj->t.rotation.cells, yaw);
 }
 
 static void ZRDrawObj_SetAsText(ZRScene* s, ZRDrawObj* obj, char* text)

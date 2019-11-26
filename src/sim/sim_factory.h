@@ -220,7 +220,7 @@ internal i32 Sim_InitWorldVolume(
     return ZE_ERROR_NONE;
 }
 
-internal i32 Sim_InitLight(
+internal i32 Sim_InitPointLight(
     SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
 {
     Vec3 settings = def->scale;
@@ -239,6 +239,32 @@ internal i32 Sim_InitLight(
         { def->pointLight.multiplier, def->pointLight.range, 0, 1 },
         SIM_PREFAB_WALL,
         SIM_DEATH_GFX_NONE);
+    return ZE_ERROR_NONE;
+}
+
+internal i32 Sim_InitDirectLight(
+    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+{
+    Vec3 settings = def->scale;
+    def->scale = { 1, 1, 1 };
+    Sim_SetEntityBase(ent, def);
+    ent->tickType = SIM_TICK_TYPE_NONE;
+    ent->coreTickType = SIM_TICK_TYPE_NONE;
+    Colour colour;
+    colour.r = def->pointLight.colour.x;
+    colour.g = def->pointLight.colour.y;
+    colour.b = def->pointLight.colour.z;
+    colour.a = 1;
+    Sim_SetEntityDisplay(ent,
+        colour,
+        // TODO: Encoding light settings in the light's second channel? HACK! At least use a union...
+        { def->pointLight.multiplier, def->pointLight.range, 0, 1 },
+        SIM_PREFAB_WALL,
+        SIM_DEATH_GFX_NONE);
+    f32* rot = ent->body.t.rotation.cells;
+    M3x3_SetToIdentity(rot);
+    M3x3_RotateX(rot, def->pitchDegrees * DEG2RAD);
+    M3x3_RotateY(rot, def->yawDegrees * DEG2RAD);
     return ZE_ERROR_NONE;
 }
 
@@ -479,7 +505,9 @@ internal SimEntity* Sim_SpawnEntity(
         case SIM_FACTORY_TYPE_WORLD:
             err =  Sim_InitWorldVolume(sim, ent, def); break;
         case SIM_FACTORY_TYPE_POINT_LIGHT:
-            err = Sim_InitLight(sim, ent, def); break;
+            err = Sim_InitPointLight(sim, ent, def); break;
+        case SIM_FACTORY_TYPE_DIRECT_LIGHT:
+            err = Sim_InitDirectLight(sim, ent, def); break;
         case SIM_FACTORY_TYPE_SPAWNER:
 			err = Sim_InitSpawner(sim, ent, def); break;
         case SIM_FACTORY_TYPE_LINE_TRACE:

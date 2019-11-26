@@ -202,6 +202,18 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                     ent->display.colourB.array[1]);
 				obj->t.pos = ent->body.t.pos;
             } break;
+            case SIM_FACTORY_TYPE_DIRECT_LIGHT:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsDirectLight(
+                    NULL,
+                    obj,
+                    ent->display.colourA,
+                    ent->display.colourB.array[0],
+                    ent->display.colourB.array[1]);
+				obj->t.pos = ent->body.t.pos;
+				obj->t.rotation = ent->body.t.rotation;
+            } break;
         }
         objCount += rendObjectsAdded;
         #endif
