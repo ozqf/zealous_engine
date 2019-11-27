@@ -162,7 +162,7 @@ static void ZRGL_FillGBuffer(
         {
             i32 objIndex = group->indices[j];
             ZRDrawObj* obj = &objects[objIndex];
-            ZE_ASSERT(obj->type == ZR_DRAWOBJ_TYPE_PREFAB,
+            ZE_ASSERT(obj->data.type == ZR_DRAWOBJ_TYPE_PREFAB,
                 "GBuffer fill by non model obj");
             ZR_BuildModelMatrix(&model, &obj->t);
             M4x4_SetToIdentity(modelView.cells);

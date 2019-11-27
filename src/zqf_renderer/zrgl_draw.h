@@ -230,7 +230,7 @@ static void ZR_DrawTextGroup(
 	{
         i32 objIndex = group->indices[i];
 		ZRDrawObj* item = &objects[objIndex];
-        if (item->type != ZR_DRAWOBJ_TYPE_TEXT)
+        if (item->data.type != ZR_DRAWOBJ_TYPE_TEXT)
         {
             printf("DrawObj type is not text!\n");
             continue;

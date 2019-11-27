@@ -181,7 +181,7 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
         ZRGroupId objGroupId = ZRGroupId_FromDrawObj(obj);
 
         // Most common primitive
-        if (obj->type == ZR_DRAWOBJ_TYPE_PREFAB)
+        if (obj->data.type == ZR_DRAWOBJ_TYPE_PREFAB)
         {
             // Find a group for this object
             // TODO: sort objects and keep current group around?
@@ -210,20 +210,20 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
             }
             group->indices[group->numItems++] = i;
         }
-        else if (obj->type == ZR_DRAWOBJ_TYPE_BILLBOARD)
+        else if (obj->data.type == ZR_DRAWOBJ_TYPE_BILLBOARD)
         {
             // TODO
             continue;
         }
         // lights have their own groups
-        else if (obj->type == ZR_DRAWOBJ_TYPE_POINT_LIGHT)
+        else if (obj->data.type == ZR_DRAWOBJ_TYPE_POINT_LIGHT)
         {
             i32 lightIndex = drawGroups->numLights++;
             ZE_ASSERT(lightIndex < ZR_MAX_DRAW_GROUPS, "Too many lights for draw groups")
             drawGroups->lights[lightIndex] = i;
             continue;
         }
-        else if (obj->type == ZR_DRAWOBJ_TYPE_NONE)
+        else if (obj->data.type == ZR_DRAWOBJ_TYPE_NONE)
         {
             // ignore this object
             continue;

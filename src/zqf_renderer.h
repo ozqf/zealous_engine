@@ -230,32 +230,36 @@ struct ZRMaterial
 	i32 specularTexture;	// default black 16x16
 };
 
-union ZRDrawObjUnion
+struct ZRDrawObjData
 {
-	struct
+    i32 type;
+    union
     {
-        i32 meshIndex;
-        i32 materialIndex;
-    } model;
-    struct
-    {
-        i32 bCastShadows;
-		Colour colour;
-        f32 multiplier;
-        f32 range;
-    } pointLight;
-    struct
-    {
-        i32 bCastShadows;
-        Colour colour;
-        f32 multiplier;
-        f32 range;
-    } directLight;
-    struct
-    {
-        char* text;
-        i32 length;
-    } text;
+        struct
+        {
+            i32 meshIndex;
+            i32 materialIndex;
+        } model;
+        struct
+        {
+            i32 bCastShadows;
+	    	Colour colour;
+            f32 multiplier;
+            f32 range;
+        } pointLight;
+        struct
+        {
+            i32 bCastShadows;
+            Colour colour;
+            f32 multiplier;
+            f32 range;
+        } directLight;
+        struct
+        {
+            char* text;
+            i32 length;
+        } text;
+    };
 };
 
 struct ZRDrawObj
@@ -270,10 +274,7 @@ struct ZRDrawObj
 	
     Transform t;
     
-    // --- discriminated union ---
-    // type is also used as part of the grouping Id of this object
-	i32 type;
-    ZRDrawObjUnion data;
+    ZRDrawObjData data;
 };
 
 struct ZRSceneObj
@@ -317,7 +318,7 @@ struct ZRScene
 static void ZRDrawObj_SetAsPrefab(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
 {
     obj->data = {};
-    obj->type = ZR_DRAWOBJ_TYPE_PREFAB;
+    obj->data.type = ZR_DRAWOBJ_TYPE_PREFAB;
     obj->program = ZR_SHADER_TYPE_BATCHED;
     obj->prefabId = prefabId;
 }
@@ -327,7 +328,7 @@ static void ZRDrawObj_SetAsPointLight(
 {
     obj->data = {};
     obj->program = ZR_SHADER_TYPE_NONE;
-    obj->type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
+    obj->data.type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
     obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
     obj->data.pointLight.colour = colour;
     obj->data.pointLight.multiplier = multiplier;
@@ -339,7 +340,7 @@ static void ZRDrawObj_SetAsDirectLight(
 {
     obj->data = {};
     obj->program = ZR_SHADER_TYPE_NONE;
-    obj->type = ZR_DRAWOBJ_TYPE_DIRECT_LIGHT;
+    obj->data.type = ZR_DRAWOBJ_TYPE_DIRECT_LIGHT;
     obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
     obj->data.directLight.colour = colour;
     obj->data.directLight.multiplier = multiplier;
@@ -352,7 +353,7 @@ static void ZRDrawObj_SetAsDirectLight(
 static void ZRDrawObj_SetAsText(ZRScene* s, ZRDrawObj* obj, char* text)
 {
     obj->data = {};
-    obj->type = ZR_DRAWOBJ_TYPE_TEXT;
+    obj->data.type = ZR_DRAWOBJ_TYPE_TEXT;
     obj->program = ZR_SHADER_TYPE_TEXT;
     obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
     obj->data.text.text = text;
@@ -521,7 +522,7 @@ inline static ZRGroupId ZRGroupId_SetForModel(
 inline static ZRGroupId ZRGroupId_FromDrawObj(ZRDrawObj* obj)
 {
     ZRGroupId id = {};
-    switch (obj->type)
+    switch (obj->data.type)
     {
         case ZR_DRAWOBJ_TYPE_PREFAB:
         return ZRGroupId_SetForPrefab(obj->prefabId);
