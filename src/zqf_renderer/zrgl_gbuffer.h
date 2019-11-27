@@ -47,9 +47,24 @@ static ZRGBuffer ZRGL_CreateGBuffer(i32 scrWidth, i32 scrHeight)
     // attach to 2
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gBuf.colourTex, 0);
 
+    // emission buffer
+    glGenTextures(1, &gBuf.emissionTex);
+    glBindTexture(GL_TEXTURE_2D, gBuf.emissionTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, scrWidth, scrHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // attach to 3
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, gBuf.emissionTex, 0);
+
     // inform opengl of attachments to FBO
-    u32 attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-    glDrawBuffers(3, attachments);
+    u32 attachments[4] =
+    {
+        GL_COLOR_ATTACHMENT0,
+        GL_COLOR_ATTACHMENT1,
+        GL_COLOR_ATTACHMENT2,
+        GL_COLOR_ATTACHMENT3
+    };
+    glDrawBuffers(4, attachments);
 
     // then also add render buffer object as depth buffer:    
     // depth map
@@ -119,7 +134,30 @@ static void ZRGL_FillGBuffer(
         if (group->id.objType != ZR_DRAWOBJ_TYPE_PREFAB) { continue; }
         ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab.id);
         glBindVertexArray(prefab->geometry.vao);
-        glBindTexture(GL_TEXTURE_2D, prefab->textures.diffuse);
+
+        // Prepare textures
+        //glBindTexture(GL_TEXTURE_2D, prefab->textures.diffuse);
+        ZR_PrepareTextureUnit2D(
+            prog, GL_TEXTURE0, 0, "u_colourTex", prefab->textures.diffuse, g_samplerDataTex2D);
+        char* emissionTexName = "data/debug_white.png";
+        #if 1
+        if (group->id.prefab.id == ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE)
+        {
+            emissionTexName = "data/debug_white.png";
+        }
+        else
+        {
+            emissionTexName = "data/debug_black.png";
+        }
+        #endif
+        
+        i32 emissionTexIndex = ZRDB_GetTexIndexByName(emissionTexName);
+        i32 emissionTexHandle = ZRDB_GetTexHandleByIndex(emissionTexIndex);
+        //printf("Binding tex handle %d to tex unit 1\n", emissionTexHandle);
+        ZR_PrepareTextureUnit2D(
+            prog, GL_TEXTURE1, 1, "u_emissionTex", emissionTexHandle, g_samplerB);
+
+
         for (i32 j = 0; j < group->numItems; ++j)
         {
             i32 objIndex = group->indices[j];
@@ -161,7 +199,6 @@ static void ZRGL_DrawDebugGBufferCombine(ZRGBuffer* gBuf)
 
     ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_colourTex", gBuf->colourTex, g_samplerDataTex2D);
-    
     ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE1, 1, "u_normalTex", gBuf->normalTex, g_samplerDataTex2D);
     ZR_PrepareTextureUnit2D(
@@ -195,7 +232,6 @@ static void ZRGL_GBufferDrawDirectLight(
 
     ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_positionTex", gBuf->positionTex, g_samplerDataTex2D);
-    
     ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE1, 1, "u_normalTex", gBuf->normalTex, g_samplerDataTex2D);
     ZR_PrepareTextureUnit2D(
@@ -235,20 +271,17 @@ static void ZRGL_GBufferDrawPointLight(
     M4x4_CREATE(modelView)
     // gbuffer quad is drawn in screen space, -1 to 1 so scale up:
     M4x4_SetScale(modelView.cells, 2, 2, 2);
-    //M4x4_SetScale(modelView.cells, 1, 1, 1);
     ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
 
     ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_positionTex", gBuf->positionTex, g_samplerDataTex2D);
-    
     ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE1, 1, "u_normalTex", gBuf->normalTex, g_samplerDataTex2D);
     ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE2, 2, "u_colourTex", gBuf->colourTex, g_samplerDataTex2D);
+    ZR_PrepareTextureUnit2D(
+        prog, GL_TEXTURE3, 3, "u_emissionTex", gBuf->emissionTex, g_samplerDataTex2D);
     
-    //printf("GBuf light at %.3f, %.3f, %.3f - range %.3f\n",
-    //    lightWorldPos.x, lightWorldPos.y, lightWorldPos.z, 10.f
-    //);
     ZR_SetProgVec3f(prog, "u_lightWorldPos", lightWorldPos);
     ZR_SetProgVec3f(prog, "u_lightWorldDir", lightWorldDir);
     ZR_SetProgVec3f(prog, "u_lightColour", lightColour);
@@ -278,7 +311,8 @@ static void ZRGL_DrawGBufferDebugQuads(f32 aspectRatio)
     i32 texB = g_gBuffer.normalTex;
     i32 texC = g_gBuffer.colourTex;
     //i32 texC = g_rendToTexFB.colourTex;
-    i32 texD = g_shadowMapFB.depthTex;
+    //i32 texD = g_shadowMapFB.depthTex;
+    i32 texD = g_gBuffer.emissionTex;
     ZRGL_DrawDebugQuad(
         { -debugQuadPosOuter, -debugQuadPosOuter },
         { debugQuadSize, debugQuadSize },

@@ -66,10 +66,10 @@ struct ZRGBuffer
     GLuint positionTex;
     GLuint normalTex;
     GLuint colourTex;
+    GLuint emissionTex;
 
     GLuint depthRenderBuf;
 };
-
 
 struct ZRShaderHandle
 {

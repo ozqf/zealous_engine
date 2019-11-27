@@ -28,6 +28,7 @@ These shouldn't be in common! Move them into this module
 
 struct ZRSceneView;
 struct ZRShader;
+struct ZRMaterial;
 
 struct ScreenInfo
 {
@@ -219,11 +220,22 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 
 #define ZR_POINT_LIGHT_DEFAULT_RADIUS 50
 
+struct ZRMaterial
+{
+	//i32 BaseColour;			// default white
+	i32 diffuseTexture;	    // default checkerboard 32x32
+	i32 emissionTexture;	// default black 16x16
+    i32 normalTexture;		// default blue 16x16
+	i32 occulusionTexture;	// default black 16x16
+	i32 specularTexture;	// default black 16x16
+};
+
 union ZRDrawObjUnion
 {
 	struct
     {
-        i32 foo;
+        i32 meshIndex;
+        i32 materialIndex;
     } model;
     struct
     {
@@ -308,7 +320,6 @@ static void ZRDrawObj_SetAsPrefab(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
     obj->type = ZR_DRAWOBJ_TYPE_PREFAB;
     obj->program = ZR_SHADER_TYPE_BATCHED;
     obj->prefabId = prefabId;
-    obj->data.model.foo = YES;
 }
 
 static void ZRDrawObj_SetAsPointLight(

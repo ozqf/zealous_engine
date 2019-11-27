@@ -743,6 +743,9 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     //  DEBUG - COLOURED CUBES
     ////////////////////////////////////////////////////////////
     
+    ZRGL_LoadTexture2D("data/debug_white.png", bVerbose);
+    ZRGL_LoadTexture2D("data/debug_black.png", bVerbose);
+
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_PLAYER];
     prefab->bInitialised = YES;
     prefab->geometry = g_cubeVAO;
@@ -800,7 +803,6 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     prefab->textures.diffuse = g_defaultDiffuseHandle;
     prefab->program = ZR_SHADER_TYPE_FALLBACK;
     prefab->bInitialised = YES;
-
 }
 
 #endif // ZRGL_PREFABS

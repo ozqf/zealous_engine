@@ -4,6 +4,7 @@
 uniform sampler2D u_positionTex;
 uniform sampler2D u_normalTex;
 uniform sampler2D u_colourTex;
+uniform sampler2D u_emissionTex;
 
 // light params
 uniform vec3 u_lightWorldPos;
@@ -32,9 +33,20 @@ void main()
     vec3 colour = vec3(texture2D(u_colourTex, m_texCoord));
     vec3 normal = vec3(texture2D(u_normalTex, m_texCoord));
     vec3 fragWorldPos = vec3(texture2D(u_positionTex, m_texCoord));
-
-    vec4 lightResult = CalcPointLight(
+	vec4 emission = vec4(texture2D(u_emissionTex, m_texCoord));
+	
+    float lightMul = emission.x;
+    if (lightMul > 0.5)
+    {
+        outputColor = vec4(colour, 1);
+    }
+    else
+    {
+        vec4 lightResult = CalcPointLight(
         u_lightWorldPos, u_lightColour, u_lightRange, fragWorldPos, normal);
-    lightResult *= u_lightMultiplier;
-    outputColor = vec4(colour, 1) * lightResult;
+    
+        lightResult *= u_lightMultiplier;
+        outputColor = vec4(colour, 1) * lightResult;
+    }
+    
 }
