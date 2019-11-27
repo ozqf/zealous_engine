@@ -207,12 +207,12 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 ///////////////////////////////////////////////////////////
 
 #define ZR_DRAWOBJ_TYPE_NONE 0
-#define ZR_DRAWOBJ_TYPE_PREFAB 1
+#define ZR_DRAWOBJ_TYPE_MODEL 1
 #define ZR_DRAWOBJ_TYPE_POINT_LIGHT 2
 #define ZR_DRAWOBJ_TYPE_DIRECT_LIGHT 3
 #define ZR_DRAWOBJ_TYPE_TEXT 4
 #define ZR_DRAWOBJ_TYPE_BILLBOARD 5
-#define ZR_DRAWOBJ_TYPE_MODEL 6
+#define ZR_DRAWOBJ_TYPE_PREFAB 6
 
 #define ZR_DRAWOBJ_STATUS_FREE 0
 #define ZR_DRAWOBJ_STATUS_ASSIGNED 1
@@ -242,6 +242,10 @@ struct ZRDrawObjData
         } model;
         struct
         {
+            i32 prefabId;
+        } prefab;
+        struct
+        {
             i32 bCastShadows;
 	    	Colour colour;
             f32 multiplier;
@@ -264,11 +268,6 @@ struct ZRDrawObjData
 
 struct ZRDrawObj
 {
-    // prefab this object is using
-    // This is stored outside the union as it is required by all objects
-    // for grouping
-    i32 prefabId;
-
     // shader program used, see above
     i32 program;
 	
@@ -320,7 +319,7 @@ static void ZRDrawObj_SetAsPrefab(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
     obj->data = {};
     obj->data.type = ZR_DRAWOBJ_TYPE_PREFAB;
     obj->program = ZR_SHADER_TYPE_BATCHED;
-    obj->prefabId = prefabId;
+    obj->data.prefab.prefabId = prefabId;
 }
 
 static void ZRDrawObj_SetAsPointLight(
@@ -329,7 +328,6 @@ static void ZRDrawObj_SetAsPointLight(
     obj->data = {};
     obj->program = ZR_SHADER_TYPE_NONE;
     obj->data.type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
-    obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
     obj->data.pointLight.colour = colour;
     obj->data.pointLight.multiplier = multiplier;
     obj->data.pointLight.range = radius;
@@ -340,8 +338,7 @@ static void ZRDrawObj_SetAsDirectLight(
 {
     obj->data = {};
     obj->program = ZR_SHADER_TYPE_NONE;
-    obj->data.type = ZR_DRAWOBJ_TYPE_DIRECT_LIGHT;
-    obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
+    obj->data.prefab.prefabId = ZR_UNIQUE_OBJECT_GROUP;
     obj->data.directLight.colour = colour;
     obj->data.directLight.multiplier = multiplier;
     obj->data.directLight.range = radius;
@@ -355,7 +352,6 @@ static void ZRDrawObj_SetAsText(ZRScene* s, ZRDrawObj* obj, char* text)
     obj->data = {};
     obj->data.type = ZR_DRAWOBJ_TYPE_TEXT;
     obj->program = ZR_SHADER_TYPE_TEXT;
-    obj->prefabId = ZR_UNIQUE_OBJECT_GROUP;
     obj->data.text.text = text;
     obj->data.text.length = ZE_StrLenNoTerminator(text);
 }
@@ -525,7 +521,7 @@ inline static ZRGroupId ZRGroupId_FromDrawObj(ZRDrawObj* obj)
     switch (obj->data.type)
     {
         case ZR_DRAWOBJ_TYPE_PREFAB:
-        return ZRGroupId_SetForPrefab(obj->prefabId);
+        return ZRGroupId_SetForPrefab(obj->data.prefab.prefabId);
         
         case ZR_DRAWOBJ_TYPE_POINT_LIGHT:
         id.objType = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
