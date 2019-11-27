@@ -268,11 +268,7 @@ struct ZRDrawObjData
 
 struct ZRDrawObj
 {
-    // shader program used, see above
-    i32 program;
-	
     Transform t;
-    
     ZRDrawObjData data;
 };
 
@@ -318,7 +314,6 @@ static void ZRDrawObj_SetAsPrefab(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
 {
     obj->data = {};
     obj->data.type = ZR_DRAWOBJ_TYPE_PREFAB;
-    obj->program = ZR_SHADER_TYPE_BATCHED;
     obj->data.prefab.prefabId = prefabId;
 }
 
@@ -326,7 +321,6 @@ static void ZRDrawObj_SetAsPointLight(
     ZRScene* s, ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius)
 {
     obj->data = {};
-    obj->program = ZR_SHADER_TYPE_NONE;
     obj->data.type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
     obj->data.pointLight.colour = colour;
     obj->data.pointLight.multiplier = multiplier;
@@ -337,7 +331,6 @@ static void ZRDrawObj_SetAsDirectLight(
     ZRScene* s, ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius)
 {
     obj->data = {};
-    obj->program = ZR_SHADER_TYPE_NONE;
     obj->data.prefab.prefabId = ZR_UNIQUE_OBJECT_GROUP;
     obj->data.directLight.colour = colour;
     obj->data.directLight.multiplier = multiplier;
@@ -351,7 +344,6 @@ static void ZRDrawObj_SetAsText(ZRScene* s, ZRDrawObj* obj, char* text)
 {
     obj->data = {};
     obj->data.type = ZR_DRAWOBJ_TYPE_TEXT;
-    obj->program = ZR_SHADER_TYPE_TEXT;
     obj->data.text.text = text;
     obj->data.text.length = ZE_StrLenNoTerminator(text);
 }
