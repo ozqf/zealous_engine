@@ -119,6 +119,12 @@ internal i32  AppImpl_Init()
     //App_Win32_AttachErrorHandlers();
 	ZE_SetFatalError(App_Fatal);
 
+    ZRAssetDB* assets = (ZRAssetDB*)g_platform.GetAssetDB();
+    if (assets != NULL)
+    {
+        printf("APP - Got asset DB\n");
+    }
+
     // Memory
 
     // Acquiring an old 'heap object here. Various platform functions

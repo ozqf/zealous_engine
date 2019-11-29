@@ -129,12 +129,21 @@ struct ZRPlatform
 ///////////////////////////////////////////////////////////
 // Exported renderer instance
 ///////////////////////////////////////////////////////////
+
+struct ZRAssetDB
+{
+    i32 (*GetTexIndexByName)(char* name);
+    i32 (*GetMaterialIndexByName)(char* name);
+    i32 (*GetMeshIndexByName)(char* name);
+};
+
 struct ZRRenderer
 {
     i32 isValid;
     ErrorCode (*Init)(i32 scrWidth, i32 scrHeight);
     ZRPerformanceStats (*DrawFrameForward)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
     ZRPerformanceStats (*DrawFrameDeferred)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
+    ZRAssetDB* (*GetAssetDB)();
 };
 
 ///////////////////////////////////////////////////////////

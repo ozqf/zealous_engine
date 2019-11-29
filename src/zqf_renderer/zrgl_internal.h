@@ -118,6 +118,8 @@ static ZRPlatform g_platform;
 
 static ZRGBuffer g_gBuffer;
 
+static ZRAssetDB g_assets;
+
 //static Vec4 g_clearColour;
 
 static ZRMeshHandles g_cubeVAO;

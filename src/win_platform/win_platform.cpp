@@ -188,6 +188,15 @@ static void PlatformImpl_DebugBreak()
     DebugBreak();
 }
 
+static void* PlatformImpl_GetAssetDB()
+{
+    if (g_window.sentinel == ZE_SENTINEL)
+    {
+        return g_window.GetAssetDB();
+    }
+    return NULL;
+}
+
 static f64 PlatformImpl_QueryClock()
 {
     LARGE_INTEGER counter;
@@ -272,6 +281,7 @@ static ze_platform_export Win_BuildExport()
     result.Log = Win_Log;
     result.Print = Win_Print;
     result.DebugBreak = PlatformImpl_DebugBreak;
+    result.GetAssetDB = PlatformImpl_GetAssetDB;
 
     result.QueryClock = PlatformImpl_QueryClock;
     result.Allocate = PlatformImpl_Allocate;
