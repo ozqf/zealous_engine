@@ -131,8 +131,8 @@ static void ZRGL_FillGBuffer(
     for (i32 i = 0; i < numGroups; ++i)
     {
         ZRDrawGroup* group = groups[i];
-        if (group->id.objType != ZR_DRAWOBJ_TYPE_PREFAB) { continue; }
-        ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab.id);
+        if (group->data.type != ZR_DRAWOBJ_TYPE_PREFAB) { continue; }
+        ZRPrefab* prefab = ZRGL_GetPrefab(group->data.prefab.prefabId);
         glBindVertexArray(prefab->geometry.vao);
 
         // Prepare textures
@@ -141,7 +141,7 @@ static void ZRGL_FillGBuffer(
             prog, GL_TEXTURE0, 0, "u_colourTex", prefab->textures.diffuse, g_samplerDataTex2D);
         char* emissionTexName = "data/debug_white.png";
         #if 1
-        if (group->id.prefab.id == ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE)
+        if (group->data.prefab.prefabId == ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE)
         {
             emissionTexName = "data/debug_white.png";
         }

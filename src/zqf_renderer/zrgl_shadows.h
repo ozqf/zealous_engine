@@ -83,9 +83,9 @@ static void ZRGL_WriteTestShadowMap(
     for (i32 i = 0; i < numGroups; ++i)
     {
         ZRDrawGroup* group = groups[i];
-        switch (group->id.objType)
+        switch (group->data.type)
         {
-            /*case ZR_DRAWOBJ_TYPE_MODEL:
+            /*case ZR_DRAWOBJ_TYPE_MESH:
             {
                 ZR_DrawMeshGroupShadowMap(
                     shadow,
@@ -100,7 +100,7 @@ static void ZRGL_WriteTestShadowMap(
 
             case ZR_DRAWOBJ_TYPE_PREFAB:
             {
-                ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab.id);
+                ZRPrefab* prefab = ZRGL_GetPrefab(group->data.prefab.prefabId);
                 ZR_DrawMeshGroupShadowMap(
                     shadow,
                     group,

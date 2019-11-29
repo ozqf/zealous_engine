@@ -175,13 +175,16 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
     for (i32 i = 0; i < numObjects; ++i)
     {
         ZRDrawObj* obj = &objects[i];
+        u32 objHash = obj->CalcHash();
+        i32 objType = obj->data.type;
         //i32 objPrefabId;
 
         //ZRGroupId objGroupId = ZRGroupId_Set(obj->type, obj->program, obj->prefabId);
-        ZRGroupId objGroupId = ZRGroupId_FromDrawObj(obj);
-
+        //ZRGroupId objGroupId = ZRGroupId_FromDrawObj(obj);
+        //u32 hash = ZE_Hash_djb2_Fixed((u8*)obj, sizeof(ZRDrawObj));
+        //printf("Group hash %d\n", hash);
         // Most common primitive
-        if (obj->data.type == ZR_DRAWOBJ_TYPE_PREFAB)
+        if (objType == ZR_DRAWOBJ_TYPE_PREFAB)
         {
             // Find a group for this object
             // TODO: sort objects and keep current group around?
@@ -192,7 +195,8 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
                 // TODO: Groups have a maximum size. Can this be changed?
                 if (//potentialGroup->prefab == objPrefabId
                     //ZRGroupId_Equal(objGroupId, potentialGroup->id)
-                    ZRGROUP_EQUAL(&objGroupId, &potentialGroup->id)
+                    //ZRGROUP_EQUAL(&objGroupId, &potentialGroup->id)
+                    objHash == potentialGroup->hash
                     && potentialGroup->numItems < ZR_MAX_BATCH_SIZE)
                 {
                     group = potentialGroup;
@@ -203,27 +207,29 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
             {
                 // Create a new group
                 group = (ZRDrawGroup*)scratch->cursor;
+                group->hash = objHash;
+                group->data = obj->data;
 		    	group->numItems = 0;
-                group->id = objGroupId;
+                //group->id = objGroupId;
                 scratch->cursor += sizeof(ZRDrawGroup);
                 drawGroups->groups[drawGroups->numGroups++] = group;
             }
             group->indices[group->numItems++] = i;
         }
-        else if (obj->data.type == ZR_DRAWOBJ_TYPE_BILLBOARD)
+        else if (objType == ZR_DRAWOBJ_TYPE_BILLBOARD)
         {
             // TODO
             continue;
         }
         // lights have their own groups
-        else if (obj->data.type == ZR_DRAWOBJ_TYPE_POINT_LIGHT)
+        else if (objType == ZR_DRAWOBJ_TYPE_POINT_LIGHT)
         {
             i32 lightIndex = drawGroups->numLights++;
             ZE_ASSERT(lightIndex < ZR_MAX_DRAW_GROUPS, "Too many lights for draw groups")
             drawGroups->lights[lightIndex] = i;
             continue;
         }
-        else if (obj->data.type == ZR_DRAWOBJ_TYPE_NONE)
+        else if (objType == ZR_DRAWOBJ_TYPE_NONE)
         {
             // ignore this object
             continue;

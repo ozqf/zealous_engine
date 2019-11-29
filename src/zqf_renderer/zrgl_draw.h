@@ -283,7 +283,7 @@ static void ZR_DrawMeshGroupFallback(
     ZR_BuildViewMatrix(&view, camera);
     
     // Prepare geometry
-    ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab.id);
+    ZRPrefab* prefab = ZRGL_GetPrefab(group->data.prefab.prefabId);
     glBindVertexArray(prefab->geometry.vao);
 	CHECK_GL_ERR
     for (i32 i = 0; i < group->numItems; ++i)
@@ -347,7 +347,7 @@ static void ZR_DrawMeshGroupTest(
     Vec3 lightDir = camera->rotation.zAxis;
     
     // Prepare geometry
-    ZRPrefab* prefab = ZRGL_GetPrefab(group->id.prefab.id);
+    ZRPrefab* prefab = ZRGL_GetPrefab(group->data.prefab.prefabId);
     glBindVertexArray(prefab->geometry.vao);
 	CHECK_GL_ERR    
     ZR_PrepareTextureUnit2D(
@@ -415,7 +415,7 @@ static void ZR_DrawMeshGroupBatched(
     ZR_SetProg1i(programId, "u_numLights", ZR_MAX_POINT_LIGHTS_PER_MODEL);
 
     // Prepare geometry
-    ZRPrefab* obj = ZRGL_GetPrefab(group->id.prefab.id);
+    ZRPrefab* obj = ZRGL_GetPrefab(group->data.prefab.prefabId);
     glBindVertexArray(obj->geometry.vao);
 	CHECK_GL_ERR
 
@@ -455,15 +455,15 @@ static void ZR_DrawGroup(
     ScreenInfo* scrInfo,
     ZRPerformanceStats* stats)
 {
-    ZRGroupId* id = &group->id;
+    //ZRGroupId* id = &group->id;
+    i32 type = group->data.type;
 
 	// TODO: Support more programs!
-	if (id->program == ZR_SHADER_TYPE_NONE) { return; }
-    if (id->objType == ZR_DRAWOBJ_TYPE_NONE) { return; }
+	//if (id->program == ZR_SHADER_TYPE_NONE) { return; }
+    if (type == ZR_DRAWOBJ_TYPE_NONE) { return; }
 	
     // Draw batched meshes
-    if (id->program == ZR_SHADER_TYPE_BATCHED
-        && id->objType == ZR_DRAWOBJ_TYPE_PREFAB)
+    if (type == ZR_DRAWOBJ_TYPE_PREFAB)
     {
         #if 0
         ZR_DrawMeshGroupBatched(projection, group, stats);
@@ -481,15 +481,13 @@ static void ZR_DrawGroup(
         return;
     }
 
-    if (id->program == ZR_SHADER_TYPE_TEXT
-        && id->objType == ZR_DRAWOBJ_TYPE_TEXT)
+    if (type == ZR_DRAWOBJ_TYPE_TEXT)
     {
         ZR_DrawTextGroup(objects, numObjects, projection, group, scrInfo, stats);
         return;
     }
 
-    printf("No render function for group Id: obj type %d, prog %d\n",
-        id->objType, id->program);
+    printf("No render function for group Id: obj type %d\n", type);
 }
 
 #endif // ZRGL_DRAW

@@ -127,6 +127,7 @@ static ZRGroupingStats ZR_PrepareScene(
 
     ///////////////////////////////////////////////////////////
     // locate programs
+    #if 0
     for (i32 i = 0; i < view->numGroups; ++i)
     {
         ZRDrawGroup* group = view->groups[i];
@@ -144,7 +145,7 @@ static ZRGroupingStats ZR_PrepareScene(
         group->shader = NULL;
         
     }
-
+    #endif
     // Write data texture
     ZR_WriteGroupsToTextureByIndex(
         objects, sceneCmd->params.numObjects, &sceneCmd->params.camera,
@@ -186,7 +187,7 @@ static void ZRGL_DrawSceneToTexture(
     {
         ZRDrawGroup* group = groups[i];
         // filter objects that will not cast shadows
-        if (group->id.objType != ZR_DRAWOBJ_TYPE_PREFAB) { continue; }
+        if (group->data.type != ZR_DRAWOBJ_TYPE_PREFAB) { continue; }
         #if 1 // write colour texture
         ZR_DrawMeshGroupTest(
             camera,

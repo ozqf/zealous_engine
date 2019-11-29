@@ -200,7 +200,7 @@ static u32 ZRGL_LoadTexture2D(char* path, i32 bVerbose)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // Register texture with db
-    ZRDB_RegisterTexture(path, tex, 0, texID);
+    ZRDB_RegisterTexture(path, tex, 0, x, y, texID);
     
     // Clear binding
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -519,6 +519,14 @@ static ZRMeshHandles ZRGL_LoadFBX(
     ZRMeshHandles handles = ZRGL_CreateVAOf(
         numVerts, (Vec3*)verts, (Vec2*)uvs, (Vec3*)normals, 0, bVerbose
     );
+    MeshData meshData;
+    meshData.numVerts = numVerts;
+    meshData.verts = (f32*)verts;
+    meshData.uvs = (f32*)uvs;
+    meshData.normals = (f32*)normals;
+    // Register with asset db
+    ZRDB_RegisterMesh(path, handles, meshData);
+
     return handles;
 }
 
@@ -603,22 +611,27 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
 
     // Default VAOs
     MeshData* d;
+    i32 meshIndex;
 
     d = ZR_Embed_Cube();
     g_cubeVAO = ZRGL_CreateVAOf(
         d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    meshIndex = ZRDB_RegisterMesh("Cube", g_cubeVAO, *d);
 
     d = ZR_Embed_InverseCube();
     g_inverseCubeVAO = ZRGL_CreateVAOf(
         d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    meshIndex = ZRDB_RegisterMesh("InverseCube", g_inverseCubeVAO, *d);
 
     d = ZR_Embed_Quad();
     g_quadVAO = ZRGL_CreateVAOf(
         d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    meshIndex = ZRDB_RegisterMesh("Quad", g_quadVAO, *d);
     
     d = ZR_Embed_Spike();
     g_spikeVAO = ZRGL_CreateVAOf(
         d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    meshIndex = ZRDB_RegisterMesh("Spike", g_spikeVAO, *d);
     
     g_defaultDiffuseHandle = 
         ZRGL_LoadTexture2D(ZQF_R_DEFAULT_DIFFUSE_TEX, bVerbose);

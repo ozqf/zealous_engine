@@ -11,6 +11,7 @@ These shouldn't be in common! Move them into this module
  */
 #include "ze_common/ze_common.h"
 #include "ze_common/ze_byte_buffer.h"
+#include "ze_common/ze_hash.h"
 #include "ze_common/ze_math_types.h"
 #include "ze_common/ze_string_utils.h"
 #include "ze_common/ze_memory_utils.h"
@@ -207,7 +208,7 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 ///////////////////////////////////////////////////////////
 
 #define ZR_DRAWOBJ_TYPE_NONE 0
-#define ZR_DRAWOBJ_TYPE_MODEL 1
+#define ZR_DRAWOBJ_TYPE_MESH 1
 #define ZR_DRAWOBJ_TYPE_POINT_LIGHT 2
 #define ZR_DRAWOBJ_TYPE_DIRECT_LIGHT 3
 #define ZR_DRAWOBJ_TYPE_TEXT 4
@@ -222,12 +223,13 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 
 struct ZRMaterial
 {
-	//i32 BaseColour;			// default white
-	i32 diffuseTexture;	    // default checkerboard 32x32
-	i32 emissionTexture;	// default black 16x16
-    i32 normalTexture;		// default blue 16x16
-	i32 occulusionTexture;	// default black 16x16
-	i32 specularTexture;	// default black 16x16
+	char* name;
+	i32 diffuseTexHandle;	    // default checkerboard 32x32
+	i32 emissionTexHandle;		// default black 16x16
+    //i32 normalTexHandle;		// default blue 16x16
+	//i32 occulusionTexHandle;	// default black 16x16
+	//i32 specularTexHandle;		// default black 16x16
+	//Colour baseColour;			// default white
 };
 
 struct ZRDrawObjData
@@ -244,6 +246,10 @@ struct ZRDrawObjData
         {
             i32 prefabId;
         } prefab;
+        struct
+        {
+            i32 frame;
+        } billboard;
         struct
         {
             i32 bCastShadows;
@@ -269,7 +275,13 @@ struct ZRDrawObjData
 struct ZRDrawObj
 {
     Transform t;
+    u32 hash;
     ZRDrawObjData data;
+    u32 CalcHash()
+    {
+        hash = ZE_Hash_djb2_Fixed((u8*)&this->data, sizeof(ZRDrawObjData));
+        return hash;
+    }
 };
 
 struct ZRSceneObj
@@ -315,6 +327,15 @@ static void ZRDrawObj_SetAsPrefab(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
     obj->data = {};
     obj->data.type = ZR_DRAWOBJ_TYPE_PREFAB;
     obj->data.prefab.prefabId = prefabId;
+}
+
+static void ZRDrawObj_SetAsMesh(
+    ZRScene* s, ZRDrawObj* obj, i32 meshIndex, i32 materialIndex)
+{
+    obj->data = {};
+    obj->data.type = ZR_DRAWOBJ_TYPE_MESH;
+    obj->data.model.meshIndex = meshIndex;
+    obj->data.model.materialIndex = materialIndex;
 }
 
 static void ZRDrawObj_SetAsPointLight(
@@ -527,7 +548,9 @@ struct ZRDrawGroup
 {
 	// The prefab these objects are grouped on
 	//i32 prefab;
-    ZRGroupId id;
+    //ZRGroupId id;
+    u32 hash;
+    ZRDrawObjData data;
 	// location in buffer for this group's command + data
 	u8* commandPtr;
     u8* shaderDataPtr;
@@ -564,6 +587,22 @@ struct MeshData
 	f32* verts;
 	f32* uvs;
     f32* normals;    
+};
+
+// internal types
+/**
+ * Asset handles required to execute a draw call
+ */
+struct ZRMeshHandles
+{
+    i32 vao;
+    i32 vbo;
+    i32 vertexCount;
+	i32 totalVBOBytes;
+	// all data before this point is static mesh geometry
+	i32 instanceDataOffset;
+	// Capacity for instances left behind static mesh data
+	i32 maxInstances;
 };
 
 struct ZRShader

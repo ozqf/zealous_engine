@@ -77,22 +77,6 @@ struct ZRShaderHandle
     i32 batchingFunction;
 };
 
-// internal types
-/**
- * Asset handles required to execute a draw call
- */
-struct ZRMeshHandles
-{
-    i32 vao;
-    i32 vbo;
-    i32 vertexCount;
-	i32 totalVBOBytes;
-	// all data before this point is static mesh geometry
-	i32 instanceDataOffset;
-	// Capacity for instances left behind static mesh data
-	i32 maxInstances;
-};
-
 struct ZRPrefab
 {
     i32 program;

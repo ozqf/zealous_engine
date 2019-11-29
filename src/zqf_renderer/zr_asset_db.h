@@ -11,12 +11,15 @@
 /**
  * Ultra simple way to store assets and retrieve by name or opengl handle
  */
-extern "C" i32 ZRDB_RegisterTexture(char* fileName, void* data, i32 dataSize, i32 apiHandle);
+extern "C" i32 ZRDB_RegisterTexture(
+    char* fileName, void* data, i32 dataSize, i32 width, i32 height, i32 apiHandle);
 extern "C" i32 ZRDB_GetTexIndexByName(char* name);
 extern "C" i32 ZRDB_GetTexHandleByIndex(i32 index);
+extern "C" i32 ZRDB_GetTexHandleByName(char* name);
 
-//extern "C" i32 ZRDB_RegisterMesh(char* fileName, void* data, i32 dataSize, i32 apiHandle);
-//extern "C" i32 ZRDB_GetMeshIndexByName(char* name);
-//extern "C" i32 ZRDB_GetMeshHandleByIndex(i32 index);
+extern "C" i32 ZRDB_RegisterMesh(char* name, ZRMeshHandles handles, MeshData data);
+extern "C" i32 ZRDB_GetMeshIndexByName(char* name);
+extern "C" void ZRDB_GetMeshHandlesByIndex(i32 index, ZRMeshHandles* result);
+extern "C" void ZRDB_GetMeshHandlesByName(char* name, ZRMeshHandles* result);
 
 #endif // ZR_ASSET_DB_H
