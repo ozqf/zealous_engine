@@ -131,7 +131,9 @@ static void ZRGL_FillGBuffer(
     for (i32 i = 0; i < numGroups; ++i)
     {
         ZRDrawGroup* group = groups[i];
+		
         if (group->data.type != ZR_DRAWOBJ_TYPE_PREFAB) { continue; }
+		
         ZRPrefab* prefab = ZRGL_GetPrefab(group->data.prefab.prefabId);
         glBindVertexArray(prefab->geometry.vao);
 

@@ -22,4 +22,7 @@ extern "C" i32 ZRDB_GetMeshIndexByName(char* name);
 extern "C" void ZRDB_GetMeshHandlesByIndex(i32 index, ZRMeshHandles* result);
 extern "C" void ZRDB_GetMeshHandlesByName(char* name, ZRMeshHandles* result);
 
+extern "C" void ZRDB_CreateMaterial(char* name, char* diffuseName, char* emissiveName);
+extern "C" i32 ZRDB_GetMaterialIndexByName(char* name);
+extern "C" void ZRDB_GetMaterialByIndex(i32 index, ZRMaterial* result);
 #endif // ZR_ASSET_DB_H

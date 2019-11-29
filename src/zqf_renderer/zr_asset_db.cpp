@@ -123,7 +123,21 @@ extern "C" void ZRDB_GetMeshHandlesByName(char* name, ZRMeshHandles* result)
 internal ZRMaterial g_materials[ZR_ASSET_DB_MAX_HANDLES];
 internal i32 g_nextMaterial = 0;
 
-extern "C" ZRMaterial* ZRDB_GetFreeMaterial(char* newName)
+extern "C" i32 ZRDB_GetMaterialIndexByName(char* name)
+{
+    i32 index = 0;
+    for (i32 i = 0; i < g_nextMesh; ++i)
+    {
+        if (ZE_CompareStrings(name, g_materials[i].name) == 0)
+        {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
+
+static ZRMaterial* ZRDB_GetFreeMaterial(char* newName)
 {
 	i32 index = g_nextMaterial++;
 	ZRMaterial* mat = &g_materials[index];
@@ -139,9 +153,10 @@ extern "C" void ZRDB_CreateMaterial(
 	mat->emissionTexHandle = ZRDB_GetTexHandleByName(emissiveName);
 }
 
-extern "C" void ZRDB_RegisterMaterial(char* name, ZRMaterial mat)
+extern "C" void ZRDB_GetMaterialByIndex(i32 index, ZRMaterial* result)
 {
-    
+	if (index < 0 || index >= g_nextMaterial) { index = 0; }
+    *result = g_materials[index];
 }
 
 #endif // ZR_ASSET_DB_CPP
