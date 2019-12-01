@@ -549,66 +549,27 @@ static ZRPrefab* ZRGL_GetPrefab(i32 index)
 static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
 {
     printf("ZRGL - load default prefabs\n");
-    char* paths[6];
-    #if 0 // Star field
-    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/ame_starfield/starfield_ft.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/ame_starfield/starfield_bk.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/ame_starfield/starfield_up.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/ame_starfield/starfield_dn.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/ame_starfield/starfield_rt.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/ame_starfield/starfield_lf.tga";
-    #endif
-    #if 0 // Star field + nebula
-    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/ame_nebula/purplenebula_ft.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/ame_nebula/purplenebula_bk.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/ame_nebula/purplenebula_up.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/ame_nebula/purplenebula_dn.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/ame_nebula/purplenebula_rt.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/ame_nebula/purplenebula_lf.tga";
-    #endif
-    #if 1 // Clouds
-    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/envmap_miramar/miramar_ft.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/envmap_miramar/miramar_bk.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/envmap_miramar/miramar_up.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/envmap_miramar/miramar_dn.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/envmap_miramar/miramar_rt.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/envmap_miramar/miramar_lf.tga";
-    #endif
-    #if 0 // deep rocky canyon
-    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/elbrus/elbrus_ft.jpg";
-    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/elbrus/elbrus_bk.jpg";
-    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/elbrus/elbrus_up.jpg";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/elbrus/elbrus_dn.jpg";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/elbrus/elbrus_rt.jpg";
-    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/elbrus/elbrus_lf.jpg";
-    #endif
-    #if 0 // Above stormy planet
-    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/mp_mandaris/mandaris_ft.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/mp_mandaris/mandaris_bk.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/mp_mandaris/mandaris_up.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/mp_mandaris/mandaris_dn.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/mp_mandaris/mandaris_rt.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/mp_mandaris/mandaris_lf.tga";
-    #endif
-    #if 0 // Weird computery space station...thing?
-    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/mp_mainframe/mainframe_ft.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/mp_mainframe/mainframe_bk.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/mp_mainframe/mainframe_up.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/mp_mainframe/mainframe_dn.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/mp_mainframe/mainframe_rt.tga";
-    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/mp_mainframe/mainframe_lf.tga";
-    #endif
-    #if 0
-    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/W33_5.bmp";
-    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/W33_5.bmp";
-    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/W33_5.bmp";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/W33_5.bmp";
-    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/W33_5.bmp";
-    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/W33_5.bmp";
-    #endif
 
-    g_cubemapHandle = ZRGL_LoadCubeMap(paths, YES);
+    // Textures
+    ZRGL_LoadTexture2D("data/debug_white.png", bVerbose);
+    ZRGL_LoadTexture2D("data/debug_black.png", bVerbose);
+    ZRGL_LoadTexture2D("data/debug_green.png", bVerbose);
+    ZRGL_LoadTexture2D("data/debug_red.png", bVerbose);
+    ZRGL_LoadTexture2D("data/debug_cyan.png", bVerbose);
+    ZRGL_LoadTexture2D("data/debug_orange.png", bVerbose);
+    ZRGL_LoadTexture2D("data/debug_magenta.png", bVerbose);
+    ZRGL_LoadTexture2D("data/debug_blue.png", bVerbose);
+    ZRGL_LoadTexture2D("data/debug_grey_dark.png", bVerbose);
 
+    ZRGL_LoadTexture2D("data/charset.bmp", bVerbose);
+    ZRGL_LoadTexture2D("data/BKEYB0.png", bVerbose);
+    ZRGL_LoadTexture2D("data/TemplePillar_albedo.tga", bVerbose);
+    ZRGL_LoadTexture2D("data/LowFlak-AlbedoM.tga", bVerbose);
+
+    ZRGL_LoadTexture2D("data/WALL03_7.png", bVerbose);
+    ZRGL_LoadTexture2D("data/Mage.png", bVerbose);
+
+    
     // Default VAOs
     MeshData* d;
     i32 meshIndex;
@@ -756,9 +717,6 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     //  DEBUG - COLOURED CUBES
     ////////////////////////////////////////////////////////////
     
-    ZRGL_LoadTexture2D("data/debug_white.png", bVerbose);
-    ZRGL_LoadTexture2D("data/debug_black.png", bVerbose);
-
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_PLAYER];
     prefab->bInitialised = YES;
     prefab->geometry = g_cubeVAO;
@@ -816,6 +774,69 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     prefab->textures.diffuse = g_defaultDiffuseHandle;
     prefab->program = ZR_SHADER_TYPE_FALLBACK;
     prefab->bInitialised = YES;
+
+    /////////////////////////////////////////////////////
+    // Skyboxes
+    /////////////////////////////////////////////////////
+    char* paths[6];
+    #if 0 // Star field
+    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/ame_starfield/starfield_ft.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/ame_starfield/starfield_bk.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/ame_starfield/starfield_up.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/ame_starfield/starfield_dn.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/ame_starfield/starfield_rt.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/ame_starfield/starfield_lf.tga";
+    #endif
+    #if 0 // Star field + nebula
+    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/ame_nebula/purplenebula_ft.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/ame_nebula/purplenebula_bk.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/ame_nebula/purplenebula_up.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/ame_nebula/purplenebula_dn.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/ame_nebula/purplenebula_rt.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/ame_nebula/purplenebula_lf.tga";
+    #endif
+    #if 1 // Clouds
+    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/envmap_miramar/miramar_ft.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/envmap_miramar/miramar_bk.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/envmap_miramar/miramar_up.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/envmap_miramar/miramar_dn.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/envmap_miramar/miramar_rt.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/envmap_miramar/miramar_lf.tga";
+    #endif
+    #if 0 // deep rocky canyon
+    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/elbrus/elbrus_ft.jpg";
+    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/elbrus/elbrus_bk.jpg";
+    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/elbrus/elbrus_up.jpg";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/elbrus/elbrus_dn.jpg";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/elbrus/elbrus_rt.jpg";
+    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/elbrus/elbrus_lf.jpg";
+    #endif
+    #if 0 // Above stormy planet
+    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/mp_mandaris/mandaris_ft.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/mp_mandaris/mandaris_bk.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/mp_mandaris/mandaris_up.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/mp_mandaris/mandaris_dn.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/mp_mandaris/mandaris_rt.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/mp_mandaris/mandaris_lf.tga";
+    #endif
+    #if 0 // Weird computery space station...thing?
+    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/skybox/mp_mainframe/mainframe_ft.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/skybox/mp_mainframe/mainframe_bk.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/skybox/mp_mainframe/mainframe_up.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/skybox/mp_mainframe/mainframe_dn.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/skybox/mp_mainframe/mainframe_rt.tga";
+    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/skybox/mp_mainframe/mainframe_lf.tga";
+    #endif
+    #if 0
+    paths[ZR_CUBEMAP_LOAD_INDEX_RIGHT] = "data/W33_5.bmp";
+    paths[ZR_CUBEMAP_LOAD_INDEX_LEFT] = "data/W33_5.bmp";
+    paths[ZR_CUBEMAP_LOAD_INDEX_TOP] = "data/W33_5.bmp";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BOTTOM] = "data/W33_5.bmp";
+    paths[ZR_CUBEMAP_LOAD_INDEX_BACK] = "data/W33_5.bmp";
+    paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/W33_5.bmp";
+    #endif
+
+    g_cubemapHandle = ZRGL_LoadCubeMap(paths, YES);
 }
 
 #endif // ZRGL_PREFABS
