@@ -184,7 +184,7 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
         //u32 hash = ZE_Hash_djb2_Fixed((u8*)obj, sizeof(ZRDrawObj));
         //printf("Group hash %d\n", hash);
         // Most common primitive
-        if (objType == ZR_DRAWOBJ_TYPE_PREFAB)
+        if (objType == ZR_DRAWOBJ_TYPE_PREFAB || objType == ZR_DRAWOBJ_TYPE_MESH)
         {
             // Find a group for this object
             // TODO: sort objects and keep current group around?
@@ -237,6 +237,7 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
         else
         {
             // Unknown type... no idea what to do...
+            printf("ZR no grouping for drawobj type %d\n", objType);
         }
     }
     return drawGroups;

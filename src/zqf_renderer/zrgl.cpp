@@ -21,8 +21,8 @@
 #include "zrgl_forward_draw.h"
 #include "zrgl_forward_main.h"
 // deferred
-#include "zrgl_gbuffer.h"
 #include "zrgl_deferred_draw.h"
+#include "zrgl_gbuffer.h"
 #include "zrgl_deferred_main.h"
 
 #include "zrgl_init.h"

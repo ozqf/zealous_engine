@@ -131,9 +131,17 @@ static void ZRGL_FillGBuffer(
     for (i32 i = 0; i < numGroups; ++i)
     {
         ZRDrawGroup* group = groups[i];
-		
+		switch (group->data.type)
+        {
+            case ZR_DRAWOBJ_TYPE_MESH:
+            ZRGL_GeometryPass_Mesh(gBuf, &projection, &view, objects, group);
+            break;
+            case ZR_DRAWOBJ_TYPE_PREFAB:
+            ZRGL_GeometryPass_Prefab(gBuf, &projection, &view, objects, group);
+            break;
+        }
+        #if 0
         if (group->data.type != ZR_DRAWOBJ_TYPE_PREFAB) { continue; }
-		
         ZRPrefab* prefab = ZRGL_GetPrefab(group->data.prefab.prefabId);
         glBindVertexArray(prefab->geometry.vao);
 
@@ -141,6 +149,7 @@ static void ZRGL_FillGBuffer(
         //glBindTexture(GL_TEXTURE_2D, prefab->textures.diffuse);
         ZR_PrepareTextureUnit2D(
             prog, GL_TEXTURE0, 0, "u_colourTex", prefab->textures.diffuse, g_samplerDataTex2D);
+        
         char* emissionTexName = "data/debug_white.png";
         #if 1
         if (group->data.prefab.prefabId == ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE)
@@ -177,6 +186,7 @@ static void ZRGL_FillGBuffer(
             glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
             stats->drawCallsGBuffer++;
         }
+        #endif
     }
     
     // clear settings
@@ -312,9 +322,9 @@ static void ZRGL_DrawGBufferDebugQuads(f32 aspectRatio)
     i32 texA = g_gBuffer.positionTex;
     i32 texB = g_gBuffer.normalTex;
     i32 texC = g_gBuffer.colourTex;
+    i32 texD = g_gBuffer.emissionTex;
     //i32 texC = g_rendToTexFB.colourTex;
     //i32 texD = g_shadowMapFB.depthTex;
-    i32 texD = g_gBuffer.emissionTex;
     ZRGL_DrawDebugQuad(
         { -debugQuadPosOuter, -debugQuadPosOuter },
         { debugQuadSize, debugQuadSize },

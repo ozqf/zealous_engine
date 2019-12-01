@@ -95,10 +95,18 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             } break;
             case SIM_FACTORY_TYPE_WORLD:
             {
+                #if 0
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_WALL);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
+                #endif
+                #if 1
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj_SetAsMesh(NULL, obj, 0, 0);
+                obj->t = ent->body.t;
+                rendObjectsAdded++;
+                #endif
             } break;
             case SIM_FACTORY_TYPE_BOUNCER:
             case SIM_FACTORY_TYPE_WANDERER:

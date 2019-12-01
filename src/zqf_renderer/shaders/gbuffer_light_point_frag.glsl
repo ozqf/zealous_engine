@@ -36,7 +36,7 @@ void main()
 	vec4 emission = vec4(texture2D(u_emissionTex, m_texCoord));
 	
     float lightMul = emission.x;
-    if (lightMul > 0.5)
+    if (lightMul > 0.9)
     {
         outputColor = vec4(colour, 1);
     }
