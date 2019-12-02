@@ -233,8 +233,9 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 struct ZRMaterial
 {
 	char* name;
-	i32 diffuseTexHandle;	    // default checkerboard 32x32
-	i32 emissionTexHandle;		// default black 16x16
+    i32 id;
+	i32 diffuseTexIndex;   	    // default checkerboard 32x32
+	i32 emissionTexIndex;		    // default black 16x16
     //i32 normalTexHandle;		// default blue 16x16
 	//i32 occulusionTexHandle;	// default black 16x16
 	//i32 specularTexHandle;		// default black 16x16

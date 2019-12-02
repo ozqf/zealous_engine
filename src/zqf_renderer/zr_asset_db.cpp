@@ -141,6 +141,7 @@ static ZRMaterial* ZRDB_GetFreeMaterial(char* newName)
 {
 	i32 index = g_nextMaterial++;
 	ZRMaterial* mat = &g_materials[index];
+    mat->id = index;
 	mat->name = newName;
 	return mat;
 }
@@ -149,8 +150,9 @@ extern "C" void ZRDB_CreateMaterial(
 	char* name, char* diffuseName, char* emissiveName)
 {
 	ZRMaterial* mat = ZRDB_GetFreeMaterial(name);
-	mat->diffuseTexHandle = ZRDB_GetTexHandleByName(diffuseName);
-	mat->emissionTexHandle = ZRDB_GetTexHandleByName(emissiveName);
+	mat->diffuseTexIndex = ZRDB_GetTexIndexByName(diffuseName);
+	mat->emissionTexIndex = ZRDB_GetTexIndexByName(emissiveName);
+    printf("ZRDB Create material id %d: \"%s\"\n", mat->id, mat->name);
 }
 
 extern "C" void ZRDB_GetMaterialByIndex(i32 index, ZRMaterial* result)

@@ -41,7 +41,7 @@ static void ZRGL_GeometryPass_Mesh(
 	i32 emissive = ZRDB_GetTexHandleByName("data/debug_black.png");
 	//mat.diffuseTexHandle = 1;
 	//mat.emissionTexHandle = 1;
-	printf("ZR Geom pass mesh %d diffuse %d emissive %d\n", vao, diffuse, emissive);
+	//printf("ZR Geom pass mesh %d diffuse %d emissive %d\n", vao, diffuse, emissive);
 	ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_colourTex", diffuse, g_samplerDataTex2D);
 	ZR_PrepareTextureUnit2D(

@@ -569,6 +569,10 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     ZRGL_LoadTexture2D("data/WALL03_7.png", bVerbose);
     ZRGL_LoadTexture2D("data/Mage.png", bVerbose);
 
+    // Materials
+    ZRDB_CreateMaterial("Default", "debug_white.png", "data/debug_black.png");
+    ZRDB_CreateMaterial("Wall", "data/WALL03_7.png", "data/debug_black.png");
+    ZRDB_CreateMaterial("Projectile", "data/debug_orange.png", "data/debug_white.png");
     
     // Default VAOs
     MeshData* d;
