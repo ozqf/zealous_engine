@@ -246,11 +246,15 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     /////////////////////////////////////////
 
     // Setup export
-    g_assets.GetMaterialIndexByName = ZRDB_GetTexIndexByName;
-    g_assets.GetMeshIndexByName = ZRDB_GetMeshIndexByName;
-    g_assets.GetTexIndexByName = ZRDB_GetTexIndexByName;
+    g_assets = ZRDB_Create();
+
+    //g_assets.GetMaterialIndexByName = ZRDB_GetTexIndexByName;
+    //g_assets.GetMeshIndexByName = ZRDB_GetMeshIndexByName;
+    //g_assets.GetTexIndexByName = ZRDB_GetTexIndexByName;
 
     ZE_SET_ZERO(g_prefabs, sizeof(ZRPrefab) * ZR_MAX_PREFABS);
+
+
     
     ZRGL_LoadDefaultPrefabs(NO);
 
@@ -260,7 +264,7 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
 // TODO: Bleh just make this OO
 extern "C" ZRAssetDB* ZRImpl_GetAssetDB()
 {
-    return &g_assets;
+    return g_assets;
 }
 
 extern "C" ZRRenderer ZR_Link(ZRPlatform platform)

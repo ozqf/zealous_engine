@@ -8,6 +8,13 @@
 #define ZRDB_ASSET_TYPE_ 2
 #define ZRDB_ASSET_TYPE_BLOB 3
 
+struct ZRAssetDB
+{
+    i32 (*GetTexIndexByName)(ZRAssetDB* db, char* name);
+    i32 (*GetMaterialIndexByName)(ZRAssetDB* db, char* name);
+    i32 (*GetMeshIndexByName)(ZRAssetDB* db, char* name);
+};
+
 /**
  * Ultra simple way to store assets and retrieve by name or opengl handle
  */
@@ -25,4 +32,6 @@ extern "C" void ZRDB_GetMeshHandlesByName(char* name, ZRMeshHandles* result);
 extern "C" void ZRDB_CreateMaterial(char* name, char* diffuseName, char* emissiveName);
 extern "C" i32 ZRDB_GetMaterialIndexByName(char* name);
 extern "C" void ZRDB_GetMaterialByIndex(i32 index, ZRMaterial* result);
+
+extern "C" ZRAssetDB* ZRDB_Create();
 #endif // ZR_ASSET_DB_H

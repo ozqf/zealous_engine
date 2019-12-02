@@ -40,7 +40,7 @@
 // embedded assets
 #include "../zr_embedded/zr_embedded.h"
 // loaded assets
-#include "zr_asset_db.h"
+//#include "zr_asset_db.h"
 
 #include "../zqf_renderer.h"
 #include "opengl_utils.h"
@@ -118,7 +118,7 @@ static ZRPlatform g_platform;
 
 static ZRGBuffer g_gBuffer;
 
-static ZRAssetDB g_assets;
+static ZRAssetDB* g_assets;
 
 //static Vec4 g_clearColour;
 

@@ -3,11 +3,7 @@
 
 #include "zr_asset_db.h"
 
-#define ZR_ASSET_DB_MAX_HANDLES 256
-
-///////////////////////////////////////////////////////////////////////////
-// Textures
-///////////////////////////////////////////////////////////////////////////
+#define ZR_ASSET_DB_MAX_HANDLES 512
 
 struct ZRDBTexture
 {
@@ -18,6 +14,34 @@ struct ZRDBTexture
     i32 height;
     i32 apiHandle;
 };
+
+struct ZRDBMesh
+{
+    char* name;
+    // api handles
+    ZRMeshHandles handles;
+    // mesh data on heap
+    MeshData data;
+};
+
+struct ZRAssetDBData
+{
+    ZRAssetDB header;
+
+    ZRDBTexture* textures;
+    i32 numTextures;
+    i32 maxTextures;
+    ZRDBMesh* meshes;
+    i32 numMeshes;
+    i32 maxMeshes;
+    ZRMaterial* materials;
+    i32 numMaterials;
+    i32 maxMaterials;
+};
+
+///////////////////////////////////////////////////////////////////////////
+// Textures
+///////////////////////////////////////////////////////////////////////////
 
 internal ZRDBTexture g_textures[ZR_ASSET_DB_MAX_HANDLES];
 internal i32 g_nextTexture = 0;
@@ -66,15 +90,6 @@ extern "C" i32 ZRDB_GetTexHandleByName(char* name)
 ///////////////////////////////////////////////////////////////////////////
 // Meshes
 ///////////////////////////////////////////////////////////////////////////
-
-struct ZRDBMesh
-{
-    char* name;
-    // api handles
-    ZRMeshHandles handles;
-    // mesh data on heap
-    MeshData data;
-};
 
 internal ZRDBMesh g_meshes[ZR_ASSET_DB_MAX_HANDLES];
 internal i32 g_nextMesh = 0;
@@ -161,4 +176,24 @@ extern "C" void ZRDB_GetMaterialByIndex(i32 index, ZRMaterial* result)
     *result = g_materials[index];
 }
 
+///////////////////////////////////////////////////////////////////////////
+// Create
+///////////////////////////////////////////////////////////////////////////
+
+extern "C" ZRAssetDB* ZRDB_Create()
+{
+    ZRAssetDBData* db = (ZRAssetDBData*)malloc(sizeof(ZRAssetDBData));
+    *db = {};
+    //db->header.GetMaterialIndexByName = ZRDB_GetMaterialIndexByName;
+    //db->header.GetMeshIndexByName = ZRDB_GetMeshIndexByName;
+    //db->header.GetTexIndexByName = ZRDB_GetTexIndexByName;
+
+    db->textures = (ZRDBTexture*)malloc(sizeof(ZRDBTexture) * ZR_ASSET_DB_MAX_HANDLES);
+    db->maxTextures = ZR_ASSET_DB_MAX_HANDLES;
+    db->meshes = (ZRDBMesh*)malloc(sizeof(ZRDBMesh) * ZR_ASSET_DB_MAX_HANDLES);
+    db->maxMeshes = ZR_ASSET_DB_MAX_HANDLES;
+    db->materials = (ZRMaterial*)malloc(sizeof(ZRMaterial) * ZR_ASSET_DB_MAX_HANDLES);
+    db->maxMaterials = ZR_ASSET_DB_MAX_HANDLES;
+    return &db->header;
+}
 #endif // ZR_ASSET_DB_CPP

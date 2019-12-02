@@ -30,12 +30,24 @@ These shouldn't be in common! Move them into this module
 struct ZRSceneView;
 struct ZRShader;
 struct ZRMaterial;
+struct ZRPlatform;
 
 struct ScreenInfo
 {
     i32 width;
     i32 height;
     f32 aspectRatio;
+};
+
+///////////////////////////////////////////////////////////
+// Imported platform functions
+// - passed in at initialisation
+///////////////////////////////////////////////////////////
+struct ZRPlatform
+{
+    double (*QueryClock)();
+    void* (*Allocate)(i32 numBytes);
+    void (*Free)(void* ptr);
 };
 
 ///////////////////////////////////////////////////////////
@@ -114,42 +126,6 @@ struct ZRPerformanceStats
 
     ZRGroupingStats grouping;
 };
-
-///////////////////////////////////////////////////////////
-// Imported platform functions
-// - passed in at initialisation
-///////////////////////////////////////////////////////////
-struct ZRPlatform
-{
-    double (*QueryClock)();
-    void* (*Allocate)(i32 numBytes);
-    void (*Free)(void* ptr);
-};
-
-///////////////////////////////////////////////////////////
-// Exported renderer instance
-///////////////////////////////////////////////////////////
-
-struct ZRAssetDB
-{
-    i32 (*GetTexIndexByName)(char* name);
-    i32 (*GetMaterialIndexByName)(char* name);
-    i32 (*GetMeshIndexByName)(char* name);
-};
-
-struct ZRRenderer
-{
-    i32 isValid;
-    ErrorCode (*Init)(i32 scrWidth, i32 scrHeight);
-    ZRPerformanceStats (*DrawFrameForward)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
-    ZRPerformanceStats (*DrawFrameDeferred)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
-    ZRAssetDB* (*GetAssetDB)();
-};
-
-///////////////////////////////////////////////////////////
-// Exported functions
-///////////////////////////////////////////////////////////
-extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 
 
 
@@ -451,109 +427,6 @@ struct ZRDrawObjLightData
     Vec4 settings[ZR_MAX_POINT_LIGHTS_PER_MODEL];
 };
 
-// Old grouping implementation
-#if 0
-struct ZRGroupId
-{
-    i32 objType;
-	i32 program;
-	i32 prefab;
-};
-
-inline static i32 ZRGroupId_Equal(ZRGroupId a, ZRGroupId b)
-{
-    if (a.objType != b.objType) { return NO; }
-    if (a.program != b.program) { return NO; }
-    if (a.prefab != b.prefab) { return NO; }
-    return YES;
-}
-
-inline static ZRGroupId ZRGroupId_Set(i32 objType, i32 program, i32 prefab)
-{
-    ZRGroupId id;
-    id.objType = objType;
-    id.program = program;
-    id.prefab = prefab;
-    return id;
-}
-#endif
-
-// New, more expandable grouping implementation
-#if 1
-#pragma pack(push, 1)
-struct ZRGroupId
-{
-    i32 objType;
-    i32 program;
-    // Store unique group Ids for each object type here:
-    union
-    {
-        struct
-        {
-            i32 id;
-        } prefab;
-        struct
-        {
-            i32 mesh;
-            i32 diffuseTexture;
-        } model;
-        struct
-        {
-            i32 diffuseTexture;
-        } billboard;
-    };
-};
-#pragma pack(pop)
-
-#define ZRGROUP_EQUAL(a, b) \
-(ZE_CompareMemory((u8*)a, (u8*)b, sizeof(ZRGroupId)))
-
-inline static i32 ZRGroupId_Equal(ZRGroupId* a, ZRGroupId* b)
-{
-    return ZRGROUP_EQUAL(a, b);
-}
-
-inline static ZRGroupId ZRGroupId_SetForPrefab(
-    i32 prefabId)
-{
-    // make sure all custom fields are cleared:
-    ZRGroupId id = {};
-    id.objType = ZR_DRAWOBJ_TYPE_PREFAB;
-    id.program = ZR_SHADER_TYPE_BATCHED;
-
-    id.prefab.id = prefabId;
-    return id;
-}
-inline static ZRGroupId ZRGroupId_SetForModel(
-    i32 meshIndex, i32 diffuseTexIndex)
-{
-    // make sure all custom fields are cleared:
-    ZRGroupId id = {};
-    id.objType = ZR_DRAWOBJ_TYPE_PREFAB;
-    id.program = ZR_SHADER_TYPE_TEST;
-    // unique elements of model draw
-    id.model.mesh = meshIndex;
-    id.model.diffuseTexture = diffuseTexIndex;
-    return id;
-}
-#endif
-
-inline static ZRGroupId ZRGroupId_FromDrawObj(ZRDrawObj* obj)
-{
-    ZRGroupId id = {};
-    switch (obj->data.type)
-    {
-        case ZR_DRAWOBJ_TYPE_PREFAB:
-        return ZRGroupId_SetForPrefab(obj->data.prefab.prefabId);
-        
-        case ZR_DRAWOBJ_TYPE_POINT_LIGHT:
-        id.objType = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
-        return id;
-    }
-    id = {};
-    return id;
-}
-
 struct ZRDrawGroup
 {
 	// The prefab these objects are grouped on
@@ -661,6 +534,35 @@ struct ZRShaderParams_LitMesh
     ZRDrawObjBatchLightInfo lights[ZR_MAX_POINT_LIGHTS_PER_MODEL];
 };
 #pragma pack(pop)
+
+///////////////////////////////////////////////////////////
+// Exported renderer instance
+///////////////////////////////////////////////////////////
+#if 0
+struct ZRAssetDB
+{
+    i32 (*GetTexIndexByName)(char* name);
+    i32 (*GetMaterialIndexByName)(char* name);
+    i32 (*GetMeshIndexByName)(char* name);
+};
+#endif
+
+struct ZRAssetDB;
+#include "zqf_renderer/zr_asset_db.h"
+
+struct ZRRenderer
+{
+    i32 isValid;
+    ErrorCode (*Init)(i32 scrWidth, i32 scrHeight);
+    ZRPerformanceStats (*DrawFrameForward)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
+    ZRPerformanceStats (*DrawFrameDeferred)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
+    ZRAssetDB* (*GetAssetDB)();
+};
+
+///////////////////////////////////////////////////////////
+// Exported functions
+///////////////////////////////////////////////////////////
+extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
 
 ///////////////////////////////////////////////////////////
 // Draw Commands - written by backend, executed by frontend
