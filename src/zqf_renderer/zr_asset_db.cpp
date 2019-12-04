@@ -40,6 +40,34 @@ struct ZRAssetDBData
     i32 maxMaterials;
 };
 
+/**
+ * Load an entire file, unaltered, into memory.
+ * Must be freed by the caller after use
+ */
+extern "C" i32 ZRDB_StageRawFile(char* path, ZEByteBuffer* dest)
+{
+    FILE* f;
+    i32 err = fopen_s(&f, path, "rb");
+    if (err != 0)
+    {
+        printf("FAILED: Could not open file \"%s\" for reading\n", path);
+        return ZE_ERROR_NOT_FOUND;
+    }
+    fseek(f, 0, SEEK_END);
+    i32 size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    void* mem = malloc(size);
+    if (mem == NULL)
+    {
+        return ZE_ERROR_ALLOCATION_FAILED;
+    }
+    *dest = Buf_FromMalloc(mem, size);
+    fread((void*)dest->start, dest->capacity, 1, f);
+    fclose(f);
+    //printf("  staged \"%s\" (%d KB)\n", size / 1024);
+    return ZE_ERROR_NONE;
+}
+
 #define ZRDB_CAST_TO_INTERNAL(assetDBHeader, newVarName) ZRAssetDBData*##newVarName##=##(ZRAssetDBData*)##assetDBHeader##;
 
 #include "zr_db_textures.h"

@@ -8,7 +8,7 @@ static i32 ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVe
     return 0;
 }
 
-i32 ZRDB_LoadMeshFromFBX(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)
+static i32 ZRDB_LoadMeshFromFBX(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)
 {
     return 0;
 }
