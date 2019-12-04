@@ -27,6 +27,7 @@ struct ZRDBMesh
 struct ZRAssetDBData
 {
     ZRAssetDB header;
+    ZRAssetUploader uploader;
 
     ZRDBTexture* textures;
     i32 numTextures;
@@ -39,20 +40,27 @@ struct ZRAssetDBData
     i32 maxMaterials;
 };
 
+#define ZRDB_CAST_TO_INTERNAL(assetDBHeader, newVarName) ZRAssetDBData*##newVarName##=##(ZRAssetDBData*)##assetDBHeader##;
+
+#include "zr_db_textures.h"
+#include "zr_db_meshes.h"
+
 ///////////////////////////////////////////////////////////////////////////
 // Textures
 ///////////////////////////////////////////////////////////////////////////
 
-internal ZRDBTexture g_textures[ZR_ASSET_DB_MAX_HANDLES];
-internal i32 g_nextTexture = 0;
+//internal ZRDBTexture g_textures[ZR_ASSET_DB_MAX_HANDLES];
+//internal i32 g_nextTexture = 0;
 
-extern "C" i32 ZRDB_RegisterTexture(
-    char* fileName, void* data, i32 dataSize, i32 width, i32 height, i32 apiHandle)
+static i32 ZRDB_RegisterTexture(
+    ZRAssetDB* assetDB, char* fileName, void* data, i32 dataSize, i32 width, i32 height, i32 apiHandle)
 {
-    i32 index = g_nextTexture++;
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    
+    i32 index = db->numTextures++;
     printf("ZRDB - registered texture %d: %s, handle %d\n",
         index, fileName, apiHandle);
-    ZRDBTexture* handle = &g_textures[index];
+    ZRDBTexture* handle = &db->textures[index];
     handle->fileName = fileName;
     handle->data = data;
     handle->dataSize = dataSize;
@@ -62,11 +70,12 @@ extern "C" i32 ZRDB_RegisterTexture(
     return index;
 }
 
-extern "C" i32 ZRDB_GetTexIndexByName(char* name)
+static i32 ZRDB_GetTexIndexByName(ZRAssetDB* assetDB, char* name)
 {
-    for (i32 i = 0; i < g_nextTexture; ++i)
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    for (i32 i = 0; i < db->numTextures; ++i)
     {
-        if (ZE_CompareStrings(name, g_textures[i].fileName) == 0)
+        if (ZE_CompareStrings(name, db->textures[i].fileName) == 0)
         {
             return i;
         }
@@ -74,16 +83,17 @@ extern "C" i32 ZRDB_GetTexIndexByName(char* name)
     return 0;
 }
 
-extern "C" i32 ZRDB_GetTexHandleByIndex(i32 index)
+static i32 ZRDB_GetTexHandleByIndex(ZRAssetDB* assetDB, i32 index)
 {
-    if (index < 0 || index >= g_nextTexture) { return 0; }
-    return g_textures[index].apiHandle;
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    if (index < 0 || index >= db->numTextures) { return 0; }
+    return db->textures[index].apiHandle;
 }
 
-extern "C" i32 ZRDB_GetTexHandleByName(char* name)
+static void ZRDB_GetTexHandleByName(ZRAssetDB* assetDB, char* name, i32* result)
 {
-    i32 index = ZRDB_GetTexIndexByName(name);
-    return ZRDB_GetTexHandleByIndex(index);
+    i32 index = ZRDB_GetTexIndexByName(assetDB, name);
+    *result = ZRDB_GetTexHandleByIndex(assetDB, index);
 }
 
 
@@ -91,13 +101,14 @@ extern "C" i32 ZRDB_GetTexHandleByName(char* name)
 // Meshes
 ///////////////////////////////////////////////////////////////////////////
 
-internal ZRDBMesh g_meshes[ZR_ASSET_DB_MAX_HANDLES];
-internal i32 g_nextMesh = 0;
+//internal ZRDBMesh g_meshes[ZR_ASSET_DB_MAX_HANDLES];
+//internal i32 g_nextMesh = 0;
 
-extern "C" i32 ZRDB_RegisterMesh(char* name, ZRMeshHandles handles, MeshData data)
+static i32 ZRDB_RegisterMesh(ZRAssetDB* assetDB, char* name, ZRMeshHandles handles, MeshData data)
 {
-    i32 index = g_nextMesh++;
-    ZRDBMesh* mesh = &g_meshes[index];
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    i32 index = db->numMeshes++;
+    ZRDBMesh* mesh = &db->meshes[index];
     mesh->name = name;
     mesh->handles = handles;
     mesh->data = data;
@@ -105,12 +116,13 @@ extern "C" i32 ZRDB_RegisterMesh(char* name, ZRMeshHandles handles, MeshData dat
     return index;
 }
 
-extern "C" i32 ZRDB_GetMeshIndexByName(char* name)
+static i32 ZRDB_GetMeshIndexByName(ZRAssetDB* assetDB, char* name)
 {
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
     i32 index = 0;
-    for (i32 i = 0; i < g_nextMesh; ++i)
+    for (i32 i = 0; i < db->numMeshes; ++i)
     {
-        if (ZE_CompareStrings(name, g_meshes[i].name) == 0)
+        if (ZE_CompareStrings(name, db->meshes[i].name) == 0)
         {
             index = i;
             break;
@@ -119,31 +131,34 @@ extern "C" i32 ZRDB_GetMeshIndexByName(char* name)
     return index;
 }
 
-extern "C" void ZRDB_GetMeshHandlesByIndex(i32 index, ZRMeshHandles* result)
+static void ZRDB_GetMeshHandlesByIndex(ZRAssetDB* assetDB, i32 index, ZRMeshHandles* result)
 {
-    if (index < 0 || index >= g_nextMesh) { index = 0; }
-    *result = g_meshes[index].handles;
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    if (index < 0 || index >= db->numMeshes) { index = 0; }
+    *result = db->meshes[index].handles;
 }
 
-extern "C" void ZRDB_GetMeshHandlesByName(char* name, ZRMeshHandles* result)
+static void ZRDB_GetMeshHandlesByName(ZRAssetDB* assetDB, char* name, ZRMeshHandles* result)
 {
-    i32 index = ZRDB_GetMeshIndexByName(name);
-    ZRDB_GetMeshHandlesByIndex(index, result);
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    i32 index = ZRDB_GetMeshIndexByName(assetDB, name);
+    ZRDB_GetMeshHandlesByIndex(assetDB, index, result);
 }
 
 ///////////////////////////////////////////////////////////////////////////
 // Materials
 ///////////////////////////////////////////////////////////////////////////
 
-internal ZRMaterial g_materials[ZR_ASSET_DB_MAX_HANDLES];
-internal i32 g_nextMaterial = 0;
+//internal ZRMaterial g_materials[ZR_ASSET_DB_MAX_HANDLES];
+//internal i32 g_nextMaterial = 0;
 
-extern "C" i32 ZRDB_GetMaterialIndexByName(char* name)
+static i32 ZRDB_GetMaterialIndexByName(ZRAssetDB* assetDB, char* name)
 {
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
     i32 index = 0;
-    for (i32 i = 0; i < g_nextMesh; ++i)
+    for (i32 i = 0; i < db->numMaterials; ++i)
     {
-        if (ZE_CompareStrings(name, g_materials[i].name) == 0)
+        if (ZE_CompareStrings(name, db->materials[i].name) == 0)
         {
             index = i;
             break;
@@ -152,42 +167,62 @@ extern "C" i32 ZRDB_GetMaterialIndexByName(char* name)
     return index;
 }
 
-static ZRMaterial* ZRDB_GetFreeMaterial(char* newName)
+static ZRMaterial* ZRDB_GetFreeMaterial(ZRAssetDB* assetDB, char* newName)
 {
-	i32 index = g_nextMaterial++;
-	ZRMaterial* mat = &g_materials[index];
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+	i32 index = db->numMaterials++;
+	ZRMaterial* mat = &db->materials[index];
     mat->id = index;
 	mat->name = newName;
 	return mat;
 }
 
-extern "C" void ZRDB_CreateMaterial(
-	char* name, char* diffuseName, char* emissiveName)
+static ErrorCode ZRDB_CreateMaterial(
+	ZRAssetDB* assetDB, char* name, char* diffuseName, char* emissiveName)
 {
-	ZRMaterial* mat = ZRDB_GetFreeMaterial(name);
-	mat->diffuseTexIndex = ZRDB_GetTexIndexByName(diffuseName);
-	mat->emissionTexIndex = ZRDB_GetTexIndexByName(emissiveName);
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+	ZRMaterial* mat = ZRDB_GetFreeMaterial(assetDB, name);
+	mat->diffuseTexIndex = ZRDB_GetTexIndexByName(assetDB, diffuseName);
+	mat->emissionTexIndex = ZRDB_GetTexIndexByName(assetDB, emissiveName);
     printf("ZRDB Create material id %d: \"%s\"\n", mat->id, mat->name);
+    return ZE_ERROR_NONE;
 }
 
-extern "C" void ZRDB_GetMaterialByIndex(i32 index, ZRMaterial* result)
+static void ZRDB_GetMaterialByIndex(ZRAssetDB* assetDB, i32 index, ZRMaterial* result)
 {
-	if (index < 0 || index >= g_nextMaterial) { index = 0; }
-    *result = g_materials[index];
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+	if (index < 0 || index >= db->numMaterials) { index = 0; }
+    *result = db->materials[index];
 }
 
 ///////////////////////////////////////////////////////////////////////////
 // Create
 ///////////////////////////////////////////////////////////////////////////
 
-extern "C" ZRAssetDB* ZRDB_Create()
+extern "C" ZRAssetDB* ZRDB_Create(ZRAssetUploader uploader)
 {
     ZRAssetDBData* db = (ZRAssetDBData*)malloc(sizeof(ZRAssetDBData));
     *db = {};
-    //db->header.GetMaterialIndexByName = ZRDB_GetMaterialIndexByName;
-    //db->header.GetMeshIndexByName = ZRDB_GetMeshIndexByName;
-    //db->header.GetTexIndexByName = ZRDB_GetTexIndexByName;
+    // callbacks
+    db->uploader = uploader;
+    /////////////////////////////////////////////////////
+    // functions
 
+    // Get meshes
+    //db->header.GetMeshIndexByName = ZRDB_GetMeshIndexByName;
+    db->header.GetMeshHandleByName = ZRDB_GetMeshHandlesByName;
+    // Get textures
+    //db->header.GetTexIndexByName = ZRDB_GetTexIndexByName;
+    db->header.GetTextureHandleByName = ZRDB_GetTexHandleByName;
+    // Get Materials
+    db->header.GetMaterialIndexByName = ZRDB_GetMaterialIndexByName;
+    // Load
+    db->header.CreateMaterial = ZRDB_CreateMaterial;
+    db->header.LoadMesh = ZRDB_LoadMesh;
+    db->header.LoadMeshFromFBX = ZRDB_LoadMeshFromFBX;
+    db->header.LoadTexture = ZRDB_LoadTexture;
+
+    // store
     db->textures = (ZRDBTexture*)malloc(sizeof(ZRDBTexture) * ZR_ASSET_DB_MAX_HANDLES);
     db->maxTextures = ZR_ASSET_DB_MAX_HANDLES;
     db->meshes = (ZRDBMesh*)malloc(sizeof(ZRDBMesh) * ZR_ASSET_DB_MAX_HANDLES);

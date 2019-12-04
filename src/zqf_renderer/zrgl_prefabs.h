@@ -4,52 +4,12 @@
 #include "zrgl_internal.h"
 
 // Asset libraries:
-#define STB_IMAGE_IMPLEMENTATION
-#include "../../lib/stb_image.h"
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "../../lib/stb_image.h"
 
 #include "../../lib/openfbx/ofbx.h"
 
 #define ZQF_R_DEFAULT_DIFFUSE_TEX "data/W33_5.bmp"
-
-// Try something like this for temporary staging... ?
-#if 0
-struct StackMalloc
-{
-    void* mem = NULL;
-    StackMalloc(i32 bytes) { mem = malloc(bytes); }
-    // Stack frame exit will auto call:
-    ~StackMalloc() { free(mem); }
-};
-#endif
-
-/**
- * Load an entire file, unaltered, into memory.
- * Must be freed by the caller after use
- */
-extern "C" i32 ZRGL_StageRawFile(char* path, ZEByteBuffer* dest)
-{
-    FILE* f;
-    i32 err = fopen_s(&f, path, "rb");
-    if (err != 0)
-    {
-        printf("FAILED: Could not open file \"%s\" for reading\n", path);
-        return ZE_ERROR_NOT_FOUND;
-    }
-    fseek(f, 0, SEEK_END);
-    i32 size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    void* mem = malloc(size);
-    if (mem == NULL)
-    {
-        return ZE_ERROR_ALLOCATION_FAILED;
-    }
-    *dest = Buf_FromMalloc(mem, size);
-    fread((void*)dest->start, dest->capacity, 1, f);
-    fclose(f);
-    //printf("  staged \"%s\" (%d KB)\n", size / 1024);
-    return ZE_ERROR_NONE;
-}
-
 // Returns opengl handle or 0 if failed
 // Length == pixels wide and high, each pixel being 4 floats
 // As 1D, can't be big enough...?
@@ -95,6 +55,34 @@ static ZRDataTexture ZRGL_CreateDataTexture1D(
         tex.width, 0, GL_RGBA, GL_FLOAT, tex.mem);
     CHECK_GL_ERR
     return tex;
+}
+#if 0
+/**
+ * Load an entire file, unaltered, into memory.
+ * Must be freed by the caller after use
+ */
+extern "C" i32 ZRGL_StageRawFile(char* path, ZEByteBuffer* dest)
+{
+    FILE* f;
+    i32 err = fopen_s(&f, path, "rb");
+    if (err != 0)
+    {
+        printf("FAILED: Could not open file \"%s\" for reading\n", path);
+        return ZE_ERROR_NOT_FOUND;
+    }
+    fseek(f, 0, SEEK_END);
+    i32 size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    void* mem = malloc(size);
+    if (mem == NULL)
+    {
+        return ZE_ERROR_ALLOCATION_FAILED;
+    }
+    *dest = Buf_FromMalloc(mem, size);
+    fread((void*)dest->start, dest->capacity, 1, f);
+    fclose(f);
+    //printf("  staged \"%s\" (%d KB)\n", size / 1024);
+    return ZE_ERROR_NONE;
 }
 
 static u8* ZRGL_LoadTextureToHeap(
@@ -171,6 +159,40 @@ static u32 ZRGL_LoadCubeMap(
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
     CHECK_GL_ERR
     return textureID;
+}
+#endif
+
+// Try something like this for temporary staging... ?
+#if 0
+struct StackMalloc
+{
+    void* mem = NULL;
+    StackMalloc(i32 bytes) { mem = malloc(bytes); }
+    // Stack frame exit will auto call:
+    ~StackMalloc() { free(mem); }
+};
+#endif
+
+#if 0
+static u8* ZRGL_LoadTextureToHeap(
+    char* path, i32 bVerbose, int* x, int* y, i32 bFlipY)
+{
+    ZEByteBuffer b;
+    ErrorCode err = ZRGL_StageRawFile(path, &b);
+    if (err != ZE_ERROR_NONE)
+    {
+        return NULL;
+    }
+    
+    // Load to heap:
+    i32 comp;
+    stbi_set_flip_vertically_on_load(bFlipY);
+    u8* tex = stbi_load_from_memory(
+        b.start, b.capacity, x, y, &comp, STBI_rgb_alpha);
+    if (bVerbose == YES)
+    { printf("Loaded img res %d, %d - comp %d\n", *x, *y, comp); }
+    free(b.start);
+    return tex;
 }
 
 // Returns opengl handle or 0 if failed
@@ -529,7 +551,7 @@ static ZRMeshHandles ZRGL_LoadFBX(
 
     return handles;
 }
-
+#endif
 static ZRPrefab* ZRGL_GetPrefab(i32 index)
 {
     if (index < 0 || index >= ZR_MAX_PREFABS)
@@ -551,55 +573,66 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     printf("ZRGL - load default prefabs\n");
 
     // Textures
-    ZRGL_LoadTexture2D("data/debug_white.png", bVerbose);
-    ZRGL_LoadTexture2D("data/debug_black.png", bVerbose);
-    ZRGL_LoadTexture2D("data/debug_green.png", bVerbose);
-    ZRGL_LoadTexture2D("data/debug_red.png", bVerbose);
-    ZRGL_LoadTexture2D("data/debug_cyan.png", bVerbose);
-    ZRGL_LoadTexture2D("data/debug_orange.png", bVerbose);
-    ZRGL_LoadTexture2D("data/debug_magenta.png", bVerbose);
-    ZRGL_LoadTexture2D("data/debug_blue.png", bVerbose);
-    ZRGL_LoadTexture2D("data/debug_grey_dark.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/debug_white.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/debug_black.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/debug_green.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/debug_red.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/debug_cyan.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/debug_orange.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/debug_magenta.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/debug_blue.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/debug_grey_dark.png", bVerbose);
 
-    ZRGL_LoadTexture2D("data/charset.bmp", bVerbose);
-    ZRGL_LoadTexture2D("data/BKEYB0.png", bVerbose);
-    ZRGL_LoadTexture2D("data/TemplePillar_albedo.tga", bVerbose);
-    ZRGL_LoadTexture2D("data/LowFlak-AlbedoM.tga", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/charset.bmp", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/BKEYB0.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/TemplePillar_albedo.tga", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/LowFlak-AlbedoM.tga", bVerbose);
 
-    ZRGL_LoadTexture2D("data/WALL03_7.png", bVerbose);
-    ZRGL_LoadTexture2D("data/Mage.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/WALL03_7.png", bVerbose);
+    g_assets->LoadTexture(g_assets, "data/Mage.png", bVerbose);
 
     // Materials
-    ZRDB_CreateMaterial("Default", "debug_white.png", "data/debug_black.png");
-    ZRDB_CreateMaterial("Wall", "data/WALL03_7.png", "data/debug_black.png");
-    ZRDB_CreateMaterial("Projectile", "data/debug_orange.png", "data/debug_white.png");
+    g_assets->CreateMaterial(g_assets, "Default", "debug_white.png", "data/debug_black.png");
+    g_assets->CreateMaterial(g_assets, "Wall", "data/WALL03_7.png", "data/debug_black.png");
+    g_assets->CreateMaterial(g_assets, "Projectile", "data/debug_orange.png", "data/debug_white.png");
     
+    // Meshes
+    g_assets->LoadMeshFromFBX(g_assets, "data/HugeGun.fbx", { 0.0008f, 0.0008f, 0.0008f}, NO, bVerbose);
+    g_assets->LoadMeshFromFBX(g_assets, "data/Pillar.fbx", { 0.05f, 0.05f, 0.05f}, NO, bVerbose);
+    g_assets->LoadMeshFromFBX(g_assets, "data/mage.fbx", { 0.2f, 0.2f, 0.2f }, YES, bVerbose);
+    g_assets->LoadMeshFromFBX(g_assets, "data/Box2.fbx", {}, YES, bVerbose);
+    g_assets->LoadMeshFromFBX(g_assets, "data/Sphere.fbx", {}, NO, bVerbose);
+
     // Default VAOs
     MeshData* d;
-    i32 meshIndex;
+    //i32 meshIndex;
 
     d = ZR_Embed_Cube();
-    g_cubeVAO = ZRGL_CreateVAOf(
-        d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
-    meshIndex = ZRDB_RegisterMesh("Cube", g_cubeVAO, *d);
+    g_assets->LoadMesh(g_assets, "Cube", d, YES);
+    //g_cubeVAO = ZRGL_CreateVAOf(
+    //    d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    //meshIndex = ZRDB_RegisterMesh("Cube", g_cubeVAO, *d);
 
     d = ZR_Embed_InverseCube();
-    g_inverseCubeVAO = ZRGL_CreateVAOf(
-        d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
-    meshIndex = ZRDB_RegisterMesh("InverseCube", g_inverseCubeVAO, *d);
+    g_assets->LoadMesh(g_assets, "InverseCube", d, YES);
+    //g_inverseCubeVAO = ZRGL_CreateVAOf(
+    //    d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    //meshIndex = ZRDB_RegisterMesh("InverseCube", g_inverseCubeVAO, *d);
 
     d = ZR_Embed_Quad();
-    g_quadVAO = ZRGL_CreateVAOf(
-        d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
-    meshIndex = ZRDB_RegisterMesh("Quad", g_quadVAO, *d);
+    g_assets->LoadMesh(g_assets, "Quad", d, YES);
+    //g_quadVAO = ZRGL_CreateVAOf(
+    //    d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    //meshIndex = ZRDB_RegisterMesh("Quad", g_quadVAO, *d);
     
     d = ZR_Embed_Spike();
-    g_spikeVAO = ZRGL_CreateVAOf(
-        d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
-    meshIndex = ZRDB_RegisterMesh("Spike", g_spikeVAO, *d);
+    g_assets->LoadMesh(g_assets, "Spike", d, YES);
+    //g_spikeVAO = ZRGL_CreateVAOf(
+    //    d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    //meshIndex = ZRDB_RegisterMesh("Spike", g_spikeVAO, *d);
     
     g_defaultDiffuseHandle = 
-        ZRGL_LoadTexture2D(ZQF_R_DEFAULT_DIFFUSE_TEX, bVerbose);
+        g_assets->LoadTexture(g_assets, ZQF_R_DEFAULT_DIFFUSE_TEX, bVerbose);
 
     /*
     "data/HugeGun.fbx"
@@ -636,12 +669,13 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     prefab->textures.diffuse = g_defaultDiffuseHandle;
     prefab->program = ZR_SHADER_TYPE_TEST;
     prefab->bInitialised = YES;
-
+    
     // Gun
     prefab = &g_prefabs[ZR_PREFAB_TYPE_GUN];
-    prefab->geometry = ZRGL_LoadFBX(
-        "data/HugeGun.fbx", &prefab->geometry.vertexCount, { 0.0008f, 0.0008f, 0.0008f}, NO, bVerbose);
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/LowFlak-AlbedoM.tga", bVerbose);
+    g_assets->GetMeshHandleByName(g_assets, "data/HugeGun.fbx", &prefab->geometry);
+    //prefab->geometry = ZRGL_LoadFBX(
+    //    "data/HugeGun.fbx", &prefab->geometry.vertexCount, { 0.0008f, 0.0008f, 0.0008f}, NO, bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/LowFlak-AlbedoM.tga", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     prefab->bInitialised = YES;
     // TODO: Scale here is ignored. scale is applied at load time (see above!)
@@ -649,26 +683,29 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
 
     // Pillar
     prefab = &g_prefabs[ZR_PREFAB_TYPE_PILLAR];
-    prefab->geometry = ZRGL_LoadFBX(
-        "data/Pillar.fbx", &prefab->geometry.vertexCount, { 0.05f, 0.05f, 0.05f }, NO, bVerbose);
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/TemplePillar_albedo.tga", bVerbose);
+    g_assets->GetMeshHandleByName(g_assets, "data/Pillar.fbx", &prefab->geometry);
+    //prefab->geometry = ZRGL_LoadFBX(
+    //    "data/Pillar.fbx", &prefab->geometry.vertexCount, { 0.05f, 0.05f, 0.05f }, NO, bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/TemplePillar_albedo.tga", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     prefab->bInitialised = YES;
     
     // Cube + spike for orientation tests
     prefab = &g_prefabs[ZR_PREFAB_TYPE_ORIENTATION_TEST];
-    prefab->geometry = ZRGL_LoadFBX(
-        "data/Box2.fbx", &prefab->geometry.vertexCount, {}, NO, bVerbose);
-    prefab->textures.diffuse = ZRGL_LoadTexture2D(ZQF_R_DEFAULT_DIFFUSE_TEX, bVerbose);
+    g_assets->GetMeshHandleByName(g_assets, "data/Box2.fbx", &prefab->geometry);
+    //prefab->geometry = ZRGL_LoadFBX(
+    //    "data/Box2.fbx", &prefab->geometry.vertexCount, {}, NO, bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, ZQF_R_DEFAULT_DIFFUSE_TEX, bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     prefab->bInitialised = YES;
 
     prefab = &g_prefabs[ZR_PREFAB_TYPE_BLOCK_COLOURED];
     d = ZR_Embed_Cube();
     // Creating a copied VAO here, could just use the basic cube
-    prefab->geometry = ZRGL_CreateVAOf(
-        d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
-    prefab->geometry.vertexCount = d->numVerts;
+    g_assets->GetMeshHandleByName(g_assets, "Cube", &prefab->geometry);
+    //prefab->geometry = ZRGL_CreateVAOf(
+    //    d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    //prefab->geometry.vertexCount = d->numVerts;
     // Is this necessary given that the prog doesn't use textures?
     //prefab->textures.diffuse = ZRGL_LoadTexture2D(ZQF_R_DEFAULT_DIFFUSE_TEX);
     prefab->program = ZR_SHADER_TYPE_BLOCK_COLOUR;
@@ -680,11 +717,12 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     // Billboard should use this quad mesh, but for debugging, draw a cube as it
     // doesn't potentially become invisible when rotations mess up!
     #if 1
-    d = ZR_Embed_Quad();
-    prefab->geometry = ZRGL_CreateVAOf(
-        d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
-    prefab->geometry.vertexCount = g_quadVAO.vertexCount;
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/BKEYB0.png", bVerbose);
+    g_assets->GetMeshHandleByName(g_assets, "Quad", &prefab->geometry);
+    //d = ZR_Embed_Quad();
+    //prefab->geometry = ZRGL_CreateVAOf(
+    //    d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
+    //prefab->geometry.vertexCount = g_quadVAO.vertexCount;
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/BKEYB0.png", bVerbose);
     #endif
 
     // Charset quad -
@@ -694,7 +732,7 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     // VBO Should be dynamic!
     // Note: Or not... just render one at a time for now!
     prefab->geometry = g_quadVAO;
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/charset.bmp", bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/charset.bmp", bVerbose);
     prefab->geometry.vertexCount = g_quadVAO.vertexCount;
     prefab->program = ZR_SHADER_TYPE_TEXT;
 
@@ -710,9 +748,10 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     prefab->bInitialised = YES;
     Vec3 importScale = { 0.2f, 0.2f, 0.2f };
     //Vec3 importScale = { 0.05f, 0.05f, 0.05f };
-    prefab->geometry = ZRGL_LoadFBX(
-        "data/mage.fbx", &prefab->geometry.vertexCount, importScale, YES, YES);
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/Mage.png", bVerbose);
+    g_assets->GetMeshHandleByName(g_assets, "data/Mage.fbx", &prefab->geometry);
+    //prefab->geometry = ZRGL_LoadFBX(
+    //    "data/mage.fbx", &prefab->geometry.vertexCount, importScale, YES, YES);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/Mage.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     // TODO: Scale here is ignored. scale is applied at load time (see above!)
     //prefab->scale = { 0.00001f, 0.00001f, 0.00001f };
@@ -724,57 +763,58 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_PLAYER];
     prefab->bInitialised = YES;
     prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_green.png", bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/debug_green.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_WALL];
     prefab->bInitialised = YES;
     prefab->geometry = g_cubeVAO;
     //prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_grey_dark.png", bVerbose);
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/WALL03_7.png", bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/WALL03_7.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_ENEMY];
     prefab->bInitialised = YES;
     prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_red.png", bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/debug_red.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_ENEMY_PROJECTILE];
     prefab->bInitialised = YES;
     prefab->geometry = g_spikeVAO;
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_cyan.png", bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/debug_cyan.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
 
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE];
     prefab->bInitialised = YES;
     prefab->geometry = g_spikeVAO;
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_orange.png", bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/debug_orange.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_EXPLOSION];
     prefab->bInitialised = YES;
     prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_orange.png", bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/debug_orange.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX];
     prefab->bInitialised = YES;
     prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_magenta.png", bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/debug_magenta.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
     
     prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_ITEM];
     prefab->bInitialised = YES;
     prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_blue.png", bVerbose);
+    prefab->textures.diffuse = g_assets->LoadTexture(g_assets, "data/debug_blue.png", bVerbose);
     prefab->program = ZR_SHADER_TYPE_TEST;
 
     
     // ZR_PREFAB_TYPE_SPHERE
     prefab = &g_prefabs[ZR_PREFAB_TYPE_SPHERE];
-    prefab->geometry = ZRGL_LoadFBX(
-        "data/Sphere.fbx", &prefab->geometry.vertexCount, { 1, 1, 1 }, NO, bVerbose);
+    g_assets->GetMeshHandleByName(g_assets, "data/Sphere.fbx", &prefab->geometry);
+    //prefab->geometry = ZRGL_LoadFBX(
+    //    "data/Sphere.fbx", &prefab->geometry.vertexCount, { 1, 1, 1 }, NO, bVerbose);
     prefab->textures.diffuse = g_defaultDiffuseHandle;
     prefab->program = ZR_SHADER_TYPE_FALLBACK;
     prefab->bInitialised = YES;
@@ -840,7 +880,7 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     paths[ZR_CUBEMAP_LOAD_INDEX_FRONT] = "data/W33_5.bmp";
     #endif
 
-    g_cubemapHandle = ZRGL_LoadCubeMap(paths, YES);
+    //g_cubemapHandle = ZRGL_LoadCubeMap(paths, YES);
 }
 
 #endif // ZRGL_PREFABS

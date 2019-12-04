@@ -17,6 +17,7 @@
 #include "zrgl_shaders.h"
 #include "zrgl_prefabs.h"
 #include "zrgl_shadows.h"
+#include "zrgl_upload.h"
 // Forward
 #include "zrgl_forward_draw.h"
 #include "zrgl_forward_main.h"

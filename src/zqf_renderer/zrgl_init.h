@@ -245,8 +245,12 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     // Assets
     /////////////////////////////////////////
 
-    // Setup export
-    g_assets = ZRDB_Create();
+    // Setup assets
+    ZRAssetUploader uploader = {};
+    uploader.UploadTexture = ZRGL_UploadTexture;
+    uploader.UploadMesh = ZRGL_UploadMesh;
+
+    g_assets = ZRDB_Create(uploader);
 
     //g_assets.GetMaterialIndexByName = ZRDB_GetTexIndexByName;
     //g_assets.GetMeshIndexByName = ZRDB_GetMeshIndexByName;

@@ -24,7 +24,8 @@ static void ZRGL_GeometryPass_Mesh(
 	#endif
 	#if 1
 	ZRMeshHandles mesh;
-	ZRDB_GetMeshHandlesByName("Cube", &mesh);
+	//ZRDB_GetMeshHandlesByName("Cube", &mesh);
+	g_assets->GetMeshHandleByName(g_assets, "Cube", &mesh);
 	vao = mesh.vao;
 	vertCount = mesh.vertexCount;
 	glBindVertexArray(vao);
@@ -35,12 +36,15 @@ static void ZRGL_GeometryPass_Mesh(
 
 	//ZRMaterial mat;
 	//ZRDB_GetMaterialByIndex(group->data.model.materialIndex, &mat);
-	i32 diffuse = ZRDB_GetTexHandleByName(ZQF_R_DEFAULT_DIFFUSE_TEX);
+	//i32 diffuse = ZRDB_GetTexHandleByName(ZQF_R_DEFAULT_DIFFUSE_TEX);
 	//i32 diffuse = ZRDB_GetTexHandleByName("data/WALL03_7.png");
 	//i32 emissive = ZRDB_GetTexHandleByName("data/debug_white.png");
-	i32 emissive = ZRDB_GetTexHandleByName("data/debug_black.png");
+	//i32 emissive = ZRDB_GetTexHandleByName("data/debug_black.png");
 	//mat.diffuseTexHandle = 1;
 	//mat.emissionTexHandle = 1;
+	i32 diffuse, emissive;
+	g_assets->GetTextureHandleByName(g_assets, ZQF_R_DEFAULT_DIFFUSE_TEX, &diffuse);
+	g_assets->GetTextureHandleByName(g_assets, "data/debug_black.png", &emissive);
 	//printf("ZR Geom pass mesh %d diffuse %d emissive %d\n", vao, diffuse, emissive);
 	ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_colourTex", diffuse, g_samplerDataTex2D);
@@ -83,6 +87,9 @@ static void ZRGL_GeometryPass_Prefab(
 	glBindVertexArray(prefab->geometry.vao);
 
 	// Prepare textures
+	i32 diffuseTexHandle;
+	g_assets->GetTextureHandleByName(g_assets, "data/WALL03_7.png", &diffuseTexHandle);
+
 	ZR_PrepareTextureUnit2D(
 		prog, GL_TEXTURE0, 0, "u_colourTex", prefab->textures.diffuse, g_samplerDataTex2D);
 
@@ -98,8 +105,10 @@ static void ZRGL_GeometryPass_Prefab(
 	}
 	#endif
 
-	i32 emissionTexIndex = ZRDB_GetTexIndexByName(emissionTexName);
-	i32 emissionTexHandle = ZRDB_GetTexHandleByIndex(emissionTexIndex);
+	//i32 emissionTexIndex = ZRDB_GetTexIndexByName(emissionTexName);
+	//i32 emissionTexHandle = ZRDB_GetTexHandleByIndex(emissionTexIndex);
+	i32 emissionTexHandle;
+	g_assets->GetTextureHandleByName(g_assets, emissionTexName, &emissionTexHandle);
 	
 	M4x4_CREATE(model)
 	M4x4_CREATE(modelView)
