@@ -588,6 +588,7 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     g_assets->LoadTexture(g_assets, "data/TemplePillar_albedo.tga", bVerbose);
     g_assets->LoadTexture(g_assets, "data/LowFlak-AlbedoM.tga", bVerbose);
 
+	g_assets->LoadTexture(g_assets, "data/W33_5.bmp", bVerbose);
     g_assets->LoadTexture(g_assets, "data/WALL03_7.png", bVerbose);
     g_assets->LoadTexture(g_assets, "data/Mage.png", bVerbose);
 
@@ -621,6 +622,8 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
 
     d = ZR_Embed_Quad();
     g_assets->LoadMesh(g_assets, "Quad", d, YES);
+
+	g_assets->LoadMesh(g_assets, "DynamicQuad", d, YES);
     //g_quadVAO = ZRGL_CreateVAOf(
     //    d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
     //meshIndex = ZRDB_RegisterMesh("Quad", g_quadVAO, *d);

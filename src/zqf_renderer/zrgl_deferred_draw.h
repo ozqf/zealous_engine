@@ -29,10 +29,12 @@ static void ZRGL_GeometryPass_Mesh(
 	vao = mesh.vao;
 	vertCount = mesh.vertexCount;
 	glBindVertexArray(vao);
+	CHECK_GL_ERR
 	#endif
 	
 	GLint prog = g_programs[ZR_SHADER_TYPE_BUILD_GBUFFER].handle;
 	glUseProgram(prog);
+	CHECK_GL_ERR
 
 	//ZRMaterial mat;
 	//ZRDB_GetMaterialByIndex(group->data.model.materialIndex, &mat);
@@ -70,6 +72,7 @@ static void ZRGL_GeometryPass_Mesh(
 		ZR_SetProgM4x4(prog, "u_model", model.cells);
 
 		glDrawArrays(GL_TRIANGLES, 0, vertCount);
+		CHECK_GL_ERR
 	}
 }
 
@@ -82,9 +85,11 @@ static void ZRGL_GeometryPass_Prefab(
 {
 	GLint prog = g_programs[ZR_SHADER_TYPE_BUILD_GBUFFER].handle;
     glUseProgram(prog);
+	CHECK_GL_ERR
 
 	ZRPrefab *prefab = ZRGL_GetPrefab(group->data.prefab.prefabId);
 	glBindVertexArray(prefab->geometry.vao);
+	CHECK_GL_ERR
 
 	// Prepare textures
 	i32 diffuseTexHandle;
@@ -112,6 +117,7 @@ static void ZRGL_GeometryPass_Prefab(
 	
 	M4x4_CREATE(model)
 	M4x4_CREATE(modelView)
+	printf("Draw prefab %d\n", group->data.prefab.prefabId);
 	
 	//printf("Binding tex handle %d to tex unit 1\n", emissionTexHandle);
 	ZR_PrepareTextureUnit2D(
@@ -132,6 +138,7 @@ static void ZRGL_GeometryPass_Prefab(
 		ZR_SetProgM4x4(prog, "u_model", model.cells);
 
 		glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+		CHECK_GL_ERR
 		//stats->drawCallsGBuffer++;
 	}
 }

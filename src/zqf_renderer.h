@@ -463,31 +463,6 @@ struct ZRSceneView
 // Render commands and resources
 ///////////////////////////////////////////////////////////
 
-struct MeshData
-{
-	u32 numVerts;
-
-	f32* verts;
-	f32* uvs;
-    f32* normals;    
-};
-
-// internal types
-/**
- * Asset handles required to execute a draw call
- */
-struct ZRMeshHandles
-{
-    i32 vao;
-    i32 vbo;
-    i32 vertexCount;
-	i32 totalVBOBytes;
-	// all data before this point is static mesh geometry
-	i32 instanceDataOffset;
-	// Capacity for instances left behind static mesh data
-	i32 maxInstances;
-};
-
 struct ZRShader
 {
     i32 handle; // considered invalid if this is 0

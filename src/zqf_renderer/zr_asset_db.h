@@ -8,6 +8,53 @@
 #define ZRDB_ASSET_TYPE_ 2
 #define ZRDB_ASSET_TYPE_BLOB 3
 
+///////////////////////////////////////////////////////////
+// Asset data types
+///////////////////////////////////////////////////////////
+struct ZRDBTexture
+{
+    char* fileName;
+    void* data;
+    i32 dataSize;
+    i32 width;
+    i32 height;
+    i32 apiHandle;
+};
+
+struct MeshData
+{
+	u32 numVerts;
+
+	f32* verts;
+	f32* uvs;
+    f32* normals;    
+};
+
+// internal types
+/**
+ * Asset handles required to execute a draw call
+ */
+struct ZRMeshHandles
+{
+    i32 vao;
+    i32 vbo;
+    i32 vertexCount;
+	i32 totalVBOBytes;
+	// all data before this point is static mesh geometry
+	i32 instanceDataOffset;
+	// Capacity for instances left behind static mesh data
+	i32 maxInstances;
+};
+
+struct ZRDBMesh
+{
+    char* name;
+    // api handles
+    ZRMeshHandles handles;
+    // mesh data on heap
+    MeshData data;
+};
+
 struct ZRAssetDB
 {
     //i32 (*GetTexIndexByName)(ZRAssetDB* assetDB, char* name);

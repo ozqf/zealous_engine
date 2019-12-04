@@ -69,6 +69,11 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     ZEByteBuffer* data,
     u32 debugFlags)
 {
+    // TODO: Look these up in asset db!
+    i32 cubeIndex = 0;
+    i32 quadIndex = 2;
+    i32 defaultTexIndex = 0;
+
     i32 objCount = 0;
     for (i32 i = 0; i < sim->maxEnts; ++i)
     {
@@ -88,8 +93,10 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_PROJECTILE_BASE:
             case SIM_FACTORY_TYPE_PROJ_PLAYER:
             {
+                //ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                //ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE);
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE);
+                ZRDrawObj_SetAsMesh(NULL, obj, cubeIndex, defaultTexIndex);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
             } break;
@@ -103,7 +110,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 #endif
                 #if 1
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(NULL, obj, 0, 0);
+                ZRDrawObj_SetAsMesh(NULL, obj, cubeIndex, defaultTexIndex);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
                 #endif
@@ -141,8 +148,11 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_PROP:
             case SIM_FACTORY_TYPE_SEEKER_FLYING:
             {
+                //ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                //ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_QUAD);
+
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_QUAD);
+                ZRDrawObj_SetAsMesh(NULL, obj, quadIndex, defaultTexIndex);
                 // Setup buildboard
                 // extract euler angles from camera
                 Vec3 euler = M3x3_GetEulerAnglesRadians(camera->rotation.cells);
@@ -166,7 +176,8 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                     obj->t = ent->body.t;
                 }
                 obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
+                //ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
+                ZRDrawObj_SetAsMesh(NULL, obj, cubeIndex, defaultTexIndex);
                 rendObjectsAdded++;
                 if (debugFlags & CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING)
                 {

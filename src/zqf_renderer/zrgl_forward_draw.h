@@ -13,7 +13,9 @@ static void ZRGL_DrawDebugQuad(
 {
     glDisable(GL_DEPTH_TEST);
     CHECK_GL_ERR
-    ZRPrefab* prefab = ZRGL_GetPrefab(ZR_PREFAB_TYPE_QUAD_DYNAMIC);
+    ZRMeshHandles mesh;
+    g_assets->GetMeshHandleByName(g_assets, "DynamicQuad", &mesh);
+    i32 vao = mesh.vao;
     // setup prog
     GLint programId = g_programs[ZR_SHADER_TYPE_SHADOW_MAP_DEBUG].handle;
     glUseProgram(programId);
@@ -46,7 +48,7 @@ static void ZRGL_DrawDebugQuad(
     uvs[5] = { uvMin.x, uvMax.y };
 
     // Upload to VAO
-    glBindVertexArray(g_prefabs->geometry.vao);
+    glBindVertexArray(vao);
     glBufferSubData(GL_ARRAY_BUFFER, ZRGL_BYTES_FOR_QUAD_VERTS, ZRGL_BYTES_FOR_QUAD_UVS, uvs);
     CHECK_GL_ERR
 

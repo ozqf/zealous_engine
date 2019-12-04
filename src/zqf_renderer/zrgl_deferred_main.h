@@ -368,7 +368,7 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     glDepthMask(GL_TRUE);
     #endif
     // Draw debug cack
-    #if 1
+    #if 0
     ZRGL_DrawGBufferDebugQuads(scrInfo.aspectRatio);
     #endif
 

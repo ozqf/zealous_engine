@@ -8,6 +8,50 @@
 
 #include "zr_asset_db.h"
 
+static i32 ZRDB_RegisterTexture(
+    ZRAssetDB* assetDB, char* fileName, void* data, i32 dataSize, i32 width, i32 height, i32 apiHandle)
+{
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    
+    i32 index = db->numTextures++;
+    printf("ZRDB - registered texture %d: %s, handle %d\n",
+        index, fileName, apiHandle);
+    ZRDBTexture* handle = &db->textures[index];
+    handle->fileName = fileName;
+    handle->data = data;
+    handle->dataSize = dataSize;
+    handle->width = width;
+    handle->height = height;
+    handle->apiHandle = apiHandle;
+    return index;
+}
+
+static i32 ZRDB_GetTexIndexByName(ZRAssetDB* assetDB, char* name)
+{
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    for (i32 i = 0; i < db->numTextures; ++i)
+    {
+        if (ZE_CompareStrings(name, db->textures[i].fileName) == 0)
+        {
+            return i;
+        }
+    }
+    return 0;
+}
+
+static i32 ZRDB_GetTexHandleByIndex(ZRAssetDB* assetDB, i32 index)
+{
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    if (index < 0 || index >= db->numTextures) { return 0; }
+    return db->textures[index].apiHandle;
+}
+
+static void ZRDB_GetTexHandleByName(ZRAssetDB* assetDB, char* name, i32* result)
+{
+    i32 index = ZRDB_GetTexIndexByName(assetDB, name);
+    *result = ZRDB_GetTexHandleByIndex(assetDB, index);
+}
+
 static u8* ZRDB_LoadTextureToHeap(
     char* path, i32 bVerbose, int* x, int* y, i32 bFlipY)
 {
@@ -42,6 +86,7 @@ static i32 ZRDB_LoadTexture(ZRAssetDB* assetDB, char* path, i32 bVerbose)
 	u32 handle;
     pixels = ZRDB_LoadTextureToHeap(path, bVerbose, &x, &y, YES);
 	db->uploader.UploadTexture(pixels, x, y, &handle);
+	ZRDB_RegisterTexture(assetDB, path, pixels, buf.capacity, x, y, handle);
     return 0;
 }
 

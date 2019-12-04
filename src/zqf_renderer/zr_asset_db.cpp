@@ -5,25 +5,6 @@
 
 #define ZR_ASSET_DB_MAX_HANDLES 512
 
-struct ZRDBTexture
-{
-    char* fileName;
-    void* data;
-    i32 dataSize;
-    i32 width;
-    i32 height;
-    i32 apiHandle;
-};
-
-struct ZRDBMesh
-{
-    char* name;
-    // api handles
-    ZRMeshHandles handles;
-    // mesh data on heap
-    MeshData data;
-};
-
 struct ZRAssetDBData
 {
     ZRAssetDB header;
@@ -76,109 +57,6 @@ extern "C" i32 ZRDB_StageRawFile(char* path, ZEByteBuffer* dest)
 ///////////////////////////////////////////////////////////////////////////
 // Textures
 ///////////////////////////////////////////////////////////////////////////
-
-//internal ZRDBTexture g_textures[ZR_ASSET_DB_MAX_HANDLES];
-//internal i32 g_nextTexture = 0;
-
-static i32 ZRDB_RegisterTexture(
-    ZRAssetDB* assetDB, char* fileName, void* data, i32 dataSize, i32 width, i32 height, i32 apiHandle)
-{
-    ZRDB_CAST_TO_INTERNAL(assetDB, db)
-    
-    i32 index = db->numTextures++;
-    printf("ZRDB - registered texture %d: %s, handle %d\n",
-        index, fileName, apiHandle);
-    ZRDBTexture* handle = &db->textures[index];
-    handle->fileName = fileName;
-    handle->data = data;
-    handle->dataSize = dataSize;
-    handle->width = width;
-    handle->height = height;
-    handle->apiHandle = apiHandle;
-    return index;
-}
-
-static i32 ZRDB_GetTexIndexByName(ZRAssetDB* assetDB, char* name)
-{
-    ZRDB_CAST_TO_INTERNAL(assetDB, db)
-    for (i32 i = 0; i < db->numTextures; ++i)
-    {
-        if (ZE_CompareStrings(name, db->textures[i].fileName) == 0)
-        {
-            return i;
-        }
-    }
-    return 0;
-}
-
-static i32 ZRDB_GetTexHandleByIndex(ZRAssetDB* assetDB, i32 index)
-{
-    ZRDB_CAST_TO_INTERNAL(assetDB, db)
-    if (index < 0 || index >= db->numTextures) { return 0; }
-    return db->textures[index].apiHandle;
-}
-
-static void ZRDB_GetTexHandleByName(ZRAssetDB* assetDB, char* name, i32* result)
-{
-    i32 index = ZRDB_GetTexIndexByName(assetDB, name);
-    *result = ZRDB_GetTexHandleByIndex(assetDB, index);
-}
-
-
-///////////////////////////////////////////////////////////////////////////
-// Meshes
-///////////////////////////////////////////////////////////////////////////
-
-//internal ZRDBMesh g_meshes[ZR_ASSET_DB_MAX_HANDLES];
-//internal i32 g_nextMesh = 0;
-
-static i32 ZRDB_RegisterMesh(ZRAssetDB* assetDB, char* name, ZRMeshHandles handles, MeshData data)
-{
-    ZRDB_CAST_TO_INTERNAL(assetDB, db)
-    i32 index = db->numMeshes++;
-    ZRDBMesh* mesh = &db->meshes[index];
-    mesh->name = name;
-    mesh->handles = handles;
-    mesh->data = data;
-    printf("ZRDB - registered Mesh %s at index %d\n", name, index);
-    return index;
-}
-
-static i32 ZRDB_GetMeshIndexByName(ZRAssetDB* assetDB, char* name)
-{
-    ZRDB_CAST_TO_INTERNAL(assetDB, db)
-    i32 index = 0;
-    for (i32 i = 0; i < db->numMeshes; ++i)
-    {
-        if (ZE_CompareStrings(name, db->meshes[i].name) == 0)
-        {
-            index = i;
-            break;
-        }
-    }
-    return index;
-}
-
-static void ZRDB_GetMeshHandlesByIndex(ZRAssetDB* assetDB, i32 index, ZRMeshHandles* result)
-{
-    ZRDB_CAST_TO_INTERNAL(assetDB, db)
-    if (index < 0 || index >= db->numMeshes) { index = 0; }
-    *result = db->meshes[index].handles;
-}
-
-static void ZRDB_GetMeshHandlesByName(ZRAssetDB* assetDB, char* name, ZRMeshHandles* result)
-{
-    ZRDB_CAST_TO_INTERNAL(assetDB, db)
-    i32 index = ZRDB_GetMeshIndexByName(assetDB, name);
-    ZRDB_GetMeshHandlesByIndex(assetDB, index, result);
-}
-
-///////////////////////////////////////////////////////////////////////////
-// Materials
-///////////////////////////////////////////////////////////////////////////
-
-//internal ZRMaterial g_materials[ZR_ASSET_DB_MAX_HANDLES];
-//internal i32 g_nextMaterial = 0;
 
 static i32 ZRDB_GetMaterialIndexByName(ZRAssetDB* assetDB, char* name)
 {
@@ -243,7 +121,7 @@ extern "C" ZRAssetDB* ZRDB_Create(ZRAssetUploader uploader)
     //db->header.GetTexIndexByName = ZRDB_GetTexIndexByName;
     db->header.GetTextureHandleByName = ZRDB_GetTexHandleByName;
     // Get Materials
-    db->header.GetMaterialIndexByName = ZRDB_GetMaterialIndexByName;
+    //db->header.GetMaterialIndexByName = ZRDB_GetMaterialIndexByName;
     // Load
     db->header.CreateMaterial = ZRDB_CreateMaterial;
     db->header.LoadMesh = ZRDB_LoadMesh;
