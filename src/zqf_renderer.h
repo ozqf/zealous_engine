@@ -308,12 +308,12 @@ struct ZRScene
 // Quick object initialisation
 ///////////////////////////////////////////////////////////
 
-static void ZRDrawObj_SetAsPrefab(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
-{
-    obj->data = {};
-    obj->data.type = ZR_DRAWOBJ_TYPE_PREFAB;
-    obj->data.prefab.prefabId = prefabId;
-}
+// static void ZRDrawObj_SetAsPrefab(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
+// {
+//     obj->data = {};
+//     obj->data.type = ZR_DRAWOBJ_TYPE_PREFAB;
+//     obj->data.prefab.prefabId = prefabId;
+// }
 
 static void ZRDrawObj_SetAsMesh(
     ZRScene* s, ZRDrawObj* obj, i32 meshIndex, i32 materialIndex)
