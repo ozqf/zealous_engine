@@ -2,7 +2,7 @@
 
 #include "../ze_common/ze_common.h"
 #include "../ze_common/ze_bitpack.h"
-#include "../zqf_renderer.h"
+#include "../zr_draw_types.h"
 #include "../physics/physics.h"
 
 #define ACTOR_BASE_SPEED 6.5f
@@ -69,10 +69,10 @@ struct SimEntId
 
 struct SimEntDisplay
 {
-    i32 prefabIndex;
     Vec3 scale;
     Colour colourA;
     Colour colourB;
+    ZRDrawObjData data;
 };
 
 struct SimEntMovement

@@ -13,10 +13,11 @@ internal i32 Sim_InitWanderer(
     Sim_SetEntityStats(ent, 1, 1, 1);
     Sim_SetEntityBody(ent, { 1, 1, 1 });
     Sim_SetEnemyDefaultFlags(ent);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 0, 1, 1 },
         { 1, 0, 1, 1 },
-        SIM_PREFAB_ENEMY,
+        "Cube",
+        "Enemy",
         SIM_DEATH_GFX_EXPLOSION);
     ent->deathType = SIM_DEATH_GFX_EXPLOSION;
     ent->tickType = SIM_TICK_TYPE_SPAWN;
@@ -33,10 +34,11 @@ internal i32 Sim_InitRubble(
     Sim_SetEntityStats(ent, 4, 1, 1);
     Sim_SetEntityBody(ent, { 1, 1, 1 });
     Sim_SetEnemyDefaultFlags(ent);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 0.7f, 0.7f, 1, 1 },
         { 0.7f, 0.7f, 1, 1 },
-        SIM_PREFAB_ENEMY,
+        "Cube",
+        "Enemy",
         SIM_DEATH_GFX_EXPLOSION);
     ent->deathType = SIM_DEATH_GFX_EXPLOSION;
     ent->tickType = SIM_TICK_TYPE_SPAWN;
@@ -57,10 +59,11 @@ internal i32 Sim_InitBouncer(
     Sim_SetEntityStats(ent, 6.0f, 1, 1);
     Sim_SetEntityBody(ent, { 1, 2, 1});
     Sim_SetEnemyDefaultFlags(ent);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 0.5f, 0.5f, 0.7f, 1 },
         { 0.5f, 0.5f, 0.7f, 1 },
-        SIM_PREFAB_ENEMY,
+        "Cube",
+        "Enemy",
         SIM_DEATH_GFX_EXPLOSION);
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_BOUNCER;
@@ -77,10 +80,11 @@ internal i32 Sim_InitDart(
     Sim_SetEntityStats(ent, 5.5f, 1, 1);
     Sim_SetEntityBody(ent, { 1, 2, 1});
     Sim_SetEnemyDefaultFlags(ent);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 0.7f, 0.3f, 1 },
         { 1, 0.7f, 0.3f, 1 },
-        SIM_PREFAB_ENEMY,
+        "Cube",
+        "Enemy",
         SIM_DEATH_GFX_EXPLOSION);
     ent->deathType = SIM_DEATH_GFX_EXPLOSION;
     ent->tickType = SIM_TICK_TYPE_SPAWN;
@@ -97,10 +101,11 @@ internal i32 Sim_InitSeeker(
     Sim_SetEntityStats(ent, 4, 60, 1);
     Sim_SetEntityBody(ent, { 1, 2, 1});
     Sim_SetEnemyDefaultFlags(ent);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 0, 0.7f, 0.7f, 1 },
         { 0, 0.7f, 0.7f, 1 },
-        SIM_PREFAB_ENEMY,
+        "Cube",
+        "Enemy",
         SIM_DEATH_GFX_EXPLOSION);
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_SEEKER;
@@ -118,10 +123,11 @@ internal i32 Sim_InitSeekerFlying(
     Sim_SetEntityStats(ent, 6, 60, 1);
     Sim_SetEntityBody(ent, { 1.5f, 1.5f, 1.5f });
     Sim_SetEnemyDefaultFlags(ent);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 0, 0.7f, 0.7f, 1 },
         { 0, 0.7f, 0.7f, 1 },
-        SIM_PREFAB_ENEMY,
+        "Cube",
+        "Enemy",
         SIM_DEATH_GFX_EXPLOSION);
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_SEEKER_FLYING;
@@ -139,10 +145,11 @@ internal i32 Sim_InitGrunt(
     Sim_SetEntityStats(ent, 3, 1, 1);
     Sim_SetEntityBody(ent, { 1.5, 1, 1.5 });
     Sim_SetEnemyDefaultFlags(ent);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 0.2f, 0.2f, 1 },
         { 1, 0.2f, 0.2f, 1 },
-        SIM_PREFAB_ENEMY,
+        "Cube",
+        "Enemy",
         SIM_DEATH_GFX_EXPLOSION);
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_GRUNT;
@@ -159,10 +166,11 @@ internal i32 Sim_InitBrute(
     Sim_SetEntityStats(ent, 3, 1, 1);
     Sim_SetEntityBody(ent, { 3.0f, 2.0f, 3.0f });
     Sim_SetEnemyDefaultFlags(ent);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 0.2f, 0.2f, 1 },
         { 1, 0.2f, 0.2f, 1 },
-        SIM_PREFAB_ENEMY,
+        "Cube",
+        "Enemy",
         SIM_DEATH_GFX_EXPLOSION);
     return ZE_ERROR_NONE;
 }

@@ -45,6 +45,7 @@ static void ZRGL_GeometryPass_Mesh(
 	//mat.diffuseTexHandle = 1;
 	//mat.emissionTexHandle = 1;
 	i32 diffuse, emissive;
+	ZRMaterial* mat = g_assets->GetMaterialByIndex(g_assets, group->data.model.materialIndex);
 	g_assets->GetTextureHandleByName(g_assets, ZQF_R_DEFAULT_DIFFUSE_TEX, &diffuse);
 	g_assets->GetTextureHandleByName(g_assets, "data/debug_black.png", &emissive);
 	//printf("ZR Geom pass mesh %d diffuse %d emissive %d\n", vao, diffuse, emissive);

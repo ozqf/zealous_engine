@@ -55,8 +55,8 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_BULLET_IMPACT:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(NULL, obj, cubeIndex, defaultMaterialIndex);
-                //ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX);
+                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
+                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX);
                 obj->t = ent->body.t;
             } break;
         }
@@ -78,7 +78,9 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     // TODO: Look these up in asset db!
     i32 cubeIndex = 0;
     i32 quadIndex = 2;
-    i32 defaultMaterialIndex = 0;
+    ZRAssetDB* db = App_GetAssetDB();
+    ZRMaterial* mat = db->GetMaterialByName(db, "Default");
+    i32 defaultMaterialIndex = mat->index;
 
     i32 objCount = 0;
     for (i32 i = 0; i < sim->maxEnts; ++i)
@@ -88,7 +90,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
         i32 rendObjectsAdded = 0;
         #if 0
         ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-            ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
+            ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
             obj->t = ent->body.t;
         objCount++;
         #endif
@@ -100,9 +102,9 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_PROJ_PLAYER:
             {
                 //ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                //ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE);
+                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE);
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(NULL, obj, cubeIndex, defaultMaterialIndex);
+                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
             } break;
@@ -110,13 +112,13 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             {
                 #if 0
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_WALL);
+                ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_WALL);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
                 #endif
                 #if 1
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(NULL, obj, cubeIndex, defaultMaterialIndex);
+                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
                 #endif
@@ -128,8 +130,8 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_SEEKER:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                //ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ENEMY);
-                ZRDrawObj_SetAsMesh(NULL, obj, cubeIndex, defaultMaterialIndex);
+                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_ENEMY);
+                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
                 #if 1
                 obj->t = ent->body.t;
                 #endif
@@ -156,10 +158,10 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_SEEKER_FLYING:
             {
                 //ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                //ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_QUAD);
+                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_QUAD);
 
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(NULL, obj, quadIndex, defaultMaterialIndex);
+                ZRDrawObj_SetAsMesh(obj, quadIndex, defaultMaterialIndex);
                 // Setup buildboard
                 // extract euler angles from camera
                 Vec3 euler = M3x3_GetEulerAnglesRadians(camera->rotation.cells);
@@ -178,14 +180,14 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 if (debugFlags & CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION)
                 {
                     obj = CLR_InitDrawObjInPlace(&list->cursor);
-                    //ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_ITEM);
-                    ZRDrawObj_SetAsMesh(NULL, obj, cubeIndex, defaultMaterialIndex);
+                    //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_ITEM);
+                    ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
                     rendObjectsAdded++;
                     obj->t = ent->body.t;
                 }
                 obj = CLR_InitDrawObjInPlace(&list->cursor);
-                //ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
-                ZRDrawObj_SetAsMesh(NULL, obj, cubeIndex, defaultMaterialIndex);
+                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
+                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
                 rendObjectsAdded++;
                 if (debugFlags & CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING)
                 {
@@ -214,8 +216,8 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_EXPLOSION:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                //ZRDrawObj_SetAsPrefab(NULL, obj, ZR_PREFAB_TYPE_DEBUG_EXPLOSION);
-                ZRDrawObj_SetAsMesh(NULL, obj, cubeIndex, defaultMaterialIndex);
+                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_EXPLOSION);
+                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
             } break;
@@ -223,7 +225,6 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsPointLight(
-                    NULL,
                     obj,
                     ent->display.colourA,
                     ent->display.colourB.array[0],
@@ -234,7 +235,6 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 ZRDrawObj_SetAsDirectLight(
-                    NULL,
                     obj,
                     ent->display.colourA,
                     ent->display.colourB.array[0],
@@ -276,7 +276,7 @@ extern "C" void CLR_WriteDrawFrame(
     #if 0 // DEBUG: Add a main light or objects are invisible
     ZRDrawObj* light = CLR_InitDrawObjInPlace(&list->cursor);
     objCount++;
-    ZRDrawObj_SetAsPointLight(NULL, light, { 0, 1, 0 }, 2, 999.f);
+    ZRDrawObj_SetAsPointLight(light, { 0, 1, 0 }, 2, 999.f);
     light->data.light.bCastShadows = YES;
     Transform_SetToIdentity(&light->t);
     light->t.pos.x = 0;// -20;

@@ -51,6 +51,15 @@ ScreenInfo App_GetScreenInfo()
 }
 
 extern "C"
+ZRAssetDB* App_GetAssetDB()
+{
+    ZRAssetDB* db = (ZRAssetDB*)g_platform.GetAssetDB();
+    // TODO: Handle this better.
+    ZE_ASSERT(db != NULL, "Asset DB is null");
+    return db;
+}
+
+extern "C"
 timeFloat App_GetSimFrameInterval()
 {
     return (timeFloat)(1.0f / g_simFrameRate);
@@ -124,7 +133,7 @@ internal i32  AppImpl_Init()
     {
         printf("APP - Got asset DB\n");
     }
-
+    
     // Memory
 
     // Acquiring an old 'heap object here. Various platform functions

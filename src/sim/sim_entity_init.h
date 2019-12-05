@@ -32,14 +32,15 @@ internal void Sim_SetEntityStats(
     ent->attackTime = attackTime;
 }
 
-internal void Sim_SetEntityDisplay(
+internal void Sim_SetEntityDisplay_Mesh(
     SimEntity* ent,
     Colour colourA,
     Colour colourB,
-    i32 prefabIndex,
+    char* meshName,
+    char* materialName,
     u8 deathType)
 {
-    ent->display.prefabIndex = prefabIndex;
+    //ent->display.prefabIndex = prefabIndex;
     ent->deathType = deathType;
     ent->display.colourA = colourA;
     ent->display.colourB = colourB;

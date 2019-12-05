@@ -58,7 +58,8 @@ static i32 ZRDB_StageRawFile(char* path, ZEByteBuffer* dest)
     return ZE_ERROR_NONE;
 }
 
-#define ZRDB_CAST_TO_INTERNAL(assetDBHeader, newVarName) ZRAssetDBData*##newVarName##=##(ZRAssetDBData*)##assetDBHeader##;
+#define ZRDB_CAST_TO_INTERNAL(assetDBHeader, newVarName) \
+ZRAssetDBData*##newVarName##=##(ZRAssetDBData*)##assetDBHeader##;
 
 ///////////////////////////////////////////////////////////////////////////
 // Implementations
@@ -81,16 +82,14 @@ extern "C" ZRAssetDB* ZRDB_Create(ZRAssetUploader uploader)
     /////////////////////////////////////////////////////
     // functions
 
-    // Get meshes
-    //db->header.GetMeshIndexByName = ZRDB_GetMeshIndexByName;
+    // Get asset
     db->header.GetMeshHandleByName = ZRDB_GetMeshHandlesByName;
-    // Get textures
-    //db->header.GetTexIndexByName = ZRDB_GetTexIndexByName;
     db->header.GetTextureHandleByName = ZRDB_GetTexHandleByName;
-    // Get Materials
-    //db->header.GetMaterialIndexByName = ZRDB_GetMaterialIndexByName;
-    // Load
+    db->header.GetMaterialByName = ZRDB_GetMaterialByName;
+    db->header.GetMaterialByIndex = ZRDB_GetMaterialByIndex;
+    // Create
     db->header.CreateMaterial = ZRDB_CreateMaterial;
+    // Load
     db->header.LoadMesh = ZRDB_LoadMesh;
     db->header.LoadMeshFromFBX = ZRDB_LoadMeshFromFBX;
     db->header.LoadTexture = ZRDB_LoadTexture;
