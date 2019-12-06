@@ -40,8 +40,8 @@ static void ZRDB_CreateMaterial(
 {
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
 	ZRMaterial* mat = ZRDB_GetFreeMaterial(assetDB, name);
-	mat->diffuseTexIndex = ZRDB_GetTexIndexByName(assetDB, diffuseName);
-	mat->emissionTexIndex = ZRDB_GetTexIndexByName(assetDB, emissiveName);
+	mat->diffuseTexIndex = ZRDB_GetTextureIndexByName(assetDB, diffuseName);
+	mat->emissionTexIndex = ZRDB_GetTextureIndexByName(assetDB, emissiveName);
     printf("ZRDB Create material id %d: \"%s\"\n", mat->index, mat->name);
 }
 

@@ -26,7 +26,7 @@ static i32 ZRDB_RegisterTexture(
     return index;
 }
 
-static i32 ZRDB_GetTexIndexByName(ZRAssetDB* assetDB, char* name)
+static i32 ZRDB_GetTextureIndexByName(ZRAssetDB* assetDB, char* name)
 {
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
     for (i32 i = 0; i < db->numTextures; ++i)
@@ -39,17 +39,24 @@ static i32 ZRDB_GetTexIndexByName(ZRAssetDB* assetDB, char* name)
     return 0;
 }
 
-static i32 ZRDB_GetTexHandleByIndex(ZRAssetDB* assetDB, i32 index)
+static ZRDBTexture* ZRDB_GetTextureByIndex(ZRAssetDB* assetDB, i32 index)
 {
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
-    if (index < 0 || index >= db->numTextures) { return 0; }
-    return db->textures[index].apiHandle;
+    if (index < 0 || index >= db->numTextures) { index = 0; }
+    return &db->textures[index];
 }
 
-static void ZRDB_GetTexHandleByName(ZRAssetDB* assetDB, char* name, i32* result)
+static ZRDBTexture* ZRDB_GetTextureByName(ZRAssetDB* assetDB, char* name)
 {
-    i32 index = ZRDB_GetTexIndexByName(assetDB, name);
-    *result = ZRDB_GetTexHandleByIndex(assetDB, index);
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    i32 index = ZRDB_GetTextureIndexByName(assetDB, name);
+    return &db->textures[index];
+}
+
+static i32 ZRDB_GetTextureHandleByIndex(ZRAssetDB* assetDB, i32 index)
+{
+    ZRDBTexture* tex = ZRDB_GetTextureByIndex(assetDB, index);
+    return tex->apiHandle;
 }
 
 static u8* ZRDB_LoadTextureToHeap(

@@ -65,6 +65,15 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     return objCount;
 }
 
+internal void CLR_GetAssetIndexes(
+	ZRAssetDB* db, SimEntity* ent, i32* meshIndex, i32* materialIndex)
+{
+	ZRMeshHandles handles;
+	db->GetMeshHandleByName(db, ent->display.meshName, &handles);
+	*meshIndex = handles.vao;
+	db->GetMaterialByName(db, ent->display.materialName)->index;
+}
+
 /**
  * returns number of objects added
  */
@@ -76,11 +85,16 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     u32 debugFlags)
 {
     // TODO: Look these up in asset db!
-    i32 cubeIndex = 0;
-    i32 quadIndex = 2;
+    //i32 meshIndex = 0;
+    //i32 quadIndex = 2;
+	
     ZRAssetDB* db = App_GetAssetDB();
-    ZRMaterial* mat = db->GetMaterialByName(db, "Default");
-    i32 defaultMaterialIndex = mat->index;
+    ZRDBMesh* mesh;
+    ZRMaterial* mat;
+    mesh = db->GetMeshByName(db, "Cube");
+    i32 meshIndex = mesh->index;
+    mat = db->GetMaterialByName(db, "Default");
+    i32 materialIndex = mat->index;
 
     i32 objCount = 0;
     for (i32 i = 0; i < sim->maxEnts; ++i)
@@ -104,7 +118,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 //ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE);
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
+                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
             } break;
@@ -118,7 +132,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 #endif
                 #if 1
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
+                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
                 #endif
@@ -131,7 +145,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_ENEMY);
-                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
+                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
                 #if 1
                 obj->t = ent->body.t;
                 #endif
@@ -161,7 +175,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_QUAD);
 
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(obj, quadIndex, defaultMaterialIndex);
+                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
                 // Setup buildboard
                 // extract euler angles from camera
                 Vec3 euler = M3x3_GetEulerAnglesRadians(camera->rotation.cells);
@@ -181,13 +195,13 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 {
                     obj = CLR_InitDrawObjInPlace(&list->cursor);
                     //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_ITEM);
-                    ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
+                    ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
                     rendObjectsAdded++;
                     obj->t = ent->body.t;
                 }
                 obj = CLR_InitDrawObjInPlace(&list->cursor);
                 //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
-                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
+                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
                 rendObjectsAdded++;
                 if (debugFlags & CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING)
                 {
@@ -217,7 +231,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_EXPLOSION);
-                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
+                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
             } break;

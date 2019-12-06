@@ -44,6 +44,8 @@ internal void Sim_SetEntityDisplay_Mesh(
     ent->deathType = deathType;
     ent->display.colourA = colourA;
     ent->display.colourB = colourB;
+	ent->display.meshName = meshName;
+	ent->display.materialName = materialName;
 }
 
 internal void Sim_SetEntityBody(

@@ -153,10 +153,11 @@ internal i32 Sim_InitActor(
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityBody(ent, { 1, 2, 1 });
     Sim_SetEntityStats(ent, ACTOR_BASE_SPEED, 1, 0.05f);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 0, 1, 0, 1 },
         { 0, 1, 0, 1 },
-        SIM_PREFAB_PLAYER,
+        "Cube",
+		"Default",
         SIM_DEATH_GFX_EXPLOSION);
     ent->tickType = SIM_TICK_TYPE_ACTOR;
     ent->coreTickType = SIM_TICK_TYPE_ACTOR;
@@ -170,10 +171,11 @@ internal i32 Sim_InitBot(
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityStats(ent, 6.5f, 1, 0.05f);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 0, 0.6f, 0, 1 },
         { 0, 0.6f, 0, 1 },
-        SIM_PREFAB_BOT,
+        "Cube",
+		"Default",
         SIM_DEATH_GFX_EXPLOSION);
     ent->tickType = SIM_TICK_TYPE_BOT;
     ent->coreTickType = SIM_TICK_TYPE_BOT;
@@ -208,10 +210,11 @@ internal i32 Sim_InitWorldVolume(
     ent->flags = SIM_ENT_FLAG_SHOOTABLE | SIM_ENT_FLAG_INVULNERABLE;
     // world volumes can't move (yet!)
     ent->movement.velocity = {};
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 0.2f, 0.2f, 0.2f, 1 },
         { 0.2f, 0.2f, 0.2f, 1 },
-        SIM_PREFAB_WALL,
+        "Cube",
+		"Default",
         SIM_DEATH_GFX_NONE);
     #ifdef SIM_USE_PHYSICS_ENGINE
     ent->shape.SetAsBox(def->pos, def->scale, ZCOLLIDER_FLAG_STATIC, SIM_LAYER_WORLD, SIM_LAYER_WORLD, 0);
@@ -233,11 +236,12 @@ internal i32 Sim_InitPointLight(
     colour.g = def->pointLight.colour.y;
     colour.b = def->pointLight.colour.z;
     colour.a = 1;
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         colour,
         // TODO: Encoding light settings in the light's second channel? HACK! At least use a union...
         { def->pointLight.multiplier, def->pointLight.range, 0, 1 },
-        SIM_PREFAB_WALL,
+        "Cube",
+		"Default",
         SIM_DEATH_GFX_NONE);
     return ZE_ERROR_NONE;
 }
@@ -289,10 +293,11 @@ internal i32 Sim_InitExplosion(
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_EXPLOSION;
     ent->coreTickType = SIM_TICK_TYPE_EXPLOSION;
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_EXPLOSION,
+        "Cube",
+		"Default",
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 2, 1, 2 };
@@ -305,10 +310,11 @@ internal i32 Sim_InitBulletImpact(
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_EXPLOSION;
     ent->coreTickType = SIM_TICK_TYPE_EXPLOSION;
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_EXPLOSION,
+        "Cube",
+		"Default",
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 0.25f, 0.25f, 0.25f };
@@ -321,10 +327,11 @@ internal i32 Sim_InitTargetPoint(
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_TARGET_POINT;
     ent->coreTickType = SIM_TICK_TYPE_TARGET_POINT;
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_EXPLOSION,
+        "Cube",
+		"Default",
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 0.5f, 0.5f, 0.5f };
@@ -335,10 +342,11 @@ internal i32 Sim_InitProp(
     SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_ITEM,
+        "Cube",
+		"Default",
         SIM_DEATH_GFX_NONE);
     ent->tickType = SIM_TICK_TYPE_NONE;
     ent->coreTickType = SIM_TICK_TYPE_NONE;
@@ -359,10 +367,11 @@ internal i32 Sim_InitProjBase(
     t.lifeTime = 1.0f;
     t.patternDef.patternId = SIM_PATTERN_NONE;
     t.scale = { 0.5f, 0.5f, 0.5f };
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_ENEMY_PROJECTILE,
+        "Spike",
+		"Projectile",
         SIM_DEATH_GFX_EXPLOSION);
     ent->deathType = SIM_DEATH_GFX_EXPLOSION;
     // must set birth tick here
@@ -388,10 +397,11 @@ internal i32 Sim_InitProjPrediction(
     t.lifeTime = 2.0f;
     t.patternDef.patternId = SIM_PATTERN_NONE;
     t.scale = { 0.5f, 0.5f, 0.5f };
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_PLAYER_PROJECTILE,
+        "Spike",
+		"Projectile",
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
@@ -416,10 +426,11 @@ internal i32 Sim_InitPlayerProjectile(
     t.lifeTime = 1.5f;
     t.patternDef.patternId = SIM_PATTERN_FLAT_RADIAL;
     t.scale = { 0.15f, 0.15f, 1 };
-    Sim_SetEntityDisplay(ent,
+    Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        SIM_PREFAB_PLAYER_PROJECTILE,
+        "Spike",
+		"Projectile",
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;

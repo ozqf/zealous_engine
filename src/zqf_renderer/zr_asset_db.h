@@ -48,6 +48,7 @@ struct ZRMeshHandles
 
 struct ZRDBMesh
 {
+	i32 index;
     char* name;
     // api handles
     ZRMeshHandles handles;
@@ -57,8 +58,10 @@ struct ZRDBMesh
 
 struct ZRAssetDB
 {
+    ZRDBMesh* (*GetMeshByName)(ZRAssetDB* assetDB, char* name);
     void (*GetMeshHandleByName)(ZRAssetDB* assetDB, char* name, ZRMeshHandles* result);
-    void (*GetTextureHandleByName)(ZRAssetDB* assetDB, char* name, i32* result);
+    ZRDBTexture* (*GetTextureByName)(ZRAssetDB* assetDB, char* name);
+    i32 (*GetTextureHandleByIndex)(ZRAssetDB* assetDB, i32 index);
 
     void (*CreateMaterial)(ZRAssetDB* assetDB, char* name, char* diffuseTexName, char* emissiveTexName);
     ZRMaterial* (*GetMaterialByName)(ZRAssetDB* assetDB, char* name);
