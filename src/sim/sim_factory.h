@@ -260,13 +260,15 @@ internal i32 Sim_InitDirectLight(
     colour.g = def->pointLight.colour.y;
     colour.b = def->pointLight.colour.z;
     colour.a = 1;
-    Sim_SetEntityDisplay_Mesh(ent,
-        colour,
-        // TODO: Encoding light settings in the light's second channel? HACK! At least use a union...
-        { def->pointLight.multiplier, def->pointLight.range, 0, 1 },
-        "Cube",
-        "World",
-        SIM_DEATH_GFX_NONE);
+    // Sim_SetEntityDisplay_Mesh(ent,
+    //     colour,
+    //     // TODO: Encoding light settings in the light's second channel? HACK! At least use a union...
+    //     { def->pointLight.multiplier, def->pointLight.range, 0, 1 },
+    //     "Cube",
+    //     "World",
+    //     SIM_DEATH_GFX_NONE);
+    ent->display.data.SetAsDirectLight(
+        colour, def->pointLight.multiplier, def->pointLight.range);
     f32* rot = ent->body.t.rotation.cells;
     M3x3_SetToIdentity(rot);
     M3x3_RotateX(rot, def->pitchDegrees * DEG2RAD);

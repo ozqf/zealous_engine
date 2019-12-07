@@ -222,7 +222,7 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
             continue;
         }
         // lights have their own groups
-        else if (objType == ZR_DRAWOBJ_TYPE_POINT_LIGHT)
+        else if (objType == ZR_DRAWOBJ_TYPE_POINT_LIGHT || objType == ZR_DRAWOBJ_TYPE_DIRECT_LIGHT)
         {
             i32 lightIndex = drawGroups->numLights++;
             ZE_ASSERT(lightIndex < ZR_MAX_DRAW_GROUPS, "Too many lights for draw groups")

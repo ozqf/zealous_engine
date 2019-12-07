@@ -101,18 +101,23 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case ZR_DRAWOBJ_TYPE_MESH:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                obj->data.SetAsMesh(
-                    ent->display.data.model.meshIndex,
-                    ent->display.data.model.materialIndex
-                );
-                // ZRDrawObj_SetAsMesh(
-                //     obj,
+                obj->data = ent->display.data;
+                // obj->data.SetAsMesh(
                 //     ent->display.data.model.meshIndex,
                 //     ent->display.data.model.materialIndex
                 // );
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
+                if (ent->factoryType == SIM_FACTORY_TYPE_PROJ_PLAYER
+                    || ent->factoryType == SIM_FACTORY_TYPE_BULLET_IMPACT)
+                {
+                    obj = CLR_InitDrawObjInPlace(&list->cursor);
+                    obj->data.SetAsPointLight({ 1, 1, 0 }, 1, 1);
+                    obj->t = ent->body.t;
+                    rendObjectsAdded++;
+                }
             } break;
+            case ZR_DRAWOBJ_TYPE_DIRECT_LIGHT:
             case ZR_DRAWOBJ_TYPE_POINT_LIGHT:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);

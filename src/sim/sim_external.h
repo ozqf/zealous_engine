@@ -391,7 +391,7 @@ internal void Sim_AddDirectLight(
     SimEntSpawnData def = {};
     def.serial = Sim_ReserveEntitySerial(sim, 1);
     def.isLocal = 1;
-	def.factoryType = SIM_FACTORY_TYPE_POINT_LIGHT;
+	def.factoryType = SIM_FACTORY_TYPE_DIRECT_LIGHT;
     def.pos = pos;
     def.pointLight.colour = colour;
     def.pointLight.multiplier = multiplier;
@@ -430,8 +430,11 @@ i32 Sim_LoadScene(SimScene* sim, i32 index)
     Sim_AddWorldVolume(sim, { -10, pillarY, 0 }, { 1, 10, 1 });
     Sim_AddWorldVolume(sim, { 10, pillarY, 0 }, { 1, 10, 1 });
 
-    Sim_AddPointLight(sim, { 15, 2, 15 }, { 1, 0.3f, 0.3f }, 4, 40);
-	Sim_AddPointLight(sim, { -15, 2, -15 }, { 0.3f, 0.3f, 1 }, 4, 40);
+    //Sim_AddPointLight(sim, { 15, 2, 15 }, { 1, 0.3f, 0.3f }, 4, 40);
+	//Sim_AddPointLight(sim, { -15, 2, -15 }, { 0.3f, 0.3f, 1 }, 4, 40);
+    //Sim_AddPointLight(sim, { 15, 2, -15 }, { 0, 1, 0 }, 2, 15);
+
+    Sim_AddDirectLight(sim, { 0, 5, 0 }, { 1, 1, 1 }, 0.5f, 999, -45, -45);
 
     // static sprites
     Sim_AddTestProp(sim, { 15, 0, 15 });

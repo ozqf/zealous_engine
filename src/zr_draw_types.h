@@ -132,6 +132,15 @@ struct ZRDrawObjData
         this->pointLight.multiplier = multiplier;
         this->pointLight.range = radius;
     }
+    
+    void SetAsDirectLight(Colour colour, f32 multiplier, f32 radius)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_DIRECT_LIGHT;
+        this->directLight.colour = colour;
+        this->directLight.multiplier = multiplier;
+        this->directLight.range = radius;
+    }
+
 };
 
 struct ZRDrawObj
@@ -192,16 +201,6 @@ struct ZRSceneObj
 //     obj->data.pointLight.multiplier = multiplier;
 //     obj->data.pointLight.range = radius;
 // }
-
-static void ZRDrawObj_SetAsDirectLight(
-    ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius)
-{
-    obj->data = {};
-    obj->data.prefab.prefabId = ZR_UNIQUE_OBJECT_GROUP;
-    obj->data.directLight.colour = colour;
-    obj->data.directLight.multiplier = multiplier;
-    obj->data.directLight.range = radius;
-}
 
 static void ZRDrawObj_SetAsText(ZRDrawObj* obj, char* text)
 {

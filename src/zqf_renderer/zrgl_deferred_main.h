@@ -199,13 +199,28 @@ static ZRGroupingStats ZR_PrepareSceneDeferred(
         Vec3 pos = lightObj->t.pos;
         //printf("ZRGL Draw light obj multiplier pos %.3f, %.3f, %.3f - %.3f, range %.3f\n",
         //    pos.x, pos.y, pos.z, multiplier, range);
-        ZRGL_GBufferDrawPointLight(
-            &g_gBuffer,
-            lightObj->t.pos,
-            dir,
-            { c.r, c.g, c.b },
-            multiplier,
-            range);
+        switch (lightObj->data.type)
+        {
+            case ZR_DRAWOBJ_TYPE_POINT_LIGHT:
+            ZRGL_GBufferDrawPointLight(
+                &g_gBuffer,
+                lightObj->t.pos,
+                dir,
+                { c.r, c.g, c.b },
+                multiplier,
+                range);
+            break;
+
+            case ZR_DRAWOBJ_TYPE_DIRECT_LIGHT:
+            ZRGL_GBufferDrawDirectLight(
+                &g_gBuffer,
+                lightObj->t.pos,
+                dir,
+                { c.r, c.g, c.b },
+                multiplier,
+                range);
+            break;
+        }
     
     }
 
