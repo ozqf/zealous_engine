@@ -236,13 +236,14 @@ internal i32 Sim_InitPointLight(
     colour.g = def->pointLight.colour.y;
     colour.b = def->pointLight.colour.z;
     colour.a = 1;
-    Sim_SetEntityDisplay_Mesh(ent,
-        colour,
-        // TODO: Encoding light settings in the light's second channel? HACK! At least use a union...
-        { def->pointLight.multiplier, def->pointLight.range, 0, 1 },
-        "Cube",
-		"Default",
-        SIM_DEATH_GFX_NONE);
+    ent->display.data.SetAsPointLight(colour, def->pointLight.multiplier, def->pointLight.range);
+    //Sim_SetEntityDisplay_Mesh(ent,
+    //    colour,
+    //    // TODO: Encoding light settings in the light's second channel? HACK! At least use a union...
+    //    { def->pointLight.multiplier, def->pointLight.range, 0, 1 },
+    //    "Cube",
+	//	"Default",
+    //    SIM_DEATH_GFX_NONE);
     return ZE_ERROR_NONE;
 }
 

@@ -117,6 +117,21 @@ struct ZRDrawObjData
             i32 length;
         } text;
     };
+
+    void SetAsMesh(i32 meshIndex, i32 materialIndex)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_MESH;
+        this->model.meshIndex = meshIndex;
+        this->model.materialIndex = materialIndex;
+    }
+
+    void SetAsPointLight(Colour colour, f32 multiplier, f32 radius)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
+        this->pointLight.colour = colour;
+        this->pointLight.multiplier = multiplier;
+        this->pointLight.range = radius;
+    }
 };
 
 struct ZRDrawObj
@@ -159,24 +174,24 @@ struct ZRSceneObj
 //     obj->data.prefab.prefabId = prefabId;
 // }
 
-static void ZRDrawObj_SetAsMesh(
-    ZRDrawObj* obj, i32 meshIndex, i32 materialIndex)
-{
-    obj->data = {};
-    obj->data.type = ZR_DRAWOBJ_TYPE_MESH;
-    obj->data.model.meshIndex = meshIndex;
-    obj->data.model.materialIndex = materialIndex;
-}
+// static void ZRDrawObj_SetAsMesh(
+//     ZRDrawObj* obj, i32 meshIndex, i32 materialIndex)
+// {
+//     obj->data = {};
+//     obj->data.type = ZR_DRAWOBJ_TYPE_MESH;
+//     obj->data.model.meshIndex = meshIndex;
+//     obj->data.model.materialIndex = materialIndex;
+// }
 
-static void ZRDrawObj_SetAsPointLight(
-    ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius)
-{
-    obj->data = {};
-    obj->data.type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
-    obj->data.pointLight.colour = colour;
-    obj->data.pointLight.multiplier = multiplier;
-    obj->data.pointLight.range = radius;
-}
+// static void ZRDrawObj_SetAsPointLight(
+//     ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius)
+// {
+//     obj->data = {};
+//     obj->data.type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
+//     obj->data.pointLight.colour = colour;
+//     obj->data.pointLight.multiplier = multiplier;
+//     obj->data.pointLight.range = radius;
+// }
 
 static void ZRDrawObj_SetAsDirectLight(
     ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius)
@@ -186,9 +201,6 @@ static void ZRDrawObj_SetAsDirectLight(
     obj->data.directLight.colour = colour;
     obj->data.directLight.multiplier = multiplier;
     obj->data.directLight.range = radius;
-    // M3x3_SetToIdentity(obj->t.rotation.cells);
-    // M3x3_RotateX(obj->t.rotation.cells, pitch);
-    // M3x3_RotateX(obj->t.rotation.cells, yaw);
 }
 
 static void ZRDrawObj_SetAsText(ZRDrawObj* obj, char* text)

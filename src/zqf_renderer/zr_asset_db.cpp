@@ -85,6 +85,7 @@ extern "C" ZRAssetDB* ZRDB_Create(ZRAssetUploader uploader)
     // Get asset
     db->header.GetMeshByName = ZRDB_GetMeshByName;
     db->header.GetMeshHandleByName = ZRDB_GetMeshHandleByName;
+    db->header.GetMeshByIndex = ZRDB_GetMeshByIndex;
 
     db->header.GetTextureByName = ZRDB_GetTextureByName;
     db->header.GetTextureHandleByIndex = ZRDB_GetTextureHandleByIndex;

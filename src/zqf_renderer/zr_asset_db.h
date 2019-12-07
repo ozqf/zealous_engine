@@ -59,7 +59,9 @@ struct ZRDBMesh
 struct ZRAssetDB
 {
     ZRDBMesh* (*GetMeshByName)(ZRAssetDB* assetDB, char* name);
+    ZRDBMesh* (*GetMeshByIndex)(ZRAssetDB* assetDB, i32 index);
     void (*GetMeshHandleByName)(ZRAssetDB* assetDB, char* name, ZRMeshHandles* result);
+
     ZRDBTexture* (*GetTextureByName)(ZRAssetDB* assetDB, char* name);
     i32 (*GetTextureHandleByIndex)(ZRAssetDB* assetDB, i32 index);
 

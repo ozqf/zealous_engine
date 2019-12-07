@@ -36,14 +36,6 @@ static void ZRGL_GeometryPass_Mesh(
 	glUseProgram(prog);
 	CHECK_GL_ERR
 
-	//ZRMaterial mat;
-	//ZRDB_GetMaterialByIndex(group->data.model.materialIndex, &mat);
-	//i32 diffuse = ZRDB_GetTexHandleByName(ZQF_R_DEFAULT_DIFFUSE_TEX);
-	//i32 diffuse = ZRDB_GetTexHandleByName("data/WALL03_7.png");
-	//i32 emissive = ZRDB_GetTexHandleByName("data/debug_white.png");
-	//i32 emissive = ZRDB_GetTexHandleByName("data/debug_black.png");
-	//mat.diffuseTexHandle = 1;
-	//mat.emissionTexHandle = 1;
 	i32 diffuse, emissive;
 	ZRMaterial* mat = g_assets->GetMaterialByIndex(g_assets, group->data.model.materialIndex);
 	diffuse = g_assets->GetTextureHandleByIndex(g_assets, mat->diffuseTexIndex);
@@ -54,10 +46,7 @@ static void ZRGL_GeometryPass_Mesh(
 	diffuse = tex->apiHandle;
 	tex = g_assets->GetTextureByName(g_assets, "data/debug_black.png");
 	emissive = tex->apiHandle;
-
-	//g_assets->GetTextureHandleByName(g_assets, ZQF_R_DEFAULT_DIFFUSE_TEX, &diffuse);
-	//g_assets->GetTextureHandleByName(g_assets, "data/debug_black.png", &emissive);
-	//printf("ZR Geom pass mesh %d diffuse %d emissive %d\n", vao, diffuse, emissive);
+	
 	ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_colourTex", diffuse, g_samplerDataTex2D);
 	ZR_PrepareTextureUnit2D(

@@ -40,12 +40,16 @@ internal void Sim_SetEntityDisplay_Mesh(
     char* materialName,
     u8 deathType)
 {
+    ZRAssetDB* db = App_GetAssetDB();
+    
     //ent->display.prefabIndex = prefabIndex;
+    ent->display.data.type = ZR_DRAWOBJ_TYPE_MESH;
+    ent->display.data.model.meshIndex = db->GetMeshByName(db, meshName)->index;
+	ent->display.data.model.materialIndex = db->GetMaterialByName(db, materialName)->index;
+    
     ent->deathType = deathType;
     ent->display.colourA = colourA;
     ent->display.colourB = colourB;
-	ent->display.meshName = meshName;
-	ent->display.materialName = materialName;
 }
 
 internal void Sim_SetEntityBody(

@@ -55,7 +55,8 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_BULLET_IMPACT:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
+                obj->data.SetAsMesh(cubeIndex, defaultMaterialIndex);
+                //ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
                 //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX);
                 obj->t = ent->body.t;
             } break;
@@ -63,15 +64,6 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
         objCount++;
     }
     return objCount;
-}
-
-internal void CLR_GetAssetIndexes(
-	ZRAssetDB* db, SimEntity* ent, i32* meshIndex, i32* materialIndex)
-{
-	ZRMeshHandles handles;
-	db->GetMeshHandleByName(db, ent->display.meshName, &handles);
-	*meshIndex = handles.vao;
-	db->GetMaterialByName(db, ent->display.materialName)->index;
 }
 
 /**
@@ -101,14 +93,38 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     {
         SimEntity* ent = &sim->ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
+        if (ent->display.data.type == ZR_DRAWOBJ_TYPE_NONE) { continue; }
         i32 rendObjectsAdded = 0;
-        #if 0
-        ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-            ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
-            obj->t = ent->body.t;
-        objCount++;
-        #endif
         #if 1
+        switch (ent->display.data.type)
+        {
+            case ZR_DRAWOBJ_TYPE_MESH:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                obj->data.SetAsMesh(
+                    ent->display.data.model.meshIndex,
+                    ent->display.data.model.materialIndex
+                );
+                // ZRDrawObj_SetAsMesh(
+                //     obj,
+                //     ent->display.data.model.meshIndex,
+                //     ent->display.data.model.materialIndex
+                // );
+                obj->t = ent->body.t;
+                rendObjectsAdded++;
+            } break;
+            case ZR_DRAWOBJ_TYPE_POINT_LIGHT:
+            {
+                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                obj->data = ent->display.data;
+                obj->t = ent->body.t;
+                rendObjectsAdded++;
+            } break;
+        }
+        objCount += rendObjectsAdded;
+        #endif
+
+        #if 0
         switch (ent->factoryType)
         {
             case SIM_FACTORY_TYPE_PROJ_PREDICTION:

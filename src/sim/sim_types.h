@@ -72,8 +72,6 @@ struct SimEntDisplay
     Vec3 scale;
     Colour colourA;
     Colour colourB;
-	char* meshName;
-	char* materialName;
     ZRDrawObjData data;
 };
 
