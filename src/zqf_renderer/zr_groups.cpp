@@ -101,7 +101,6 @@ extern "C" void ZR_WriteGroupsToTextureByIndex(
         }
         
 		// Record in the group where its data starts
-        //i32 pixelIndex = ZR_PixelToIndex(tex->cursor.x, tex->cursor.y, tex->width);
         group->dataPixelIndex = tex->cursor;
         group->pixelsPerItem = ZR_BATCH_DATA_STRIDE;
 		
@@ -177,12 +176,7 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
         ZRDrawObj* obj = &objects[i];
         u32 objHash = obj->CalcHash();
         i32 objType = obj->data.type;
-        //i32 objPrefabId;
 
-        //ZRGroupId objGroupId = ZRGroupId_Set(obj->type, obj->program, obj->prefabId);
-        //ZRGroupId objGroupId = ZRGroupId_FromDrawObj(obj);
-        //u32 hash = ZE_Hash_djb2_Fixed((u8*)obj, sizeof(ZRDrawObj));
-        //printf("Group hash %d\n", hash);
         // Most common primitive
         if (objType == ZR_DRAWOBJ_TYPE_PREFAB || objType == ZR_DRAWOBJ_TYPE_MESH)
         {
@@ -193,10 +187,7 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
             {
                 ZRDrawGroup* potentialGroup = drawGroups->groups[j];
                 // TODO: Groups have a maximum size. Can this be changed?
-                if (//potentialGroup->prefab == objPrefabId
-                    //ZRGroupId_Equal(objGroupId, potentialGroup->id)
-                    //ZRGROUP_EQUAL(&objGroupId, &potentialGroup->id)
-                    objHash == potentialGroup->hash
+                if (objHash == potentialGroup->hash
                     && potentialGroup->numItems < ZR_MAX_BATCH_SIZE)
                 {
                     group = potentialGroup;

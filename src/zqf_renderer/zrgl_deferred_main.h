@@ -197,8 +197,7 @@ static ZRGroupingStats ZR_PrepareSceneDeferred(
         f32 range = lightObj->data.pointLight.range;
         Colour c = lightObj->data.pointLight.colour;
         Vec3 pos = lightObj->t.pos;
-        //printf("ZRGL Draw light obj multiplier pos %.3f, %.3f, %.3f - %.3f, range %.3f\n",
-        //    pos.x, pos.y, pos.z, multiplier, range);
+        
         switch (lightObj->data.type)
         {
             case ZR_DRAWOBJ_TYPE_POINT_LIGHT:
