@@ -217,7 +217,7 @@ internal i32 SVG_StepProjectile(
     SimRaycastResult results[max_overlaps];
     i32 overlaps = 0;
     overlaps = Sim_FindByRaycast(
-        sim, frameOrigin, frameDest, ent->id.serial, results, max_overlaps);
+        sim, frameOrigin, frameDest, {}, ent->id.serial, results, max_overlaps);
     i32 killed = NO;
     //printf("SIM prj hits %d\n", overlaps);
     for (i32 i = 0; i < overlaps; ++i)

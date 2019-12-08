@@ -162,6 +162,7 @@ extern "C" i32      Sim_FindByRaycast(
                         SimScene* sim,
                         Vec3 origin,
                         Vec3 dest,
+                        Vec3 objSizeInflate,
                         i32 ignoreSerial,
                         SimRaycastResult* results,
                         i32 maxResults);

@@ -198,7 +198,7 @@ internal void CLG_UpdateTargetPoint(SimScene* sim, SimEntity* ent, timeFloat del
     SimRaycastResult results[max_overlaps];
     i32 overlaps = 0;
     overlaps = Sim_FindByRaycast(
-        sim, entPos, dest, ent->id.serial, results, max_overlaps);
+        sim, entPos, dest, {}, ent->id.serial, results, max_overlaps);
     i32 hitIndex = Sim_FindClosestRayhit(results, overlaps);
     //App_DebugBreak();
     if (hitIndex >= 0)

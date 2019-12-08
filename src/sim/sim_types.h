@@ -305,6 +305,7 @@ struct SimEntBlock
 
 struct SimRaycastResult
 {
+    f32 fraction;
     Vec3 hitPos;
     Vec3 normal;
     f32 dist;

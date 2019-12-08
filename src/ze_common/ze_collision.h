@@ -110,7 +110,8 @@ internal u8 LineSegmentVsAABB(
     f32 lineEndX, f32 lineEndY, f32 lineEndZ,
     f32 boxMinX, f32 boxMinY, f32 boxMinZ,
     f32 boxMaxX, f32 boxMaxY, f32 boxMaxZ,
-    f32 point[3]
+    f32 point[3],
+    f32* fraction
 )
 {
     f32 vx = lineEndX - lineOriginX;
@@ -158,8 +159,12 @@ internal u8 LineSegmentVsAABB(
         f32 collisionFracX = vx * tMin;
         f32 collisionFracY = vy * tMin;
         f32 collisionFracZ = vz * tMin;
+        if (fraction != NULL)
+        {
+            *fraction = tMin;
+        }
         // hurray we do stuff now!
-        if (point != 0)
+        if (point != NULL)
         {
             point[0] = lineOriginX + collisionFracX;
             point[1] = lineOriginY + collisionFracY;

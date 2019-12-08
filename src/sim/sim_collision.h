@@ -105,6 +105,7 @@ i32 Sim_FindByRaycast(
     SimScene* sim,
     Vec3 origin,
     Vec3 dest,
+    Vec3 objSizeInflate,
     i32 ignoreSerial,
     SimRaycastResult* results,
     i32 maxResults
@@ -120,9 +121,9 @@ i32 Sim_FindByRaycast(
         Vec3* p = &ent->body.t.pos;
         Vec3* size = &ent->body.t.scale;
         Vec3 halfSize;
-        halfSize.x = size->x / 2;
-        halfSize.y = size->y / 2;
-        halfSize.z = size->z / 2;
+        halfSize.x = (size->x + objSizeInflate.x) / 2;
+        halfSize.y = (size->y + objSizeInflate.y) / 2;
+        halfSize.z = (size->z + objSizeInflate.z) / 2;
         Vec3 min;
         min.x = p->x - halfSize.x;
         min.y = p->y - halfSize.y;
@@ -132,18 +133,21 @@ i32 Sim_FindByRaycast(
         max.y = p->y + halfSize.y;
         max.z = p->z + halfSize.z;
         Vec3 hitPos;
+        f32 hitFraction;
         u8 hit = LineSegmentVsAABB(
             origin.x, origin.y, origin.z,
             dest.x, dest.y, dest.z,
             min.x, min.y, min.z,
             max.x, max.y, max.z,
-            hitPos.parts
+            hitPos.parts,
+            &hitFraction
         );
         if (!hit) { continue; }
 
         if (results)
         {
             SimRaycastResult* result = &results[count];
+            result->fraction = hitFraction;
             result->hitPos = hitPos;
             result->normal = { 0, 1, 0 };
             result->ent = ent;
@@ -155,6 +159,29 @@ i32 Sim_FindByRaycast(
         count++;
     }
     return count;
+}
+
+static void SimEnt_MoveVsSolid(SimScene* sim, SimEntity* ent, Vec3 move)
+{
+    Vec3 origin = ent->body.t.pos;
+    Vec3 dest = origin;
+    dest.x += move.x;
+    dest.y += move.y;
+    dest.z += move.z;
+
+    //Vec3 entSize = 
+    const i32 max_overlaps = 16;
+    SimRaycastResult results[max_overlaps];
+    i32 overlaps = Sim_FindByRaycast(
+        sim, origin, dest, ent->body.t.scale, ent->id.serial, results, max_overlaps);
+    if (overlaps > 0)
+    {
+        i32 closestIndex = Sim_FindClosestRayhit(results, overlaps);
+        //dest = results[closestIndex].hitPos;
+        printf("Actor overlap fraction %.3f\n", results[closestIndex].fraction);
+    }
+    ent->body.t.pos = dest;
+
 }
 
 extern "C"

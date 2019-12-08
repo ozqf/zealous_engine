@@ -277,11 +277,13 @@ internal void SimEnt_UpdateActorWalk(
     
     Transform* t = &ent->body.t;
     ent->body.previousPos = t->pos;
-    t->pos.x += move.x;
-    t->pos.y += move.y;
-    t->pos.z += move.z;
+    //t->pos.x += move.x;
+    //t->pos.y += move.y;
+    //t->pos.z += move.z;
 
-	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+	//Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+
+    SimEnt_MoveVsSolid(sim, ent, move);
 }
 
 internal void SimEnt_UpdateActorEvade(

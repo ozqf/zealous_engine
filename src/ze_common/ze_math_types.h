@@ -370,6 +370,12 @@ internal i32 Vec3_AreDifferent(Vec3* a, Vec3* b, f32 epsilon)
     return 0;
 }
 
+internal void Vec3_ClearZeroes(Vec3* v)
+{
+    if (v->x == 0) { v->x = 1; }
+    if (v->y == 0) { v->y = 1; }
+    if (v->z == 0) { v->z = 1; }
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // VECTOR 3 OPERATIONS
