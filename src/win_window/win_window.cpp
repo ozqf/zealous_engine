@@ -204,9 +204,10 @@ static void* WindowImpl_GetAssetDB()
 
 static i32 WindowImpl_MainLoop()
 {
-    f64 startFrameMS = 0, endFrameMS = 0;
+    f64 startFrameMS = 0, endFrameMS = 0, totalMS = 0;
     while(!glfwWindowShouldClose(g_window))
     {
+        startFrameMS = g_platform.QueryClock();
         ZEByteBuffer* list;
         ZEByteBuffer* data;
         g_platform.Acquire_AppDrawBuffers(&list, &data);
@@ -222,11 +223,11 @@ static i32 WindowImpl_MainLoop()
         f64 swapEnd = g_platform.QueryClock();
         g_renderer.UpdateStats(
             swapEnd - swapStart,
-            endFrameMS - startFrameMS
+            totalMS
             );
         ZR_PollInput();
         endFrameMS = g_platform.QueryClock();
-        startFrameMS = g_platform.QueryClock();
+        totalMS = endFrameMS - startFrameMS;
     }
     return ZE_ERROR_NONE;
 }
