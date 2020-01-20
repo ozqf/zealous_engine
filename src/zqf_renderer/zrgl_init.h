@@ -265,6 +265,12 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     return ZE_ERROR_NONE;
 }
 
+static void ZRImpl_UpdateStats(f64 swapMS, f64 frameMS)
+{
+    g_platformSwapMS = swapMS;
+    g_platformFrameMS = frameMS;
+}
+
 // TODO: Bleh just make this OO
 extern "C" ZRAssetDB* ZRImpl_GetAssetDB()
 {
@@ -280,6 +286,7 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform)
     r.DrawFrameForward = ZRImpl_DrawFrameForward;
     r.DrawFrameDeferred = ZRImpl_DrawFrameDeferred;
     r.GetAssetDB = ZRImpl_GetAssetDB;
+    r.UpdateStats = ZRImpl_UpdateStats;
     r.isValid = YES;
     return r;
 }

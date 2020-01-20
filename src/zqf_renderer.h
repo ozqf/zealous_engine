@@ -339,6 +339,7 @@ struct ZRRenderer
     ZRPerformanceStats (*DrawFrameForward)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
     ZRPerformanceStats (*DrawFrameDeferred)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
     ZRAssetDB* (*GetAssetDB)();
+    void (*UpdateStats)(f64 swapMS, f64 frameMS);
 };
 
 ///////////////////////////////////////////////////////////

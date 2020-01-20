@@ -335,8 +335,9 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     // allocate space in scratch for debug string
     #if 1
     i32 written = sprintf_s((char*)debugStr.cursor, debugStr.Space(),
-        "GBuffer Fill %.3fMS\nGBuffer Light %.3fMS\nNum lights: %d\n",
-        gBufStats.gBufferFillMS, gBufStats.gBufferLightMS, gBufStats.numLights);
+        "GBuffer Fill %.3fMS\nGBuffer Light %.3fMS\nNum lights: %d\nSwapMS %.3f\nTotalMS %.3f\n",
+        gBufStats.gBufferFillMS, gBufStats.gBufferLightMS, gBufStats.numLights,
+        g_platformSwapMS * 1000, g_platformFrameMS * 1000);
     debugStr.cursor += written;
     
     f32 screenSpaceHeight = 2;

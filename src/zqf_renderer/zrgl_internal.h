@@ -120,6 +120,9 @@ static ZRGBuffer g_gBuffer;
 
 static ZRAssetDB* g_assets;
 
+static f64 g_platformSwapMS = 0;
+static f64 g_platformFrameMS = 0;
+
 //static Vec4 g_clearColour;
 
 static ZRMeshHandles g_cubeVAO;

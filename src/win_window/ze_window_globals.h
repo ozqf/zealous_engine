@@ -47,6 +47,11 @@ static ZRRenderer g_renderer = {};
 static volatile i32 g_bExit = NO;
 static ScreenInfo g_scrInfo;
 
+static i32 g_resolutionsX[ZW_NUM_16X9_RESOLUTIONS] =
+{ 1024, 1280, 1366, 1600, 1920 };
+static i32 g_resolutionsY[ZW_NUM_16X9_RESOLUTIONS] =
+{ 576, 720, 768, 900, 1080 };
+
 internal GLFWwindow* g_window;
 
 #endif // ZE_WINDOW_GLOBALS_H

@@ -19,6 +19,8 @@ Zealous Engine Windows renderer
 
 #include "../zqf_renderer.h"
 
+#define ZW_NUM_16X9_RESOLUTIONS 5
+
 #include "ze_window_globals.h"
 #include "ze_window_callbacks.h"
 
@@ -53,15 +55,17 @@ static i32 WindowImpl_Init()
     
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    //const i32 scrWidth = 1280;
-    //const i32 scrHeight = 768;
-    const i32 scrWidth = 1024;
-    const i32 scrHeight = 576;
+    // Setup window resolution
+    const i32 scrMode = 0;
+    
+    const i32 scrWidth = g_resolutionsX[scrMode];
+    const i32 scrHeight = g_resolutionsY[scrMode];
     g_scrInfo.width = scrWidth;
     g_scrInfo.height = scrHeight;
     g_scrInfo.aspectRatio = (f32)scrWidth / (f32)scrHeight;
     printf("Aspect ratio %.3f\n", g_scrInfo.aspectRatio);
 
+    // Create
     g_window = glfwCreateWindow(scrWidth, scrHeight, "Zealous Engine", NULL, NULL);
     #endif
 
@@ -200,6 +204,7 @@ static void* WindowImpl_GetAssetDB()
 
 static i32 WindowImpl_MainLoop()
 {
+    f64 startFrameMS = 0, endFrameMS = 0;
     while(!glfwWindowShouldClose(g_window))
     {
         ZEByteBuffer* list;
@@ -212,9 +217,16 @@ static i32 WindowImpl_MainLoop()
         g_renderer.DrawFrameDeferred(list, data, g_scrInfo);
         // Finish Frame
         g_platform.Release_AppDrawBuffers();
+        f64 swapStart = g_platform.QueryClock();
         glfwSwapBuffers(g_window);
-
+        f64 swapEnd = g_platform.QueryClock();
+        g_renderer.UpdateStats(
+            swapEnd - swapStart,
+            endFrameMS - startFrameMS
+            );
         ZR_PollInput();
+        endFrameMS = g_platform.QueryClock();
+        startFrameMS = g_platform.QueryClock();
     }
     return ZE_ERROR_NONE;
 }
