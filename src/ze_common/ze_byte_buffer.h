@@ -70,6 +70,22 @@ internal ZEByteBuffer Buf_FromMalloc(void* ptr, i32 size)
     return b;
 }
 
+/**
+ * init another buffer from within the given buffer and return it
+ * If the result has a size of 0 then alloc failed
+ */
+internal ZEByteBuffer Buf_SubBuffer(ZEByteBuffer* buf, i32 subBufferSize)
+{
+    if (buf->Space() < subBufferSize) { return {}; }
+    ZEByteBuffer sub = {};
+    sub.start = buf->cursor;
+    sub.cursor = sub.start;
+    sub.capacity = subBufferSize;
+
+    buf->cursor += subBufferSize;
+    return sub;
+}
+
 struct ZEDoubleByteBuffer
 {
     i32 swapped;

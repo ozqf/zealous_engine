@@ -85,17 +85,28 @@ static void ZR_ExecuteTextDraw(
     
     #if 1
     // Get character quad prefab and use to stamp out characters.
-    ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD_DYNAMIC];
-
+    //ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD_DYNAMIC];
+    ZRDBMesh* mesh = g_assets->GetMeshByName(g_assets, "DynamicQuad");
+    if (mesh == NULL) { return; }
+    ZRDBTexture* tex = g_assets->GetTextureByName(g_assets, "data/charset.bmp");
+    if (tex == NULL) { return; }
     M4x4_CREATE(modelView)
     // Setup shader
-    ZRGL_SetupProg_Text(prj, &modelView, prefab);
-    glBindVertexArray(prefab->geometry.vao);
+    
+    ZRGL_SetupProg_Text(
+        prj,
+        &modelView,
+        g_programs[ZR_SHADER_TYPE_TEXT].handle,
+        tex->apiHandle);
+    
+
+
+    glBindVertexArray(mesh->handles.vao);
     CHECK_GL_ERR
-    glBindBuffer(GL_ARRAY_BUFFER, prefab->geometry.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->handles.vbo);
     CHECK_GL_ERR
-    glBindTexture(GL_TEXTURE_2D, prefab->textures.diffuse);
-    CHECK_GL_ERR
+    // glBindTexture(GL_TEXTURE_2D, tex->apiHandle);
+    // CHECK_GL_ERR
 
     // Setup buffers
     // Verts and uvs must be rewritten. Normals can remain the same.
@@ -167,6 +178,24 @@ static void ZR_ExecuteTextDraw(
 
         pos.x += charHalfWidth * 2.f;
     }
+    // Reset quad geometry
+    uvs[0] = { 0, 0 };
+	uvs[1] = { 1, 0 };
+	uvs[2] = { 1, 1 };
+	uvs[3] = { 0, 0 };
+	uvs[4] = { 1, 1 };
+	uvs[5] = { 0, 1 };
+
+    // triangle 1
+    verts[0] = { -0.5, -0.5f, 0 };
+    verts[1] = { 0.5, -0.5, 0 };
+    verts[2] = { 0.5, 0.5, 0 };
+    // triangle 2
+    verts[3] = { -0.5, -0.5, 0 };
+    verts[4] = { 0.5, 0.5, 0 };
+    verts[5] = { -0.5, 0.5, 0 };
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(quadBuffer), quadBuffer);
+    CHECK_GL_ERR
     #endif
 }
 

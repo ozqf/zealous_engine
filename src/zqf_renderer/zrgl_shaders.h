@@ -218,9 +218,10 @@ static ErrorCode ZRGL_CreateProgram(
 static void ZRGL_SetupProg_Text(
     M4x4* projection,
     M4x4* modelView,
-    ZRPrefab* obj)
+    i32 programHandle,
+    i32 diffuseTexHandle)
 {
-    GLuint programId = g_programs[obj->program].handle;
+    GLuint programId = programHandle;
     static i32 printed = NO;
     if (printed == NO)
     {
@@ -237,7 +238,7 @@ static void ZRGL_SetupProg_Text(
     CHECK_GL_ERR
     glActiveTexture(GL_TEXTURE0 + 0);
     CHECK_GL_ERR
-    glBindTexture(GL_TEXTURE_2D, obj->textures.diffuse);
+    glBindTexture(GL_TEXTURE_2D, diffuseTexHandle);
     CHECK_GL_ERR
 
     ///////////////////////////////////////////////////

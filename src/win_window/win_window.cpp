@@ -53,8 +53,10 @@ static i32 WindowImpl_Init()
     
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    const i32 scrWidth = 1280;
-    const i32 scrHeight = 768;
+    //const i32 scrWidth = 1280;
+    //const i32 scrHeight = 768;
+    const i32 scrWidth = 1024;
+    const i32 scrHeight = 576;
     g_scrInfo.width = scrWidth;
     g_scrInfo.height = scrHeight;
     g_scrInfo.aspectRatio = (f32)scrWidth / (f32)scrHeight;

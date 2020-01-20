@@ -61,7 +61,8 @@ struct ZRGroupingStats
     i32 shadowMaps;
     i32 drawCallsShadows;
     i32 drawCallsGBuffer;
-    f64 gBufferTime;
+    f64 gBufferFillMS;
+    f64 gBufferLightMS;
 };
 
 struct ZRPerformanceStats

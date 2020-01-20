@@ -3,6 +3,13 @@
 
 #include "zrgl_internal.h"
 
+struct ZR_DeferredStats
+{
+    f32 geometryMS;
+    f32 lightingMS;
+    i32 numLights;
+};
+
 #if 0
 static void ZR_DrawDeferredLight(
     ZRGBuffer* gBuf, Transform* cameraTrans, Transform* lightTrans, ScreenInfo* scrInfo)
@@ -125,7 +132,7 @@ static void ZR_DrawDeferredVolumeLights(ZRGBuffer* gBuf, Transform* camera, Scre
 }
 #endif
 
-static ZRGroupingStats ZR_PrepareSceneDeferred(
+static ZRGroupingStats ZR_DrawSceneDeferred(
     ZRSceneFrame* sceneCmd, ZEByteBuffer* scratch, ScreenInfo scrInfo)
 {
     ZRGroupingStats stats = {};
@@ -170,7 +177,7 @@ static ZRGroupingStats ZR_PrepareSceneDeferred(
             objects,
             sceneCmd->params.numObjects,
             &stats);
-        stats.gBufferTime = (g_platform.QueryClock() - gBufStart) * 1000;
+        stats.gBufferFillMS = (g_platform.QueryClock() - gBufStart) * 1000;
 
     ///////////////////////////////////////////////////////////
     // draw lights
@@ -185,7 +192,8 @@ static ZRGroupingStats ZR_PrepareSceneDeferred(
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_ONE, GL_ONE);
     
-
+    stats.numLights = view->numLights;
+    f64 gBufLightStart = g_platform.QueryClock();
 
     for (i32 i = 0; i < view->numLights; ++i)
     {
@@ -222,6 +230,7 @@ static ZRGroupingStats ZR_PrepareSceneDeferred(
         }
     
     }
+    stats.gBufferLightMS = (g_platform.QueryClock() - gBufLightStart) * 1000;
 
     glDisable(GL_BLEND);
 
@@ -265,6 +274,12 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
 
     // Reset frame scratch memory cursor
     g_scratch.Clear(NO);
+    // allocate some space in scratch for debug string
+    ZEByteBuffer debugStr = Buf_SubBuffer(&g_scratch, KiloBytes(4));
+    if (debugStr.capacity == 0)
+    {
+        printf("Failed to allocate space for debug str\n");
+    }
 
     // Reset data texture
     g_dataTex2D.cursor = 0;
@@ -288,27 +303,13 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     CHECK_GL_ERR
 
     /////////////////////////////////////////////////////////////
-    // Prepare scenes
+    // Draw main scene
     ZRSceneFrame* firstScene = (ZRSceneFrame*)cursor;
     cursor += sizeof(ZRSceneFrame) + firstScene->params.dataBytes;
-    ZRGroupingStats result = ZR_PrepareSceneDeferred(firstScene, &g_scratch, scrInfo);
+    ZRGroupingStats gBufStats = ZR_DrawSceneDeferred(firstScene, &g_scratch, scrInfo);
 
-    // Group objects
-    /*f64 prepareStart = g_platform.QueryClock();
-    for (i32 i = 0; i < header->numScenes; ++i)
-    {
-        ZRSceneFrame* cmd = (ZRSceneFrame*)cursor;
-        ZE_ASSERT(cmd->sentinel == ZR_SENTINEL,
-            "Scene cmd sentinel check failed")
-        if (firstScene == NULL) { firstScene = cmd; }
-        cursor += sizeof(ZRSceneFrame) + cmd->params.dataBytes;
-        // writes geometry to gbuffer:
-		ZRGroupingStats result = ZR_PrepareSceneDeferred(cmd, &g_scratch, scrInfo);
-        if (cmd->params.bIsInteresting)
-        {
-            stats.grouping = result;
-        }
-    }*/
+    /////////////////////////////////////////////////////////////
+    // Additional forward render calls
 
     // TODO: Move this into scene specific stuff:
     // take camera from first scene:
@@ -322,68 +323,34 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     ZR_DrawDeferredVolumeLights(&g_gBuffer, cam, &scrInfo);
     #endif
     
-    // Draw gbuffer debug result to screen
-    //ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
-    #if 0
-    // disable depth testing
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE);
-
-    // enable blending
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_ONE, GL_ONE);
-    
-    M3x3_CREATE(rot);
-    M3x3_RotateX(rot.cells, -45 * DEG2RAD);
-    M3x3_RotateY(rot.cells, 45 * DEG2RAD);
-    // Draw gbuffer debug result to screen
-    Vec3 lightRed = { 1, 0, 0 };
-    Vec3 lightGreen = { 0, 1, 0 };
-    Vec3 lightBlue = { 0, 0, 1 };
-    Vec3 lightYellow = { 1, 1, 0 };
-    Vec3 white = { 1, 1, 1 };
-    ZRGL_GBufferDrawDirectLight(
-        &g_gBuffer,
-        { 0, 5, 0 },
-        rot.zAxis,
-        white, 0.4f, 25);
-    
-    ZRGL_GBufferDrawPointLight(
-        &g_gBuffer,
-        { 15, 5, 15 },
-        { 0, -1, 0 },
-        lightRed, 2, 25);
-    
-    ZRGL_GBufferDrawPointLight(
-        &g_gBuffer,
-        { -15, 5, -15 },
-        { 0, -1, 0 },
-        lightGreen, 2, 25);
-    
-    ZRGL_GBufferDrawPointLight(
-        &g_gBuffer,
-        { -15, 5, 15 },
-        { 0, -1, 0 },
-        lightBlue, 2, 25);
-    
-    ZRGL_GBufferDrawPointLight(
-        &g_gBuffer,
-        { 15, 5, -15 },
-        { 0, -1, 0 },
-        lightYellow, 2, 25);
-    
-    glDisable(GL_BLEND);
-	
-    // reenable depth test
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glDepthMask(GL_TRUE);
-    #endif
     // Draw debug cack
-    #if 1
+    #if 0
     ZRGL_DrawGBufferDebugQuads(scrInfo.aspectRatio);
+    #endif
+
+    /////////////////////////////////////////
+    // Draw debug text
+    /////////////////////////////////////////
+    
+    // allocate space in scratch for debug string
+    #if 1
+    i32 written = sprintf_s((char*)debugStr.cursor, debugStr.Space(),
+        "GBuffer Fill %.3fMS\nGBuffer Light %.3fMS\nNum lights: %d\n",
+        gBufStats.gBufferFillMS, gBufStats.gBufferLightMS, gBufStats.numLights);
+    debugStr.cursor += written;
+    
+    f32 screenSpaceHeight = 2;
+    f32 numLinesInScreen = 64;
+    ZRDrawCmd_Text txtCmd = {};
+    txtCmd.origin = { -1, 1 }; // screen topleft
+    txtCmd.numChars = written;// strlen(testText);
+    txtCmd.charSize = screenSpaceHeight / numLinesInScreen;
+    txtCmd.aspectRatio = scrInfo.aspectRatio;
+    txtCmd.offsetToString = 0; // TOOD: Remove
+    txtCmd.alignmentMode = 0;
+    M4x4_CREATE(textProjection);
+    //printf("Draw %d debug chars\n", txtCmd.numChars);
+    ZR_ExecuteTextDraw(&txtCmd, &textProjection, (char*)debugStr.start, &stats);
     #endif
 
     /////////////////////////////////////////////////////////////
