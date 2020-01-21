@@ -97,7 +97,8 @@ typedef int zeInputCode;
 ////////////////////////////////////////////////////////////////////
 struct InputAction
 {
-    u32 keyCode;
+    u32 keyCode1;
+    // u32 keyCode2; // Alt key. needs better checking logic though
     i32 value;
     frameInt lastFrame;
     char label[16];
@@ -109,10 +110,10 @@ struct InputActionSet
     i32 count;
 };
 
-internal void Input_InitAction(InputActionSet* actions, u32 keyCode, char* label)
+internal void Input_InitAction(InputActionSet* actions, u32 keyCode1, char* label)
 {
     i32 index = actions->count++;
-    actions->actions[index].keyCode = keyCode;
+    actions->actions[index].keyCode1 = keyCode1;
     actions->actions[index].value = 0;
     actions->actions[index].lastFrame = 0;
     ZE_CopyStringLimited(label, actions->actions[index].label, 16);
@@ -161,12 +162,15 @@ internal u8 Input_CheckActionToggledOff(InputActionSet* actions, char* actionNam
 }
 
 // Test an input event vs actions array. Return an input if it has changed, NULL if nothing changed
-internal InputAction* Input_TestForAction(InputActionSet* actions, i32 inputValue, u32 inputKeyCode, frameInt frameNumber)
+internal InputAction* Input_TestForAction(
+    InputActionSet* actions, i32 inputValue, u32 inputKeyCode, frameInt frameNumber)
 {
 	for (i32 i = 0; i < actions->count; ++i)
     {
         InputAction* action = &actions->actions[i];
-        if (action->keyCode == inputKeyCode && action->value != inputValue)
+        if (
+            (action->keyCode1 == inputKeyCode)
+            && action->value != inputValue)
         {
             action->value = inputValue;
             action->lastFrame = frameNumber;

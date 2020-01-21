@@ -6,6 +6,8 @@
 static ZRGBuffer ZRGL_CreateGBuffer(i32 scrWidth, i32 scrHeight)
 {
     ZRGBuffer gBuf = {};
+    //scrWidth /= 2;
+    //scrHeight /= 2;
     #if 1
     printf("Creating gbuffer %d by %d\n", scrWidth, scrHeight);
     glGenFramebuffers(1, &gBuf.fbo);
@@ -13,6 +15,7 @@ static ZRGBuffer ZRGL_CreateGBuffer(i32 scrWidth, i32 scrHeight)
     
     glBindFramebuffer(GL_FRAMEBUFFER, gBuf.fbo);
     CHECK_GL_ERR
+    ////////////////////////////////////////////////
     // position buffer
     glGenTextures(1, &gBuf.positionTex);
     CHECK_GL_ERR
@@ -29,6 +32,7 @@ static ZRGBuffer ZRGL_CreateGBuffer(i32 scrWidth, i32 scrHeight)
         GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBuf.positionTex, 0);
     CHECK_GL_ERR
     
+    ////////////////////////////////////////////////
     // normals buffer
     glGenTextures(1, &gBuf.normalTex);
     glBindTexture(GL_TEXTURE_2D, gBuf.normalTex);
@@ -38,6 +42,7 @@ static ZRGBuffer ZRGL_CreateGBuffer(i32 scrWidth, i32 scrHeight)
     // attach to 1
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gBuf.normalTex, 0);
 
+    ////////////////////////////////////////////////
     // colour buffer
     glGenTextures(1, &gBuf.colourTex);
     glBindTexture(GL_TEXTURE_2D, gBuf.colourTex);
@@ -47,6 +52,7 @@ static ZRGBuffer ZRGL_CreateGBuffer(i32 scrWidth, i32 scrHeight)
     // attach to 2
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gBuf.colourTex, 0);
 
+    ////////////////////////////////////////////////
     // emission buffer
     glGenTextures(1, &gBuf.emissionTex);
     glBindTexture(GL_TEXTURE_2D, gBuf.emissionTex);

@@ -88,6 +88,9 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     mat = db->GetMaterialByName(db, "Default");
     i32 materialIndex = mat->index;
 
+    i32 worldLights = 4;
+    i32 extraLights = 4;
+
     i32 objCount = 0;
     for (i32 i = 0; i < sim->maxEnts; ++i)
     {
@@ -108,22 +111,28 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 // );
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
-                if (ent->factoryType == SIM_FACTORY_TYPE_PROJ_PLAYER
+                if ((ent->factoryType == SIM_FACTORY_TYPE_PROJ_PLAYER
                     || ent->factoryType == SIM_FACTORY_TYPE_BULLET_IMPACT)
+                    && extraLights > 0)
                 {
                     obj = CLR_InitDrawObjInPlace(&list->cursor);
                     obj->data.SetAsPointLight({ 1, 1, 0 }, 1, 1);
                     obj->t = ent->body.t;
                     rendObjectsAdded++;
+                    extraLights--;
                 }
             } break;
             case ZR_DRAWOBJ_TYPE_DIRECT_LIGHT:
             case ZR_DRAWOBJ_TYPE_POINT_LIGHT:
             {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                obj->data = ent->display.data;
-                obj->t = ent->body.t;
-                rendObjectsAdded++;
+                if (worldLights > 0)
+                {
+                    ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                    obj->data = ent->display.data;
+                    obj->t = ent->body.t;
+                    rendObjectsAdded++;
+                }
+                worldLights--;
             } break;
         }
         objCount += rendObjectsAdded;
