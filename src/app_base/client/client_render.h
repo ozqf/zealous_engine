@@ -5,6 +5,13 @@
 #include "client.h"
 #include "../../sim/sim.h"
 
+struct ClientRenderSettings
+{
+    u32 debugFlags;
+    i32 worldLightsMax;
+    i32 extraLightsMax;
+};
+
 extern "C" void CLR_Init();
 extern "C" void CLR_Shutdown();
 /**
@@ -15,7 +22,7 @@ extern "C" void CLR_WriteDrawFrame(
     ZEByteBuffer* data,
     SimScene* sim,
     Transform* camera,
-    u32 debugFlags
+    ClientRenderSettings cfg
 );
 
 #endif // CLIENT_RENDER_H

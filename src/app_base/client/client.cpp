@@ -6,6 +6,9 @@
 #include "../../sys_events.h"
 #include "../../sim/sim.h"
 
+
+#include "client_render.h"
+
 #define CLIENT_STATE_NONE 0
 #define CLIENT_STATE_REQUESTING 1
 #define CLIENT_STATE_HANDSHAKE 2
@@ -18,6 +21,8 @@ internal u32 g_clDebugFlags = 0
     //| CL_DEBUG_FLAG_NO_ENEMY_TICK
     //| CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING
 ;
+
+internal ClientRenderSettings g_rendCfg;
 
 internal i32 g_clientState = CLIENT_STATE_NONE;
 
@@ -107,7 +112,6 @@ internal i32 CL_GetServerTick()
 }
 
 #include "client_input.h"
-#include "client_render.h"
 #include "client_game.h"
 #include "../commands_serialise.h"
 #include "../commands_deserialise.h"
@@ -129,7 +133,8 @@ extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
     {
         camera = &plyr->body.t;
     }
-    CLR_WriteDrawFrame(list, data, &g_sim, camera, g_clDebugFlags);
+    g_rendCfg.debugFlags = g_clDebugFlags;
+    CLR_WriteDrawFrame(list, data, &g_sim, camera, g_rendCfg);
 }
 
 internal void CL_WriteNetworkDebug(CharBuffer* str)
@@ -280,6 +285,9 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
     i32 cmdBufferSize = MegaBytes(1);
     //ZEByteBuffer a = Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize);
     //ZEByteBuffer b = Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize);
+
+    g_rendCfg.worldLightsMax = 8;
+    g_rendCfg.extraLightsMax = 8;
 
     i32 maxEnts = APP_MAX_ENTITIES;
     i32 numEntityBytes = Sim_CalcEntityArrayBytes(maxEnts);
@@ -617,6 +625,33 @@ internal void CL_RunUnreliableCommands(
     }
 }
 
+internal void CL_ProcessDebugInput(InputActionSet* actions, i64 platformFrame)
+{
+    #if 1
+    if (Input_CheckActionToggledOn(actions, "Debug Forward", platformFrame))
+    {
+        g_rendCfg.extraLightsMax++;
+        g_rendCfg.worldLightsMax++;
+        printf("CL Extra lights %d\n", g_rendCfg.extraLightsMax);
+    }
+    #endif
+    #if 1
+    if (Input_CheckActionToggledOn(actions, "Debug Backward", platformFrame))
+    {
+        g_rendCfg.extraLightsMax--;
+        if (g_rendCfg.worldLightsMax < 0)
+        {
+            g_rendCfg.worldLightsMax = 0;
+        }
+        if (g_rendCfg.extraLightsMax < 0)
+        {
+            g_rendCfg.extraLightsMax = 0;
+        }
+        printf("CL Extra lights %d\n", g_rendCfg.extraLightsMax);
+    }
+    #endif
+}
+
 internal void CL_CalcPings(timeFloat deltaTime)
 {
 	g_ping = Ack_CalculateAverageDelay(&g_acks);
@@ -672,6 +707,8 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
             g_ping,
             g_elapsed);
     }
+
+    CL_ProcessDebugInput(&g_inputActions, platformFrame);
     
     // Until Sim sync has begun, input is ignored!
     C2S_Input cmd = {};

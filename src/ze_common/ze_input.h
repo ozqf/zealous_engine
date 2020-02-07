@@ -116,6 +116,13 @@ internal void Input_InitAction(InputActionSet* actions, u32 keyCode1, char* labe
     actions->actions[index].keyCode1 = keyCode1;
     actions->actions[index].value = 0;
     actions->actions[index].lastFrame = 0;
+    i32 len = strlen(label);
+    if (len > 16)
+    {
+        printf("Cannot add action %s - label must be below 16 chars\n",
+            label);
+        return;
+    }
     ZE_CopyStringLimited(label, actions->actions[index].label, 16);
 }
 
@@ -130,6 +137,7 @@ internal InputAction* Input_FindAction(InputAction* actions, i32 numActions, cha
             return action;
         }
     }
+    printf("Failed to find action %s\n", name);
     return NULL;
 }
 
@@ -149,7 +157,8 @@ internal u8 Input_CheckActionToggledOn(InputActionSet* actions, char* actionName
 {
     InputAction* action = Input_FindAction(actions->actions, actions->count, actionName);
     ZE_ASSERT(action != NULL, actionName);
-    
+    //printf("Action frame %lld vs platform frame %lld\n",
+    //    action->lastFrame, frameNumber);
     return (action->value != 0 && action->lastFrame == frameNumber);
 }
 

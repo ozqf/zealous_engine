@@ -411,6 +411,32 @@ internal void Sim_AddTestProp(SimScene* sim, Vec3 pos)
     Sim_RestoreEntity(sim, &def);
 }
 
+internal void Sim_AddLightTower(SimScene* sim, Vec3 basePos, f32 height)
+{
+    i32 step = 2;
+    i32 numStacks = (i32)(height / (f32)step);
+    printf("Num light stacks: %d\n", numStacks);
+    for (i32 i = 0; i < numStacks; ++i)
+    {
+        printf("\tBase y: %.3f\n", basePos.y);
+        Vec3 pos = basePos;
+        pos.x += 2;
+        Sim_AddPointLight(sim, pos, { 1, 0, 0}, 1, 10);
+        pos = basePos;
+        pos.x -= 2;
+        Sim_AddPointLight(sim, pos, { 1, 0, 0}, 1, 10);
+
+        pos = basePos;
+        pos.z += 2;
+        Sim_AddPointLight(sim, pos, { 1, 0, 0}, 1, 10);
+        pos = basePos;
+        pos.z -= 2;
+        Sim_AddPointLight(sim, pos, { 1, 0, 0}, 1, 10);
+
+        basePos.y += step;
+    }
+}
+
 extern "C"
 i32 Sim_LoadScene(SimScene* sim, i32 index)
 {
@@ -425,15 +451,16 @@ i32 Sim_LoadScene(SimScene* sim, i32 index)
     // pillars
     f32 pillarY = 4;
     Sim_AddWorldVolume(sim, { 0, pillarY, -10 }, { 1, 10, 1 });
+    Sim_AddLightTower(sim, { 0, 0, -10}, 10);
     Sim_AddWorldVolume(sim, { 0, pillarY, 10 }, { 1, 10, 1 });
 
     Sim_AddWorldVolume(sim, { -10, pillarY, 0 }, { 1, 10, 1 });
     Sim_AddWorldVolume(sim, { 10, pillarY, 0 }, { 1, 10, 1 });
 
-    Sim_AddPointLight(sim, { 15, 2, 15 }, { 1, 0.3f, 0.3f }, 4, 40);
-    Sim_AddPointLight(sim, { 15, 2, -15 }, { 1, 0.3f, 0.3f }, 4, 40);
-	Sim_AddPointLight(sim, { -15, 2, -15 }, { 0, 1, 0 }, 4, 40);
-	Sim_AddPointLight(sim, { -15, 2, 15 }, { 0, 1, 1 }, 4, 40);
+    Sim_AddPointLight(sim, { 15, 2, 15 }, { 1, 0.3f, 0.3f }, 2, 40);
+    Sim_AddPointLight(sim, { 15, 2, -15 }, { 1, 0.3f, 0.3f }, 2, 40);
+	Sim_AddPointLight(sim, { -15, 2, -15 }, { 0, 1, 0 }, 2, 40);
+	Sim_AddPointLight(sim, { -15, 2, 15 }, { 0, 1, 1 }, 2, 40);
     //Sim_AddPointLight(sim, { 15, 2, -15 }, { 0, 1, 0 }, 2, 15);
 
     Sim_AddDirectLight(sim, { 0, 5, 0 }, { 1, 1, 0 }, 0.5f, 999, -45, 45);

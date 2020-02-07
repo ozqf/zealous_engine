@@ -541,6 +541,7 @@ internal i32 AppImpl_Tick()
     timeFloat frameInterval = App_GetSimFrameInterval();
     f64 time = g_platform.QueryClock();
     f64 diff = time - g_lastTimeSample;
+    g_lastPlatformFrame++;
     if (diff >= frameInterval)
     {
         g_lastTimeSample = time;

@@ -129,7 +129,8 @@ internal C2S_Input* CL_FindSentInputByPosition(
 
 internal void CL_InitInputs(InputActionSet* actions)
 {
-    Input_InitAction(actions, Z_INPUT_CODE_V, "Cycle Debug");
+    Input_InitAction(actions, Z_INPUT_CODE_V, "Debug Forward");
+    Input_InitAction(actions, Z_INPUT_CODE_C, "Debug Backward");
     Input_InitAction(actions, Z_INPUT_CODE_R, "Reset");
     Input_InitAction(actions, Z_INPUT_CODE_ESCAPE, "Menu");
 

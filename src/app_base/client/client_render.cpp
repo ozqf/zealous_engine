@@ -74,7 +74,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     Transform* camera,
     ZEByteBuffer* list,
     ZEByteBuffer* data,
-    u32 debugFlags)
+    ClientRenderSettings cfg)
 {
     // TODO: Look these up in asset db!
     //i32 meshIndex = 0;
@@ -88,9 +88,12 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     mat = db->GetMaterialByName(db, "Default");
     i32 materialIndex = mat->index;
 
-    i32 worldLights = 4;
-    i32 extraLights = 4;
+    if (cfg.worldLightsMax <= 0) { cfg.worldLightsMax = 4; }
+    if (cfg.extraLightsMax <= 0) { cfg.extraLightsMax = 4; }
 
+    i32 worldLights = cfg.worldLightsMax;
+    i32 extraLights = cfg.extraLightsMax;
+    
     i32 objCount = 0;
     for (i32 i = 0; i < sim->maxEnts; ++i)
     {
@@ -298,7 +301,7 @@ extern "C" void CLR_WriteDrawFrame(
     ZEByteBuffer* data,
     SimScene* sim,
     Transform* camera,
-    u32 debugFlags)
+    ClientRenderSettings cfg)
 {
     i32 requiredCapacity = sizeof(ZRViewFrame) + (sizeof(ZRDrawObj) * sim->maxEnts);
 
@@ -331,7 +334,7 @@ extern "C" void CLR_WriteDrawFrame(
     //////////////////////////////////////////////////
     // For debugging local listen servers ONLY!
     //////////////////////////////////////////////////
-    if (debugFlags & CL_DEBUG_FLAG_DRAW_LOCAL_SERVER)
+    if (cfg.debugFlags & CL_DEBUG_FLAG_DRAW_LOCAL_SERVER)
     {
         SimScene* serverSim;
         App_Debug_GetServerSim((void**)&serverSim);
@@ -341,7 +344,7 @@ extern "C" void CLR_WriteDrawFrame(
         }
     }
 
-    objCount += CLR_AddSimObjectsToRenderScene(sim, camera, list, data, debugFlags);
+    objCount += CLR_AddSimObjectsToRenderScene(sim, camera, list, data, cfg);
 
     scene->params.dataBytes = list->cursor - listStart;
     scene->params.numObjects = objCount;
