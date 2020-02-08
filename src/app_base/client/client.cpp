@@ -627,18 +627,20 @@ internal void CL_RunUnreliableCommands(
 
 internal void CL_ProcessDebugInput(InputActionSet* actions, i64 platformFrame)
 {
+    i32 bPrintLightCounts = NO;
     #if 1
     if (Input_CheckActionToggledOn(actions, "Debug Forward", platformFrame))
     {
         g_rendCfg.extraLightsMax++;
         g_rendCfg.worldLightsMax++;
-        printf("CL Extra lights %d\n", g_rendCfg.extraLightsMax);
+        bPrintLightCounts = YES;
     }
     #endif
     #if 1
     if (Input_CheckActionToggledOn(actions, "Debug Backward", platformFrame))
     {
         g_rendCfg.extraLightsMax--;
+        g_rendCfg.worldLightsMax--;
         if (g_rendCfg.worldLightsMax < 0)
         {
             g_rendCfg.worldLightsMax = 0;
@@ -647,9 +649,14 @@ internal void CL_ProcessDebugInput(InputActionSet* actions, i64 platformFrame)
         {
             g_rendCfg.extraLightsMax = 0;
         }
-        printf("CL Extra lights %d\n", g_rendCfg.extraLightsMax);
+        bPrintLightCounts = YES;
     }
     #endif
+    if (bPrintLightCounts == YES)
+    {
+        printf("CL max lights: world %d extra %d\n",
+            g_rendCfg.worldLightsMax, g_rendCfg.extraLightsMax);
+    }
 }
 
 internal void CL_CalcPings(timeFloat deltaTime)

@@ -416,22 +416,25 @@ internal void Sim_AddLightTower(SimScene* sim, Vec3 basePos, f32 height)
     i32 step = 2;
     i32 numStacks = (i32)(height / (f32)step);
     printf("Num light stacks: %d\n", numStacks);
+    f32 lightMultiplier = 1.f;
+    f32 lightRange = 1.5f;
+    f32 posOffset = 1;
     for (i32 i = 0; i < numStacks; ++i)
     {
         printf("\tBase y: %.3f\n", basePos.y);
         Vec3 pos = basePos;
-        pos.x += 2;
-        Sim_AddPointLight(sim, pos, { 1, 0, 0}, 1, 10);
+        pos.x += posOffset;
+        Sim_AddPointLight(sim, pos, { 1, 0, 0}, lightMultiplier, lightRange);
         pos = basePos;
-        pos.x -= 2;
-        Sim_AddPointLight(sim, pos, { 1, 0, 0}, 1, 10);
+        pos.x -= posOffset;
+        Sim_AddPointLight(sim, pos, { 1, 0, 0}, lightMultiplier, lightRange);
 
         pos = basePos;
-        pos.z += 2;
-        Sim_AddPointLight(sim, pos, { 1, 0, 0}, 1, 10);
+        pos.z += posOffset;
+        Sim_AddPointLight(sim, pos, { 1, 0, 0}, lightMultiplier, lightRange);
         pos = basePos;
-        pos.z -= 2;
-        Sim_AddPointLight(sim, pos, { 1, 0, 0}, 1, 10);
+        pos.z -= posOffset;
+        Sim_AddPointLight(sim, pos, { 1, 0, 0}, lightMultiplier, lightRange);
 
         basePos.y += step;
     }
@@ -448,23 +451,30 @@ i32 Sim_LoadScene(SimScene* sim, i32 index)
     // Floor
     Sim_AddWorldVolume(sim, { 0, -1, 0 }, { halfX * 2, 1, halfY * 2});
 
+    // sunlights
+    Sim_AddDirectLight(sim, { 0, 5, 0 }, { 1, 1, 0 }, 0.5f, 999, -45, 45);
+    Sim_AddDirectLight(sim, { 0, 5, 0 }, { 0, 0, 1 }, 0.2f, 999, -45, 225);
+
+    // flood lights
+    f32 floodLightY = 10;
+    f32 floodLightMul = 2;
+    f32 floodLightRange = 20;
+    Sim_AddPointLight(sim, { 15, floodLightY, 15 }, { 1, 0.3f, 0.3f }, floodLightMul, floodLightRange);
+    Sim_AddPointLight(sim, { 15, floodLightY, -15 }, { 1, 0.3f, 0.3f }, floodLightMul, floodLightRange);
+	Sim_AddPointLight(sim, { -15, floodLightY, -15 }, { 0, 1, 0 }, floodLightMul, floodLightRange);
+	Sim_AddPointLight(sim, { -15, floodLightY, 15 }, { 0, 1, 1 }, floodLightMul, floodLightRange);
+
     // pillars
     f32 pillarY = 4;
     Sim_AddWorldVolume(sim, { 0, pillarY, -10 }, { 1, 10, 1 });
-    Sim_AddLightTower(sim, { 0, 0, -10}, 10);
+    Sim_AddLightTower(sim, { 0, 0, -10 }, 10);
     Sim_AddWorldVolume(sim, { 0, pillarY, 10 }, { 1, 10, 1 });
+    Sim_AddLightTower(sim, { 0, 0, 10 }, 10);
 
     Sim_AddWorldVolume(sim, { -10, pillarY, 0 }, { 1, 10, 1 });
+    Sim_AddLightTower(sim, { -10, 0, 0 }, 10);
     Sim_AddWorldVolume(sim, { 10, pillarY, 0 }, { 1, 10, 1 });
-
-    Sim_AddPointLight(sim, { 15, 2, 15 }, { 1, 0.3f, 0.3f }, 2, 40);
-    Sim_AddPointLight(sim, { 15, 2, -15 }, { 1, 0.3f, 0.3f }, 2, 40);
-	Sim_AddPointLight(sim, { -15, 2, -15 }, { 0, 1, 0 }, 2, 40);
-	Sim_AddPointLight(sim, { -15, 2, 15 }, { 0, 1, 1 }, 2, 40);
-    //Sim_AddPointLight(sim, { 15, 2, -15 }, { 0, 1, 0 }, 2, 15);
-
-    Sim_AddDirectLight(sim, { 0, 5, 0 }, { 1, 1, 0 }, 0.5f, 999, -45, 45);
-    Sim_AddDirectLight(sim, { 0, 5, 0 }, { 0, 0, 1 }, 0.2f, 999, -45, 225);
+    Sim_AddLightTower(sim, { 10, 0, 0 }, 10);
 
     // static sprites
     Sim_AddTestProp(sim, { 15, 0, 15 });
