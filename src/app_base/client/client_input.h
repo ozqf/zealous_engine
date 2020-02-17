@@ -180,8 +180,9 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     // Clear buttons and rebuild. Keep mouse position values
     u32 flags = 0;
 
-    f32 mouseMoveMultiplier = 80;
-    f32 mouseInvertedMultiplier = -1;
+    const f32 mouseMoveMultiplier = 80;
+    const f32 mouseInvertedMultiplier = -1;
+    const f32 KEY_TURN_RATE = 4.f;
 
     CL_InputCheckButton(actions, "Move Forward", &flags, ACTOR_INPUT_MOVE_FORWARD);
     CL_InputCheckButton(actions, "Move Backward", &flags, ACTOR_INPUT_MOVE_BACKWARD);
@@ -198,22 +199,30 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     CL_InputCheckButton(actions, "Attack1", &flags, ACTOR_INPUT_ATTACK);
     CL_InputCheckButton(actions, "Attack2", &flags, ACTOR_INPUT_ATTACK2);
 
-    f32 val;
+    input->buttons = flags;
+
     f32 mouseX = ((f32)Input_GetActionValue(actions, "Mouse Move X") / (f32)Z_INPUT_MOUSE_SCALAR);
     f32 mouseY = ((f32)Input_GetActionValue(actions, "Mouse Move Y") / (f32)Z_INPUT_MOUSE_SCALAR);
-    //printf("CL Mouse Pos %.3f, %.3f\n", mouseX, mouseY);
-    val = mouseX * mouseMoveMultiplier;
-    input->degrees.y -= val;
+
+    // Apply yaw
+    input->degrees.y -= mouseX * mouseMoveMultiplier;;
     input->degrees.y = COM_CapAngleDegrees(input->degrees.y);
 
-    // original:
-    //input->degrees.y -= (((f32)Input_GetActionValue(actions, "Mouse Move X") * mouseMoveMultiplier));
-    //input->degrees.y = COM_CapAngleDegrees(input->degrees.y);
-
+    if (flags & ACTOR_INPUT_SHOOT_LEFT)
+    { input->degrees.y += KEY_TURN_RATE; }
+    if (flags & ACTOR_INPUT_SHOOT_RIGHT)
+    { input->degrees.y -= KEY_TURN_RATE; }
+    
+    // Apply pitch
     input->degrees.x -= ((mouseY
 		* mouseMoveMultiplier))
         * mouseInvertedMultiplier;
     
+    if (flags & ACTOR_INPUT_SHOOT_UP)
+    { input->degrees.x += (KEY_TURN_RATE * mouseInvertedMultiplier); }
+    if (flags & ACTOR_INPUT_SHOOT_DOWN)
+    { input->degrees.x -= (KEY_TURN_RATE * mouseInvertedMultiplier); }
+
 	if (input->degrees.x < -89)
 	{
 		input->degrees.x = -89;
@@ -223,12 +232,4 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 		input->degrees.x = 89;
 	}
     g_testCameraDegrees = input->degrees;
-
-    input->buttons = flags;
-    //printf("CL Mouse angles %.3f, %.3f\n", input->degrees.y, input->degrees.y);
-
-    //printf("Mouse pos %d, %d\n",
-    //    Input_GetActionValue(actions, "Mouse Pos X"),
-    //    Input_GetActionValue(actions, "Mouse Pos Y")
-    //);
 }
