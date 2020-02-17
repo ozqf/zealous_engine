@@ -14,7 +14,9 @@ static ZRMaterial* ZRDB_GetMaterialByName(ZRAssetDB* assetDB, char* name)
             return &db->materials[i];
         }
     }
-    return NULL;
+	// TODO: Assuming mat 0 is default:
+	// No returning NULL!
+	return &db->materials[0];
 }
 
 static ZRMaterial* ZRDB_GetMaterialByIndex(ZRAssetDB* assetDB, i32 index)
@@ -45,7 +47,8 @@ static void ZRDB_CreateMaterial(
     printf("ZRDB Create material id %d: \"%s\"\n", mat->index, mat->name);
 }
 
-static void ZRDB_GetMaterialByIndex(ZRAssetDB* assetDB, i32 index, ZRMaterial* result)
+static void ZRDB_GetMaterialByIndex(
+    ZRAssetDB* assetDB, i32 index, ZRMaterial* result)
 {
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
 	if (index < 0 || index >= db->numMaterials) { index = 0; }

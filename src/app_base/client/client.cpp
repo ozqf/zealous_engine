@@ -229,8 +229,7 @@ extern "C" u8 CL_ParseCommandString(char* str, char** tokens, i32 numTokens)
 
 void CL_LoadTestScene()
 {
-	Sim_LoadScene(&g_sim, 0);
-	
+	Sim_LoadLocalScene(&g_sim, 0);
 	//g_sim.boundaryMin = { -6, -6, -6 };
     //g_sim.boundaryMax = { 6, 6, 6 };
 	
@@ -258,6 +257,7 @@ void CL_LoadTestScene()
     g_userTargetSerial = def.serial;
     Sim_RestoreEntity(&g_sim, &def);
     #endif
+    APP_PRINT(64, "CL test scene initialised\n")
 }
 
 // Public so that local user can be instantly set from outside
@@ -296,6 +296,7 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
 	Sim_Reset(&g_sim);
     CL_LoadTestScene();
 
+    APP_PRINT(128, "CL Init net stream buffers\n");
     COM_InitStream(&g_reliableStream,
         Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize),
         Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize)
@@ -321,10 +322,10 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
 
     g_renderCommands = (RenderCommand*)bytes;
     */
-
+    APP_PRINT(64, "CL Init inputs\n");
     CL_InitInputs(&g_inputActions);
 
-    APP_LOG(64, "CL init completed with %d allocations (%dKB)\n ",
+    APP_PRINT(64, "CL init completed with %d allocations (%dKB)\n ",
         g_numAllocations, (u32)BytesAsKB(g_bytesAllocated));
 }
 

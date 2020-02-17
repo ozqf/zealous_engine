@@ -174,12 +174,16 @@ internal void SV_AddGrunt(SimScene* sim, Vec3 pos)
 internal void SV_LoadTestScene()
 {
     SimScene* sim = &g_sim;
-    Sim_LoadScene(sim, 0);
-
+    Sim_LoadLocalScene(sim, 0);
+    // TODO: spawning enemies currently causes a crash!
+    // Use stage -1 only until fixed
     const i32 stage = -1;
     u8 count = 4;//64;
     f32 inner = 8;
     f32 outer = 12;
+
+    APP_PRINT(128, "SV - Init scene %d\n", stage)
+
 	switch (stage)
     {
         // No spawners
@@ -243,7 +247,12 @@ internal void SV_LoadTestScene()
     {
         SV_AddWanderer();
     }
-    printf("SV spawned %d wanderers\n", numWanderers);
+    if (numWanderers > 0)
+    {
+        printf("SV spawned %d wanderers\n", numWanderers);
+    }
+    
+    APP_PRINT(128, "\tDone\n")
 }
 
 internal void SV_ListAllocs()

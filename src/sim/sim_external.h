@@ -415,13 +415,13 @@ internal void Sim_AddLightTower(SimScene* sim, Vec3 basePos, f32 height)
 {
     i32 step = 2;
     i32 numStacks = (i32)(height / (f32)step);
-    printf("Num light stacks: %d\n", numStacks);
+    //printf("Num light stacks: %d\n", numStacks);
     f32 lightMultiplier = 1.f;
     f32 lightRange = 1.5f;
     f32 posOffset = 1;
     for (i32 i = 0; i < numStacks; ++i)
     {
-        printf("\tBase y: %.3f\n", basePos.y);
+        //printf("\tBase y: %.3f\n", basePos.y);
         Vec3 pos = basePos;
         pos.x += posOffset;
         Sim_AddPointLight(sim, pos, { 1, 0, 0}, lightMultiplier, lightRange);
@@ -440,9 +440,13 @@ internal void Sim_AddLightTower(SimScene* sim, Vec3 basePos, f32 height)
     }
 }
 
+/*
+ALL entities created here should be local
+*/
 extern "C"
-i32 Sim_LoadScene(SimScene* sim, i32 index)
+i32 Sim_LoadLocalScene(SimScene* sim, i32 index)
 {
+    APP_PRINT(128, "SIM - load local scene\n")
     f32 halfX = 35;
     f32 halfY = 25;
     f32 halfZ = 25;
@@ -475,7 +479,8 @@ i32 Sim_LoadScene(SimScene* sim, i32 index)
     Sim_AddLightTower(sim, { -10, 0, 0 }, 10);
     Sim_AddWorldVolume(sim, { 10, pillarY, 0 }, { 1, 10, 1 });
     Sim_AddLightTower(sim, { 10, 0, 0 }, 10);
-
+    
+    APP_PRINT(128, "SIM spawn props\n")
     // static sprites
     Sim_AddTestProp(sim, { 15, 0, 15 });
     Sim_AddTestProp(sim, { 15, 0, -15 });
@@ -489,14 +494,14 @@ i32 Sim_LoadScene(SimScene* sim, i32 index)
     sim->boundaryMin = { -halfX, -halfY, -halfZ };
     sim->boundaryMax = { halfX, halfY, halfZ };
 
-
-
     // Configure quantisation tables based on arena size
     // TODO: largest axis must be passed in here, auto detect this instead!
     COM_QuantiseInit(&sim->quantise.pos, largestHalfAxis, 16);
     COM_QuantiseInit(&sim->quantise.vel, SIM_MAX_AXIS_SPEED, 16);
     // TODO: Configure this more precisely for radians
     COM_QuantiseInit(&sim->quantise.rot, 7, 16);
+
+    APP_PRINT(128, "\tDONE\n")
 
 	return ZE_ERROR_NONE;
 }

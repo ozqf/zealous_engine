@@ -114,7 +114,8 @@ typedef u8 simFactoryType;
 // Scene management
 extern "C" void     Sim_Init(char* label, SimScene* sim, SimEntity* entityMemory, i32 maxEntities);
 extern "C" void 	Sim_Reset(SimScene* sim);
-extern "C" i32 	    Sim_LoadScene(SimScene* sim, i32 index);
+// Load static/local geometry/entities. Dynamic stuff handled by server!
+extern "C" i32 	    Sim_LoadLocalScene(SimScene* sim, i32 index);
 extern "C" i32      Sim_CalcEntityArrayBytes(i32 capacity);
 extern "C" i32		Sim_GetFrameNumber(SimScene* sim);
 
