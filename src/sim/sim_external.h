@@ -456,8 +456,16 @@ i32 Sim_LoadLocalScene(SimScene* sim, i32 index)
     Sim_AddWorldVolume(sim, { 0, -1, 0 }, { halfX * 2, 1, halfY * 2});
 
     // sunlights
+    #if 0 // faint
+
     Sim_AddDirectLight(sim, { 0, 5, 0 }, { 1, 1, 0 }, 0.5f, 999, -45, 45);
     Sim_AddDirectLight(sim, { 0, 5, 0 }, { 0, 0, 1 }, 0.2f, 999, -45, 225);
+    #endif
+    #if 1 // bright
+
+    Sim_AddDirectLight(sim, { 0, 5, 0 }, { 1, 1, 0 }, 2.f, 999, -45, 45);
+    Sim_AddDirectLight(sim, { 0, 5, 0 }, { 0, 0, 1 }, 1.f, 999, -45, 225);
+    #endif
 
     // flood lights
     f32 floodLightY = 10;

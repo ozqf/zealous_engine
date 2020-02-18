@@ -248,6 +248,8 @@ static ZRPerformanceStats ZRImpl_DrawFrameForward(
     ZEByteBuffer* drawData,
     ScreenInfo scrInfo)
 {
+    // TODO: This code has not been kept working whilst deferred renderer was added.
+    ILLEGAL_CODE_PATH
     ZRPerformanceStats stats = {};
     if (Buf_IsValid(drawList) == NO) { return stats; }
     if (Buf_IsValid(drawData) == NO) { return stats; }

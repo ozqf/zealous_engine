@@ -296,7 +296,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     return objCount;
 }
 
-extern "C" void CLR_WriteDrawFrame(
+extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     ZEByteBuffer* list,
     ZEByteBuffer* data,
     SimScene* sim,
@@ -351,6 +351,8 @@ extern "C" void CLR_WriteDrawFrame(
     scene->sentinel = ZR_SENTINEL;
     frame->sentinel = ZR_SENTINEL;
     frame->numScenes++;
+
+    return frame;
 }
 
 #endif // CLIENT_RENDER_CPP

@@ -122,6 +122,7 @@ extern "C" i32 CL_IsRunning() { return g_isRunning; }
 
 extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
 {
+    f64 startTime = App_SampleClock();
     Transform* camera = &g_camera;
     #if 0
     M3x3_SetToIdentity(g_camera.rotation.cells);
@@ -134,7 +135,9 @@ extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
         camera = &plyr->body.t;
     }
     g_rendCfg.debugFlags = g_clDebugFlags;
-    CLR_WriteDrawFrame(list, data, &g_sim, camera, g_rendCfg);
+    ZRViewFrame* frame = CLR_WriteDrawFrame(list, data, &g_sim, camera, g_rendCfg);
+    f64 endTime = App_SampleClock();
+    frame->prebuildTime = endTime - startTime;
 }
 
 internal void CL_WriteNetworkDebug(CharBuffer* str)
@@ -286,8 +289,8 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
     //ZEByteBuffer a = Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize);
     //ZEByteBuffer b = Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize);
 
-    g_rendCfg.worldLightsMax = 8;
-    g_rendCfg.extraLightsMax = 8;
+    g_rendCfg.worldLightsMax = 2;
+    g_rendCfg.extraLightsMax = 0;
 
     i32 maxEnts = APP_MAX_ENTITIES;
     i32 numEntityBytes = Sim_CalcEntityArrayBytes(maxEnts);
@@ -632,7 +635,7 @@ internal void CL_ProcessDebugInput(InputActionSet* actions, i64 platformFrame)
     #if 1
     if (Input_CheckActionToggledOn(actions, "Debug Forward", platformFrame))
     {
-        g_rendCfg.extraLightsMax++;
+        //g_rendCfg.extraLightsMax++;
         g_rendCfg.worldLightsMax++;
         bPrintLightCounts = YES;
     }
@@ -640,16 +643,16 @@ internal void CL_ProcessDebugInput(InputActionSet* actions, i64 platformFrame)
     #if 1
     if (Input_CheckActionToggledOn(actions, "Debug Backward", platformFrame))
     {
-        g_rendCfg.extraLightsMax--;
         g_rendCfg.worldLightsMax--;
         if (g_rendCfg.worldLightsMax < 0)
         {
             g_rendCfg.worldLightsMax = 0;
         }
-        if (g_rendCfg.extraLightsMax < 0)
-        {
-            g_rendCfg.extraLightsMax = 0;
-        }
+        // g_rendCfg.extraLightsMax--;
+        // if (g_rendCfg.extraLightsMax < 0)
+        // {
+        //     g_rendCfg.extraLightsMax = 0;
+        // }
         bPrintLightCounts = YES;
     }
     #endif

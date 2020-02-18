@@ -7,12 +7,15 @@ static void ZRGL_PrintGPUInfo()
 {
     const u8* vendor = glGetString(GL_VENDOR);
     const u8* renderer = glGetString(GL_RENDERER);
+    i32 maxTexBufSize = -1;
+    glGetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &maxTexBufSize);
     printf("Vendor: %s, Renderer: %s\n", vendor, renderer);
     printf("Current memory: %dMB\n", g_gpuLimits.current_mem_kb / 1024);
     printf("Max texture size: %d\n", g_gpuLimits.maxTextureSize);
     printf("Max combined texture units: %d\n", g_gpuLimits.maxCombinedTextureUnits);
     printf("Maximum vertex attribs: %d\n", g_gpuLimits.maxVertexAttribs);
     printf("Batch data pixel count: %d\n", ZR_BATCH_DATA_STRIDE);
+    printf("Max tex buf size: %d\n", maxTexBufSize);
 
     i32 drawBuffer;
     glGetIntegerv(GL_DRAW_BUFFER, &drawBuffer);

@@ -146,6 +146,10 @@ struct ZRDrawObjData
 struct ZRDrawObj
 {
     Transform t;
+    // quick tag for finding objects for debugging
+    i32 debugTag;
+    // hash of data union, used to identify objects which are
+    // similar and could be batched
     u32 hash;
     ZRDrawObjData data;
     u32 CalcHash()

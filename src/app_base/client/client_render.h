@@ -17,7 +17,7 @@ extern "C" void CLR_Shutdown();
 /**
  * Write Client state to draw buffers
  */
-extern "C" void CLR_WriteDrawFrame(
+extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     ZEByteBuffer* list,
     ZEByteBuffer* data,
     SimScene* sim,
