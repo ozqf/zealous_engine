@@ -34,6 +34,9 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     i32 cubeIndex = 0;
     i32 quadIndex = 2;
     i32 defaultMaterialIndex = 0;
+    i32 prjMaterialIndex = 2;
+
+    i32 materialIndex = defaultMaterialIndex;
 
     i32 objCount = 0;
     for (i32 i = 0; i < sim->maxEnts; ++i)
@@ -46,6 +49,7 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_PROJ_PREDICTION:
             case SIM_FACTORY_TYPE_PROJECTILE_BASE:
             case SIM_FACTORY_TYPE_PROJ_PLAYER:
+            materialIndex = prjMaterialIndex;
             case SIM_FACTORY_TYPE_BOUNCER:
             case SIM_FACTORY_TYPE_WANDERER:
             case SIM_FACTORY_TYPE_DART:
@@ -55,7 +59,7 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_BULLET_IMPACT:
             {
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                obj->data.SetAsMesh(cubeIndex, defaultMaterialIndex);
+                obj->data.SetAsMesh(cubeIndex, materialIndex);
                 //ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
                 //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX);
                 obj->t = ent->body.t;
