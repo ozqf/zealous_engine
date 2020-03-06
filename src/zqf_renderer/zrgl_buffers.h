@@ -154,4 +154,10 @@ static ZRFrameBuffer ZRGL_CreateShadowMapBuffers(
     return buf;
 }
 
+static void ZRGL_CreateUniformBufferObject()
+{
+    //GLint uboBlock;
+    //glGenBuffers(1, )
+}
+
 #endif // ZRGL_BUFFERS_H

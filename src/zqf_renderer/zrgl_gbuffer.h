@@ -204,6 +204,11 @@ static void ZRGL_FillGBuffer(
  */
 static void ZRGL_DrawDebugGBufferCombine(ZRGBuffer* gBuf)
 {
+    // disable depth stuff
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+
     GLint prog = g_programs[ZR_SHADER_TYPE_COMBINE_GBUFFER].handle;
     glUseProgram(prog);
 
@@ -228,6 +233,12 @@ static void ZRGL_DrawDebugGBufferCombine(ZRGBuffer* gBuf)
     glBindTexture(GL_TEXTURE_2D, gBuf->colourTex);
 
     glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+    
+    // clean up
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE);
+
 }
 
 /**

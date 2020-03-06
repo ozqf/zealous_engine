@@ -181,20 +181,24 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
 
     ///////////////////////////////////////////////////////////
     // draw lights
+    ///////////////////////////////////////////////////////////
+    stats.numLights = view->numLights;
+    f64 gBufLightStart = g_platform.QueryClock();
     
+    ///////////////////////////////////////////////////////////
+    // individual lights mode
+    #if 0
     // disable depth testing
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
 
     // enable blending
+
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_ONE, GL_ONE);
     
-    stats.numLights = view->numLights;
-    f64 gBufLightStart = g_platform.QueryClock();
-
     for (i32 i = 0; i < view->numLights; ++i)
     {
         i32 lightObjIndex = view->lights[i];
@@ -230,14 +234,43 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
         }
     
     }
-    stats.gBufferLightMS = (g_platform.QueryClock() - gBufLightStart) * 1000;
-
+    
     glDisable(GL_BLEND);
 
     // reenable depth test
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glDepthMask(GL_TRUE);
+
+    stats.gBufferLightMS = (g_platform.QueryClock() - gBufLightStart) * 1000;
+    #endif
+    
+    ///////////////////////////////////////////////////////////
+    // batched lights mode
+    #if 0
+    // disable depth testing
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+
+    // load light data
+    
+    for (i32 i = 0; i < view->numLights; ++i)
+    {
+
+    }
+
+    // clean up
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE);
+    #endif
+    
+    ///////////////////////////////////////////////////////////
+    // no light debug mode
+    #if 1
+    ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
+    #endif
 
     f64 end = g_platform.QueryClock();
     stats.time = end - start;

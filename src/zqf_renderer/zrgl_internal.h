@@ -100,14 +100,24 @@ struct ZRShadowCaster
 // internal globals
 ////////////////////////////////////////////////////////////
 
-static struct
+struct ZRGPUSpecs
 {
-    GLint maxTextureSize;
-    GLint current_mem_kb;
-    GLint maxCombinedTextureUnits;
-    GLint maxVertexAttribs;
-    // GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
-} g_gpuLimits;
+    GLint maxTextureSize; // GL_MAX_TEXTURE_SIZE
+    GLint current_mem_kb; // GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX
+    GLint maxCombinedTextureUnits; // GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS
+    GLint maxVertexAttribs; // GL_MAX_VERTEX_ATTRIBS
+
+    struct
+    {
+        GLint maxUniformBlockSize; // GL_MAX_UNIFORM_BLOCK_SIZE
+        GLint uniformBufferOffsetAlignment; // GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT
+        //GLint maxVertexUniformBlocks; // GL_MAX_VERTEX_UNIFORM_BLOCKS
+        //GLint maxGeometryUniformBlocks; // GL_MAX_VERTEX_UNIFORM_BLOCKS
+        //GLint maxFragmentUniformBLocks; // GL_MAX_FRAGMENT_UNIFORM_BLOCKS
+    } uniformBlocks;
+};
+
+static ZRGPUSpecs g_gpuLimits;
 
 static i32 g_bDrawLocked = NO;
 
