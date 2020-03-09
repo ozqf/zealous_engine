@@ -18,7 +18,8 @@ set compilerDefines=/DPARANOID=1
 @rem /DVERBOSE=1
 
 @rem === Compile Win32 Window application
-set compilerInput=../src/win_platform/win_platform.cpp
+set compIn1=../src/win_platform/win_platform.cpp
+set compIn2=../src/win_platform/ze_win_socket.cpp
 
 @rem === Compile Testing Win32 Console application
 @rem set compilerInput=../src/Platform/win32_consoleApp.cpp
@@ -28,12 +29,13 @@ set compilerInput=../src/win_platform/win_platform.cpp
 set linkStr=/link
 set linkInputA=user32.lib opengl32.lib Gdi32.lib  Ws2_32.lib
 @echo on
-@cl %compilerFlags% %compilerDefines% %outputExe% %compilerInput% %linkStr% %linkInputA%
+@cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% %linkStr% %linkInputA%
 @echo off
 set outputExe=
 set compilerFlags=
 set compilerDefines=
-set compilerInput=
+set compIn1=
+set compIn2=
 
 set linkStr=
 set linkInputA=

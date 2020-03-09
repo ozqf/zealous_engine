@@ -21,6 +21,8 @@ Provides:
 #include "../ze_common/ze_common.h"
 #include "../ze_common/ze_byte_buffer.h"
 
+#include "ze_win_socket.h"
+
 ////////////////////////////////////////////////////////
 // Data types
 ////////////////////////////////////////////////////////
@@ -64,6 +66,13 @@ internal HANDLE g_mutexes[MAX_MUTEXES];
 static LARGE_INTEGER g_timerFrequency;
 // time since application startup. NEVER change once set.
 static i64 g_clockBase;
+
+#define ZE_TEST_TRANSMIT_PORT 55678
+#define ZE_TEST_DEST_PORT 55679
+
+static u16 g_diagnosticTransPort = ZE_TEST_TRANSMIT_PORT;
+static u16 g_diagnosticDestPort = ZE_TEST_DEST_PORT;
+static i32 g_diagnosticSocket;
 
 ////////////////////////////////////////////////////////
 // Error handling
@@ -402,6 +411,16 @@ int CALLBACK WinMain(
 
     // Create Mutexes
     Win_InitMutexes();
+
+    Net_Init();
+    g_diagnosticSocket = Net_OpenSocket(ZE_TEST_TRANSMIT_PORT, &g_diagnosticTransPort);
+    printf("Winsock initialised - diagnostic socket %d on port %d\n",
+        g_diagnosticSocket, g_diagnosticTransPort);
+    char msg[128];
+    i32 msgLen = sprintf_s(msg, 128, "Hello, World!\n");
+    ZNetAddress addr = ZE_LocalHost(ZE_TEST_DEST_PORT);
+    i32 netError = Net_SendTo(g_diagnosticSocket, &addr, addr.port, (u8*)msg, msgLen);
+    printf("Sent test udp packet - error code %d\n", netError);
 
     ErrorCode err;
 

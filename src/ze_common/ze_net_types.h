@@ -5,7 +5,7 @@
 
 struct ZNetAddress
 {
-    u16 ip4Bytes[4];
+    u16 ip4Bytes[4]; // TODO: Is this meant to be u16s..? surely it is u8?
     u16 port;
 };
 
