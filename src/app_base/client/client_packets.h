@@ -3,7 +3,7 @@
 Read/Write packets for client
 */
 #include "../../ze_common/ze_common_full.h"
-#include "../packet.h"
+#include "../shared/packet.h"
 #include "../../sys_events.h"
 
 internal void CL_LogCommandBuffer(ZEByteBuffer* b, char* label)

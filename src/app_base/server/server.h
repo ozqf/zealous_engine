@@ -2,7 +2,7 @@
 #define SERVER_H
 
 #include "../../ze_common/ze_common.h"
-#include "../user.h"
+#include "../shared/user.h"
 
 extern "C" void    SV_Init();
 extern "C" void    SV_Shutdown();

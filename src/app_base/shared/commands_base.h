@@ -2,9 +2,9 @@
 /*
 Header only - base for command structs.
 */
-#include "../ze_common/ze_common_full.h"
-#include "app.h"
-#include "../sim/sim.h"
+#include "../../ze_common/ze_common_full.h"
+#include "../app.h"
+#include "../../sim/sim.h"
 
 // a null command is invalid and will cause command validation to fail!
 #define CMD_TYPE_NULL 0

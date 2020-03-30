@@ -1,15 +1,11 @@
 #pragma once
 
-
-//#include "../app_interface.h"
-//#include "../platform_interface.h"
 #include "../sys_events.h"
 #include "../ze_module_interfaces.h"
 
 #include "app.h"
 #include "server/server.h"
 #include "client/client.h"
-//#include "../network/znet_interface.h"
 #include "app_fake_socket.h"
 
 #define APP_SESSION_TYPE_NONE 0
@@ -56,11 +52,6 @@ internal ZEDoubleByteBuffer g_clientLoopback;
 internal MallocItem g_mallocItems[APP_MAX_MALLOCS];
 internal MallocList g_mallocs;
 
-/*
-#define MAX_WORLD_SCENE_ITEMS 2048
-internal RenderScene g_worldScene;
-internal RenderListItem g_worldSceneItems[MAX_WORLD_SCENE_ITEMS];
-*/
 internal ZNetAddress g_localServerAddress;
 
 /////////////////////////////////////////////////////////////////
@@ -74,13 +65,7 @@ internal AppPerformanceStat g_performanceStats[APP_STAT_COUNT];
 #define DEBUG_NUM_STRINGS 8
 internal char g_debugStrBuffer[DEBUG_STRING_LENGTH];
 internal CharBuffer g_debugStr;
-/*
-internal RendObj g_debugRendObjs[DEBUG_NUM_STRINGS];
 
-#define MAX_DEBUG_SCENE_ITEMS 64
-internal RenderScene g_debugScene;
-internal RenderListItem g_debugSceneItems[MAX_DEBUG_SCENE_ITEMS];
-*/
 #define APP_REND_FLAG_SERVER_SCENE (1 << 0)
 #define APP_REND_FLAG_SERVER_TESTS (1 << 1)
 #define APP_REND_FLAG_CLIENT_PREDICTIONS (1 << 2)

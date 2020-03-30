@@ -5,7 +5,7 @@
  * priority to the given avatar
  */
 #include "../../sim/sim.h"
-#include "../priority_queue.h"
+#include "../shared/priority_queue.h"
 
 internal void SVP_CalculatePriorities(
     SimScene* sim, SimEntity* subject, PriorityLink* links, i32 numLinks)

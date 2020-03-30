@@ -12,7 +12,7 @@ Repeat
 default priority is 1. If a type of object requires more synchronisation
 than others, increase its priority value so it accumulates importance faster
 */
-#include "../ze_common/ze_common_full.h"
+#include "../../ze_common/ze_common_full.h"
 
 #define ENT_LINK_STATUS_ACTIVE 0
 #define ENT_LINK_STATUS_DEAD 1

@@ -113,8 +113,8 @@ internal i32 CL_GetServerTick()
 
 #include "client_input.h"
 #include "client_game.h"
-#include "../commands_serialise.h"
-#include "../commands_deserialise.h"
+#include "../shared/commands_serialise.h"
+#include "../shared/commands_deserialise.h"
 #include "client_user_sync.h"
 #include "client_packets.h"
 

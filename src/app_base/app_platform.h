@@ -296,47 +296,6 @@ internal i32 App_StartSession(i32 sessionType)
 //////////////////////////////////////////////////////////////
 // Exported to platform
 //////////////////////////////////////////////////////////////
-#if 0
-internal void App_Input(i64 frameNumber, ZEByteBuffer commands)
-{
-    g_lastPlatformFrame = frameNumber;
-	i32 inputBytes = commands.Written();
-	//printf("APP input %d bytes\n", inputBytes);
-	
-    u8* read = commands.start;
-    u8* end = commands.cursor;
-    while (read < end)
-    {
-        SysEvent* header = (SysEvent*)read;
-        ZE_ASSERT(
-			Sys_ValidateEvent(header) == ZE_ERROR_NONE,
-			"Error reading system event header")
-        read += header->size;
-		
-        switch (header->type)
-        {
-            case SYS_EVENT_INPUT:
-            {
-                SysInputEvent* ev = (SysInputEvent*)header;
-                //printf("APP input Event: %d value %d\n", ev->inputID, ev->value);
-                ZEByteBuffer* b = g_clientLoopback.GetWrite();
-                b->cursor += ZE_COPY(header, b->cursor, header->size);
-            } break;
-            case SYS_EVENT_PACKET:
-            {
-                // TODO: Load into loopbacks
-            } break;
-
-            case SYS_EVENT_SKIP: break;
-
-            default:
-            {
-                APP_LOG(128, "APP Unknown sys event type %d size %d\n", header->type, header->size);
-            } break;
-        }
-    }
-}
-#endif
 
 internal void App_ReadSysEvents(ZEByteBuffer* events)
 {
