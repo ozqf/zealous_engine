@@ -118,6 +118,8 @@ internal i32 CL_GetServerTick()
 #include "client_user_sync.h"
 #include "client_packets.h"
 
+#include "client_debug.h"
+
 extern "C" i32 CL_IsRunning() { return g_isRunning; }
 
 extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
@@ -317,6 +319,8 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
     g_testCameraDegrees.x = -80.0f * DEG2RAD;
 
     CLR_Init();
+
+    CLDebug_MakeVoxelWorld();
     /*
     i32 numRenderCommandBytes = sizeof(RenderCommand) *
 		CL_MAX_RENDER_COMMANDS;
