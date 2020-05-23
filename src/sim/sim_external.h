@@ -441,10 +441,11 @@ internal void Sim_AddLightTower(SimScene* sim, Vec3 basePos, f32 height)
 }
 
 /*
-ALL entities created here should be local
+Load world geometry and non-replicated entities.
+ALL entities created here should be local!
 */
 extern "C"
-i32 Sim_LoadLocalScene(SimScene* sim, i32 index)
+i32 Sim_LoadStaticScene(SimScene* sim, i32 index)
 {
     APP_PRINT(128, "SIM - load local scene\n")
     f32 halfX = 35;

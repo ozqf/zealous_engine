@@ -39,6 +39,7 @@ internal MallocItem g_mallocItems[SV_MAX_MALLOCS];
 internal MallocList g_mallocs;
 internal UserList g_users;
 internal SimScene g_sim;
+internal i32 g_staticSceneIndex = 0;
 
 internal i32 g_isRunning = 0;
 internal timeFloat g_elapsed = 0;
@@ -137,7 +138,7 @@ internal void SV_AddWanderer()
     def.pos.z = COM_STDRandomInRange(-8, 8);
     def.factoryType = SIM_FACTORY_TYPE_WANDERER;
     def.scale = { 1, 1, 1 };
-    Sim_RestoreEntity(&g_sim, &def);   
+    Sim_RestoreEntity(&g_sim, &def);
 }
 
 internal void SV_AddSpawner(
@@ -171,13 +172,11 @@ internal void SV_AddGrunt(SimScene* sim, Vec3 pos)
     Cmd_InitRestoreEntity(&cmd, sim->tick, ent);
 }
 
-internal void SV_LoadTestScene()
+internal void SV_LoadTestScene(i32 staticScene, i32 dynamicScene)
 {
     SimScene* sim = &g_sim;
-    Sim_LoadLocalScene(sim, 0);
-    // TODO: spawning enemies currently causes a crash!
-    // Use stage -1 only until fixed
-    const i32 stage = -1;
+    Sim_LoadStaticScene(sim, staticScene);
+    const i32 stage = dynamicScene;
     u8 count = 4;//64;
     f32 inner = 8;
     f32 outer = 12;
@@ -310,7 +309,7 @@ extern "C" void SV_Init()
 	Sim_Reset(&g_sim);
     // Inflate sim frame number - debugging
     g_sim.tick += 123;
-    SV_LoadTestScene();
+    SV_LoadTestScene(g_staticSceneIndex, 1);
 
     SV_ListAllocs();
 }

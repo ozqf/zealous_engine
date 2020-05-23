@@ -177,16 +177,14 @@ internal i32 Sim_Create3DConePattern(
 	{
 		SimSpawnPatternItem* item = &items[i];
 		f32 offsetX = ZE_Randf32InRange(randomIndex++, -inflatedArc, inflatedArc);
-		printf("Offset %f\n", offsetX);
 		f32 offsetY = ZE_Randf32InRange(randomIndex++, -inflatedArc, inflatedArc);
-		printf("Offset %f\n", offsetY);
 
 		// create an offset forward vector:
 		Vec3 end = Vec3_VectorMA(event->xForm.pos, 8192, forward);
 		end = Vec3_VectorMA(end, offsetX, right); // deflect horizontal
 		end = Vec3_VectorMA(end, offsetY, up); // deflect vertical
-		printf("\tPos: %.3f, %.3f, %.3f to end %.3f, %.3f, %.3f\n",
-			pos.x, pos.y, pos.z, end.x, end.y, end.z);
+		// printf("\tPos: %.3f, %.3f, %.3f to end %.3f, %.3f, %.3f\n",
+		// 	pos.x, pos.y, pos.z, end.x, end.y, end.z);
 		Vec3 r;
 		r.x = end.x - pos.x;
 		r.y = end.y - pos.y;

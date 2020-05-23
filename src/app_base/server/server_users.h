@@ -107,7 +107,7 @@ internal void SVU_StartUserSync(User* user)
     NetStream* stream = &user->reliableStream;
 
     S2C_Sync sync;
-    Cmd_InitSync(&sync, g_sim.tick, 8, user->entSerial);
+    Cmd_InitSync(&sync, g_sim.tick, 8, user->entSerial, g_staticSceneIndex);
     Stream_EnqueueOutput(stream, &sync.header);
     // start user command queue
     for (i32 j = 0; j < g_sim.maxEnts; ++j)
@@ -173,6 +173,9 @@ internal void SVU_SpawnUserAvatar(User* u)
     Sim_RestoreEntity(&g_sim, &def);
 }
 
+/**
+ * For single player - force create a client user immediately
+ */
 UserIds SVU_CreateLocalUser()
 {
     ZNetAddress addr = {};

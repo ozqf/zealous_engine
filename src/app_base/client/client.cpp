@@ -234,7 +234,7 @@ extern "C" u8 CL_ParseCommandString(char* str, char** tokens, i32 numTokens)
 
 void CL_LoadTestScene()
 {
-	Sim_LoadLocalScene(&g_sim, 0);
+	Sim_LoadStaticScene(&g_sim, 0);
 	//g_sim.boundaryMin = { -6, -6, -6 };
     //g_sim.boundaryMax = { 6, 6, 6 };
 	
@@ -434,6 +434,9 @@ internal i32 CL_IsCommandTickSensitive(i32 cmdType)
 	return true;
 }
 
+/**
+ * Point of execution for the most important server messages.
+ */
 internal i32 CL_ExecReliableCommand(
     SimScene* sim, Command* h, timeFloat deltaTime, i32 tickDiff)
 {
@@ -493,6 +496,7 @@ internal i32 CL_ExecReliableCommand(
             S2C_Sync* sync = (S2C_Sync*)h;
 			CL_SetServerTick(sync->header.tick);
 			g_avatarSerial = sync->avatarEntityId;
+            //i32 sceneId;
             APP_PRINT(64, "CL Set avatar %d\n", g_avatarSerial);
             // Lets not do what the server tells us!
 			//g_serverTick = sync->simTick - sync->jitterTickCount;

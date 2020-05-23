@@ -42,13 +42,15 @@ struct S2C_Sync
     // ticks client should delay themselves by to avoid jitter
     i32 jitterTickCount;
     i32 avatarEntityId;
+    i32 staticSceneId;
 };
 
 internal void Cmd_InitSync(
     S2C_Sync* cmd,
     i32 simTick,
     i32 jitterTickCount,
-    i32 avatarEntityId)
+    i32 avatarEntityId,
+    i32 staticSceneId)
 {
     *cmd = {};
     Cmd_Prepare(&cmd->header, simTick);
@@ -56,6 +58,7 @@ internal void Cmd_InitSync(
     cmd->header.size = sizeof(S2C_Sync);
     cmd->jitterTickCount = jitterTickCount;
     cmd->avatarEntityId = avatarEntityId;
+    cmd->staticSceneId = staticSceneId;
 }
 
 //////////////////////////////////////////////////////////////////////
