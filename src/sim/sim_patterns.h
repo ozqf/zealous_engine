@@ -146,29 +146,65 @@ internal i32 Sim_CreateFlatConePattern(
 	return def->numItems;
 }
 
-internal i32 Sim_Create3DConePattern_QuakeStyle(
+// Quake 2 style
+internal i32 Sim_Create3DConePattern(
 	SimSpawnBase* event,
 	SimSpawnPatternDef* def,
 	SimSpawnPatternItem* items,
 	i32 serial,
 	i32 isLocal)
 {
+	// Multiple items
+	i32 serialIncrement = isLocal ? -1 : 1;
+	i32 randomIndex = event->seedIndex;
+	
+	Vec3 pos = event->xForm.pos;
 	Vec3 forward = event->xForm.rotation.zAxis;
 	Vec3 up = event->xForm.rotation.yAxis;
 	Vec3 right = event->xForm.rotation.xAxis;
 
-	Vec3 end = Vec3_VectorMA(event->xForm.pos, 8192, forward);
-	end = Vec3_VectorMA(end, def->radius, right); // deflect horizontal
-	end = Vec3_VectorMA(end, def->radius, up); // deflect vertical
-	Vec3 r;
-	r.x = end.x - event->xForm.pos.x;
-	r.y = end.y - event->xForm.pos.y;
-	r.z = end.z - event->xForm.pos.z;
-	Vec3_Normalise(&r);
+	// always launch one straight forward
+	items[0].forward = forward;
+	items[0].pos.x = pos.x + (event->xForm.rotation.zAxis.x * def->radius);
+	items[0].pos.y = pos.y + (event->xForm.rotation.zAxis.y * def->radius);
+	items[0].pos.z = pos.z + (event->xForm.rotation.zAxis.z * def->radius);
+	items[0].entSerial = serial;
+	serial += serialIncrement;
+
+	f32 inflatedArc = def->arc * 10000;
+	// now the rest, starting from second
+	for (i32 i = 1; i < def->numItems; ++i)
+	{
+		SimSpawnPatternItem* item = &items[i];
+		f32 offsetX = ZE_Randf32InRange(randomIndex++, -inflatedArc, inflatedArc);
+		printf("Offset %f\n", offsetX);
+		f32 offsetY = ZE_Randf32InRange(randomIndex++, -inflatedArc, inflatedArc);
+		printf("Offset %f\n", offsetY);
+
+		// create an offset forward vector:
+		Vec3 end = Vec3_VectorMA(event->xForm.pos, 8192, forward);
+		end = Vec3_VectorMA(end, offsetX, right); // deflect horizontal
+		end = Vec3_VectorMA(end, offsetY, up); // deflect vertical
+		printf("\tPos: %.3f, %.3f, %.3f to end %.3f, %.3f, %.3f\n",
+			pos.x, pos.y, pos.z, end.x, end.y, end.z);
+		Vec3 r;
+		r.x = end.x - pos.x;
+		r.y = end.y - pos.y;
+		r.z = end.z - pos.z;
+		Vec3_Normalise(&r);
+
+		item->forward = r;
+		item->pos.x = pos.x + (r.x * def->radius);
+		item->pos.y = pos.y + (r.y * def->radius);
+		item->pos.z = pos.z + (r.z * def->radius);
+		item->entSerial = serial;
+
+		serial += serialIncrement;
+	}
 	return def->numItems;
 }
 
-internal i32 Sim_Create3DConePattern(
+internal i32 Sim_Create3DConePattern_LessOldStillCrap(
 	SimSpawnBase* event,
 	SimSpawnPatternDef* def,
 	SimSpawnPatternItem* items,

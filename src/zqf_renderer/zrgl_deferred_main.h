@@ -187,7 +187,7 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
     
     ///////////////////////////////////////////////////////////
     // individual lights mode
-    #if 1
+    #if 0
     // disable depth testing
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -246,7 +246,7 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
     #endif
     
     ///////////////////////////////////////////////////////////
-    // batched lights mode
+    // NOT WORKING! batched lights mode
     #if 0
     // disable depth testing
     glDisable(GL_DEPTH_TEST);
@@ -268,7 +268,7 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
     
     ///////////////////////////////////////////////////////////
     // no light debug mode
-    #if 0
+    #if 1
     ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
     #endif
 

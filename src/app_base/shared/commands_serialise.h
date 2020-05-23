@@ -102,8 +102,8 @@ internal i32 Cmd_Serialise(
             write += COM_WriteI32(packedLeft, write);
             write += COM_WriteI32(packedUp, write);
 
-            printf("Serialised transform\n");
-            Transform_Printf(&cmd->def.base.xForm);
+            // printf("Serialised transform\n");
+            // Transform_Printf(&cmd->def.base.xForm);
 
             // radius etc...
             write += COM_WriteU16((u16)COM_QuantiseF2I(

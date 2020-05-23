@@ -107,8 +107,8 @@ internal i32 Cmd_Deserialise(
             t.rotation.yAxis  = ZE_UnpackVec3Normal(
                 packedUp);
             
-            printf("Deserialised transform\n");
-            Transform_Printf(&t);
+            // printf("Deserialised transform\n");
+            // Transform_Printf(&t);
 
             // radius etc...
             f32 radius = COM_DequantiseI2F(

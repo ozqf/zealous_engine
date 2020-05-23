@@ -162,7 +162,7 @@ internal i32 Sim_InitActor(
     ent->tickType = SIM_TICK_TYPE_ACTOR;
     ent->coreTickType = SIM_TICK_TYPE_ACTOR;
     ent->attackTime = 0.5f;
-    ent->relationships.childSpawnCount = 20;
+    ent->relationships.childSpawnCount = SIM_PLAYER_SHOTGUN_PELLETS;
     return ZE_ERROR_NONE;
 }
 
