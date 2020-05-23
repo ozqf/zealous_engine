@@ -400,7 +400,7 @@ internal i32 AppImpl_RendererReloaded()
 {
     AppTimer timer(APP_STAT_RENDER_TOTAL, g_renderCalls++);
 
-    char* texName = "textures\\white_bordered.bmp";
+    //char* texName = "textures\\white_bordered.bmp";
     //char* texName = "textures\\W33_5.bmp";
     //i32 texIndex = Tex_GetTextureIndexByName(texName);
     timeFloat interval = App_GetSimFrameInterval();

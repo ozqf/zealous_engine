@@ -381,6 +381,15 @@ internal void Vec3_ClearZeroes(Vec3* v)
 // VECTOR 3 OPERATIONS
 /////////////////////////////////////////////////////////////////////////////
 
+internal Vec3 Vec3_VectorMA(Vec3 start, f32 scale, Vec3 forward)
+{
+	Vec3 result;
+	result.x = start.x + (forward.x * scale);
+	result.y = start.y + (forward.y * scale);
+	result.z = start.z + (forward.z * scale);
+	return result;
+}
+
 internal f32 Vec4_Magnitude(Vec4* v)
 {
     return (f32)sqrt((f32)(v->x * v->x) + (v->y * v->y) + (v->z * v->z));

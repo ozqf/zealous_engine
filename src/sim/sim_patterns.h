@@ -146,6 +146,30 @@ internal i32 Sim_CreateFlatConePattern(
 	return def->numItems;
 }
 
+internal i32 Sim_Create3DConePattern_QuakeStyle(
+	SimSpawnBase* event,
+	SimSpawnPatternDef* def,
+	SimSpawnPatternItem* items,
+	i32 serial,
+	i32 isLocal)
+{
+	ILLEGAL_CODE_PATH
+	// TODO: Need to pass in a full transform...
+	Vec3 forward = event->forward;
+	Vec3 up; //= ?
+	Vec3 right; //= ?
+
+	Vec3 end = Vec3_VectorMA(event->pos, 8192, forward);
+	end = Vec3_VectorMA(end, def->radius, right); // deflect horizontal
+	end = Vec3_VectorMA(end, def->radius, up); // deflect vertical
+	Vec3 r;
+	r.x = end.x - event->pos.x;
+	r.y = end.y - event->pos.y;
+	r.z = end.z - event->pos.z;
+	Vec3_Normalise(&r);
+	return def->numItems;
+}
+
 internal i32 Sim_Create3DConePattern(
 	SimSpawnBase* event,
 	SimSpawnPatternDef* def,

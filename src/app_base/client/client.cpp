@@ -291,8 +291,8 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
     //ZEByteBuffer a = Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize);
     //ZEByteBuffer b = Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize);
 
-    g_rendCfg.worldLightsMax = 2;
-    g_rendCfg.extraLightsMax = 0;
+    g_rendCfg.worldLightsMax = 100;
+    g_rendCfg.extraLightsMax = 100;
 
     i32 maxEnts = APP_MAX_ENTITIES;
     i32 numEntityBytes = Sim_CalcEntityArrayBytes(maxEnts);

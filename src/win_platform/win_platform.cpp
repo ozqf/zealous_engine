@@ -282,6 +282,14 @@ static void PlatformImpl_ReleaseEventBuffer()
     { g_window.Release_EventBuffer(); }
 }
 
+static void PlatformImpl_ExecTextCommand(const char* str, i32 len)
+{
+    // call all loaded modules to attempt to run the given command
+    // a result of true from any module means the command was
+    // handled
+    
+}
+
 static ze_platform_export Win_BuildExport()
 {
     ze_platform_export result = {};
@@ -361,6 +369,10 @@ static void AppThread_Init()
         0, 0, AppThreadStartup, &g_appThread, 0, &g_appThread.threadId);
 }
 
+/**
+ * Important aspect here: The platform is not in charge of the main loop.
+ * The window does
+ */
 static void MainLoop()
 {
 	g_window.MainLoop();
