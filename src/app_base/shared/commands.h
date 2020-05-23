@@ -9,7 +9,7 @@
 
 #define CMD_TYPE_IMPULSE 255
 #define CMD_TYPE_S2C_HANDSHAKE 254
-#define CMD_TYPE_S2C_SET_SCENE 253
+#define CMD_TYPE_S2C_CHALLENGE 253
 #define CMD_TYPE_S2C_RESTORE_ENTITY 252
 #define CMD_TYPE_S2C_BULK_SPAWN 251
 #define CMD_TYPE_S2C_SESSION_SYNC 250
@@ -19,6 +19,7 @@
 #define CMD_TYPE_S2C_INPUT_RESPONSE 246
 #define CMD_TYPE_S2C_REMOVE_ENTITY 245
 #define CMD_TYPE_S2C_REMOVE_ENTITY_GROUP 244
+#define CMD_TYPE_C2S_JOIN_REQUEST 243
 
 struct CmdPing
 {
@@ -131,6 +132,23 @@ internal void Cmd_InitClientInput(
 	{
 		cmd->avatarPos = *avatarPos;
 	}
+}
+
+struct C2S_JoinRequest
+{
+    Command header;
+    i32 token;
+    ZNetAddress addr;
+};
+
+internal void Cmd_InitJoinRequest(
+    C2S_JoinRequest* cmd, i32 tick, i32 token, ZNetAddress addr)
+{
+    Cmd_Prepare(&cmd->header, tick);
+    cmd->header.type = CMD_TYPE_C2S_JOIN_REQUEST;
+    cmd->header.size = sizeof(C2S_Input);
+    cmd->token = token;
+    cmd->addr = addr;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -356,7 +374,7 @@ internal void Cmd_InitSetScene(
     *cmd = {};
     Cmd_Prepare((Command*)&cmd->header, tick);
     cmd->header.size = sizeof(CmdSetScene);
-    cmd->header.type = CMD_TYPE_S2C_SET_SCENE;
+    cmd->header.type = CMD_TYPE_S2C_CHALLENGE;
     cmd->sceneId = sceneId;
 }
 

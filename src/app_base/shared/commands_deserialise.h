@@ -19,6 +19,9 @@ internal i32 Cmd_Deserialise(
     //u8* read = source;
     switch (type)
     {
+        //////////////////////////////////////////
+        // Game
+        //////////////////////////////////////////
         case CMD_TYPE_S2C_SYNC_ENTITY:
         {
             #ifdef SIM_QUANTISE_SYNC
@@ -147,17 +150,8 @@ internal i32 Cmd_Deserialise(
         case CMD_TYPE_IMPULSE:
         return ZE_COPY_STRUCT(source, buffer, CmdImpulse);
         break;
-        case CMD_TYPE_S2C_HANDSHAKE:
-        return ZE_COPY_STRUCT(source, buffer, S2C_Handshake);
-        break;
-        case CMD_TYPE_S2C_SET_SCENE:
-        return ZE_COPY_STRUCT(source, buffer, CmdSetScene);
-        break;
         case CMD_TYPE_S2C_RESTORE_ENTITY:
         return ZE_COPY_STRUCT(source, buffer, S2C_RestoreEntity);
-        break;
-        case CMD_TYPE_S2C_SESSION_SYNC:
-        return ZE_COPY_STRUCT(source, buffer, S2C_Sync);
         break;
         case CMD_TYPE_C2S_INPUT:
         return ZE_COPY_STRUCT(source, buffer, C2S_Input);
@@ -174,6 +168,22 @@ internal i32 Cmd_Deserialise(
         case CMD_TYPE_S2C_REMOVE_ENTITY_GROUP:
         return ZE_COPY_STRUCT(source, buffer, S2C_RemoveEntityGroup);
         break;
+
+        //////////////////////////////////////////
+        // Server <-> Client connection
+        //////////////////////////////////////////
+        case CMD_TYPE_S2C_SESSION_SYNC:
+        return ZE_COPY_STRUCT(source, buffer, S2C_Sync);
+        break;
+        case CMD_TYPE_C2S_JOIN_REQUEST:
+        return ZE_COPY_STRUCT(source, buffer, S2C_RemoveEntityGroup);
+        case CMD_TYPE_S2C_HANDSHAKE:
+        return ZE_COPY_STRUCT(source, buffer, S2C_Handshake);
+        break;
+        case CMD_TYPE_S2C_CHALLENGE:
+        return ZE_COPY_STRUCT(source, buffer, CmdSetScene);
+        break;
+
         default:
         // Don't know size of command automatically, so
         // just give up

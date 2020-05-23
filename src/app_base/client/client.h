@@ -16,6 +16,12 @@
 #define CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING (1 << 2)
 #define CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION (1 << 3)
 
+#define CLIENT_STATE_NONE 0
+#define CLIENT_STATE_REQUESTING 1
+#define CLIENT_STATE_HANDSHAKE 2
+#define CLIENT_STATE_SYNC 3
+#define CLIENT_STATE_PLAY 4
+
 extern "C" void CL_Init(ZNetAddress serverAddress);
 extern "C" void CL_Shutdown();
 extern "C" i32 CL_IsRunning();

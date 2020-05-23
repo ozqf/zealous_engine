@@ -260,15 +260,38 @@ internal i32 App_StartSession(i32 sessionType)
         {
             App_EndSession();
             APP_LOG(128, "\tStarting single player\n");
+            #if 0
+            // start and wait for client request
+            // shutdown current
+            SV_Init();
+            g_isRunningServer = YES;
+            // UserIds ids = SVU_CreateLocalUser();
+            #endif
+
+            #if 1
+            // start server, add client immediately
+            SV_Init();
+            g_isRunningServer = YES;
+            UserIds ids = SVU_CreateLocalUser();
+            
+            // client
+            ZNetAddress addr = {};
+            addr.port = APP_SERVER_LOOPBACK_PORT;
+            CL_Init(addr);
+            CL_SetLocalUser(ids);
+            g_isRunningClient = YES;
+            #endif
+            
+            /*
+            
+            */
+
             /*ZNet_StartSession(
                 g_serverNet,
                 NETMODE_DEDICATED_SERVER,
                 NULL,
                 APP_SERVER_LOOPBACK_PORT);*/
             //g_localServerSocket.isActive = 1;
-            SV_Init();
-            UserIds ids = SVU_CreateLocalUser();
-            g_isRunningServer = YES;
 
             /*ZNet_StartSession(
                 g_clientNet,
@@ -276,12 +299,6 @@ internal i32 App_StartSession(i32 sessionType)
                 &g_localServerAddress,
                 APP_CLIENT_LOOPBACK_PORT);*/
             //g_localClientSocket.isActive = 1;
-            ZNetAddress addr = {};
-            addr.port = APP_SERVER_LOOPBACK_PORT;
-            CL_Init(addr);
-            CL_SetLocalUser(ids);
-            g_isRunningClient = YES;
-
             return ZE_ERROR_NONE;
         } break;
         default:

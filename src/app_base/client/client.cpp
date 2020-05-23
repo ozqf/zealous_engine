@@ -9,12 +9,6 @@
 
 #include "client_render.h"
 
-#define CLIENT_STATE_NONE 0
-#define CLIENT_STATE_REQUESTING 1
-#define CLIENT_STATE_HANDSHAKE 2
-#define CLIENT_STATE_SYNC 3
-#define CLIENT_STATE_PLAY 4
-
 internal u32 g_clDebugFlags = 0
     //| CL_DEBUG_FLAG_DRAW_LOCAL_SERVER
     //| CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION
@@ -677,21 +671,8 @@ internal void CL_CalcPings(timeFloat deltaTime)
 	g_jitter = (g_acks.delayMax - g_acks.delayMin);
 }
 
-void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
+internal void CL_TickInGame(timeFloat deltaTime, i64 platformFrame)
 {
-    // APP_PRINT(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",
-    //     CL_GetServerTick(), g_userInputSequence, g_elapsed);
-    APP_LOG(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",
-        CL_GetServerTick(), g_userInputSequence, g_elapsed);
-    APP_LOG(128, "\tLatest input ack before packet read: %d\n", g_latestUserInputAck);
-    CL_ReadSystemEvents(sysEvents, deltaTime, platformFrame);
-
-    CL_CalcPings(deltaTime);
-    APP_LOG(128, "CL Measured Ping %.5f, Jitter %.5f\n", g_ping, g_jitter);
-    
-	CL_RunReliableCommands(&g_sim, &g_reliableStream, deltaTime);
-    //CL_LogCommandBuffer(&g_unreliableStream.inputBuffer, "Unreliable input");
-    CL_RunUnreliableCommands(&g_sim, &g_unreliableStream, deltaTime);
 
     S2C_InputResponse* latestResponse =
         CLI_FindLatestInputResponse(g_serverResponses, CL_GetServerTick());
@@ -770,4 +751,23 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
         CL_WritePacket(&g_sim.quantise, g_elapsed, NULL);
     }
     
+}
+
+void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
+{
+    // APP_PRINT(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",
+    //     CL_GetServerTick(), g_userInputSequence, g_elapsed);
+    APP_LOG(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",
+        CL_GetServerTick(), g_userInputSequence, g_elapsed);
+    APP_LOG(128, "\tLatest input ack before packet read: %d\n", g_latestUserInputAck);
+    CL_ReadSystemEvents(sysEvents, deltaTime, platformFrame);
+
+    CL_CalcPings(deltaTime);
+    APP_LOG(128, "CL Measured Ping %.5f, Jitter %.5f\n", g_ping, g_jitter);
+    
+	CL_RunReliableCommands(&g_sim, &g_reliableStream, deltaTime);
+    //CL_LogCommandBuffer(&g_unreliableStream.inputBuffer, "Unreliable input");
+    CL_RunUnreliableCommands(&g_sim, &g_unreliableStream, deltaTime);
+
+    CL_TickInGame(deltaTime, platformFrame);
 }
