@@ -3,6 +3,8 @@
 
 #include "ze_common.h"
 
+#define TRANSFORM_CREATE(varName) Transform varName##; Transform_SetToIdentity(&##varName##);
+
 /////////////////////////////////////////////////////////////////////
 // Position
 /////////////////////////////////////////////////////////////////////
@@ -106,5 +108,12 @@ internal void Transform_SetRotation(Transform* t, f32 radiansX, f32 radiansY, f3
 	M3x3_RotateX(t->rotation.cells, radiansX);
 }
 
+static void Transform_Printf(Transform* t)
+{
+    printf("Pos %.3f, %.3f, %.3f\n", t->pos.x, t->pos.y, t->pos.z);
+    printf("Rot:\n%.3f, %.3f, %.3f\n", t->rotation.x0, t->rotation.y0, t->rotation.z0);
+    printf("%.3f, %.3f, %.3f\n", t->rotation.x1, t->rotation.y1, t->rotation.z1);
+    printf("%.3f, %.3f, %.3f\n", t->rotation.x2, t->rotation.y2, t->rotation.z2);
+}
 
 #endif // ZE_TRANSFORM_H

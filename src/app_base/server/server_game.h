@@ -156,13 +156,15 @@ SVG_DEFINE_ENT_UPDATE(Spawner)
         event.base.tick = sim->tick;
         event.base.sourceSerial = ent->id.serial;
         */
-       
+        Transform t;
+        t.pos = ent->body.t.pos;
+        M3x3_SetToIdentity(t.rotation.cells);
+        t.scale = { 1, 1, 1 };
         Sim_SetBulkSpawn(
             &event,
             Sim_ReserveEntitySerials(sim, 0, ent->relationships.childSpawnCount),
             ent->id.serial,
-            ent->body.t.pos,
-            { 0, 0, 1 },
+            t,
             sim->tick,
             ent->relationships.childFactoryType,
             ent->relationships.patternType,
@@ -350,12 +352,11 @@ internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
     if (numProjectiles <= 0) { numProjectiles = 1; }
     
     SimBulkSpawnEvent event = {};
-    
+    Transform t = ent->body.t;
     Sim_SetBulkSpawn(
         &event, Sim_ReserveEntitySerials(sim, 0, numProjectiles),
         ent->id.serial,
-        ent->body.t.pos,
-        *dir,
+        t,
         sim->tick,
         SIM_FACTORY_TYPE_PROJ_PLAYER,
         SIM_PATTERN_3D_CONE,

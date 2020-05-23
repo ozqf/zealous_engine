@@ -84,20 +84,33 @@ internal i32 Cmd_Deserialise(
             i32 firstSerial = COM_ReadI32(&read);
             i32 sourceSerial = COM_ReadI32(&read);
 
-            // forward/pos/radius
-            i32 packedNormal = COM_ReadI32(&read);
-            Vec3 forward = ZE_UnpackVec3Normal(
-                packedNormal);
-            //printf("Deserialised %d to forward %f, %f, %f\n",
-            //    packedNormal, forward.x, forward.y, forward.z);
-            Vec3 pos = {};
-            pos.x = COM_DequantiseI2F(
+            // Position
+            Transform t;
+            Transform_SetToIdentity(&t);
+            
+            t.pos.x = COM_DequantiseI2F(
                 COM_ReadU16(&read), &quantise->pos);
-            pos.y = COM_DequantiseI2F(
+            t.pos.y = COM_DequantiseI2F(
                 COM_ReadU16(&read), &quantise->pos);
-            pos.z = COM_DequantiseI2F(
+            t.pos.z = COM_DequantiseI2F(
                 COM_ReadU16(&read), &quantise->pos);
             
+            // Rotation
+            i32 packedNormal = COM_ReadI32(&read);
+            i32 packedLeft = COM_ReadI32(&read);
+            i32 packedUp = COM_ReadI32(&read);
+            
+            t.rotation.zAxis = ZE_UnpackVec3Normal(
+                packedNormal);
+            t.rotation.xAxis = ZE_UnpackVec3Normal(
+                packedLeft);
+            t.rotation.yAxis  = ZE_UnpackVec3Normal(
+                packedUp);
+            
+            printf("Deserialised transform\n");
+            Transform_Printf(&t);
+
+            // radius etc...
             f32 radius = COM_DequantiseI2F(
                 COM_ReadU16(&read), &quantise->pos);
             f32 arc = COM_DequantiseI2F(
@@ -115,8 +128,8 @@ internal i32 Cmd_Deserialise(
             // Build command
             SimBulkSpawnEvent ev = {};
             Sim_SetBulkSpawn(&ev, firstSerial, sourceSerial,
-            pos, forward, tick, factoryType, patternId, numItems,
-            seedIndex, radius, arc);
+                t, tick, factoryType, patternId, numItems,
+                seedIndex, radius, arc);
 
             S2C_BulkSpawn* cmd = (S2C_BulkSpawn*)buffer;
             *cmd = {};

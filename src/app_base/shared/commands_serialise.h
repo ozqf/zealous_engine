@@ -62,10 +62,12 @@ internal i32 Cmd_Serialise(
             4 i32 tick
             4 i32 firstSerial
             4 i32 sourceSerial
-            4 i32 forwardNormal
             2 u16 x
             2 u16 y
             2 u16 z
+            4 i32 forwardNormal
+            4 i32 leftNormal
+            4 i32 upNormal
             2 u16 radius
             1 u8 patternIndex
             1 u8 numItems
@@ -79,19 +81,31 @@ internal i32 Cmd_Serialise(
             write += COM_WriteI32(cmd->def.base.firstSerial, write);
             write += COM_WriteI32(cmd->def.base.sourceSerial, write);
 
-            // forward/pos/radius/arc
-            Vec3* forward = &cmd->def.base.forward;
-            i32 normal = ZE_PackVec3NormalToI32(forward->parts);
-            //printf("Serialised forward %f, %f, %f to %d\n",
-            //    forward->x, forward->y, forward->z, normal);
-            write += COM_WriteI32(normal, write);
+            // Position
+            Vec3* pos = &cmd->def.base.xForm.pos;
             write += COM_WriteU16((u16)COM_QuantiseF2I(
-                cmd->def.base.pos.x, &quantise->pos), write);
+                pos->x, &quantise->pos), write);
             write += COM_WriteU16((u16)COM_QuantiseF2I(
-                cmd->def.base.pos.y, &quantise->pos), write);
+                pos->y, &quantise->pos), write);
             write += COM_WriteU16((u16)COM_QuantiseF2I(
-                cmd->def.base.pos.z, &quantise->pos), write);
-            
+                pos->z, &quantise->pos), write);
+
+            // Rotation - 3 packed normals
+            Vec3* forward = &cmd->def.base.xForm.rotation.zAxis;
+            Vec3* left = &cmd->def.base.xForm.rotation.xAxis;
+            Vec3* up = &cmd->def.base.xForm.rotation.yAxis;
+
+            i32 packedForward = ZE_PackVec3NormalToI32(forward->parts);
+            i32 packedLeft = ZE_PackVec3NormalToI32(left->parts);
+            i32 packedUp = ZE_PackVec3NormalToI32(up->parts);
+            write += COM_WriteI32(packedForward, write);
+            write += COM_WriteI32(packedLeft, write);
+            write += COM_WriteI32(packedUp, write);
+
+            printf("Serialised transform\n");
+            Transform_Printf(&cmd->def.base.xForm);
+
+            // radius etc...
             write += COM_WriteU16((u16)COM_QuantiseF2I(
                 cmd->def.patternDef.radius, &quantise->pos), write);
             write += COM_WriteU16((u16)COM_QuantiseF2I(

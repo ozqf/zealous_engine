@@ -224,8 +224,8 @@ struct M4x4
 struct Transform
 {
     Vec3 pos;
-    Vec3 scale;
     M3x3 rotation;
+    Vec3 scale;
 };
 
 //internal i32 g_z_inf = 0x7F800000;

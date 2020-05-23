@@ -246,12 +246,11 @@ struct SimProjectileType
 
 struct SimSpawnBase
 {
-    Vec3 pos;
-    Vec3 forward;
     i32 firstSerial;
     i32 sourceSerial;
     i32 tick;
     u8 seedIndex;
+    Transform xForm;
 };
 
 struct SimBulkSpawnEvent
@@ -265,8 +264,7 @@ internal void Sim_SetBulkSpawn(
     SimBulkSpawnEvent* ev,
     i32 firstSerial,
     i32 sourceSerial,
-    Vec3 pos,
-    Vec3 forward,
+    Transform xForm,
     i32 tick,
     u8 factoryType,
     u8 patternId,
@@ -278,8 +276,7 @@ internal void Sim_SetBulkSpawn(
     ev->factoryType = factoryType;
     ev->base.firstSerial = firstSerial;
     ev->base.sourceSerial = sourceSerial;
-    ev->base.pos = pos;
-    ev->base.forward = forward;
+    ev->base.xForm = xForm;
     ev->base.tick = tick;
     ev->base.seedIndex = seedIndex;
     #ifdef SIM_QUANTISE_SYNC

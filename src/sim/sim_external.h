@@ -308,9 +308,9 @@ i32 Sim_ExecuteBulkSpawn(
         entDef.parentSerial = event->base.sourceSerial;
         SimEntity* ent = Sim_RestoreEntity(sim, &entDef);
         
-        ent->movement.velocity.x = item->forward.x * ent->movement.speed;
-        ent->movement.velocity.y = item->forward.y * ent->movement.speed;
-        ent->movement.velocity.z = item->forward.z * ent->movement.speed;
+        ent->movement.velocity.x = (-item->forward.x) * ent->movement.speed;
+        ent->movement.velocity.y = (-item->forward.y) * ent->movement.speed;
+        ent->movement.velocity.z = (-item->forward.z) * ent->movement.speed;
         
         // TODO: Hack! Find Better way to return new entity info
         // The caller needs to know whether or not to track these

@@ -24,9 +24,9 @@ internal i32 Sim_CreateFlatRadialPattern(
 		items[i].forward.x = dir.x;
 		items[i].forward.y = dir.y;
 		items[i].forward.z = dir.z;
-		items[i].pos.x = event->pos.x + (dir.x * def->radius);
-		items[i].pos.y = event->pos.y + (dir.y * def->radius);
-		items[i].pos.z = event->pos.z + (dir.z * def->radius);
+		items[i].pos.x = event->xForm.pos.x + (dir.x * def->radius);
+		items[i].pos.y = event->xForm.pos.y + (dir.y * def->radius);
+		items[i].pos.z = event->xForm.pos.z + (dir.z * def->radius);
 		items[i].entSerial = serial;
 
 		radians += step;
@@ -57,9 +57,9 @@ internal i32 Sim_CreateFlatScatterPattern(
 		items[i].forward.x = dir.x;
 		items[i].forward.y = dir.y;
 		items[i].forward.z = dir.z;
-		items[i].pos.x = event->pos.x + (dir.x * def->radius);
-		items[i].pos.y = event->pos.y + (dir.y * def->radius);
-		items[i].pos.z = event->pos.z + (dir.z * def->radius);
+		items[i].pos.x = event->xForm.pos.x + (dir.x * def->radius);
+		items[i].pos.y = event->xForm.pos.y + (dir.y * def->radius);
+		items[i].pos.z = event->xForm.pos.z + (dir.z * def->radius);
 		items[i].entSerial = serial;
 
 		serial += serialIncrement;
@@ -87,9 +87,9 @@ internal i32 Sim_Create3DScatterPattern(
 		items[i].forward.x = dir.x;
 		items[i].forward.y = dir.y;
 		items[i].forward.z = dir.z;
-		items[i].pos.x = event->pos.x + offset.x;
-		items[i].pos.y = event->pos.y + offset.y;
-		items[i].pos.z = event->pos.z + offset.z;
+		items[i].pos.x = event->xForm.pos.x + offset.x;
+		items[i].pos.y = event->xForm.pos.y + offset.y;
+		items[i].pos.z = event->xForm.pos.z + offset.z;
 		items[i].entSerial = serial;
 
 		serial += serialIncrement;
@@ -105,17 +105,17 @@ internal i32 Sim_CreateFlatConePattern(
 	i32 isLocal)
 {
 	i32 serialIncrement = isLocal ? -1 : 1;
-	f32 forwardRadians = atan2f(event->forward.z, event->forward.x);
+	f32 forwardRadians = atan2f(event->xForm.rotation.zAxis.z, event->xForm.rotation.zAxis.x);
 	
 	if (def->numItems == 1)
 	{
 		// just launch one straight forward...
-		items[0].forward.x = event->forward.x;
-		items[0].forward.y = event->forward.y;
-		items[0].forward.z = event->forward.z;
-		items[0].pos.x = event->pos.x + (event->forward.x * def->radius);
-		items[0].pos.y = event->pos.y + (event->forward.y * def->radius);
-		items[0].pos.z = event->pos.z + (event->forward.z * def->radius);
+		items[0].forward.x = event->xForm.rotation.zAxis.x;
+		items[0].forward.y = event->xForm.rotation.zAxis.y;
+		items[0].forward.z = event->xForm.rotation.zAxis.z;
+		items[0].pos.x = event->xForm.pos.x + (event->xForm.rotation.zAxis.x * def->radius);
+		items[0].pos.y = event->xForm.pos.y + (event->xForm.rotation.zAxis.y * def->radius);
+		items[0].pos.z = event->xForm.pos.z + (event->xForm.rotation.zAxis.z * def->radius);
 		items[0].entSerial = serial;
 		return 1;
 	}
@@ -135,9 +135,9 @@ internal i32 Sim_CreateFlatConePattern(
 			sinf(radians)
 		};
         items[i].forward = dir;
-		items[i].pos.x = event->pos.x + (dir.x * def->radius);
-		items[i].pos.y = event->pos.y + (dir.y * def->radius);
-		items[i].pos.z = event->pos.z + (dir.z * def->radius);
+		items[i].pos.x = event->xForm.pos.x + (dir.x * def->radius);
+		items[i].pos.y = event->xForm.pos.y + (dir.y * def->radius);
+		items[i].pos.z = event->xForm.pos.z + (dir.z * def->radius);
 		items[i].entSerial = serial;
 
         radians += step;
@@ -153,19 +153,17 @@ internal i32 Sim_Create3DConePattern_QuakeStyle(
 	i32 serial,
 	i32 isLocal)
 {
-	ILLEGAL_CODE_PATH
-	// TODO: Need to pass in a full transform...
-	Vec3 forward = event->forward;
-	Vec3 up; //= ?
-	Vec3 right; //= ?
+	Vec3 forward = event->xForm.rotation.zAxis;
+	Vec3 up = event->xForm.rotation.yAxis;
+	Vec3 right = event->xForm.rotation.xAxis;
 
-	Vec3 end = Vec3_VectorMA(event->pos, 8192, forward);
+	Vec3 end = Vec3_VectorMA(event->xForm.pos, 8192, forward);
 	end = Vec3_VectorMA(end, def->radius, right); // deflect horizontal
 	end = Vec3_VectorMA(end, def->radius, up); // deflect vertical
 	Vec3 r;
-	r.x = end.x - event->pos.x;
-	r.y = end.y - event->pos.y;
-	r.z = end.z - event->pos.z;
+	r.x = end.x - event->xForm.pos.x;
+	r.y = end.y - event->xForm.pos.y;
+	r.z = end.z - event->xForm.pos.z;
 	Vec3_Normalise(&r);
 	return def->numItems;
 }
@@ -180,12 +178,12 @@ internal i32 Sim_Create3DConePattern(
 	if (def->numItems == 1)
 	{
 		// just launch one straight forward...
-		items[0].forward.x = event->forward.x;
-		items[0].forward.y = event->forward.y;
-		items[0].forward.z = event->forward.z;
-		items[0].pos.x = event->pos.x + (event->forward.x * def->radius);
-		items[0].pos.y = event->pos.y + (event->forward.y * def->radius);
-		items[0].pos.z = event->pos.z + (event->forward.z * def->radius);
+		items[0].forward.x = event->xForm.rotation.zAxis.x;
+		items[0].forward.y = event->xForm.rotation.zAxis.y;
+		items[0].forward.z = event->xForm.rotation.zAxis.z;
+		items[0].pos.x = event->xForm.pos.x + (event->xForm.rotation.zAxis.x * def->radius);
+		items[0].pos.y = event->xForm.pos.y + (event->xForm.rotation.zAxis.y * def->radius);
+		items[0].pos.z = event->xForm.pos.z + (event->xForm.rotation.zAxis.z * def->radius);
 		items[0].entSerial = serial;
 		return 1;
 	}
@@ -201,11 +199,11 @@ internal i32 Sim_Create3DConePattern(
 		f32 offsetY = ZE_Randf32InRange(randomIndex++, -def->arc, def->arc);
 		M3x3_RotateX(matrix.cells, offsetX);
 		M3x3_RotateY(matrix.cells, offsetY);
-		Vec3 dir = Vec3_MultiplyByM3x3(&event->forward, matrix.cells);
+		Vec3 dir = Vec3_MultiplyByM3x3(&event->xForm.rotation.zAxis, matrix.cells);
         items[i].forward = dir;
-		items[i].pos.x = event->pos.x + (dir.x * def->radius);
-		items[i].pos.y = event->pos.y + (dir.y * def->radius);
-		items[i].pos.z = event->pos.z + (dir.z * def->radius);
+		items[i].pos.x = event->xForm.pos.x + (dir.x * def->radius);
+		items[i].pos.y = event->xForm.pos.y + (dir.y * def->radius);
+		items[i].pos.z = event->xForm.pos.z + (dir.z * def->radius);
 		items[i].entSerial = serial;
 		serial += serialIncrement;
 	}
@@ -223,15 +221,15 @@ internal i32 Sim_Create3DConePattern(
 		offset.z = dest.z - origin.z;
 		// offset by a random amount
 		Vec3_Normalise(&offset);
-		Vec3 dir = event->forward;
+		Vec3 dir = event->xForm.rotation.zAxis;
 		dir.x += offset.x;
 		dir.y += offset.y;
 		dir.z += offset.z;
 
         items[i].forward = dir;
-		items[i].pos.x = event->pos.x + (dir.x * def->radius);
-		items[i].pos.y = event->pos.y + (dir.y * def->radius);
-		items[i].pos.z = event->pos.z + (dir.z * def->radius);
+		items[i].pos.x = event->xForm.pos.x + (dir.x * def->radius);
+		items[i].pos.y = event->xForm.pos.y + (dir.y * def->radius);
+		items[i].pos.z = event->xForm.pos.z + (dir.z * def->radius);
 		items[i].entSerial = serial;
 		serial += serialIncrement;
     }
@@ -249,19 +247,19 @@ internal i32 Sim_Create3DConePattern_Old(
 	if (def->numItems == 1)
 	{
 		// just launch one straight forward...
-		items[0].forward.x = event->forward.x;
-		items[0].forward.y = event->forward.y;
-		items[0].forward.z = event->forward.z;
-		items[0].pos.x = event->pos.x + (event->forward.x * def->radius);
-		items[0].pos.y = event->pos.y + (event->forward.y * def->radius);
-		items[0].pos.z = event->pos.z + (event->forward.z * def->radius);
+		items[0].forward.x = event->xForm.rotation.zAxis.x;
+		items[0].forward.y = event->xForm.rotation.zAxis.y;
+		items[0].forward.z = event->xForm.rotation.zAxis.z;
+		items[0].pos.x = event->xForm.pos.x + (event->xForm.rotation.zAxis.x * def->radius);
+		items[0].pos.y = event->xForm.pos.y + (event->xForm.rotation.zAxis.y * def->radius);
+		items[0].pos.z = event->xForm.pos.z + (event->xForm.rotation.zAxis.z * def->radius);
 		items[0].entSerial = serial;
 		return 1;
 	}
 	// Multiple items
 	i32 serialIncrement = isLocal ? -1 : 1;
-	f32 forwardRadians = atan2f(event->forward.z, event->forward.x);
-	f32 upRadians = atan2f(event->forward.y, event->forward.z);
+	f32 forwardRadians = atan2f(event->xForm.rotation.zAxis.z, event->xForm.rotation.zAxis.x);
+	f32 upRadians = atan2f(event->xForm.rotation.zAxis.y, event->xForm.rotation.zAxis.z);
     f32 arc = def->arc;
 	// -1 items here to cover the full sweep. Otherwise the last angle
 	// is missed off
@@ -278,9 +276,9 @@ internal i32 Sim_Create3DConePattern_Old(
 			sinf(forwardRadianStep)
 		};
         items[i].forward = dir;
-		items[i].pos.x = event->pos.x + (dir.x * def->radius);
-		items[i].pos.y = event->pos.y + (dir.y * def->radius);
-		items[i].pos.z = event->pos.z + (dir.z * def->radius);
+		items[i].pos.x = event->xForm.pos.x + (dir.x * def->radius);
+		items[i].pos.y = event->xForm.pos.y + (dir.y * def->radius);
+		items[i].pos.z = event->xForm.pos.z + (dir.z * def->radius);
 		items[i].entSerial = serial;
         forwardRadianStep += step;
 		upRadianStep += step;
@@ -320,8 +318,8 @@ internal i32 Sim_CreateSpawnPattern(
 			event, def, results, firstSerial, isLocal);
 		
 		case SIM_PATTERN_NONE:
-		results[0].pos = event->pos;
-		results[0].forward = event->forward;
+		results[0].pos = event->xForm.pos;
+		results[0].forward = event->xForm.rotation.zAxis;
 		results[0].entSerial = event->firstSerial;
 		return 1;
 
