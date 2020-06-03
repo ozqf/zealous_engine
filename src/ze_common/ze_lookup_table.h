@@ -123,9 +123,9 @@ struct ZELookupTable
     i32 SetData(i32 id, i32 data)
     {
         i32 keyIndex = FindKeyIndex(id);
-        if (keyIndex == ZE_LT_INVALID_INDEX) { return COM_ERROR_NOT_FOUND; }
+        if (keyIndex == ZE_LT_INVALID_INDEX) { return ZE_ERROR_NOT_FOUND; }
         m_keys[keyIndex].data = data;
-        return COM_ERROR_NONE;
+        return ZE_ERROR_NONE;
     }
 
     i32 Insert(i32 id, i32 data)
@@ -145,13 +145,13 @@ struct ZELookupTable
                 key->data = data;
                 key->collisionsOnInsert = numCollisions;
                 m_numKeys++;
-                return COM_ERROR_NONE;
+                return ZE_ERROR_NONE;
             }
             else if (key->id == id)
             {
                 // already inserted. Update data
                 key->data = data;
-                return COM_ERROR_NONE;
+                return ZE_ERROR_NONE;
             }
             else
             {
@@ -161,14 +161,14 @@ struct ZELookupTable
             }
             
         } while (escape++ < m_maxKeys);
-        return COM_ERROR_FUNC_RAN_AWAY;
+        return ZE_ERROR_FUNC_RAN_AWAY;
     }
 
     i32 Remove(i32 id)
     {
         
         i32 keyIndex = FindKeyIndex(id);
-        if (keyIndex == ZE_LT_INVALID_INDEX) { return COM_ERROR_NOT_FOUND; }
+        if (keyIndex == ZE_LT_INVALID_INDEX) { return ZE_ERROR_NOT_FOUND; }
         ClearKey(&m_keys[keyIndex]);
         m_numKeys--;
 
@@ -182,7 +182,7 @@ struct ZELookupTable
             if (key->id == ZE_LT_INVALID_ID)
             {
                 // empty key. Done
-                return COM_ERROR_NONE;
+                return ZE_ERROR_NONE;
             }
             i32 correctIndex = key->idHash % m_maxKeys;
             if (correctIndex != keyIndex)
@@ -196,7 +196,7 @@ struct ZELookupTable
             StepKeyIndex(&keyIndex);
         } while (escape++ < m_maxKeys);
         
-        return COM_ERROR_FUNC_RAN_AWAY;
+        return ZE_ERROR_FUNC_RAN_AWAY;
     }
 };
 

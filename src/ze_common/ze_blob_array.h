@@ -58,10 +58,10 @@ struct ZEBlobArray
     ///////////////////////////////////////////////////
     ZEBlobHeader* GetHeaderByIndex(i32 index)
     {
-        COM_ASSERT((index >= 0 && index < m_numBlobs), "Blob array out of bounds");
+        ZE_ASSERT((index >= 0 && index < m_numBlobs), "Blob array out of bounds");
         i32 offset = m_totalBlobSize * index;
         ZEBlobHeader* result = (ZEBlobHeader*)(m_blobs + offset);
-        COM_ASSERT(result->sentinel == ZE_BA_SENTINEL, "Blob GetByIndex sentinel failed")
+        ZE_ASSERT(result->sentinel == ZE_BA_SENTINEL, "Blob GetByIndex sentinel failed")
         return result;
     }
 
@@ -84,10 +84,10 @@ struct ZEBlobArray
 
     u8* GetByIndex(i32 index)
     {
-        COM_ASSERT((index >= 0 && index < m_numBlobs), "Blob array out of bounds");
+        ZE_ASSERT((index >= 0 && index < m_numBlobs), "Blob array out of bounds");
         i32 offset = m_totalBlobSize * index;
         ZEBlobHeader* h = GetHeaderByIndexUnchecked(index);
-        COM_ASSERT(h->sentinel == ZE_BA_SENTINEL, "Blob GetByIndex sentinel failed")
+        ZE_ASSERT(h->sentinel == ZE_BA_SENTINEL, "Blob GetByIndex sentinel failed")
         if (h->status != ZE_BA_STATUS_OCCUPIED) { return NULL; }
         return (u8*)h + sizeof(ZEBlobHeader);
     }
@@ -113,14 +113,14 @@ struct ZEBlobArray
      */
     ErrorCode GetFreeSlot(u8** dataResult, i32* indexResult, i32 id)
     {
-        if (id == m_invalidId) { return COM_ERROR_BAD_ARGUMENT; }
-        if (m_numBlobs == m_maxBlobs) { return COM_ERROR_NO_SPACE; }
+        if (id == m_invalidId) { return ZE_ERROR_BAD_ARGUMENT; }
+        if (m_numBlobs == m_maxBlobs) { return ZE_ERROR_NO_SPACE; }
 
         i32 newBlobIndex = m_numBlobs++;
 
         i32 offset = m_totalBlobSize * newBlobIndex;
         ZEBlobHeader* header = (ZEBlobHeader*)(m_blobs + offset);
-        COM_ASSERT(header->status != ZE_BA_STATUS_OCCUPIED, "Attempting to reassigned in-use blob")
+        ZE_ASSERT(header->status != ZE_BA_STATUS_OCCUPIED, "Attempting to reassigned in-use blob")
         header->id = id;
         header->sentinel = ZE_BA_SENTINEL;
         header->status = ZE_BA_STATUS_OCCUPIED;
@@ -132,23 +132,23 @@ struct ZEBlobArray
         {
             *indexResult = newBlobIndex;
         }
-        return COM_ERROR_NONE;
+        return ZE_ERROR_NONE;
     }
 
     void ClearHeader(ZEBlobHeader* h)
     {
-        COM_ASSERT(h->sentinel == ZE_BA_SENTINEL, "Clear header - sentinel check failed")
+        ZE_ASSERT(h->sentinel == ZE_BA_SENTINEL, "Clear header - sentinel check failed")
         h->id = m_invalidId;
         h->status = ZE_BA_STATUS_FREE;
     }
 
     ErrorCode MarkForFree(i32 index)
     {
-        if (index >= m_numBlobs) { return COM_ERROR_OUT_OF_BOUNDS; }
+        if (index >= m_numBlobs) { return ZE_ERROR_OUT_OF_BOUNDS; }
         ZEBlobHeader* header = GetHeaderByIndex(index);
-        if (header == NULL) { return COM_ERROR_NOT_FOUND; }
+        if (header == NULL) { return ZE_ERROR_NOT_FOUND; }
         header->status = ZE_BA_STATUS_RECYCLE;
-        return COM_ERROR_NONE;
+        return ZE_ERROR_NONE;
     }
 
     void CopyOver(i32 sourceIndex, i32 destIndex)
@@ -168,7 +168,7 @@ struct ZEBlobArray
             ZEBlobHeader* blob = GetHeaderByIndex(i);
             if (blob->status == ZE_BA_STATUS_OCCUPIED) { i++; continue; }
 
-            COM_ASSERT(blob->status == ZE_BA_STATUS_RECYCLE, "Free blob found during truncate!")
+            ZE_ASSERT(blob->status == ZE_BA_STATUS_RECYCLE, "Free blob found during truncate!")
             
             if (m_numBlobs == 1)
             {
@@ -194,7 +194,7 @@ static ErrorCode ZE_CreateBlobArray(
     i32 sizePerBlob = sizeof(ZEBlobHeader) + sizePerObject;
     i32 totalBytes = sizeof(ZEBlobArray) + (sizePerBlob * capacity);
     u8* mem = ZE_BA_MALLOC(totalBytes);
-    if (mem == NULL) { return COM_ERROR_ALLOCATION_FAILED; }
+    if (mem == NULL) { return ZE_ERROR_ALLOCATION_FAILED; }
     ZEBlobArray* arr = (ZEBlobArray*)mem;
     *arr = {};
     arr->m_blobs = mem + sizeof(ZEBlobArray);
@@ -213,7 +213,7 @@ static ErrorCode ZE_CreateBlobArray(
         h->sentinel = ZE_BA_SENTINEL;
     }
     *result = arr;
-    return COM_ERROR_NONE;
+    return ZE_ERROR_NONE;
 }
 
 #endif // ZE_BLOB_ARRAY_H

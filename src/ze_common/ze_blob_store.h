@@ -32,9 +32,9 @@ struct ZEBlobStore
         u8* mem = NULL;
         i32 index = -1;
         ErrorCode err = m_array->GetFreeSlot(&mem, &index, id);
-        COM_ASSERT(err == COM_ERROR_NONE, "Could not get free blob slot\n");
+        ZE_ASSERT(err == ZE_ERROR_NONE, "Could not get free blob slot\n");
         err = m_lookup->Insert(id, index);
-        COM_ASSERT(err == COM_ERROR_NONE, "Could not insert lookup key\n");
+        ZE_ASSERT(err == ZE_ERROR_NONE, "Could not insert lookup key\n");
         return mem;
     }
 
@@ -42,10 +42,10 @@ struct ZEBlobStore
     {
         // Lookup key
         i32 index = m_lookup->FindData(id);
-        COM_ASSERT(index != ZE_LT_INVALID_INDEX, "Blob store could not find lookup key\n");
+        ZE_ASSERT(index != ZE_LT_INVALID_INDEX, "Blob store could not find lookup key\n");
         // Blob
         ErrorCode err = m_array->MarkForFree(index);
-        COM_ASSERT(err == COM_ERROR_NONE, "Error marking blob for removal\n");
+        ZE_ASSERT(err == ZE_ERROR_NONE, "Error marking blob for removal\n");
         return err;
     }
 	
@@ -98,7 +98,7 @@ struct ZEBlobStore
                 continue;
             }
             // only valid values in this section of the array are occupied or recycle.
-            COM_ASSERT(blob->status == ZE_BA_STATUS_RECYCLE,
+            ZE_ASSERT(blob->status == ZE_BA_STATUS_RECYCLE,
                 "Blob store: Free blob found during truncate!")
             
             // k time to delete a blob
@@ -108,7 +108,7 @@ struct ZEBlobStore
                 // either only item in the list, or the last item in the list.
                 // just collapse and move on
                 err = m_lookup->Remove(blob->id);
-                COM_ASSERT(err == COM_ERROR_NONE, "Blob store - Error removing lookup key")
+                ZE_ASSERT(err == ZE_ERROR_NONE, "Blob store - Error removing lookup key")
 
                 m_array->ClearHeader(blob);
                 m_array->m_numBlobs--;
@@ -125,7 +125,7 @@ struct ZEBlobStore
 					return numDeletes + ClearEntireStore();
 				}
 				ZEBlobHeader* swapBlob = m_array->GetHeaderByIndexUnchecked(swapIndex);
-                COM_ASSERT(swapBlob->status == ZE_BA_STATUS_OCCUPIED, "Attempting to swap unoccupied blob")
+                ZE_ASSERT(swapBlob->status == ZE_BA_STATUS_OCCUPIED, "Attempting to swap unoccupied blob")
 
                 // store Ids before copy!
                 i32 swapId = swapBlob->id;
@@ -149,7 +149,7 @@ static ErrorCode ZE_InitBlobStore(ZEBlobStore* store, i32 capacity, i32 sizePerO
 {
     *store = {};
     i32 err = ZE_CreateBlobArray(&store->m_array, capacity, sizePerObject, invalidId);
-    if (err != COM_ERROR_NONE) { return err; }
+    if (err != ZE_ERROR_NONE) { return err; }
     store->m_lookup = ZE_LT_Create(capacity * 2, invalidId, NULL);
     return err;
 }
