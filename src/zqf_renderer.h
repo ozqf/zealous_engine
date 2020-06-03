@@ -342,6 +342,22 @@ struct ZRRenderer
     void (*UpdateStats)(f64 swapMS, f64 frameMS);
 };
 
+/*
+
+Buffers:
+- Draw list -
+ZRViewFrame
+	ZRSceneFrame
+		ZRDrawObj
+		ZRDrawObj
+		ZRDrawObj
+
+- Scratch - 
+Stack of random allocations for objects in the scene lists.
+Eg text objects will write their strings into here.
+Contents is nonsense without the draw frame objects.
+*/
+
 ///////////////////////////////////////////////////////////
 // Exported functions
 ///////////////////////////////////////////////////////////

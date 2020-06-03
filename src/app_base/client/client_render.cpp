@@ -28,7 +28,7 @@ extern "C" void CLR_Shutdown()
 internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     SimScene* sim,
     ZEByteBuffer* list,
-    ZEByteBuffer* data)
+    ZEByteBuffer* scratch)
 {
     // TODO: Look these up in asset db!
     i32 cubeIndex = 0;
@@ -77,7 +77,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     SimScene* sim,
     Transform* camera,
     ZEByteBuffer* list,
-    ZEByteBuffer* data,
+    ZEByteBuffer* scratch,
     ClientRenderSettings cfg)
 {
     // TODO: Look these up in asset db!

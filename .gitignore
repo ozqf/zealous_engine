@@ -8,6 +8,9 @@
 /buildwin_window/
 /buildwin_renderer/
 /buildwin_game/
+/buildwin_tools/
+
+/bin_tools/
 
 # For 3rd party DLLs
 /bin/*
