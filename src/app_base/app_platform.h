@@ -251,8 +251,8 @@ internal i32  AppImpl_Shutdown()
 
 internal i32 App_EndSession()
 {
-    if (g_isRunningServer) { SV_Shutdown(); }
-    if (g_isRunningClient) { CL_Shutdown(); }
+    if (SV_IsRunning()) { SV_Shutdown(); }
+    if (CL_IsRunning()) { CL_Shutdown(); }
     //ZNet_EndSession(g_serverNet);
     //ZNet_EndSession(g_clientNet);
     return ZE_ERROR_NONE;
@@ -271,14 +271,13 @@ internal i32 App_StartSession(i32 sessionType)
             // start and wait for client request
             // shutdown current
             SV_Init();
-            g_isRunningServer = YES;
+            SV_IsRunning() = YES;
             // UserIds ids = SVU_CreateLocalUser();
             #endif
 
             #if 1
             // start server, add client immediately
             SV_Start();
-            g_isRunningServer = YES;
             UserIds ids = SVU_CreateLocalUser();
             
             // client
@@ -286,7 +285,6 @@ internal i32 App_StartSession(i32 sessionType)
             addr.port = APP_SERVER_LOOPBACK_PORT;
             CL_Start(addr);
             CL_SetLocalUser(ids);
-            g_isRunningClient = YES;
             #endif
             
             /*
@@ -366,13 +364,13 @@ internal void App_SimFrame(timeFloat interval)
     g_platform.Release_EventBuffer();
     APP_LOG(64, "\nAPP Frame\n");
 
-    if (g_isRunningServer)
+    if (SV_IsRunning())
     {
         g_serverLoopback.Swap();
         g_serverLoopback.GetWrite()->Clear(NO);
         SV_Tick(g_serverLoopback.GetRead(), interval);
     }
-    if (g_isRunningClient)
+    if (CL_IsRunning())
     {
         g_clientLoopback.Swap();
         g_clientLoopback.GetWrite()->Clear(NO);
@@ -498,8 +496,8 @@ internal i32 AppImpl_ParseCommandString(char* str, char** tokens, i32 numTokens)
         g_loopbackSocket.SetLagStats(minMS, maxMS, loss);
         return 1;
     }
-    if (g_isRunningServer && SV_ParseCommandString(str, tokens, numTokens)) { return 1; }
-    if (g_isRunningClient && CL_ParseCommandString(str, tokens, numTokens)) { return 1; }
+    if (SV_IsRunning() && SV_ParseCommandString(str, tokens, numTokens)) { return 1; }
+    if (CL_IsRunning() && CL_ParseCommandString(str, tokens, numTokens)) { return 1; }
     return 0;
 }
 

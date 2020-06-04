@@ -9,8 +9,6 @@
 
 #include "client_render.h"
 
-internal i32 g_bIsRunning = NO;
-
 internal u32 g_clDebugFlags = 0
     //| CL_DEBUG_FLAG_DRAW_LOCAL_SERVER
     //| CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION
@@ -289,6 +287,8 @@ extern "C" void CL_Start(ZNetAddress serverAddress)
     g_serverAddress = serverAddress;
 	g_clientState = CLIENT_STATE_REQUESTING;
     i32 cmdBufferSize = MegaBytes(1);
+
+    g_isRunning = YES;
     //ZEByteBuffer a = Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize);
     //ZEByteBuffer b = Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize);
 
@@ -339,7 +339,7 @@ extern "C" void CL_Start(ZNetAddress serverAddress)
 
 extern "C" void CL_Shutdown()
 {
-    g_bIsRunning = NO;
+    g_isRunning = NO;
     CLR_Shutdown();
 	for (i32 i = 0; i < g_numAllocations; ++i)
 	{
@@ -431,9 +431,9 @@ internal i32 CL_IsCommandTickSensitive(i32 cmdType)
 {
 	switch (cmdType)
 	{
-		case CMD_TYPE_S2C_SESSION_SYNC: { return false; }
+		case CMD_TYPE_S2C_SESSION_SYNC: { return NO; }
 	}
-	return true;
+	return YES;
 }
 
 /**

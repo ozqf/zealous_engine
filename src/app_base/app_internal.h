@@ -41,9 +41,6 @@ internal i32 g_apptick = 0;
 /////////////////////////////////////////////////////////////////
 // MEMORY
 
-internal i32 g_isRunningClient = 0;
-internal i32 g_isRunningServer = 0;
-
 // Client/Server input buffers
 internal ZEDoubleByteBuffer g_serverLoopback;
 internal ZEDoubleByteBuffer g_clientLoopback;

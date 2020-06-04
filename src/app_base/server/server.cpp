@@ -291,6 +291,7 @@ extern "C" void SV_Init()
 
 extern "C" void SV_Start()
 {
+    g_isRunning = YES;
     APP_PRINT(64, "SV Init scene\n");
 
     SV_PrintMsgSizes();
@@ -314,13 +315,14 @@ extern "C" void SV_Start()
 	Sim_Reset(&g_sim);
     // Inflate sim frame number - debugging
     g_sim.tick += 123;
-    SV_LoadTestScene(g_staticSceneIndex, 1);
+    SV_LoadTestScene(g_staticSceneIndex, -1);
 
     SV_ListAllocs();
 }
 
 extern "C" void SV_Shutdown()
 {
+    g_isRunning = NO;
     for (i32 i = 0; i < g_mallocs.max; ++i)
     {
         if (g_mallocs.items[i].ptr != NULL)

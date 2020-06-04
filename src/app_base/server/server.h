@@ -6,9 +6,9 @@
 
 extern "C" void    SV_Init();
 extern "C" void    SV_Start();
+extern "C" i32     SV_IsRunning();
 extern "C" void    SV_Shutdown();
 extern "C" UserIds SVU_CreateLocalUser();
-extern "C" i32     SV_IsRunning();
 extern "C" void    SV_Tick(ZEByteBuffer* platformCommands, timeFloat deltaTime);
 extern "C" u8      SV_ParseCommandString(char* str, char** tokens, i32 numTokens);
 
