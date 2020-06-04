@@ -9,6 +9,8 @@
 
 #include "client_render.h"
 
+internal i32 g_bIsRunning = NO;
+
 internal u32 g_clDebugFlags = 0
     //| CL_DEBUG_FLAG_DRAW_LOCAL_SERVER
     //| CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION
@@ -274,7 +276,12 @@ extern "C" void CL_SetLocalUser(UserIds ids)
 ////////////////////////////////////////////////////////////////////
 // Init
 ////////////////////////////////////////////////////////////////////
-extern "C" void CL_Init(ZNetAddress serverAddress)
+extern "C" void CL_Init()
+{
+    APP_PRINT(32, "CL - Init\n");
+}
+
+extern "C" void CL_Start(ZNetAddress serverAddress)
 {
     ZE_ASSERT(g_clientState == CLIENT_STATE_NONE,
         "Client State is not clear")
@@ -332,6 +339,7 @@ extern "C" void CL_Init(ZNetAddress serverAddress)
 
 extern "C" void CL_Shutdown()
 {
+    g_bIsRunning = NO;
     CLR_Shutdown();
 	for (i32 i = 0; i < g_numAllocations; ++i)
 	{

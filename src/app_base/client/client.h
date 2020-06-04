@@ -22,7 +22,8 @@
 #define CLIENT_STATE_SYNC 3
 #define CLIENT_STATE_PLAY 4
 
-extern "C" void CL_Init(ZNetAddress serverAddress);
+extern "C" void CL_Init();
+extern "C" void CL_Start(ZNetAddress serverAddress);
 extern "C" void CL_Shutdown();
 extern "C" i32 CL_IsRunning();
 extern "C" void CL_CopyCameraTransform(Transform* target);

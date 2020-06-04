@@ -3,6 +3,7 @@
 #include "stdlib.h"
 #include "../sys_events.h"
 #include "../ze_module_interfaces.h"
+#include "app_ui.h"
 #include "app_internal.h"
 
 /***************************************
@@ -219,6 +220,12 @@ internal i32  AppImpl_Init()
     g_worldScene.cameraTransform.pos.y += 34;
     Transform_SetRotation(&g_worldScene.cameraTransform, -(80.0f    * DEG2RAD), 0, 0);
     #endif
+
+    // initialise sub-modules
+    AppUI_Init();
+    CL_Init();
+    SV_Init();
+
     // server and client areas currently acquiring their own memory
     App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER);
 
@@ -270,14 +277,14 @@ internal i32 App_StartSession(i32 sessionType)
 
             #if 1
             // start server, add client immediately
-            SV_Init();
+            SV_Start();
             g_isRunningServer = YES;
             UserIds ids = SVU_CreateLocalUser();
             
             // client
             ZNetAddress addr = {};
             addr.port = APP_SERVER_LOOPBACK_PORT;
-            CL_Init(addr);
+            CL_Start(addr);
             CL_SetLocalUser(ids);
             g_isRunningClient = YES;
             #endif

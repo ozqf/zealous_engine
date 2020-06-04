@@ -354,7 +354,8 @@ internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
     SimBulkSpawnEvent event = {};
     Transform t = ent->body.t;
     Sim_SetBulkSpawn(
-        &event, Sim_ReserveEntitySerials(sim, 0, numProjectiles),
+        &event,
+        Sim_ReserveEntitySerials(sim, 0, numProjectiles),
         ent->id.serial,
         t,
         sim->tick,

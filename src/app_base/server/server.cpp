@@ -286,6 +286,11 @@ internal void SV_ResetEntityPositionRecords()
 
 extern "C" void SV_Init()
 {
+    APP_PRINT(32, "SV - init\n");
+}
+
+extern "C" void SV_Start()
+{
     APP_PRINT(64, "SV Init scene\n");
 
     SV_PrintMsgSizes();

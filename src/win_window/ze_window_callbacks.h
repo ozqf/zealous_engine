@@ -123,6 +123,11 @@ static void key_callback(GLFWwindow* window, int glfwKey, int scancode, int acti
     }
 }
 
+static void mouse_position_callback(GLFWwindow* window, double posX, double posY)
+{
+
+}
+
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
     zeInputCode keyCode = Z_INPUT_CODE_NULL;
@@ -155,6 +160,7 @@ static ErrorCode ZR_InitCallbacks(GLFWwindow* window)
     glfwSetWindowCloseCallback(window, window_close_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, mouse_position_callback);
 
     if (glfwRawMouseMotionSupported())
     {

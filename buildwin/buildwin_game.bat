@@ -22,8 +22,8 @@ set in1=
 
 @rem -- Main App input --
 @rem set in2=../src/app/app_module.cpp ../src/app/app_textures.cpp
-set in1=../src/app_base/client/client_render.cpp
-set in2=../src/app_base/app_module.cpp
+set in1=../src/app_base/client/client_render.cpp ../src/ui/zui.cpp
+set in2=../src/app_base/app_module.cpp ../src/app_base/app_ui.cpp
 @rem set in3=../src/sim/sim_module.cpp ../src/network/znet_module.cpp
 set in3=../src/sim/sim_module.cpp ../src/voxel_world/voxel_world.cpp
 set in4=../src/app_base/server/server.cpp ../src/app_base/client/client.cpp

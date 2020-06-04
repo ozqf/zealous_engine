@@ -5,6 +5,7 @@
 #include "../shared/user.h"
 
 extern "C" void    SV_Init();
+extern "C" void    SV_Start();
 extern "C" void    SV_Shutdown();
 extern "C" UserIds SVU_CreateLocalUser();
 extern "C" i32     SV_IsRunning();
