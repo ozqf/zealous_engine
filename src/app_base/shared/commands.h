@@ -146,7 +146,7 @@ internal void Cmd_InitJoinRequest(
 {
     Cmd_Prepare(&cmd->header, tick);
     cmd->header.type = CMD_TYPE_C2S_JOIN_REQUEST;
-    cmd->header.size = sizeof(C2S_Input);
+    cmd->header.size = sizeof(C2S_JoinRequest);
     cmd->token = token;
     cmd->addr = addr;
 }

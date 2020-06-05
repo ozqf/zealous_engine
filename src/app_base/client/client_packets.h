@@ -39,7 +39,8 @@ internal i32 CL_WriteUnreliableSection(
 	CmdPing ping = {};
 	// TODO: Stream enqueue will set the sequence for us
 	// so remove sending 0 here.
-	Cmd_Prepare(&ping.header, CL_GetServerTick());
+	//Cmd_Prepare(&ping.header, CL_GetServerTick());
+    Cmd_InitPing(&ping, 0, g_elapsed);
 	ping.sendTime = g_elapsed;
     packet->cursor += Cmd_Serialise(
         quantise, packet->cursor, &ping.header, 0);

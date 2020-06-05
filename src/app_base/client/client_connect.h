@@ -3,7 +3,7 @@
 
 #include "client_internal.h"
 
-internal i32 g_requestToken = 0xDEADBEEF;
+internal i32 g_requestToken = 0x0C0FFEE5;
 
 const timeFloat g_requestRetryTime = 2;
 

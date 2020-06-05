@@ -48,6 +48,8 @@ struct PacketDescriptor
 	
 	PacketHeader header;
 	ZNetAddress sender;
+	// base sim tick for the following commands
+	i32 unreliableHeader;
 
 	i32 Space()
 	{
@@ -119,6 +121,7 @@ internal i32 Packet_InitDescriptor(
 	//COM_PrintBytesHex(buf, numBytes, 16);
 	*descriptor = {};
 	descriptor->ptr = buf;
+	descriptor->cursor = buf;
 	descriptor->size = numBytes;
 	descriptor->sender = addr;
 	
@@ -129,7 +132,8 @@ internal i32 Packet_InitDescriptor(
 	descriptor->unreliableOffset =
 		descriptor->reliableOffset +
 		descriptor->header.numReliableBytes +
-		sizeof(u32);
+		sizeof(u32); // Sentinel
+	
 	//descriptor->flags = h->flags;
 	//printf("Reliable bytes: %d\n", packet->numReliableBytes);
 	//printf("Unreliable bytes: %d\n", packet->numUnreliableBytes);
