@@ -104,7 +104,7 @@ static Win32_Socket* WNet_GetFreeSocket(i32* socketIndexResult)
 extern "C"
 i32 Net_SendTo(
     i32 transmittingSocketIndex,
-    ZNetAddress* address, u16 port,
+    ZNetAddress* address,// u16 port,
 	u8* data, i32 dataSize)
 {
     char asciAddress[32];
@@ -118,7 +118,7 @@ i32 Net_SendTo(
     Win32_Socket* winSock = WNet_GetActiveSocket(transmittingSocketIndex);
     //printf("Port %d Sending %d bytes to %s:%d\n", winSock->port, dataSize, address, port);
 	sockaddr_in toAddress;
-    toAddress.sin_port = htons(port);
+    toAddress.sin_port = htons(address->port);
     toAddress.sin_family = AF_INET;
     //toAddress.sin_addr.S_un.S_addr = 
     InetPton(AF_INET, asciAddress, &toAddress.sin_addr.S_un.S_addr);

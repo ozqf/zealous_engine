@@ -27,19 +27,20 @@ set compilerDefines=/DPARANOID=1
 @rem Ws2_32.lib == winsock2
 set compInput_0=../src/tools/zt_main.cpp
 set compInput_1=../src/tools/tests/ze_tests.cpp
-set compInput_2=
+set compInput_2=../src/tools/zt_monitor.cpp ../src/win_platform/ze_win_socket.cpp
 
 @rem === LINK SETTINGS === (disable if running win32 console application test)
 @rem set linkStr=/link
 @rem set linkInputB=user32.lib opengl32.lib
 @rem set linkInputC=Gdi32.lib
-set linkStr=/link /SUBSYSTEM:CONSOLE
+@rem Include winsock:
+set linkStr=/link Ws2_32.lib /SUBSYSTEM:CONSOLE
 
 cl %compilerFlags% %compilerDefines% %outputExe% %compInput_0% %compInput_1% %compInput_2% %linkStr%
 @if not %ERRORLEVEL% == 0 goto :FINISHED
 
 @rem Auto run if you like
-@call "../buildwin/rtools.bat"
+@rem @call "../buildwin/rtools.bat"
 
 @echo off
 

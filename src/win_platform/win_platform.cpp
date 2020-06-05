@@ -290,6 +290,32 @@ static void PlatformImpl_ExecTextCommand(const char* str, i32 len)
     
 }
 
+static void PlatformImpl_OpenSocket(i32* socket, u16* port)
+{
+    *socket = Net_OpenSocket(*port, port);
+}
+
+static void PlatformImpl_CloseSocket(i32 index)
+{
+    // TODO error check response and handle it... somehow
+    i32 err = Net_CloseSocket(index);
+}
+
+static i32 PlatformImpl_Send(i32 socketIndex, ZNetAddress addr, u8* data, i32 dataSize)
+{
+    printf("ZWin - send %dB from socket %d to %d.%d.%d.%d:%d\n",
+        dataSize,
+        socketIndex,
+        addr.ip4Bytes[0],
+        addr.ip4Bytes[1],
+        addr.ip4Bytes[2],
+        addr.ip4Bytes[3],
+        addr.port
+    );
+    i32 result = Net_SendTo(socketIndex, &addr, data, dataSize);
+    return result;
+}
+
 static ze_platform_export Win_BuildExport()
 {
     ze_platform_export result = {};
@@ -311,6 +337,10 @@ static ze_platform_export Win_BuildExport()
     result.Release_AppDrawBuffers = PlatformImpl_ReleaseAppDrawBuffers;
     result.Acquire_EventBuffer = PlatformImpl_AcquireEventBuffer;
     result.Release_EventBuffer = PlatformImpl_ReleaseEventBuffer;
+
+    result.OpenSocket = PlatformImpl_OpenSocket;
+    result.CloseSocket = PlatformImpl_CloseSocket;
+    result.Send = PlatformImpl_Send;
 
     return result;
 }
@@ -424,16 +454,19 @@ int CALLBACK WinMain(
     // Create Mutexes
     Win_InitMutexes();
 
+    // init network incase it is needed
     Net_Init();
+
+    #if 0
     g_diagnosticSocket = Net_OpenSocket(ZE_TEST_TRANSMIT_PORT, &g_diagnosticTransPort);
     printf("Winsock initialised - diagnostic socket %d on port %d\n",
         g_diagnosticSocket, g_diagnosticTransPort);
     char msg[128];
     i32 msgLen = sprintf_s(msg, 128, "Hello, World!\n");
     ZNetAddress addr = ZE_LocalHost(ZE_TEST_DEST_PORT);
-    i32 netError = Net_SendTo(g_diagnosticSocket, &addr, addr.port, (u8*)msg, msgLen);
+    i32 netError = Net_SendTo(g_diagnosticSocket, &addr, (u8*)msg, msgLen);
     printf("Sent test udp packet - error code %d\n", netError);
-
+    #endif
     ErrorCode err;
 
     // Attach to window

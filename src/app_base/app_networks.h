@@ -4,6 +4,11 @@ void App_SendTo(i32 socketIndex, ZNetAddress* addr, u8* data, i32 dataSize)
 {
 	APP_PRINT(64, "App - send %dB on socket %d\n", dataSize, socketIndex);
 	g_loopbackSocket.SendPacket(socketIndex, addr, data, dataSize);
+	// send to debug port
+	if (g_debugSocket >= 0)
+	{
+		g_platform.Send(g_debugSocket, ZE_LocalHost(ZE_MONITOR_PORT), data, dataSize);
+	}
 	#if 0
     if (addr->port == APP_CLIENT_LOOPBACK_PORT)
     {

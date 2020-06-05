@@ -125,6 +125,11 @@ internal i32  AppImpl_Init()
 {
     APP_LOG(128, "App initialising. Build data %s - %s\n", __DATE__, __TIME__);
     //App_Log("Test Log\n");
+    
+    // Open debug port
+    g_debugPort = ZE_DEBUG_PORT;
+    g_platform.OpenSocket(&g_debugSocket, &g_debugPort);
+    printf("App - opened debug socket %d - port %d\n", g_debugSocket, g_debugPort);
 	
     //App_Win32_AttachErrorHandlers();
 	ZE_SetFatalError(App_Fatal);

@@ -23,6 +23,8 @@ internal i32 g_fakeLagMaxMS = 0;//350;
 internal f32 g_fakeLoss = 0;//0.1f;
 
 internal FakeSocket g_loopbackSocket;
+internal i32 g_debugSocket;
+internal u16 g_debugPort;
 
 // Access to platform info
 internal ze_platform_export g_platform = {};

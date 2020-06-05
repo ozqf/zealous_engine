@@ -14,7 +14,7 @@ i32 Net_CloseSocket(i32 socketIndex);
 i32 Net_Shutdown();
 
 extern "C"
-i32 Net_SendTo(i32 transmittingSocketIndex, ZNetAddress* address, u16 port, u8* data, i32 dataSize);
+i32 Net_SendTo(i32 transmittingSocketIndex, ZNetAddress* address,/* u16 port,*/ u8* data, i32 dataSize);
 i32 Net_Read(i32 socketIndex, ZNetAddress* sender, u8** buf, i32 bufSize);
 
 void Net_RunLoopbackTest();

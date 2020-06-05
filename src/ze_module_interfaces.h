@@ -3,6 +3,7 @@
 
 #include "../ze_common/ze_common.h"
 #include "../ze_common/ze_byte_buffer.h"
+#include "../ze_common/ze_net_types.h"
 
 // app module function pointers
 struct ze_app_export
@@ -49,6 +50,10 @@ struct ze_platform_export
     void (*Release_AppDrawBuffers)();
     void (*Acquire_EventBuffer)(ZEByteBuffer** buf);
     void (*Release_EventBuffer)();
+
+    void (*OpenSocket)(i32* socketIndex, u16* port);
+    void (*CloseSocket)(i32 socketIndex);
+    i32 (*Send)(i32 socketIndex, ZNetAddress addr, u8* data, i32 dataSize);
 
     void (*LockMutex)(i32 index, i32 tag);
     void (*UnlockMutex)(i32 index, i32 tag);

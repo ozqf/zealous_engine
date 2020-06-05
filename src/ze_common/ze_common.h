@@ -102,6 +102,9 @@ internal f32 ZAbsf(f32 value)
 #define ZE_SENTINEL 0xDEADBEEF
 #define ZE_SENTINEL_B 0xF0BAF0BA
 
+#define ZE_DEBUG_PORT 59594
+#define ZE_MONITOR_PORT 59595
+
 #define DLL_EXPORT __declspec(dllexport)
 
 #define ZE_BUILD_STRING(stringBufName, stringBufSize, stringFormat, ...) \
