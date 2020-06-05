@@ -57,9 +57,9 @@ static i32 WindowImpl_Init()
 
     // Setup window resolution
     // tiny window
-    //const i32 scrMode = 0;
+    const i32 scrMode = 0;
     // bigger window
-    const i32 scrMode = 3;
+    //const i32 scrMode = 3;
     
     const i32 scrWidth = g_resolutionsX[scrMode];
     const i32 scrHeight = g_resolutionsY[scrMode];

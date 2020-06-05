@@ -2,39 +2,8 @@
 
 #include "../../ze_common/ze_common_full.h"
 
-
-
-// Fully unpacked descriptor for use by client/server streams
-struct PacketDescriptor
-{
-    u8* ptr;
-	u8* cursor;
-    i32 size;
-	
-	i32 id;
-
-	i32 packetSequence;
-	u32 ackSequence;
-	u32 ackBits;
-	
-	u32 transmissionSimFrameNumber;
-	f32 transmissionSimTime;
-	i32 lastReceivedTickNumber;
-	// if 0, no data
-	// num bytes is offset gap to unreliable section - sync check size.
-	i32 reliableOffset;
-	i32 numReliableBytes;
-	i32 deserialiseCheck;
-	// if 0, no data.
-	// num bytes is size of packet - offset.
-	i32 unreliableOffset;
-	i32 numUnreliableBytes;
-
-	i32 Space()
-	{
-		return size - (cursor - ptr);
-	}
-};
+// if set this packet has been compressed
+#define PACKET_FLAG_QUANTISED (1 << 0)
 
 // TODO: Replace this with a compacted version eventually
 struct PacketHeader
@@ -51,6 +20,8 @@ struct PacketHeader
 	u32 packetSequence;
 	u32 ackSequence;
 	u32 ackBits;
+	// settings
+	i32 flags;
 	// timing
     i32 transmissionTickNumber;
 	timeFloat transmissionTime;
@@ -58,6 +29,39 @@ struct PacketHeader
 	// payload
     u16 numReliableBytes;
     u16 numUnreliableBytes;
+};
+
+// Fully unpacked descriptor for use by client/server streams
+struct PacketDescriptor
+{
+    u8* ptr;
+	u8* cursor;
+    i32 size;
+	
+	PacketHeader header;
+	//i32 id;
+
+	//i32 packetSequence;
+	//u32 ackSequence;
+	//u32 ackBits;
+	
+	//u32 transmissionSimFrameNumber;
+	//f32 transmissionSimTime;
+	//i32 lastReceivedTickNumber;
+	// if 0, no data
+	// num bytes is offset gap to unreliable section - sync check size.
+	i32 reliableOffset;
+	//i32 numReliableBytes;
+	i32 deserialiseCheck;
+	// if 0, no data.
+	// num bytes is size of packet - offset.
+	i32 unreliableOffset;
+	//i32 numUnreliableBytes;
+
+	i32 Space()
+	{
+		return size - (cursor - ptr);
+	}
 };
 
 internal i32 Packet_GetHeaderSize()
@@ -85,8 +89,10 @@ internal void Packet_StartWrite(
 	u32 ackBits,
 	i32 simFrame,
 	timeFloat time,
-	i32 lastReceivedTickNumber)
+	i32 lastReceivedTickNumber,
+	i32 flags)
 {
+	// create struct in-place
 	PacketHeader* h = (PacketHeader*)packet->start;
 	*h = {};
 	h->id = privateId;
@@ -98,6 +104,7 @@ internal void Packet_StartWrite(
 	h->lastReceivedTickNumber = lastReceivedTickNumber;
 	h->numReliableBytes = 0;
 	h->numUnreliableBytes = 0;	
+	h->flags = flags;
 	packet->cursor = packet->start + Packet_GetHeaderSize();
 }
 
@@ -111,39 +118,34 @@ internal void Packet_FinishWrite(
 	h->numUnreliableBytes = (u16)numUnreliableBytes;
 }
 
-internal i32 Packet_InitDescriptor(PacketDescriptor* packet, u8* buf, i32 numBytes)
+internal i32 Packet_InitDescriptor(PacketDescriptor* descriptor, u8* buf, i32 numBytes)
 {
 	//printf("=== Build packet descriptor (%d bytes)===\n", numBytes);
 	//COM_PrintBytesHex(buf, numBytes, 16);
-	*packet = {};
-	packet->ptr = buf;
-	packet->size = numBytes;
+	*descriptor = {};
+	descriptor->ptr = buf;
+	descriptor->size = numBytes;
 	
+	// copy out struct
 	PacketHeader* h = (PacketHeader*)buf;
-	packet->id = h->id;
-	packet->packetSequence = h->packetSequence;
-	packet->ackSequence = h->ackSequence;
-	packet->ackBits = h->ackBits;
-	
-	packet->numReliableBytes = h->numReliableBytes;
-	packet->reliableOffset = (i32)(Packet_GetHeaderSize());
-
-	packet->numUnreliableBytes = h->numUnreliableBytes;
-	packet->unreliableOffset =
-		packet->reliableOffset +
-		packet->numReliableBytes +
+	descriptor->header = *h;
+	descriptor->reliableOffset = (i32)(Packet_GetHeaderSize());
+	descriptor->unreliableOffset =
+		descriptor->reliableOffset +
+		descriptor->header.numReliableBytes +
 		sizeof(u32);
+	//descriptor->flags = h->flags;
 	//printf("Reliable bytes: %d\n", packet->numReliableBytes);
 	//printf("Unreliable bytes: %d\n", packet->numUnreliableBytes);
 	
-	i32 syncOffset  = (packet->reliableOffset + packet->numReliableBytes);
+	i32 syncOffset  = (descriptor->reliableOffset + descriptor->header.numReliableBytes);
 	i32* syncCheckCursor = (i32*)(buf + syncOffset);
-	packet->deserialiseCheck = *syncCheckCursor;
-	if (packet->deserialiseCheck != ZE_SENTINEL)
+	descriptor->deserialiseCheck = *syncCheckCursor;
+	if (descriptor->deserialiseCheck != ZE_SENTINEL)
 	{
-		*packet = {};
+		//*descriptor = {};
 		printf("Deserialise check failed! Expected %X got %X\n",
-			ZE_SENTINEL, packet->deserialiseCheck);
+			ZE_SENTINEL, descriptor->deserialiseCheck);
 		return ZE_ERROR_DESERIALISE_FAILED;
 	}
 

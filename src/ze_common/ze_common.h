@@ -98,6 +98,7 @@ internal f32 ZAbsf(f32 value)
 
 #define ze_internal2 extern "C" static
 
+// used for serialise/deserialise validation
 #define ZE_SENTINEL 0xDEADBEEF
 #define ZE_SENTINEL_B 0xF0BAF0BA
 

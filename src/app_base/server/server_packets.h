@@ -214,7 +214,9 @@ internal PacketStats SVP_WriteUserPacket(SimScene* sim, User* user, timeFloat ti
 	// -- header --
 	u32 ack = user->acks.remoteSequence;
     u32 ackBits = Ack_BuildOutgoingAckBits(&user->acks);
-    Packet_StartWrite(&packet, user->ids.privateId, packetSequence, ack, ackBits, 0, 0, 0);
+    i32 flags = 0;
+
+    Packet_StartWrite(&packet, user->ids.privateId, packetSequence, ack, ackBits, 0, 0, 0, flags);
 	
 	// -- record packet payload and load reliable commands -- 
 	TransmissionRecord* rec = Stream_AssignTransmissionRecord(
@@ -324,12 +326,19 @@ internal void SVP_ReadPacket(
     u8* data = (u8*)(ev) + headerSize;
     APP_LOG(64, "SV Read %d Packet bytes from %d\n", dataSize, ev->sender.port);
 
+    // why is this sometimes happenining via loopback?
+    if (dataSize <= 0)
+    {
+        printf("SV - bad packet size (%d). Aborted read\n", dataSize);
+        return;
+    }
+
     PacketDescriptor p;
     i32 err = Packet_InitDescriptor(
         &p, data, dataSize);
 	if (err != ZE_ERROR_NONE)
 	{
-		printf("  Error %d deserialising packet\n", err);
+		printf("SV Error %d deserialising packet\n", err);
 		return;
 	}
     /*printf("  Seq %d Tick %d Time %.3f\n",
@@ -338,22 +347,24 @@ internal void SVP_ReadPacket(
         p.transmissionSimTime);*/
 	ev->header.type = SYS_EVENT_SKIP;
 
-    User* user = User_FindByPrivateId(&g_users, p.id);
+    User* user = User_FindByPrivateId(&g_users, p.header.id);
     if (user)
     {
         //printf("\tSV packet from user %d\n", p.id);
     }
     else
     {
-        printf("SV Couldn't find user %d for packet\n", p.id);
+        printf("SV Couldn't find user %d for packet from port %d\n",
+            p.header.id, ev->sender.port);
+        // TODO: Check this isn't a connection request etc...
         return;
     }
 	
 	// -- Ack packets + commands --
-    Ack_RecordPacketReceived(&user->acks, p.packetSequence);
+    Ack_RecordPacketReceived(&user->acks, p.header.packetSequence);
     u32 packetAcks[ACK_RESULTS_CAPACITY];
     i32 numPacketAcks = Ack_CheckIncomingAcks(
-        &user->acks, p.ackSequence, p.ackBits, packetAcks, time);
+        &user->acks, p.header.ackSequence, p.header.ackBits, packetAcks, time);
 	
     for (i32 i = 0; i < numPacketAcks; ++i)
     {
@@ -373,8 +384,8 @@ internal void SVP_ReadPacket(
 	// -- unreliable section --
 	ZEByteBuffer b = {};
     b.start = data + p.unreliableOffset;
-    b.cursor = b.start + p.numUnreliableBytes;
-    b.capacity = p.numUnreliableBytes;
+    b.cursor = b.start + p.header.numUnreliableBytes;
+    b.capacity = p.header.numUnreliableBytes;
     
     SVP_ReadUnreliableSection(user, &b, quantise);
 }

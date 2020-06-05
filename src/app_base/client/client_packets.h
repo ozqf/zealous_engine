@@ -75,10 +75,21 @@ internal void CL_WritePacket(
 	
     u32 ack = g_acks.remoteSequence;
     u32 ackBits = Ack_BuildOutgoingAckBits(&g_acks);
-    Packet_StartWrite(&packet, g_ids.privateId, packetSequence, ack, ackBits, 0, 0, 0);
+    i32 flags = 0;
+    if (quantise != NULL)
+    {
+        flags |= PACKET_FLAG_QUANTISED;
+    }
+
+    // Start writing
+    Packet_StartWrite(&packet, g_ids.privateId, packetSequence, ack, ackBits, 0, 0, 0, flags);
 	
-	//TransmissionRecord* rec = Stream_AssignTransmissionRecord(
-	//	g_reliableStream.transmissions, packetSequence);
+    // TODO: no reliable section written yet!
+
+	// TransmissionRecord* rec = Stream_AssignTransmissionRecord(
+	// 	g_reliableStream.transmissions, packetSequence);
+
+    // write deserialise check and unreliable section
     packet.cursor += COM_WriteI32(ZE_SENTINEL, packet.cursor);
     i32 unreliableWritten = CL_WriteUnreliableSection(
         quantise, &packet, userInput);
@@ -176,10 +187,10 @@ internal i32 CL_ReadPacket(
         p.transmissionSimTime);*/
     
     // -- ack --
-    Ack_RecordPacketReceived(&g_acks, p.packetSequence);
+    Ack_RecordPacketReceived(&g_acks, p.header.packetSequence);
 	u32 packetAcks[ACK_RESULTS_CAPACITY]; 
 	i32 numPacketAcks = Ack_CheckIncomingAcks(
-		&g_acks, p.ackSequence, p.ackBits, packetAcks, time
+		&g_acks, p.header.ackSequence, p.header.ackBits, packetAcks, time
 	);
     for (i32 i = 0; i < numPacketAcks; ++i)
     {
@@ -194,8 +205,8 @@ internal i32 CL_ReadPacket(
     ZEByteBuffer reliableSection = {};
     //printf("  Reliable bytes: %d\n", p.numReliableBytes);
     reliableSection.start = data + Packet_GetHeaderSize();
-    reliableSection.cursor = reliableSection.start + p.numReliableBytes;
-    reliableSection.capacity = p.numReliableBytes;
+    reliableSection.cursor = reliableSection.start + p.header.numReliableBytes;
+    reliableSection.capacity = p.header.numReliableBytes;
     CL_ReadPacketReliableInput(&reliableSection, reliableStream, quantise);
     //Cmd_PrintBuffer(reliableSection.start, reliableSection.Written());
 	
@@ -204,7 +215,7 @@ internal i32 CL_ReadPacket(
     unreliableSection.start = data + p.unreliableOffset;
     unreliableSection.cursor =
         unreliableSection.start +
-        p.numUnreliableBytes;
+        p.header.numUnreliableBytes;
     err = CL_ReadPacketUnreliableInput(
         &unreliableSection, unreliableStream, quantise);
     if (err)

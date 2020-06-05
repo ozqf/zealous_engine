@@ -275,22 +275,26 @@ internal i32 App_StartSession(i32 sessionType)
             // UserIds ids = SVU_CreateLocalUser();
             #endif
 
+            // TODO: These will be indices to ports opened by the platform layer
+            i32 serverPortId = -1;
+            i32 clientPortId = -2;
+
             #if 1
             // start server, add client immediately
             SV_Start();
-            UserIds ids = SVU_CreateLocalUser();
+            // creating a local user will start transmission to loopback buffer.
+            // client must also be started!
+            //UserIds ids = SVU_CreateLocalUser();
             
             // client
+            
             ZNetAddress addr = {};
             addr.port = APP_SERVER_LOOPBACK_PORT;
-            CL_Start(addr);
-            CL_SetLocalUser(ids);
+            CL_Start(addr, clientPortId);
+            //CL_SetLocalUser(ids);
+            
             #endif
             
-            /*
-            
-            */
-
             /*ZNet_StartSession(
                 g_serverNet,
                 NETMODE_DEDICATED_SERVER,

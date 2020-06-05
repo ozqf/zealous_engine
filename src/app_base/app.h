@@ -78,6 +78,7 @@ timeFloat App_GetPerformanceTime(i32 index);
 #define APP_FULL_LOGGING
 
 #ifdef APP_FULL_LOGGING
+
 #define APP_LOG(messageBufSize, format, ...) \
 { \
     char appLogBuf[##messageBufSize##]; \
@@ -94,7 +95,8 @@ timeFloat App_GetPerformanceTime(i32 index);
 #else
 #define APP_LOG(messageBufSize, format, ...)
 #define APP_PRINT(messageBufSize, format, ...)
-#endif
+
+#endif // APP_FULL_LOGGING
 
 /////////////////////////////////////////////////////////////////
 // Structs
