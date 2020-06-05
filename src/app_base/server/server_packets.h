@@ -1,6 +1,6 @@
 #pragma once
 
-#include "server.cpp"
+#include "server_internal.h"
 
 internal i32 SVP_WriteUnreliableSection(
     SimScene* sim,
@@ -335,7 +335,7 @@ internal void SVP_ReadPacket(
 
     PacketDescriptor p;
     i32 err = Packet_InitDescriptor(
-        &p, data, dataSize);
+        &p, data, dataSize, ev->sender);
 	if (err != ZE_ERROR_NONE)
 	{
 		printf("SV Error %d deserialising packet\n", err);
@@ -348,18 +348,16 @@ internal void SVP_ReadPacket(
 	ev->header.type = SYS_EVENT_SKIP;
 
     User* user = User_FindByPrivateId(&g_users, p.header.id);
-    if (user)
+    if (user == NULL)
     {
-        //printf("\tSV packet from user %d\n", p.id);
-    }
-    else
-    {
-        printf("SV Couldn't find user %d for packet from port %d\n",
+        printf("SV Couldn't find user %d for packet from port %d - assume request\n",
             p.header.id, ev->sender.port);
         // TODO: Check this isn't a connection request etc...
+        SVConnection_HandleRequest(&p);
         return;
     }
-	
+
+
 	// -- Ack packets + commands --
     Ack_RecordPacketReceived(&user->acks, p.header.packetSequence);
     u32 packetAcks[ACK_RESULTS_CAPACITY];

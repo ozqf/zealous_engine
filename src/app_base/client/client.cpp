@@ -687,11 +687,11 @@ internal void CL_TickInGame(timeFloat deltaTime, i64 platformFrame)
 
     if (CL_HasSimSynced() == YES)
     {
-        CL_WritePacket(&g_sim.quantise, g_elapsed, &cmd);
+        CL_WriteAndSendPacketFromStreams(&g_sim.quantise, g_elapsed, &cmd);
     }
     else
     {
-        CL_WritePacket(&g_sim.quantise, g_elapsed, NULL);
+        CL_WriteAndSendPacketFromStreams(&g_sim.quantise, g_elapsed, NULL);
     }
 }
 

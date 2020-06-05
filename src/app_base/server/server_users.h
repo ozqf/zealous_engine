@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../ze_common/ze_common_full.h"
-#include "server.cpp"
+#include "server_internal.h"
 
 
 internal i32 SVU_CreateSalt()

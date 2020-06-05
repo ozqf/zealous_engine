@@ -1,6 +1,6 @@
 #pragma once
 
-#include "server.cpp"
+#include "server_internal.h"
 #include <math.h>
 
 

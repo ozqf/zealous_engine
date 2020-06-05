@@ -55,9 +55,9 @@ internal i32 CL_WriteUnreliableSection(
 }
 
 /**
- * Input passed in may be null
+ * quantise and userInput can be null
  */
-internal void CL_WritePacket(
+internal void CL_WriteAndSendPacketFromStreams(
     QuantiseSet* quantise, timeFloat time, C2S_Input* userInput)
 {
     AppTimer timer(APP_STAT_CL_OUTPUT, g_sim.tick);
@@ -96,7 +96,7 @@ internal void CL_WritePacket(
     Packet_FinishWrite(&packet, 0, unreliableWritten);
     i32 total = packet.Written();
 	
-    App_SendTo(0, &g_serverAddress, buf, total);
+    App_SendTo(g_udpSocketId, &g_serverAddress, buf, total);
     
 	//Packet_WriteFromStream(
     //    &user->reliableStream,
@@ -174,7 +174,7 @@ internal i32 CL_ReadPacket(
 	
     PacketDescriptor p;
     i32 err = Packet_InitDescriptor(
-        &p, data, dataSize);
+        &p, data, dataSize, ev->sender);
 	if (err != ZE_ERROR_NONE)
 	{
 		printf("  Error %d deserialising packet\n", err);

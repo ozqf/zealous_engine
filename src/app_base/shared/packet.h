@@ -31,32 +31,23 @@ struct PacketHeader
     u16 numUnreliableBytes;
 };
 
-// Fully unpacked descriptor for use by client/server streams
+// Fully unpacked descriptor for use when reading packets
 struct PacketDescriptor
 {
     u8* ptr;
 	u8* cursor;
     i32 size;
 	
-	PacketHeader header;
-	//i32 id;
-
-	//i32 packetSequence;
-	//u32 ackSequence;
-	//u32 ackBits;
-	
-	//u32 transmissionSimFrameNumber;
-	//f32 transmissionSimTime;
-	//i32 lastReceivedTickNumber;
 	// if 0, no data
 	// num bytes is offset gap to unreliable section - sync check size.
 	i32 reliableOffset;
-	//i32 numReliableBytes;
 	i32 deserialiseCheck;
 	// if 0, no data.
 	// num bytes is size of packet - offset.
 	i32 unreliableOffset;
-	//i32 numUnreliableBytes;
+	
+	PacketHeader header;
+	ZNetAddress sender;
 
 	i32 Space()
 	{
@@ -118,13 +109,18 @@ internal void Packet_FinishWrite(
 	h->numUnreliableBytes = (u16)numUnreliableBytes;
 }
 
-internal i32 Packet_InitDescriptor(PacketDescriptor* descriptor, u8* buf, i32 numBytes)
+internal i32 Packet_InitDescriptor(
+	PacketDescriptor* descriptor,
+	u8* buf,
+	i32 numBytes,
+	ZNetAddress addr)
 {
 	//printf("=== Build packet descriptor (%d bytes)===\n", numBytes);
 	//COM_PrintBytesHex(buf, numBytes, 16);
 	*descriptor = {};
 	descriptor->ptr = buf;
 	descriptor->size = numBytes;
+	descriptor->sender = addr;
 	
 	// copy out struct
 	PacketHeader* h = (PacketHeader*)buf;

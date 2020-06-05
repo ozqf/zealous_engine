@@ -1,7 +1,7 @@
 #ifndef SERVER_DEBUG_H
 #define SERVER_DEBUG_H
 
-#include "server.cpp"
+#include "server_internal.h"
 
 internal void SV_PrintMsgSizes()
 {
