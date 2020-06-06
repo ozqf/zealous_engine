@@ -35,10 +35,10 @@ typedef unsigned short CmdSeq;
 // Function signatures
 /////////////////////////////////////////
 // Write a command to a packet
-typedef NetCommand* (CmdFn_Serialise)(
+typedef void (CmdFn_Serialise)(
 	SerialisationInfo* info, NetCommand* source, u8* dest, i32 destCapacity);
 // Read a command from a packet
-typedef NetCommand* (CmdFn_Deserialise)(
+typedef void (CmdFn_Deserialise)(
 	SerialisationInfo* info, u8* source, u8* dest, i32 destCapacity);
 // Measure a pending command (to make sure there is room in a packet)
 typedef i32 (CmdFn_MeasureForSerialise)(
@@ -47,6 +47,16 @@ typedef i32 (CmdFn_MeasureForSerialise)(
 /////////////////////////////////////////
 // Data types
 /////////////////////////////////////////
+
+struct NetCommandType
+{
+	i32 typeId;
+	char* label;
+	// function pointers for this command
+	CmdFn_Serialise serialiseFn;
+	CmdFn_Deserialise deserialiseFn;
+	CmdFn_MeasureForSerialise measureForSerialiseFn;
+};
 
 // BASE FOR ALL COMMANDS
 // All commands MUST have a Command struct as their first member, for
@@ -73,16 +83,6 @@ struct NetCommand
 struct SerialisationInfo
 {
 	i32 flags;
-};
-
-struct NetCommandType
-{
-	i32 typeId;
-	char* label;
-	// function pointers for this command
-	CmdFn_Serialise serialiseFn;
-	CmdFn_Deserialise deserialiseFn;
-	CmdFn_MeasureForSerialise measureForSerialiseFn;
 };
 
 /////////////////////////////////////////

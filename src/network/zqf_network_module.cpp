@@ -3,6 +3,18 @@
 
 #include "zqf_network.h"
 
+/*
+== Packet Structure ==
+> protocol (4 byte magic chars: ZNET)
+> payload hash (4 bytes)
+> payload - depends on packet type
+
+== Packet Types ==
+> 
+*/
+
+
+#if 0
 static NetCommandType g_cmdTypes[256];
 static i32 g_nextCmdType = 0;
 
@@ -21,19 +33,22 @@ static NetCommandType* Net_GetCommandType(i32 typeId)
 extern "C" void Net_RegisterCommand(
 	i32 typeId,
 	char* label,
-	CmdFn_Serialise serialiseFn,
-	CmdFn_Deserialise deserialiseFn,
-	CmdFn_MeasureForSerialise measureForSerialiseFn
+	CmdFn_Serialise* serialiseFn,
+	CmdFn_Deserialise* deserialiseFn,
+	CmdFn_MeasureForSerialise* measureForSerialiseFn
 	)
 {
 	NetCommandType* newType = &g_cmdTypes[g_nextCmdType++];
 	newType->typeId = typeId;
 	newType->label = label;
 	
-	newType->serialiseFn = serialiseFn;
-	newType->deserialiseFn = deserialiseFn;
-	newType->measureForSerialiseFn = measureForSerialiseFn;
+	// TODO: It doesn't like this assignment?
+	// newType->serialiseFn = serialiseFn;
+	// newType->deserialiseFn = deserialiseFn;
+	// newType->measureForSerialiseFn = measureForSerialiseFn;
 }
+#endif
+
 #if 0
 extern "C" i32 Net_Serialise(NetCommand* cmd, u8* packet, i32 capacity)
 {
