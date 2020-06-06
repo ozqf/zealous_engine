@@ -303,7 +303,7 @@ static void PlatformImpl_CloseSocket(i32 index)
 
 static i32 PlatformImpl_Send(i32 socketIndex, ZNetAddress addr, u8* data, i32 dataSize)
 {
-    printf("ZWin - send %dB from socket %d to %d.%d.%d.%d:%d\n",
+    /*printf("ZWin - send %dB from socket %d to %d.%d.%d.%d:%d\n",
         dataSize,
         socketIndex,
         addr.ip4Bytes[0],
@@ -311,7 +311,7 @@ static i32 PlatformImpl_Send(i32 socketIndex, ZNetAddress addr, u8* data, i32 da
         addr.ip4Bytes[2],
         addr.ip4Bytes[3],
         addr.port
-    );
+    );*/
     i32 result = Net_SendTo(socketIndex, &addr, data, dataSize);
     return result;
 }

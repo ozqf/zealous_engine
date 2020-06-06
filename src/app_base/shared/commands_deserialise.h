@@ -184,6 +184,10 @@ internal i32 Cmd_Deserialise(
         return ZE_COPY_STRUCT(source, buffer, CmdSetScene);
         break;
 
+        case 0:
+        ZE_ASSERT(0, "Invalid command type");
+        break;
+
         default:
         // Don't know size of command automatically, so
         // just give up

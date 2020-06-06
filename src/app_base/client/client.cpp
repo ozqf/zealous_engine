@@ -202,7 +202,8 @@ extern "C" void CL_SetLocalUser(UserIds ids)
         ids.publicId, ids.privateId
     );
     g_ids = ids;
-    g_clientState = CLIENT_STATE_SYNC;
+    //g_clientState = CLIENT_STATE_SYNC;
+    g_clientState = CLIENT_STATE_PLAY;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -434,8 +435,9 @@ internal i32 CL_ExecReliableCommand(
             S2C_Sync* sync = (S2C_Sync*)h;
 			CL_SetServerTick(sync->header.tick);
 			g_avatarSerial = sync->avatarEntityId;
+            g_clientState = CLIENT_STATE_PLAY;
             //i32 sceneId;
-            APP_PRINT(64, "CL Set avatar %d\n", g_avatarSerial);
+            APP_PRINT(64, "CL Sync - Set avatar %d\n", g_avatarSerial);
             // Lets not do what the server tells us!
 			//g_serverTick = sync->simTick - sync->jitterTickCount;
 			APP_LOG(64, "/////////////////////////////////////////\n");
@@ -719,4 +721,13 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
     {
         CL_TickRequesting(deltaTime, platformFrame);
     }
+    else if (g_clientState == CLIENT_STATE_SYNC)
+    {
+
+    }
+    else
+    {
+        printf("CL - bad state\n");
+    }
+    
 }

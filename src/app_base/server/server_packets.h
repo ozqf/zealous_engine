@@ -268,14 +268,23 @@ internal PacketStats SVP_WriteUserPacket(SimScene* sim, User* user, timeFloat ti
 internal void SVP_ReadUnreliableSection(
     User* user, ZEByteBuffer* b, QuantiseSet* quantise)
 {
+    i32 numRead = 0;
     u8 readBuffer[CMD_MAX_SIZE];
     u8* read = b->start;
     u8* end = b->cursor;
     i32 baseTick = COM_ReadI32(&read);
     while (read < end)
     {
-        read += Cmd_Deserialise(
+        u8 peakType = *read;
+        if (peakType == 0)
+        {
+            printf("SVP - unrealiable section deserialise failed\n");
+            return;
+        }
+        i32 cmdBytes = Cmd_Deserialise(
             quantise, read, readBuffer, CMD_MAX_SIZE, 0, baseTick);
+        printf("SVP cmd type %d bytes %d\n", peakType, cmdBytes);
+        read += cmdBytes;
         Command* header = (Command*)readBuffer;
         i32 err = Cmd_Validate(header);
         if (err)
@@ -284,6 +293,7 @@ internal void SVP_ReadUnreliableSection(
             return;
         }
         read += header->size;
+        numRead++;
         switch (header->type)
         {
             case CMD_TYPE_C2S_INPUT:

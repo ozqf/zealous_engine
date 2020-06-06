@@ -272,33 +272,45 @@ internal i32 App_StartSession(i32 sessionType)
         {
             App_EndSession();
             APP_LOG(128, "\tStarting single player\n");
-            #if 0
-            // start and wait for client request
-            // shutdown current
-            SV_Init();
-            SV_IsRunning() = YES;
-            // UserIds ids = SVU_CreateLocalUser();
-            #endif
-
+            
             // TODO: These will be indices to ports opened by the platform layer
             i32 serverPortId = -1;
             i32 clientPortId = -2;
 
+            //////////////////////////////////////
+            // Normal - auto create a local client
             #if 1
             // start server, add client immediately
             SV_Start();
             // creating a local user will start transmission to loopback buffer.
             // client must also be started!
-            //UserIds ids = SVU_CreateLocalUser();
+            UserIds ids = SVU_CreateLocalUser();
             
             // client
             
             ZNetAddress addr = {};
             addr.port = APP_SERVER_LOOPBACK_PORT;
             CL_Start(addr, clientPortId);
-            //CL_SetLocalUser(ids);
+            CL_SetLocalUser(ids);
             
             #endif
+            
+            
+            //////////////////////////////////////
+            // dev mode - local client will handshake
+            #if 0
+
+            // TODO: These will be indices to ports opened by the platform layer
+            i32 serverPortId = -1;
+            i32 clientPortId = -2;
+
+            SV_Start();
+
+            ZNetAddress addr = {};
+            addr.port = APP_SERVER_LOOPBACK_PORT;
+            CL_Start(addr, clientPortId);
+            #endif
+
             
             /*ZNet_StartSession(
                 g_serverNet,

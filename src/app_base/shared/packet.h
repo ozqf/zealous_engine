@@ -2,6 +2,10 @@
 
 #include "../../ze_common/ze_common_full.h"
 
+#define NET_PROTOCOL 0xFADEFADE
+
+#define PACKET_TYPE_DATA 255
+
 // if set this packet has been compressed
 #define PACKET_FLAG_QUANTISED (1 << 0)
 
@@ -110,6 +114,16 @@ internal void Packet_FinishWrite(
 	h->numReliableBytes = (u16)numReliableBytes;
 	h->numUnreliableBytes = (u16)numUnreliableBytes;
 }
+
+/*
+> PacketHeader
+> i32 reliable header
+> reliable bytes
+> u32 sentinel
+> i32 unreliable header
+> unreliable bytes
+
+*/
 
 internal i32 Packet_InitDescriptor(
 	PacketDescriptor* descriptor,

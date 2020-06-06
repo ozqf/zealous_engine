@@ -35,9 +35,15 @@ static void ZMonitor_ExaminePacket(u8* buf, i32 numBytes, ZNetAddress sender)
 		p.header.numUnreliableBytes
 	);
 	printf("Deserialise check: 0x%X\n", p.deserialiseCheck);
+	u8* read;
+	u8* end;
 
-	u8* read = p.ptr + p.unreliableOffset;
-	u8* end = read + p.header.numUnreliableBytes;
+	//////////////////////////////////////
+	// unreliable
+	//////////////////////////////////////
+
+	read = p.ptr + p.unreliableOffset;
+	end = read + p.header.numUnreliableBytes;
 	// read unreliable header:
 	i32 tick = COM_ReadI32(&read);
 
@@ -59,9 +65,15 @@ static void ZMonitor_ExaminePacket(u8* buf, i32 numBytes, ZNetAddress sender)
 				CmdPing* ping = (CmdPing*)h;
 				printf("Ping seq %d\n", ping->pingSequence);
 			} break;
-			case 0:
+			case CMD_TYPE_S2C_INPUT_RESPONSE:
 			{
-				
+				S2C_InputResponse* input = (S2C_InputResponse*)h;
+				printf("S2C_InputResponse Seq - %d\n", input->lastUserInputSequence);
+			} break;
+			case CMD_TYPE_C2S_INPUT:
+			{
+				C2S_Input* input = (C2S_Input*)h;
+				printf("C2S_Input Seq - %d\n", input->userInputSequence);
 			} break;
 			default:
 			{
