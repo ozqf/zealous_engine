@@ -26,7 +26,7 @@ set compilerDefines=/DPARANOID=1
 @rem === Compile Testing Win32 Console application
 @rem Ws2_32.lib == winsock2
 set compInput_0=../src/tools/zt_main.cpp
-set compInput_1=../src/tools/tests/ze_tests.cpp
+set compInput_1=../src/tools/tests/ze_tests.cpp ../src/network/zqf_network_module.cpp
 set compInput_2=../src/tools/zt_monitor.cpp ../src/win_platform/ze_win_socket.cpp
 
 @rem === LINK SETTINGS === (disable if running win32 console application test)
@@ -40,7 +40,7 @@ cl %compilerFlags% %compilerDefines% %outputExe% %compInput_0% %compInput_1% %co
 @if not %ERRORLEVEL% == 0 goto :FINISHED
 
 @rem Auto run if you like
-@rem @call "../buildwin/rtools.bat"
+@call "../buildwin/rtools.bat"
 
 @echo off
 

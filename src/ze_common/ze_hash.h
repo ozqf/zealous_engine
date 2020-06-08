@@ -16,9 +16,9 @@ unsigned long ZE_Hash_djb2(unsigned char *str)
     return hash;
 }
 #endif
-static unsigned long ZE_Hash_djb2_Fixed(unsigned char *str, i32 numChars)
+static u32 ZE_Hash_djb2_Fixed(unsigned char *str, i32 numChars)
 {
-    unsigned long hash = 5381;
+    u32 hash = 5381;
     int c;
     for (i32 i = 0; i < numChars; ++i)
     {

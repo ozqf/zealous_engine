@@ -10,7 +10,7 @@ ZQF UDP Network module.
 	> Reliability
 */
 
-#pragma message("ZQF_NETWORK_H")
+//#pragma message("ZQF_NETWORK_H")
 
 #include "../ze_common/ze_common.h"
 
@@ -47,6 +47,17 @@ typedef i32 (CmdFn_MeasureForSerialise)(
 /////////////////////////////////////////
 // Data types
 /////////////////////////////////////////
+
+struct ZNPacketDescriptor
+{
+	i32 protocol;
+	u32 hash;
+	u8 type;
+	u32 id;
+
+	u8* payload;
+	i32 payloadSize;
+};
 
 struct NetCommandType
 {
@@ -88,6 +99,20 @@ struct SerialisationInfo
 /////////////////////////////////////////
 // Function exports
 /////////////////////////////////////////
+
+// Basic packet construction and validation
+extern "C" i32 ZN_Protocol();
+extern "C" i32 ZN_PacketHeaderSize();
+extern "C" ErrorCode ZN_BuildDataPacket(
+	u8* resultBuf, i32 resultCapacity, u32 userId, u8* payload, i32 payloadSize, i32* written);
+extern "C" ErrorCode ZN_BeginPacketRead(
+	const u8* buf,
+	const i32 size,
+	ZNPacketDescriptor* result,
+	const i32 bPrintErrors);
+
+
+// Commands
 extern "C" void Net_RegisterCommand(
 	i32 typeId,
 	char* label,
