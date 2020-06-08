@@ -5,6 +5,8 @@
 #include "../ze_common/ze_common_full.h"
 #include "../ze_common/ze_hash.h"
 
+#include "zn_connection.h"
+
 #define ZE_PACKET_TYPE_DATA 255
 
 /*
@@ -32,9 +34,19 @@ extern "C" i32 ZN_PacketHeaderSize()
 	return 4 + sizeof(i32) + 1 + sizeof(i32);
 }
 
+extern "C" i32 ZN_CreateSalt()
+{
+	return ZE_BurtleHashUint(COM_STDRandI32());
+}
+
 extern "C" i32 ZN_Protocol()
 {
 	return 0xFADE;
+}
+
+extern "C" void ZN_WritePadBytes(u8* dest, i32 numBytes)
+{
+	
 }
 
 extern "C" ErrorCode ZN_BuildDataPacket(

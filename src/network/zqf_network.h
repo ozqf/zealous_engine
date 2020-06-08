@@ -13,6 +13,7 @@ ZQF UDP Network module.
 //#pragma message("ZQF_NETWORK_H")
 
 #include "../ze_common/ze_common.h"
+#include "../ze_common/ze_net_types.h"
 
 /////////////////////////////////////////
 // Flags
@@ -58,6 +59,24 @@ struct ZNPacketDescriptor
 	u8* payload;
 	i32 payloadSize;
 };
+
+struct ZNConn
+{
+	i32 state;
+	u32 localSalt;
+	u32 remoteSalt;
+	ZNetAddress addr;
+};
+
+struct ZNPending
+{
+	// if either salts are zero this pending connection
+	// is unused
+	u32 clientSalt;
+	u32 challengeSalt;
+	ZNetAddress addr;
+};
+
 
 struct NetCommandType
 {
@@ -111,6 +130,11 @@ extern "C" ErrorCode ZN_BeginPacketRead(
 	ZNPacketDescriptor* result,
 	const i32 bPrintErrors);
 
+extern "C" i32 ZN_CreateSalt();
+extern "C" ZNConn* ZN_GetFreeConn();
+extern "C" ZNConn* ZN_RequestConnection(ZNetAddress addr);
+
+extern "C" void ZN_WritePadBytes(u8* dest, i32 numBytes);
 
 // Commands
 extern "C" void Net_RegisterCommand(

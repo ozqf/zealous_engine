@@ -2,6 +2,7 @@
 #define ZE_RANDOM_TABLE_H
 
 #include "ze_common.h"
+#include <time.h>
 
 #define ZE_RANDOM_NUMBER_TABLE_SIZE 512
 
@@ -545,6 +546,11 @@ internal f32 ZE_Randf32InRange(i32 index, f32 min, f32 max)
 {
 	f32 val = ZE_Randf32(index);
 	return val * (max - min) + min;
+}
+
+internal void COM_STDSeedRandom()
+{
+	srand((u32)time(NULL));
 }
 
 // Wrap rand for now...

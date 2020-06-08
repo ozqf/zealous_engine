@@ -2,6 +2,7 @@
 
 #include "../../ze_common/ze_common.h"
 #include "../../ze_common/ze_blob_store.h"
+#include "../../ze_common/ze_random_table.h"
 
 #include "../../network/zqf_network.h"
 
@@ -23,6 +24,7 @@ internal void TestBlobStore()
 
 internal void NetworkUnitTests()
 {
+	COM_STDSeedRandom();
 	printf("--- Test Packets ---\n");
 	printf("Net protocol: %d\n", ZN_Protocol());
 	printf("Sizeof header %d\n", ZN_PacketHeaderSize());
@@ -60,6 +62,20 @@ internal void NetworkUnitTests()
 	u8 resultBuf[1024];
 	memcpy(resultBuf, descriptor.payload, descriptor.payloadSize);
 	printf("Payload: %s\n", resultBuf);
+
+	///////////////////////
+	// connection establishment
+	//////////////////////
+	ZNetAddress addr = {};
+	addr.port = 666;
+	ZNConn* conn = ZN_RequestConnection(addr);
+	printf("Opened connection request, local salt %d\n",
+		conn->localSalt);
+	
+	u32 saltA = ZN_CreateSalt();
+	u32 saltB = ZN_CreateSalt();
+	printf("Salts A: %d, B: %d\n", saltA, saltB);
+	printf("Xor: %d\n", saltA ^ saltB);
 }
 
 extern "C" void ZETests_Run()
