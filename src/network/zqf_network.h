@@ -20,6 +20,16 @@ ZQF UDP Network module.
 /////////////////////////////////////////
 #define SERIALISE_FLAG_QUANTISE (1 << 0)
 
+#define ZN_PACKET_TYPE_REQUEST 251
+#define ZN_PACKET_TYPE_CHALLENGE 252
+#define ZN_PACKET_TYPE_RESPONSE 253
+#define ZN_PACKET_TYPE_PING 254
+#define ZN_PACKET_TYPE_DATA 255
+
+#define ZN_PACKET_SIZE 1400
+
+#define ZN_REQUEST_PADDING_BYTES 1000
+
 /////////////////////////////////////////
 // Error codes
 /////////////////////////////////////////
@@ -49,15 +59,46 @@ typedef i32 (CmdFn_MeasureForSerialise)(
 // Data types
 /////////////////////////////////////////
 
+// specific packet types
+struct ZNDataPacket
+{
+	i32 userId;
+	u8* dataPtr;
+	i32 dataSize;
+};
+
+struct ZNRequestPacket
+{
+
+};
+
 struct ZNPacketDescriptor
 {
 	i32 protocol;
 	u32 hash;
 	u8 type;
-	u32 id;
-
+	
 	u8* payload;
 	i32 payloadSize;
+
+	union
+	{
+		ZNDataPacket dataPacket;
+	} data;
+	
+};
+
+struct ZNPacketWrite
+{
+	// start of packet buffer
+	u8* bufPtr;
+	// total buffer size
+	i32 bufSize;
+	// start point of data section
+	u8* dataPtr;
+	// current write position in the buffer.
+	// size of 
+	u8* cursor;
 };
 
 struct ZNConn
@@ -119,22 +160,41 @@ struct SerialisationInfo
 // Function exports
 /////////////////////////////////////////
 
-// Basic packet construction and validation
+///////////////////////////////////////
+// Read/Write
+
+// generates a random value for Ids
+extern "C" i32 ZN_CreateSalt();
 extern "C" i32 ZN_Protocol();
 extern "C" i32 ZN_PacketHeaderSize();
+extern "C" i32 ZN_MessageHeaderSize();
+// Defunct:
 extern "C" ErrorCode ZN_BuildDataPacket(
 	u8* resultBuf, i32 resultCapacity, u32 userId, u8* payload, i32 payloadSize, i32* written);
+// Defunct:
 extern "C" ErrorCode ZN_BeginPacketRead(
 	const u8* buf,
 	const i32 size,
 	ZNPacketDescriptor* result,
 	const i32 bPrintErrors);
 
-extern "C" i32 ZN_CreateSalt();
+extern "C" ZNPacketWrite ZN_BeginPacketWrite(u8* buf, i32 bufferSize);
+extern "C" void ZN_WriteDataPacket(ZNPacketWrite* packet, i32 userId, u8* data, i32 dataSize);
+extern "C" i32 ZN_WrapForTransmission(ZNPacketWrite* packet);
+extern "C" void ZN_WritePadBytes(u8* dest, i32 numBytes);
+
+////////////////////////////////////////
+// Connections
+
+// acquire an empty connection from the connection pool
 extern "C" ZNConn* ZN_GetFreeConn();
+// open a connection to the given address and being sending request packets.
 extern "C" ZNConn* ZN_RequestConnection(ZNetAddress addr);
 
-extern "C" void ZN_WritePadBytes(u8* dest, i32 numBytes);
+////////////////////////////////////////
+// debugging
+extern "C" void ZN_PrintBytes(u8* buf, i32 size, i32 bytesPerLine);
+extern "C" void ZN_PrintChars(u8* buf, i32 size, i32 bytesPerLine);
 
 // Commands
 extern "C" void Net_RegisterCommand(

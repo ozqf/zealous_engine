@@ -28,7 +28,6 @@ internal i32 ZE_CompareStrings(const char *a, const char *b)
         ++a;
         ++b;
     }
-
     return ((*a < *b) ? -1 : 1);
 }
 

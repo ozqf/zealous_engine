@@ -7,8 +7,6 @@
 
 #include "zn_connection.h"
 
-#define ZE_PACKET_TYPE_DATA 255
-
 /*
 == Packet Structure ==
 > packet header (see below)
@@ -22,16 +20,18 @@
 */
 
 
-
-/* Packet header:
-1 protocol magic chars (4 bytes)
-2 hash (4 bytes)
-3 type u8 (1 byte)
-4 sender Id (4 bytes) - will be zero for request packets
-*/
 extern "C" i32 ZN_PacketHeaderSize()
 {
-	return 4 + sizeof(i32) + 1 + sizeof(i32);
+	// 1 protocol magic chars (4 bytes)
+	// 2 hash (4 bytes)
+	return 4 + 4;
+}
+
+extern "C" i32 ZN_MessageHeaderSize()
+{
+	// 1 type u8 (1 byte)
+	// 2 sender Id (4 bytes) - will be zero for request packets
+	return 1 + 4;
 }
 
 extern "C" i32 ZN_CreateSalt()
@@ -46,48 +46,12 @@ extern "C" i32 ZN_Protocol()
 
 extern "C" void ZN_WritePadBytes(u8* dest, i32 numBytes)
 {
-	
-}
-
-extern "C" ErrorCode ZN_BuildDataPacket(
-	u8* resultBuf, i32 resultCapacity, u32 userId,
-	u8* payload, i32 payloadSize, i32* written)
-{
-	*written = 0;
-	const i32 headerSize = ZN_PacketHeaderSize();
-	if (resultCapacity < payloadSize + headerSize) { return ZE_ERROR_NO_SPACE; }
-
-	u8* write = resultBuf;
-	// 1 write protocol
-	write += COM_WriteI32(ZN_Protocol(), write);
-	const u8* hashCursor = write;
-	// 2 - skip over space for hash
-	write += sizeof(i32);
-
-	// record start of payload area for hashing
-	const u8* payloadStart = write;
-	// 3 - packet type
-	*write = ZE_PACKET_TYPE_DATA;
-	write += 1;
-	// 4 - user Id
-	write += COM_WriteU32(userId, write);
-
-	const u8* payloadEnd = write + payloadSize;
-	const i32 totalSize = payloadEnd - resultBuf;
-	//printf("Total Packet Size %d\n", totalSize);
-
-	memcpy(write, payload, payloadSize);
-	const u8* end = write + payloadSize;
-
-	// 2 again - calc hash and write it to the reserved space
-	//printf("Calc hash for %d bytes\n", payloadSize + 1);
-	u32 hash = ZE_Hash_djb2_Fixed((u8*)payloadStart, payloadSize + 5);
-	printf("Hashed %d bytes to %d\n", payloadSize + 5, hash);
-	//printf("Generated hash %d\n", hash);
-	COM_WriteU32(hash, (u8*)hashCursor);
-	
-	*written = totalSize;
-	return ZE_ERROR_NONE;
+	u8* end = dest + numBytes;
+	while (dest < end)
+	{
+		*dest = COM_STDRandI32() % UCHAR_MAX;
+		dest++;
+	}
 }
 
 extern "C"
@@ -98,36 +62,140 @@ ErrorCode ZN_BeginPacketRead(
 	if (result == NULL) { return ZE_ERROR_NULL_ARGUMENT; }
 
 	u8* cursor = (u8*)buf;
+	const u8* end = (u8*)buf + size;
 	// 1 - protocol
 	result->protocol = COM_ReadI32(&cursor);
 	if (result->protocol != ZN_Protocol())
 	{
 		if (bPrintErrors)
-		{ printf("Invalid protocol. Expected %d got %d\n", ZN_Protocol(), result->protocol); }
+		{ printf("ZN Invalid protocol. Expected 0x%X got 0x%X\n", ZN_Protocol(), result->protocol); }
 		return ZE_ERROR_DESERIALISE_FAILED;
 	}
 	// 2 - hash
 	result->hash = COM_ReadI32(&cursor);
+	result->payload = cursor;
 	result->payloadSize = size - ZN_PacketHeaderSize();
-	i32 payloadSizePlusType = result->payloadSize + 5;
 	
-	u32 calcHash = ZE_Hash_djb2_Fixed(cursor, payloadSizePlusType);
-	printf("Hashed %d bytes to %d\n", payloadSizePlusType, calcHash);
+	u32 calcHash = ZE_Hash_djb2_Fixed(cursor, result->payloadSize);
+	printf("ZN Hashed %d bytes to %d\n", result->payloadSize, calcHash);
 	if (result->hash != calcHash)
 	{
-		printf("hash mismatch - read hash %d calc hash %d\n", result->hash, calcHash);
-		printf("Calculated hash for %d bytes\n", payloadSizePlusType);
+		printf("ZN hash mismatch - read hash 0x%X calc hash 0x%X\n", result->hash, calcHash);
+		printf("ZN Calculated hash for %d bytes\n", result->payloadSize);
 		return ZE_ERROR_DESERIALISE_FAILED;
 	}
-	
 	// 3 - read type
 	result->type = *cursor;
 	cursor++;
-	// 4 - read user Id
-	result->id = COM_ReadU32(&cursor);
-	result->payload = cursor;
-	//printf("Read packet type %d\n", result->type);
+
+	// 4 - type specific
+	switch (result->type)
+	{
+		case ZN_PACKET_TYPE_DATA:
+		{
+			ZNDataPacket* dataP = &result->data.dataPacket;
+			dataP->userId = COM_ReadU32(&cursor);
+			dataP->dataPtr = cursor;
+			dataP->dataSize = end - cursor;
+		} break;
+		default:
+		{
+			printf("ZN Unknown packet type %d\n", result->type);
+			return ZE_ERROR_UNSUPPORTED_OPTION;
+		};
+	}
 	return ZE_ERROR_NONE;
+}
+
+/**
+ * Packet should be ready for transmission after calling this.
+ */
+extern "C" i32 ZN_WrapForTransmission(ZNPacketWrite* packet)
+{
+	u8* cursor = packet->bufPtr;
+	// 1 Add protocol
+	cursor += COM_WriteI32(ZN_Protocol(), cursor);
+	// 2 Add hash of packet contents
+	i32 dataSize = packet->cursor - packet->dataPtr;
+	u32 calcHash = ZE_Hash_djb2_Fixed(packet->dataPtr, dataSize);
+	cursor += COM_WriteI32(calcHash, cursor);
+	return ZE_ERROR_NONE;
+}
+
+extern "C" ZNPacketWrite ZN_BeginPacketWrite(u8* buf, i32 bufferSize)
+{
+	ZNPacketWrite p = {};
+	p.bufPtr = buf;
+	p.bufSize = bufferSize;
+	// Step data pointer over space for header
+	p.dataPtr = buf + ZN_PacketHeaderSize();
+	// ready for writing
+	p.cursor = p.dataPtr;
+	return p;
+}
+
+extern "C" void ZN_WriteDataPacket(
+	ZNPacketWrite* packet, i32 userId, u8* data, i32 dataSize)
+{
+	u8* cursor = packet->dataPtr;
+	// 1 packet type
+	*cursor = ZN_PACKET_TYPE_DATA;
+	cursor++;
+
+	// 2 user Id
+	cursor += COM_WriteU32(userId, cursor);
+
+	// 3 payload
+	cursor += ZE_Copy(cursor, data, dataSize);
+
+	// done - update packet cursor
+	packet->cursor = cursor;
+}
+
+extern "C" void ZN_WriteRequestPacket(ZNPacketWrite* writer, u32 userId)
+{
+	u8* cursor = writer->dataPtr;
+	*cursor = ZN_PACKET_TYPE_REQUEST;
+	cursor += COM_WriteU32(userId, cursor);
+	ZN_WritePadBytes(cursor, ZN_REQUEST_PADDING_BYTES);
+}
+
+extern "C" void ZN_PrintBytes(u8* buf, i32 size, i32 bytesPerLine)
+{
+	printf("ZN --- Bytes (%d) ---\n0:\t", size);
+	u8* end = buf + size;
+	i32 index = 0;
+	while (buf < end)
+	{
+		printf("%02X, ", *buf);
+		buf++;
+		index++;
+		if (index % bytesPerLine == 0)
+		{
+			printf("\n%d:\t", index);
+			//lineChars = 0;
+		}
+	}
+	printf("\n");
+}
+
+extern "C" void ZN_PrintChars(u8* buf, i32 size, i32 bytesPerLine)
+{
+	printf("ZN --- Chars (%d) ---\n0:\t", size);
+	u8* end = buf + size;
+	i32 index = 0;
+	while (buf < end)
+	{
+		printf("%c, ", *buf);
+		buf++;
+		index++;
+		if (index % bytesPerLine == 0)
+		{
+			printf("\n%d:\t", index);
+			//lineChars = 0;
+		}
+	}
+	printf("\n");
 }
 
 #if 0
