@@ -98,6 +98,11 @@ ErrorCode ZN_BeginPacketRead(
 			dataP->dataPtr = cursor;
 			dataP->dataSize = end - cursor;
 		} break;
+		case ZN_PACKET_TYPE_REQUEST:
+		case ZN_PACKET_TYPE_CHALLENGE:
+		case ZN_PACKET_TYPE_RESPONSE:
+		result->data.value = COM_ReadU32(&cursor);
+		break;
 		default:
 		{
 			printf("ZN Unknown packet type %d\n", result->type);

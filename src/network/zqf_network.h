@@ -67,11 +67,6 @@ struct ZNDataPacket
 	i32 dataSize;
 };
 
-struct ZNRequestPacket
-{
-
-};
-
 struct ZNPacketDescriptor
 {
 	i32 protocol;
@@ -84,6 +79,9 @@ struct ZNPacketDescriptor
 	union
 	{
 		ZNDataPacket dataPacket;
+		// value is request, challenge and response
+		// depending on type
+		u32 value;
 	} data;
 	
 };
