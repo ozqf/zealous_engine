@@ -20,6 +20,12 @@ internal void TestBlobStore()
 	ErrorCode err = ZE_InitBlobStore(&store, 32, sizeof(TestBlobObj), 0);
 	printf("\tcapacity %d, user blob size %d\n",
 		store.m_array->m_maxBlobs, store.m_array->m_blobUserSize);
+	printf("--- Salt generator ---\n");
+	u32 saltA = ZN_CreateSalt();
+	u32 saltB = ZN_CreateSalt();
+	printf("Salts A: %d, B: %d\n", saltA, saltB);
+	printf("Xor: %d\n", saltA ^ saltB);
+
 }
 
 internal void Test_NetworkUtils()
@@ -28,9 +34,9 @@ internal void Test_NetworkUtils()
 	printf("Net protocol: %d / 0x%X\n", ZN_Protocol(), ZN_Protocol());
 	printf("Sizeof header %d / 0x%X\n", ZN_PacketHeaderSize(), ZN_PacketHeaderSize());
 	printf("Data packet type: %d / 0x%X\n", ZN_PACKET_TYPE_DATA, ZN_PACKET_TYPE_DATA);
-	u8 buf[128];
-	ZN_WritePadBytes(buf, 128);
-	ZN_PrintBytes(buf, 128, 16);
+	// u8 buf[128];
+	// ZN_WritePadBytes(buf, 128);
+	// ZN_PrintBytes(buf, 128, 16);
 }
 
 internal i32 Test_PacketReadWrite()
@@ -80,7 +86,7 @@ internal i32 Test_PacketReadWrite()
 	///////////////////////
 	// test read
 	//////////////////////
-	ZNPacketDescriptor descriptor;
+	ZNPacketRead descriptor;
 	err = ZN_BeginPacketRead(buf, written, &descriptor, YES);
 	if (err != 0)
 	{
@@ -114,19 +120,32 @@ internal i32 Test_CreateConnection()
 	///////////////////////
 	// connection establishment
 	//////////////////////
-	printf("--- Salt generator ---\n");
-	u32 saltA = ZN_CreateSalt();
-	u32 saltB = ZN_CreateSalt();
-	printf("Salts A: %d, B: %d\n", saltA, saltB);
-	printf("Xor: %d\n", saltA ^ saltB);
+	ZNetwork* client = (ZNetwork*)malloc(sizeof(ZNetwork));
+	ZNetwork* server = (ZNetwork*)malloc(sizeof(ZNetwork));
+	ZN_Init(client);
+	ZN_Init(server);
 
-	ZNetAddress addr = {};
-	addr.port = 666;
-	ZNConn* conn = ZN_RequestConnection(addr);
+	ZNetAddress clientAddr = {};
+	clientAddr.port = 666;
+	ZNConn* conn = ZN_RequestConnection(client, clientAddr);
 	printf("Opened connection request, local salt %d\n",
 		conn->localSalt);
+	ZN_PrintConnections(client);
+
+	u8 buf[ZN_PACKET_SIZE];
+	ZNPacketWrite writer = ZN_BeginPacketWrite(buf, ZN_PACKET_SIZE);
+	i32 written = ZN_WriteRequestPacket(&writer, conn->localSalt);
+	printf("Wrote request (%dB)\n", writer.cursor - writer.bufPtr);
+	ZN_WrapForTransmission(&writer);
 	
-	
+	//u8* readBuf[2000];
+	ZNPacketRead reader;
+	ZN_BeginPacketRead(buf, written, &reader, YES);
+
+	ZN_ReadRequest(server, clientAddr, reader.data.value);
+
+	free(client);
+	free(server);
 	return ZE_ERROR_NONE;
 }
 

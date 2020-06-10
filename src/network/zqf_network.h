@@ -30,6 +30,14 @@ ZQF UDP Network module.
 
 #define ZN_REQUEST_PADDING_BYTES 1000
 
+#define ZN_MAX_PENDING 64
+#define ZN_MAX_CONNECTIONS 64
+
+#define ZN_CONN_STATE_DISCONNECTED 0
+#define ZN_CONN_STATE_REQUESTING 1
+#define ZN_CONN_STATE_CONNECTED 2
+
+
 /////////////////////////////////////////
 // Error codes
 /////////////////////////////////////////
@@ -67,7 +75,7 @@ struct ZNDataPacket
 	i32 dataSize;
 };
 
-struct ZNPacketDescriptor
+struct ZNPacketRead
 {
 	i32 protocol;
 	u32 hash;
@@ -154,9 +162,19 @@ struct SerialisationInfo
 	i32 flags;
 };
 
+struct ZNetwork
+{
+	i32 maxConns;
+	ZNConn conns[ZN_MAX_CONNECTIONS];
+	i32 maxPending;
+	ZNPending pending[ZN_MAX_PENDING];
+};
+
 /////////////////////////////////////////
 // Function exports
 /////////////////////////////////////////
+
+extern "C" void ZN_Init(ZNetwork* net);
 
 ///////////////////////////////////////
 // Read/Write
@@ -173,26 +191,31 @@ extern "C" ErrorCode ZN_BuildDataPacket(
 extern "C" ErrorCode ZN_BeginPacketRead(
 	const u8* buf,
 	const i32 size,
-	ZNPacketDescriptor* result,
+	ZNPacketRead* result,
 	const i32 bPrintErrors);
 
 extern "C" ZNPacketWrite ZN_BeginPacketWrite(u8* buf, i32 bufferSize);
-extern "C" void ZN_WriteDataPacket(ZNPacketWrite* packet, i32 userId, u8* data, i32 dataSize);
 extern "C" i32 ZN_WrapForTransmission(ZNPacketWrite* packet);
 extern "C" void ZN_WritePadBytes(u8* dest, i32 numBytes);
+
+extern "C" i32 ZN_WriteRequestPacket(ZNPacketWrite* writer, u32 userId);
+extern "C" i32 ZN_WriteDataPacket(ZNPacketWrite* packet, i32 userId, u8* data, i32 dataSize);
+
+extern "C" i32 ZN_ReadRequest(ZNetwork* net, ZNetAddress addr, i32 requestSalt);
 
 ////////////////////////////////////////
 // Connections
 
 // acquire an empty connection from the connection pool
-extern "C" ZNConn* ZN_GetFreeConn();
+extern "C" ZNConn* ZN_GetFreeConn(ZNetwork* net);
 // open a connection to the given address and being sending request packets.
-extern "C" ZNConn* ZN_RequestConnection(ZNetAddress addr);
+extern "C" ZNConn* ZN_RequestConnection(ZNetwork* net, ZNetAddress addr);
 
 ////////////////////////////////////////
 // debugging
 extern "C" void ZN_PrintBytes(u8* buf, i32 size, i32 bytesPerLine);
 extern "C" void ZN_PrintChars(u8* buf, i32 size, i32 bytesPerLine);
+extern "C" void ZN_PrintConnections(ZNetwork* net);
 
 // Commands
 extern "C" void Net_RegisterCommand(

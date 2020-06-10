@@ -1,18 +1,11 @@
-
 #include "zqf_network.h"
 
-#define ZN_MAX_CONNECTIONS 64
-
-#define ZN_CONN_STATE_DISCONNECTED 0
-#define ZN_CONN_STATE_REQUESTING 1
-#define ZN_CONN_STATE_CONNECTED 2
-
-internal ZNConn g_connections[ZN_MAX_CONNECTIONS];
+//internal ZNConn g_connections[ZN_MAX_CONNECTIONS];
 
 extern "C"
-ZNConn* ZN_RequestConnection(ZNetAddress addr)
+ZNConn* ZN_RequestConnection(ZNetwork* net, ZNetAddress addr)
 {
-	ZNConn* conn = ZN_GetFreeConn();
+	ZNConn* conn = ZN_GetFreeConn(net);
 	if (conn == NULL) { return NULL; }
 	conn->state = ZN_CONN_STATE_REQUESTING;
 	conn->localSalt = ZN_CreateSalt();
@@ -22,14 +15,50 @@ ZNConn* ZN_RequestConnection(ZNetAddress addr)
 }
 
 extern "C"
-ZNConn* ZN_GetFreeConn()
+ZNConn* ZN_GetFreeConn(ZNetwork* net)
 {
-	for (i32 i = 0; i < ZN_MAX_CONNECTIONS; ++i)
+	for (i32 i = 0; i < net->maxConns; ++i)
 	{
-		if (g_connections[i].state == ZN_CONN_STATE_DISCONNECTED)
+		if (net->conns[i].state == ZN_CONN_STATE_DISCONNECTED)
 		{
-			return &g_connections[i];
+			return &net->conns[i];
 		}
 	}
 	return NULL;
+}
+
+internal ZNConn* ZN_FindConnByRemoteId(ZNetwork* net, u32 remoteId)
+{
+	for (i32 i = 0; i < ZN_MAX_CONNECTIONS; ++i)
+	{
+		ZNConn* conn = &net->conns[i];
+		if (conn->state != ZN_CONN_STATE_DISCONNECTED
+			&& conn->remoteSalt == remoteId)
+		{
+			return conn;
+		}
+	}
+	return NULL;
+}
+
+extern "C" void ZN_PrintConnections(ZNetwork* net)
+{
+	printf("--- ZN connections (%d max) ---\n", ZN_MAX_CONNECTIONS);
+	for (i32 i = 0; i < net->maxConns; ++i)
+	{
+		ZNConn* conn = &net->conns[i];
+		if (conn->state == ZN_CONN_STATE_DISCONNECTED)
+		{ continue; }
+		printf("%d: local %d remote %d. state %d addr %d.%d.%d.%d:%d\n",
+			i,
+			conn->localSalt,
+			conn->remoteSalt,
+			conn->state,
+			conn->addr.ip4Bytes[0],
+			conn->addr.ip4Bytes[1],
+			conn->addr.ip4Bytes[2],
+			conn->addr.ip4Bytes[3],
+			conn->addr.port
+		);
+	}
 }

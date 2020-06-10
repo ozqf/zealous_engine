@@ -6,6 +6,7 @@
 #include "../ze_common/ze_hash.h"
 
 #include "zn_connection.h"
+#include "zn_pending.h"
 
 /*
 == Packet Structure ==
@@ -54,9 +55,17 @@ extern "C" void ZN_WritePadBytes(u8* dest, i32 numBytes)
 	}
 }
 
+extern "C" void ZN_Init(ZNetwork* net)
+{
+	ZE_SET_ZERO(net->conns, sizeof(ZNConn) * ZN_MAX_CONNECTIONS);
+	ZE_SET_ZERO(net->pending, sizeof(ZNPending) * ZN_MAX_PENDING);
+	net->maxConns = ZN_MAX_CONNECTIONS;
+	net->maxPending = ZN_MAX_PENDING;
+}
+
 extern "C"
 ErrorCode ZN_BeginPacketRead(
-	const u8* buf, const i32 size, ZNPacketDescriptor* result, const i32 bPrintErrors)
+	const u8* buf, const i32 size, ZNPacketRead* result, const i32 bPrintErrors)
 {
 	if (buf == NULL) { return ZE_ERROR_NULL_ARGUMENT; }
 	if (result == NULL) { return ZE_ERROR_NULL_ARGUMENT; }
@@ -99,6 +108,14 @@ ErrorCode ZN_BeginPacketRead(
 			dataP->dataSize = end - cursor;
 		} break;
 		case ZN_PACKET_TYPE_REQUEST:
+		{
+			if (size < ZN_REQUEST_PADDING_BYTES)
+			{
+				printf("ZN Request packet bytes %d is too small\n", size);
+				return ZE_ERROR_BAD_SIZE;
+			}
+			result->data.value = COM_ReadU32(&cursor);
+		} break;
 		case ZN_PACKET_TYPE_CHALLENGE:
 		case ZN_PACKET_TYPE_RESPONSE:
 		result->data.value = COM_ReadU32(&cursor);
@@ -139,7 +156,8 @@ extern "C" ZNPacketWrite ZN_BeginPacketWrite(u8* buf, i32 bufferSize)
 	return p;
 }
 
-extern "C" void ZN_WriteDataPacket(
+// Returns total packet size
+extern "C" i32 ZN_WriteDataPacket(
 	ZNPacketWrite* packet, i32 userId, u8* data, i32 dataSize)
 {
 	u8* cursor = packet->dataPtr;
@@ -155,14 +173,20 @@ extern "C" void ZN_WriteDataPacket(
 
 	// done - update packet cursor
 	packet->cursor = cursor;
+	return packet->cursor - packet->bufPtr;
 }
 
-extern "C" void ZN_WriteRequestPacket(ZNPacketWrite* writer, u32 userId)
+// Returns total packet size
+extern "C" i32 ZN_WriteRequestPacket(ZNPacketWrite* writer, u32 userId)
 {
 	u8* cursor = writer->dataPtr;
 	*cursor = ZN_PACKET_TYPE_REQUEST;
+	cursor++;
 	cursor += COM_WriteU32(userId, cursor);
 	ZN_WritePadBytes(cursor, ZN_REQUEST_PADDING_BYTES);
+	cursor += ZN_REQUEST_PADDING_BYTES;
+	writer->cursor = cursor;
+	return writer->cursor - writer->bufPtr;
 }
 
 extern "C" void ZN_PrintBytes(u8* buf, i32 size, i32 bytesPerLine)
