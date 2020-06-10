@@ -1,7 +1,5 @@
 #include "zqf_network.h"
 
-//internal ZNConn g_connections[ZN_MAX_CONNECTIONS];
-
 extern "C"
 ZNConn* ZN_RequestConnection(ZNetwork* net, ZNetAddress addr)
 {
@@ -41,6 +39,21 @@ internal ZNConn* ZN_FindConnByRemoteId(ZNetwork* net, u32 remoteId)
 	return NULL;
 }
 
+internal ZNConn* ZN_FindConnBySaltXor(ZNetwork* net, u32 xor)
+{
+	for (i32 i = 0; i < ZN_MAX_CONNECTIONS; ++i)
+	{
+		ZNConn* conn = &net->conns[i];
+		u32 saltXor = conn->localSalt ^ conn->remoteSalt;
+		if (conn->state != ZN_CONN_STATE_DISCONNECTED
+			&& saltXor == xor)
+		{
+			return conn;
+		}
+	}
+	return NULL;
+}
+
 extern "C" void ZN_PrintConnections(ZNetwork* net)
 {
 	printf("--- ZN connections (%d max) ---\n", ZN_MAX_CONNECTIONS);
@@ -59,6 +72,23 @@ extern "C" void ZN_PrintConnections(ZNetwork* net)
 			conn->addr.ip4Bytes[2],
 			conn->addr.ip4Bytes[3],
 			conn->addr.port
+		);
+	}
+	printf("--- ZN Pending (%d max) ---\n", ZN_MAX_PENDING);
+	for (i32 i = 0; i < net->maxPending; ++i)
+	{
+		ZNPending* p = &net->pending[i];
+		if (p->clientSalt == 0)
+		{ continue; }
+		printf("%d: challenge %d client %d. addr %d.%d.%d.%d:%d\n",
+			i,
+			p->challengeSalt,
+			p->clientSalt,
+			p->addr.ip4Bytes[0],
+			p->addr.ip4Bytes[1],
+			p->addr.ip4Bytes[2],
+			p->addr.ip4Bytes[3],
+			p->addr.port
 		);
 	}
 }

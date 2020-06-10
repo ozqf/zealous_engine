@@ -122,6 +122,7 @@ internal i32 Test_CreateConnection()
 	//////////////////////
 	ZNetwork* client = (ZNetwork*)malloc(sizeof(ZNetwork));
 	ZNetwork* server = (ZNetwork*)malloc(sizeof(ZNetwork));
+	server->flags |= ZN_FLAG_ACCEPTING_REQUESTS;
 	ZN_Init(client);
 	ZN_Init(server);
 
@@ -143,6 +144,8 @@ internal i32 Test_CreateConnection()
 	ZN_BeginPacketRead(buf, written, &reader, YES);
 
 	ZN_ReadRequest(server, clientAddr, reader.data.value);
+
+	ZN_PrintConnections(server);
 
 	free(client);
 	free(server);

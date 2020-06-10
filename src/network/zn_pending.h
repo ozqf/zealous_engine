@@ -1,7 +1,4 @@
-
 #include "zqf_network.h"
-
-//internal ZNPending g_pending[ZN_MAX_PENDING];
 
 internal ZNPending* ZN_FindPending(ZNetwork* net, ZNetAddress addr, u32 salt)
 {
@@ -9,17 +6,21 @@ internal ZNPending* ZN_FindPending(ZNetwork* net, ZNetAddress addr, u32 salt)
 	for (i32 i = 0; i < net->maxPending; ++i)
 	{
 		ZNPending* item = &net->pending[i];
-		if (item->clientSalt == item->challengeSalt)
+		if (item->clientSalt == salt)
 		{
 			return item;
 		}
 		else if (firstFree == NULL && item->clientSalt == 0)
 		{
 			firstFree = item;
-			firstFree->challengeSalt = 0;
-			firstFree->addr = addr;
 		}
 	}
+	// no pending was found, create one!
+	firstFree->challengeSalt = ZN_CreateSalt();
+	firstFree->clientSalt = salt;
+	firstFree->addr = addr;
+	printf("Init pending for %d - challenge %d\n",
+		firstFree->clientSalt, firstFree->clientSalt);
 	return firstFree;
 }
 
@@ -30,6 +31,18 @@ internal ZNPending* ZN_FindPending(ZNetwork* net, ZNetAddress addr, u32 salt)
  */
 extern "C" i32 ZN_ReadRequest(ZNetwork* net, ZNetAddress addr, i32 requestSalt)
 {
+	if ((net->flags & ZN_FLAG_ACCEPTING_REQUESTS)  != 0)
+	{
+		printf("FAIL: Network is not accepting requests\n");
+		return ZE_ERROR_UNSUPPORTED_OPTION;
+	}
 	ZNConn* conn = ZN_FindConnByRemoteId(net, requestSalt);
+	if (conn != NULL)
+	{
+		printf("ZN %d is already connected!\n", requestSalt);
+		return ZE_ERROR_NONE;
+	}
+	printf("ZN Opening pending request for %d\n", requestSalt);
+	ZNPending* pending = ZN_FindPending(net, addr, requestSalt);
 	return ZE_ERROR_NONE;
 }

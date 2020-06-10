@@ -61,6 +61,7 @@ extern "C" void ZN_Init(ZNetwork* net)
 	ZE_SET_ZERO(net->pending, sizeof(ZNPending) * ZN_MAX_PENDING);
 	net->maxConns = ZN_MAX_CONNECTIONS;
 	net->maxPending = ZN_MAX_PENDING;
+	net->flags = 0;
 }
 
 extern "C"

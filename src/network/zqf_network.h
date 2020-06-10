@@ -37,6 +37,7 @@ ZQF UDP Network module.
 #define ZN_CONN_STATE_REQUESTING 1
 #define ZN_CONN_STATE_CONNECTED 2
 
+#define ZN_FLAG_ACCEPTING_REQUESTS (1 << 0)
 
 /////////////////////////////////////////
 // Error codes
@@ -164,6 +165,7 @@ struct SerialisationInfo
 
 struct ZNetwork
 {
+	i32 flags;
 	i32 maxConns;
 	ZNConn conns[ZN_MAX_CONNECTIONS];
 	i32 maxPending;
