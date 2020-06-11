@@ -29,7 +29,8 @@ internal ZNPending* ZN_FindPending(ZNetwork* net, ZNetAddress addr, u32 salt)
  * What if a request comes in for a client who was just accepted?
  * 	 (delayed packet)
  */
-extern "C" i32 ZN_ReadRequest(ZNetwork* net, ZNetAddress addr, i32 requestSalt)
+extern "C" i32 ZN_ReadRequest(
+	ZNetwork* net, ZNetAddress addr, i32 requestSalt, u32* challenge)
 {
 	if ((net->flags & ZN_FLAG_ACCEPTING_REQUESTS)  != 0)
 	{
@@ -44,5 +45,11 @@ extern "C" i32 ZN_ReadRequest(ZNetwork* net, ZNetAddress addr, i32 requestSalt)
 	}
 	printf("ZN Opening pending request for %d\n", requestSalt);
 	ZNPending* pending = ZN_FindPending(net, addr, requestSalt);
+	*challenge = pending->challengeSalt;
+	return ZE_ERROR_NONE;
+}
+
+extern "C" i32 ZN_ReadChallenge(ZNetwork* net, ZNetAddress addr, u32 challenge)
+{
 	return ZE_ERROR_NONE;
 }

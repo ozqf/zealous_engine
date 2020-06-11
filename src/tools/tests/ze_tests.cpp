@@ -134,19 +134,38 @@ internal i32 Test_CreateConnection()
 	ZN_PrintConnections(client);
 
 	u8 buf[ZN_PACKET_SIZE];
-	ZNPacketWrite writer = ZN_BeginPacketWrite(buf, ZN_PACKET_SIZE);
+	ZNPacketWrite writer;
+	ZNPacketRead reader;
+
+	///////////////////////////////
+	// Request
+	writer = ZN_BeginPacketWrite(buf, ZN_PACKET_SIZE);
 	i32 written = ZN_WriteRequestPacket(&writer, conn->localSalt);
 	printf("Wrote request (%dB)\n", writer.cursor - writer.bufPtr);
 	ZN_WrapForTransmission(&writer);
-	
-	//u8* readBuf[2000];
-	ZNPacketRead reader;
+
 	ZN_BeginPacketRead(buf, written, &reader, YES);
-
-	ZN_ReadRequest(server, clientAddr, reader.data.value);
-
+	u32 challenge = 0;
+	ZN_ReadRequest(server, clientAddr, reader.data.value, &challenge);
 	ZN_PrintConnections(server);
+	///////////////////////////////
+	// Challenge
+	// sv write
+	writer = ZN_BeginPacketWrite(buf, ZN_PACKET_SIZE);
+	written = ZN_WriteChallengePacket(&writer, challenge);
+	ZN_WrapForTransmission(&writer);
 
+	// cl read
+	reader = ZN_BeginPacketRead(buf, ZN_PACKET_SIZE);
+	if (reader.type != ZN_PACKET_TYPE_CHALLENGE)
+	{
+		printf("FAIL! - not a response packet\n");
+		return 1;
+	}
+	i32 response = ZN_ReadChallenge()
+
+	///////////////////////////////
+	// done
 	free(client);
 	free(server);
 	return ZE_ERROR_NONE;

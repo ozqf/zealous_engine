@@ -201,9 +201,16 @@ extern "C" i32 ZN_WrapForTransmission(ZNPacketWrite* packet);
 extern "C" void ZN_WritePadBytes(u8* dest, i32 numBytes);
 
 extern "C" i32 ZN_WriteRequestPacket(ZNPacketWrite* writer, u32 userId);
+extern "C" i32 ZN_WriteChallengePacket(ZNPacketWrite* writer, u32 challenge);
+extern "C" i32 ZN_WriteResponsePacket(ZNPacketWrite* writer, u32 response);
 extern "C" i32 ZN_WriteDataPacket(ZNPacketWrite* packet, i32 userId, u8* data, i32 dataSize);
 
-extern "C" i32 ZN_ReadRequest(ZNetwork* net, ZNetAddress addr, i32 requestSalt);
+extern "C" i32 ZN_ReadRequest(
+	ZNetwork* net, ZNetAddress addr, i32 requestSalt, u32* challenge);
+extern "C" i32 ZN_ReadChallenge(
+	ZNetwork* net, ZNetAddress addr, i32 challenge, u32* response);
+extern "C" i32 ZN_ReadResponse(
+	ZNetwork* net, ZNetAddress addr, u32 response);
 
 ////////////////////////////////////////
 // Connections

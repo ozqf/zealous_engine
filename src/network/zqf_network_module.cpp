@@ -190,6 +190,23 @@ extern "C" i32 ZN_WriteRequestPacket(ZNPacketWrite* writer, u32 userId)
 	return writer->cursor - writer->bufPtr;
 }
 
+// Returns total packet size
+extern "C" i32 ZN_WriteChallengePacket(ZNPacketWrite* writer, u32 challenge)
+{
+	u8* cursor = writer->dataPtr;
+	*cursor = ZN_PACKET_TYPE_CHALLENGE;
+	cursor++;
+	cursor += COM_WriteU32(challenge, cursor);
+	
+	writer->cursor = cursor;
+	return writer->cursor - writer->bufPtr;
+}
+
+extern "C" i32 ZN_WriteResponsePacket(ZNPacketWrite* writer, u32 response)
+{
+	return ZE_ERROR_NOT_IMPLEMENTED;
+}
+
 extern "C" void ZN_PrintBytes(u8* buf, i32 size, i32 bytesPerLine)
 {
 	printf("ZN --- Bytes (%d) ---\n0:\t", size);
