@@ -117,6 +117,7 @@ internal i32 Test_PacketReadWrite()
 
 internal i32 Test_CreateConnection()
 {
+	ErrorCode err = ZE_ERROR_NONE;
 	///////////////////////
 	// connection establishment
 	//////////////////////
@@ -139,6 +140,7 @@ internal i32 Test_CreateConnection()
 
 	///////////////////////////////
 	// Request
+	printf("\nCL Write Request\n");
 	writer = ZN_BeginPacketWrite(buf, ZN_PACKET_SIZE);
 	i32 written = ZN_WriteRequestPacket(&writer, conn->localSalt);
 	printf("Wrote request (%dB)\n", writer.cursor - writer.bufPtr);
@@ -151,19 +153,29 @@ internal i32 Test_CreateConnection()
 	///////////////////////////////
 	// Challenge
 	// sv write
+	printf("\nSV - Write challenge\n");
 	writer = ZN_BeginPacketWrite(buf, ZN_PACKET_SIZE);
 	written = ZN_WriteChallengePacket(&writer, challenge);
 	ZN_WrapForTransmission(&writer);
 
 	// cl read
-	reader = ZN_BeginPacketRead(buf, ZN_PACKET_SIZE);
+	printf("\nCL - Read challenge\n");
+	ZN_PrintBytes(writer.bufPtr, written, 16);
+	err = ZN_BeginPacketRead(buf, written, &reader, YES);
+	if (err != ZE_ERROR_NONE)
+	{
+		printf("FAIL code %d\n", err);
+		return ZE_ERROR_TEST_FAILED;
+	}
 	if (reader.type != ZN_PACKET_TYPE_CHALLENGE)
 	{
-		printf("FAIL! - not a response packet\n");
+		printf("FAIL! - not a challenge packet - type %02X expected %02X\n",
+			reader.type, ZN_PACKET_TYPE_CHALLENGE);
 		return 1;
 	}
-	i32 response = ZN_ReadChallenge()
-
+	u32 response = 0;
+	err = ZN_ReadChallenge(client, clientAddr, reader.data.value, &response);
+	
 	///////////////////////////////
 	// done
 	free(client);

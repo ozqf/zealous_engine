@@ -42,7 +42,7 @@ extern "C" i32 ZN_CreateSalt()
 
 extern "C" i32 ZN_Protocol()
 {
-	return 0xFADE;
+	return 0xDEFADEFA;
 }
 
 extern "C" void ZN_WritePadBytes(u8* dest, i32 numBytes)
@@ -87,7 +87,7 @@ ErrorCode ZN_BeginPacketRead(
 	result->payloadSize = size - ZN_PacketHeaderSize();
 	
 	u32 calcHash = ZE_Hash_djb2_Fixed(cursor, result->payloadSize);
-	printf("ZN Hashed %d bytes to %d\n", result->payloadSize, calcHash);
+	printf("ZN Hashed %d bytes to 0x%X\n", result->payloadSize, calcHash);
 	if (result->hash != calcHash)
 	{
 		printf("ZN hash mismatch - read hash 0x%X calc hash 0x%X\n", result->hash, calcHash);
@@ -118,6 +118,8 @@ ErrorCode ZN_BeginPacketRead(
 			result->data.value = COM_ReadU32(&cursor);
 		} break;
 		case ZN_PACKET_TYPE_CHALLENGE:
+		result->data.value = COM_ReadU32(&cursor);
+		break;
 		case ZN_PACKET_TYPE_RESPONSE:
 		result->data.value = COM_ReadU32(&cursor);
 		break;
@@ -142,6 +144,7 @@ extern "C" i32 ZN_WrapForTransmission(ZNPacketWrite* packet)
 	i32 dataSize = packet->cursor - packet->dataPtr;
 	u32 calcHash = ZE_Hash_djb2_Fixed(packet->dataPtr, dataSize);
 	cursor += COM_WriteI32(calcHash, cursor);
+	printf("ZN transmission hash 0x%X\n", calcHash);
 	return ZE_ERROR_NONE;
 }
 
@@ -187,6 +190,7 @@ extern "C" i32 ZN_WriteRequestPacket(ZNPacketWrite* writer, u32 userId)
 	ZN_WritePadBytes(cursor, ZN_REQUEST_PADDING_BYTES);
 	cursor += ZN_REQUEST_PADDING_BYTES;
 	writer->cursor = cursor;
+	printf("ZN created request %d bytes\n", writer->cursor - writer->bufPtr);
 	return writer->cursor - writer->bufPtr;
 }
 
@@ -199,6 +203,7 @@ extern "C" i32 ZN_WriteChallengePacket(ZNPacketWrite* writer, u32 challenge)
 	cursor += COM_WriteU32(challenge, cursor);
 	
 	writer->cursor = cursor;
+	printf("ZN created challenge %d bytes\n", writer->cursor - writer->bufPtr);
 	return writer->cursor - writer->bufPtr;
 }
 
