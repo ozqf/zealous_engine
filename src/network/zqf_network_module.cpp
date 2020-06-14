@@ -180,18 +180,40 @@ extern "C" i32 ZN_WriteDataPacket(
 	return packet->cursor - packet->bufPtr;
 }
 
+internal i32 ZN_WriteSimplePacket(
+	ZNPacketWrite* writer, u8 type,u32 data, i32 paddingBytes)
+{
+	u8* cursor = writer->dataPtr;
+	*cursor = type;
+	cursor++;
+	cursor += COM_WriteU32(data, cursor);
+	if (paddingBytes > 0)
+	{
+		ZN_WritePadBytes(cursor, paddingBytes);
+		cursor += ZN_REQUEST_PADDING_BYTES;
+	}
+	
+	writer->cursor = cursor;
+	printf("ZN created quick type 0x%X - %d bytes\n",
+		type, writer->cursor - writer->bufPtr);
+	return writer->cursor - writer->bufPtr;
+}
+
+
 // Returns total packet size
 extern "C" i32 ZN_WriteRequestPacket(ZNPacketWrite* writer, u32 userId)
 {
-	u8* cursor = writer->dataPtr;
-	*cursor = ZN_PACKET_TYPE_REQUEST;
-	cursor++;
-	cursor += COM_WriteU32(userId, cursor);
-	ZN_WritePadBytes(cursor, ZN_REQUEST_PADDING_BYTES);
-	cursor += ZN_REQUEST_PADDING_BYTES;
-	writer->cursor = cursor;
-	printf("ZN created request %d bytes\n", writer->cursor - writer->bufPtr);
-	return writer->cursor - writer->bufPtr;
+	return ZN_WriteSimplePacket(
+		writer, ZN_PACKET_TYPE_REQUEST, userId, ZN_REQUEST_PADDING_BYTES);
+	// u8* cursor = writer->dataPtr;
+	// *cursor = ZN_PACKET_TYPE_REQUEST;
+	// cursor++;
+	// cursor += COM_WriteU32(userId, cursor);
+	// ZN_WritePadBytes(cursor, ZN_REQUEST_PADDING_BYTES);
+	// cursor += ZN_REQUEST_PADDING_BYTES;
+	// writer->cursor = cursor;
+	// printf("ZN created request %d bytes\n", writer->cursor - writer->bufPtr);
+	// return writer->cursor - writer->bufPtr;
 }
 
 // Returns total packet size
