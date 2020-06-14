@@ -6,6 +6,8 @@
 
 #include "../../network/zqf_network.h"
 
+#include "test_delta_introspection.h"
+
 struct TestBlobObj
 {
 	i32 foo;
@@ -195,4 +197,5 @@ extern "C" void ZETests_Run()
 	printf("=== ZE tests ===\n");
 	TestBlobStore();
 	NetworkUnitTests();
+	Test_Introspection();
 }
