@@ -292,7 +292,7 @@ internal void SVP_ReadUnreliableSection(
             APP_LOG(128, "SV read unreliable cmd failed %d\n", err);
             return;
         }
-        read += header->size;
+        //read += header->size;
         numRead++;
         switch (header->type)
         {
@@ -318,6 +318,10 @@ internal void SVP_ReadUnreliableSection(
                         user->userInputSequence, cmd->userInputSequence, cmd->header.tick);
                 }
             } break;
+
+            case CMD_TYPE_PING:
+            // TODO - client ping... so server should pong...?
+            break;
 
             default:
             {

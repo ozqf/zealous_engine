@@ -35,23 +35,28 @@ internal i32 CL_WriteUnreliableSection(
     u8* start = packet->cursor;
     // Write header
     packet->cursor += COM_WriteI32(CL_GetServerTick(), packet->cursor);
-    // Send ping
+
+    // 1 - Send ping
 	CmdPing ping = {};
 	// TODO: Stream enqueue will set the sequence for us
 	// so remove sending 0 here.
 	//Cmd_Prepare(&ping.header, CL_GetServerTick());
+    #if 1
     Cmd_InitPing(&ping, 0, g_elapsed);
 	ping.sendTime = g_elapsed;
     packet->cursor += Cmd_Serialise(
         quantise, packet->cursor, &ping.header, 0);
-	
+    #endif
+
+	// 2 - send input if required
+    #if 1
     if (userInput != NULL)
     {
         APP_LOG(64, "CL Write input\n");
         packet->cursor += Cmd_Serialise(
             quantise, packet->cursor, &userInput->header, 0);
     }
-	
+	#endif
     return (packet->cursor - start);
 }
 
