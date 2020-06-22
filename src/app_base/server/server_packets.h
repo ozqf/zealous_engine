@@ -283,7 +283,7 @@ internal void SVP_ReadUnreliableSection(
         }
         i32 cmdBytes = Cmd_Deserialise(
             quantise, read, readBuffer, CMD_MAX_SIZE, 0, baseTick);
-        printf("SVP cmd type %d bytes %d\n", peakType, cmdBytes);
+        //printf("SVP cmd type %d bytes %d\n", peakType, cmdBytes);
         read += cmdBytes;
         Command* header = (Command*)readBuffer;
         i32 err = Cmd_Validate(header);

@@ -40,10 +40,10 @@ set compOut=/Fe../bin/base/game.dll
 
 @rem /EHsc to avoid exception handling issues.
 @rem Warnings as Errors
-set compilerFlags=-nologo -Gm -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi /EHsc
+set compilerFlags=-nologo -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi /EHsc
 
 @rem No warning elevation
-@rem set compilerFlags=-nologo -Gm -MT -W4 -wd4100 -wd4201 -wd4189 /Zi /EHsc
+@rem set compilerFlags=-nologo -MT -W4 -wd4100 -wd4201 -wd4189 /Zi /EHsc
 set compilerDefines=/DPARANOID=1
 @rem set linkInput=../lib/bullet/ZBulletPhysicsWrapper.lib
 set linkInput=

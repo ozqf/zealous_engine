@@ -208,4 +208,23 @@ static void ZE_Fatal(char* msg)
 	ZE_Fatal(assertBuf); \
 }
 
+struct DateTime
+{
+    i32 year;
+    i32 month;
+    i32 dayOfTheMonth;
+    i32 dayOfTheWeek;
+    
+    i32 hour;
+    i32 minute;
+    i32 second;
+};
+
+struct PlatformTime
+{
+    timeFloat deltaTime;
+    f32 sessionEllapsed;
+    u32 frameNumber;
+};
+
 #endif // ZE_COMMON_H

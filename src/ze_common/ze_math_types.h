@@ -780,11 +780,17 @@ void M4x4_Invert(f32* src);
 void M4x4_ClearPosition(f32* src);
 void M4x4_ClearRotation(f32* src);
 
-
-// TODO: Change to using modulo or something...
+/*
+// TODO: Change to using modulo or something...?
+would like to use
+angle = (angle % 360.0f);
+if (angle < 0)
+{ angle = -angle; }
+but modulo only works for ints :(
+*/
 internal f32 COM_CapAngleDegrees(f32 angle)
 {
-    u32 loopCount = 0;
+    u32 loopCount = 0; // everytime I think I don't need to do this...
     while (angle > 360)
     {
         angle -= 360;

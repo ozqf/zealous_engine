@@ -2,7 +2,7 @@
 
 //#include "app_module.h"
 #include "../ze_common/ze_common_full.h"
-#include "../platform_interface.h"
+//#include "../platform_interface.h"
 #include "app_textures.h"
 
 #define MAX_TEXTURES 128

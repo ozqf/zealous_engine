@@ -330,7 +330,7 @@ struct ZRAssetDB
 #endif
 
 struct ZRAssetDB;
-#include "zqf_renderer/zr_asset_db.h"
+#include "assetdb/zr_asset_db.h"
 
 struct ZRRenderer
 {
@@ -384,8 +384,6 @@ struct ZRDrawCmd_Text
 };
 
 // Scene type
-
-#include "zr_scene.h"
 
 inline void ZR_BuildModelMatrix(M4x4* model, Transform* modelT)
 {
