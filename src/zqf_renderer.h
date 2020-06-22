@@ -46,6 +46,7 @@ struct ZRPlatform
     double (*QueryClock)();
     void* (*Allocate)(i32 numBytes);
     void (*Free)(void* ptr);
+    void* (*GetAssetDB)();
 };
 
 ///////////////////////////////////////////////////////////
@@ -338,7 +339,6 @@ struct ZRRenderer
     ErrorCode (*Init)(i32 scrWidth, i32 scrHeight);
     ZRPerformanceStats (*DrawFrameForward)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
     ZRPerformanceStats (*DrawFrameDeferred)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
-    ZRAssetDB* (*GetAssetDB)();
     void (*UpdateStats)(f64 swapMS, f64 frameMS);
 };
 

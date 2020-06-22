@@ -127,8 +127,6 @@ static ZRPlatform g_platform;
 
 static ZRGBuffer g_gBuffer;
 
-static ZRAssetDB* g_assets;
-
 static f64 g_platformSwapMS = 0;
 static f64 g_platformFrameMS = 0;
 
@@ -253,6 +251,11 @@ static void ZRGL_DrawDebugQuad(
 static void ZRGL_ClearColourDefault()
 {
     glClearColor(0, 0, 0, 1);
+}
+
+static ZRAssetDB* AssetDb()
+{
+    return (ZRAssetDB*)g_platform.GetAssetDB();
 }
 
 #endif // ZQF_GL_INTERNAL_H

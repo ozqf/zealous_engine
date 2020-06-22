@@ -16,10 +16,11 @@ Provides:
 
 #include <windows.h>
 #include <stdio.h>
-#include "../ze_module_interfaces.h"
 
+#include "../ze_module_interfaces.h"
 #include "../ze_common/ze_common.h"
 #include "../ze_common/ze_byte_buffer.h"
+#include "../assetdb/zr_asset_db.h"
 
 #include "ze_win_socket.h"
 
@@ -73,6 +74,10 @@ static i64 g_clockBase;
 static u16 g_diagnosticTransPort = ZE_TEST_TRANSMIT_PORT;
 static u16 g_diagnosticDestPort = ZE_TEST_DEST_PORT;
 static i32 g_diagnosticSocket;
+
+// Asset db is held by the platform and renderer must attach
+// uploader to it. DB must exist for all time that modules are loaded.
+static ZRAssetDB* g_assets = NULL;
 
 ////////////////////////////////////////////////////////
 // Error handling
@@ -199,11 +204,7 @@ static void PlatformImpl_DebugBreak()
 
 static void* PlatformImpl_GetAssetDB()
 {
-    if (g_window.sentinel == ZE_SENTINEL)
-    {
-        return g_window.GetAssetDB();
-    }
-    return NULL;
+    return g_assets;
 }
 
 static f64 PlatformImpl_QueryClock()
@@ -456,6 +457,9 @@ int CALLBACK WinMain(
 
     // init network incase it is needed
     Net_Init();
+
+    // alloc asset db
+    g_assets = ZRDB_Create();
 
     #if 0
     g_diagnosticSocket = Net_OpenSocket(ZE_TEST_TRANSMIT_PORT, &g_diagnosticTransPort);

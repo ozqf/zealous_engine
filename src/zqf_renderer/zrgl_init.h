@@ -272,7 +272,10 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     uploader.UploadTexture = ZRGL_UploadTexture;
     uploader.UploadMesh = ZRGL_UploadMesh;
 
-    g_assets = ZRDB_Create(uploader);
+    //g_assets = ZRDB_Create(uploader);
+    //g_assets = g_platform
+    //((ZRAssetDB*)g_platform.GetAssetDB())
+    ZRDB_AttachUploader((ZRAssetDB*)g_platform.GetAssetDB(), uploader);
 
     //g_assets.GetMaterialIndexByName = ZRDB_GetTexIndexByName;
     //g_assets.GetMeshIndexByName = ZRDB_GetMeshIndexByName;
@@ -293,12 +296,6 @@ static void ZRImpl_UpdateStats(f64 swapMS, f64 frameMS)
     g_platformFrameMS = frameMS;
 }
 
-// TODO: Bleh just make this OO
-extern "C" ZRAssetDB* ZRImpl_GetAssetDB()
-{
-    return g_assets;
-}
-
 extern "C" ZRRenderer ZR_Link(ZRPlatform platform)
 {
     printf("==== Renderer Link ====\n");
@@ -307,7 +304,6 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform)
     r.Init = ZRGL_Impl_Init;
     r.DrawFrameForward = ZRImpl_DrawFrameForward;
     r.DrawFrameDeferred = ZRImpl_DrawFrameDeferred;
-    r.GetAssetDB = ZRImpl_GetAssetDB;
     r.UpdateStats = ZRImpl_UpdateStats;
     r.isValid = YES;
     return r;

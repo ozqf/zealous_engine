@@ -18,7 +18,7 @@ set compilerDefines=/DPARANOID=1
 @rem /DVERBOSE=1
 
 @rem === Compile Win32 Window application
-set compIn1=../src/win_platform/win_platform.cpp
+set compIn1=../src/win_platform/win_platform.cpp ../src/assetdb/zr_asset_db.cpp
 set compIn2=../src/win_platform/ze_win_socket.cpp
 
 @rem === Compile Testing Win32 Console application

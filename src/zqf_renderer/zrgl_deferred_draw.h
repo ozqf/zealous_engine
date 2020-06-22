@@ -25,7 +25,7 @@ static void ZRGL_GeometryPass_Mesh(
 	#if 1
 	ZRMeshHandles mesh;
 	//ZRDB_GetMeshHandlesByName("Cube", &mesh);
-	g_assets->GetMeshHandleByName(g_assets, "Cube", &mesh);
+	AssetDb()->GetMeshHandleByName(AssetDb(), "Cube", &mesh);
 	vao = mesh.vao;
 	vertCount = mesh.vertexCount;
 	glBindVertexArray(vao);
@@ -37,14 +37,14 @@ static void ZRGL_GeometryPass_Mesh(
 	CHECK_GL_ERR
 
 	i32 diffuse, emissive;
-	ZRMaterial* mat = g_assets->GetMaterialByIndex(g_assets, group->data.model.materialIndex);
-	diffuse = g_assets->GetTextureHandleByIndex(g_assets, mat->diffuseTexIndex);
-	emissive = g_assets->GetTextureHandleByIndex(g_assets, mat->emissionTexIndex);
+	ZRMaterial* mat = AssetDb()->GetMaterialByIndex(AssetDb(), group->data.model.materialIndex);
+	diffuse = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->diffuseTexIndex);
+	emissive = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->emissionTexIndex);
 
 	ZRDBTexture* tex;
-	tex = g_assets->GetTextureByName(g_assets, ZQF_R_DEFAULT_DIFFUSE_TEX);
+	tex = AssetDb()->GetTextureByName(AssetDb(), ZQF_R_DEFAULT_DIFFUSE_TEX);
 	diffuse = tex->apiHandle;
-	tex = g_assets->GetTextureByName(g_assets, "data/debug_black.png");
+	tex = AssetDb()->GetTextureByName(AssetDb(), "data/debug_black.png");
 	emissive = tex->apiHandle;
 	
 	ZR_PrepareTextureUnit2D(
@@ -92,7 +92,7 @@ static void ZRGL_GeometryPass_Prefab(
 
 	// Prepare textures
 	i32 diffuseTexHandle = 1;
-	//g_assets->GetTextureHandleByName(g_assets, "data/WALL03_7.png", &diffuseTexHandle);
+	//AssetDb()->GetTextureHandleByName(AssetDb(), "data/WALL03_7.png", &diffuseTexHandle);
 
 	ZR_PrepareTextureUnit2D(
 		prog, GL_TEXTURE0, 0, "u_colourTex", prefab->textures.diffuse, g_samplerDataTex2D);
@@ -112,7 +112,7 @@ static void ZRGL_GeometryPass_Prefab(
 	//i32 emissionTexIndex = ZRDB_GetTexIndexByName(emissionTexName);
 	//i32 emissionTexHandle = ZRDB_GetTexHandleByIndex(emissionTexIndex);
 	i32 emissionTexHandle = 1;
-	//g_assets->GetTextureHandleByName(g_assets, emissionTexName, &emissionTexHandle);
+	//AssetDb()->GetTextureHandleByName(AssetDb(), emissionTexName, &emissionTexHandle);
 	
 	M4x4_CREATE(model)
 	M4x4_CREATE(modelView)

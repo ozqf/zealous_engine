@@ -14,7 +14,7 @@ static void ZRGL_DrawDebugQuad(
     glDisable(GL_DEPTH_TEST);
     CHECK_GL_ERR
     ZRMeshHandles mesh;
-    g_assets->GetMeshHandleByName(g_assets, "DynamicQuad", &mesh);
+    AssetDb()->GetMeshHandleByName(AssetDb(), "DynamicQuad", &mesh);
     i32 vao = mesh.vao;
     // setup prog
     GLint programId = g_programs[ZR_SHADER_TYPE_SHADOW_MAP_DEBUG].handle;
@@ -86,9 +86,9 @@ static void ZR_ExecuteTextDraw(
     #if 1
     // Get character quad prefab and use to stamp out characters.
     //ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD_DYNAMIC];
-    ZRDBMesh* mesh = g_assets->GetMeshByName(g_assets, "DynamicQuad");
+    ZRDBMesh* mesh = AssetDb()->GetMeshByName(AssetDb(), "DynamicQuad");
     if (mesh == NULL) { return; }
-    ZRDBTexture* tex = g_assets->GetTextureByName(g_assets, "data/charset.bmp");
+    ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), "data/charset.bmp");
     if (tex == NULL) { return; }
     M4x4_CREATE(modelView)
     // Setup shader

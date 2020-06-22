@@ -26,7 +26,6 @@ struct ze_window_export
     void (*Release_AppDrawBuffers)();
     void (*Acquire_EventBuffer)(ZEByteBuffer** buf);
     void (*Release_EventBuffer)();
-    void* (*GetAssetDB)();
     i32 sentinel;
 };
 

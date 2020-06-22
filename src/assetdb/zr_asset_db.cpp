@@ -73,7 +73,7 @@ ZRAssetDBData*##newVarName##=##(ZRAssetDBData*)##assetDBHeader##;
 // Create
 ///////////////////////////////////////////////////////////////////////////
 
-extern "C" ZRAssetDB* ZRDB_Create(ZRAssetUploader uploader)
+extern "C" ZRAssetDB* ZRDB_Create_Old(ZRAssetUploader uploader)
 {
     ZRAssetDBData* db = (ZRAssetDBData*)malloc(sizeof(ZRAssetDBData));
     *db = {};
@@ -107,5 +107,45 @@ extern "C" ZRAssetDB* ZRDB_Create(ZRAssetUploader uploader)
     db->materials = (ZRMaterial*)malloc(sizeof(ZRMaterial) * ZR_ASSET_DB_MAX_HANDLES);
     db->maxMaterials = ZR_ASSET_DB_MAX_HANDLES;
     return &db->header;
+}
+
+extern "C" ZRAssetDB* ZRDB_Create()
+{
+    ZRAssetDBData* db = (ZRAssetDBData*)malloc(sizeof(ZRAssetDBData));
+    *db = {};
+    /////////////////////////////////////////////////////
+    // functions
+
+    // Get asset
+    db->header.GetMeshByName = ZRDB_GetMeshByName;
+    db->header.GetMeshHandleByName = ZRDB_GetMeshHandleByName;
+    db->header.GetMeshByIndex = ZRDB_GetMeshByIndex;
+
+    db->header.GetTextureByName = ZRDB_GetTextureByName;
+    db->header.GetTextureHandleByIndex = ZRDB_GetTextureHandleByIndex;
+
+    db->header.GetMaterialByName = ZRDB_GetMaterialByName;
+    db->header.GetMaterialByIndex = ZRDB_GetMaterialByIndex;
+    // Create
+    db->header.CreateMaterial = ZRDB_CreateMaterial;
+    // Load
+    db->header.LoadMesh = ZRDB_LoadMesh;
+    db->header.LoadMeshFromFBX = ZRDB_LoadMeshFromFBX;
+    db->header.LoadTexture = ZRDB_LoadTexture;
+
+    // store
+    db->textures = (ZRDBTexture*)malloc(sizeof(ZRDBTexture) * ZR_ASSET_DB_MAX_HANDLES);
+    db->maxTextures = ZR_ASSET_DB_MAX_HANDLES;
+    db->meshes = (ZRDBMesh*)malloc(sizeof(ZRDBMesh) * ZR_ASSET_DB_MAX_HANDLES);
+    db->maxMeshes = ZR_ASSET_DB_MAX_HANDLES;
+    db->materials = (ZRMaterial*)malloc(sizeof(ZRMaterial) * ZR_ASSET_DB_MAX_HANDLES);
+    db->maxMaterials = ZR_ASSET_DB_MAX_HANDLES;
+    return &db->header;
+}
+
+extern "C" void ZRDB_AttachUploader(ZRAssetDB* assetDB, ZRAssetUploader uploader)
+{
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    db->uploader = uploader;
 }
 #endif // ZR_ASSET_DB_CPP

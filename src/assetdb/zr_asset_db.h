@@ -80,5 +80,7 @@ struct ZRAssetUploader
     void (*UploadMesh)(MeshData* data, ZRMeshHandles* result, u32 flags);
 };
 
-extern "C" ZRAssetDB* ZRDB_Create(ZRAssetUploader uploader);
+extern "C" ZRAssetDB* ZRDB_Create_Old(ZRAssetUploader uploader);
+extern "C" ZRAssetDB* ZRDB_Create();
+extern "C" void ZRDB_AttachUploader(ZRAssetDB* assetDB, ZRAssetUploader uploader);
 #endif // ZR_ASSET_DB_H

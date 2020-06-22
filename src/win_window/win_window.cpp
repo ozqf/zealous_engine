@@ -107,6 +107,7 @@ static i32 WindowImpl_Init()
     platform.Allocate = g_platform.Allocate;
     platform.Free = g_platform.Free;
     platform.QueryClock = g_platform.QueryClock;
+    platform.GetAssetDB = g_platform.GetAssetDB;
     g_renderer = ZR_Link(platform);
 
     ErrorCode err = g_renderer.Init(g_scrInfo.width, g_scrInfo.height);
@@ -200,11 +201,6 @@ static void WindowImpl_Release_EventBuffer()
     g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
 }
 
-static void* WindowImpl_GetAssetDB()
-{
-    return g_renderer.GetAssetDB();
-}
-
 static i32 WindowImpl_MainLoop()
 {
     f64 startFrameMS = 0, endFrameMS = 0, totalMS = 0;
@@ -247,7 +243,6 @@ ze_window_export __declspec(dllexport) ZE_LinkToWindowModule(ze_platform_export 
     result.Release_EventBuffer = WindowImpl_Release_EventBuffer;
     result.Acquire_AppDrawBuffers = WindowImpl_Acquire_AppDrawBuffers;
     result.Release_AppDrawBuffers = WindowImpl_Release_AppDrawBuffers;
-    result.GetAssetDB = WindowImpl_GetAssetDB;
     result.sentinel = ZE_SENTINEL;
 	return result;
 }
