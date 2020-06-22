@@ -11,9 +11,19 @@
 ///////////////////////////////////////////////////////////
 // Asset data types
 ///////////////////////////////////////////////////////////
+
+struct ZRAsset
+{
+    i32 id;
+    i32 index;
+    i32 type;
+    char* fileName;
+};
+
 struct ZRDBTexture
 {
-    char* fileName;
+    //char* fileName;
+    ZRAsset header;
     void* data;
     i32 dataSize;
     i32 width;

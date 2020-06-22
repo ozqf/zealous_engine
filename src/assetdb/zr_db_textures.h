@@ -17,7 +17,10 @@ static i32 ZRDB_RegisterTexture(
     printf("ZRDB - registered texture %d: %s, handle %d\n",
         index, fileName, apiHandle);
     ZRDBTexture* handle = &db->textures[index];
-    handle->fileName = fileName;
+    handle->header.id = db->nextId;
+    db->nextId++;
+    handle->header.index = index;
+    handle->header.fileName = fileName;
     handle->data = data;
     handle->dataSize = dataSize;
     handle->width = width;
@@ -31,7 +34,7 @@ static i32 ZRDB_GetTextureIndexByName(ZRAssetDB* assetDB, char* name)
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
     for (i32 i = 0; i < db->numTextures; ++i)
     {
-        if (ZE_CompareStrings(name, db->textures[i].fileName) == 0)
+        if (ZE_CompareStrings(name, db->textures[i].header.fileName) == 0)
         {
             return i;
         }

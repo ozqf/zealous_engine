@@ -5,6 +5,8 @@
 
 #define ZR_ASSET_DB_MAX_HANDLES 512
 
+#define ZR_ASSET_DB_FIRST_ID 1
+
 ///////////////////////////////////////////////////////////////////////////
 // Internal data structures
 ///////////////////////////////////////////////////////////////////////////
@@ -14,6 +16,7 @@ struct ZRAssetDBData
     ZRAssetDB header;
     ZRAssetUploader uploader;
 
+    i32 nextId;
     ZRDBTexture* textures;
     i32 numTextures;
     i32 maxTextures;
@@ -115,6 +118,7 @@ extern "C" ZRAssetDB* ZRDB_Create()
     *db = {};
     /////////////////////////////////////////////////////
     // functions
+    db->nextId = ZR_ASSET_DB_FIRST_ID;
 
     // Get asset
     db->header.GetMeshByName = ZRDB_GetMeshByName;
