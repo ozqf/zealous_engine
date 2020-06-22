@@ -288,7 +288,10 @@ static void PlatformImpl_ExecTextCommand(const char* str, i32 len)
     // call all loaded modules to attempt to run the given command
     // a result of true from any module means the command was
     // handled
-    
+    if (ZE_CompareStrings(str, "manifest") == 0)
+	{
+		ZRDB_PrintManifest(g_assets);
+	}
 }
 
 static void PlatformImpl_OpenSocket(i32* socket, u16* port)
@@ -480,9 +483,12 @@ int CALLBACK WinMain(
         Win_Error("Error connecting to window DLL");
         return 1;
     }
-    
+
     // Window is okay. Begin App thread
     AppThread_Init();
+
+	// check assets loaded by modules
+	ZRDB_PrintManifest(g_assets);
 
     // window/render thread loop
     MainLoop();

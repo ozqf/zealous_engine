@@ -71,46 +71,53 @@ ZRAssetDBData*##newVarName##=##(ZRAssetDBData*)##assetDBHeader##;
 #include "zr_db_textures.h"
 #include "zr_db_meshes.h"
 #include "zr_db_materials.h"
+#include "../zr_embedded/zr_embedded.h"
+
+///////////////////////////////////////////////////////////////////////////
+// Load embedded assets
+///////////////////////////////////////////////////////////////////////////
+extern "C" void ZRDB_PrintManifest(ZRAssetDB* assetDB)
+{
+	ZRDB_CAST_TO_INTERNAL(assetDB, db)
+	printf("=== Asset Manifest ===\n");
+	printf("--- Meshesh ---\n");
+	for (i32 i = 0; i < db->numMeshes; ++i)
+	{
+		ZRDBMesh* mesh = &db->meshes[i];
+		printf("%d: %s\n", i, mesh->name);
+	}
+	printf("--- Textures ---\n");
+	for (i32 i = 0; i < db->numTextures; ++i)
+	{
+		ZRDBTexture* tex = &db->textures[i];
+		printf("%d: %s\n", i, tex->header.fileName);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+// Load embedded assets
+///////////////////////////////////////////////////////////////////////////
+
+static void ZRDB_LoadEmbedded(ZRAssetDB* db)
+{
+	MeshData* d;
+
+	d = ZR_Embed_Cube();
+    db->LoadMesh(db, "Cube", d, YES);
+    d = ZR_Embed_InverseCube();
+    db->LoadMesh(db, "InverseCube", d, YES);
+	d = ZR_Embed_Quad();
+    db->LoadMesh(db, "Quad", d, YES);
+	db->LoadMesh(db, "DynamicQuad", d, YES);
+	d = ZR_Embed_Spike();
+    db->LoadMesh(db, "Spike", d, YES);
+
+
+}
 
 ///////////////////////////////////////////////////////////////////////////
 // Create
 ///////////////////////////////////////////////////////////////////////////
-
-extern "C" ZRAssetDB* ZRDB_Create_Old(ZRAssetUploader uploader)
-{
-    ZRAssetDBData* db = (ZRAssetDBData*)malloc(sizeof(ZRAssetDBData));
-    *db = {};
-    // callbacks
-    db->uploader = uploader;
-    /////////////////////////////////////////////////////
-    // functions
-
-    // Get asset
-    db->header.GetMeshByName = ZRDB_GetMeshByName;
-    db->header.GetMeshHandleByName = ZRDB_GetMeshHandleByName;
-    db->header.GetMeshByIndex = ZRDB_GetMeshByIndex;
-
-    db->header.GetTextureByName = ZRDB_GetTextureByName;
-    db->header.GetTextureHandleByIndex = ZRDB_GetTextureHandleByIndex;
-
-    db->header.GetMaterialByName = ZRDB_GetMaterialByName;
-    db->header.GetMaterialByIndex = ZRDB_GetMaterialByIndex;
-    // Create
-    db->header.CreateMaterial = ZRDB_CreateMaterial;
-    // Load
-    db->header.LoadMesh = ZRDB_LoadMesh;
-    db->header.LoadMeshFromFBX = ZRDB_LoadMeshFromFBX;
-    db->header.LoadTexture = ZRDB_LoadTexture;
-
-    // store
-    db->textures = (ZRDBTexture*)malloc(sizeof(ZRDBTexture) * ZR_ASSET_DB_MAX_HANDLES);
-    db->maxTextures = ZR_ASSET_DB_MAX_HANDLES;
-    db->meshes = (ZRDBMesh*)malloc(sizeof(ZRDBMesh) * ZR_ASSET_DB_MAX_HANDLES);
-    db->maxMeshes = ZR_ASSET_DB_MAX_HANDLES;
-    db->materials = (ZRMaterial*)malloc(sizeof(ZRMaterial) * ZR_ASSET_DB_MAX_HANDLES);
-    db->maxMaterials = ZR_ASSET_DB_MAX_HANDLES;
-    return &db->header;
-}
 
 extern "C" ZRAssetDB* ZRDB_Create()
 {
@@ -144,6 +151,9 @@ extern "C" ZRAssetDB* ZRDB_Create()
     db->maxMeshes = ZR_ASSET_DB_MAX_HANDLES;
     db->materials = (ZRMaterial*)malloc(sizeof(ZRMaterial) * ZR_ASSET_DB_MAX_HANDLES);
     db->maxMaterials = ZR_ASSET_DB_MAX_HANDLES;
+
+	//ZRDB_LoadEmbedded(&db->header);
+
     return &db->header;
 }
 
