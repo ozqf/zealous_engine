@@ -49,10 +49,13 @@ static void ZRGL_GeometryPass_Mesh(
 	
 	ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_colourTex", diffuse, g_samplerDataTex2D);
+	CHECK_GL_ERR
 	ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE1, 1, "u_emissionTex", emissive, g_samplerDataTex2D);
+	CHECK_GL_ERR
 	
 	ZR_SetProgM4x4(prog, "u_projection", projection->cells);
+	CHECK_GL_ERR
 	
 	M4x4_CREATE(model)
 	M4x4_CREATE(modelView)
@@ -96,6 +99,7 @@ static void ZRGL_GeometryPass_Prefab(
 
 	ZR_PrepareTextureUnit2D(
 		prog, GL_TEXTURE0, 0, "u_colourTex", prefab->textures.diffuse, g_samplerDataTex2D);
+	CHECK_GL_ERR
 
 	char *emissionTexName = "data/debug_white.png";
 	#if 1
@@ -121,6 +125,7 @@ static void ZRGL_GeometryPass_Prefab(
 	//printf("Binding tex handle %d to tex unit 1\n", emissionTexHandle);
 	ZR_PrepareTextureUnit2D(
 		prog, GL_TEXTURE1, 1, "u_emissionTex", emissionTexHandle, g_samplerB);
+	CHECK_GL_ERR
 
 	for (i32 j = 0; j < group->numItems; ++j)
 	{

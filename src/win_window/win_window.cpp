@@ -109,6 +109,7 @@ static i32 WindowImpl_Init()
     platform.Free = g_platform.Free;
     platform.QueryClock = g_platform.QueryClock;
     platform.GetAssetDB = g_platform.GetAssetDB;
+    platform.DebugBreak = g_platform.DebugBreak;
     g_renderer = ZR_Link(platform);
 
     // Initialise the renderer itself.
@@ -234,6 +235,8 @@ static i32 WindowImpl_MainLoop()
         ZR_PollInput();
         endFrameMS = g_platform.QueryClock();
         totalMS = endFrameMS - startFrameMS;
+
+        //g_platform.DebugBreak();
     }
     return ZE_ERROR_NONE;
 }

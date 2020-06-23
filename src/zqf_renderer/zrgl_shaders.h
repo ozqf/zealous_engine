@@ -229,6 +229,7 @@ static void ZRGL_SetupProg_Text(
         printf("Setup program %d\n", programId);
     }
     glUseProgram(programId);
+    CHECK_GL_ERR
 
     ///////////////////////////////////////////////////
     // Setup texture samplers

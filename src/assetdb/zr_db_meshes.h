@@ -66,7 +66,7 @@ static i32 ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVe
 	mesh->header.index = index;
     mesh->header.fileName = name;
     mesh->data = *data;
-    db->uploader.UploadMesh(data, &mesh->handles, 0);
+    //db->uploader.UploadMesh(data, &mesh->handles, 0);
     printf("ZRDB - registered mesh %s handle %d\n", name, mesh->handles.vao);
     return 0;
 }

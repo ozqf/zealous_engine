@@ -296,29 +296,61 @@ static void ZRImpl_UpdateStats(f64 swapMS, f64 frameMS)
     g_platformFrameMS = frameMS;
 }
 
+static void ZR_UploadDBTex(ZRDBTexture* tex)
+{
+    u32 handle = 0;
+    ZRGL_UploadTexture((u8*)tex->data, tex->width, tex->height, &handle);
+    tex->apiHandle = handle;
+    tex->header.bIsUploaded = YES;
+    printf("Tex %s uploaded to handle %d\n", tex->header.fileName, tex->apiHandle);
+}
+
+static void ZR_UploadDBMesh(ZRDBMesh* mesh)
+{
+    ZRGL_UploadMesh(&mesh->data, &mesh->handles, 0);
+    mesh->header.bIsUploaded = YES;
+    printf("Mesh %s uploaded to vao handle %d\n", mesh->header.fileName, mesh->handles.vao);
+}
+
 /**
  * Check over the asset database and upload anything
  * that is not uploaded yet
  */
 static void ZRImpl_CheckForUploads()
 {
-    printf("ZRGL - Check for uploads\n");
+    printf("=== ZRGL - Check for uploads ===\n");
     ZRAssetDB* db = AssetDb();
-    i32 numMeshes = db->GetNumMeshes(db);
     i32 numTextures = db->GetNumTextures(db);
-    printf("%d meshes, %d textures\n", numMeshes, numTextures);
+    printf("--- %d textures total ---\n", numTextures);
     for (i32 i = 0; i < numTextures; ++i)
     {
         ZRDBTexture* tex = db->GetTextureByIndex(db, i);
         if (tex->header.bIsUploaded == NO)
         {
             printf("Tex %d: %s is not uploaded\n", i, tex->header.fileName);
+            ZR_UploadDBTex(tex);
         }
-        else
-        {
-            printf("Tex %d uploaded: %d\n", i, tex->header.bIsUploaded);
-        }
+        // else
+        // {
+        //     printf("Tex %d uploaded: %d\n", i, tex->header.bIsUploaded);
+        // }
     }
+    i32 numMeshes = db->GetNumMeshes(db);
+    printf("--- %d meshes total ---\n", numMeshes);
+    for (i32 i = 0; i < numMeshes; ++i)
+    {
+        ZRDBMesh* mesh = db->GetMeshByIndex(db, i);
+        if (mesh->header.bIsUploaded == NO)
+        {
+            printf("Mesh %d: %s is not uploaded\n", i, mesh->header.fileName);
+            ZR_UploadDBMesh(mesh);
+        }
+        // else
+        // {
+        //     printf("Mesh %d uploaded: %d\n", i, mesh->header.bIsUploaded);
+        // }
+    }
+    printf("\n");
 }
 
 extern "C" ZRRenderer ZR_Link(ZRPlatform platform)

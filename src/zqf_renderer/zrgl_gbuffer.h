@@ -117,11 +117,13 @@ static void ZRGL_FillGBuffer(
     ZRGroupingStats* stats)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, gBuf->fbo);
+    CHECK_GL_ERR
     glClear(GL_DEPTH_BUFFER_BIT);
     glClear(GL_COLOR_BUFFER_BIT);
 
     GLint prog = g_programs[ZR_SHADER_TYPE_BUILD_GBUFFER].handle;
     glUseProgram(prog);
+    CHECK_GL_ERR
     glCullFace(GL_BACK);
 
     M4x4_CREATE(projection)
@@ -131,6 +133,7 @@ static void ZRGL_FillGBuffer(
 
     COM_SetupDefault3DProjection(projection.cells, scrInfo.aspectRatio);
     ZR_SetProgM4x4(prog, "u_projection", projection.cells);
+    CHECK_GL_ERR
 
     ZR_BuildViewMatrix(&view, camera);
     
@@ -229,11 +232,21 @@ static void ZRGL_DrawDebugGBufferCombine(ZRGBuffer* gBuf)
     
 
     ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD];
-	glBindVertexArray(prefab->geometry.vao);
-    glBindTexture(GL_TEXTURE_2D, gBuf->colourTex);
+    if (prefab->geometry.vao == 0)
+    {
+        printf("GBuffer combine - vao %d is invalid!\n", prefab->geometry.vao);
+    }
+    else
+    {
+        glBindVertexArray(prefab->geometry.vao);
+        CHECK_GL_ERR
+        glBindTexture(GL_TEXTURE_2D, gBuf->colourTex);
+        CHECK_GL_ERR
 
-    glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
-    
+        glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+        CHECK_GL_ERR
+    }
+	
     // clean up
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);

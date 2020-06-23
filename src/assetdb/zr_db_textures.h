@@ -105,9 +105,9 @@ static i32 ZRDB_LoadTexture(ZRAssetDB* assetDB, char* path, i32 bVerbose)
 	}
 	u8* pixels;
 	i32 x, y;
-	u32 handle;
+	u32 handle = 0;
     pixels = ZRDB_LoadTextureToHeap(path, bVerbose, &x, &y, YES);
-	db->uploader.UploadTexture(pixels, x, y, &handle);
+	//db->uploader.UploadTexture(pixels, x, y, &handle);
 	ZRDB_RegisterTexture(assetDB, path, pixels, buf.capacity, x, y, handle);
     return 0;
 }

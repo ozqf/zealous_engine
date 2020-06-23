@@ -47,6 +47,7 @@ struct ZRPlatform
     void* (*Allocate)(i32 numBytes);
     void (*Free)(void* ptr);
     void* (*GetAssetDB)();
+    void (*DebugBreak)();
 };
 
 ///////////////////////////////////////////////////////////
