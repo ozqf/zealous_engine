@@ -272,20 +272,10 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     uploader.UploadTexture = ZRGL_UploadTexture;
     uploader.UploadMesh = ZRGL_UploadMesh;
 
-    //g_assets = ZRDB_Create(uploader);
-    //g_assets = g_platform
-    //((ZRAssetDB*)g_platform.GetAssetDB())
     ZRDB_AttachUploader((ZRAssetDB*)g_platform.GetAssetDB(), uploader);
-
-    //g_assets.GetMaterialIndexByName = ZRDB_GetTexIndexByName;
-    //g_assets.GetMeshIndexByName = ZRDB_GetMeshIndexByName;
-    //g_assets.GetTexIndexByName = ZRDB_GetTexIndexByName;
-
+	
     ZE_SET_ZERO(g_prefabs, sizeof(ZRPrefab) * ZR_MAX_PREFABS);
-
-
-    
-    ZRGL_LoadDefaultPrefabs(NO);
+	ZRGL_LoadDefaultPrefabs(NO);
 
     return ZE_ERROR_NONE;
 }
@@ -330,10 +320,6 @@ static void ZRImpl_CheckForUploads()
             printf("Tex %d: %s is not uploaded\n", i, tex->header.fileName);
             ZR_UploadDBTex(tex);
         }
-        // else
-        // {
-        //     printf("Tex %d uploaded: %d\n", i, tex->header.bIsUploaded);
-        // }
     }
     i32 numMeshes = db->GetNumMeshes(db);
     printf("--- %d meshes total ---\n", numMeshes);
@@ -345,10 +331,6 @@ static void ZRImpl_CheckForUploads()
             printf("Mesh %d: %s is not uploaded\n", i, mesh->header.fileName);
             ZR_UploadDBMesh(mesh);
         }
-        // else
-        // {
-        //     printf("Mesh %d uploaded: %d\n", i, mesh->header.bIsUploaded);
-        // }
     }
     printf("\n");
 }

@@ -3,6 +3,13 @@
 
 #include "zrgl_internal.h"
 
+static void ZRGL_GetQuadHandles(i32* vao, i32* vertCount)
+{
+    ZRDBMesh* mesh = AssetDb()->GetMeshByName(AssetDb(), "Quad");
+	*vao = mesh->handles.vao;
+	*vertCount = mesh->data.numVerts;
+}
+
 static ZRGBuffer ZRGL_CreateGBuffer(i32 scrWidth, i32 scrHeight)
 {
     ZRGBuffer gBuf = {};
@@ -145,57 +152,11 @@ static void ZRGL_FillGBuffer(
             case ZR_DRAWOBJ_TYPE_MESH:
             ZRGL_GeometryPass_Mesh(gBuf, &projection, &view, objects, group);
             break;
-            case ZR_DRAWOBJ_TYPE_PREFAB:
-            ZRGL_GeometryPass_Prefab(gBuf, &projection, &view, objects, group);
-            break;
+            default:
+			printf("FillGBuffer - Unknown draw group type %d\n",
+				group->data.type);
+			break;
         }
-        #if 0
-        if (group->data.type != ZR_DRAWOBJ_TYPE_PREFAB) { continue; }
-        ZRPrefab* prefab = ZRGL_GetPrefab(group->data.prefab.prefabId);
-        glBindVertexArray(prefab->geometry.vao);
-
-        // Prepare textures
-        //glBindTexture(GL_TEXTURE_2D, prefab->textures.diffuse);
-        ZR_PrepareTextureUnit2D(
-            prog, GL_TEXTURE0, 0, "u_colourTex", prefab->textures.diffuse, g_samplerDataTex2D);
-        
-        char* emissionTexName = "data/debug_white.png";
-        #if 1
-        if (group->data.prefab.prefabId == ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE)
-        {
-            emissionTexName = "data/debug_white.png";
-        }
-        else
-        {
-            emissionTexName = "data/debug_black.png";
-        }
-        #endif
-        
-        i32 emissionTexIndex = ZRDB_GetTexIndexByName(emissionTexName);
-        i32 emissionTexHandle = ZRDB_GetTexHandleByIndex(emissionTexIndex);
-        //printf("Binding tex handle %d to tex unit 1\n", emissionTexHandle);
-        ZR_PrepareTextureUnit2D(
-            prog, GL_TEXTURE1, 1, "u_emissionTex", emissionTexHandle, g_samplerB);
-
-
-        for (i32 j = 0; j < group->numItems; ++j)
-        {
-            i32 objIndex = group->indices[j];
-            ZRDrawObj* obj = &objects[objIndex];
-            ZE_ASSERT(obj->data.type == ZR_DRAWOBJ_TYPE_PREFAB,
-                "GBuffer fill by non model obj");
-            ZR_BuildModelMatrix(&model, &obj->t);
-            M4x4_SetToIdentity(modelView.cells);
-            M4x4_Multiply(modelView.cells, view.cells, modelView.cells);
-            M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
-
-            ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
-            ZR_SetProgM4x4(prog, "u_model", model.cells);
-
-            glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
-            stats->drawCallsGBuffer++;
-        }
-        #endif
     }
     
     // clear settings
@@ -230,20 +191,21 @@ static void ZRGL_DrawDebugGBufferCombine(ZRGBuffer* gBuf)
     ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE2, 2, "u_positionTex", gBuf->positionTex, g_samplerDataTex2D);
     
-
-    ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD];
-    if (prefab->geometry.vao == 0)
+    i32 vao;
+	i32 vertCount;
+	ZRGL_GetQuadHandles(&vao, &vertCount);
+	if (vao == 0)
     {
-        printf("GBuffer combine - vao %d is invalid!\n", prefab->geometry.vao);
+        printf("GBuffer combine - vao %d is invalid!\n", vao);
     }
     else
     {
-        glBindVertexArray(prefab->geometry.vao);
+        glBindVertexArray(vao);
         CHECK_GL_ERR
         glBindTexture(GL_TEXTURE_2D, gBuf->colourTex);
         CHECK_GL_ERR
 
-        glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+        glDrawArrays(GL_TRIANGLES, 0, vertCount);
         CHECK_GL_ERR
     }
 	
@@ -289,11 +251,12 @@ static void ZRGL_GBufferDrawDirectLight(
     ZR_SetProg1f(prog, "u_lightMultiplier", lightMultiplier);
     ZR_SetProg1f(prog, "u_lightRange", lightRange);
 
-    ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD];
-	glBindVertexArray(prefab->geometry.vao);
+    i32 vao, vertCount;
+	ZRGL_GetQuadHandles(&vao, &vertCount);
+	glBindVertexArray(vao);
     glBindTexture(GL_TEXTURE_2D, gBuf->colourTex);
 
-    glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+    glDrawArrays(GL_TRIANGLES, 0, vertCount);
 
    
 }
@@ -331,11 +294,12 @@ static void ZRGL_GBufferDrawPointLight(
     ZR_SetProg1f(prog, "u_lightMultiplier", lightMultiplier);
     ZR_SetProg1f(prog, "u_lightRange", lightRange);
 
-    ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD];
-	glBindVertexArray(prefab->geometry.vao);
+    i32 vao, vertCount;
+	ZRGL_GetQuadHandles(&vao, &vertCount);
+	glBindVertexArray(vao);
     glBindTexture(GL_TEXTURE_2D, gBuf->colourTex);
 
-    glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+    glDrawArrays(GL_TRIANGLES, 0, vertCount);
 
    
 }

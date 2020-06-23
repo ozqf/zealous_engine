@@ -18,10 +18,11 @@ static void ZR_DrawDeferredLight(
     Vec3 pos = cameraTrans->pos;
     /////////////////////////////////////////////////////////
     // set program and geometry
-
-    ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_SPHERE];
-    //ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_CUBE];
-	glBindVertexArray(prefab->geometry.vao);
+	
+	i32 vao, vertCount;
+	// TODO replace with Get Cube or Sphere etc.
+	ZRGL_GetQuadHandles(&vao, &vertCount);
+	glBindVertexArray(vao);
     
     /////////////////////////////////////////////////////////
     // Prepare FS params
@@ -53,7 +54,7 @@ static void ZR_DrawDeferredLight(
     /////////////////////////////////////////////////////////
     // Draw stencil
     glDrawBuffer(GL_NONE);
-    glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+    glDrawArrays(GL_TRIANGLES, 0, vertCount);
     CHECK_GL_ERR
     glDrawBuffer(GL_BACK);
     
@@ -82,7 +83,7 @@ static void ZR_DrawDeferredLight(
     
     /////////////////////////////////////////////////////////
     // Draw Light
-    glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+    glDrawArrays(GL_TRIANGLES, 0, vertCount);
     CHECK_GL_ERR
 }
 

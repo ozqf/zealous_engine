@@ -85,7 +85,6 @@ static void ZR_ExecuteTextDraw(
     
     #if 1
     // Get character quad prefab and use to stamp out characters.
-    //ZRPrefab* prefab = &g_prefabs[ZR_PREFAB_TYPE_QUAD_DYNAMIC];
     ZRDBMesh* mesh = AssetDb()->GetMeshByName(AssetDb(), "DynamicQuad");
     if (mesh == NULL) { return; }
     ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), "data/charset.bmp");
