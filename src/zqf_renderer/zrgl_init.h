@@ -296,6 +296,31 @@ static void ZRImpl_UpdateStats(f64 swapMS, f64 frameMS)
     g_platformFrameMS = frameMS;
 }
 
+/**
+ * Check over the asset database and upload anything
+ * that is not uploaded yet
+ */
+static void ZRImpl_CheckForUploads()
+{
+    printf("ZRGL - Check for uploads\n");
+    ZRAssetDB* db = AssetDb();
+    i32 numMeshes = db->GetNumMeshes(db);
+    i32 numTextures = db->GetNumTextures(db);
+    printf("%d meshes, %d textures\n", numMeshes, numTextures);
+    for (i32 i = 0; i < numTextures; ++i)
+    {
+        ZRDBTexture* tex = db->GetTextureByIndex(db, i);
+        if (tex->header.bIsUploaded == NO)
+        {
+            printf("Tex %d: %s is not uploaded\n", i, tex->header.fileName);
+        }
+        else
+        {
+            printf("Tex %d uploaded: %d\n", i, tex->header.bIsUploaded);
+        }
+    }
+}
+
 extern "C" ZRRenderer ZR_Link(ZRPlatform platform)
 {
     printf("==== Renderer Link ====\n");
@@ -305,6 +330,7 @@ extern "C" ZRRenderer ZR_Link(ZRPlatform platform)
     r.DrawFrameForward = ZRImpl_DrawFrameForward;
     r.DrawFrameDeferred = ZRImpl_DrawFrameDeferred;
     r.UpdateStats = ZRImpl_UpdateStats;
+    r.CheckForUploads = ZRImpl_CheckForUploads;
     r.isValid = YES;
     return r;
 }

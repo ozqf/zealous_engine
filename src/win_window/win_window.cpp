@@ -103,6 +103,7 @@ static i32 WindowImpl_Init()
 
     glfwSwapBuffers(g_window);
 
+    // create export for renderer and link up
     ZRPlatform platform = {};
     platform.Allocate = g_platform.Allocate;
     platform.Free = g_platform.Free;
@@ -110,12 +111,17 @@ static i32 WindowImpl_Init()
     platform.GetAssetDB = g_platform.GetAssetDB;
     g_renderer = ZR_Link(platform);
 
+    // Initialise the renderer itself.
     ErrorCode err = g_renderer.Init(g_scrInfo.width, g_scrInfo.height);
     if (err != ZE_ERROR_NONE)
     {
         g_platform.Error("Error initialising renderer");
         return ZE_ERROR_UNKNOWN;
     }
+
+    // do a scan for either default assets or stuff an app
+    // has loaded.
+    g_renderer.CheckForUploads();
 
 	return ZE_ERROR_NONE;
 }

@@ -80,13 +80,13 @@ extern "C" void ZRDB_PrintManifest(ZRAssetDB* assetDB)
 {
 	ZRDB_CAST_TO_INTERNAL(assetDB, db)
 	printf("=== Asset Manifest ===\n");
-	printf("--- Meshesh ---\n");
+	printf("--- Meshes (%d) ---\n", assetDB->GetNumMeshes(assetDB));
 	for (i32 i = 0; i < db->numMeshes; ++i)
 	{
 		ZRDBMesh* mesh = &db->meshes[i];
-		printf("%d: %s\n", i, mesh->name);
+		printf("%d: %s\n", i, mesh->header.fileName);
 	}
-	printf("--- Textures ---\n");
+	printf("--- Textures (%d) --- \n", assetDB->GetNumTextures(assetDB));
 	for (i32 i = 0; i < db->numTextures; ++i)
 	{
 		ZRDBTexture* tex = &db->textures[i];
@@ -131,9 +131,12 @@ extern "C" ZRAssetDB* ZRDB_Create()
     db->header.GetMeshByName = ZRDB_GetMeshByName;
     db->header.GetMeshHandleByName = ZRDB_GetMeshHandleByName;
     db->header.GetMeshByIndex = ZRDB_GetMeshByIndex;
+    db->header.GetNumMeshes = ZRDB_GetNumMeshes;
 
     db->header.GetTextureByName = ZRDB_GetTextureByName;
     db->header.GetTextureHandleByIndex = ZRDB_GetTextureHandleByIndex;
+    db->header.GetNumTextures = ZRDB_GetNumTextures;
+    db->header.GetTextureByIndex = ZRDB_GetTextureByIndex;
 
     db->header.GetMaterialByName = ZRDB_GetMaterialByName;
     db->header.GetMaterialByIndex = ZRDB_GetMaterialByIndex;

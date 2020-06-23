@@ -3,12 +3,19 @@
 
 #include "zr_asset_db.h"
 
+static i32 ZRDB_GetNumMeshes(ZRAssetDB* assetDB)
+{
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    return db->numMeshes;
+}
+
 static i32 ZRDB_RegisterMesh(ZRAssetDB* assetDB, char* name, ZRMeshHandles handles, MeshData data)
 {
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
     i32 index = db->numMeshes++;
     ZRDBMesh* mesh = &db->meshes[index];
-    mesh->name = name;
+    *mesh = {};
+    mesh->header.fileName = name;
     mesh->handles = handles;
     mesh->data = data;
     printf("ZRDB - registered Mesh %s at index %d\n", name, index);
@@ -21,7 +28,7 @@ static i32 ZRDB_GetMeshIndexByName(ZRAssetDB* assetDB, char* name)
     i32 index = 0;
     for (i32 i = 0; i < db->numMeshes; ++i)
     {
-        if (ZE_CompareStrings(name, db->meshes[i].name) == 0)
+        if (ZE_CompareStrings(name, db->meshes[i].header.fileName) == 0)
         {
             index = i;
             break;
@@ -56,8 +63,8 @@ static i32 ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVe
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
     i32 index = db->numMeshes++;
     ZRDBMesh* mesh = &db->meshes[index];
-	mesh->index = index;
-    mesh->name = name;
+	mesh->header.index = index;
+    mesh->header.fileName = name;
     mesh->data = *data;
     db->uploader.UploadMesh(data, &mesh->handles, 0);
     printf("ZRDB - registered mesh %s handle %d\n", name, mesh->handles.vao);

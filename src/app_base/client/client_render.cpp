@@ -88,7 +88,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     ZRDBMesh* mesh;
     ZRMaterial* mat;
     mesh = db->GetMeshByName(db, "Cube");
-    i32 meshIndex = mesh->index;
+    i32 meshIndex = mesh->header.index;
     mat = db->GetMaterialByName(db, "Default");
     i32 materialIndex = mat->index;
 

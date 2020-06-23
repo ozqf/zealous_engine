@@ -17,6 +17,7 @@ struct ZRAsset
     i32 id;
     i32 index;
     i32 type;
+	i32 bIsUploaded;
     char* fileName;
 };
 
@@ -58,22 +59,27 @@ struct ZRMeshHandles
 
 struct ZRDBMesh
 {
-	i32 index;
-    char* name;
+	ZRAsset header;
     // api handles
     ZRMeshHandles handles;
     // mesh data on heap
     MeshData data;
 };
 
+/**
+ * Architecture of this is... a bit wild?
+ */
 struct ZRAssetDB
 {
     ZRDBMesh* (*GetMeshByName)(ZRAssetDB* assetDB, char* name);
     ZRDBMesh* (*GetMeshByIndex)(ZRAssetDB* assetDB, i32 index);
     void (*GetMeshHandleByName)(ZRAssetDB* assetDB, char* name, ZRMeshHandles* result);
+    i32 (*GetNumMeshes)(ZRAssetDB* assetDB);
 
     ZRDBTexture* (*GetTextureByName)(ZRAssetDB* assetDB, char* name);
+    ZRDBTexture* (*GetTextureByIndex)(ZRAssetDB* assetDB, i32 index);
     i32 (*GetTextureHandleByIndex)(ZRAssetDB* assetDB, i32 index);
+    i32 (*GetNumTextures)(ZRAssetDB* assetDB);
 
     void (*CreateMaterial)(ZRAssetDB* assetDB, char* name, char* diffuseTexName, char* emissiveTexName);
     ZRMaterial* (*GetMaterialByName)(ZRAssetDB* assetDB, char* name);

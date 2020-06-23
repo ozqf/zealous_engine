@@ -8,6 +8,12 @@
 
 #include "zr_asset_db.h"
 
+static i32 ZRDB_GetNumTextures(ZRAssetDB* assetDB)
+{
+    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    return db->numTextures;
+}
+
 static i32 ZRDB_RegisterTexture(
     ZRAssetDB* assetDB, char* fileName, void* data, i32 dataSize, i32 width, i32 height, i32 apiHandle)
 {
@@ -17,6 +23,7 @@ static i32 ZRDB_RegisterTexture(
     printf("ZRDB - registered texture %d: %s, handle %d\n",
         index, fileName, apiHandle);
     ZRDBTexture* handle = &db->textures[index];
+    *handle = {};
     handle->header.id = db->nextId;
     db->nextId++;
     handle->header.index = index;
@@ -81,6 +88,11 @@ static u8* ZRDB_LoadTextureToHeap(
     { printf("Loaded img res %d, %d - comp %d\n", *x, *y, comp); }
     free(b.start);
     return tex;
+}
+
+static i32 ZRDB_UploadTexture(ZRDBTexture* tex)
+{
+    return ZE_ERROR_NOT_IMPLEMENTED;
 }
 
 static i32 ZRDB_LoadTexture(ZRAssetDB* assetDB, char* path, i32 bVerbose)
