@@ -89,14 +89,10 @@ struct ZRDrawObjData
             i32 meshIndex;
             i32 materialIndex;
         } model;
-        struct
-        {
-            i32 prefabId;
-        } prefab;
-        struct
-        {
-            i32 frame;
-        } billboard;
+        // struct
+        // {
+        //     i32 frame;
+        // } billboard;
         struct
         {
             i32 bCastShadows;

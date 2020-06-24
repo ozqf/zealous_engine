@@ -66,7 +66,7 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     CHECK_GL_ERR
 
     // v-sync
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
 
     // Depth buffer
 	glEnable(GL_DEPTH_TEST);
@@ -274,9 +274,6 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
 
     ZRDB_AttachUploader((ZRAssetDB*)g_platform.GetAssetDB(), uploader);
 	
-    ZE_SET_ZERO(g_prefabs, sizeof(ZRPrefab) * ZR_MAX_PREFABS);
-	ZRGL_LoadDefaultPrefabs(NO);
-
     return ZE_ERROR_NONE;
 }
 

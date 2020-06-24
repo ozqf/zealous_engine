@@ -256,7 +256,7 @@ extern "C" void CL_Start(ZNetAddress serverAddress, i32 updSocketId)
 
     g_testCameraDegrees.x = -80.0f * DEG2RAD;
 
-    CLR_Init();
+    CLR_Init(App_GetAssetDB());
 
     CLDebug_MakeVoxelWorld();
     /*

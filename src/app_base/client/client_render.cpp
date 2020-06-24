@@ -4,6 +4,16 @@
 #include "client_render.h"
 #include "../../zqf_renderer.h"
 
+#define CLR_WORLD_MAT "world"
+#define CLR_WORLD_ENT "ent"
+#define CLR_WORLD_PRJ "prj"
+
+static ZRAssetDB* g_assetDb = NULL;
+
+static i32 g_worldMatIndex = 0;
+static i32 g_entMatIndex = 0;
+static i32 g_prjMatIndex = 0;
+
 static ZRDrawObj* CLR_InitDrawObjInPlace(u8** ptr)
 {
     ZRDrawObj* obj = (ZRDrawObj*)*ptr;
@@ -12,14 +22,36 @@ static ZRDrawObj* CLR_InitDrawObjInPlace(u8** ptr)
     return obj;
 }
 
-extern "C" void CLR_Init()
+extern "C" void CLR_Init(ZRAssetDB* assetDb)
 {
+    g_assetDb = assetDb;
 
+    // Create materials
+    g_worldMatIndex = g_assetDb->CreateMaterial(
+        g_assetDb,
+        CLR_WORLD_MAT,
+        "data/W33_5.bmp",
+        "data/debug_black.png"
+    )->index;
+
+    g_entMatIndex = g_assetDb->CreateMaterial(
+        g_assetDb,
+        CLR_WORLD_ENT,
+        "data/debug_white.bmp",
+        "data/debug_black.png"
+    )->index;
+
+    g_prjMatIndex = g_assetDb->CreateMaterial(
+        g_assetDb,
+        CLR_WORLD_PRJ,
+        "data/debug_red.bmp",
+        "data/debug_black.png"
+    )->index;
 }
 
 extern "C" void CLR_Shutdown()
 {
-    
+    g_assetDb = NULL;
 }
 
 /**
@@ -31,8 +63,12 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     ZEByteBuffer* scratch)
 {
     // TODO: Look these up in asset db!
-    i32 cubeIndex = 0;
-    i32 quadIndex = 2;
+    ZRDBMesh* cube = g_assetDb->GetMeshByName(g_assetDb, ZRDB_MESH_NAME_CUBE);
+    ZRDBMesh* quad = g_assetDb->GetMeshByName(g_assetDb, ZRDB_MESH_NAME_QUAD);
+    //ZRDBTexture* defaultDiffuse
+
+    i32 cubeIndex = cube->header.index;
+    i32 quadIndex = quad->header.index;
     i32 defaultMaterialIndex = 0;
     i32 prjMaterialIndex = 2;
 
@@ -89,7 +125,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     ZRMaterial* mat;
     mesh = db->GetMeshByName(db, "Cube");
     i32 meshIndex = mesh->header.index;
-    mat = db->GetMaterialByName(db, "Default");
+    mat = db->GetMaterialByName(db, ZRDB_DEFAULT_DIFFUSE_MAT_NAME);
     i32 materialIndex = mat->index;
 
     if (cfg.worldLightsMax <= 0) { cfg.worldLightsMax = 4; }

@@ -4,6 +4,7 @@
 #include "../../ze_common/ze_common.h"
 #include "client.h"
 #include "../../sim/sim.h"
+#include "../../assetdb/zr_asset_db.h"
 
 struct ClientRenderSettings
 {
@@ -12,7 +13,7 @@ struct ClientRenderSettings
     i32 extraLightsMax;
 };
 
-extern "C" void CLR_Init();
+extern "C" void CLR_Init(ZRAssetDB* db);
 extern "C" void CLR_Shutdown();
 /**
  * Write Client state to draw buffers

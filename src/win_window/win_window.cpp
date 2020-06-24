@@ -32,6 +32,7 @@ static void ZR_Error(const char* msg)
 static i32 WindowImpl_Init()
 {
     //g_platform.Warning("Hello from window DLL", "666");
+    // This NEVER happens honest gov.
     ZE_SetFatalError(ZR_Error);
 
     i32 bytes = MegaBytes(1);

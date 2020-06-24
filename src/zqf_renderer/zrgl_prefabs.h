@@ -9,7 +9,6 @@
 
 #include "../../lib/openfbx/ofbx.h"
 
-#define ZQF_R_DEFAULT_DIFFUSE_TEX "data/W33_5.bmp"
 // Returns opengl handle or 0 if failed
 // Length == pixels wide and high, each pixel being 4 floats
 // As 1D, can't be big enough...?
@@ -552,26 +551,11 @@ static ZRMeshHandles ZRGL_LoadFBX(
     return handles;
 }
 #endif
-static ZRPrefab* ZRGL_GetPrefab(i32 index)
-{
-    if (index < 0 || index >= ZR_MAX_PREFABS)
-    {
-        printf("ZR Prefab index %d out of bounds\n", index);
-        return &g_prefabs[0];
-    }
-    ZRPrefab* result = &g_prefabs[index];
-    if (result->bInitialised != YES)
-    {
-        printf("ZR Prefab index %d is not initialised!\n", index);
-        return &g_prefabs[0];
-    }
-    return result;
-}
 
 static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
 {
+    #if 0
     printf("ZRGL - load default prefabs\n");
-
     // Textures
     AssetDb()->LoadTexture(AssetDb(), "data/debug_white.png", bVerbose);
     AssetDb()->LoadTexture(AssetDb(), "data/debug_black.png", bVerbose);
@@ -607,7 +591,7 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     // Default VAOs
     MeshData* d;
     //i32 meshIndex;
-
+    /*
     d = ZR_Embed_Cube();
     AssetDb()->LoadMesh(AssetDb(), "Cube", d, YES);
     //g_cubeVAO = ZRGL_CreateVAOf(
@@ -633,7 +617,7 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     //g_spikeVAO = ZRGL_CreateVAOf(
     //    d->numVerts, (Vec3*)d->verts, (Vec2*)d->uvs, (Vec3*)d->normals, 0, bVerbose);
     //meshIndex = ZRDB_RegisterMesh("Spike", g_spikeVAO, *d);
-    
+    */
     g_defaultDiffuseHandle = 
         AssetDb()->LoadTexture(AssetDb(), ZQF_R_DEFAULT_DIFFUSE_TEX, bVerbose);
 
@@ -884,6 +868,7 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     #endif
 
     //g_cubemapHandle = ZRGL_LoadCubeMap(paths, YES);
+    #endif
 }
 
 #endif // ZRGL_PREFABS

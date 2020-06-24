@@ -1,68 +1,7 @@
 #ifndef ZR_ASSET_DB_CPP
 #define ZR_ASSET_DB_CPP
 
-#include "zr_asset_db.h"
-
-#define ZR_ASSET_DB_MAX_HANDLES 512
-
-#define ZR_ASSET_DB_FIRST_ID 1
-
-///////////////////////////////////////////////////////////////////////////
-// Internal data structures
-///////////////////////////////////////////////////////////////////////////
-
-struct ZRAssetDBData
-{
-    ZRAssetDB header;
-    ZRAssetUploader uploader;
-
-    i32 nextId;
-    ZRDBTexture* textures;
-    i32 numTextures;
-    i32 maxTextures;
-    ZRDBMesh* meshes;
-    i32 numMeshes;
-    i32 maxMeshes;
-    ZRMaterial* materials;
-    i32 numMaterials;
-    i32 maxMaterials;
-};
-
-
-///////////////////////////////////////////////////////////////////////////
-// Shared utility functions
-///////////////////////////////////////////////////////////////////////////
-
-/**
- * Load an entire file, unaltered, into memory.
- * Must be freed by the caller after use
- */
-static i32 ZRDB_StageRawFile(char* path, ZEByteBuffer* dest)
-{
-    FILE* f;
-    i32 err = fopen_s(&f, path, "rb");
-    if (err != 0)
-    {
-        printf("FAILED: Could not open file \"%s\" for reading\n", path);
-        return ZE_ERROR_NOT_FOUND;
-    }
-    fseek(f, 0, SEEK_END);
-    i32 size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    void* mem = malloc(size);
-    if (mem == NULL)
-    {
-        return ZE_ERROR_ALLOCATION_FAILED;
-    }
-    *dest = Buf_FromMalloc(mem, size);
-    fread((void*)dest->start, dest->capacity, 1, f);
-    fclose(f);
-    //printf("  staged \"%s\" (%d KB)\n", size / 1024);
-    return ZE_ERROR_NONE;
-}
-
-#define ZRDB_CAST_TO_INTERNAL(assetDBHeader, newVarName) \
-ZRAssetDBData*##newVarName##=##(ZRAssetDBData*)##assetDBHeader##;
+#include "zr_db_internal.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // Implementations
@@ -71,6 +10,7 @@ ZRAssetDBData*##newVarName##=##(ZRAssetDBData*)##assetDBHeader##;
 #include "zr_db_textures.h"
 #include "zr_db_meshes.h"
 #include "zr_db_materials.h"
+#include "zr_db_fbx.h"
 #include "../zr_embedded/zr_embedded.h"
 
 ///////////////////////////////////////////////////////////////////////////
@@ -98,21 +38,47 @@ extern "C" void ZRDB_PrintManifest(ZRAssetDB* assetDB)
 // Load embedded assets
 ///////////////////////////////////////////////////////////////////////////
 
+/**
+ * Load in embedded assets. these assets are also default fallbacks.
+ */
 static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 {
+    i32 bVerbose = NO;
 	MeshData* d;
 
 	d = ZR_Embed_Cube();
-    db->LoadMesh(db, "Cube", d, YES);
+    db->LoadMesh(db, ZRDB_MESH_NAME_CUBE, d, YES);
     d = ZR_Embed_InverseCube();
-    db->LoadMesh(db, "InverseCube", d, YES);
+    db->LoadMesh(db, ZRDB_MESH_NAME_INVERSE_CUBE, d, YES);
 	d = ZR_Embed_Quad();
-    db->LoadMesh(db, "Quad", d, YES);
-	db->LoadMesh(db, "DynamicQuad", d, YES);
+    db->LoadMesh(db, ZRDB_MESH_NAME_QUAD, d, YES);
+	db->LoadMesh(db, ZRDB_MESH_NAME_DYNAMIC_QUAD, d, YES);
 	d = ZR_Embed_Spike();
-    db->LoadMesh(db, "Spike", d, YES);
+    db->LoadMesh(db, ZRDB_MESH_NAME_SPIKE, d, YES);
 
-
+    char* textures[] = {
+        "data/W33_5.bmp",
+        "data/charset.bmp",
+        "data/debug_white.png",
+        "data/debug_black.png",
+        "data/debug_blue.png",
+        "data/debug_red.png"
+        
+    };
+    i32 numTextures = sizeof(textures) / sizeof(char*);
+    printf("ZRDB - %d textures to load\n", numTextures);
+    for (i32 i = 0; i < numTextures; ++i)
+    {
+        db->LoadTexture(db, textures[i], bVerbose);
+    }
+    
+    // Textures need to be loaded before this point!
+    ZRMaterial* mat = db->CreateMaterial(
+        db,
+        ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
+        //"data/W33_5.bmp",
+        "data/debug_blue.png",
+        "data/debug_black.png");
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -155,7 +121,7 @@ extern "C" ZRAssetDB* ZRDB_Create()
     db->materials = (ZRMaterial*)malloc(sizeof(ZRMaterial) * ZR_ASSET_DB_MAX_HANDLES);
     db->maxMaterials = ZR_ASSET_DB_MAX_HANDLES;
 
-	//ZRDB_LoadEmbedded(&db->header);
+	ZRDB_LoadEmbedded(&db->header);
 
     return &db->header;
 }

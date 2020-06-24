@@ -296,7 +296,7 @@ static void ZR_DrawMeshGroupFallback(
     i32 numObjects,
     ZRGroupingStats* stats)
 {
-    #if 1
+    #if 0
     GLint prog = g_programs[ZR_SHADER_TYPE_FALLBACK].handle;
     glUseProgram(prog);
     CHECK_GL_ERR
@@ -343,7 +343,7 @@ static void ZR_DrawMeshGroupTest(
     ScreenInfo* scrInfo,
     ZRGroupingStats* stats)
 {
-    #if 1
+    #if 0
     GLint prog = g_programs[ZR_SHADER_TYPE_TEST].handle;
     glUseProgram(prog);
     CHECK_GL_ERR
@@ -432,6 +432,7 @@ static void ZR_DrawMeshGroupTest(
 static void ZR_DrawMeshGroupBatched(
     M4x4* projection, ZRDrawGroup* group, ZRPerformanceStats* stats)
 {
+    #if 0
     // setup program
     GLuint programId = g_programs[ZR_SHADER_TYPE_BATCHED].handle;
     glUseProgram(programId);
@@ -471,6 +472,7 @@ static void ZR_DrawMeshGroupBatched(
     stats->drawCalls++;
     stats->trisBatched += tris;
 	CHECK_GL_ERR
+    #endif
 }
 
 ///////////////////////////////////////////////////////////

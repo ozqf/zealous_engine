@@ -8,6 +8,16 @@
 #define ZRDB_ASSET_TYPE_ 2
 #define ZRDB_ASSET_TYPE_BLOB 3
 
+#define ZRDB_MESH_NAME_CUBE "Cube"
+#define ZRDB_MESH_NAME_INVERSE_CUBE "InverseCube"
+#define ZRDB_MESH_NAME_QUAD "Quad"
+#define ZRDB_MESH_NAME_DYNAMIC_QUAD "DynamicQuad"
+#define ZRDB_MESH_NAME_SPIKE "Spike"
+
+#define ZQF_R_DEFAULT_DIFFUSE_TEX "data/W33_5.bmp"
+
+#define ZRDB_DEFAULT_DIFFUSE_MAT_NAME "default"
+
 ///////////////////////////////////////////////////////////
 // Asset data types
 ///////////////////////////////////////////////////////////
@@ -81,7 +91,7 @@ struct ZRAssetDB
     i32 (*GetTextureHandleByIndex)(ZRAssetDB* assetDB, i32 index);
     i32 (*GetNumTextures)(ZRAssetDB* assetDB);
 
-    void (*CreateMaterial)(ZRAssetDB* assetDB, char* name, char* diffuseTexName, char* emissiveTexName);
+    ZRMaterial* (*CreateMaterial)(ZRAssetDB* assetDB, char* name, char* diffuseTexName, char* emissiveTexName);
     ZRMaterial* (*GetMaterialByName)(ZRAssetDB* assetDB, char* name);
     ZRMaterial* (*GetMaterialByIndex)(ZRAssetDB* assetDB, i32 index);
 

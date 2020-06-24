@@ -12,6 +12,8 @@
 
 /bin_tools/
 
+/release/
+
 # For 3rd party DLLs
 /bin/*
 !/bin/glfw3.dll

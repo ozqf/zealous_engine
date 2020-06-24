@@ -37,15 +37,20 @@ static void ZRGL_GeometryPass_Mesh(
 	CHECK_GL_ERR
 
 	i32 diffuse, emissive;
+	#if 1 // pull in material info
 	ZRMaterial* mat = AssetDb()->GetMaterialByIndex(AssetDb(), group->data.model.materialIndex);
 	diffuse = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->diffuseTexIndex);
 	emissive = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->emissionTexIndex);
-
+	printf("Geometry pass mat %s handles: %d, %d\n",
+		mat->name, diffuse, emissive);
+	#endif
+	#if 0 // get texture handles directly
 	ZRDBTexture* tex;
 	tex = AssetDb()->GetTextureByName(AssetDb(), ZQF_R_DEFAULT_DIFFUSE_TEX);
 	diffuse = tex->apiHandle;
 	tex = AssetDb()->GetTextureByName(AssetDb(), "data/debug_black.png");
 	emissive = tex->apiHandle;
+	#endif
 	
 	ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_colourTex", diffuse, g_samplerDataTex2D);
