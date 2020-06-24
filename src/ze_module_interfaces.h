@@ -43,6 +43,7 @@ struct ze_platform_export
     void (*Free)(void* ptr);
 
     void* (*GetAssetDB)();
+    i32 (*ExecTextCommand)(const char* str, const i32 len, char** tokens, const i32 numTokens);
     
     // Acquire is passed through to window if it is availables
     void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);

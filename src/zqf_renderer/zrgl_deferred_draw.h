@@ -41,8 +41,6 @@ static void ZRGL_GeometryPass_Mesh(
 	ZRMaterial* mat = AssetDb()->GetMaterialByIndex(AssetDb(), group->data.model.materialIndex);
 	diffuse = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->diffuseTexIndex);
 	emissive = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->emissionTexIndex);
-	printf("Geometry pass mat %s handles: %d, %d\n",
-		mat->name, diffuse, emissive);
 	#endif
 	#if 0 // get texture handles directly
 	ZRDBTexture* tex;
@@ -50,6 +48,11 @@ static void ZRGL_GeometryPass_Mesh(
 	diffuse = tex->apiHandle;
 	tex = AssetDb()->GetTextureByName(AssetDb(), "data/debug_black.png");
 	emissive = tex->apiHandle;
+	#endif
+
+	#if 0
+	printf("Geometry pass mat %s handles: %d, %d\n",
+		mat->name, diffuse, emissive);
 	#endif
 	
 	ZR_PrepareTextureUnit2D(

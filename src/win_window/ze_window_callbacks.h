@@ -83,6 +83,8 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
             {
                 // execute command
                 printf("EXEC: %s\n", str);
+                i32 len = ZE_StrLenNoTerminator(str) + 1;
+                g_platform.ExecTextCommand(str, len, NULL, 0);
             }
         }
         return YES;

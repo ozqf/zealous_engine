@@ -342,6 +342,7 @@ struct ZRRenderer
     ZRPerformanceStats (*DrawFrameDeferred)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
     void (*UpdateStats)(f64 swapMS, f64 frameMS);
     void (*CheckForUploads)();
+    i32 (*ExecTextCommand)(const char* str, const i32 len, char** tokens, const i32 numTokens);
 };
 
 /*

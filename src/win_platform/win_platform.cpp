@@ -283,8 +283,10 @@ static void PlatformImpl_ReleaseEventBuffer()
     { g_window.Release_EventBuffer(); }
 }
 
-static void PlatformImpl_ExecTextCommand(const char* str, i32 len)
+static i32 PlatformImpl_ExecTextCommand(
+    const char* str, const i32 len, char** tokens, const i32 numTokens)
 {
+    printf("PLAT: Exec %s\n", str);
     // call all loaded modules to attempt to run the given command
     // a result of true from any module means the command was
     // handled
@@ -292,6 +294,7 @@ static void PlatformImpl_ExecTextCommand(const char* str, i32 len)
 	{
 		ZRDB_PrintManifest(g_assets);
 	}
+    return NO;
 }
 
 static void PlatformImpl_OpenSocket(i32* socket, u16* port)
@@ -328,7 +331,9 @@ static ze_platform_export Win_BuildExport()
     result.Log = Win_Log;
     result.Print = Win_Print;
     result.DebugBreak = PlatformImpl_DebugBreak;
+
     result.GetAssetDB = PlatformImpl_GetAssetDB;
+    result.ExecTextCommand = PlatformImpl_ExecTextCommand;
 
     result.QueryClock = PlatformImpl_QueryClock;
     result.Allocate = PlatformImpl_Allocate;
