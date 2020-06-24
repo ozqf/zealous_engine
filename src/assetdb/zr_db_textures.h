@@ -46,6 +46,7 @@ static i32 ZRDB_GetTextureIndexByName(ZRAssetDB* assetDB, char* name)
             return i;
         }
     }
+    printf("ZRDB FAIL - No tex %s\n", name);
     return 0;
 }
 

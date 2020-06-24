@@ -15,42 +15,26 @@ static void ZRGL_GeometryPass_Mesh(
 
 	// setup VAO and textures
 	i32 vao, vertCount;
-	#if 0
-	ZRMeshHandles mesh;
-	ZRDB_GetMeshHandlesByIndex(group->data.model.meshIndex, &mesh);
-	vao = mesh.vao;
-	vertCount = mesh.vertexCount;
-	glBindVertexArray(vao);
-	#endif
-	#if 1
-	//ZRMeshHandles mesh;
-	//ZRDB_GetMeshHandlesByName("Cube", &mesh);
-	//AssetDb()->GetMeshHandleByName(AssetDb(), "Cube", &mesh);
+	i32 diffuse, emissive;
+
+	/////////////////////////////////////////////////////////////
+    // Mesh
 	ZRDBMesh* mesh = AssetDb()->GetMeshByIndex(AssetDb(), group->data.model.meshIndex);
 	vao = mesh->handles.vao;
 	vertCount = mesh->data.numVerts;
 	glBindVertexArray(vao);
 	CHECK_GL_ERR
-	#endif
 	
 	GLint prog = g_programs[ZR_SHADER_TYPE_BUILD_GBUFFER].handle;
 	glUseProgram(prog);
 	CHECK_GL_ERR
 
-	i32 diffuse, emissive;
-	#if 1 // pull in material info
+	/////////////////////////////////////////////////////////////
+	// pull in material info
 	ZRMaterial* mat = AssetDb()->GetMaterialByIndex(AssetDb(), group->data.model.materialIndex);
 	diffuse = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->diffuseTexIndex);
 	emissive = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->emissionTexIndex);
-	#endif
-	#if 0 // get texture handles directly
-	ZRDBTexture* tex;
-	tex = AssetDb()->GetTextureByName(AssetDb(), ZQF_R_DEFAULT_DIFFUSE_TEX);
-	diffuse = tex->apiHandle;
-	tex = AssetDb()->GetTextureByName(AssetDb(), "data/debug_black.png");
-	emissive = tex->apiHandle;
-	#endif
-
+	
 	if (g_verboseFrame == YES)
 	{
 		printf("Geometry pass - %d items. mesh %s (%d verts) mat %s\n",
@@ -58,7 +42,6 @@ static void ZRGL_GeometryPass_Mesh(
 		printf("\tHandles vao %d, diffuse %d emissive %d\n",
 			vao, diffuse, emissive);
 	}
-	
 	
 	ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_colourTex", diffuse, g_samplerDataTex2D);

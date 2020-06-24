@@ -4,15 +4,7 @@
 #include "client_render.h"
 #include "../../zqf_renderer.h"
 
-#define CLR_WORLD_MAT "world"
-#define CLR_WORLD_ENT "ent"
-#define CLR_WORLD_PRJ "prj"
-
 static ZRAssetDB* g_assetDb = NULL;
-
-static i32 g_worldMatIndex = 0;
-static i32 g_entMatIndex = 0;
-static i32 g_prjMatIndex = 0;
 
 static ZRDrawObj* CLR_InitDrawObjInPlace(u8** ptr)
 {
@@ -25,28 +17,6 @@ static ZRDrawObj* CLR_InitDrawObjInPlace(u8** ptr)
 extern "C" void CLR_Init(ZRAssetDB* assetDb)
 {
     g_assetDb = assetDb;
-
-    // Create materials
-    g_worldMatIndex = g_assetDb->CreateMaterial(
-        g_assetDb,
-        CLR_WORLD_MAT,
-        "data/W33_5.bmp",
-        "data/debug_black.png"
-    )->index;
-
-    g_entMatIndex = g_assetDb->CreateMaterial(
-        g_assetDb,
-        CLR_WORLD_ENT,
-        "data/debug_white.bmp",
-        "data/debug_black.png"
-    )->index;
-
-    g_prjMatIndex = g_assetDb->CreateMaterial(
-        g_assetDb,
-        CLR_WORLD_PRJ,
-        "data/debug_red.bmp",
-        "data/debug_black.png"
-    )->index;
 }
 
 extern "C" void CLR_Shutdown()
@@ -116,17 +86,13 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     ZEByteBuffer* scratch,
     ClientRenderSettings cfg)
 {
-    // TODO: Look these up in asset db!
-    //i32 meshIndex = 0;
-    //i32 quadIndex = 2;
-	
     ZRAssetDB* db = App_GetAssetDB();
-    ZRDBMesh* mesh;
-    ZRMaterial* mat;
-    mesh = db->GetMeshByName(db, "Cube");
-    i32 meshIndex = mesh->header.index;
-    mat = db->GetMaterialByName(db, ZRDB_DEFAULT_DIFFUSE_MAT_NAME);
-    i32 materialIndex = mat->index;
+    // ZRDBMesh* mesh;
+    // ZRMaterial* mat;
+    // mesh = db->GetMeshByName(db, "Cube");
+    // i32 meshIndex = mesh->header.index;
+    // mat = db->GetMaterialByName(db, ZRDB_DEFAULT_DIFFUSE_MAT_NAME);
+    // i32 materialIndex = mat->index;
 
     if (cfg.worldLightsMax <= 0) { cfg.worldLightsMax = 4; }
     if (cfg.extraLightsMax <= 0) { cfg.extraLightsMax = 4; }
@@ -141,19 +107,19 @@ internal i32 CLR_AddSimObjectsToRenderScene(
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
         if (ent->display.data.type == ZR_DRAWOBJ_TYPE_NONE) { continue; }
         i32 rendObjectsAdded = 0;
-        #if 1
+        
         switch (ent->display.data.type)
         {
             case ZR_DRAWOBJ_TYPE_MESH:
             {
+                // straight make a copy of the entity's draw data.
                 ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
                 obj->data = ent->display.data;
-                // obj->data.SetAsMesh(
-                //     ent->display.data.model.meshIndex,
-                //     ent->display.data.model.materialIndex
-                // );
+                
                 obj->t = ent->body.t;
                 rendObjectsAdded++;
+
+                // add an optional light source
                 if ((ent->factoryType == SIM_FACTORY_TYPE_PROJ_PLAYER
                     || ent->factoryType == SIM_FACTORY_TYPE_BULLET_IMPACT)
                     && extraLights > 0)
@@ -179,159 +145,6 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             } break;
         }
         objCount += rendObjectsAdded;
-        #endif
-
-        #if 0
-        switch (ent->factoryType)
-        {
-            case SIM_FACTORY_TYPE_PROJ_PREDICTION:
-            case SIM_FACTORY_TYPE_PROJECTILE_BASE:
-            case SIM_FACTORY_TYPE_PROJ_PLAYER:
-            {
-                //ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE);
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
-                obj->t = ent->body.t;
-                rendObjectsAdded++;
-            } break;
-            case SIM_FACTORY_TYPE_WORLD:
-            {
-                #if 0
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_WALL);
-                obj->t = ent->body.t;
-                rendObjectsAdded++;
-                #endif
-                #if 1
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
-                obj->t = ent->body.t;
-                rendObjectsAdded++;
-                #endif
-            } break;
-            case SIM_FACTORY_TYPE_BOUNCER:
-            case SIM_FACTORY_TYPE_WANDERER:
-            case SIM_FACTORY_TYPE_DART:
-            case SIM_FACTORY_TYPE_TARGET_POINT:
-            case SIM_FACTORY_TYPE_SEEKER:
-            {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_ENEMY);
-                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
-                #if 1
-                obj->t = ent->body.t;
-                #endif
-                #if 0
-                // calculate smoothed position
-                Vec3 pos = ent->body.t.pos;
-                pos.x -= ent->body.error.x;
-                pos.y -= ent->body.error.y;
-                pos.z -= ent->body.error.z;
-                ent->body.error.x *= ent->body.errorRate;
-                ent->body.error.y *= ent->body.errorRate;
-                ent->body.error.z *= ent->body.errorRate;
-
-                Vec3 errorPos = ent->body.error;
-                //printf("CLR Actor error %.3f, %.3f, %.3f\n",
-                //    errorPos.x, errorPos.y, errorPos.z);
-                obj->t.pos = pos;
-                obj->t.rotation = ent->body.t.rotation;
-                obj->t.scale = ent->body.t.scale;
-                #endif
-                rendObjectsAdded++;
-            } break;
-            case SIM_FACTORY_TYPE_PROP:
-            case SIM_FACTORY_TYPE_SEEKER_FLYING:
-            {
-                //ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_QUAD);
-
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
-                // Setup buildboard
-                // extract euler angles from camera
-                Vec3 euler = M3x3_GetEulerAnglesRadians(camera->rotation.cells);
-                // rotate object toward camera
-                obj->t = ent->body.t;
-                M3x3* rot = &obj->t.rotation;
-                M3x3_SetToIdentity(rot->cells);
-                M3x3_RotateY(rot->cells, euler.y);
-                M3x3_RotateX(rot->cells, euler.x);
-                rendObjectsAdded++;
-            } break;
-            case SIM_FACTORY_TYPE_BOT:
-            case SIM_FACTORY_TYPE_ACTOR:
-            {
-                ZRDrawObj* obj;
-                if (debugFlags & CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION)
-                {
-                    obj = CLR_InitDrawObjInPlace(&list->cursor);
-                    //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_ITEM);
-                    ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
-                    rendObjectsAdded++;
-                    obj->t = ent->body.t;
-                }
-                obj = CLR_InitDrawObjInPlace(&list->cursor);
-                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_PLAYER);
-                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
-                rendObjectsAdded++;
-                if (debugFlags & CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING)
-                {
-                    obj->t = ent->body.t;
-                }
-                else
-                {
-                    // calculate smoothed position
-                    Vec3 pos = ent->body.t.pos;
-                    pos.x -= ent->body.error.x;
-                    pos.y -= ent->body.error.y;
-                    pos.z -= ent->body.error.z;
-                    ent->body.error.x *= ent->body.errorRate;
-                    ent->body.error.y *= ent->body.errorRate;
-                    ent->body.error.z *= ent->body.errorRate;
-
-                    Vec3 errorPos = ent->body.error;
-                    //printf("CLR Actor error %.3f, %.3f, %.3f\n",
-                    //    errorPos.x, errorPos.y, errorPos.z);
-                    obj->t.pos = pos;
-                    obj->t.rotation = ent->body.t.rotation;
-                    obj->t.scale = ent->body.t.scale;
-                }
-            } break;
-            case SIM_FACTORY_TYPE_BULLET_IMPACT:
-            case SIM_FACTORY_TYPE_EXPLOSION:
-            {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_EXPLOSION);
-                ZRDrawObj_SetAsMesh(obj, meshIndex, materialIndex);
-                obj->t = ent->body.t;
-                rendObjectsAdded++;
-            } break;
-            case SIM_FACTORY_TYPE_POINT_LIGHT:
-            {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsPointLight(
-                    obj,
-                    ent->display.colourA,
-                    ent->display.colourB.array[0],
-                    ent->display.colourB.array[1]);
-				obj->t.pos = ent->body.t.pos;
-            } break;
-            case SIM_FACTORY_TYPE_DIRECT_LIGHT:
-            {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
-                ZRDrawObj_SetAsDirectLight(
-                    obj,
-                    ent->display.colourA,
-                    ent->display.colourB.array[0],
-                    ent->display.colourB.array[1]);
-				obj->t.pos = ent->body.t.pos;
-				obj->t.rotation = ent->body.t.rotation;
-            } break;
-        }
-        objCount += rendObjectsAdded;
-        #endif
     }
     return objCount;
 }
@@ -347,7 +160,7 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
 
     ZRViewFrame* frame = (ZRViewFrame*)list->cursor;
     list->cursor += sizeof(ZRViewFrame);
-    
+
     *frame = {};
     if (cfg.debugFlags & CL_DEBUG_FLAG_VERBOSE_FRAME)
     {

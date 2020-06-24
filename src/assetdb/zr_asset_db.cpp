@@ -79,6 +79,28 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         //"data/W33_5.bmp",
         "data/debug_blue.png",
         "data/debug_black.png");
+    
+    // Create materials
+    db->CreateMaterial(
+        db,
+        ZRDB_MAT_NAME_WORLD,
+        "data/W33_5.bmp",
+        "data/debug_black.png"
+    )->index;
+
+    db->CreateMaterial(
+        db,
+        ZRDB_MAT_NAME_ENT,
+        "data/debug_white.png",
+        "data/debug_black.png"
+    )->index;
+
+    db->CreateMaterial(
+        db,
+        ZRDB_MAT_NAME_PRJ,
+        "data/debug_red.png",
+        "data/debug_black.png"
+    )->index;
 }
 
 ///////////////////////////////////////////////////////////////////////////

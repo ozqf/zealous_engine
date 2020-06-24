@@ -156,8 +156,8 @@ internal i32 Sim_InitActor(
     Sim_SetEntityDisplay_Mesh(ent,
         { 0, 1, 0, 1 },
         { 0, 1, 0, 1 },
-        "Cube",
-		"Default",
+        ZRDB_MESH_NAME_CUBE,
+		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_EXPLOSION);
     ent->tickType = SIM_TICK_TYPE_ACTOR;
     ent->coreTickType = SIM_TICK_TYPE_ACTOR;
@@ -174,8 +174,8 @@ internal i32 Sim_InitBot(
     Sim_SetEntityDisplay_Mesh(ent,
         { 0, 0.6f, 0, 1 },
         { 0, 0.6f, 0, 1 },
-        "Cube",
-		"Default",
+        ZRDB_MESH_NAME_CUBE,
+		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_EXPLOSION);
     ent->tickType = SIM_TICK_TYPE_BOT;
     ent->coreTickType = SIM_TICK_TYPE_BOT;
@@ -213,8 +213,8 @@ internal i32 Sim_InitWorldVolume(
     Sim_SetEntityDisplay_Mesh(ent,
         { 0.2f, 0.2f, 0.2f, 1 },
         { 0.2f, 0.2f, 0.2f, 1 },
-        "Cube",
-		"Default",
+        ZRDB_MESH_NAME_CUBE,
+		ZRDB_MAT_NAME_WORLD,
         SIM_DEATH_GFX_NONE);
     #ifdef SIM_USE_PHYSICS_ENGINE
     ent->shape.SetAsBox(def->pos, def->scale, ZCOLLIDER_FLAG_STATIC, SIM_LAYER_WORLD, SIM_LAYER_WORLD, 0);
@@ -299,8 +299,8 @@ internal i32 Sim_InitExplosion(
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        "Cube",
-		"Default",
+        ZRDB_MESH_NAME_CUBE,
+		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 2, 1, 2 };
@@ -316,8 +316,8 @@ internal i32 Sim_InitBulletImpact(
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        "Cube",
-		"Default",
+        ZRDB_MESH_NAME_CUBE,
+		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 0.25f, 0.25f, 0.25f };
@@ -333,8 +333,8 @@ internal i32 Sim_InitTargetPoint(
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        "Cube",
-		"Default",
+        ZRDB_MESH_NAME_CUBE,
+		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 0.5f, 0.5f, 0.5f };
@@ -348,8 +348,8 @@ internal i32 Sim_InitProp(
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        "Cube",
-		"Default",
+        ZRDB_MESH_NAME_CUBE,
+		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_NONE);
     ent->tickType = SIM_TICK_TYPE_NONE;
     ent->coreTickType = SIM_TICK_TYPE_NONE;
@@ -373,8 +373,8 @@ internal i32 Sim_InitProjBase(
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        "Spike",
-		"Projectile",
+        ZRDB_MESH_NAME_SPIKE,
+		ZRDB_MAT_NAME_PRJ,
         SIM_DEATH_GFX_EXPLOSION);
     ent->deathType = SIM_DEATH_GFX_EXPLOSION;
     // must set birth tick here
@@ -403,8 +403,8 @@ internal i32 Sim_InitProjPrediction(
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        "Spike",
-		"Projectile",
+        ZRDB_MESH_NAME_SPIKE,
+		ZRDB_MAT_NAME_PRJ,
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
@@ -432,8 +432,8 @@ internal i32 Sim_InitPlayerProjectile(
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        "Spike",
-		"Projectile",
+        ZRDB_MESH_NAME_SPIKE,
+		ZRDB_MAT_NAME_PRJ,
         SIM_DEATH_GFX_EXPLOSION);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
