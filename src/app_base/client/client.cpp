@@ -65,6 +65,13 @@ extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
         camera = &plyr->body.t;
     }
     g_rendCfg.debugFlags = g_clDebugFlags;
+    // add extra bit
+    if (g_bVerboseFrame == YES)
+    {
+        printf("CL - mark verbose frame\n");
+        g_rendCfg.debugFlags |= CL_DEBUG_FLAG_VERBOSE_FRAME;
+        g_bVerboseFrame = NO;
+    }
     ZRViewFrame* frame = CLR_WriteDrawFrame(list, data, &g_sim, camera, g_rendCfg);
     f64 endTime = App_SampleClock();
     frame->prebuildTime = endTime - startTime;
@@ -357,6 +364,14 @@ internal void CL_ReadSystemEvents(
 				{
 					g_mainMenuOn = !g_mainMenuOn;
 				}
+
+                // Check for debug
+                // g_bVerboseFrame
+                if (inputEv->inputID == Z_INPUT_CODE_O)
+                {
+                    printf("CL - post verbose frame\n");
+                    g_bVerboseFrame = YES;
+                }
 
             } break;
             case SYS_EVENT_SKIP: break;

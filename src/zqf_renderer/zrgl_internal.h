@@ -119,6 +119,8 @@ struct ZRGPUSpecs
 static ZRGPUSpecs g_gpuLimits;
 
 static i32 g_bDrawLocked = NO;
+// TODO: Global flag for dropping debug data - pass as parameter instead?
+static i32 g_verboseFrame = NO;
 
 static GLuint g_cubemapHandle;
 

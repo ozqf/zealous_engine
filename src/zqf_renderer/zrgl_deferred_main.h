@@ -321,7 +321,15 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     u8* cursor = drawList->start;
     u8* end = drawList->cursor;
 
+    /////////////////////////////////////////////////////////////
+    // K start
     ZRViewFrame* header = (ZRViewFrame*)cursor;
+    
+    if (header->bVerbose == YES)
+    {
+        printf("ZRGL - Verbose frame!\n");
+        g_verboseFrame = YES;
+    }
     ZE_ASSERT(header->sentinel == ZR_SENTINEL, "Sentinel check failed")
     cursor += sizeof(ZRViewFrame);
     u8* scenesStart = cursor;
@@ -397,7 +405,7 @@ static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     /////////////////////////////////////////////////////////////
     // Done. Gather stats
     g_bDrawLocked = NO;
-    
+    g_verboseFrame = NO;
     f64 drawEnd = g_platform.QueryClock();
     /*
     stats.prepareTime = (prepareEnd - prepareStart) * 1000;

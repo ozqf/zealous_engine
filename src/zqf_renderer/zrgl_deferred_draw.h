@@ -23,11 +23,12 @@ static void ZRGL_GeometryPass_Mesh(
 	glBindVertexArray(vao);
 	#endif
 	#if 1
-	ZRMeshHandles mesh;
+	//ZRMeshHandles mesh;
 	//ZRDB_GetMeshHandlesByName("Cube", &mesh);
-	AssetDb()->GetMeshHandleByName(AssetDb(), "Cube", &mesh);
-	vao = mesh.vao;
-	vertCount = mesh.vertexCount;
+	//AssetDb()->GetMeshHandleByName(AssetDb(), "Cube", &mesh);
+	ZRDBMesh* mesh = AssetDb()->GetMeshByIndex(AssetDb(), group->data.model.meshIndex);
+	vao = mesh->handles.vao;
+	vertCount = mesh->data.numVerts;
 	glBindVertexArray(vao);
 	CHECK_GL_ERR
 	#endif
@@ -50,10 +51,14 @@ static void ZRGL_GeometryPass_Mesh(
 	emissive = tex->apiHandle;
 	#endif
 
-	#if 0
-	printf("Geometry pass mat %s handles: %d, %d\n",
-		mat->name, diffuse, emissive);
-	#endif
+	if (g_verboseFrame == YES)
+	{
+		printf("Geometry pass - %d items. mesh %s (%d verts) mat %s\n",
+			group->numItems, mesh->header.fileName, mesh->data.numVerts, mat->name);
+		printf("\tHandles vao %d, diffuse %d emissive %d\n",
+			vao, diffuse, emissive);
+	}
+	
 	
 	ZR_PrepareTextureUnit2D(
         prog, GL_TEXTURE0, 0, "u_colourTex", diffuse, g_samplerDataTex2D);

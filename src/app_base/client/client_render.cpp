@@ -347,7 +347,13 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
 
     ZRViewFrame* frame = (ZRViewFrame*)list->cursor;
     list->cursor += sizeof(ZRViewFrame);
+    
     *frame = {};
+    if (cfg.debugFlags & CL_DEBUG_FLAG_VERBOSE_FRAME)
+    {
+        frame->bVerbose = YES;
+    }
+
     ZRSceneFrame* scene = (ZRSceneFrame*)list->cursor;
     list->cursor += sizeof(ZRSceneFrame);
     *scene = {};

@@ -214,6 +214,7 @@ struct ZRViewFrame
 {
     u32 sentinel;
     f64 prebuildTime;
+    i32 bVerbose;
     i32 numScenes;
 };
 
