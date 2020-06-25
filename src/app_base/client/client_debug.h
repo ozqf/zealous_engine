@@ -4,11 +4,12 @@
 #include "../../voxel_world/voxel_world.h"
 
 static SimEntity g_debugEnts[16];
+static Transform g_debugCamera;
 
 static ZRDrawObj g_debugObjs[16];
 static i32 g_numDebugObjs = 0;
 
-static void CLDebug_MakeVoxelWorld()
+static void CLDebug_Init()
 {
     VWChunk* chunk;
     VWError err = VW_AllocChunk(8, &chunk);
@@ -18,6 +19,9 @@ static void CLDebug_MakeVoxelWorld()
         return;
     }
     printf("Made VWChunk size %d with %d blocks\n", chunk->size, chunk->numBlocks);
+
+	Transform_SetToIdentity(&g_debugCamera);
+	g_debugCamera.pos.y = 5;
 }
 
 static void CLDebug_SetAsLine(ZRDrawObj* obj, Vec3 a, Vec3 b)

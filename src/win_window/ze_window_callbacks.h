@@ -53,6 +53,10 @@ static void window_close_callback(GLFWwindow* window)
     */
 }
 
+/**
+ * Handle inputs within this module. If they are handled, event is not
+ * passed to app module.
+ */
 static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE)
@@ -104,11 +108,16 @@ static void key_callback(GLFWwindow* window, int glfwKey, int scancode, int acti
     }
     
     zeInputCode keyCode = Win_GlfwToZEKey(glfwKey);
-    if (keyCode == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-        return;
-    }
+	if (keyCode == Z_INPUT_CODE_NULL)
+	{
+		// Unknown key. app will not have any idea what it is.
+		return;
+	}
+    // if (keyCode == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    // {
+    //     glfwSetWindowShouldClose(window, GLFW_TRUE);
+    //     return;
+    // }
     if (action == GLFW_PRESS)
     {
         //ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")

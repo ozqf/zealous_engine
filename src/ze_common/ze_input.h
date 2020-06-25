@@ -84,6 +84,8 @@ typedef int zeInputCode;
 #define Z_INPUT_CODE_F10                    69
 #define Z_INPUT_CODE_F11                    70
 #define Z_INPUT_CODE_F12                    71
+#define Z_INPUT_CODE_BACKSLASH				72
+#define Z_INPUT_CODE_FORWARDSLASH			73
 
 
 // struct InputItem

@@ -80,6 +80,8 @@ static zeInputCode Win_GlfwToZEKey(i32 glfwKeyCode)
         case GLFW_KEY_F10: return Z_INPUT_CODE_F10;
         case GLFW_KEY_F11: return Z_INPUT_CODE_F11;
         case GLFW_KEY_F12: return Z_INPUT_CODE_F12;
+		case 162: return Z_INPUT_CODE_BACKSLASH;
+		case GLFW_KEY_BACKSLASH: return Z_INPUT_CODE_BACKSLASH;
         default:
         printf("Found no match for GLFW Key %d\n", glfwKeyCode);
         return Z_INPUT_CODE_NULL;

@@ -54,16 +54,24 @@ extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
 {
     f64 startTime = App_SampleClock();
     Transform* camera = &g_camera;
+	if (g_clDebugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA)
+	{
+		camera = &g_debugCamera;
+	}
+	else
+	{
+		SimEntity* plyr = Sim_GetEntityBySerial(&g_sim, g_avatarSerial);
+    	if (plyr != NULL)
+    	{
+    	    camera = &plyr->body.t;
+    	}
+	}
+	
     #if 0
     M3x3_SetToIdentity(g_camera.rotation.cells);
     M3x3_RotateY(g_camera.rotation.cells, g_testCameraDegrees.y * DEG2RAD);
     M3x3_RotateX(g_camera.rotation.cells, g_testCameraDegrees.x * DEG2RAD);
     #endif
-    SimEntity* plyr = Sim_GetEntityBySerial(&g_sim, g_avatarSerial);
-    if (plyr != NULL)
-    {
-        camera = &plyr->body.t;
-    }
     g_rendCfg.debugFlags = g_clDebugFlags;
     // add extra bit
     if (g_bVerboseFrame == YES)
@@ -266,7 +274,7 @@ extern "C" void CL_Start(ZNetAddress serverAddress, i32 updSocketId)
 
     CLR_Init(App_GetAssetDB());
 
-    CLDebug_MakeVoxelWorld();
+    CLDebug_Init();
     /*
     i32 numRenderCommandBytes = sizeof(RenderCommand) *
 		CL_MAX_RENDER_COMMANDS;

@@ -9,6 +9,7 @@ internal u32 g_clDebugFlags = 0
     //| CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION
     //| CL_DEBUG_FLAG_NO_ENEMY_TICK
     //| CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING
+	| CL_DEBUG_FLAG_DEBUG_CAMERA
 ;
 
 internal ClientRenderSettings g_rendCfg;
@@ -21,8 +22,6 @@ internal i32 g_bHasSimSynced = NO;
 internal Transform g_camera;
 internal Vec3 g_testCameraDegrees = {};
 internal timeFloat g_elapsed = 0;
-//internal i32 g_ticks = 0;
-//internal i32 g_serverTick = 0;
 internal timeFloat g_ping;
 internal timeFloat g_jitter;
 internal i32 g_bClientAlwaysRepredict = YES;

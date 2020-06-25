@@ -7,7 +7,6 @@
 #include "../app.h"
 #include "../shared/commands.h"
 #include "../shared/stream.h"
-//#include "../../renderer_interface.h"
 
 #define CL_MAX_SENT_INPUT_COMMANDS 60
 
@@ -15,7 +14,9 @@
 #define CL_DEBUG_FLAG_NO_ENEMY_TICK (1 << 1)
 #define CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING (1 << 2)
 #define CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION (1 << 3)
-#define CL_DEBUG_FLAG_VERBOSE_FRAME (1 << 4)
+#define CL_DEBUG_FLAG_DEBUG_CAMERA (1 << 4)
+
+#define CL_DEBUG_FLAG_VERBOSE_FRAME (1 << 31)
 
 #define CLIENT_STATE_NONE 0
 #define CLIENT_STATE_REQUESTING 1
