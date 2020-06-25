@@ -9,7 +9,7 @@ internal u32 g_clDebugFlags = 0
     //| CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION
     //| CL_DEBUG_FLAG_NO_ENEMY_TICK
     //| CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING
-	| CL_DEBUG_FLAG_DEBUG_CAMERA
+	//| CL_DEBUG_FLAG_DEBUG_CAMERA
 ;
 
 internal ClientRenderSettings g_rendCfg;

@@ -33,6 +33,7 @@
 struct SimActorInput
 {
     u32 buttons;
+	u32 prevButtons;
     Vec3 degrees;
 };
 

@@ -601,40 +601,6 @@ internal void CL_RunUnreliableCommands(
     }
 }
 
-internal void CL_ProcessDebugInput(InputActionSet* actions, i64 platformFrame)
-{
-    i32 bPrintLightCounts = NO;
-    #if 1
-    if (Input_CheckActionToggledOn(actions, "Debug Forward", platformFrame))
-    {
-        //g_rendCfg.extraLightsMax++;
-        g_rendCfg.worldLightsMax++;
-        bPrintLightCounts = YES;
-    }
-    #endif
-    #if 1
-    if (Input_CheckActionToggledOn(actions, "Debug Backward", platformFrame))
-    {
-        g_rendCfg.worldLightsMax--;
-        if (g_rendCfg.worldLightsMax < 0)
-        {
-            g_rendCfg.worldLightsMax = 0;
-        }
-        // g_rendCfg.extraLightsMax--;
-        // if (g_rendCfg.extraLightsMax < 0)
-        // {
-        //     g_rendCfg.extraLightsMax = 0;
-        // }
-        bPrintLightCounts = YES;
-    }
-    #endif
-    if (bPrintLightCounts == YES)
-    {
-        printf("CL max lights: world %d extra %d\n",
-            g_rendCfg.worldLightsMax, g_rendCfg.extraLightsMax);
-    }
-}
-
 internal void CL_CalcPings(timeFloat deltaTime)
 {
 	g_ping = Ack_CalculateAverageDelay(&g_acks);
@@ -684,7 +650,18 @@ internal void CL_TickInGame(timeFloat deltaTime, i64 platformFrame)
     if (CL_HasSimSynced() == YES)
     {
         // Update input
-        CL_UpdateActorInput(&g_inputActions, &g_actorInput);
+		if (CLDebug_IsDebugInputActive() == NO)
+		{
+			CL_UpdateActorInput(&g_inputActions, &g_actorInput);
+		}
+		else
+		{
+			// Debugging - Clear input to server
+			g_actorInput.buttons = 0;
+			g_actorInput.prevButtons = 0;
+		}
+		
+        
 	    // Create and store input to server
 	    SimEntity* plyr = Sim_GetEntityBySerial(&g_sim, g_avatarSerial);
 	    Vec3 pos = {};

@@ -131,6 +131,7 @@ internal void CL_InitInputs(InputActionSet* actions)
 {
     Input_InitAction(actions, Z_INPUT_CODE_V, "Debug Forward");
     Input_InitAction(actions, Z_INPUT_CODE_C, "Debug Backward");
+	Input_InitAction(actions, Z_INPUT_CODE_X, "Debug Camera");
     Input_InitAction(actions, Z_INPUT_CODE_R, "Reset");
     Input_InitAction(actions, Z_INPUT_CODE_ESCAPE, "Menu");
 
@@ -177,6 +178,8 @@ internal void CL_InputCheckButton(
 
 internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 {
+	// record last frame
+	input->prevButtons = input->buttons;
     // Clear buttons and rebuild. Keep mouse position values
     u32 flags = 0;
 
@@ -184,6 +187,7 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     const f32 mouseInvertedMultiplier = -1;
     const f32 KEY_TURN_RATE = 4.f;
 
+	// Read
     CL_InputCheckButton(actions, "Move Forward", &flags, ACTOR_INPUT_MOVE_FORWARD);
     CL_InputCheckButton(actions, "Move Backward", &flags, ACTOR_INPUT_MOVE_BACKWARD);
     CL_InputCheckButton(actions, "Move Left", &flags, ACTOR_INPUT_MOVE_LEFT);
@@ -199,10 +203,11 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     CL_InputCheckButton(actions, "Attack1", &flags, ACTOR_INPUT_ATTACK);
     CL_InputCheckButton(actions, "Attack2", &flags, ACTOR_INPUT_ATTACK2);
 
-    input->buttons = flags;
-
     f32 mouseX = ((f32)Input_GetActionValue(actions, "Mouse Move X") / (f32)Z_INPUT_MOUSE_SCALAR);
     f32 mouseY = ((f32)Input_GetActionValue(actions, "Mouse Move Y") / (f32)Z_INPUT_MOUSE_SCALAR);
+
+	// apply
+    input->buttons = flags;
 
     // Apply yaw
     input->degrees.y -= mouseX * mouseMoveMultiplier;;
