@@ -6,13 +6,13 @@
 
 static ZRAssetDB* g_assetDb = NULL;
 
-static ZRDrawObj* CLR_InitDrawObjInPlace(u8** ptr)
-{
-    ZRDrawObj* obj = (ZRDrawObj*)*ptr;
-    *ptr += sizeof(ZRDrawObj);
-    *obj = {};
-    return obj;
-}
+// static ZRDrawObj* CLR_InitDrawObjInPlace(u8** ptr)
+// {
+//     ZRDrawObj* obj = (ZRDrawObj*)*ptr;
+//     *ptr += sizeof(ZRDrawObj);
+//     *obj = {};
+//     return obj;
+// }
 
 extern "C" void CLR_Init(ZRAssetDB* assetDb)
 {
@@ -64,7 +64,7 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_EXPLOSION:
             case SIM_FACTORY_TYPE_BULLET_IMPACT:
             {
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj* obj = ZRDrawObj_InitInPlace(&list->cursor);
                 obj->data.SetAsMesh(cubeIndex, materialIndex);
                 //ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
                 //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX);
@@ -113,7 +113,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             case ZR_DRAWOBJ_TYPE_MESH:
             {
                 // straight make a copy of the entity's draw data.
-                ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                ZRDrawObj* obj = ZRDrawObj_InitInPlace(&list->cursor);
                 obj->data = ent->display.data;
                 
                 obj->t = ent->body.t;
@@ -124,7 +124,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                     || ent->factoryType == SIM_FACTORY_TYPE_BULLET_IMPACT)
                     && extraLights > 0)
                 {
-                    obj = CLR_InitDrawObjInPlace(&list->cursor);
+                    obj = ZRDrawObj_InitInPlace(&list->cursor);
                     obj->data.SetAsPointLight({ 1, 1, 0 }, 1, 1);
                     obj->t = ent->body.t;
                     rendObjectsAdded++;
@@ -136,7 +136,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
             {
                 if (worldLights > 0)
                 {
-                    ZRDrawObj* obj = CLR_InitDrawObjInPlace(&list->cursor);
+                    ZRDrawObj* obj = ZRDrawObj_InitInPlace(&list->cursor);
                     obj->data = ent->display.data;
                     obj->t = ent->body.t;
                     rendObjectsAdded++;
@@ -154,6 +154,8 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     ZEByteBuffer* data,
     SimScene* sim,
     Transform* camera,
+    ZRDrawObj* debugObjs,
+    i32 numDebugObjs,
     ClientRenderSettings cfg)
 {
     i32 requiredCapacity = sizeof(ZRViewFrame) + (sizeof(ZRDrawObj) * sim->maxEnts);
@@ -204,6 +206,15 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     }
 
     objCount += CLR_AddSimObjectsToRenderScene(sim, camera, list, data, cfg);
+
+    for (i32 i = 0; i < numDebugObjs; ++i)
+    {
+        ZRDrawObj* obj = &debugObjs[i];
+        list->cursor += ZE_COPY_STRUCT(obj, list->cursor, ZRDrawObj);
+        objCount++;
+        // printf("Added debug obj at %.3f, %.3f, %.3f\n",
+        //     obj->t.pos.x, obj->t.pos.y, obj->t.pos.z);
+    }
 
     scene->params.dataBytes = list->cursor - listStart;
     scene->params.numObjects = objCount;

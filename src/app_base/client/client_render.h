@@ -23,6 +23,8 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     ZEByteBuffer* data,
     SimScene* sim,
     Transform* camera,
+    ZRDrawObj* debugObjs,
+    i32 numDebugObjs,
     ClientRenderSettings cfg
 );
 

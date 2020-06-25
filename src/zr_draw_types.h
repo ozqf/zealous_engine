@@ -4,6 +4,7 @@
 #include "ze_common/ze_common.h"
 #include "ze_common/ze_hash.h"
 #include "ze_common/ze_string_utils.h"
+#include "ze_common/ze_transform.h"
 
 ///////////////////////////////////////////////////////////
 // Render scene data types
@@ -208,6 +209,15 @@ static void ZRDrawObj_SetAsText(ZRDrawObj* obj, char* text)
     obj->data.type = ZR_DRAWOBJ_TYPE_TEXT;
     obj->data.text.text = text;
     obj->data.text.length = ZE_StrLenNoTerminator(text);
+}
+
+static ZRDrawObj* ZRDrawObj_InitInPlace(u8** ptr)
+{
+    ZRDrawObj* obj = (ZRDrawObj*)*ptr;
+    *ptr += sizeof(ZRDrawObj);
+    *obj = {};
+    Transform_SetToIdentity(&obj->t);
+    return obj;
 }
 
 

@@ -72,7 +72,8 @@ extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
         g_rendCfg.debugFlags |= CL_DEBUG_FLAG_VERBOSE_FRAME;
         g_bVerboseFrame = NO;
     }
-    ZRViewFrame* frame = CLR_WriteDrawFrame(list, data, &g_sim, camera, g_rendCfg);
+    ZRViewFrame* frame = CLR_WriteDrawFrame(
+        list, data, &g_sim, camera, g_debugObjs, g_numDebugObjs, g_rendCfg);
     f64 endTime = App_SampleClock();
     frame->prebuildTime = endTime - startTime;
 }
@@ -745,4 +746,5 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
         printf("CL - bad state\n");
     }
     
+    CLDebug_UpdateDebugObjects();
 }

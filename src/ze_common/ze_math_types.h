@@ -377,10 +377,6 @@ internal void Vec3_ClearZeroes(Vec3* v)
     if (v->z == 0) { v->z = 1; }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-// VECTOR 3 OPERATIONS
-/////////////////////////////////////////////////////////////////////////////
-
 internal Vec3 Vec3_VectorMA(Vec3 start, f32 scale, Vec3 forward)
 {
 	Vec3 result;
@@ -389,6 +385,25 @@ internal Vec3 Vec3_VectorMA(Vec3 start, f32 scale, Vec3 forward)
 	result.z = start.z + (forward.z * scale);
 	return result;
 }
+
+internal Vec3 Vec3_EulerAnglesBetween(Vec3 a, Vec3 b)
+{
+    Vec3 result = {};
+    Vec3 d;
+    d.x = b.x - a.x;
+    d.y = b.y - a.y;
+    d.z = b.z - a.z;
+    f32 flatMagnitude = Vec3_Magnitudef(d.x, 0, d.z);
+    // yaw
+    result.y = atan2f(d.x, d.z);
+    // pitch
+    result.x = atan2f(d.y, flatMagnitude);
+    return result;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// VECTOR 4 OPERATIONS
+/////////////////////////////////////////////////////////////////////////////
 
 internal f32 Vec4_Magnitude(Vec4* v)
 {
