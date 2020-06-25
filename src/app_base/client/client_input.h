@@ -236,5 +236,4 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 	{
 		input->degrees.x = 89;
 	}
-    g_testCameraDegrees = input->degrees;
 }

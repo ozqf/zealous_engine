@@ -13,10 +13,20 @@ static SimActorInput g_debugInput = {};
 static Transform g_debugCamera;
 // records static camera position for top down debug
 static Transform g_debugTopdownCamera;
-static i32 g_debugCameraMode = CL_DEBUG_CAMERA_MODE_TOP_DOWN;
+static i32 g_debugCameraMode = 0;//CL_DEBUG_CAMERA_MODE_TOP_DOWN;
 
 static ZRDrawObj g_debugObjs[16];
 static i32 g_numDebugObjs = 0;
+
+static i32 CLDebug_IsDebugInputActive()
+{
+	if ((g_clDebugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA)
+		&& g_debugCameraMode == CL_DEBUG_CAMERA_MODE_FREE)
+	{
+		return YES;
+	}
+	return NO;
+}
 
 static void CLDebug_Init()
 {
@@ -33,14 +43,71 @@ static void CLDebug_Init()
     g_debugTopdownCamera.pos.z = 10;
     g_debugTopdownCamera.pos.y += 34;
     Transform_SetRotation(&g_debugTopdownCamera, -(80.0f    * DEG2RAD), 0, 0);
+	g_debugInput.degrees.x = -80;
 
 	g_debugCamera = g_debugTopdownCamera;
 
 }
 
-static void CLDebug_FlyCamera(Transform* t, f32 moveSpeed, f32 delta)
+static void CLDebug_FlyCamera(
+	Transform* t, SimActorInput* input, f32 moveSpeed, timeFloat delta)
 {
+	
+    // Apply Rotate
+    M3x3_SetToIdentity(t->rotation.cells);
+    M3x3_RotateY(t->rotation.cells, input->degrees.y * DEG2RAD);
+    M3x3_RotateX(t->rotation.cells, input->degrees.x * DEG2RAD);
 
+	Vec3 dirInput = {};
+	if (input->buttons & ACTOR_INPUT_MOVE_FORWARD)
+	{
+		dirInput.z -= 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_BACKWARD)
+	{
+		dirInput.z += 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_LEFT)
+	{
+		dirInput.x -= 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_RIGHT)
+	{
+		dirInput.x += 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_UP)
+	{
+		dirInput.y += 1;
+	}
+	if (input->buttons & ACTOR_INPUT_MOVE_DOWN)
+	{
+		dirInput.y -= 1;
+	}
+	Vec3 forward = {};
+	Vec3 left = {};
+	Vec3 up = {};
+	Vec3 move = {};
+	forward.x = t->rotation.zAxis.x * dirInput.z;
+	forward.y = t->rotation.zAxis.y * dirInput.z;
+	forward.z = t->rotation.zAxis.z * dirInput.z;
+
+	left.x = t->rotation.xAxis.x * dirInput.x;
+	left.y = t->rotation.xAxis.y * dirInput.x;
+	left.z = t->rotation.xAxis.z * dirInput.x;
+
+	up.x = t->rotation.yAxis.x * dirInput.y;
+	up.y = t->rotation.yAxis.y * dirInput.y;
+	up.z = t->rotation.yAxis.z * dirInput.y;
+
+	move.x = forward.x + left.x + up.x;
+	move.y = forward.y + left.y + up.y;
+	move.z = forward.z + left.z + up.z;
+
+	Vec3_SetMagnitude(&move, moveSpeed);
+
+	t->pos.x += (move.x * (f32)delta);
+	t->pos.y += (move.y * (f32)delta);
+	t->pos.z += (move.z * (f32)delta);
 }
 
 static void CLDebug_SetAsLine(ZRDrawObj* obj, Vec3 a, Vec3 b)
@@ -50,6 +117,10 @@ static void CLDebug_SetAsLine(ZRDrawObj* obj, Vec3 a, Vec3 b)
 
 internal void CL_ProcessDebugInput(InputActionSet* actions, i64 platformFrame)
 {
+	if (CLDebug_IsDebugInputActive() == YES)
+	{
+		CL_UpdateActorInput(actions, &g_debugInput);
+	}
     i32 bPrintLightCounts = NO;
     #if 1
     if (Input_CheckActionToggledOn(actions, "Debug Forward", platformFrame))
@@ -94,20 +165,10 @@ internal void CL_ProcessDebugInput(InputActionSet* actions, i64 platformFrame)
     }
 }
 
-static i32 CLDebug_IsDebugInputActive()
-{
-	if ((g_clDebugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA)
-		&& g_debugCameraMode == CL_DEBUG_CAMERA_MODE_FREE)
-	{
-		return YES;
-	}
-	return NO;
-}
-
-static void CLDebug_UpdateDebugObjects()
+static void CLDebug_UpdateDebugObjects(timeFloat delta)
 {
 	// update debug input for fly camera
-	CL_UpdateActorInput(&g_inputActions, &g_debugInput);
+	CLDebug_FlyCamera(&g_debugCamera, &g_debugInput, 12, delta);
 
     ZRAssetDB* db = App_GetAssetDB();
     i32 meshIndex = db->GetMeshByName(db, ZRDB_MESH_NAME_CUBE)->header.index;

@@ -653,6 +653,7 @@ internal void CL_TickInGame(timeFloat deltaTime, i64 platformFrame)
 		if (CLDebug_IsDebugInputActive() == NO)
 		{
 			CL_UpdateActorInput(&g_inputActions, &g_actorInput);
+			g_testCameraDegrees = g_actorInput.degrees;
 		}
 		else
 		{
@@ -731,5 +732,5 @@ void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
         printf("CL - bad state\n");
     }
     
-    CLDebug_UpdateDebugObjects();
+    CLDebug_UpdateDebugObjects(deltaTime);
 }
