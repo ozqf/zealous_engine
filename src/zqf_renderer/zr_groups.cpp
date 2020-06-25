@@ -178,7 +178,8 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
         i32 objType = obj->data.type;
 
         // Most common primitive
-        if (objType == ZR_DRAWOBJ_TYPE_PREFAB || objType == ZR_DRAWOBJ_TYPE_MESH)
+        if (objType == ZR_DRAWOBJ_TYPE_MESH
+			|| objType == ZR_DRAWOBJ_TYPE_TEXT)
         {
             // Find a group for this object
             // TODO: sort objects and keep current group around?

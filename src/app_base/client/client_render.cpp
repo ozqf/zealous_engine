@@ -212,6 +212,13 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
         ZRDrawObj* obj = &debugObjs[i];
         list->cursor += ZE_COPY_STRUCT(obj, list->cursor, ZRDrawObj);
         objCount++;
+		if (obj->data.type == ZR_DRAWOBJ_TYPE_TEXT)
+		{
+			ZE_ASSERT(data->Space() >= obj->data.text.length, "No space for string in draw data buffer")
+			// copy string to data buffer
+			data->cursor += ZE_Copy(
+				(char*)data->cursor, (char*)obj->data.text.text, obj->data.text.length);
+		}
         // printf("Added debug obj at %.3f, %.3f, %.3f\n",
         //     obj->t.pos.x, obj->t.pos.y, obj->t.pos.z);
     }

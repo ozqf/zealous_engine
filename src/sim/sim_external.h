@@ -479,6 +479,7 @@ i32 Sim_LoadStaticScene(SimScene* sim, i32 index)
 
     // pillars
     f32 pillarY = 4;
+	// Inner
     Sim_AddWorldVolume(sim, { 0, pillarY, -10 }, { 1, 10, 1 });
     Sim_AddLightTower(sim, { 0, 0, -10 }, 10);
     Sim_AddWorldVolume(sim, { 0, pillarY, 10 }, { 1, 10, 1 });
@@ -488,6 +489,13 @@ i32 Sim_LoadStaticScene(SimScene* sim, i32 index)
     Sim_AddLightTower(sim, { -10, 0, 0 }, 10);
     Sim_AddWorldVolume(sim, { 10, pillarY, 0 }, { 1, 10, 1 });
     Sim_AddLightTower(sim, { 10, 0, 0 }, 10);
+
+	// outer
+	Sim_AddWorldVolume(sim, { -halfX, pillarY, -halfZ }, { 1, 10, 1 });
+	Sim_AddWorldVolume(sim, { halfX, pillarY, -halfZ }, { 1, 10, 1 });
+	Sim_AddWorldVolume(sim, { -halfX, pillarY, halfZ }, { 1, 10, 1 });
+	Sim_AddWorldVolume(sim, { halfX, pillarY, halfZ }, { 1, 10, 1 });
+    
     
     APP_PRINT(128, "SIM spawn props\n")
     // static sprites

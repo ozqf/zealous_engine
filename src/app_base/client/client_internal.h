@@ -14,6 +14,12 @@
 #include "../shared/commands.h"
 #include "../shared/stream.h"
 
+struct ClientHudState
+{
+	i32 hp;
+	i32 ammo;
+};
+
 internal u32 g_clDebugFlags = 0
     //| CL_DEBUG_FLAG_DRAW_LOCAL_SERVER
     //| CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION

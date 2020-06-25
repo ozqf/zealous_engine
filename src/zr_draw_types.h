@@ -112,6 +112,7 @@ struct ZRDrawObjData
         {
             char* text;
             i32 length;
+			i32 charTextureIndex;
         } text;
     };
 
@@ -138,6 +139,13 @@ struct ZRDrawObjData
         this->directLight.range = radius;
     }
 
+	void SetAsText(char* chars)
+	{
+		this->type = ZR_DRAWOBJ_TYPE_TEXT;
+		this->text.text = chars;
+		this->text.length = ZE_StrLenNoTerminator(chars) + 1;
+		this->text.charTextureIndex = -1;
+	}
 };
 
 struct ZRDrawObj
@@ -202,14 +210,6 @@ struct ZRSceneObj
 //     obj->data.pointLight.multiplier = multiplier;
 //     obj->data.pointLight.range = radius;
 // }
-
-static void ZRDrawObj_SetAsText(ZRDrawObj* obj, char* text)
-{
-    obj->data = {};
-    obj->data.type = ZR_DRAWOBJ_TYPE_TEXT;
-    obj->data.text.text = text;
-    obj->data.text.length = ZE_StrLenNoTerminator(text);
-}
 
 static ZRDrawObj* ZRDrawObj_InitInPlace(u8** ptr)
 {

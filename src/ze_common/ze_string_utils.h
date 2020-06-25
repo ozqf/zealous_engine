@@ -44,9 +44,8 @@ internal i32 ZE_CopyStringLimited(const char *source, char *target, i32 limit)
         *target++ = *source++;
         --limit;
         ++written;
-        //if (limit == 0) { break; }
     }
-	target[limit - 1] = '\0';
+	target[written] = '\0';
     return ++written;
 }
 
