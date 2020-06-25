@@ -1,14 +1,11 @@
 #pragma once
-
+/*
+Client Module
+*/
 #include <stdlib.h>
 #include "../../ze_common/ze_common_full.h"
-#include "client.h"
-#include "../../sys_events.h"
-#include "../../sim/sim.h"
-
 
 #include "client_render.h"
-
 #include "client_internal.h"
 
 /////////////////////////////////////////////////////////////
@@ -38,6 +35,9 @@ internal i32 CL_GetServerTick()
     return g_sim.tick;
 }
 
+////////////////////////////////
+// Implementation
+////////////////////////////////
 #include "client_input.h"
 #include "client_game.h"
 #include "../shared/commands_serialise.h"
@@ -45,11 +45,15 @@ internal i32 CL_GetServerTick()
 #include "client_user_sync.h"
 #include "client_packets.h"
 #include "client_connect.h"
+#include "client_run_commands.h"
 
 #include "client_debug.h"
 
 extern "C" i32 CL_IsRunning() { return g_isRunning; }
 
+//////////////////////////////////////////
+// Write Render data
+//////////////////////////////////////////
 extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
 {
     f64 startTime = App_SampleClock();
@@ -86,81 +90,6 @@ extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
     frame->prebuildTime = endTime - startTime;
 }
 
-internal void CL_WriteNetworkDebug(CharBuffer* str)
-{
-	//char* chars = str->chars;
-	//i32 written = 0;
-    str->cursor += sprintf_s(
-        str->cursor,
-        str->Space(),
-        "CLIENT:\nSim Tick: %d\nElapsed: %.3f\nOutput Seq: %d\nAck Seq: %d\nDelay: %.3f\nJitter %.3f\n",
-        CL_GetServerTick(), g_elapsed, g_acks.outputSequence,
-		g_acks.remoteSequence, g_ping, g_jitter
-    );
-
-
-    str->cursor += sprintf_s(
-            str->cursor,
-            str->Space(),
-			"=== Commands ===\n%d reliablebytes %d\n%d unreliable bytes %d\n",
-            Stream_CountCommands(&g_reliableStream.inputBuffer).count,
-            g_reliableStream.inputBuffer.Written(),
-            Stream_CountCommands(&g_unreliableStream.inputBuffer).count,
-            g_unreliableStream.inputBuffer.Written()
-            );
-
-    #if 0
-    SimEntity* ent =  Sim_GetEntityBySerial(&g_sim, -1);
-    if (ent)
-    {
-        written += sprintf_s(chars + written, str->maxLength,
-			"World vol pos Y: %.3f\n", ent->t.pos.y);
-    }
-    #endif
-	#if 0
-	// currently overflows debug text buffer:
-	for (i32 i = 0; i < ACK_CAPACITY; ++i)
-	{
-		AckRecord* rec = &g_acks.awaitingAck[i];
-		if (rec->acked)
-		{
-			timeFloat time = rec->receivedTime - rec->sentTime;
-			written += sprintf_s(chars + written, str->maxLength,
-				"%.3f Sent: %.3f Rec: %.3f\n",
-				time, rec->sentTime, rec->receivedTime
-            );
-		}
-	}
-	#endif
-	//str->length = written;
-}
-
-internal void CL_WriteTransformDebug(CharBuffer* str)
-{
-	char* chars = str->chars;
-	i32 written = 0;
-    f32* m = g_matrix.cells;
-    written += sprintf_s(chars, str->maxLength,
-        "MATRIX:\n%.3f, %.3f, %.3f, %.3f\n%.3f, %.3f, %.3f, %.3f\n%.3f, %.3f, %.3f, %.3f\n%.3f, %.3f, %.3f, %.3f\n",
-        m[0], m[4], m[8], m[12],
-        m[1], m[5], m[9], m[13],
-        m[2], m[6], m[10], m[14],
-        m[3], m[7], m[11], m[15]
-    );
-}
-
-internal void CL_WriteCameraDebug(CharBuffer* str)
-{
-	
-}
-
-extern "C" void CL_WriteDebugString(CharBuffer* str)
-{
-	CL_WriteNetworkDebug(str);
-	//CL_WriteTransformDebug(str);
-	//CL_WriteCameraDebug(str);
-}
-
 internal void* CL_Malloc(i32 numBytes)
 {
     ZE_ASSERT(g_numAllocations < CL_MAX_ALLOCATIONS,
@@ -176,6 +105,10 @@ extern "C" u8 CL_ParseCommandString(char* str, char** tokens, i32 numTokens)
     return 0;
 }
 
+
+//////////////////////////////////////////
+// Load Scene
+//////////////////////////////////////////
 void CL_LoadTestScene()
 {
 	Sim_LoadStaticScene(&g_sim, 0);
@@ -230,6 +163,10 @@ extern "C" void CL_Init()
     APP_PRINT(32, "CL - Init\n");
 }
 
+
+//////////////////////////////////////////
+// Start Session
+//////////////////////////////////////////
 extern "C" void CL_Start(ZNetAddress serverAddress, i32 updSocketId)
 {
     ZE_ASSERT(g_clientState == CLIENT_STATE_NONE,
@@ -290,6 +227,10 @@ extern "C" void CL_Start(ZNetAddress serverAddress, i32 updSocketId)
         g_numAllocations, (u32)BytesAsKB(g_bytesAllocated));
 }
 
+
+//////////////////////////////////////////
+// Shutdown
+//////////////////////////////////////////
 extern "C" void CL_Shutdown()
 {
     g_isRunning = NO;
@@ -300,306 +241,6 @@ extern "C" void CL_Shutdown()
 	}
 	g_numAllocations = 0;
 }
-#if 0
-internal void CL_ReadReliableCommands(NetStream* stream)
-{
-    ZEByteBuffer* b = &stream->inputBuffer;
-    u8* read = b->start;
-    u8* end = b->ptrEnd;
-    while (read < end)
-    {
-        Command* header = (Command*)read;
-        ZE_ASSERT(header->sentinel == CMD_SENTINEL)
-        ZE_ASSERT(header->size > 0)
-        read += header->size;
-        switch (header->type)
-        {
-            case CMD_TYPE_IMPULSE:
-            {
-                CmdImpulse* cmd = (CmdImpulse*)header;
-            } break;
-            default:
-            {
-                printf("CL Unknown command type %d\n", header->type);
-                ILLEGAL_CODE_PATH
-            } break;
-        }
-    }
-}
-#endif
-internal void CL_ReadSystemEvents(
-	ZEByteBuffer* sysEvents, timeFloat deltaTime, frameInt platformFrame)
-{
-    AppTimer timer(APP_STAT_CL_INPUT, g_sim.tick);
-    //printf("CL Reading platform events (%d bytes)\n", sysEvents->Written());
-    u8* read = sysEvents->start;
-    u8* end = sysEvents->cursor;
-    while (read < end)
-    {
-        SysEvent* ev = (SysEvent*)read;
-        i32 err = Sys_ValidateEvent(ev);
-        if (err != ZE_ERROR_NONE)
-        {
-            printf("CL Error %d reading system event header\n", err);
-            return;
-        }
-        read += ev->size;
-        switch(ev->type)
-        {
-            case SYS_EVENT_PACKET:
-            {
-				SysPacketEvent* packet = (SysPacketEvent*)ev;
-                CL_ReadPacket(
-                    packet,
-                    &g_reliableStream,
-                    &g_unreliableStream,
-                    &g_sim.quantise,
-                    g_elapsed);
-            } break;
-
-            case SYS_EVENT_INPUT:
-            {
-                SysInputEvent* inputEv = (SysInputEvent*)ev;
-                Input_TestForAction(
-					&g_inputActions,
-					inputEv->value,
-					inputEv->inputID,
-					platformFrame);
-				
-				if (Input_CheckActionToggledOn(
-					&g_inputActions,
-					"Menu",
-					platformFrame))
-				{
-					g_mainMenuOn = !g_mainMenuOn;
-				}
-
-                // Check for debug
-                // g_bVerboseFrame
-                if (inputEv->inputID == Z_INPUT_CODE_O)
-                {
-                    printf("CL - post verbose frame\n");
-                    g_bVerboseFrame = YES;
-                }
-
-            } break;
-            case SYS_EVENT_SKIP: break;
-        }
-    }
-}
-
-internal i32 CL_IsCommandTickSensitive(i32 cmdType)
-{
-	switch (cmdType)
-	{
-		case CMD_TYPE_S2C_SESSION_SYNC: { return NO; }
-	}
-	return YES;
-}
-
-/**
- * Point of execution for the most important server messages.
- */
-internal i32 CL_ExecReliableCommand(
-    SimScene* sim, Command* h, timeFloat deltaTime, i32 tickDiff)
-{
-    //APP_LOG(64, "CL exec input seq %d\n", h->sequence);
-
-	switch (h->type)
-	{
-        case CMD_TYPE_S2C_BULK_SPAWN:
-        {
-            S2C_BulkSpawn* prj = (S2C_BulkSpawn*)h;
-            APP_LOG(256, "CL Spawn Prj %d on SV tick %d (local sv tick diff %d. Cmd tick %d)\n",
-                prj->def.factoryType,
-				prj->def.base.tick,
-				prj->def.base.tick - CL_GetServerTick(),
-				prj->header.tick
-            );
-            // flip diff to specify fast forwarding
-            i32 flags;
-            f32 priority;
-            Sim_ExecuteBulkSpawn(sim, &prj->def, -tickDiff, &flags, &priority);
-        } break;
-		case CMD_TYPE_S2C_RESTORE_ENTITY:
-		{
-			S2C_RestoreEntity* spawn = (S2C_RestoreEntity*)h;
-			APP_LOG(64, "CL Spawn %d at %.3f, %.3f, %.3f\n",
-				spawn->networkId, spawn->pos.x, spawn->pos.y, spawn->pos.z
-			);
-			
-			SimEntSpawnData def = {};
-			def.serial = spawn->networkId;
-            def.birthTick = h->tick;
-            def.factoryType = spawn->factoryType;
-			def.pos = spawn->pos;
-			def.velocity = spawn->vel;
-            def.fastForwardTicks = -tickDiff;
-			Sim_RestoreEntity(sim, &def);
-		} break;
-        case CMD_TYPE_S2C_REMOVE_ENTITY:
-        {
-            S2C_RemoveEntity* cmd = (S2C_RemoveEntity*)h;
-            CLG_HandleEntityDeath(&g_sim, cmd->entityId);
-            Sim_RemoveEntity(sim, cmd->entityId);
-            //APP_PRINT(64, "CL Remove Ent %d\n", cmd->entityId);
-        } break;
-        case CMD_TYPE_S2C_REMOVE_ENTITY_GROUP:
-        {
-            S2C_RemoveEntityGroup* cmd = (S2C_RemoveEntityGroup*)h;
-            for (i32 i = 0; i < cmd->numIds; ++i)
-            {
-                i32 serial = cmd->firstId + i;
-                CLG_HandleEntityDeath(sim, serial);
-                Sim_RemoveEntity(sim, serial);
-            }
-        } break;
-        case CMD_TYPE_S2C_SESSION_SYNC:
-        {
-            S2C_Sync* sync = (S2C_Sync*)h;
-			CL_SetServerTick(sync->header.tick);
-			g_avatarSerial = sync->avatarEntityId;
-            g_clientState = CLIENT_STATE_PLAY;
-            //i32 sceneId;
-            APP_PRINT(64, "CL Sync - Set avatar %d\n", g_avatarSerial);
-            // Lets not do what the server tells us!
-			//g_serverTick = sync->simTick - sync->jitterTickCount;
-			APP_LOG(64, "/////////////////////////////////////////\n");
-            APP_LOG(64, "CL Sync server sim tick %d\n", CL_GetServerTick());
-			APP_LOG(64, "/////////////////////////////////////////\n");
-        } break;
-		
-		
-		default:
-		{
-			APP_PRINT(64, "CL Unknown command type %d\n", h->type);
-		} break;
-	}
-    return 1;
-}
-
-internal void CL_RunReliableCommands(
-    SimScene* sim, NetStream* stream, timeFloat deltaTime)
-{
-	ZEByteBuffer* b = &stream->inputBuffer;
-	
-	for (;;)
-	{
-		i32 sequence = stream->inputSequence;
-		Command* h = Stream_FindMessageBySequence(
-			b->start, b->Written(), sequence);
-        // No commands to run
-		if (!h) { break; }
-
-		i32 diff = h->tick - CL_GetServerTick();
-		//APP_LOG(128, "CL Exec Cmd %d: Cmd Tick %d, Sync Tick %d (diff %d), CL Tick %d\n",
-		//	h->sequence, h->tick, CL_GetServerTick(), diff, g_ticks
-		//);
-		
-		if (CL_IsCommandTickSensitive(h->type))
-		{
-			if (diff > 0)
-			{
-				APP_LOG(128, "\tCL Delaying execution of cmd %d until tick %d (diff %d)\n",
-					h->sequence, h->tick, diff);
-				// Drop out - next reliable command cannot be executed until we reach this frame
-				break;
-			}
-			
-			if (diff < 0)
-			{
-				APP_LOG(128,  "\tCL Fast forward cmd %d by %d frames\n",
-					h->sequence, -(diff)
-				);
-			}
-		}
-		
-		// Step queue counter forward as we are now executing
-		stream->inputSequence++;
-		
-		i32 err = Cmd_Validate(h);
-		ZE_ASSERT(err == ZE_ERROR_NONE, "Invalid command")
-		if (CL_ExecReliableCommand(sim, h, deltaTime, diff))
-        {
-            Stream_DeleteCommand(b, h, 0);
-        }
-	}
-}
-
-internal void CL_RunUnreliableCommands(
-    SimScene* sim, NetStream* stream, timeFloat deltaTime)
-{
-	ZEByteBuffer* b = &stream->inputBuffer;
-    u8* read = b->start;
-	//APP_LOG(128, "CL Run %d bytes of unreliable msgs\n",
-    //    b->Written());
-    //CL_LogCommandBuffer(b, "unreliable");
-
-	while (read < b->cursor)
-	{
-		i32 sequence = stream->inputSequence;
-		Command* h = (Command*)read;
-        i32 err = Cmd_Validate(h);
-		if (err != ZE_ERROR_NONE)
-		{
-			APP_PRINT(128, "CL Run unreliable - invalid cmd code %d\n", err);
-            b->Clear(NO);
-			return;
-		}
-        
-		i32 diff = h->tick - CL_GetServerTick();
-		//APP_LOG(128, "CL Exec Cmd %d: Cmd Tick %d, Sync Tick %d (diff %d), CL Tick %d\n",
-		//	h->sequence, h->tick, CL_GetServerTick(), diff, g_ticks
-		//)
-		
-		// If executed,   delete command from buffer
-        i32 executed = 0;
-
-        // some sync events are related to server tick...
-        if (h->type == CMD_TYPE_S2C_SYNC_ENTITY
-            && diff <= 0)
-        {
-            S2C_EntitySync* cmd = (S2C_EntitySync*)h;
-                executed = CLG_SyncEntity(sim, cmd);
-        }
-        // ...some should be executed immediately
-        else if (h->type == CMD_TYPE_S2C_INPUT_RESPONSE)
-        {
-            S2C_InputResponse* cmd = (S2C_InputResponse*)h;
-
-            #if 1
-            CLI_RecordServerResponse(g_serverResponses, cmd);
-            if (g_lastInputResponse.lastUserInputSequence < cmd->lastUserInputSequence)
-            {
-                // New input record
-                g_lastInputResponse = *cmd;
-                g_bHasNewResponse = YES;
-            }
-
-            #endif
-            
-            #if 0 // Old - execute immediately
-            CLG_SyncAvatar(sim, cmd);
-            CLI_RecordServerResponse(g_serverResponses, cmd);
-            #endif
-            executed = 1;
-        }
-        else if (h->type == CMD_TYPE_PING)
-        {
-            CmdPing* cmd = (CmdPing*)h;
-            executed = 1;
-        }
-
-        if (executed)
-        {
-            Stream_DeleteCommand(b, h, 0);
-        }
-        else
-        {
-            read += h->size;
-        }
-    }
-}
 
 internal void CL_CalcPings(timeFloat deltaTime)
 {
@@ -607,6 +248,9 @@ internal void CL_CalcPings(timeFloat deltaTime)
 	g_jitter = (g_acks.delayMax - g_acks.delayMin);
 }
 
+//////////////////////////////////////////
+// Tick Game
+//////////////////////////////////////////
 internal void CL_TickInGame(timeFloat deltaTime, i64 platformFrame)
 {
     S2C_InputResponse* latestResponse =
@@ -699,6 +343,10 @@ internal void CL_TickInGame(timeFloat deltaTime, i64 platformFrame)
     }
 }
 
+
+//////////////////////////////////////////
+// Tick
+//////////////////////////////////////////
 void CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame)
 {
     // APP_PRINT(128, "*** CL SIM TICK %d (Input Seq %d, T %.3f) ***\n",

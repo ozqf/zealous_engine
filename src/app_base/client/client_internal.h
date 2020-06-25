@@ -1,8 +1,18 @@
 #ifndef CLIENT_INTERNAL_H
 #define CLIENT_INTERNAL_H
 
+/**
+ * client internal shared head
+ */
 #include "client.h"
 #include "client_render.h"
+#include "../../sys_events.h"
+#include "../shared/user.h"
+#include "../../ze_common/ze_common.h"
+#include "../../ze_common/ze_char_buffer.h"
+#include "../app.h"
+#include "../shared/commands.h"
+#include "../shared/stream.h"
 
 internal u32 g_clDebugFlags = 0
     //| CL_DEBUG_FLAG_DRAW_LOCAL_SERVER
@@ -84,5 +94,23 @@ internal C2S_Input g_sentCommands[CL_MAX_SENT_INPUT_COMMANDS];
 
 internal SimActorInput g_actorInput = {};
 
+#define CLI_MAX_RESPONSE_RECORDS 60
+
+internal S2C_InputResponse g_serverResponses[CLI_MAX_RESPONSE_RECORDS];
+
+
+internal i32 CL_ReadPacket(
+    SysPacketEvent* ev,
+    NetStream* reliableStream,
+    NetStream* unreliableStream,
+    QuantiseSet* quantise,
+    timeFloat time);
+internal void CLG_HandleEntityDeath(
+	SimScene* sim, i32 serial);
+internal void CL_SetServerTick(i32 value);
+internal i32 CL_GetServerTick();
+internal i32 CLG_SyncEntity(SimScene* sim, S2C_EntitySync* cmd);
+internal void CLI_RecordServerResponse(
+    S2C_InputResponse* list, S2C_InputResponse* item);
 
 #endif // CLIENT_INTERNAL_H

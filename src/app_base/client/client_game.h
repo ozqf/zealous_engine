@@ -1,6 +1,6 @@
 #pragma once
 
-#include "client.h"
+#include "client_internal.h"
 
 #include <math.h>
 

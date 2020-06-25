@@ -1,12 +1,11 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+/**
+ * client public interface
+ */
+#include "../../ze_common/ze_common_full.h"
 #include "../shared/user.h"
-#include "../../ze_common/ze_common.h"
-#include "../../ze_common/ze_char_buffer.h"
-#include "../app.h"
-#include "../shared/commands.h"
-#include "../shared/stream.h"
 
 #define CL_MAX_SENT_INPUT_COMMANDS 60
 

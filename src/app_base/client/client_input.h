@@ -1,10 +1,6 @@
 #pragma once
 
-#include "client.h"
-
-#define CLI_MAX_RESPONSE_RECORDS 60
-
-internal S2C_InputResponse g_serverResponses[CLI_MAX_RESPONSE_RECORDS];
+#include "client_internal.h"
 
 /////////////////////////////////////
 // Record server responses

@@ -1,6 +1,9 @@
 #ifndef CLIENT_RENDER_H
 #define CLIENT_RENDER_H
 
+/**
+ * Public interface to client render module
+ */
 #include "../../ze_common/ze_common.h"
 #include "client.h"
 #include "../../sim/sim.h"

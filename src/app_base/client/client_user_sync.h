@@ -1,9 +1,7 @@
 #ifndef CLIENT_USER_SYNC_H
 #define CLIENT_USER_SYNC_H
 
-#include "client.h"
-#include "client_input.h"
-#include "client_game.h"
+#include "client_internal.h"
 
 internal void CLG_RestoreAvatarState(
     SimEntity* ent, S2C_InputResponse* cmd)

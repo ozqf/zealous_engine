@@ -229,4 +229,79 @@ static void CLDebug_UpdateDebugObjects(timeFloat delta)
     */
 }
 
+internal void CL_WriteNetworkDebug(CharBuffer* str)
+{
+	//char* chars = str->chars;
+	//i32 written = 0;
+    str->cursor += sprintf_s(
+        str->cursor,
+        str->Space(),
+        "CLIENT:\nSim Tick: %d\nElapsed: %.3f\nOutput Seq: %d\nAck Seq: %d\nDelay: %.3f\nJitter %.3f\n",
+        CL_GetServerTick(), g_elapsed, g_acks.outputSequence,
+		g_acks.remoteSequence, g_ping, g_jitter
+    );
+
+
+    str->cursor += sprintf_s(
+            str->cursor,
+            str->Space(),
+			"=== Commands ===\n%d reliablebytes %d\n%d unreliable bytes %d\n",
+            Stream_CountCommands(&g_reliableStream.inputBuffer).count,
+            g_reliableStream.inputBuffer.Written(),
+            Stream_CountCommands(&g_unreliableStream.inputBuffer).count,
+            g_unreliableStream.inputBuffer.Written()
+            );
+
+    #if 0
+    SimEntity* ent =  Sim_GetEntityBySerial(&g_sim, -1);
+    if (ent)
+    {
+        written += sprintf_s(chars + written, str->maxLength,
+			"World vol pos Y: %.3f\n", ent->t.pos.y);
+    }
+    #endif
+	#if 0
+	// currently overflows debug text buffer:
+	for (i32 i = 0; i < ACK_CAPACITY; ++i)
+	{
+		AckRecord* rec = &g_acks.awaitingAck[i];
+		if (rec->acked)
+		{
+			timeFloat time = rec->receivedTime - rec->sentTime;
+			written += sprintf_s(chars + written, str->maxLength,
+				"%.3f Sent: %.3f Rec: %.3f\n",
+				time, rec->sentTime, rec->receivedTime
+            );
+		}
+	}
+	#endif
+	//str->length = written;
+}
+
+internal void CL_WriteTransformDebug(CharBuffer* str)
+{
+	char* chars = str->chars;
+	i32 written = 0;
+    f32* m = g_matrix.cells;
+    written += sprintf_s(chars, str->maxLength,
+        "MATRIX:\n%.3f, %.3f, %.3f, %.3f\n%.3f, %.3f, %.3f, %.3f\n%.3f, %.3f, %.3f, %.3f\n%.3f, %.3f, %.3f, %.3f\n",
+        m[0], m[4], m[8], m[12],
+        m[1], m[5], m[9], m[13],
+        m[2], m[6], m[10], m[14],
+        m[3], m[7], m[11], m[15]
+    );
+}
+
+internal void CL_WriteCameraDebug(CharBuffer* str)
+{
+	
+}
+
+extern "C" void CL_WriteDebugString(CharBuffer* str)
+{
+	CL_WriteNetworkDebug(str);
+	//CL_WriteTransformDebug(str);
+	//CL_WriteCameraDebug(str);
+}
+
 #endif // CLIENT_DEBUG_H
