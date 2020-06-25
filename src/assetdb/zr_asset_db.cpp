@@ -62,8 +62,9 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         "data/debug_white.png",
         "data/debug_black.png",
         "data/debug_blue.png",
-        "data/debug_red.png"
-        
+        "data/debug_red.png",
+        "data/debug_red_dark.png",
+        "data/debug_yellow.png"
     };
     i32 numTextures = sizeof(textures) / sizeof(char*);
     printf("ZRDB - %d textures to load\n", numTextures);
@@ -86,21 +87,35 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         ZRDB_MAT_NAME_WORLD,
         "data/W33_5.bmp",
         "data/debug_black.png"
-    )->index;
+    );
 
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_ENT,
-        "data/debug_white.png",
+        "data/debug_red.png",
         "data/debug_black.png"
-    )->index;
+    );
 
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_PRJ,
+        "data/debug_red_dark.png",
+        "data/debug_black.png"
+    );
+
+    db->CreateMaterial(
+        db,
+        ZRDB_MAT_NAME_GFX,
+        "data/debug_yellow.png",
+        "data/debug_black.png"
+    );
+    
+    db->CreateMaterial(
+        db,
+        ZRDB_MAT_NAME_LASER,
         "data/debug_red.png",
         "data/debug_black.png"
-    )->index;
+    );
 }
 
 ///////////////////////////////////////////////////////////////////////////

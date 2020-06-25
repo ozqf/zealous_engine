@@ -21,6 +21,8 @@
 #define ZRDB_MAT_NAME_WORLD "World"
 #define ZRDB_MAT_NAME_ENT "Entity"
 #define ZRDB_MAT_NAME_PRJ "Projectile"
+#define ZRDB_MAT_NAME_GFX "Gfx"
+#define ZRDB_MAT_NAME_LASER "Laser"
 
 ///////////////////////////////////////////////////////////
 // Asset data types

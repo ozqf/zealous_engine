@@ -317,7 +317,7 @@ internal i32 Sim_InitBulletImpact(
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
         ZRDB_MESH_NAME_CUBE,
-		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
+		ZRDB_MAT_NAME_GFX,
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 0.25f, 0.25f, 0.25f };
@@ -334,7 +334,7 @@ internal i32 Sim_InitTargetPoint(
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
         ZRDB_MESH_NAME_CUBE,
-		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
+		ZRDB_MAT_NAME_LASER,
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
     ent->body.t.scale = { 0.5f, 0.5f, 0.5f };
