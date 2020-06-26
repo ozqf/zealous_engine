@@ -38,6 +38,101 @@ extern "C" void ZRDB_PrintManifest(ZRAssetDB* assetDB)
 // Load embedded assets
 ///////////////////////////////////////////////////////////////////////////
 
+static void ZRDB_GenSolidTexture(ZRAssetDB* db, char* name, ColourU32 colour)
+{
+	const i32 w = 2, h = 2;
+	i32 bytes = TexGen_BytesFor32BitImage(w, h);
+	ColourU32* pixels = (ColourU32*)malloc(bytes);
+	TexGen_SetRGBA(pixels, w, h, colour);
+	ZRDB_RegisterTexture(db, name, pixels, bytes, w, h, 0);
+}
+
+static void ZRDB_WriteBWHeaderFile(
+	char* name, u8* bytes, i32 numBytes, i32 w, i32 h, i32 bytesPerRow)
+{
+	char* fileName = "./bw_file.h";
+    FILE* f;
+    fopen_s(&f, fileName, "w");
+    if (f == NULL)
+    {
+        printf("Failed to open file \"%s\" black & white header\n", fileName);
+        return;
+    }
+	fprintf(f, "#ifndef BLACK_AND_WHITE_%s\n", name);
+	fprintf(f, "#define BLACK_AND_WHITE_%s\n", name);
+	fprintf(f, "static char* bw_%s_name = \"%s\";\n", name, name);
+	fprintf(f, "static i32 bw_%s_width = %d;\n", name, w);
+	fprintf(f, "static i32 bw_%s_height = %d;\n", name, h);
+	fprintf(f, "static i32 bw_%s_num_bytes = %d;\n", name, numBytes);
+	fprintf(f, "static u8 bw_%s_bytes[] = {\n", name);
+	i32 rowCount = 0;
+	i32 count = 0;
+	u8* end = bytes + numBytes;
+	while(bytes < end)
+	{
+		fprintf(f, "%d", *bytes);
+		rowCount++;
+		count++;
+		if (count < numBytes)
+		{
+			fprintf(f, ",");
+		}
+		if (!(count % bytesPerRow))
+		{
+			rowCount = 0;
+			fprintf(f, "\n");
+		}
+		bytes++;
+	}
+	fprintf(f, "};\n");
+    fprintf(f, "#endif // BLACK_AND_WHITE_%s\n", name);
+	fclose(f);
+}
+
+static void ZRDB_GenBWTexture(ZRAssetDB* db, ZRDBTexture* tex)
+{
+	printf("=== ZRDB Tex to B&W ===\n");
+	i32 w = tex->width, h = tex->height;
+	printf("Converting \"%s\" (%d, %d)\n",
+		tex->header.fileName, w, h);
+	i32 bytes = TexGen_BytesForBWImage(w, h);
+	printf("\t%d bytes\n", bytes);
+
+	u8* bwPixels = (u8*)malloc(bytes);
+	i32 err = TexGen_EncodeBW(bwPixels, bytes, (ColourU32*)tex->data, w, h);
+	if (err != ZE_ERROR_NONE)
+	{
+		printf("\tError generating BW img\n");
+		free(bwPixels);
+		return;
+	}
+
+	ZRDB_WriteBWHeaderFile("charset", bwPixels, bytes, w, h, 16);
+	
+	////////////////////////
+	// Decode
+	ColourU32 white = { 255, 255, 255, 255 };
+	ColourU32 black = { 0, 0, 0, 255 };
+	ColourU32 green = { 0, 255, 0, 255 };
+	i32 resultBytes = TexGen_BytesFor32BitImage(w, h);
+	ColourU32* pixels = (ColourU32*)malloc(resultBytes);
+	TexGen_DecodeBW(bwPixels, bytes, pixels, w, h, green, black);
+
+	ZRDB_RegisterTexture(db, "test", pixels, resultBytes, w, h, 0);
+}
+
+static void ZRDB_LoadBWImage(ZRAssetDB* db, BWImage img)
+{
+	ColourU32 white = { 255, 255, 255, 255 };
+	ColourU32 black = { 0, 0, 0, 255 };
+	ColourU32 green = { 0, 255, 0, 255 };
+	i32 resultBytes = TexGen_BytesFor32BitImage(img.w, img.h);
+	ColourU32* pixels = (ColourU32*)malloc(resultBytes);
+	TexGen_DecodeBW(img.bytes, img.numBytes, pixels, img.w, img.h, white, black);
+
+	ZRDB_RegisterTexture(db, img.name, pixels, resultBytes, img.w, img.h, 0);
+}
+
 /**
  * Load in embedded assets. these assets are also default fallbacks.
  */
@@ -58,21 +153,28 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 
 	////////////////////////////////////////
 	// Generate
-	i32 bytes = TexGen_BytesFor32BitImage(32, 32);
-	ColourU32* pixels = (ColourU32*)malloc(bytes);
-	TexGen_SetRGBA(pixels, 32, 32, { 255, 0, 0, 255 });
-	ZRDB_RegisterTexture(db, "test", pixels, bytes, 32, 32, 0);
+	
+	// first texture, index 0 will be fallback default, so purple for debug:
+	ZRDB_GenSolidTexture(db, "magenta", { 255, 0, 255, 255 });
+	ZRDB_GenSolidTexture(db, "white", { 255, 255, 255, 255 });
+	ZRDB_GenSolidTexture(db, "black", { 0, 0, 0, 255 });
+	ZRDB_GenSolidTexture(db, "grey", { 0, 0, 0, 255 });
+	ZRDB_GenSolidTexture(db, "light_grey", { 127, 127, 127, 255 });
+	ZRDB_GenSolidTexture(db, "dark_grey", { 55, 55, 55, 255 });
+	ZRDB_GenSolidTexture(db, "red", { 255, 0, 0, 255 });
+	ZRDB_GenSolidTexture(db, "green", { 0, 255, 0, 255 });
+	ZRDB_GenSolidTexture(db, "blue", { 0, 0, 255, 255 });
+	ZRDB_GenSolidTexture(db, "yellow", { 255, 255, 0, 255 });
+	ZRDB_GenSolidTexture(db, "cyan", { 0, 255, 255, 255 });
+	ZRDB_GenSolidTexture(db, "dark_red", { 127, 0, 0, 255 });
 
+	ZRDB_LoadBWImage(db, ZR_Embed_Charset());
+
+	///////////////////////////////////////////
 	// Load texture manifest
     char* textures[] = {
-        "data/W33_5.bmp",
-        "data/charset.bmp",
-        "data/debug_white.png",
-        "data/debug_black.png",
-        "data/debug_blue.png",
-        "data/debug_red.png",
-        "data/debug_red_dark.png",
-        "data/debug_yellow.png"
+        "data/W33_5.bmp"
+        ,"data/charset.bmp"
     };
     i32 numTextures = sizeof(textures) / sizeof(char*);
     printf("ZRDB - %d textures to load\n", numTextures);
@@ -81,49 +183,55 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         db->LoadTexture(db, textures[i], bVerbose);
     }
     
+	ZRDBTexture* tex = db->GetTextureByName(db, "data/charset.bmp");
+	ZRDB_GenBWTexture(db, tex);
+
+	///////////////////////////////////////////
+    // Create materials
     // Textures need to be loaded before this point!
+	///////////////////////////////////////////
+
     ZRMaterial* mat = db->CreateMaterial(
         db,
         ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         //"data/W33_5.bmp",
-        "data/debug_blue.png",
-        "data/debug_black.png");
+        "blue",
+        "black");
     
-    // Create materials
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_WORLD,
-        //"data/W33_5.bmp",
-        "test",
-        "data/debug_black.png"
+        "data/W33_5.bmp",
+        //"cyan",
+        "black"
     );
 
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_ENT,
-        "data/debug_red.png",
-        "data/debug_black.png"
+        "red",
+        "black"
     );
 
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_PRJ,
-        "data/debug_red_dark.png",
-        "data/debug_black.png"
+        "dark_red",
+        "black"
     );
 
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_GFX,
-        "data/debug_yellow.png",
-        "data/debug_black.png"
+        "yellow",
+        "black"
     );
     
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_LASER,
-        "data/debug_red.png",
-        "data/debug_black.png"
+        "red",
+        "black"
     );
 
 }

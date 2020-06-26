@@ -746,57 +746,7 @@ static void ZRGL_LoadDefaultPrefabs(i32 bVerbose)
     ////////////////////////////////////////////////////////////
     //  DEBUG - COLOURED CUBES
     ////////////////////////////////////////////////////////////
-    
-    prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_PLAYER];
-    prefab->bInitialised = YES;
-    prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = AssetDb()->LoadTexture(AssetDb(), "data/debug_green.png", bVerbose);
-    prefab->program = ZR_SHADER_TYPE_TEST;
-    
-    prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_WALL];
-    prefab->bInitialised = YES;
-    prefab->geometry = g_cubeVAO;
-    //prefab->textures.diffuse = ZRGL_LoadTexture2D("data/debug_grey_dark.png", bVerbose);
-    prefab->textures.diffuse = AssetDb()->LoadTexture(AssetDb(), "data/WALL03_7.png", bVerbose);
-    prefab->program = ZR_SHADER_TYPE_TEST;
-    
-    prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_ENEMY];
-    prefab->bInitialised = YES;
-    prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = AssetDb()->LoadTexture(AssetDb(), "data/debug_red.png", bVerbose);
-    prefab->program = ZR_SHADER_TYPE_TEST;
-    
-    prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_ENEMY_PROJECTILE];
-    prefab->bInitialised = YES;
-    prefab->geometry = g_spikeVAO;
-    prefab->textures.diffuse = AssetDb()->LoadTexture(AssetDb(), "data/debug_cyan.png", bVerbose);
-    prefab->program = ZR_SHADER_TYPE_TEST;
-
-    prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE];
-    prefab->bInitialised = YES;
-    prefab->geometry = g_spikeVAO;
-    prefab->textures.diffuse = AssetDb()->LoadTexture(AssetDb(), "data/debug_orange.png", bVerbose);
-    prefab->program = ZR_SHADER_TYPE_TEST;
-    
-    prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_EXPLOSION];
-    prefab->bInitialised = YES;
-    prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = AssetDb()->LoadTexture(AssetDb(), "data/debug_orange.png", bVerbose);
-    prefab->program = ZR_SHADER_TYPE_TEST;
-    
-    prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX];
-    prefab->bInitialised = YES;
-    prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = AssetDb()->LoadTexture(AssetDb(), "data/debug_magenta.png", bVerbose);
-    prefab->program = ZR_SHADER_TYPE_TEST;
-    
-    prefab = &g_prefabs[ZR_PREFAB_TYPE_DEBUG_ITEM];
-    prefab->bInitialised = YES;
-    prefab->geometry = g_cubeVAO;
-    prefab->textures.diffuse = AssetDb()->LoadTexture(AssetDb(), "data/debug_blue.png", bVerbose);
-    prefab->program = ZR_SHADER_TYPE_TEST;
-
-    
+        
     // ZR_PREFAB_TYPE_SPHERE
     prefab = &g_prefabs[ZR_PREFAB_TYPE_SPHERE];
     AssetDb()->GetMeshHandleByName(AssetDb(), "data/Sphere.fbx", &prefab->geometry);

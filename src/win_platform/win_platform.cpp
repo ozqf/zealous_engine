@@ -495,9 +495,6 @@ int CALLBACK WinMain(
     // Window is okay. Begin App thread
     AppThread_Init();
 
-	// check assets loaded by modules
-	ZRDB_PrintManifest(g_assets);
-
     // window/render thread loop
     MainLoop();
     

@@ -10,7 +10,7 @@ extern "C" i32 TexGen_BytesFor32BitImage(i32 width, i32 height)
 
 extern "C" i32 TexGen_BytesForBWImage(i32 width, i32 height)
 {
-	return (width * height) * sizeof(i32);
+	return (width / 8) * height;
 }
 
 extern "C" void TexGen_SetRGBA(ColourU32* pixels, i32 width, i32 height, ColourU32 colour)
@@ -20,6 +20,66 @@ extern "C" void TexGen_SetRGBA(ColourU32* pixels, i32 width, i32 height, ColourU
 	{
 		pixels[i] = colour;
 	}
+}
+
+extern "C" i32 TexGen_EncodeBW(
+	u8* dest, const i32 destSize, ColourU32* pixels, const i32 w, const i32 h)
+{
+	i32 blocksWritten = 0;
+	i32 requiredSize = TexGen_BytesForBWImage(w, h);
+	if (requiredSize != destSize)
+	{
+		return ZE_ERROR_NO_SPACE;
+	}
+	// width must be divisible by 8
+	if (w % 8 != 0)
+	{
+		return ZE_ERROR_BAD_SIZE;
+	}
+	// step pixels in 8 by 8 blocks
+	i32 numPixels = w * h;
+	for (i32 i = 0; i < numPixels; i += 8)
+	{
+		u8* block = &dest[i / 8];
+		*block = 0;
+		// step eight colours
+		for (i32 bit = 0; bit < 8; ++bit)
+		{
+			ColourU32 colour = pixels[i + bit];
+			if (colour.r > 0 || colour.g > 0 || colour.b > 0)
+			{
+				*block |= (1 << bit);
+			}
+		}
+		blocksWritten++;
+	}
+	if (blocksWritten != requiredSize)
+	{
+		printf("ERROR - Unexpected block count\n");
+	}
+	return ZE_ERROR_NONE;
+}
+
+extern "C" i32 TexGen_DecodeBW(
+	u8* source, const i32 sourceSize, ColourU32* target, const i32 w, const i32 h, ColourU32 solid, ColourU32 empty)
+{
+	for (i32 i = 0; i < sourceSize; ++i)
+	{
+		u8 block = source[i];
+		for (i32 bit = 0; bit < 8; ++bit)
+		{
+			ColourU32* colour = &target[(i * 8) + bit];
+			if (block & (1 << bit))
+			{
+				*colour = solid;
+			}
+			else
+			{
+				*colour = empty;
+			}
+		}
+	}
+	return ZE_ERROR_NONE;
 }
 
 #endif // ZR_TEX_GEN_H

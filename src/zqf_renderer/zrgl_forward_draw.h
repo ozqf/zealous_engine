@@ -87,7 +87,9 @@ static void ZR_ExecuteTextDraw(
     // Get character quad prefab and use to stamp out characters.
     ZRDBMesh* mesh = AssetDb()->GetMeshByName(AssetDb(), "DynamicQuad");
     if (mesh == NULL) { return; }
-    ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), "data/charset.bmp");
+    //ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), "data/charset.bmp");
+    //ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), "test");
+    ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), "charset");
     if (tex == NULL) { return; }
     M4x4_CREATE(modelView)
     // Setup shader
