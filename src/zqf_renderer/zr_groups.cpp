@@ -229,7 +229,9 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
         else
         {
             // Unknown type... no idea what to do...
+			#ifdef ZR_REPORT_GROUP_ERRORS
             printf("ZR no grouping for drawobj type %d\n", objType);
+			#endif
         }
     }
     return drawGroups;

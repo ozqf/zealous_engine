@@ -16,10 +16,13 @@ Zealous Engine Windows renderer
 
 #include "../ze_module_interfaces.h"
 #include "../ze_common/ze_common.h"
+#include "../ze_common/ze_string_parse.h"
 
 #include "../zqf_renderer.h"
 
 #define ZW_NUM_16X9_RESOLUTIONS 5
+
+static void Window_EnqueueTextCommand(char* str);
 
 #include "ze_window_globals.h"
 #include "ze_window_callbacks.h"
@@ -27,6 +30,23 @@ Zealous Engine Windows renderer
 static void ZR_Error(const char* msg)
 {
     g_platform.Error((char*)msg);
+}
+
+static void Window_EnqueueTextCommand(char* str) 
+{
+	printf(">> Window enqueue cmd \"%s\"\n", str);
+	const i32 maxTokens = 64;
+	char* tokens[maxTokens];
+	i32 len = ZE_StrLen(str);
+	const i32 bufSize = 512;
+	char buf[bufSize];
+	if (len > bufSize)
+	{
+		printf("WIN - cmd string too long: %d max %d\n", len, bufSize);
+		return;
+	}
+	i32 numTokens = ZE_ReadTokens(str, buf, tokens, maxTokens);
+    g_platform.ExecTextCommand(str, len, (const char**)tokens, numTokens);
 }
 
 static i32 WindowImpl_Init()

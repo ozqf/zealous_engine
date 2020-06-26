@@ -190,13 +190,17 @@ static ZE_FatalErrorFunction ze_fatalErrorFunc = NULL;
 
 static void ZE_SetFatalError(ZE_FatalErrorFunction func)
 {
-    printf("COM Set error handler\n");
+    printf("ZE Set error handler\n");
     ze_fatalErrorFunc = func;
 }
 
 static void ZE_Fatal(char* msg)
 {
-	if (ze_fatalErrorFunc == NULL) { ILLEGAL_CODE_PATH; }
+	if (ze_fatalErrorFunc == NULL)
+    {
+        printf("FATAL - %s\n", msg);
+        ILLEGAL_CODE_PATH;
+    }
 	ze_fatalErrorFunc(msg);
 }
 

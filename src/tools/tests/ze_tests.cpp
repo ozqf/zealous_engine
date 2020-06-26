@@ -7,6 +7,7 @@
 #include "../../network/zqf_network.h"
 
 #include "test_delta_introspection.h"
+#include "ze_test_strings.h"
 
 struct TestBlobObj
 {
@@ -195,7 +196,11 @@ internal void NetworkUnitTests()
 extern "C" void ZETests_Run()
 {
 	printf("=== ZE tests ===\n");
+	// Test core common lib
+	Test_StringFunctions();
 	TestBlobStore();
+
+	// Test more specialised modules
 	NetworkUnitTests();
 	Test_Introspection();
 }

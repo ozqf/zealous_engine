@@ -10,7 +10,7 @@ extern "C" i32     SV_IsRunning();
 extern "C" void    SV_Shutdown();
 extern "C" UserIds SVU_CreateLocalUser();
 extern "C" void    SV_Tick(ZEByteBuffer* platformCommands, timeFloat deltaTime);
-extern "C" u8      SV_ParseCommandString(char* str, char** tokens, i32 numTokens);
+extern "C" u8      SV_ParseCommandString(const char* str, const char** tokens, const i32 numTokens);
 
 // For debugging ONLY
 extern "C" void    SV_Debug_GetSimInstance(void** ptr);

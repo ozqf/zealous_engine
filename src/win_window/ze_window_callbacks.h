@@ -85,10 +85,7 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
             char* str = Console_AddChar((char)key);
             if (str != NULL)
             {
-                // execute command
-                printf("EXEC: %s\n", str);
-                i32 len = ZE_StrLenNoTerminator(str) + 1;
-                g_platform.ExecTextCommand(str, len, NULL, 0);
+                Window_EnqueueTextCommand(str);
             }
         }
         return YES;

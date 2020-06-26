@@ -18,6 +18,8 @@ These shouldn't be in common! Move them into this module
 
 #define ZR_TARGET_FRAME_TIME 16.67
 
+//#define ZR_REPORT_GROUP_ERRORS
+
 // TODO: Changing this breaks things atm
 #define ZR_MAX_POINT_LIGHTS_PER_MODEL 8
 

@@ -85,14 +85,16 @@ static ZRAssetDB* g_assets = NULL;
 static void Win_Error(char *msg)
 {
 	printf("FATAL: %s\n", msg);
-    MessageBox(0, msg, "Error", MB_OK | MB_ICONINFORMATION);
+    // TODO: LPCWSTR means unicode, but treated as ascii!
+    MessageBox(0, (LPCSTR)msg, (LPCSTR)"Error", MB_OK | MB_ICONINFORMATION);
 	DebugBreak();
 }
 
 static void Win_Warning(char *msg)
 {
 	printf("WARNING: %s\n", msg);
-    MessageBox(0, msg, "Warning", MB_OK | MB_ICONINFORMATION);
+    // TODO: LPCWSTR means unicode, but treated as ascii!
+    MessageBox(0, (LPCSTR)msg, (LPCSTR)"Warning", MB_OK | MB_ICONINFORMATION);
 }
 
 static void Win_Log(char *msg)
@@ -284,7 +286,7 @@ static void PlatformImpl_ReleaseEventBuffer()
 }
 
 static i32 PlatformImpl_ExecTextCommand(
-    const char* str, const i32 len, char** tokens, const i32 numTokens)
+    const char* str, const i32 len, const char** tokens, const i32 numTokens)
 {
     printf("PLAT: Exec %s\n", str);
     // call all loaded modules to attempt to run the given command
@@ -294,7 +296,7 @@ static i32 PlatformImpl_ExecTextCommand(
 	{
 		ZRDB_PrintManifest(g_assets);
 	}
-    return NO;
+	return (g_app.ParseCommandString(str, tokens, numTokens) == YES);
 }
 
 static void PlatformImpl_OpenSocket(i32* socket, u16* port)

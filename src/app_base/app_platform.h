@@ -488,14 +488,14 @@ internal i32 AppImpl_RendererReloaded()
     return ZE_ERROR_NONE;
 }
 
-internal i32 AppImpl_ParseCommandString(char* str, char** tokens, i32 numTokens)
+internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
     if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "DRAW"))
     {
         if (!ZE_CompareStrings(tokens[1], "SV"))
         { g_debugRenderFlags ^= APP_REND_FLAG_SERVER_SCENE; }
 
-        return 1;
+        return YES;
     }
     if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "STAT"))
     {
@@ -507,7 +507,7 @@ internal i32 AppImpl_ParseCommandString(char* str, char** tokens, i32 numTokens)
         { g_debugPrintFlags ^= APP_PRINT_FLAG_SERVER; }
         if (!ZE_CompareStrings(tokens[1], "CL"))
         { g_debugPrintFlags ^= APP_PRINT_FLAG_CLIENT; }
-        return 1;
+        return YES;
     }
     if (numTokens == 4 && !ZE_CompareStrings(tokens[0], "LAG"))
     {
@@ -515,11 +515,11 @@ internal i32 AppImpl_ParseCommandString(char* str, char** tokens, i32 numTokens)
         i32 maxMS = ZE_AsciToInt32(tokens[2]);
         f32 loss = (f32)ZE_AsciToInt32(tokens[3]) / 100.0f;
         g_loopbackSocket.SetLagStats(minMS, maxMS, loss);
-        return 1;
+        return YES;
     }
     if (SV_IsRunning() && SV_ParseCommandString(str, tokens, numTokens)) { return 1; }
     if (CL_IsRunning() && CL_ParseCommandString(str, tokens, numTokens)) { return 1; }
-    return 0;
+    return NO;
 }
 
 internal void App_DrawFrame()

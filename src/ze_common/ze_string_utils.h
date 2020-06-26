@@ -10,6 +10,14 @@ static i32 ZE_StrLenNoTerminator(const char* str)
     return count;
 }
 
+static i32 ZE_StrLen(const char* str)
+{
+    i32 count = 0;
+    while (str[count]) { ++count; }
+    // include terminator
+    return count + 1;
+}
+
 /**
  * if strings are equal, return 0
  * if a is first alphabetically, return -1

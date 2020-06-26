@@ -49,8 +49,8 @@ void    CL_GetRenderCommands(
 extern "C" void    CL_SetLocalUser(UserIds ids);
 extern "C" void    CL_WriteDebugString(CharBuffer* str);
 extern "C" u8      CL_ParseCommandString(
-			char* str,
-			char** tokens,
-			i32 numTokens);
+			const char* str,
+			const char** tokens,
+			const i32 numTokens);
 
 #endif // CLIENT_H

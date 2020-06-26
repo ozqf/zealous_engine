@@ -14,7 +14,8 @@ struct ze_app_export
     i32     (*Tick)();
     i32     (*RendererReloaded)();
     i32     sentinel;
-    i32     (*ParseCommandString)(char* str, char** tokens, i32 numTokens);
+	// return YES if command was handled
+    i32     (*ParseCommandString)(const char* str, const char** tokens, const i32 numTokens);
 };
 
 // window module function pointers
@@ -43,7 +44,8 @@ struct ze_platform_export
     void (*Free)(void* ptr);
 
     void* (*GetAssetDB)();
-    i32 (*ExecTextCommand)(const char* str, const i32 len, char** tokens, const i32 numTokens);
+	// return YES if command was handled
+    i32 (*ExecTextCommand)(const char* str, const i32 len, const char** tokens, const i32 numTokens);
     
     // Acquire is passed through to window if it is availables
     void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);

@@ -3,6 +3,9 @@
 
 #include "ze_common.h"
 
+/**
+ * TODO - delete me? Just use a ByteBuffer...
+ */
 struct CharBuffer
 {
     char* chars;

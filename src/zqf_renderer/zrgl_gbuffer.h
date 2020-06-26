@@ -153,8 +153,10 @@ static void ZRGL_FillGBuffer(
             ZRGL_GeometryPass_Mesh(gBuf, &projection, &view, objects, group);
             break;
             default:
+            #ifdef ZR_REPORT_GROUP_ERRORS
 			printf("FillGBuffer - Unknown draw group type %d\n",
 				group->data.type);
+            #endif
 			break;
         }
     }

@@ -100,7 +100,7 @@ internal void* CL_Malloc(i32 numBytes)
     return g_allocations[index];
 }
 
-extern "C" u8 CL_ParseCommandString(char* str, char** tokens, i32 numTokens)
+extern "C" u8 CL_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
     return 0;
 }

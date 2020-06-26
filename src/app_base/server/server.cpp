@@ -30,7 +30,7 @@ extern "C" void SV_Debug_GetSimInstance(void** ptr)
 #include "server_debug.h"
 #include "server_connect.h"
 
-extern "C" u8 SV_ParseCommandString(char* str, char** tokens, i32 numTokens)
+extern "C" u8 SV_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
 	if (!ZE_CompareStrings(tokens[0], "SPAWN"))
 	{
