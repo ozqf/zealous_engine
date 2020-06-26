@@ -4,13 +4,16 @@
 @echo off
 
 cd..
+@echo -- Purge release folder --
+@rem delete release folder completely
 if exist release RD /S /Q release
-
+@rem recreate
 mkdir release
 @rem cd release
-@echo -- Purge release folder --
-del "x:\release\*" /q
+@rem del "x:\release\*" /q
 @rem cd..
+
+@rem copy
 robocopy x:\bin x:\release zealous.exe /NJH /NJS
 robocopy x:\bin x:\release glfw3.dll /NJH /NJS
 robocopy x:\bin x:\release wingl.dll /NJH /NJS
