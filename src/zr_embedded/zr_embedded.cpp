@@ -8,6 +8,8 @@
 #include "primitive_quad.h"
 #include "primitive_spike.h"
 
+#include "zr_tex_gen.h"
+
 extern "C" MeshData* ZR_Embed_Cube()
 {
     return &g_meshCube;

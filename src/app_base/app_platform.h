@@ -490,6 +490,7 @@ internal i32 AppImpl_RendererReloaded()
 
 internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
+	printf("APP exec %s\n", str);
     if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "DRAW"))
     {
         if (!ZE_CompareStrings(tokens[1], "SV"))
@@ -517,8 +518,8 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
         g_loopbackSocket.SetLagStats(minMS, maxMS, loss);
         return YES;
     }
-    if (SV_IsRunning() && SV_ParseCommandString(str, tokens, numTokens)) { return 1; }
-    if (CL_IsRunning() && CL_ParseCommandString(str, tokens, numTokens)) { return 1; }
+    if (SV_IsRunning() && SV_ParseCommandString(str, tokens, numTokens)) { return YES; }
+    if (CL_IsRunning() && CL_ParseCommandString(str, tokens, numTokens)) { return YES; }
     return NO;
 }
 

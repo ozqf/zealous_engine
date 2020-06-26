@@ -56,6 +56,14 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	d = ZR_Embed_Spike();
     db->LoadMesh(db, ZRDB_MESH_NAME_SPIKE, d, YES);
 
+	////////////////////////////////////////
+	// Generate
+	i32 bytes = TexGen_BytesFor32BitImage(32, 32);
+	ColourU32* pixels = (ColourU32*)malloc(bytes);
+	TexGen_SetRGBA(pixels, 32, 32, { 255, 0, 0, 255 });
+	ZRDB_RegisterTexture(db, "test", pixels, bytes, 32, 32, 0);
+
+	// Load texture manifest
     char* textures[] = {
         "data/W33_5.bmp",
         "data/charset.bmp",
@@ -85,7 +93,8 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_WORLD,
-        "data/W33_5.bmp",
+        //"data/W33_5.bmp",
+        "test",
         "data/debug_black.png"
     );
 
@@ -116,6 +125,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         "data/debug_red.png",
         "data/debug_black.png"
     );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////

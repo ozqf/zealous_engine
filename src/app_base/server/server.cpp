@@ -32,6 +32,7 @@ extern "C" void SV_Debug_GetSimInstance(void** ptr)
 
 extern "C" u8 SV_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
+	printf("SV try parse\n");
 	if (!ZE_CompareStrings(tokens[0], "SPAWN"))
 	{
 		if (numTokens == 1)
@@ -67,21 +68,21 @@ extern "C" u8 SV_ParseCommandString(const char* str, const char** tokens, const 
             return 1;
             case 20:
             g_maxSyncRate = APP_CLIENT_SYNC_RATE_20HZ;
-            return 1;
+            return YES;
             case 30:
             g_maxSyncRate = APP_CLIENT_SYNC_RATE_30HZ;
-            return 1;
+            return YES;
             case 60:
             g_maxSyncRate = APP_CLIENT_SYNC_RATE_60HZ;
-            return 1;
+            return YES;
 
             default:
             printf("Invalid sync rate %d\n", value);
             break;
         }
-        return 1;
+        return YES;
     }
-    return 0;
+    return NO;
 }
 
 internal void SV_AddWanderer()

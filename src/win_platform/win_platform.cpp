@@ -292,9 +292,10 @@ static i32 PlatformImpl_ExecTextCommand(
     // call all loaded modules to attempt to run the given command
     // a result of true from any module means the command was
     // handled
-    if (ZE_CompareStrings(str, "manifest") == 0)
+    if (ZE_CompareStrings(str, "MANIFEST") == 0)
 	{
 		ZRDB_PrintManifest(g_assets);
+		return YES;
 	}
 	return (g_app.ParseCommandString(str, tokens, numTokens) == YES);
 }
