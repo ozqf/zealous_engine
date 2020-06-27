@@ -159,8 +159,8 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
 
     ///////////////////////////////////////////////////////////
     // Build Groups
-    sceneCmd->drawTime.view = ZR_BuildDrawGroups(
-        objects, sceneCmd->params.numObjects, scratch, &stats);
+    // sceneCmd->drawTime.view = ZR_BuildDrawGroups(
+    //     objects, sceneCmd->params.numObjects, scratch, &stats);
     
     ZRSceneView* view = sceneCmd->drawTime.view;
     stats.numGroups = view->numGroups;

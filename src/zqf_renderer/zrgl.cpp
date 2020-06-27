@@ -110,18 +110,48 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
 
 	/////////////////////////////////////////////////////////////
 	// iterate scenes, generating draw groups.
+	ZRGroupingStats groupStats = {};
 	u8* groupsCursor = cursor;
 	for (i32 i = 0; i < header->numScenes; ++i)
 	{
 		ZRSceneFrame* scene = (ZRSceneFrame*)groupsCursor;
 		ZE_ASSERT(scene->sentinel == ZR_SENTINEL, "Iterate scenes desync");
     	groupsCursor += sizeof(ZRSceneFrame) + scene->params.numDataBytes;
+
+		// Process scen into groups
+		ZRSceneView* view = ZR_BuildDrawGroups(
+			scene->params.objects, scene->params.numObjects, &g_scratch, &groupStats);
+		scene->drawTime.view = view;
+		
+		i32 dataCursorStart = g_dataTex2D.cursor;
+		// Write group batches to data texture
+		ZR_WriteGroupsToTextureByIndex(
+			scene->params.objects,
+			scene->params.numObjects,
+			&scene->params.camera,
+			view,
+			&g_dataTex2D);
+		i32 dataCursorEnd = g_dataTex2D.cursor;
+
 		if (g_verboseFrame)
 		{
-			printf("Scene %d - %d objects, %dKB\n",
+			printf("--- Scene %d - %d objects, %dKB ---\n",
 				i, scene->params.numObjects, scene->params.numDataBytes / 1024);
+			printf("\tGroups %d, lights %d\n",
+				view->numGroups,
+				view->numLights);
+			for (i32 j = 0; j < view->numGroups; ++j)
+			{
+				printf("\tGroup %d. type %d, objects %d, batchable %d\n",
+					j,
+					view->groups[j]->data.type,
+					view->groups[j]->numItems,
+					view->groups[j]->bBatchable);
+			}
+			printf("%d data texture pixels\n", dataCursorEnd - dataCursorStart);
+			printf("\n");
 		}
-		//ZRDrawGroup* group = ZR_BuildDrawGroups(scene->params.numDataBytes,)
+
 	}
 
     /////////////////////////////////////////////////////////////

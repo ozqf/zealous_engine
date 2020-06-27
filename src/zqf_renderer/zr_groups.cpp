@@ -93,9 +93,8 @@ extern "C" void ZR_WriteGroupsToTextureByIndex(
 	for (i32 i = 0; i < groups->numGroups; ++i)
     {
         ZRDrawGroup* group = groups->groups[i];
-        if (group->shader == NULL) { continue; }
-
-        if (group->shader->bBatchable == NO)
+        
+        if (group->bBatchable == NO)
         {
             continue;
         }
@@ -202,6 +201,10 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
                 group->hash = objHash;
                 group->data = obj->data;
 		    	group->numItems = 0;
+                if (objType == ZR_DRAWOBJ_TYPE_MESH)
+                {
+                    group->bBatchable = YES;
+                }
                 //group->id = objGroupId;
                 scratch->cursor += sizeof(ZRDrawGroup);
                 drawGroups->groups[drawGroups->numGroups++] = group;

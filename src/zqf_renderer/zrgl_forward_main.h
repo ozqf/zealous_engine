@@ -106,46 +106,6 @@ static ZRGroupingStats ZR_PrepareScene(
     }
     #endif
 
-    ///////////////////////////////////////////////////////////
-    // Deferred
-    #if 0
-    if (sceneCmd->params.bDeferred)
-    {
-        f64 gBufStart = g_platform.QueryClock();
-        ZRGL_FillGBuffer(
-            &g_gBuffer,
-            &sceneCmd->params.camera,
-            scrInfo,
-            view->groups,
-            view->numGroups,
-            objects,
-            sceneCmd->params.numObjects,
-            &stats);
-        stats.gBufferTime = (g_platform.QueryClock() - gBufStart) * 1000;
-    }
-    #endif
-
-    ///////////////////////////////////////////////////////////
-    // locate programs
-    #if 0
-    for (i32 i = 0; i < view->numGroups; ++i)
-    {
-        ZRDrawGroup* group = view->groups[i];
-        if (group->id.program >= 0 || group->id.program < ZR_SHADER_TYPE_LAST__)
-        {
-            group->shader = &g_programs[group->id.program];
-            if (group->id.objType == group->shader->drawObjType)
-            {
-                // This group <-> program is okay.
-                continue;
-            }
-        }
-
-        // Config of this group is wrong, ignore it
-        group->shader = NULL;
-        
-    }
-    #endif
     // Write data texture
     ZR_WriteGroupsToTextureByIndex(
         objects, sceneCmd->params.numObjects, &sceneCmd->params.camera,
@@ -227,7 +187,6 @@ static void ZR_DrawScene(
     for (i32 i = 0; i < sceneCmd->drawTime.view->numGroups; ++i)
     {
         ZRDrawGroup* group = sceneCmd->drawTime.view->groups[i];
-        if (group->shader == NULL) { continue; }
         ZR_DrawGroup(
             &sceneCmd->params.camera,
             sceneCmd->drawTime.objects,

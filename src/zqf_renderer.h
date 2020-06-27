@@ -169,7 +169,8 @@ struct ZRDrawGroup
 	// location in buffer for this group's command + data
 	u8* commandPtr;
     u8* shaderDataPtr;
-    ZRShader* shader;
+    i32 bBatchable;
+    //ZRShader* shader;
 	// bytes reserved for this command should equal:
 	// sizeof(Command) + (sizeof(data per instance) * numItems)
 	i32 reservedBytes;
@@ -199,7 +200,7 @@ struct ZRSceneFrame
     {
         i32 projectionMode;
         i32 numObjects;
-        u8* dataBytes;
+        ZRDrawObj* objects;
         // num data bytes is stored but since draw obj is a union, could just
         // do sizeof(ZRDrawObj) * numObjects
         i32 numDataBytes;

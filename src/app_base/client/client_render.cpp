@@ -180,7 +180,7 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     scene->params.camera = *camera;
     i32 objCount = 0;
     //u8* listStart = list->cursor;
-    scene->params.dataBytes = list->cursor;
+    scene->params.objects = (ZRDrawObj*)list->cursor;
     // write client draw data. World, view model, HUD, menus.
 
     #if 0 // DEBUG: Add a main light or objects are invisible
@@ -225,7 +225,7 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
         //     obj->t.pos.x, obj->t.pos.y, obj->t.pos.z);
     }
 
-    scene->params.numDataBytes = list->cursor - scene->params.dataBytes;
+    scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
     scene->params.numObjects = objCount;
     scene->sentinel = ZR_SENTINEL;
     frame->sentinel = ZR_SENTINEL;
@@ -241,7 +241,7 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     scene->sentinel = ZR_SENTINEL;
     scene->params.projectionMode = ZR_PROJECTION_MODE_IDENTITY;
 
-    scene->params.dataBytes = list->cursor;
+    scene->params.objects = (ZRDrawObj*)list->cursor;
 
     // add objects
 
@@ -250,7 +250,7 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     scene->params.numObjects++;
 
     // Finish scene
-    scene->params.numDataBytes = list->cursor - scene->params.dataBytes;
+    scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
 
     return frame;
 }
