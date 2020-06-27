@@ -78,6 +78,7 @@ static ZRGBuffer ZRGL_CreateGBuffer(i32 scrWidth, i32 scrHeight)
         GL_COLOR_ATTACHMENT3
     };
     glDrawBuffers(4, attachments);
+    CHECK_GL_ERR
 
     // then also add render buffer object as depth buffer:    
     // depth map
@@ -108,8 +109,10 @@ static ZRGBuffer ZRGL_CreateGBuffer(i32 scrWidth, i32 scrHeight)
     #endif
 
     // Done. Clear settings
-    glBindFramebuffer(GL_FRAMEBUFFER, gBuf.colourTex);
-    printf("gBuffer built\n");
+    // printf("gBuffer - binding frame buffer %d\n", gBuf.colourTex);
+    // glBindFramebuffer(GL_FRAMEBUFFER, gBuf.colourTex);
+    // CHECK_GL_ERR
+    // printf("gBuffer built\n");
 	return gBuf;
 }
 

@@ -46,19 +46,22 @@ static void Window_EnqueueTextCommand(char* str)
 		return;
 	}
 	i32 numTokens = ZE_ReadTokens(str, buf, tokens, maxTokens);
+
+    // try and execute ourselves. If not pass off to platform
+    if (numTokens == 1 && ZE_CompareStrings(tokens[0], "VID") == 0)
+    {
+        g_bRestart = YES;
+        return;
+    }
+
     g_platform.ExecTextCommand(str, len, (const char**)tokens, numTokens);
 }
 
-static i32 WindowImpl_Init()
+//////////////////////////////////////////////////////////////////
+// Create Window, gl context and renderer
+//////////////////////////////////////////////////////////////////
+static ErrorCode Window_SpawnWindow()
 {
-    //g_platform.Warning("Hello from window DLL", "666");
-    // This NEVER happens honest gov.
-    ZE_SetFatalError(ZR_Error);
-
-    i32 bytes = MegaBytes(1);
-    g_drawListBuffer = Buf_FromMalloc(malloc(bytes), bytes);
-    g_drawDataBuffer = Buf_FromMalloc(malloc(bytes), bytes);
-    g_eventBuffer = Buf_FromMalloc(malloc(bytes), bytes);
 
     //////////////////////////////////////////////////////////////////
     // GLFW - Build opengl context, window and callbacks
@@ -124,15 +127,6 @@ static i32 WindowImpl_Init()
 
     glfwSwapBuffers(g_window);
 
-    // create export for renderer and link up
-    ZRPlatform platform = {};
-    platform.Allocate = g_platform.Allocate;
-    platform.Free = g_platform.Free;
-    platform.QueryClock = g_platform.QueryClock;
-    platform.GetAssetDB = g_platform.GetAssetDB;
-    platform.DebugBreak = g_platform.DebugBreak;
-    g_renderer = ZR_Link(platform);
-
     // Initialise the renderer itself.
     ErrorCode err = g_renderer.Init(g_scrInfo.width, g_scrInfo.height);
     if (err != ZE_ERROR_NONE)
@@ -144,13 +138,51 @@ static i32 WindowImpl_Init()
     // do a scan for either default assets or stuff an app
     // has loaded.
     g_renderer.CheckForUploads();
+    return ZE_ERROR_NONE;
+}
 
-	return ZE_ERROR_NONE;
+static void Window_Restart()
+{
+    // Kill window
+    glfwDestroyWindow(g_window);
+    g_window = NULL;
+    // Inform the asset db to clear all handles
+    ZRAssetDB* db = (ZRAssetDB*)g_platform.GetAssetDB();
+    db->VidRestart(db);
+    Window_SpawnWindow();
+}
+
+static i32 WindowImpl_Init()
+{
+    //g_platform.Warning("Hello from window DLL", "666");
+    // This NEVER happens honest gov.
+    ZE_SetFatalError(ZR_Error);
+
+    i32 bytes = MegaBytes(1);
+    g_drawListBuffer = Buf_FromMalloc(malloc(bytes), bytes);
+    g_drawDataBuffer = Buf_FromMalloc(malloc(bytes), bytes);
+    g_eventBuffer = Buf_FromMalloc(malloc(bytes), bytes);
+
+    // create export for renderer and link up
+    // but DO NOT INIT - init when window is created
+    ZRPlatform platform = {};
+    platform.Allocate = g_platform.Allocate;
+    platform.Free = g_platform.Free;
+    platform.QueryClock = g_platform.QueryClock;
+    platform.GetAssetDB = g_platform.GetAssetDB;
+    platform.DebugBreak = g_platform.DebugBreak;
+    g_renderer = ZR_Link(platform);
+
+    return Window_SpawnWindow();
 }
 
 static void ZR_PollMouseForApp()
 {
     f64 posX, posY;
+    if (g_window == NULL)
+    {
+        return;
+    }
     glfwGetCursorPos(g_window, &posX, &posY);
     f64 diffX = posX - g_lastMouseSampleX;
     f64 diffY = posY - g_lastMouseSampleY;
@@ -209,9 +241,9 @@ static void WindowImpl_Acquire_EventBuffer(ZEByteBuffer** buf)
     g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
     *buf = &g_eventBuffer;
     // Write current mouse state for app to read
-    ZR_PollMouseForApp();
-    //if (g_mouseAccumulatorSampleX != 0 || g_mouseAccumulatorSampleY != 0)
-    //{
+    if (g_window != NULL)
+    {
+        ZR_PollMouseForApp();
         // inputs take integers...
         i32 mouseMoveIntX = (i32)(g_mouseAccumulatorSampleX * Z_INPUT_MOUSE_SCALAR);
         i32 mouseMoveIntY = (i32)(g_mouseAccumulatorSampleY * Z_INPUT_MOUSE_SCALAR);
@@ -221,7 +253,7 @@ static void WindowImpl_Acquire_EventBuffer(ZEByteBuffer** buf)
         // Clear for next sample
         g_mouseAccumulatorSampleX = 0;
         g_mouseAccumulatorSampleY = 0;
-    //}
+    }
 }
 
 static void WindowImpl_Release_EventBuffer()
@@ -257,6 +289,11 @@ static i32 WindowImpl_MainLoop()
         endFrameMS = g_platform.QueryClock();
         totalMS = endFrameMS - startFrameMS;
 
+        if (g_bRestart == YES)
+        {
+            g_bRestart =  NO;
+            Window_Restart();
+        }
         //g_platform.DebugBreak();
     }
     return ZE_ERROR_NONE;

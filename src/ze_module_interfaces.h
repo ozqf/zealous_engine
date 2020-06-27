@@ -5,7 +5,7 @@
 #include "../ze_common/ze_byte_buffer.h"
 #include "../ze_common/ze_net_types.h"
 
-// app module function pointers
+// app (game) module function pointers
 struct ze_app_export
 {
     i32     isValid;
@@ -18,13 +18,15 @@ struct ze_app_export
     i32     (*ParseCommandString)(const char* str, const char** tokens, const i32 numTokens);
 };
 
-// window module function pointers
+// window (renderer) module function pointers
 struct ze_window_export
 {
     i32 (*Init)();
     i32 (*MainLoop)();
+    // Written to by app, read by renderer
     void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();
+    // For system events. written to by window, read by app
     void (*Acquire_EventBuffer)(ZEByteBuffer** buf);
     void (*Release_EventBuffer)();
     i32 sentinel;
@@ -43,11 +45,12 @@ struct ze_platform_export
     void* (*Allocate)(i32 numBytes);
     void (*Free)(void* ptr);
 
+    // Shared asset manager
     void* (*GetAssetDB)();
 	// return YES if command was handled
     i32 (*ExecTextCommand)(const char* str, const i32 len, const char** tokens, const i32 numTokens);
     
-    // Acquire is passed through to window if it is availables
+    // Acquire is passed through to window if it is available
     void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();
     void (*Acquire_EventBuffer)(ZEByteBuffer** buf);

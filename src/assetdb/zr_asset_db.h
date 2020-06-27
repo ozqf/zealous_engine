@@ -105,6 +105,8 @@ struct ZRAssetDB
     i32 (*LoadTexture)(ZRAssetDB* assetDB, char* path, i32 bVerbose);
     i32 (*LoadMeshFromFBX)(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose);
     i32 (*LoadMesh)(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVerbose);
+
+    void (*VidRestart)(ZRAssetDB* assetDB);
 };
 
 struct ZRAssetUploader

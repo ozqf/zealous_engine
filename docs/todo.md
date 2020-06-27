@@ -30,6 +30,10 @@ Renderer
 * 3D circle, eg end of a cone, for spawning bullet 'hoops'
 
 ## Renderer
+* UI
+    * Restore Forward renderer
+    * Straight-to-screen text
+    * In-world (3D transformed) text.
 * Billboard rendering and animation for sprite based objects
     * texture and sprite atlas creation + storage
     * animations - creation and playback

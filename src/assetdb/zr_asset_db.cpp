@@ -194,7 +194,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	ZRDB_GenSolidTexture(db, "cyan", { 0, 255, 255, 255 });
 	ZRDB_GenSolidTexture(db, "dark_red", { 127, 0, 0, 255 });
 
-	ZRDBTexture* tex = ZRDB_GenBlankTexture(db, "test", 32, 32, { 0, 0, 0, 255 });
+	ZRDBTexture* tex = ZRDB_GenBlankTexture(db, "test", 32, 32, { 25, 25, 25, 255 });
 	TexGen_FillRect(
 		(ColourU32*)tex->data, 32, 32,
 		{ 4, 4 },
@@ -238,8 +238,8 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_WORLD,
-        "test",
-        // "data/W33_5.bmp",
+        // "test",
+        "data/W33_5.bmp",
         //"cyan",
         "black"
     );
@@ -271,7 +271,32 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         "red",
         "black"
     );
+}
 
+internal void ZRDB_VidRestart(ZRAssetDB* assetDb)
+{
+	// Clear all GPU upload handles
+	// tbh... mapping asset to gpu should be handled by the renderer in a
+	// hash table or something... asset db shouldn't care.
+
+	ZRDB_CAST_TO_INTERNAL(assetDb, db)
+	printf("ZRDB - Clearing ALL GPU handles\n");
+	for (i32 i = 0; i < db->numTextures; ++i)
+	{
+		db->textures[i].header.bIsUploaded = NO;
+		db->textures[i].apiHandle = 0;
+	}
+	for (i32 i = 0; i < db->numMeshes; ++i)
+	{
+		db->meshes[i].header.bIsUploaded = NO;
+		db->meshes[i].handles = {};
+	}
+	// currently materials store asset db indices
+	// and are looked up at render time... so don't need to clear.
+	// for (i32 i = 0; i < db->numMaterials; ++i)
+	// {
+		
+	// }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -308,6 +333,8 @@ extern "C" ZRAssetDB* ZRDB_Create()
     db->header.LoadMesh = ZRDB_LoadMesh;
     db->header.LoadMeshFromFBX = ZRDB_LoadMeshFromFBX;
     db->header.LoadTexture = ZRDB_LoadTexture;
+
+	db->header.VidRestart = ZRDB_VidRestart;
 
     // store
     db->textures = (ZRDBTexture*)malloc(sizeof(ZRDBTexture) * ZR_ASSET_DB_MAX_HANDLES);

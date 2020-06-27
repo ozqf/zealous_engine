@@ -30,28 +30,29 @@ struct Win32_Thread
 #endif
 
 // Buffers
-static ZEByteBuffer g_drawListBuffer;
-static ZEByteBuffer g_drawDataBuffer;
-static ZEByteBuffer g_eventBuffer;
+internal ZEByteBuffer g_drawListBuffer;
+internal ZEByteBuffer g_drawDataBuffer;
+internal ZEByteBuffer g_eventBuffer;
 
-static i32 g_bMouseCaptured = YES;
-static i32 g_consoleActive = NO;
+internal i32 g_bMouseCaptured = YES;
+internal i32 g_consoleActive = NO;
 
-static f64 g_lastMouseSampleX = 0;
-static f64 g_lastMouseSampleY = 0;
-static f64 g_mouseAccumulatorSampleX = 0;
-static f64 g_mouseAccumulatorSampleY = 0;
+internal f64 g_lastMouseSampleX = 0;
+internal f64 g_lastMouseSampleY = 0;
+internal f64 g_mouseAccumulatorSampleX = 0;
+internal f64 g_mouseAccumulatorSampleY = 0;
 
-static ze_platform_export g_platform = {};
-static ZRRenderer g_renderer = {};
-static volatile i32 g_bExit = NO;
-static ScreenInfo g_scrInfo;
+internal ze_platform_export g_platform = {};
+internal ZRRenderer g_renderer = {};
+internal volatile i32 g_bExit = NO;
+internal ScreenInfo g_scrInfo;
 
-static i32 g_resolutionsX[ZW_NUM_16X9_RESOLUTIONS] =
+internal i32 g_resolutionsX[ZW_NUM_16X9_RESOLUTIONS] =
 { 1024, 1280, 1366, 1600, 1920 };
-static i32 g_resolutionsY[ZW_NUM_16X9_RESOLUTIONS] =
+internal i32 g_resolutionsY[ZW_NUM_16X9_RESOLUTIONS] =
 { 576, 720, 768, 900, 1080 };
 
+internal i32 g_bRestart = NO;
 internal GLFWwindow* g_window;
 
 #endif // ZE_WINDOW_GLOBALS_H

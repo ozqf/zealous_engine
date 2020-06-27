@@ -87,8 +87,11 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     CHECK_GL_ERR
     // Lightmap
     glGenSamplers(1, &g_samplerB);
+    CHECK_GL_ERR
     glSamplerParameteri(g_samplerB, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    CHECK_GL_ERR
     glSamplerParameteri(g_samplerB, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+    CHECK_GL_ERR
 
     /////////////////////////////////////////
     // Alloc scratch space
@@ -102,12 +105,18 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     // Samplers for data textures
     // Make sure filtering and mip-mapping are disabled!
     glGenSamplers(1, &g_samplerDataTex2D);
+    CHECK_GL_ERR
     glSamplerParameteri(g_samplerDataTex2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    CHECK_GL_ERR
     glSamplerParameteri(g_samplerDataTex2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    CHECK_GL_ERR
     
     glGenSamplers(1, &g_samplerDataTex1D);
+    CHECK_GL_ERR
 	glSamplerParameteri(g_samplerDataTex1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    CHECK_GL_ERR
     glSamplerParameteri(g_samplerDataTex1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    CHECK_GL_ERR
     
     // Create a 2D f32 RGBA texture
     g_dataTex2D = ZRGL_CreateDataTexture2D(&g_platform, ZQF_GL_DATA_TEXTURE_WIDTH);
