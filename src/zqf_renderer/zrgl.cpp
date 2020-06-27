@@ -22,7 +22,7 @@
 #include "zrgl_forward_draw.h"
 #include "zrgl_forward_main.h"
 // deferred
-#include "zrgl_deferred_draw.h"
+//#include "zrgl_deferred_draw.h"
 #include "zrgl_gbuffer.h"
 #include "zrgl_deferred_main.h"
 
@@ -34,18 +34,6 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     ZEByteBuffer* drawData,
     ScreenInfo scrInfo)
 {
-	/*
-extern "C" ZRPerformanceStats ZRImpl_DrawFrameForward(
-    ZEByteBuffer* drawList,
-    ZEByteBuffer* drawData,
-    ScreenInfo scrInfo);
-
-extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
-    ZEByteBuffer* drawList,
-    ZEByteBuffer* drawData,
-    ScreenInfo scrInfo);
-	*/
-
 	/////////////////////////////////////////////////////////////
 	// Setup for draw
 	/////////////////////////////////////////////////////////////
@@ -109,7 +97,7 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     u8* scenesStart = cursor;
 
 	/////////////////////////////////////////////////////////////
-	// iterate scenes, generating draw groups.
+	// iterate scenes,  generating draw groups and preparing data
 	ZRGroupingStats groupStats = {};
 	u8* groupsCursor = cursor;
 	for (i32 i = 0; i < header->numScenes; ++i)
@@ -118,13 +106,19 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
 		ZE_ASSERT(scene->sentinel == ZR_SENTINEL, "Iterate scenes desync");
     	groupsCursor += sizeof(ZRSceneFrame) + scene->params.numDataBytes;
 
+		ZRGL_SetupProjection(
+			&scene->drawTime.projection,
+			scene->params.projectionMode,
+			scrInfo.aspectRatio
+		);
+
 		// Process scen into groups
 		ZRSceneView* view = ZR_BuildDrawGroups(
 			scene->params.objects, scene->params.numObjects, &g_scratch, &groupStats);
 		scene->drawTime.view = view;
 		
-		i32 dataCursorStart = g_dataTex2D.cursor;
 		// Write group batches to data texture
+		i32 dataCursorStart = g_dataTex2D.cursor;
 		ZR_WriteGroupsToTextureByIndex(
 			scene->params.objects,
 			scene->params.numObjects,
@@ -133,6 +127,8 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
 			&g_dataTex2D);
 		i32 dataCursorEnd = g_dataTex2D.cursor;
 
+		////////////////////////////////////////
+		// Debug spam
 		if (g_verboseFrame)
 		{
 			printf("--- Scene %d - %d objects, %dKB ---\n",
@@ -175,19 +171,19 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
 	if (firstScene->params.bDeferred)
 	{
 		gBufStats = ZR_DrawSceneDeferred(firstScene, &g_scratch, scrInfo);
+		
+    	// Draw debug cack
+    	#if 0
+    	ZRGL_DrawGBufferDebugQuads(scrInfo.aspectRatio);
+    	#endif
 	}
 	else
 	{
 		ZRSceneView* v = firstScene->drawTime.view;
-		ZRGL_SetupProjection(
-			&firstScene->drawTime.projection,
-			firstScene->params.projectionMode,
-			scrInfo.aspectRatio
-		);
 		for (i32 i = 0; i < v->numGroups; ++i)
 		{
 			ZRDrawGroup* group = v->groups[i];
-			ZR_DrawGroup(
+			ZR_DrawGroupForward(
 				&firstScene->params.camera,
 				firstScene->params.objects,
 				firstScene->params.numObjects,

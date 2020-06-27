@@ -165,14 +165,4 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     ZEByteBuffer* drawData,
     ScreenInfo scrInfo);
 
-extern "C" ZRPerformanceStats ZRImpl_DrawFrameForward(
-    ZEByteBuffer* drawList,
-    ZEByteBuffer* drawData,
-    ScreenInfo scrInfo);
-
-extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
-    ZEByteBuffer* drawList,
-    ZEByteBuffer* drawData,
-    ScreenInfo scrInfo);
-
 #endif // ZRGL_H

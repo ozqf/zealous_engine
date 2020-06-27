@@ -286,19 +286,15 @@ static void ZR_DrawTextGroup(
     #endif
 }
 
-
-///////////////////////////////////////////////////////////
-// Draw Mesh Group
-///////////////////////////////////////////////////////////
-
-static void ZR_DrawMeshGroupFallback(
-    Transform* camera,
-    ZRDrawGroup* group,
-    ZRDrawObj* objects,
-    i32 numObjects,
-    ZRGroupingStats* stats)
+/**
+ * Draw a rectangle to centre of screen for debugging
+ */
+static void ZR_DrawMeshTest()
 {
-    #if 0
+    ZRMeshDrawHandles h = ZRGL_ExtractDrawHandles(AssetDb(), 0, 0);
+
+    if (g_verboseFrame) { printf("Draw mesh test\n"); }
+    #if 1
     GLint prog = g_programs[ZR_SHADER_TYPE_FALLBACK].handle;
     glUseProgram(prog);
     CHECK_GL_ERR
@@ -306,7 +302,58 @@ static void ZR_DrawMeshGroupFallback(
     M4x4_CREATE(projection)
     COM_SetupDefault3DProjection(projection.cells, 1);
     ZR_SetProgM4x4(prog, "u_projection", projection.cells);
-    ZR_SetProgVec4f(prog, "u_colour", { 0, 0, 1, 1});
+    ZR_SetProgVec4f(prog, "u_colour", { 0.5, 0.5, 0.5, 1});
+
+    M4x4_CREATE(model)
+    M4x4_CREATE(view)
+    M4x4_CREATE(modelView)
+
+    model.posZ = -10;
+    
+    // Prepare geometry
+    glBindVertexArray(h.vao);
+	CHECK_GL_ERR
+    
+    M4x4_SetToIdentity(modelView.cells);
+    M4x4_Multiply(modelView.cells, view.cells, modelView.cells);
+    M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
+    
+    ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
+    
+    glDrawArrays(GL_TRIANGLES, 0, h.vertCount);
+    CHECK_GL_ERR
+	#endif
+}
+
+
+///////////////////////////////////////////////////////////
+// Quick and ugly draw for debugging
+///////////////////////////////////////////////////////////
+static void ZR_DrawMeshGroupFallback(
+    M4x4* projection,
+    Transform* camera,
+    ZRDrawGroup* group,
+    ZRDrawObj* objects,
+    i32 numObjects,
+    ZRGroupingStats* stats)
+{
+    ZRMeshDrawHandles h = ZRGL_ExtractDrawHandles(
+        AssetDb(), group->data.model.meshIndex, group->data.model.materialIndex);
+
+    if (g_verboseFrame)
+    {
+        printf("Draw mesh group fallback - %d objects. mesh %d\n",
+            group->numItems, h.vao);
+    }
+    #if 1
+    GLint prog = g_programs[ZR_SHADER_TYPE_FALLBACK].handle;
+    glUseProgram(prog);
+    CHECK_GL_ERR
+
+    // M4x4_CREATE(projection)
+    // COM_SetupDefault3DProjection(projection.cells, 1);
+    ZR_SetProgM4x4(prog, "u_projection", projection->cells);
+    ZR_SetProgVec4f(prog, "u_colour", { 0.5, 0.5, 0.5, 1});
 
     M4x4_CREATE(model)
     M4x4_CREATE(view)
@@ -315,8 +362,7 @@ static void ZR_DrawMeshGroupFallback(
     ZR_BuildViewMatrix(&view, camera);
     
     // Prepare geometry
-    ZRPrefab* prefab = ZRGL_GetPrefab(group->data.prefab.prefabId);
-    glBindVertexArray(prefab->geometry.vao);
+    glBindVertexArray(h.vao);
 	CHECK_GL_ERR
     for (i32 i = 0; i < group->numItems; ++i)
     {
@@ -330,13 +376,15 @@ static void ZR_DrawMeshGroupFallback(
         
         ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
         
-        glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+        glDrawArrays(GL_TRIANGLES, 0, h.vertCount);
         CHECK_GL_ERR
-        stats->drawCallsShadows++;
     }
 	#endif
 }
 
+///////////////////////////////////////////////////////////
+// Draw with test shadow map
+///////////////////////////////////////////////////////////
 static void ZR_DrawMeshGroupTest(
     Transform* camera,
     ZRDrawGroup* group,
@@ -345,7 +393,15 @@ static void ZR_DrawMeshGroupTest(
     ScreenInfo* scrInfo,
     ZRGroupingStats* stats)
 {
-    #if 0
+    ZRMeshDrawHandles h = ZRGL_ExtractDrawHandles(
+        AssetDb(), group->data.model.meshIndex, group->data.model.materialIndex);
+
+    if (g_verboseFrame)
+    {
+        printf("Draw mesh group test - %d objects. mesh %d\n",
+            group->numItems, h.vao);
+    }
+    #if 1
     GLint prog = g_programs[ZR_SHADER_TYPE_TEST].handle;
     glUseProgram(prog);
     CHECK_GL_ERR
@@ -379,11 +435,10 @@ static void ZR_DrawMeshGroupTest(
     Vec3 lightDir = camera->rotation.zAxis;
     
     // Prepare geometry
-    ZRPrefab* prefab = ZRGL_GetPrefab(group->data.prefab.prefabId);
-    glBindVertexArray(prefab->geometry.vao);
-	CHECK_GL_ERR    
+    glBindVertexArray(h.vao);
+	CHECK_GL_ERR
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE0, 0, "u_diffuseTex", prefab->textures.diffuse, g_samplerA);
+        prog, GL_TEXTURE0, 0, "u_diffuseTex", h.diffuseHandle, g_samplerA);
 
     for (i32 i = 0; i < group->numItems; ++i)
     {
@@ -424,7 +479,7 @@ static void ZR_DrawMeshGroupTest(
         //M4x4_Multiply(depthMVP.cells, biasMatrix.cells, depthMVP.cells);
         ZR_SetProgM4x4(prog, "u_depthMVP", depthMVP.cells);
 
-        glDrawArrays(GL_TRIANGLES, 0, prefab->geometry.vertexCount);
+        glDrawArrays(GL_TRIANGLES, 0, h.vertCount);
         CHECK_GL_ERR
         stats->drawCallsShadows++;
     }
@@ -485,13 +540,10 @@ static void ZR_DrawMeshGroupBatched(
     #endif
 }
 
-
-
-
 ///////////////////////////////////////////////////////////
 // Draw Group
 ///////////////////////////////////////////////////////////
-static void ZR_DrawGroup(
+static void ZR_DrawGroupForward(
     Transform* camera,
     ZRDrawObj* objects,
     i32 numObjects,
@@ -510,7 +562,7 @@ static void ZR_DrawGroup(
     // Draw batched meshes
     if (type == ZR_DRAWOBJ_TYPE_MESH)
     {
-        #if 1
+        #if 0
         ZR_DrawMeshGroupBatched(projection, group, stats);
         #endif
         #if 0
@@ -523,6 +575,17 @@ static void ZR_DrawGroup(
             &stats->grouping
         );
         #endif
+        //ZR_DrawMeshTest();
+        #if 1
+        ZR_DrawMeshGroupFallback(
+            projection,
+            camera,
+            group,
+            objects,
+            numObjects,
+            &stats->grouping);
+        #endif
+
         return;
     }
 

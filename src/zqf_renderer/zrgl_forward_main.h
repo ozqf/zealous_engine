@@ -13,24 +13,6 @@ static void ZRGL_DrawSceneToTexture(
     ZRGroupingStats* stats);
 
 ///////////////////////////////////////////////////////////
-// Upload/Data for draw calls
-///////////////////////////////////////////////////////////
-static void ZR_UploadDataTexture()
-{
-    ZRDataTexture* dataTex2D = &g_dataTex2D;
-    
-    Vec4* dataPixel = (Vec4*)dataTex2D->mem;
-    // upload
-    i32 w = dataTex2D->width;
-	i32 h = dataTex2D->height;
-    
-	glBindTexture(GL_TEXTURE_2D, g_dataTex2D.handle);
-	CHECK_GL_ERR
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RGBA, GL_FLOAT, dataTex2D->mem);
-    CHECK_GL_ERR
-}
-
-///////////////////////////////////////////////////////////
 // Prepare scene - grouping, shadow maps, buffer data etc
 // For forward mode: object <-> light interactions
 // For deferred: build gbuffer.
@@ -187,7 +169,7 @@ static void ZR_DrawScene(
     for (i32 i = 0; i < sceneCmd->drawTime.view->numGroups; ++i)
     {
         ZRDrawGroup* group = sceneCmd->drawTime.view->groups[i];
-        ZR_DrawGroup(
+        ZR_DrawGroupForward(
             &sceneCmd->params.camera,
             sceneCmd->drawTime.objects,
             sceneCmd->params.numObjects,
@@ -198,131 +180,5 @@ static void ZR_DrawScene(
     }
     #endif
 }
-
-///////////////////////////////////////////////////////////
-// Frame draw entry point
-///////////////////////////////////////////////////////////
-extern "C" ZRPerformanceStats ZRImpl_DrawFrameForward(
-    ZEByteBuffer* drawList,
-    ZEByteBuffer* drawData,
-    ScreenInfo scrInfo)
-{
-    // TODO: This code has not been kept working whilst deferred renderer was added.
-    ILLEGAL_CODE_PATH
-    ZRPerformanceStats stats = {};
-    if (Buf_IsValid(drawList) == NO) { return stats; }
-    if (Buf_IsValid(drawData) == NO) { return stats; }
-	// This will almost always happen
-	// whilst the app thread starts up
-	i32 listBytes = drawList->Written();
-	if (listBytes == 0)
-	{
-		return stats;
-	}
-
-    if (g_bDrawLocked == YES)
-    {
-        ILLEGAL_CODE_PATH
-    }
-    g_bDrawLocked = YES;
-
-    stats.listBytes = drawList->Written();
-    stats.numDataBytes = drawData->Written();
-
-    // Reset frame scratch memory cursor
-    g_scratch.Clear(NO);
-
-    // Reset data texture
-    g_dataTex2D.cursor = 0;
-
-    u8* cursor = drawList->start;
-    u8* end = drawList->cursor;
-
-    ZRViewFrame* header = (ZRViewFrame*)cursor;
-    ZE_ASSERT(header->sentinel == ZR_SENTINEL, "Sentinel check failed")
-    cursor += sizeof(ZRViewFrame);
-    u8* scenesStart = cursor;
-
-	/////////////////////////////////////////////////////////////
-    // Clear
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    CHECK_GL_ERR
-	glClear(GL_DEPTH_BUFFER_BIT);
-    CHECK_GL_ERR
-    glClear(GL_COLOR_BUFFER_BIT);
-    CHECK_GL_ERR
-
-    /////////////////////////////////////////////////////////////
-    // Prepare scenes
-
-    // Group objects
-    f64 prepareStart = g_platform.QueryClock();
-    for (i32 i = 0; i < header->numScenes; ++i)
-    {
-        ZRSceneFrame* cmd = (ZRSceneFrame*)cursor;
-        ZE_ASSERT(cmd->sentinel == ZR_SENTINEL,
-            "Scene cmd sentinel check failed")
-        cursor += sizeof(ZRSceneFrame) + cmd->params.numDataBytes;
-
-		ZRGroupingStats result = ZR_PrepareScene(cmd, &g_scratch, scrInfo);
-        if (cmd->params.bIsInteresting)
-        {
-            stats.grouping = result;
-        }
-    }
-
-    f64 prepareEnd = g_platform.QueryClock();
-    /////////////////////////////////////////////////////////////
-    // Upload draw data
-
-    // --- All batch data written by this point! ---
-    f64 uploadStart = g_platform.QueryClock();
-    #if 1
-    ZR_UploadDataTexture();
-    #endif
-    f64 uploadEnd = g_platform.QueryClock();
-
-    // step back to scene start
-    cursor = scenesStart;
-
-	/////////////////////////////////////////////////////////////
-    // Draw scenes
-    f64 drawStart = g_platform.QueryClock();
-    #if 1
-    for (i32 i = 0; i < header->numScenes; ++i)
-    {
-        ZRSceneFrame* cmd = (ZRSceneFrame*)cursor;
-        ZE_ASSERT(cmd->sentinel == ZR_SENTINEL,
-            "Scene cmd sentinel check failed")
-        cursor += sizeof(ZRSceneFrame) + cmd->params.numDataBytes;
-
-		ZR_DrawScene(cmd, &g_scratch, scrInfo, &stats);
-    }
-    #endif
-
-    // Draw debug cack
-    #if 0
-    ZRGL_DrawDebugQuads(scrInfo.aspectRatio);
-    #endif
-
-    #if 0 // draw gbuffer in middle of screen
-    ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
-    #endif
-    
-    /////////////////////////////////////////////////////////////
-    // Done. Gather stats
-    g_bDrawLocked = NO;
-    
-    f64 drawEnd = g_platform.QueryClock();
-    stats.prepareTime = (prepareEnd - prepareStart) * 1000;
-	stats.uploadTime = (uploadEnd - uploadStart) * 1000;
-	stats.drawTime = (drawEnd - drawStart) * 1000;
-	stats.total = stats.prepareTime + stats.uploadTime + stats.drawTime;
-	i32 texIndex = g_dataTex2D.cursor;
-	i32 totalPixels = g_dataTex2D.width * g_dataTex2D.height;
-    stats.dataTexPercentUsed = ((f32)texIndex / (f32)totalPixels) * 100.f;
-    return stats;
-}
-
 
 #endif // ZRGL_MAIN_H

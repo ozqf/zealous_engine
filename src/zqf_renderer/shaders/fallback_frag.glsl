@@ -12,4 +12,5 @@ void main()
 {
    float depthValue = gl_FragCoord.z;
    outputColor = vec4(u_colour.x * depthValue, u_colour.y * depthValue, u_colour.z * depthValue, 1);
+   //outputColor = u_colour;
 }

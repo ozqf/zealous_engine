@@ -254,6 +254,24 @@ static ZRAssetDB* AssetDb()
     return (ZRAssetDB*)g_platform.GetAssetDB();
 }
 
+///////////////////////////////////////////////////////////
+// Upload/Data for draw calls
+///////////////////////////////////////////////////////////
+static void ZR_UploadDataTexture()
+{
+    ZRDataTexture* dataTex2D = &g_dataTex2D;
+    
+    Vec4* dataPixel = (Vec4*)dataTex2D->mem;
+    // upload
+    i32 w = dataTex2D->width;
+	i32 h = dataTex2D->height;
+    
+	glBindTexture(GL_TEXTURE_2D, g_dataTex2D.handle);
+	CHECK_GL_ERR
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RGBA, GL_FLOAT, dataTex2D->mem);
+    CHECK_GL_ERR
+}
+
 static void ZRGL_SetupProjection(M4x4* target, i32 mode, f32 aspectRatio)
 {
     if (mode == ZR_PROJECTION_MODE_IDENTITY)
