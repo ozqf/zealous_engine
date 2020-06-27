@@ -243,7 +243,7 @@ static void ZR_DrawScene(
 ///////////////////////////////////////////////////////////
 // Frame draw entry point
 ///////////////////////////////////////////////////////////
-static ZRPerformanceStats ZRImpl_DrawFrameForward(
+extern "C" ZRPerformanceStats ZRImpl_DrawFrameForward(
     ZEByteBuffer* drawList,
     ZEByteBuffer* drawData,
     ScreenInfo scrInfo)

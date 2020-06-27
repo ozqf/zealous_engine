@@ -43,7 +43,7 @@ internal f64 g_mouseAccumulatorSampleX = 0;
 internal f64 g_mouseAccumulatorSampleY = 0;
 
 internal ze_platform_export g_platform = {};
-internal ZRRenderer g_renderer = {};
+//internal ZRRenderer g_renderer = {};
 internal volatile i32 g_bExit = NO;
 internal ScreenInfo g_scrInfo;
 

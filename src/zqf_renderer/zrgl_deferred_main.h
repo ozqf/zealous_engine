@@ -281,7 +281,7 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
 ///////////////////////////////////////////////////////////
 // Frame draw entry point
 ///////////////////////////////////////////////////////////
-static ZRPerformanceStats ZRImpl_DrawFrameDeferred(
+extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     ZEByteBuffer* drawList,
     ZEByteBuffer* drawData,
     ScreenInfo scrInfo)

@@ -1,5 +1,5 @@
-#ifndef ZRGL_H
-#define ZRGL_H
+#ifndef ZRGL_CPP
+#define ZRGL_CPP
 
 #include "../ze_common/ze_common.h"
 
@@ -28,4 +28,4 @@
 
 #include "zrgl_init.h"
 
-#endif // ZRGL_H
+#endif // ZRGL_CPP

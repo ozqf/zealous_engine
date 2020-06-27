@@ -27,10 +27,10 @@ These shouldn't be in common! Move them into this module
 // per light.
 #define ZR_DATA_PIXELS_PER_LIGHT 3
 
-struct ZRSceneView;
-struct ZRShader;
-struct ZRMaterial;
-struct ZRPlatform;
+// struct ZRSceneView;
+// struct ZRShader;
+// struct ZRMaterial;
+// struct ZRPlatform;
 
 struct ScreenInfo
 {
@@ -38,57 +38,6 @@ struct ScreenInfo
     i32 height;
     f32 aspectRatio;
 };
-
-///////////////////////////////////////////////////////////
-// Imported platform functions
-// - passed in at initialisation
-///////////////////////////////////////////////////////////
-struct ZRPlatform
-{
-    double (*QueryClock)();
-    void* (*Allocate)(i32 numBytes);
-    void (*Free)(void* ptr);
-    void* (*GetAssetDB)();
-    void (*DebugBreak)();
-};
-
-///////////////////////////////////////////////////////////
-// Profiling data
-///////////////////////////////////////////////////////////
-struct ZRGroupingStats
-{
-    i32 numGroups;
-    i32 numObjects;
-    i32 numLights;
-    i32 lightsWritten;
-    f64 time;
-    i32 shadowMaps;
-    i32 drawCallsShadows;
-    i32 drawCallsGBuffer;
-    f64 gBufferFillMS;
-    f64 gBufferLightMS;
-};
-
-struct ZRPerformanceStats
-{
-    u32 trisSingle;
-    u32 trisBatched;
-    u32 trisTotal;
-
-    f64 prepareTime;
-    f64 uploadTime;
-    f64 drawTime;
-    i32 drawCalls;
-    f32 dataTexPercentUsed;
-    f64 total;
-
-    i32 listBytes;
-    i32 dataBytes;
-
-    ZRGroupingStats grouping;
-};
-
-
 
 #define ZR_MAX_PREFABS 64
 
@@ -151,7 +100,7 @@ struct ZRPerformanceStats
 
 struct ZRScene
 {
-    ZRPlatform platform;
+    //ZRPlatform platform;
 
     // Tightly packed list of objects
     ZRDrawObj* objects;
@@ -184,6 +133,66 @@ ZRViewFrame - ZRSceneFrame (view model) - ZRDrawGroups...
 // Header before a serialised list of objects
 // 
 // Output from game scene, input to Renderer
+
+/*
+
+Buffers:
+- Draw list -
+ZRViewFrame - lists scene frames
+	ZRSceneFrame - lists objects
+		ZRDrawObj
+		ZRDrawObj
+		ZRDrawObj
+    ZRSceneFrame
+		ZRDrawObj
+		ZRDrawObj
+		ZRDrawObj
+
+- Scratch - 
+Stack of random allocations for objects in the scene lists.
+Eg text objects will write their strings into here.
+Contents is nonsense without the draw frame objects.
+*/
+
+struct ZRShader
+{
+    i32 handle; // considered invalid if this is 0
+    i32 drawObjType; // considered invalid if this is 0
+    i32 bBatchable;
+    char* name;
+};
+
+struct ZRDrawGroup
+{
+	// The prefab these objects are grouped on
+	//i32 prefab;
+    //ZRGroupId id;
+    u32 hash;
+    ZRDrawObjData data;
+	// location in buffer for this group's command + data
+	u8* commandPtr;
+    u8* shaderDataPtr;
+    ZRShader* shader;
+	// bytes reserved for this command should equal:
+	// sizeof(Command) + (sizeof(data per instance) * numItems)
+	i32 reservedBytes;
+
+    i32 dataPixelIndex;
+    i32 pixelsPerItem;
+	
+    i32 numItems;
+	i32 indices[ZR_MAX_BATCH_SIZE];
+};
+
+#define ZR_MAX_DRAW_GROUPS 256
+
+struct ZRSceneView
+{
+    i32 numGroups = 0;
+    i32 numLights;
+	ZRDrawGroup* groups[ZR_MAX_DRAW_GROUPS];
+	i32 lights[ZR_MAX_DRAW_GROUPS];
+};
 
 struct ZRSceneFrame
 {
@@ -220,312 +229,10 @@ struct ZRViewFrame
     i32 numScenes;
 };
 
-///////////////////////////////////////////////////////////////////////////////////
-// Grouping data types
-///////////////////////////////////////////////////////////////////////////////////
-
-// Number of pixels (stride) for batch data in data texture.
-// 4 for model view, 1 for basic ambient. Rest is for dynamic lights
-#define ZR_BATCH_DATA_STRIDE ((ZR_MAX_POINT_LIGHTS_PER_MODEL * ZR_DATA_PIXELS_PER_LIGHT) + 1 + 4)
-
-struct ZRDrawObjLightData
-{
-    // used to calculate a weight for this light
-    f32 distances[ZR_MAX_POINT_LIGHTS_PER_MODEL];
-
-    // used for actual lighting data in shader
-    Vec3 pointPositions[ZR_MAX_POINT_LIGHTS_PER_MODEL];
-    Vec3 colours[ZR_MAX_POINT_LIGHTS_PER_MODEL];
-    Vec4 settings[ZR_MAX_POINT_LIGHTS_PER_MODEL];
-};
-
-struct ZRDrawGroup
-{
-	// The prefab these objects are grouped on
-	//i32 prefab;
-    //ZRGroupId id;
-    u32 hash;
-    ZRDrawObjData data;
-	// location in buffer for this group's command + data
-	u8* commandPtr;
-    u8* shaderDataPtr;
-    ZRShader* shader;
-	// bytes reserved for this command should equal:
-	// sizeof(Command) + (sizeof(data per instance) * numItems)
-	i32 reservedBytes;
-
-    i32 dataPixelIndex;
-    i32 pixelsPerItem;
-	
-    i32 numItems;
-	i32 indices[ZR_MAX_BATCH_SIZE];
-};
-
-#define ZR_MAX_DRAW_GROUPS 256
-
-struct ZRSceneView
-{
-    i32 numGroups = 0;
-    i32 numLights;
-	ZRDrawGroup* groups[ZR_MAX_DRAW_GROUPS];
-	i32 lights[ZR_MAX_DRAW_GROUPS];
-};
-
 ///////////////////////////////////////////////////////////
 // Render commands and resources
 ///////////////////////////////////////////////////////////
 
-struct ZRShader
-{
-    i32 handle; // considered invalid if this is 0
-    i32 drawObjType; // considered invalid if this is 0
-    i32 bBatchable;
-    char* name;
-};
-
-// Hold memory and handle to a texture
-struct ZRDataTexture
-{
-    u32 handle;
-    i32 bIs1D;
-    i32 width;
-    i32 height;
-    Vec4* mem;
-    //Point cursor;
-    i32 cursor;
-    i32 numBytes;
-};
-
-#pragma pack(push, 1)
-// each Vec4 is a pixel in the data texture
-struct ZRDrawObjBatchLightInfo
-{
-    Vec4 viewPos;
-    Vec4 colour;
-    Vec4 settings;
-};
-
-// data for each object in a batch, uploaded to data texture
-// All data types must be Vec4s!
-struct ZRDrawObjBatchParams
-{
-    Vec4 modelView[4];
-    Vec4 ambientColour;
-    ZRDrawObjBatchLightInfo lights[ZR_MAX_POINT_LIGHTS_PER_MODEL];
-};
-
-struct ZRShaderParams_LitMesh
-{
-	f32 modelView[16];
-    Vec4 ambientColour;
-    ZRDrawObjBatchLightInfo lights[ZR_MAX_POINT_LIGHTS_PER_MODEL];
-};
-#pragma pack(pop)
-
-///////////////////////////////////////////////////////////
-// Exported renderer instance
-///////////////////////////////////////////////////////////
-#if 0
-struct ZRAssetDB
-{
-    i32 (*GetTexIndexByName)(char* name);
-    i32 (*GetMaterialIndexByName)(char* name);
-    i32 (*GetMeshIndexByName)(char* name);
-};
-#endif
-
-struct ZRAssetDB;
 #include "assetdb/zr_asset_db.h"
-
-struct ZRRenderer
-{
-    i32 isValid;
-    ErrorCode (*Init)(i32 scrWidth, i32 scrHeight);
-    ZRPerformanceStats (*DrawFrameForward)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
-    ZRPerformanceStats (*DrawFrameDeferred)(ZEByteBuffer* drawList, ZEByteBuffer* drawData, ScreenInfo scrInfo);
-    void (*UpdateStats)(f64 swapMS, f64 frameMS);
-    void (*CheckForUploads)();
-    i32 (*ExecTextCommand)(const char* str, const i32 len, char** tokens, const i32 numTokens);
-};
-
-/*
-
-Buffers:
-- Draw list -
-ZRViewFrame
-	ZRSceneFrame
-		ZRDrawObj
-		ZRDrawObj
-		ZRDrawObj
-
-- Scratch - 
-Stack of random allocations for objects in the scene lists.
-Eg text objects will write their strings into here.
-Contents is nonsense without the draw frame objects.
-*/
-
-///////////////////////////////////////////////////////////
-// Exported functions
-///////////////////////////////////////////////////////////
-extern "C" ZRRenderer ZR_Link(ZRPlatform platform);
-
-///////////////////////////////////////////////////////////
-// Draw Commands - written by backend, executed by frontend
-///////////////////////////////////////////////////////////
-
-/**
- * Contents of string is written behind the command.
- * String must be null terminated
- * command bytes == size of cmd struct + string itself
- */
-#define ZR_TEXT_ALIGNMENT_TOP_RIGHT 0
-struct ZRDrawCmd_Text
-{
-    Vec3 origin;
-    i32 numChars; // includes null terminator
-    f32 charSize;
-    f32 aspectRatio;
-    i32 offsetToString;
-    i32 alignmentMode;
-};
-
-// Scene type
-
-inline void ZR_BuildModelMatrix(M4x4* model, Transform* modelT)
-{
-	// Model
-	M4x4_SetToIdentity(model->cells);
-	Vec3 modelEuler = M3x3_GetEulerAnglesRadians(modelT->rotation.cells);
-	// model translation
-	M4x4_Translate(model->cells, modelT->pos.x, modelT->pos.y, modelT->pos.z);
-	// model rotation
-	M4x4_RotateByAxis(model->cells, modelEuler.y, 0, 1, 0);
-	M4x4_RotateByAxis(model->cells, modelEuler.x, 1, 0, 0);
-	M4x4_RotateByAxis(model->cells, modelEuler.z, 0, 0, 1);
-	M4x4_Scale(model->cells, modelT->scale.x, modelT->scale.y, modelT->scale.z);
-}
-
-inline void ZR_BuildViewMatrix(M4x4* view, Transform* camT)
-{
-	// View
-	M4x4_SetToIdentity(view->cells);
-	Vec3 camEuler = M3x3_GetEulerAnglesRadians(camT->rotation.cells);
-	M4x4_RotateByAxis(view->cells, -camEuler.z, 0, 0, 1);
-	M4x4_RotateByAxis(view->cells, -camEuler.x, 1, 0, 0);
-	M4x4_RotateByAxis(view->cells, -camEuler.y, 0, 1, 0);
-	// inverse camera translation
-	M4x4_Translate(view->cells, -camT->pos.x, -camT->pos.y, -camT->pos.z);
-}
-
-////////////////////////////////////////////////////////////////////
-// Projection
-////////////////////////////////////////////////////////////////////
-
-internal void M4x4_SetProjection(f32* m, f32 prjNear, f32 prjFar, f32 prjLeft, f32 prjRight, f32 prjTop, f32 prjBottom)
-{
-    m[0] = (2 * prjNear) / (prjRight - prjLeft);
-	m[4] = 0;
-	m[8] = (prjRight + prjLeft) / (prjLeft - prjRight);
-	m[12] = 0;
-	
-	m[1] = 0;
-	m[5] = (2 * prjNear) / (prjTop - prjBottom);
-	m[9] = (prjTop + prjBottom) / (prjTop - prjBottom);
-	m[13] = 0;
-	
-	m[2] = 0;
-	m[6] = 0;
-	m[10] = -(prjFar + prjNear) / (prjFar - prjNear);
-	m[14] = (-2 * prjFar * prjNear) / (prjFar - prjNear);
-	
-	m[3] = 0;
-	m[7] = 0;
-	m[11] = -1;
-	m[15] = 0;
-}
-
-internal void M4x4_SetOrthoProjection(f32* m, f32 left, f32 right, f32 top, f32 bottom, f32 prjNear, f32 prjFar)
-{
-    #if 1
-    M4x4_SetToIdentity(m);
-    m[0] = 2 / (right - left);
-    m[5] = 2 / (top - bottom);
-    m[10] = -2 / (prjFar - prjNear);
-
-    m[12] = -(right + left) / (right - left);
-    m[13] = -(top + bottom) / (top - bottom);
-    m[14] = -(prjFar + prjNear) / (prjFar - prjNear);
-    m[15] = 1;
-    #endif
-    #if 0
-    m[0] = 2; 
-    m[5] = 2;
-    m[10] = -0.22f;
-
-    m[14] = -1.22f;
-    m[15] = 1;
-    #endif
-}
-
-inline void COM_SetupOrthoProjection(f32* m)
-{
-	//M4x4_SetOrthoProjection(m, -1, 1, 1, -1, 0.1f, 20.f);
-	float size = 40;
-	M4x4_SetOrthoProjection(m, -40, size, size, -size, 0.1f, 60.f);
-}
-
-inline void COM_Setup3DProjection(
-	f32* m4x4,
-	i32 fov,
-	f32 prjScaleFactor,
-	f32 prjNear,
-	f32 prjFar,
-	f32 aspectRatio)
-{
-	if (fov <= 0) { fov = 90; }
-	M4x4_SetToIdentity(m4x4);
-	
-	f32 prjLeft = -prjScaleFactor * aspectRatio;
-	f32 prjRight = prjScaleFactor * aspectRatio;
-	f32 prjTop = prjScaleFactor;
-	f32 prjBottom = -prjScaleFactor;
-
-	M4x4_SetProjection(
-		m4x4, prjNear, prjFar, prjLeft, prjRight, prjTop, prjBottom);
-}
-
-inline void COM_SetupDefault3DProjection(
-	f32* m4x4, f32 aspectRatio)
-{
-	//COM_Setup3DProjection(m4x4, 90, 0.5f, 1.0f, 1000.0f, aspectRatio);
-	COM_Setup3DProjection(m4x4, 90, 0.07f, 0.1f, 1000.0f, aspectRatio);
-}
-
-////////////////////////////////////////////////////////////////////
-// convert homogeneous (-1 to 1) coords to 0 to 1 uv coords
-// (for shadow map sampling)
-////////////////////////////////////////////////////////////////////
-inline void M4x4_HomogeneousToUV(f32* m)
-{
-	m[0] = 0.5f;
-	m[1] = 0;
-	m[2] = 0;
-	m[3] = 0;
-
-	m[4] = 0;
-	m[5] = 0.5f;
-	m[6] = 0;
-	m[7] = 0;
-
-	m[8] = 0;
-	m[9] = 0;
-	m[10] = 0.5f;
-	m[11] = 0;
-
-	m[12] = 0.5f;
-	m[13] = 0.5f;
-	m[14] = 0.5f;
-	m[15] = 1;
-}
 
 #endif // _ZQF_RENDERER_H

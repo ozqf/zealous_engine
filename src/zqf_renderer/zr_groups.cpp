@@ -72,7 +72,7 @@ internal void ZDraw_FindLightsForObject(
 // External
 ///////////////////////////////////////////////////////
 
-extern "C" inline Point ZR_IndexToPixel(int index, int imageWidth)
+extern "C" Point ZR_IndexToPixel(int index, int imageWidth)
 {
     return {
         index % imageWidth,
@@ -80,7 +80,7 @@ extern "C" inline Point ZR_IndexToPixel(int index, int imageWidth)
     };
 }
 
-extern "C" inline i32 ZR_PixelToIndex(i32 x, i32 y, int imageWidth)
+extern "C" i32 ZR_PixelToIndex(i32 x, i32 y, int imageWidth)
 {
     return x + (y * imageWidth);
 }
