@@ -155,11 +155,54 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
 	}
 
     /////////////////////////////////////////////////////////////
-    // Draw first scene - deferred if that is set
-	
-    ZRSceneFrame* firstScene = (ZRSceneFrame*)cursor;
+	// Preprocess finish
+    // --- All batch data written by this point! ---
+    f64 uploadStart = g_platform.QueryClock();
+    #if 1
+    ZR_UploadDataTexture();
+    #endif
+    f64 uploadEnd = g_platform.QueryClock();
+
+    /////////////////////////////////////////////////////////////
+	// Draw
+	/////////////////////////////////////////////////////////////
+    
+	// Draw first scene - deferred if that is set
+	ZRSceneFrame* firstScene = (ZRSceneFrame*)cursor;
     cursor += sizeof(ZRSceneFrame) + firstScene->params.numDataBytes;
-    ZRGroupingStats gBufStats = ZR_DrawSceneDeferred(firstScene, &g_scratch, scrInfo);
+
+	ZRGroupingStats gBufStats = {};
+	if (firstScene->params.bDeferred)
+	{
+		gBufStats = ZR_DrawSceneDeferred(firstScene, &g_scratch, scrInfo);
+	}
+	else
+	{
+		ZRSceneView* v = firstScene->drawTime.view;
+		ZRGL_SetupProjection(
+			&firstScene->drawTime.projection,
+			firstScene->params.projectionMode,
+			scrInfo.aspectRatio
+		);
+		for (i32 i = 0; i < v->numGroups; ++i)
+		{
+			ZRDrawGroup* group = v->groups[i];
+			ZR_DrawGroup(
+				&firstScene->params.camera,
+				firstScene->params.objects,
+				firstScene->params.numObjects,
+				&firstScene->drawTime.projection,
+				group,
+				&scrInfo,
+				&stats);
+		}
+	}
+	
+	
+    //ZRSceneFrame* firstScene = (ZRSceneFrame*)cursor;
+    //cursor += sizeof(ZRSceneFrame) + firstScene->params.numDataBytes;
+
+	//ZR_DrawMeshGroupBatched()
 
     /////////////////////////////////////////
     // Draw debug text

@@ -12,42 +12,28 @@ static void ZRGL_GeometryPass_Mesh(
 {
 	ZE_ASSERT(group->data.type == ZR_DRAWOBJ_TYPE_MESH,
 			  "Non mesh group passed to mesh draw");
-
-	// setup VAO and textures
-	i32 vao, vertCount;
-	i32 diffuse, emissive;
-
-	/////////////////////////////////////////////////////////////
-    // Mesh
-	ZRDBMesh* mesh = AssetDb()->GetMeshByIndex(AssetDb(), group->data.model.meshIndex);
-	vao = mesh->handles.vao;
-	vertCount = mesh->data.numVerts;
-	glBindVertexArray(vao);
-	CHECK_GL_ERR
 	
+	// prog
 	GLint prog = g_programs[ZR_SHADER_TYPE_BUILD_GBUFFER].handle;
 	glUseProgram(prog);
 	CHECK_GL_ERR
 
-	/////////////////////////////////////////////////////////////
-	// pull in material info
-	ZRMaterial* mat = AssetDb()->GetMaterialByIndex(AssetDb(), group->data.model.materialIndex);
-	diffuse = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->diffuseTexIndex);
-	emissive = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->emissionTexIndex);
+	// setup VAO and textures
+	//i32 vao, vertCount;
+	//i32 diffuse, emissive;
+	ZRMeshDrawHandles h = ZRGL_ExtractDrawHandles(
+        AssetDb(), group->data.model.meshIndex, group->data.model.materialIndex);
 	
-	if (g_verboseFrame == YES)
-	{
-		printf("Geometry pass - %d items. mesh %s (%d verts) mat %s\n",
-			group->numItems, mesh->header.fileName, mesh->data.numVerts, mat->name);
-		printf("\tHandles vao %d, diffuse %d emissive %d\n",
-			vao, diffuse, emissive);
-	}
+    // Mesh
+	glBindVertexArray(h.vao);
+	CHECK_GL_ERR
 	
+	// textures
 	ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE0, 0, "u_colourTex", diffuse, g_samplerDataTex2D);
+        prog, GL_TEXTURE0, 0, "u_colourTex", h.diffuseHandle, g_samplerDataTex2D);
 	CHECK_GL_ERR
 	ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE1, 1, "u_emissionTex", emissive, g_samplerDataTex2D);
+        prog, GL_TEXTURE1, 1, "u_emissionTex", h.emissiveHandle, g_samplerDataTex2D);
 	CHECK_GL_ERR
 	
 	ZR_SetProgM4x4(prog, "u_projection", projection->cells);
@@ -69,7 +55,7 @@ static void ZRGL_GeometryPass_Mesh(
 		ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
 		ZR_SetProgM4x4(prog, "u_model", model.cells);
 
-		glDrawArrays(GL_TRIANGLES, 0, vertCount);
+		glDrawArrays(GL_TRIANGLES, 0, h.vertCount);
 		CHECK_GL_ERR
 	}
 }

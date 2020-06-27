@@ -434,7 +434,12 @@ static void ZR_DrawMeshGroupTest(
 static void ZR_DrawMeshGroupBatched(
     M4x4* projection, ZRDrawGroup* group, ZRPerformanceStats* stats)
 {
-    #if 0
+    if (g_verboseFrame)
+    {
+        printf("ZR Batch draw. %d pixels per item. %d objects. data offset at %d\n",
+            group->pixelsPerItem, group->numItems, group->dataPixelIndex);
+    }
+    #if 1
     // setup program
     GLuint programId = g_programs[ZR_SHADER_TYPE_BATCHED].handle;
     glUseProgram(programId);
@@ -448,14 +453,17 @@ static void ZR_DrawMeshGroupBatched(
     ZR_SetProg1i(programId, "u_numLights", ZR_MAX_POINT_LIGHTS_PER_MODEL);
 
     // Prepare geometry
-    ZRPrefab* obj = ZRGL_GetPrefab(group->data.prefab.prefabId);
-    glBindVertexArray(obj->geometry.vao);
+    //ZRPrefab* obj = ZRGL_GetPrefab(group->data.prefab.prefabId);
+    ZRMeshDrawHandles h = ZRGL_ExtractDrawHandles(
+        AssetDb(), group->data.model.meshIndex, group->data.model.materialIndex);
+
+    glBindVertexArray(h.vao);
 	CHECK_GL_ERR
 
     // Setup object textures
     ZR_PrepareTextureUnit2D(
         programId, GL_TEXTURE0, 0,
-        "u_diffuseTex", obj->textures.diffuse,
+        "u_diffuseTex", h.diffuseHandle,
         g_samplerA);
     #if 0
     ZR_PrepareTextureUnit2D(
@@ -469,13 +477,16 @@ static void ZR_DrawMeshGroupBatched(
         "u_dataTex2D", g_dataTex2D.handle,
         g_samplerDataTex2D);
     
-	glDrawArraysInstanced(GL_TRIANGLES, 0, obj->geometry.vertexCount, group->numItems);
-    u32 tris = (obj->geometry.vertexCount / 3) * group->numItems;
+	glDrawArraysInstanced(GL_TRIANGLES, 0, h.vertCount, group->numItems);
+    u32 tris = (h.vertCount / 3) * group->numItems;
     stats->drawCalls++;
     stats->trisBatched += tris;
 	CHECK_GL_ERR
     #endif
 }
+
+
+
 
 ///////////////////////////////////////////////////////////
 // Draw Group
@@ -497,12 +508,12 @@ static void ZR_DrawGroup(
     if (type == ZR_DRAWOBJ_TYPE_NONE) { return; }
 	
     // Draw batched meshes
-    if (type == ZR_DRAWOBJ_TYPE_PREFAB)
+    if (type == ZR_DRAWOBJ_TYPE_MESH)
     {
-        #if 0
+        #if 1
         ZR_DrawMeshGroupBatched(projection, group, stats);
         #endif
-        #if 1
+        #if 0
         ZR_DrawMeshGroupTest(
             camera,
             group,

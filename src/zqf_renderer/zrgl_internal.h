@@ -76,16 +76,12 @@ struct ZRShaderHandle
     i32 batchingFunction;
 };
 
-struct ZRPrefab
+struct ZRMeshDrawHandles
 {
-    i32 program;
-    i32 bInitialised;
-    ZRMeshHandles geometry;
-    struct
-    {
-        i32 diffuse;
-        i32 occlusion;
-    } textures;
+    i32 vao;
+    i32 vertCount;
+    i32 diffuseHandle;
+    i32 emissiveHandle;
 };
 
 struct ZRShadowCaster
@@ -256,6 +252,35 @@ static void ZRGL_ClearColourDefault()
 static ZRAssetDB* AssetDb()
 {
     return (ZRAssetDB*)g_platform.GetAssetDB();
+}
+
+static void ZRGL_SetupProjection(M4x4* target, i32 mode, f32 aspectRatio)
+{
+    if (mode == ZR_PROJECTION_MODE_IDENTITY)
+    {
+        M4x4_SetToIdentity(target->cells);
+    }
+    else
+    {
+        COM_SetupDefault3DProjection(target->cells,
+            aspectRatio);
+    }
+}
+
+static ZRMeshDrawHandles ZRGL_ExtractDrawHandles(ZRAssetDB* db, i32 meshIndex, i32 materialIndex)
+{
+    ZRMeshDrawHandles h;
+
+    ZRDBMesh* mesh = AssetDb()->GetMeshByIndex(AssetDb(), meshIndex);
+	h.vao = mesh->handles.vao;
+	h.vertCount = mesh->data.numVerts;
+
+    ZRMaterial* mat = AssetDb()->GetMaterialByIndex(AssetDb(), materialIndex);
+	h.diffuseHandle = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->diffuseTexIndex);
+	h.emissiveHandle = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->emissionTexIndex);
+	
+    
+    return h;
 }
 
 #endif // ZQF_GL_INTERNAL_H

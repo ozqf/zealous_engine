@@ -173,7 +173,7 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     ZRSceneFrame* scene = (ZRSceneFrame*)list->cursor;
     list->cursor += sizeof(ZRSceneFrame);
     *scene = {};
-    scene->params.bDeferred = YES;
+    scene->params.bDeferred = NO;
     scene->params.bIsInteresting = NO;
     scene->params.bSkybox = YES;
     scene->params.projectionMode = ZR_PROJECTION_MODE_3D;
