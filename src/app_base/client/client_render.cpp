@@ -173,7 +173,7 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     ZRSceneFrame* scene = (ZRSceneFrame*)list->cursor;
     list->cursor += sizeof(ZRSceneFrame);
     *scene = {};
-    scene->params.bDeferred = NO;
+    scene->params.bDeferred = YES;
     scene->params.bIsInteresting = NO;
     scene->params.bSkybox = YES;
     scene->params.projectionMode = ZR_PROJECTION_MODE_3D;
@@ -240,14 +240,31 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     frame->numScenes++;
     scene->sentinel = ZR_SENTINEL;
     scene->params.projectionMode = ZR_PROJECTION_MODE_IDENTITY;
+    Transform_SetToIdentity(&scene->params.camera);
 
     scene->params.objects = (ZRDrawObj*)list->cursor;
 
     // add objects
+    ZRDrawObj* uiObj;
 
-    ZRDrawObj* uiObj = ZRDrawObj_InitInPlace(&list->cursor);
-    uiObj->data.SetAsMesh(0, 0);
+    uiObj = ZRDrawObj_InitInPlace(&list->cursor);
     scene->params.numObjects++;
+    uiObj->data.SetAsMesh(1, 0);
+    uiObj->t.pos.z = 0.9f;
+
+    uiObj = ZRDrawObj_InitInPlace(&list->cursor);
+    scene->params.numObjects++;
+	// copy string to data buffer
+    char* str = "Foobar";
+    // measure
+    i32 len = ZE_StrLen(str);
+    // grab start of write
+    char* strCursor = (char*)data->cursor;
+    // copy
+    data->cursor += ZE_Copy(data->cursor, str, len);
+    // set object
+    uiObj->data.SetAsText(strCursor);
+	
 
     // Finish scene
     scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;

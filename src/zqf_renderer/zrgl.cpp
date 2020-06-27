@@ -162,39 +162,40 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     /////////////////////////////////////////////////////////////
 	// Draw
 	/////////////////////////////////////////////////////////////
-    
-	// Draw first scene - deferred if that is set
-	ZRSceneFrame* firstScene = (ZRSceneFrame*)cursor;
-    cursor += sizeof(ZRSceneFrame) + firstScene->params.numDataBytes;
-
 	ZRGroupingStats gBufStats = {};
-	if (firstScene->params.bDeferred)
+	for (i32 i = 0; i < header->numScenes; ++i)
 	{
-		gBufStats = ZR_DrawSceneDeferred(firstScene, &g_scratch, scrInfo);
-		
-    	// Draw debug cack
-    	#if 0
-    	ZRGL_DrawGBufferDebugQuads(scrInfo.aspectRatio);
-    	#endif
-	}
-	else
-	{
-		ZRSceneView* v = firstScene->drawTime.view;
-		for (i32 i = 0; i < v->numGroups; ++i)
+		// Draw first scene - deferred if that is set
+		ZRSceneFrame* scene = (ZRSceneFrame*)cursor;
+    	cursor += sizeof(ZRSceneFrame) + scene->params.numDataBytes;
+
+		if (scene->params.bDeferred)
 		{
-			ZRDrawGroup* group = v->groups[i];
-			ZR_DrawGroupForward(
-				&firstScene->params.camera,
-				firstScene->params.objects,
-				firstScene->params.numObjects,
-				&firstScene->drawTime.projection,
-				group,
-				&scrInfo,
-				&stats);
+			gBufStats = ZR_DrawSceneDeferred(scene, &g_scratch, scrInfo);
+
+    		// Draw debug cack
+    		#if 0
+    		ZRGL_DrawGBufferDebugQuads(scrInfo.aspectRatio);
+    		#endif
+		}
+		else
+		{
+			ZRSceneView* v = scene->drawTime.view;
+			for (i32 j = 0; j < v->numGroups; ++j)
+			{
+				ZRDrawGroup* group = v->groups[j];
+				ZR_DrawGroupForward(
+					&scene->params.camera,
+					scene->params.objects,
+					scene->params.numObjects,
+					&scene->drawTime.projection,
+					group,
+					&scrInfo,
+					&stats);
+			}
 		}
 	}
-	
-	
+
     //ZRSceneFrame* firstScene = (ZRSceneFrame*)cursor;
     //cursor += sizeof(ZRSceneFrame) + firstScene->params.numDataBytes;
 

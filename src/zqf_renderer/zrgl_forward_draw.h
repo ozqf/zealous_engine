@@ -257,6 +257,16 @@ static void ZR_DrawTextGroup(
     ScreenInfo* scrInfo,
     ZRPerformanceStats* stats)
 {
+    
+    if (group->data.type != ZR_DRAWOBJ_TYPE_TEXT)
+    {
+        printf("Not text!\n");
+        return;
+    }
+    if (g_verboseFrame)
+    {
+        printf("Draw text %s\n", group->data.text.text);
+    }
     #if 1
     for (i32 i = 0; i < group->numItems; ++i)
 	{
