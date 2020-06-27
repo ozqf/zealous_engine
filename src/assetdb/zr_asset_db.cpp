@@ -32,20 +32,18 @@ extern "C" void ZRDB_PrintManifest(ZRAssetDB* assetDB)
 		ZRDBTexture* tex = &db->textures[i];
 		printf("%d: %s\n", i, tex->header.fileName);
 	}
+	printf("--- Materials (%d) ---\n", db->numMaterials);
+	for (i32 i = 0; i < db->numMaterials; ++i)
+	{
+		ZRMaterial* mat = &db->materials[i];
+		printf("%d: %s: diffuse: %d\n", i, mat->name, mat->diffuseTexIndex);
+	}
+	printf("\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////
 // Load embedded assets
 ///////////////////////////////////////////////////////////////////////////
-
-static void ZRDB_GenSolidTexture(ZRAssetDB* db, char* name, ColourU32 colour)
-{
-	const i32 w = 2, h = 2;
-	i32 bytes = TexGen_BytesFor32BitImage(w, h);
-	ColourU32* pixels = (ColourU32*)malloc(bytes);
-	TexGen_SetRGBA(pixels, w, h, colour);
-	ZRDB_RegisterTexture(db, name, pixels, bytes, w, h, 0);
-}
 
 static void ZRDB_WriteBWHeaderFile(
 	char* name, u8* bytes, i32 numBytes, i32 w, i32 h, i32 bytesPerRow)
@@ -121,7 +119,7 @@ static void ZRDB_GenBWTexture(ZRAssetDB* db, ZRDBTexture* tex)
 	ZRDB_RegisterTexture(db, "test", pixels, resultBytes, w, h, 0);
 }
 
-static void ZRDB_LoadBWImage(ZRAssetDB* db, BWImage img)
+static ZRDBTexture* ZRDB_LoadBWImage(ZRAssetDB* handle, BWImage img)
 {
 	ColourU32 white = { 255, 255, 255, 255 };
 	ColourU32 black = { 0, 0, 0, 255 };
@@ -130,7 +128,32 @@ static void ZRDB_LoadBWImage(ZRAssetDB* db, BWImage img)
 	ColourU32* pixels = (ColourU32*)malloc(resultBytes);
 	TexGen_DecodeBW(img.bytes, img.numBytes, pixels, img.w, img.h, white, black);
 
-	ZRDB_RegisterTexture(db, img.name, pixels, resultBytes, img.w, img.h, 0);
+	i32 i = ZRDB_RegisterTexture(handle, img.name, pixels, resultBytes, img.w, img.h, 0);
+	ZRDB_CAST_TO_INTERNAL(handle, db)
+	return &db->textures[i];
+}
+
+static ZRDBTexture* ZRDB_GenSolidTexture(ZRAssetDB* handle, char* name, ColourU32 colour)
+{
+	const i32 w = 2, h = 2;
+	i32 bytes = TexGen_BytesFor32BitImage(w, h);
+	ColourU32* pixels = (ColourU32*)malloc(bytes);
+	TexGen_SetRGBA(pixels, w, h, colour);
+	i32 i = ZRDB_RegisterTexture(handle, name, pixels, bytes, w, h, 0);
+	ZRDB_CAST_TO_INTERNAL(handle, db)
+	return &db->textures[i];
+}
+
+static ZRDBTexture* ZRDB_GenBlankTexture(ZRAssetDB* handle, char* name, i32 w, i32 h, ColourU32 fill)
+{
+	if (w < 1) { w = 4; }
+	if (h < 1) { h = 4; }
+	i32 bytes = TexGen_BytesFor32BitImage(w, h);
+	ColourU32* pixels = (ColourU32*)malloc(bytes);
+	TexGen_SetRGBA(pixels, w, h, fill);
+	i32 i = ZRDB_RegisterTexture(handle, name, pixels, bytes, w, h, 0);
+	ZRDB_CAST_TO_INTERNAL(handle, db)
+	return &db->textures[i];
 }
 
 /**
@@ -156,6 +179,9 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	
 	// first texture, index 0 will be fallback default, so purple for debug:
 	ZRDB_GenSolidTexture(db, "magenta", { 255, 0, 255, 255 });
+	// second texture - charset for bitmap text
+	ZRDB_LoadBWImage(db, ZR_Embed_Charset());
+
 	ZRDB_GenSolidTexture(db, "white", { 255, 255, 255, 255 });
 	ZRDB_GenSolidTexture(db, "black", { 0, 0, 0, 255 });
 	ZRDB_GenSolidTexture(db, "grey", { 0, 0, 0, 255 });
@@ -168,7 +194,17 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	ZRDB_GenSolidTexture(db, "cyan", { 0, 255, 255, 255 });
 	ZRDB_GenSolidTexture(db, "dark_red", { 127, 0, 0, 255 });
 
-	ZRDB_LoadBWImage(db, ZR_Embed_Charset());
+	ZRDBTexture* tex = ZRDB_GenBlankTexture(db, "test", 32, 32, { 0, 0, 0, 255 });
+	TexGen_FillRect(
+		(ColourU32*)tex->data, 32, 32,
+		{ 4, 4 },
+		{ 32 - 8, 32 - 8 },
+		{ 55, 55, 55, 255 });
+	TexGen_FillRect(
+		(ColourU32*)tex->data, 32, 32,
+		{ 8, 8 },
+		{ 32 - 16, 32 - 16 },
+		{ 127, 127, 127, 255 });
 
 	///////////////////////////////////////////
 	// Load texture manifest
@@ -183,8 +219,9 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         db->LoadTexture(db, textures[i], bVerbose);
     }
     
-	ZRDBTexture* tex = db->GetTextureByName(db, "data/charset.bmp");
-	ZRDB_GenBWTexture(db, tex);
+	// read a bitmap and convert it to b&w header file
+	// ZRDBTexture* tex = db->GetTextureByName(db, "data/charset.bmp");
+	// ZRDB_GenBWTexture(db, tex);
 
 	///////////////////////////////////////////
     // Create materials
@@ -201,7 +238,8 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_WORLD,
-        "data/W33_5.bmp",
+        "test",
+        // "data/W33_5.bmp",
         //"cyan",
         "black"
     );
@@ -248,21 +286,24 @@ extern "C" ZRAssetDB* ZRDB_Create()
     // functions
     db->nextId = ZR_ASSET_DB_FIRST_ID;
 
-    // Get asset
+    // Meshes
     db->header.GetMeshByName = ZRDB_GetMeshByName;
     db->header.GetMeshHandleByName = ZRDB_GetMeshHandleByName;
     db->header.GetMeshByIndex = ZRDB_GetMeshByIndex;
     db->header.GetNumMeshes = ZRDB_GetNumMeshes;
 
+	// Textures
     db->header.GetTextureByName = ZRDB_GetTextureByName;
     db->header.GetTextureHandleByIndex = ZRDB_GetTextureHandleByIndex;
     db->header.GetNumTextures = ZRDB_GetNumTextures;
     db->header.GetTextureByIndex = ZRDB_GetTextureByIndex;
 
+	// Materials
     db->header.GetMaterialByName = ZRDB_GetMaterialByName;
     db->header.GetMaterialByIndex = ZRDB_GetMaterialByIndex;
-    // Create
+	db->header.GetNumMaterials = ZRDB_GetNumMaterials;
     db->header.CreateMaterial = ZRDB_CreateMaterial;
+
     // Load
     db->header.LoadMesh = ZRDB_LoadMesh;
     db->header.LoadMeshFromFBX = ZRDB_LoadMeshFromFBX;

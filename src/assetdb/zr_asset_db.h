@@ -100,6 +100,7 @@ struct ZRAssetDB
     ZRMaterial* (*CreateMaterial)(ZRAssetDB* assetDB, char* name, char* diffuseTexName, char* emissiveTexName);
     ZRMaterial* (*GetMaterialByName)(ZRAssetDB* assetDB, char* name);
     ZRMaterial* (*GetMaterialByIndex)(ZRAssetDB* assetDB, i32 index);
+    i32 (*GetNumMaterials)(ZRAssetDB* assetDB);
 
     i32 (*LoadTexture)(ZRAssetDB* assetDB, char* path, i32 bVerbose);
     i32 (*LoadMeshFromFBX)(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose);

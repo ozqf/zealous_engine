@@ -13,6 +13,10 @@ extern "C" i32 TexGen_BytesForBWImage(i32 width, i32 height)
 	return (width / 8) * height;
 }
 
+
+//////////////////////////////////////////////////
+// 32bit bitmap draw
+//////////////////////////////////////////////////
 extern "C" void TexGen_SetRGBA(ColourU32* pixels, i32 width, i32 height, ColourU32 colour)
 {
 	i32 len = width * height;
@@ -22,6 +26,31 @@ extern "C" void TexGen_SetRGBA(ColourU32* pixels, i32 width, i32 height, ColourU
 	}
 }
 
+
+extern "C" void TexGen_FillRect(
+	ColourU32* pixels, i32 texWidth, i32 texHeight, Point topLeft, Point size, ColourU32 colour)
+{
+	i32 endX = topLeft.x + size.x;
+	i32 endY = topLeft.y + size.y;
+	if (topLeft.x < 0) { topLeft.x = 0; }
+	if (topLeft.y < 0) { topLeft.y = 0; }
+	if (endX > texWidth) { endX = texWidth; }
+	if (endY > texHeight) { endY = texHeight; }
+	//printf("Fill from %d, %d for %d, %d pixels\n", )
+	for (i32 y = topLeft.y; y < endY; ++y)
+	{
+		for (i32 x = topLeft.x; x < endX; ++x)
+		{
+			i32 i = (x + (y * texWidth));
+			pixels[i] = colour;
+		}
+	}
+}
+
+
+//////////////////////////////////////////////////
+// Black & White
+//////////////////////////////////////////////////
 extern "C" i32 TexGen_EncodeBW(
 	u8* dest, const i32 destSize, ColourU32* pixels, const i32 w, const i32 h)
 {

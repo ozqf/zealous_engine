@@ -3,6 +3,12 @@
 
 #include "zr_asset_db.h"
 
+static i32 ZRDB_GetNumMaterials(ZRAssetDB* handle)
+{
+    ZRDB_CAST_TO_INTERNAL(handle, db)
+    return db->numMaterials;
+}
+
 static ZRMaterial* ZRDB_GetMaterialByName(ZRAssetDB* assetDB, char* name)
 {
     ZRDB_CAST_TO_INTERNAL(assetDB, db)

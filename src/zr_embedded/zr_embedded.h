@@ -25,6 +25,9 @@ extern "C" i32 TexGen_BytesFor32BitImage(i32 width, i32 height);
 extern "C" i32 TexGen_BytesForBWImage(i32 width, i32 height);
 extern "C" void TexGen_SetRGBA(
 	ColourU32* pixels, i32 width, i32 height, ColourU32 colour);
+extern "C" void TexGen_FillRect(
+	ColourU32* pixels, i32 texWidth, i32 texHeight, Point topLeft, Point size, ColourU32 colour);
+
 extern "C" i32 TexGen_EncodeBW(
 	u8* dest, const i32 destSize, ColourU32* pixels, const i32 w, const i32 h);
 extern "C" i32 TexGen_DecodeBW(
