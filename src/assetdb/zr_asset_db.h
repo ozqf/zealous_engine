@@ -18,6 +18,8 @@
 
 #define ZRDB_DEFAULT_DIFFUSE_MAT_NAME "default"
 
+#define ZRDB_DEFAULT_CHARSET_NAME "charset"
+
 #define ZRDB_MAT_NAME_WORLD "World"
 #define ZRDB_MAT_NAME_ENT "Entity"
 #define ZRDB_MAT_NAME_PRJ "Projectile"

@@ -17,5 +17,6 @@ struct ZUIButton
 };
 
 extern "C" void ZUI();
+extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data);
 
 #endif // ZUI_H

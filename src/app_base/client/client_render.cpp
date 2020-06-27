@@ -3,6 +3,7 @@
 
 #include "client_render.h"
 #include "../../zqf_renderer.h"
+#include "../../ui/zui.h"
 
 static ZRAssetDB* g_assetDb = NULL;
 
@@ -233,12 +234,14 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
 
     ///////////////////////////////////////////////////////
     // Add extra Test scene
+
+    frame->numScenes += ZUI_WriteRenderTest(list, data);
     
+    #if 0
     scene = (ZRSceneFrame*)list->cursor;
     list->cursor += sizeof(ZRSceneFrame);
     *scene = {};
     frame->numScenes++;
-    scene->sentinel = ZR_SENTINEL;
     scene->params.projectionMode = ZR_PROJECTION_MODE_IDENTITY;
     Transform_SetToIdentity(&scene->params.camera);
 
@@ -264,10 +267,8 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     data->cursor += ZE_Copy(data->cursor, str, len);
     // set object
     uiObj->data.SetAsText(strCursor);
-	
+	#endif
 
-    // Finish scene
-    scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
 
     return frame;
 }

@@ -85,11 +85,9 @@ static void ZR_ExecuteTextDraw(
     
     #if 1
     // Get character quad prefab and use to stamp out characters.
-    ZRDBMesh* mesh = AssetDb()->GetMeshByName(AssetDb(), "DynamicQuad");
+    ZRDBMesh* mesh = AssetDb()->GetMeshByName(AssetDb(), ZRDB_MESH_NAME_DYNAMIC_QUAD);
     if (mesh == NULL) { return; }
-    //ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), "data/charset.bmp");
-    //ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), "test");
-    ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), "charset");
+    ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), ZRDB_DEFAULT_CHARSET_NAME);
     if (tex == NULL) { return; }
     M4x4_CREATE(modelView)
     // Setup shader
@@ -99,8 +97,6 @@ static void ZR_ExecuteTextDraw(
         &modelView,
         g_programs[ZR_SHADER_TYPE_TEXT].handle,
         tex->apiHandle);
-    
-
 
     glBindVertexArray(mesh->handles.vao);
     CHECK_GL_ERR
