@@ -96,7 +96,10 @@ static ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     /////////////////////////////////////////
     // Alloc scratch space
     /////////////////////////////////////////
-    g_scratch = Buf_FromMalloc(malloc(ZQF_GL_SCRATCH_BYTES), ZQF_GL_SCRATCH_BYTES);
+    if (g_scratch.start == NULL)
+    {
+        g_scratch = Buf_FromMalloc(malloc(ZQF_GL_SCRATCH_BYTES), ZQF_GL_SCRATCH_BYTES);
+    }
 
     /////////////////////////////////////////
     // Data textures

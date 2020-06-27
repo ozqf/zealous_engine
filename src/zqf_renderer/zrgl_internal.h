@@ -184,7 +184,7 @@ static ZRDataTexture g_dataTex1D;
 
 // Block of memory cleared every frame
 #define ZQF_GL_SCRATCH_BYTES MegaBytes(1)
-static ZEByteBuffer g_scratch;
+static ZEByteBuffer g_scratch = {};
 
 // Note 1: A full RGBA32F texture at 1024x1024 is 16meg and really slow to upload!
 //  512 however seems okay on my old GTX 970...so to do async texture uploads?

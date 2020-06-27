@@ -48,8 +48,12 @@ static void Window_EnqueueTextCommand(char* str)
 	i32 numTokens = ZE_ReadTokens(str, buf, tokens, maxTokens);
 
     // try and execute ourselves. If not pass off to platform
-    if (numTokens == 1 && ZE_CompareStrings(tokens[0], "VID") == 0)
+    if (numTokens == 2 && ZE_CompareStrings(tokens[0], "VID") == 0)
     {
+        i32 mode = ZE_AsciToInt32(tokens[1]);
+        if (mode < 0) { mode = 0; }
+        if (mode >= g_numModes) { mode = g_numModes - 1; }
+        g_pendingScrMode = mode;
         g_bRestart = YES;
         return;
     }
@@ -79,11 +83,16 @@ static ErrorCode Window_SpawnWindow()
     
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
+    // if (g_pendingScrMode == 0)
+    // { g_pendingScrMode = 3; }
+    // else { g_pendingScrMode = 0; }
+
+    i32 scrMode = g_pendingScrMode;
     // Setup window resolution
     // tiny window
-    const i32 scrMode = 0;
+    // const i32 scrMode = 0;
     // bigger window
-    //const i32 scrMode = 3;
+    // const i32 scrMode = 3;
     
     const i32 scrWidth = g_resolutionsX[scrMode];
     const i32 scrHeight = g_resolutionsY[scrMode];

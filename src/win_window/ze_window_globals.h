@@ -47,10 +47,13 @@ internal ZRRenderer g_renderer = {};
 internal volatile i32 g_bExit = NO;
 internal ScreenInfo g_scrInfo;
 
+internal i32 g_pendingScrMode = 0;
+
 internal i32 g_resolutionsX[ZW_NUM_16X9_RESOLUTIONS] =
 { 1024, 1280, 1366, 1600, 1920 };
 internal i32 g_resolutionsY[ZW_NUM_16X9_RESOLUTIONS] =
 { 576, 720, 768, 900, 1080 };
+internal const i32 g_numModes = 5;
 
 internal i32 g_bRestart = NO;
 internal GLFWwindow* g_window;
