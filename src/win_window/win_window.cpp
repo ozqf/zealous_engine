@@ -138,7 +138,7 @@ static ErrorCode Window_SpawnWindow()
 
     // Initialise the renderer itself.
     //ErrorCode err = g_renderer.Init(g_scrInfo.width, g_scrInfo.height);
-    ErrorCode err = ZRGL_Impl_Init(g_scrInfo.width, g_scrInfo.height);
+    ErrorCode err = ZRGL_Init(g_scrInfo.width, g_scrInfo.height);
     if (err != ZE_ERROR_NONE)
     {
         g_platform.Error("Error initialising renderer");
@@ -148,7 +148,7 @@ static ErrorCode Window_SpawnWindow()
     // do a scan for either default assets or stuff an app
     // has loaded.
     //g_renderer.CheckForUploads();
-    ZRImpl_CheckForUploads();
+    ZRGL_CheckForUploads();
     return ZE_ERROR_NONE;
 }
 
@@ -182,7 +182,7 @@ static i32 WindowImpl_Init()
     platform.QueryClock = g_platform.QueryClock;
     platform.GetAssetDB = g_platform.GetAssetDB;
     platform.DebugBreak = g_platform.DebugBreak;
-    ZR_Link(platform);
+    ZRGL_Link(platform);
 
     return Window_SpawnWindow();
 }
@@ -287,13 +287,14 @@ static i32 WindowImpl_MainLoop()
         // Forward renderer currently bricked!
         //g_renderer.DrawFrameForward(list, data, g_scrInfo);
         //g_renderer.DrawFrameDeferred(list, data, g_scrInfo);
-        ZRImpl_DrawFrameDeferred(list, data, g_scrInfo);
+        //ZRImpl_DrawFrameDeferred(list, data, g_scrInfo);
+        ZRGL_DrawFrame(list, data, g_scrInfo);
         // Finish Frame
         g_platform.Release_AppDrawBuffers();
         f64 swapStart = g_platform.QueryClock();
         glfwSwapBuffers(g_window);
         f64 swapEnd = g_platform.QueryClock();
-        ZRImpl_UpdateStats(
+        ZRGL_UpdateStats(
             swapEnd - swapStart,
             totalMS
             );

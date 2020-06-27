@@ -79,7 +79,7 @@ struct ZRPerformanceStats
     f64 total;
 
     i32 listBytes;
-    i32 dataBytes;
+    i32 numDataBytes;
 
     ZRGroupingStats grouping;
 };
@@ -152,13 +152,18 @@ inline void ZR_BuildViewMatrix(M4x4* view, Transform* camT)
 // Renderer export
 /////////////////////////////////////////////////////////////
 
-extern "C" ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight);
-extern "C" void ZRImpl_UpdateStats(f64 swapMS, f64 frameMS);
-extern "C" void ZRImpl_CheckForUploads();
-extern "C" i32 ZR_ExecTextCommand(
+extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight);
+extern "C" void ZRGL_UpdateStats(f64 swapMS, f64 frameMS);
+extern "C" void ZRGL_CheckForUploads();
+extern "C" i32 ZRGL_ExecTextCommand(
 	const char* str, const i32 len, char** tokens, const i32 numTokens);
 
-extern "C" void ZR_Link(ZRPlatform platform);
+extern "C" void ZRGL_Link(ZRPlatform platform);
+
+extern "C" ZRPerformanceStats ZRGL_DrawFrame(
+	ZEByteBuffer* drawList,
+    ZEByteBuffer* drawData,
+    ScreenInfo scrInfo);
 
 extern "C" ZRPerformanceStats ZRImpl_DrawFrameForward(
     ZEByteBuffer* drawList,

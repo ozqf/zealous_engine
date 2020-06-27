@@ -304,7 +304,7 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     g_bDrawLocked = YES;
 
     stats.listBytes = drawList->Written();
-    stats.dataBytes = drawData->Written();
+    stats.numDataBytes = drawData->Written();
 
     // Reset frame scratch memory cursor
     g_scratch.Clear(NO);
@@ -347,7 +347,7 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameDeferred(
     /////////////////////////////////////////////////////////////
     // Draw main scene
     ZRSceneFrame* firstScene = (ZRSceneFrame*)cursor;
-    cursor += sizeof(ZRSceneFrame) + firstScene->params.dataBytes;
+    cursor += sizeof(ZRSceneFrame) + firstScene->params.numDataBytes;
     ZRGroupingStats gBufStats = ZR_DrawSceneDeferred(firstScene, &g_scratch, scrInfo);
 
     /////////////////////////////////////////////////////////////

@@ -4,6 +4,15 @@
 #include "zrgl.h"
 #include "../ze_common/ze_byte_buffer.h"
 
+/*
+Scenes are broken down to groups, combo of mesh, proj, material + list of transforms:
+Draw List:
+                                        / ZRDrawGroup mesh, prog, <obj, obj, obj, obj>
+            / ZRSceneFrame (game)       | ZRDrawGroup mesh, prog, <obj, obj, obj, obj>
+                                        \ ZRDrawGroup mesh, prog, <obj, obj, obj, obj>
+ZRViewFrame - ZRSceneFrame (view model) - ZRDrawGroups...
+            \ ZRSceneFrame (HUD)        - ZRDrawGroups...
+*/
 ///////////////////////////////////////////////////////////////
 // Grouping data types
 ///////////////////////////////////////////////////////////////

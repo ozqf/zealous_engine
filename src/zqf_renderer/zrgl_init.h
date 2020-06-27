@@ -52,7 +52,7 @@ static ZRGPUSpecs ZRGL_QueryGPUSpecs()
     return specs;
 }
 
-extern "C" ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
+extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
 {
     printf("==== RENDERER - init ====\n");
     
@@ -289,7 +289,7 @@ extern "C" ErrorCode ZRGL_Impl_Init(i32 scrWidth, i32 scrHeight)
     return ZE_ERROR_NONE;
 }
 
-extern "C" void ZRImpl_UpdateStats(f64 swapMS, f64 frameMS)
+extern "C" void ZRGL_UpdateStats(f64 swapMS, f64 frameMS)
 {
     g_platformSwapMS = swapMS;
     g_platformFrameMS = frameMS;
@@ -315,7 +315,7 @@ static void ZR_UploadDBMesh(ZRDBMesh* mesh)
  * Check over the asset database and upload anything
  * that is not uploaded yet
  */
-extern "C" void ZRImpl_CheckForUploads()
+extern "C" void ZRGL_CheckForUploads()
 {
     printf("=== ZRGL - Check for uploads ===\n");
     ZRAssetDB* db = AssetDb();
@@ -344,7 +344,7 @@ extern "C" void ZRImpl_CheckForUploads()
     printf("\n");
 }
 
-extern "C" void ZR_Link(ZRPlatform platform)
+extern "C" void ZRGL_Link(ZRPlatform platform)
 {
     printf("==== Renderer Link ====\n");
     g_platform = platform;

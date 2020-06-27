@@ -118,15 +118,7 @@ struct ZRScene
 ///////////////////////////////////////////////////////////////////////////////////
 // Draw Frame types:
 ///////////////////////////////////////////////////////////////////////////////////
-/*
-Frame draw data struct:
-Draw List:
-                                        / ZRDrawGroup mesh, prog, <obj, obj, obj, obj>
-            / ZRSceneFrame (game)       | ZRDrawGroup mesh, prog, <obj, obj, obj, obj>
-                                        \ ZRDrawGroup mesh, prog, <obj, obj, obj, obj>
-ZRViewFrame - ZRSceneFrame (view model) - ZRDrawGroups...
-            \ ZRSceneFrame (HUD)        - ZRDrawGroups...
-*/
+
 #define ZR_PROJECTION_MODE_3D 0
 #define ZR_PROJECTION_MODE_IDENTITY 1
 
@@ -135,11 +127,10 @@ ZRViewFrame - ZRSceneFrame (view model) - ZRDrawGroups...
 // Output from game scene, input to Renderer
 
 /*
-
 Buffers:
 - Draw list -
 ZRViewFrame - lists scene frames
-	ZRSceneFrame - lists objects
+	ZRSceneFrame - lists objects and static environment eg projection, camera etc
 		ZRDrawObj
 		ZRDrawObj
 		ZRDrawObj
@@ -147,6 +138,8 @@ ZRViewFrame - lists scene frames
 		ZRDrawObj
 		ZRDrawObj
 		ZRDrawObj
+In memory:
+ZRViewFrame|ZRSceneFrame|Obj|Obj|Obj|ZRSceneFrame|Obj|Obj...
 
 - Scratch - 
 Stack of random allocations for objects in the scene lists.
@@ -154,6 +147,10 @@ Eg text objects will write their strings into here.
 Contents is nonsense without the draw frame objects.
 */
 
+/*
+TODO: Shader, draw group etc should ideally be internal to renderer module.
+They are only here due to the need for 'drawTime' data in the SceneFrame struct
+*/
 struct ZRShader
 {
     i32 handle; // considered invalid if this is 0
@@ -202,7 +199,10 @@ struct ZRSceneFrame
     {
         i32 projectionMode;
         i32 numObjects;
-        i32 dataBytes;
+        u8* dataBytes;
+        // num data bytes is stored but since draw obj is a union, could just
+        // do sizeof(ZRDrawObj) * numObjects
+        i32 numDataBytes;
         i32 bSkybox;
         i32 bDeferred;
         i32 bIsInteresting;

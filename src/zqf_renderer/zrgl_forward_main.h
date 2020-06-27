@@ -268,7 +268,7 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameForward(
     g_bDrawLocked = YES;
 
     stats.listBytes = drawList->Written();
-    stats.dataBytes = drawData->Written();
+    stats.numDataBytes = drawData->Written();
 
     // Reset frame scratch memory cursor
     g_scratch.Clear(NO);
@@ -303,7 +303,7 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameForward(
         ZRSceneFrame* cmd = (ZRSceneFrame*)cursor;
         ZE_ASSERT(cmd->sentinel == ZR_SENTINEL,
             "Scene cmd sentinel check failed")
-        cursor += sizeof(ZRSceneFrame) + cmd->params.dataBytes;
+        cursor += sizeof(ZRSceneFrame) + cmd->params.numDataBytes;
 
 		ZRGroupingStats result = ZR_PrepareScene(cmd, &g_scratch, scrInfo);
         if (cmd->params.bIsInteresting)
@@ -335,7 +335,7 @@ extern "C" ZRPerformanceStats ZRImpl_DrawFrameForward(
         ZRSceneFrame* cmd = (ZRSceneFrame*)cursor;
         ZE_ASSERT(cmd->sentinel == ZR_SENTINEL,
             "Scene cmd sentinel check failed")
-        cursor += sizeof(ZRSceneFrame) + cmd->params.dataBytes;
+        cursor += sizeof(ZRSceneFrame) + cmd->params.numDataBytes;
 
 		ZR_DrawScene(cmd, &g_scratch, scrInfo, &stats);
     }
