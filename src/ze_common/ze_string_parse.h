@@ -131,6 +131,29 @@ internal i32 ZE_CheckTokensSignature(char** tokens, i32 numTokens, char* signatu
 }
 #endif
 
+internal i32 ZE_StrMeasureLine(char* str)
+{
+	i32 count = 0;
+	while(str)
+	{
+		char c = *str;
+		str++;
+		if (c == '\0' || c == '\n' || c == '\r')
+		{
+			break;
+		}
+		else if (c == '\t')
+		{
+			count += 4;
+		}
+		else
+		{
+			count++;
+		}
+	}
+	return count;
+}
+
 internal void ZE_StrMeasure2D(char* str, i32* x, i32* y)
 {
     i32 lineCount = 0;
@@ -150,10 +173,14 @@ internal void ZE_StrMeasure2D(char* str, i32* x, i32* y)
             curLineLength = 0;
             lineCount++;
         }
-        else
+        else if (c != '\r')
         {
             curLineLength++;
         }
+		else if (c != '\t')
+		{
+			curLineLength += 4;
+		}
         if (c == '\0')
         {
             break;
