@@ -133,24 +133,35 @@ internal i32 ZE_CheckTokensSignature(char** tokens, i32 numTokens, char* signatu
 
 internal void ZE_StrMeasure2D(char* str, i32* x, i32* y)
 {
-    i32 lineCount = 1;
+    i32 lineCount = 0;
     i32 curLineLength = 1;
     i32 longestLine = 1;
     char* cursor = str;
-    while(cursor)
+    for(;;)
     {
         char c = *cursor;
-        if (c == '\n')
+        if (c == '\n' || c == '\0')
         {
             // finish line
             if (curLineLength > longestLine)
             {
                 longestLine = curLineLength;
-                curLineLength = 0;
-                lineCount++;
             }
+            curLineLength = 0;
+            lineCount++;
         }
-        cursor++;
+        else
+        {
+            curLineLength++;
+        }
+        if (c == '\0')
+        {
+            break;
+        }
+        else
+        {
+            cursor++;
+        }
     }
     *x = longestLine;
     *y = lineCount;

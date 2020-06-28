@@ -22,5 +22,5 @@ static void Test_StringFunctions()
 	char* str2D = "foo\nbar\nhello\ngoodbye";
 	i32 x = 0, y = 0;
 	ZE_StrMeasure2D(str2D, &x, &y);
-	printf("Measured %s as %d, %d\n", str2D, x, y);
+	printf("Measured string:\n%s\n\tas %d, %d\n", str2D, x, y);
 }
