@@ -18,6 +18,7 @@ static ZRAssetDB* g_assetDb = NULL;
 extern "C" void CLR_Init(ZRAssetDB* assetDb)
 {
     g_assetDb = assetDb;
+	ZUI_Init(assetDb);
 }
 
 extern "C" void CLR_Shutdown()

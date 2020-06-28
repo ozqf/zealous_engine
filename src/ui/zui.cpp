@@ -3,10 +3,13 @@
 
 #include "../ze_common/ze_common_full.h"
 #include "../zqf_renderer.h"
+#include "zui.h"
 
-extern "C" void ZUI()
+static ZRAssetDB* g_db = NULL;
+
+extern "C" void ZUI_Init(ZRAssetDB* db)
 {
-	//
+	g_db = db;
 }
 
 /**
@@ -26,20 +29,22 @@ extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data)
     scene->params.objects = (ZRDrawObj*)list->cursor;
 
     // add objects
+	//char* str = "The quick\nbrown fox jumped over\nthe lazy\ndogs.";
+	char* str = "The quick brown fox.";
+    // measure
+    i32 len = ZE_StrLen(str);
     ZRDrawObj* uiObj;
 
     uiObj = ZRDrawObj_InitInPlace(&list->cursor);
     scene->params.numObjects++;
     uiObj->data.SetAsMesh(1, 0);
     uiObj->t.pos.z = 0.9f;
+	f32 charSize = ZR_CharScreenSizeDefault();
+	uiObj->t.scale = { charSize * len, charSize, 1 };
 	#if 1
     uiObj = ZRDrawObj_InitInPlace(&list->cursor);
     scene->params.numObjects++;
 	// copy string to data buffer
-    //char* str = "The quick\nbrown fox jumped over\nthe lazy\ndogs.";
-	char* str = "The quick brown fox.";
-    // measure
-    i32 len = ZE_StrLen(str);
     // grab start of write
     char* strCursor = (char*)data->cursor;
     // copy

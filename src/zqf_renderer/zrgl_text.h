@@ -10,8 +10,8 @@ static void ZR_ExecuteTextDraw(
 	Point textSize = {};
 	ZE_StrMeasure2D(str, &textSize.x, &textSize.y);
     // Size of quad on screen, to offset verts from char position
-    f32 charHalfWidth = (cmd->charSize * (cmd->aspectRatio - 1.f)) / 2.f;
-    f32 charHalfHeight = cmd->charSize / 2.f;
+    f32 charHalfWidth = ZR_CalcCharHalfWidth(cmd->charSize, cmd->aspectRatio);
+    f32 charHalfHeight = ZR_CalcCharHalfHeight(cmd->charSize);
 
     Vec3 origin = cmd->origin;
     switch (cmd->alignmentMode)
@@ -28,7 +28,7 @@ static void ZR_ExecuteTextDraw(
         } break;
 		case ZR_TEXT_ALIGNMENT_TOP_RIGHT:
         {
-            origin.x += charHalfWidth;
+            origin.x -= (charHalfWidth * textSize.x) * 2.f;
             origin.y -= charHalfHeight;
         } break;
         default:

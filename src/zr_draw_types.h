@@ -238,5 +238,19 @@ static ZRDrawObj* ZRDrawObj_InitInPlace(u8** ptr)
     return obj;
 }
 
+static f32 ZR_CharScreenSizeDefault()
+{
+	return ZR_SCREEN_SPACE_HEIGHT / ZR_TEXT_SCREEN_LINE_COUNT;
+}
+
+static f32 ZR_CalcCharHalfWidth(f32 charSize, f32 aspectRatio)
+{
+	return (charSize * (aspectRatio - 1.f)) / 2.f;
+}
+
+static f32 ZR_CalcCharHalfHeight(f32 charSize)
+{
+	return charSize / 2.f;
+}
 
 #endif // ZR_DRAW_TYPES_H
