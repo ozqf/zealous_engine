@@ -227,12 +227,19 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
     // Create materials
     // Textures need to be loaded before this point!
 	///////////////////////////////////////////
+    ZRMaterial* mat;
 
-    ZRMaterial* mat = db->CreateMaterial(
+	mat = db->CreateMaterial(
         db,
         ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         //"data/W33_5.bmp",
         "blue",
+        "black");
+	
+	db->CreateMaterial(
+        db,
+        ZRDB_DEFAULT_CHARSET_MAT_NAME,
+        "charset",
         "black");
     
     db->CreateMaterial(
@@ -243,7 +250,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         //"cyan",
         "black"
     );
-
+	
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_ENT,

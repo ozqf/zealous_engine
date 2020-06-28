@@ -26,6 +26,17 @@
 
 #define ZR_UNIQUE_OBJECT_GROUP -1
 
+#define ZR_TEXT_ALIGNMENT_TOP_LEFT 0
+#define ZR_TEXT_ALIGNMENT_TOP_RIGHT 1
+#define ZR_TEXT_ALIGNMENT_CENTRE 2
+
+
+// Guestimate of an appropriate char size. screen space is 2 units high
+// divide this height into N lines:
+#define  ZR_SCREEN_SPACE_HEIGHT 2.f
+#define  ZR_TEXT_SCREEN_LINE_COUNT 64.f
+
+
 ///////////////////////////////////////////////////////////
 // Colours
 ///////////////////////////////////////////////////////////
@@ -42,14 +53,14 @@ union Colour
 	};
 };
 
-#define COL_U32_WHITE { 1, 1, 1, 1 }
-#define COL_U32_BLACK { 0, 0, 0, 1 }
-#define COL_U32_RED { 1, 0, 0, 1 }
-#define COL_U32_GREEN { 0, 1, 0, 1 }
-#define COL_U32_BLUE { 0, 0, 1, 1 }
-#define COL_U32_YELLOW { 1, 1, 0, 1 }
-#define COL_U32_CYAN { 0, 1, 1, 1 }
-#define COL_U32_PURPLE { 1, 0, 1, 1 }
+#define COLOUR_WHITE { 1, 1, 1, 1 }
+#define COLOUR_BLACK { 0, 0, 0, 1 }
+#define COLOUR_RED { 1, 0, 0, 1 }
+#define COLOUR_GREEN { 0, 1, 0, 1 }
+#define COLOUR_BLUE { 0, 0, 1, 1 }
+#define COLOUR_YELLOW { 1, 1, 0, 1 }
+#define COLOUR_CYAN { 0, 1, 1, 1 }
+#define COLOUR_PURPLE { 1, 0, 1, 1 }
 
 union ColourU32
 {
@@ -113,6 +124,8 @@ struct ZRDrawObjData
             char* text;
             i32 length;
 			i32 charTextureIndex;
+			Colour colour;
+			i32 alignment;
         } text;
     };
 
@@ -139,12 +152,17 @@ struct ZRDrawObjData
         this->directLight.range = radius;
     }
 
-	void SetAsText(char* chars)
+	void SetAsText(char* chars, i32 texIndex, Colour colour, i32 alignment)
 	{
 		this->type = ZR_DRAWOBJ_TYPE_TEXT;
 		this->text.text = chars;
 		this->text.length = ZE_StrLenNoTerminator(chars) + 1;
-		this->text.charTextureIndex = -1;
+		if (texIndex < 0)
+		{
+			this->text.charTextureIndex = -1;
+		}
+		this->text.colour = colour;
+		this->text.alignment = alignment;
 	}
 };
 

@@ -32,11 +32,12 @@ extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data)
     scene->params.numObjects++;
     uiObj->data.SetAsMesh(1, 0);
     uiObj->t.pos.z = 0.9f;
-
+	#if 1
     uiObj = ZRDrawObj_InitInPlace(&list->cursor);
     scene->params.numObjects++;
 	// copy string to data buffer
-    char* str = "Foobar";
+    //char* str = "The quick\nbrown fox jumped over\nthe lazy\ndogs.";
+	char* str = "The quick brown fox.";
     // measure
     i32 len = ZE_StrLen(str);
     // grab start of write
@@ -44,8 +45,11 @@ extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data)
     // copy
     data->cursor += ZE_Copy(data->cursor, str, len);
     // set object
-    uiObj->data.SetAsText(strCursor);
-	
+	i32 align = ZR_TEXT_ALIGNMENT_CENTRE;
+	// i32 align = ZR_TEXT_ALIGNMENT_TOP_RIGHT;
+    uiObj->data.SetAsText(
+		strCursor, -1, COLOUR_WHITE, align);
+	#endif
     // Finish scene
     scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
 	

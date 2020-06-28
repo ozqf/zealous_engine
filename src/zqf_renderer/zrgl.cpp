@@ -19,6 +19,7 @@
 #include "zrgl_shadows.h"
 #include "zrgl_upload.h"
 // Forward
+#include "zrgl_text.h"
 #include "zrgl_forward_draw.h"
 #include "zrgl_forward_main.h"
 // deferred
@@ -219,15 +220,13 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
         g_platformFrameMS * 1000);
     debugStr.cursor += written;
     
-    f32 screenSpaceHeight = 2;
-    f32 numLinesInScreen = 64;
     ZRDrawCmd_Text txtCmd = {};
     txtCmd.origin = { -1, 1 }; // screen topleft
     txtCmd.numChars = written;// strlen(testText);
-    txtCmd.charSize = screenSpaceHeight / numLinesInScreen;
+    txtCmd.charSize = ZR_SCREEN_SPACE_HEIGHT / ZR_TEXT_SCREEN_LINE_COUNT;
     txtCmd.aspectRatio = scrInfo.aspectRatio;
     txtCmd.offsetToString = 0; // TOOD: Remove
-    txtCmd.alignmentMode = 0;
+    txtCmd.alignmentMode = ZR_TEXT_ALIGNMENT_TOP_LEFT;
     M4x4_CREATE(textProjection);
     //printf("Draw %d debug chars\n", txtCmd.numChars);
     ZR_ExecuteTextDraw(&txtCmd, &textProjection, (char*)debugStr.start, &stats);

@@ -17,7 +17,7 @@
 #define ZQF_R_DEFAULT_DIFFUSE_TEX "data/W33_5.bmp"
 
 #define ZRDB_DEFAULT_DIFFUSE_MAT_NAME "default"
-
+#define ZRDB_DEFAULT_CHARSET_MAT_NAME "charset"
 #define ZRDB_DEFAULT_CHARSET_NAME "charset"
 
 #define ZRDB_MAT_NAME_WORLD "World"

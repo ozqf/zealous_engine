@@ -106,7 +106,6 @@ struct ZRPlatform
  * String must be null terminated
  * command bytes == size of cmd struct + string itself
  */
-#define ZR_TEXT_ALIGNMENT_TOP_RIGHT 0
 struct ZRDrawCmd_Text
 {
     Vec3 origin;

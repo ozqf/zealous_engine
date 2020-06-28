@@ -224,7 +224,8 @@ static void CLDebug_UpdateDebugObjects(timeFloat delta)
 	ZRDrawObj* textObj = &g_debugObjs[g_numDebugObjs++];
 	*textObj = {};
 	Transform_SetToIdentity(&textObj->t);
-	textObj->data.SetAsText("Test\nText");
+	textObj->data.SetAsText(
+		"Test\nText", -1, COLOUR_WHITE, ZR_TEXT_ALIGNMENT_TOP_LEFT);
 
     //o->t.scale = { 2, 2, 2 };
     /* Testing actor movement:
