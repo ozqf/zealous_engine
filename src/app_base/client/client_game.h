@@ -267,11 +267,11 @@ internal void CLG_TickViewSway(timeFloat deltaTime)
     }
     f32 speed = Vec3_Magnitude(&plyr->movement.velocity);
     f32 speedSwayMul = speed / ACTOR_BASE_SPEED; // ratio of max speed
-    f32 swaySpeed = 4.f * speedSwayMul; // scale max sway speed by ratio
-    printf("Speed mul %.3f, Speed %.3f\n", speedSwayMul, swaySpeed);
+    f32 swaySpeed = 8.f * speedSwayMul; // scale max sway speed by ratio
+    //printf("Speed mul %.3f, Speed %.3f\n", speedSwayMul, swaySpeed);
     
     g_swayTick += (f32)deltaTime * swaySpeed;
-    g_swayYOffset = sinf(g_swayTick) * 0.5f;
+    g_swayYOffset = sinf(g_swayTick) * 0.1f;
 }
 
 internal void CLG_TickGame(SimScene* sim, timeFloat deltaTime)

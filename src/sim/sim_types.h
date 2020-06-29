@@ -5,7 +5,8 @@
 #include "../zr_draw_types.h"
 #include "../physics/physics.h"
 
-#define ACTOR_BASE_SPEED 6.5f
+#define ACTOR_BASE_SPEED 12.f
+#define ACTOR_MOVE_PUSH_SPEED 80.f
 #define ACTOR_EVADE_SPEED 30
 #define ACTOR_EVADE_SECONDS 0.25f
 #define ACTOR_EVADE_RESET_SECONDS 0.5f

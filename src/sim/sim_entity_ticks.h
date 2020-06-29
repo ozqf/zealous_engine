@@ -203,7 +203,7 @@ internal void SimEnt_UpdateActorWalk(
     if (ent->movement.moveTime > 0)
     { ent->movement.moveTime -= dt; }
     
-    f32 stepSpeed = ent->movement.speed * dt;
+    //f32 stepSpeed = ent->movement.speed * dt;
 
     ////////////////////////////////////////////////////////////////////
     // Movement
@@ -231,14 +231,14 @@ internal void SimEnt_UpdateActorWalk(
     f32 radiansForward = input->degrees.y * DEG2RAD;
     f32 radiansLeft = (input->degrees.y * DEG2RAD) + (90 * DEG2RAD);
     Vec3 forward;
-    forward.x = (sinf(radiansForward) * stepSpeed) * dir.z;
+    forward.x = sinf(radiansForward) * dir.z;
     forward.y = 0;
-    forward.z = (cosf(radiansForward) * stepSpeed) * dir.z;
+    forward.z = cosf(radiansForward) * dir.z;
 
     Vec3 left;
-    left.x = (sinf(radiansLeft) * stepSpeed) * dir.x;
+    left.x = sinf(radiansLeft) * dir.x;
     left.y = 0;
-    left.z = (cosf(radiansLeft) * stepSpeed) * dir.x;
+    left.z = cosf(radiansLeft) * dir.x;
 
     Vec3 up = {};
 
@@ -265,25 +265,52 @@ internal void SimEnt_UpdateActorWalk(
 		ent->movement.moveTime = ACTOR_EVADE_SECONDS;
         ent->movement.velocity.x = evadeDir.x * ACTOR_EVADE_SPEED;
         ent->movement.velocity.z = evadeDir.z * ACTOR_EVADE_SPEED;
-		move.x = ent->movement.velocity.x * dt;
-	    move.z = ent->movement.velocity.z * dt;
 	}
     else
     {
+        f32 pushSpeed = ACTOR_MOVE_PUSH_SPEED;
         // normal walk
-        move.x = forward.x + left.x + up.x;
-        move.z = forward.z + left.z + up.z;
-        
+        // calculate velocity change
+        Vec3 velocityPush = {};
+        Vec3* vel = &ent->movement.velocity;
+        if (hasDirectionInput)
+        {
+            // push in input direction
+            velocityPush.x = forward.x + left.x + up.x;
+            velocityPush.z = forward.z + left.z + up.z;
+        }
+        else
+        {
+            // set move dir to reverse of current velocity and apply to stop
+            velocityPush.x = -vel->x;
+            velocityPush.z = -vel->z;
+        }
+        Vec3_SetMagnitude(&velocityPush, pushSpeed * dt);
+        // add move to velocity
+        vel->x += velocityPush.x;
+        vel->z += velocityPush.z;
+        Vec3_CapMagnitude(vel, 0.01f, ent->movement.speed);
+
+        // Update velocity reading
+        // - velocity will currently be zero as janky movement. So set it to move before scaling
+        // ent->movement.velocity = move;
+        // Vec3_SetMagnitude(&ent->movement.velocity, ent->movement.speed);
+        // if (hasDirectionInput)
+        // {
+        //     printf("Spd: %.3f, Ent vel: %.3f, %.3f, %.3f\n",
+        //         ent->movement.speed,
+        //         ent->movement.velocity.x, ent->movement.velocity.y, ent->movement.velocity.z);
+        // }
     }
+    // move for this frame
+    move.x = ent->movement.velocity.x * dt;
+	move.z = ent->movement.velocity.z * dt;
     
     Transform* t = &ent->body.t;
+    // record previous position
     ent->body.previousPos = t->pos;
-    //t->pos.x += move.x;
-    //t->pos.y += move.y;
-    //t->pos.z += move.z;
-
+    // Apply
 	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
-
     SimEnt_MoveVsSolid(sim, ent, move);
 }
 
