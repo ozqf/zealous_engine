@@ -55,13 +55,12 @@ internal Vec3 g_testHitPos = { 0, 2, 0 };
 internal M4x4 g_matrix;
 
 internal i32 g_interpolateRenderScene = 0;
-//internal i32 g_tickEnemies = 1;
-
 internal i32 g_bVerboseFrame = NO;
-
 internal f32 g_debugSkipReportDistance;
-
 internal f32 g_requestTick = 0;
+
+internal f32 g_swayTick = 0;
+internal f32 g_swayYOffset = 0;
 
 // Menus
 internal i32 g_mainMenuOn;
@@ -91,19 +90,11 @@ internal i32 g_latestUserInputAck = 0;
 internal Vec3 g_latestAvatarPos = {};
 internal i32 g_bHasNewResponse = NO;
 internal S2C_InputResponse g_lastInputResponse = {};
-
+internal SimActorInput g_actorInput = {};
 // Buffer transmitted inputs
 internal C2S_Input g_sentCommands[CL_MAX_SENT_INPUT_COMMANDS];
-
-//#define CL_MAX_RENDER_COMMANDS 1024
-//internal RenderCommand* g_renderCommands;
-
-internal SimActorInput g_actorInput = {};
-
 #define CLI_MAX_RESPONSE_RECORDS 60
-
 internal S2C_InputResponse g_serverResponses[CLI_MAX_RESPONSE_RECORDS];
-
 
 internal i32 CL_ReadPacket(
     SysPacketEvent* ev,

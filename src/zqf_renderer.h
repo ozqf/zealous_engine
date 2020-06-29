@@ -228,6 +228,8 @@ struct ZRViewFrame
     f64 prebuildTime;
     i32 bVerbose;
     i32 numScenes;
+    ZEByteBuffer* list;
+    ZEByteBuffer* data;
 };
 
 ///////////////////////////////////////////////////////////

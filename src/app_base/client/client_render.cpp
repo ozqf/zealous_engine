@@ -151,9 +151,8 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     return objCount;
 }
 
-extern "C" ZRViewFrame* CLR_WriteDrawFrame(
-    ZEByteBuffer* list,
-    ZEByteBuffer* data,
+extern "C" void CLR_WriteDrawFrame(
+    ZRViewFrame* frame,
     SimScene* sim,
     Transform* camera,
     ZRDrawObj* debugObjs,
@@ -162,10 +161,9 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
 {
     i32 requiredCapacity = sizeof(ZRViewFrame) + (sizeof(ZRDrawObj) * sim->maxEnts);
 
-    ZRViewFrame* frame = (ZRViewFrame*)list->cursor;
-    list->cursor += sizeof(ZRViewFrame);
+    ZEByteBuffer* list = frame->list;
+    ZEByteBuffer* data = frame->data;
 
-    *frame = {};
     if (cfg.debugFlags & CL_DEBUG_FLAG_VERBOSE_FRAME)
     {
         frame->bVerbose = YES;
@@ -230,48 +228,7 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
     scene->params.numObjects = objCount;
     scene->sentinel = ZR_SENTINEL;
-    frame->sentinel = ZR_SENTINEL;
     frame->numScenes++;
-
-    ///////////////////////////////////////////////////////
-    // Add extra Test scene
-
-    //frame->numScenes += ZUI_WriteRenderTest(list, data);
-    
-    #if 0
-    scene = (ZRSceneFrame*)list->cursor;
-    list->cursor += sizeof(ZRSceneFrame);
-    *scene = {};
-    frame->numScenes++;
-    scene->params.projectionMode = ZR_PROJECTION_MODE_IDENTITY;
-    Transform_SetToIdentity(&scene->params.camera);
-
-    scene->params.objects = (ZRDrawObj*)list->cursor;
-
-    // add objects
-    ZRDrawObj* uiObj;
-
-    uiObj = ZRDrawObj_InitInPlace(&list->cursor);
-    scene->params.numObjects++;
-    uiObj->data.SetAsMesh(1, 0);
-    uiObj->t.pos.z = 0.9f;
-
-    uiObj = ZRDrawObj_InitInPlace(&list->cursor);
-    scene->params.numObjects++;
-	// copy string to data buffer
-    char* str = "Foobar";
-    // measure
-    i32 len = ZE_StrLen(str);
-    // grab start of write
-    char* strCursor = (char*)data->cursor;
-    // copy
-    data->cursor += ZE_Copy(data->cursor, str, len);
-    // set object
-    uiObj->data.SetAsText(strCursor);
-	#endif
-
-
-    return frame;
 }
 
 #endif // CLIENT_RENDER_CPP

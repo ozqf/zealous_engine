@@ -257,6 +257,23 @@ internal void CLG_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
     }
 }
 
+internal void CLG_TickViewSway(timeFloat deltaTime)
+{
+    SimEntity* plyr = Sim_GetEntityBySerial(&g_sim, g_avatarSerial);
+    if (plyr == NULL)
+    {
+        g_swayYOffset = 0;
+        return;
+    }
+    f32 speed = Vec3_Magnitude(&plyr->movement.velocity);
+    f32 speedSwayMul = speed / ACTOR_BASE_SPEED; // ratio of max speed
+    f32 swaySpeed = 4.f * speedSwayMul; // scale max sway speed by ratio
+    printf("Speed mul %.3f, Speed %.3f\n", speedSwayMul, swaySpeed);
+    
+    g_swayTick += (f32)deltaTime * swaySpeed;
+    g_swayYOffset = sinf(g_swayTick) * 0.5f;
+}
+
 internal void CLG_TickGame(SimScene* sim, timeFloat deltaTime)
 {
     AppTimer timer(APP_STAT_CL_SIM, sim->tick);
@@ -267,5 +284,6 @@ internal void CLG_TickGame(SimScene* sim, timeFloat deltaTime)
 
         CLG_TickEntity(sim, ent, deltaTime);
     }
+    CLG_TickViewSway(deltaTime);
     sim->tick++;
 }

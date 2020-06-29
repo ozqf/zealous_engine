@@ -55,20 +55,22 @@ extern "C" i32 CL_IsRunning() { return g_isRunning; }
 //////////////////////////////////////////
 // Write Render data
 //////////////////////////////////////////
-extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
+extern "C" void CL_WriteDrawFrame(ZRViewFrame* frame)
 {
     f64 startTime = App_SampleClock();
-    Transform* camera = &g_camera;
+    // Copy the camera, don't point, as sway must be applied
+    Transform camera = g_camera;
 	if (g_clDebugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA)
 	{
-		camera = &g_debugCamera;
+		camera = g_debugCamera;
 	}
 	else
 	{
 		SimEntity* plyr = Sim_GetEntityBySerial(&g_sim, g_avatarSerial);
     	if (plyr != NULL)
     	{
-    	    camera = &plyr->body.t;
+    	    camera = plyr->body.t;
+            camera.pos.y += g_swayYOffset;
     	}
 	}
 	
@@ -85,9 +87,9 @@ extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
         g_rendCfg.debugFlags |= CL_DEBUG_FLAG_VERBOSE_FRAME;
         g_bVerboseFrame = NO;
     }
-    ZRViewFrame* frame = CLR_WriteDrawFrame(
-        list, data, &g_sim, camera, g_debugObjs, g_numDebugObjs, g_rendCfg);
-    CLUI_AddDrawItems(frame, list, data);
+    CLR_WriteDrawFrame(
+        frame, &g_sim, &camera, g_debugObjs, g_numDebugObjs, g_rendCfg);
+    CLUI_AddDrawItems(frame);
     f64 endTime = App_SampleClock();
     frame->prebuildTime = endTime - startTime;
 }

@@ -1,4 +1,6 @@
-
+/**
+ * Client HUD
+ */
 #include "client_internal.h"
 #include "../../ui/zui.h"
 
@@ -32,7 +34,7 @@ static void CLUI_Init()
 /**
  * Scenes added
  */
-static void CLUI_AddDrawItems(ZRViewFrame* frame, ZEByteBuffer* list, ZEByteBuffer* data)
+static void CLUI_AddDrawItems(ZRViewFrame* frame)
 {
-	ZUI_WriteScreenForRender(frame, &g_hud, list, data);
+	ZUI_WriteScreenForRender(frame, &g_hud, frame->list, frame->data);
 }

@@ -532,8 +532,16 @@ internal void App_DrawFrame()
     list->Clear(NO);
     data->Clear(NO);
 
+    // Prepare frame header    
+    ZRViewFrame* frame = (ZRViewFrame*)list->cursor;
+    list->cursor += sizeof(ZRViewFrame);
+    *frame = {};
+    frame->sentinel = ZR_SENTINEL;
+    frame->list = list;
+    frame->data = data;
+
     // Add draw data
-    CL_WriteDrawFrame(list, data);
+    CL_WriteDrawFrame(frame);
 
     // release
     g_platform.Release_AppDrawBuffers();

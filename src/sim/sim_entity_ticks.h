@@ -273,6 +273,7 @@ internal void SimEnt_UpdateActorWalk(
         // normal walk
         move.x = forward.x + left.x + up.x;
         move.z = forward.z + left.z + up.z;
+        
     }
     
     Transform* t = &ent->body.t;
@@ -318,7 +319,7 @@ internal void SimEnt_UpdateActorEvade(
         ent->movement.moveTime -= dt;
     }
 }
-
+#if 0
 internal void SimEnt_UpdateActorWalk_TopDown(
     SimScene* sim,
     SimEntity* ent,
@@ -375,7 +376,7 @@ internal void SimEnt_UpdateActorWalk_TopDown(
 	ent->body.t.pos.z += move.z;
 	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
-
+#endif
 /**
  * Input is optional to override the input attached to ent for client prediction
  */

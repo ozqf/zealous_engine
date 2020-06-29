@@ -32,7 +32,7 @@ extern "C" void CL_Tick(
 			ZEByteBuffer* sysEvents,
 			timeFloat deltaTime,
 			i64 platformFrame);
-extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data);
+extern "C" void CL_WriteDrawFrame(ZRViewFrame* frame);
 /*
 void    CL_PopulateRenderScene(
 			Transform* cam,
