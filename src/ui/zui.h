@@ -3,17 +3,17 @@
 
 #include "../ze_common/ze_common_full.h"
 
-struct ZUITransform
+struct ZUIObject
 {
 	i32 id;
-	Vec3 pos;
-	Vec2 radius;
-	char name[16];
-};
-
-struct ZUIButton
-{
-	i32 id;
+	i32 type;
+	Vec2 pos;
+	// depth range is 1 (back) to -1 (front)
+	f32 depth;
+	Point radiusInChars;
+	i32 state;
+	char* label;
+	f32 charSize;
 };
 
 extern "C" void ZUI_Init(ZRAssetDB* db);
