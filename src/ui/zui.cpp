@@ -67,6 +67,32 @@ internal i32 ZUI_WriteObjToScene(ZUIObject* uiObj, ZEByteBuffer* list, ZEByteBuf
     return numObjects;
 }
 
+extern "C" void ZUI_WriteScreenForRender(ZRViewFrame* frame, ZUIScreen* scr, ZEByteBuffer* list, ZEByteBuffer* data)
+{
+    ///////////////////////////////////////////////
+    // Start a new scene
+	i32 sceneCount = 0;
+    ZRSceneFrame* scene = (ZRSceneFrame*)list->cursor;
+    list->cursor += sizeof(ZRSceneFrame);
+    *scene = {};
+    sceneCount++;
+    scene->params.objects = (ZRDrawObj*)list->cursor;
+    scene->sentinel = ZR_SENTINEL;
+    scene->params.projectionMode = ZR_PROJECTION_MODE_IDENTITY;
+    Transform_SetToIdentity(&scene->params.camera);
+    
+    ///////////////////////////////////////////////
+    // add objects
+    for (i32 i = 0; i < scr->numObjects; ++i)
+    {
+        scene->params.numObjects += ZUI_WriteObjToScene(&scr->objects[i], list, data);
+    }
+    // Finish scene
+    scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
+    frame->numScenes += sceneCount;
+    //return sceneCount;
+}
+
 extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data)
 {
     ///////////////////////////////////////////////

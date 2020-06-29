@@ -46,6 +46,7 @@ internal i32 CL_GetServerTick()
 #include "client_packets.h"
 #include "client_connect.h"
 #include "client_run_commands.h"
+#include "client_ui.h"
 
 #include "client_debug.h"
 
@@ -86,6 +87,7 @@ extern "C" void CL_WriteDrawFrame(ZEByteBuffer* list, ZEByteBuffer* data)
     }
     ZRViewFrame* frame = CLR_WriteDrawFrame(
         list, data, &g_sim, camera, g_debugObjs, g_numDebugObjs, g_rendCfg);
+    CLUI_AddDrawItems(frame, list, data);
     f64 endTime = App_SampleClock();
     frame->prebuildTime = endTime - startTime;
 }
@@ -162,8 +164,34 @@ extern "C" void CL_SetLocalUser(UserIds ids)
 extern "C" void CL_Init()
 {
     APP_PRINT(32, "CL - Init\n");
-}
+    
+    APP_PRINT(128, "CL Init net stream buffers\n");
+    i32 cmdBufferSize = MegaBytes(1);
+    COM_InitStream(&g_reliableStream,
+        Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize),
+        Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize)
+    );
+    COM_InitStream(&g_unreliableStream,
+        Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize),
+        Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize)
+    );
+    // init sub-components
+    CLR_Init(App_GetAssetDB());
+    CLUI_Init();
+    CLDebug_Init();
+    CL_InitInputs(&g_inputActions);
 
+    // init sim
+    i32 maxEnts = APP_MAX_ENTITIES;
+    i32 numEntityBytes = Sim_CalcEntityArrayBytes(maxEnts);
+    SimEntity* mem = (SimEntity*)CL_Malloc(numEntityBytes);
+    Sim_Init("Client", &g_sim, mem, maxEnts);
+	Sim_Reset(&g_sim);
+    CL_LoadTestScene();
+
+    APP_PRINT(64, "CL init completed with %d allocations (%dKB)\n ",
+        g_numAllocations, (u32)BytesAsKB(g_bytesAllocated));
+}
 
 //////////////////////////////////////////
 // Start Session
@@ -177,31 +205,10 @@ extern "C" void CL_Start(ZNetAddress serverAddress, i32 updSocketId)
     g_udpSocketId = updSocketId;
     g_serverAddress = serverAddress;
 	g_clientState = CLIENT_STATE_REQUESTING;
-    i32 cmdBufferSize = MegaBytes(1);
 
     g_isRunning = YES;
-    //ZEByteBuffer a = Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize);
-    //ZEByteBuffer b = Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize);
-
     g_rendCfg.worldLightsMax = 100;
     g_rendCfg.extraLightsMax = 100;
-
-    i32 maxEnts = APP_MAX_ENTITIES;
-    i32 numEntityBytes = Sim_CalcEntityArrayBytes(maxEnts);
-    SimEntity* mem = (SimEntity*)CL_Malloc(numEntityBytes);
-    Sim_Init("Client", &g_sim, mem, maxEnts);
-	Sim_Reset(&g_sim);
-    CL_LoadTestScene();
-
-    APP_PRINT(128, "CL Init net stream buffers\n");
-    COM_InitStream(&g_reliableStream,
-        Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize),
-        Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize)
-    );
-    COM_InitStream(&g_unreliableStream,
-        Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize),
-        Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize)
-    );
 
     Transform_SetToIdentity(&g_camera);
     g_camera.pos.z = 10;
@@ -209,23 +216,7 @@ extern "C" void CL_Start(ZNetAddress serverAddress, i32 updSocketId)
     Transform_SetRotation(&g_camera, -(80.0f    * DEG2RAD), 0, 0);
 
     g_testCameraDegrees.x = -80.0f * DEG2RAD;
-
-    CLR_Init(App_GetAssetDB());
-
-    CLDebug_Init();
-    /*
-    i32 numRenderCommandBytes = sizeof(RenderCommand) *
-		CL_MAX_RENDER_COMMANDS;
-    u8* bytes = (u8*)CL_Malloc(numRenderCommandBytes);
-    ZE_SET_ZERO(bytes, numRenderCommandBytes);
-
-    g_renderCommands = (RenderCommand*)bytes;
-    */
-    APP_PRINT(64, "CL Init inputs\n");
-    CL_InitInputs(&g_inputActions);
-
-    APP_PRINT(64, "CL init completed with %d allocations (%dKB)\n ",
-        g_numAllocations, (u32)BytesAsKB(g_bytesAllocated));
+    
 }
 
 

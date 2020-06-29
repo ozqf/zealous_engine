@@ -16,7 +16,18 @@ struct ZUIObject
 	f32 charSize;
 };
 
+struct ZUIScreen
+{
+	i32 id;
+	ZUIObject* objects;
+	i32 numObjects;
+	i32 maxObjects;
+	i32 state;
+};
+
 extern "C" void ZUI_Init(ZRAssetDB* db);
 extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data);
+extern "C" void ZUI_WriteScreenForRender(
+	ZRViewFrame* frame, ZUIScreen* scr, ZEByteBuffer* list, ZEByteBuffer* data);
 
 #endif // ZUI_H

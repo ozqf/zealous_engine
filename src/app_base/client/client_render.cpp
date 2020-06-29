@@ -236,7 +236,7 @@ extern "C" ZRViewFrame* CLR_WriteDrawFrame(
     ///////////////////////////////////////////////////////
     // Add extra Test scene
 
-    frame->numScenes += ZUI_WriteRenderTest(list, data);
+    //frame->numScenes += ZUI_WriteRenderTest(list, data);
     
     #if 0
     scene = (ZRSceneFrame*)list->cursor;
