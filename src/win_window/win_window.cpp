@@ -272,40 +272,57 @@ static void WindowImpl_Release_EventBuffer()
     g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
 }
 
-static i32 WindowImpl_MainLoop()
+static void Window_Tick()
 {
     f64 startFrameMS = 0, endFrameMS = 0, totalMS = 0;
+    startFrameMS = g_platform.QueryClock();
+    ZEByteBuffer* list;
+    ZEByteBuffer* data;
+    g_platform.Acquire_AppDrawBuffers(&list, &data);
+    // Draw
+    glClearColor(1, 0, 1, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    ZRGL_DrawFrame(list, data, g_scrInfo);
+    // Finish Frame
+    g_platform.Release_AppDrawBuffers();
+    f64 swapStart = g_platform.QueryClock();
+    glfwSwapBuffers(g_window);
+    f64 swapEnd = g_platform.QueryClock();
+    ZRGL_UpdateStats(
+        swapEnd - swapStart,
+        totalMS
+        );
+    ZR_PollInput();
+    endFrameMS = g_platform.QueryClock();
+    totalMS = endFrameMS - startFrameMS;
+    if (g_bRestart == YES)
+    {
+        g_bRestart =  NO;
+        Window_Restart();
+    }
+}
+
+static i32 WindowImpl_MainLoop()
+{
+    f64 lastTickTime = 0;
     while(!glfwWindowShouldClose(g_window))
     {
-        startFrameMS = g_platform.QueryClock();
-        ZEByteBuffer* list;
-        ZEByteBuffer* data;
-        g_platform.Acquire_AppDrawBuffers(&list, &data);
-        // Draw
-        glClearColor(1, 0, 1, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        // Forward renderer currently bricked!
-        //g_renderer.DrawFrameForward(list, data, g_scrInfo);
-        //g_renderer.DrawFrameDeferred(list, data, g_scrInfo);
-        //ZRImpl_DrawFrameDeferred(list, data, g_scrInfo);
-        ZRGL_DrawFrame(list, data, g_scrInfo);
-        // Finish Frame
-        g_platform.Release_AppDrawBuffers();
-        f64 swapStart = g_platform.QueryClock();
-        glfwSwapBuffers(g_window);
-        f64 swapEnd = g_platform.QueryClock();
-        ZRGL_UpdateStats(
-            swapEnd - swapStart,
-            totalMS
-            );
-        ZR_PollInput();
-        endFrameMS = g_platform.QueryClock();
-        totalMS = endFrameMS - startFrameMS;
-
-        if (g_bRestart == YES)
+        f64 time = g_platform.QueryClock();
+        i32 tick = YES;
+        if (g_maxFPS > 0)
         {
-            g_bRestart =  NO;
-            Window_Restart();
+            // TODO: janky?
+            f64 frameInterval = 1.0f / (f32)g_maxFPS;
+            f64 diff = time - lastTickTime;
+            if (diff < frameInterval)
+            {
+                tick = NO;
+            }
+        }
+        if (tick == YES)
+        {
+            lastTickTime = time;
+            Window_Tick();
         }
         //g_platform.DebugBreak();
     }

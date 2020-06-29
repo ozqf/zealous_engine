@@ -49,6 +49,9 @@ internal ScreenInfo g_scrInfo;
 
 internal i32 g_pendingScrMode = 0;
 
+// cap fps
+internal i32 g_maxFPS = 60;
+
 internal i32 g_resolutionsX[ZW_NUM_16X9_RESOLUTIONS] =
 { 1024, 1280, 1366, 1600, 1920 };
 internal i32 g_resolutionsY[ZW_NUM_16X9_RESOLUTIONS] =

@@ -65,8 +65,9 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
     glLineWidth(3);
     CHECK_GL_ERR
 
-    // v-sync
-    glfwSwapInterval(1);
+    // v-sync - off
+    // frame rate is capped manually as v-sync gives me jip.
+    glfwSwapInterval(0);
 
     // Depth buffer
 	glEnable(GL_DEPTH_TEST);
