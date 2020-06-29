@@ -69,6 +69,7 @@ internal i32 ZUI_WriteObjToScene(ZUIObject* uiObj, ZEByteBuffer* list, ZEByteBuf
 
 extern "C" void ZUI_WriteScreenForRender(ZRViewFrame* frame, ZUIScreen* scr, ZEByteBuffer* list, ZEByteBuffer* data)
 {
+	if (scr->state == 0) { return; }
     ///////////////////////////////////////////////
     // Start a new scene
 	i32 sceneCount = 0;

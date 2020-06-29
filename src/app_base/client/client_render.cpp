@@ -7,14 +7,6 @@
 
 static ZRAssetDB* g_assetDb = NULL;
 
-// static ZRDrawObj* CLR_InitDrawObjInPlace(u8** ptr)
-// {
-//     ZRDrawObj* obj = (ZRDrawObj*)*ptr;
-//     *ptr += sizeof(ZRDrawObj);
-//     *obj = {};
-//     return obj;
-// }
-
 extern "C" void CLR_Init(ZRAssetDB* assetDb)
 {
     g_assetDb = assetDb;
@@ -37,8 +29,7 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     // TODO: Look these up in asset db!
     ZRDBMesh* cube = g_assetDb->GetMeshByName(g_assetDb, ZRDB_MESH_NAME_CUBE);
     ZRDBMesh* quad = g_assetDb->GetMeshByName(g_assetDb, ZRDB_MESH_NAME_QUAD);
-    //ZRDBTexture* defaultDiffuse
-
+    
     i32 cubeIndex = cube->header.index;
     i32 quadIndex = quad->header.index;
     i32 defaultMaterialIndex = 0;
@@ -68,8 +59,6 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
             {
                 ZRDrawObj* obj = ZRDrawObj_InitInPlace(&list->cursor);
                 obj->data.SetAsMesh(cubeIndex, materialIndex);
-                //ZRDrawObj_SetAsMesh(obj, cubeIndex, defaultMaterialIndex);
-                //ZRDrawObj_SetAsPrefab(obj, ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX);
                 obj->t = ent->body.t;
             } break;
         }
@@ -89,13 +78,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     ClientRenderSettings cfg)
 {
     ZRAssetDB* db = App_GetAssetDB();
-    // ZRDBMesh* mesh;
-    // ZRMaterial* mat;
-    // mesh = db->GetMeshByName(db, "Cube");
-    // i32 meshIndex = mesh->header.index;
-    // mat = db->GetMaterialByName(db, ZRDB_DEFAULT_DIFFUSE_MAT_NAME);
-    // i32 materialIndex = mat->index;
-
+    
     if (cfg.worldLightsMax <= 0) { cfg.worldLightsMax = 4; }
     if (cfg.extraLightsMax <= 0) { cfg.extraLightsMax = 4; }
 
@@ -181,8 +164,7 @@ extern "C" void CLR_WriteDrawFrame(
     i32 objCount = 0;
     //u8* listStart = list->cursor;
     scene->params.objects = (ZRDrawObj*)list->cursor;
-    // write client draw data. World, view model, HUD, menus.
-
+    
     #if 0 // DEBUG: Add a main light or objects are invisible
     ZRDrawObj* light = CLR_InitDrawObjInPlace(&list->cursor);
     objCount++;
@@ -221,8 +203,6 @@ extern "C" void CLR_WriteDrawFrame(
 			data->cursor += ZE_Copy(
 				(char*)data->cursor, (char*)obj->data.text.text, obj->data.text.length);
 		}
-        // printf("Added debug obj at %.3f, %.3f, %.3f\n",
-        //     obj->t.pos.x, obj->t.pos.y, obj->t.pos.z);
     }
 
     scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;

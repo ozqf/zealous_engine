@@ -140,56 +140,6 @@ internal i32  AppImpl_Init()
         printf("APP - Got asset DB\n");
     }
     
-    // Memory
-
-    // Acquiring an old 'heap object here. Various platform functions
-    // still use it for loading assets so can't remove. Future allocations
-    // should just use the basic malloc tracker until further notice
-    #if 0
-    u32 heapMB = 64;
-    u32 mainMemorySize = MegaBytes(heapMB);
-    MemoryBlock mem = {};
-
-    APP_LOG(128, "APP Requested %d MB for Heap\n", heapMB);
-
-    if (!g_platform.Malloc(&mem, mainMemorySize))
-    {
-        APP_LOG(128, "APP Platform malloc failed\n");
-		ZE_ASSERT(0, "APP Platform malloc failed");
-        return 0;
-    }
-    else
-    {
-        Heap_Init(&g_heap, mem.ptrMemory, mem.size);
-    }
-
-    ///////////////////////////////////////////////////////////////
-    // Assets
-    ///////////////////////////////////////////////////////////////
-    Tex_Init(&g_heap, g_platform);
-    char * textures[] = 
-    {
-        "textures\\BitmapTest.bmp",
-        DEFAULT_CONSOLE_CHARSET_PATH,
-        "textures\\brbrick2.bmp",
-        "textures\\W33_5.bmp",
-        "textures\\COMP03_1.bmp",
-        "\0"
-    };
-    //g_platform.Error("Bar", "Foo");
-    APP_PRINT(64, "App load texture list\n");
-    Tex_LoadTextureList(textures);
-
-    COM_InitEmbeddedAssets();
-    #endif
-    // proc gen textures here
-    //i32 texIndex = Tex_GetTextureIndexByName(sourceTextureName);
-    //Texture2DHeader* h = &g_textureHandles.textureHeaders[texIndex];
-    //Texture2DHeader* h = Tex_GetTextureByName(DEFAULT_CONSOLE_CHARSET_PATH);
-    //Tex_GenerateBW(h);
-
-    ///////////////////////////////////////////////////////////////
-
     // must be init AFTER textures as it needs teh console char sheet
     App_DebugInit();
 
@@ -217,15 +167,7 @@ internal i32  AppImpl_Init()
     
     g_localServerAddress = {};
     g_localServerAddress.port = APP_SERVER_LOOPBACK_PORT;
-    #if 0
-    // Render Scenes - orient camera
-    RScene_Init(&g_worldScene, g_worldSceneItems, MAX_WORLD_SCENE_ITEMS,
-		90, RENDER_PROJECTION_MODE_3D, 8);
-    g_worldScene.cameraTransform.pos.z = 10;
-    g_worldScene.cameraTransform.pos.y += 34;
-    Transform_SetRotation(&g_worldScene.cameraTransform, -(80.0f    * DEG2RAD), 0, 0);
-    #endif
-
+    
     // initialise sub-modules
     AppUI_Init();
     CL_Init();
@@ -240,17 +182,7 @@ internal i32  AppImpl_Init()
 internal i32  AppImpl_Shutdown()
 {
     APP_LOG(128, "App Shutdown\n");
-    
     // Free memory, assuming a new APP might be loaded in it's place
-    /*
-    MemoryBlock mem = {};
-    mem.ptrMemory = g_heap.ptrMemory;
-    mem.size = g_heap.size;
-    g_platform.Free(&mem);
-	*/
-    //g_localClientSocket.Destroy();
-    //g_localServerSocket.Destroy();
-
     return ZE_ERROR_NONE;
 }
 
@@ -398,55 +330,11 @@ internal void App_SimFrame(timeFloat interval)
         CL_Tick(g_clientLoopback.GetRead(), interval, g_lastPlatformFrame);
     }
 }
-#if 0
-internal void App_Update(timeFloat deltaTime)
-{
-    g_simFrameAcculator += deltaTime;
-    f32 interval = App_GetSimFrameInterval();
-    #if APP_DEBUG_LOG_FRAME_TIMING
-        APP_LOG(128, "App Update DT: %.8f Accumulator: %.8f Interval: %.8f\n",
-            time->deltaTime,
-            g_simFrameAcculator,
-            interval
-            );
-    #endif
-    #if 1
-    while (g_simFrameAcculator > interval)
-    {
-        APP_LOG(64, "FRAME\n");
-        g_simFrameAcculator -= interval;
-		App_SimFrame(interval);
-    }
-    #endif
-    #if 0
-    if (g_simFrameAcculator > interval)
-    {
-        g_simFrameAcculator -= interval;
-		App_SimFrame(interval);
-    }
-    #endif
-}
-#endif
-#if 0
-// offset blocks of render objects left or right to show SV and CL side by side
-internal void App_OffsetRenderObjects(RenderScene* scene, i32 firstItem, f32 x)
-{
-    for (u32 i = (u32)firstItem; i < scene->numObjects; ++i)
-    {
-        RenderListItem* item = &scene->sceneItems[i];
-        item->transform.pos.x += x;
-    }
-}
-#endif
 
 internal i32 AppImpl_RendererReloaded()
 {
     AppTimer timer(APP_STAT_RENDER_TOTAL, g_renderCalls++);
-
-    //char* texName = "textures\\white_bordered.bmp";
-    //char* texName = "textures\\W33_5.bmp";
-    //i32 texIndex = Tex_GetTextureIndexByName(texName);
-    timeFloat interval = App_GetSimFrameInterval();
+	timeFloat interval = App_GetSimFrameInterval();
     timeFloat interpolationTime = App_CalcInterpolationTime(
         g_simFrameAcculator, interval);
     #if APP_DEBUG_LOG_FRAME_TIMING
@@ -455,35 +343,6 @@ internal i32 AppImpl_RendererReloaded()
                 g_simFrameAcculator,
                 interval
             );
-    #endif
-    #if 0 // New route
-    RenderCommand* cmds;
-    i32 numCommands;
-    CL_GetRenderCommands(&cmds, &numCommands, texIndex, interpolationTime);
-
-    g_platform.SubmitRenderCommands(cmds, numCommands);
-
-    #endif
-
-    #if 0 // Old route
-    
-    // Have to remember to do this or things explode:
-    g_worldScene.numObjects = 0;
-
-    SV_PopulateRenderScene(
-        &g_worldScene, g_worldScene.maxObjects, texIndex, 1,
-        g_debugRenderFlags & APP_REND_FLAG_SERVER_SCENE,
-        g_debugRenderFlags & APP_REND_FLAG_SERVER_TESTS);
-    
-    CL_PopulateRenderScene(
-        &g_worldScene.cameraTransform,
-        &g_worldScene, g_worldScene.maxObjects, texIndex, interpolationTime);
-    
-    g_platform.RenderScene(&g_worldScene);
-
-    App_WriteDebugStrings();
-    
-    g_platform.RenderScene(&g_debugScene);
     #endif
     return ZE_ERROR_NONE;
 }
@@ -556,10 +415,8 @@ internal i32 AppImpl_Tick()
     if (diff >= frameInterval)
     {
         g_lastTimeSample = time;
-        //App_Update(frameInterval);
         App_SimFrame(frameInterval);
         App_DrawFrame();
-        //printf("App TOCK\n");
     }
     return ZE_ERROR_NONE;
 }
@@ -585,32 +442,11 @@ ze_app_export __declspec(dllexport) ZE_LinkToGameModule(ze_platform_export platf
     return appExport;
 }
 
-#if 0
-extern "C"
-AppInterface __declspec(dllexport) LinkToApp(AppPlatform platInterface)
-{
-    printf("APP: Library Built on %s at %s\n", __DATE__, __TIME__);
-    g_platform = platInterface;
-    g_isValid = true;
-
-    AppInterface app;
-    app.isValid = true;
-    app.AppInit = AppImpl_Init;
-    app.AppShutdown = App_Shutdown;
-    app.AppRendererReloaded = App_RendererReloaded;
-    //app.AppFixedUpdate = App_FixedFrame;
-    //app.AppInput = App_Input;
-    //app.AppUpdate = App_Update;
-    //app.AppRender = App_Render;
-    app.AppParseCommandString = AppImpl_ParseCommandString;
-    return app;
-}
-#endif
 extern "C"
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     // TODO: Find out why this called seamingly at random whilst running
     // ANSWER: For each thread that is started dllMain is called
-    printf("APP DLL Main\n");
+    //printf("APP DLL Main\n");
 	return 1;
 }
