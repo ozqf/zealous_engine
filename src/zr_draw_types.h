@@ -16,7 +16,7 @@
 #define ZR_DRAWOBJ_TYPE_DIRECT_LIGHT 3
 #define ZR_DRAWOBJ_TYPE_TEXT 4
 #define ZR_DRAWOBJ_TYPE_BILLBOARD 5
-#define ZR_DRAWOBJ_TYPE_PREFAB 6
+#define ZR_DRAWOBJ_TYPE_PARTICLES 6
 
 #define ZR_DRAWOBJ_STATUS_FREE 0
 #define ZR_DRAWOBJ_STATUS_ASSIGNED 1
@@ -91,6 +91,28 @@ struct ZRMaterial
 	//Colour baseColour;			// default white
 };
 
+struct ZRParticleDef
+{
+    f32 duration;
+    i32 materialIndex;
+};
+
+struct ZRParticle
+{
+    Vec3 pos;
+    Vec3 velocity;
+    f32 tick;
+    i32 bCull;
+};
+
+struct ZRParticleEmitter
+{
+    ZRParticleDef def;
+    ZRParticle* particles;
+    i32 numParticles;
+    i32 maxParticles;
+};
+
 struct ZRDrawObjData
 {
     i32 type;
@@ -127,6 +149,7 @@ struct ZRDrawObjData
 			Colour colour;
 			i32 alignment;
         } text;
+        ZRParticleDef particleEmitter;
     };
 
     void SetAsMesh(i32 meshIndex, i32 materialIndex)
@@ -198,36 +221,6 @@ struct ZRSceneObj
 
 	i32 parentId;
 };
-
-///////////////////////////////////////////////////////////
-// Quick object initialisation
-///////////////////////////////////////////////////////////
-
-// static void ZRDrawObj_SetAsPrefab(ZRScene* s, ZRDrawObj* obj, i32 prefabId)
-// {
-//     obj->data = {};
-//     obj->data.type = ZR_DRAWOBJ_TYPE_PREFAB;
-//     obj->data.prefab.prefabId = prefabId;
-// }
-
-// static void ZRDrawObj_SetAsMesh(
-//     ZRDrawObj* obj, i32 meshIndex, i32 materialIndex)
-// {
-//     obj->data = {};
-//     obj->data.type = ZR_DRAWOBJ_TYPE_MESH;
-//     obj->data.model.meshIndex = meshIndex;
-//     obj->data.model.materialIndex = materialIndex;
-// }
-
-// static void ZRDrawObj_SetAsPointLight(
-//     ZRDrawObj* obj, Colour colour, f32 multiplier, f32 radius)
-// {
-//     obj->data = {};
-//     obj->data.type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
-//     obj->data.pointLight.colour = colour;
-//     obj->data.pointLight.multiplier = multiplier;
-//     obj->data.pointLight.range = radius;
-// }
 
 static ZRDrawObj* ZRDrawObj_InitInPlace(u8** ptr)
 {

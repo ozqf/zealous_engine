@@ -20,6 +20,8 @@ struct ClientRenderSettings
 
 extern "C" void CLR_Init(ZRAssetDB* db);
 extern "C" void CLR_Shutdown();
+extern "C" void CLR_SpawnTestParticle(Vec3 pos, Vec3 vel);
+extern "C" void CLR_TickTestParticles(timeFloat delta);
 /**
  * Write Client state to draw buffers
  */

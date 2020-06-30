@@ -32,6 +32,17 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
             def.pos = ent->body.t.pos;
             def.serial = Sim_ReserveEntitySerial(sim, 1);
             Sim_RestoreEntity(sim, &def);
+            Vec3 pos = def.pos;
+            for (i32 i = 0; i < 1; ++i)
+            {
+                f32 rand = COM_STDRandf32();
+                Vec3 vel;
+                vel.x = COM_STDRandomInRange(-15, 15);
+                vel.y = COM_STDRandomInRange(0, 15);
+                vel.z = COM_STDRandomInRange(-15, 15);
+                CLR_SpawnTestParticle(pos, vel);
+            }
+            
         } break;
     }
 }
@@ -286,5 +297,6 @@ internal void CLG_TickGame(SimScene* sim, timeFloat deltaTime)
         CLG_TickEntity(sim, ent, deltaTime);
     }
     CLG_TickViewSway(deltaTime);
+    CLR_TickTestParticles(deltaTime);
     sim->tick++;
 }

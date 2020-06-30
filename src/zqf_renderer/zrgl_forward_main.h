@@ -129,7 +129,7 @@ static void ZRGL_DrawSceneToTexture(
     {
         ZRDrawGroup* group = groups[i];
         // filter objects that will not cast shadows
-        if (group->data.type != ZR_DRAWOBJ_TYPE_PREFAB) { continue; }
+        if (group->data.type != ZR_DRAWOBJ_TYPE_MESH) { continue; }
         #if 1 // write colour texture
         ZR_DrawMeshGroupTest(
             camera,

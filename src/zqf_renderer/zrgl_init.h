@@ -163,7 +163,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         fallback_vert_text,
         fallback_frag_text,
         "Fallback",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_FALLBACK]);
     if (err != ZE_ERROR_NONE) { return err; }
@@ -172,7 +172,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         single_vert_text,
         single_frag_text,
         "single",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_TEST]);
     if (err != ZE_ERROR_NONE) { return err; }
@@ -181,7 +181,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         block_colour_vert_text,
         block_colour_frag_text,
         "block_colour",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_BLOCK_COLOUR]);
     if (err != ZE_ERROR_NONE) { return err; }
@@ -190,7 +190,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         batch_vert_text,
         batch_frag_text,
         "Batch",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         YES,
         &g_programs[ZR_SHADER_TYPE_BATCHED]);
     if (err != ZE_ERROR_NONE) { return err; }
@@ -208,7 +208,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         skybox_vert_text,
         skybox_frag_text,
         "Skybox",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_SKYBOX]);
     if (err != ZE_ERROR_NONE) { return err; }
@@ -217,7 +217,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         shadow_map_vert_text,
         shadow_map_frag_text,
         "ShadowMap",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_SHADOW_MAP]);
     if (err != ZE_ERROR_NONE) { return err; }
@@ -226,7 +226,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         text_vert_text,
         debug_shadow_map_frag_text,
         "DebugShadowMap",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_SHADOW_MAP_DEBUG]);
     if (err != ZE_ERROR_NONE) { return err; }
@@ -236,7 +236,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         gbuffer_create_vert_text,
         gbuffer_create_frag_text,
         "BuildGBuffer",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_BUILD_GBUFFER]);
     
@@ -244,7 +244,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         gbuffer_combine_vert_text,
         gbuffer_combine_frag_text,
         "CombineGBuffer",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_COMBINE_GBUFFER]);
     if (err != ZE_ERROR_NONE) { return err; }
@@ -253,7 +253,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         gbuffer_light_direct_vert_text,
         gbuffer_light_point_frag_text,
         "GBufferLightPoint",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_POINT]);
     if (err != ZE_ERROR_NONE) { return err; }
@@ -262,7 +262,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         gbuffer_light_direct_vert_text,
         gbuffer_light_direct_frag_text,
         "GBufferLightDirect",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_DIRECT]);
     if (err != ZE_ERROR_NONE) { return err; }
@@ -271,7 +271,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         gbuffer_light_volume_vert_text,
         gbuffer_light_volume_frag_text,
         "GBufferLightVolume",
-        ZR_DRAWOBJ_TYPE_PREFAB,
+        ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_VOLUME]);
     if (err != ZE_ERROR_NONE) { return err; }

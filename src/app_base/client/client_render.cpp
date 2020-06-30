@@ -7,15 +7,98 @@
 
 static ZRAssetDB* g_assetDb = NULL;
 
+#define CLR_NUM_TEST_PARTICLES 128
+static ZRParticle g_testParticles[CLR_NUM_TEST_PARTICLES];
+static ZRParticleEmitter g_testEmit;
+
 extern "C" void CLR_Init(ZRAssetDB* assetDb)
 {
     g_assetDb = assetDb;
 	ZUI_Init(assetDb);
+    g_testEmit = {};
+    g_testEmit.particles = g_testParticles;
+    g_testEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
+    g_testEmit.def.duration = 2.f;
+    g_testEmit.def.materialIndex = 0;
 }
 
 extern "C" void CLR_Shutdown()
 {
     g_assetDb = NULL;
+}
+
+extern "C" void CLR_SpawnTestParticle(Vec3 pos, Vec3 vel)
+{
+    if (g_testEmit.numParticles >= g_testEmit.maxParticles)
+    { return; }
+    ZRParticle* p = &g_testEmit.particles[g_testEmit.numParticles++];
+    p->tick = g_testEmit.def.duration;
+    p->pos = pos;
+    p->velocity = vel;
+}
+
+extern "C" void CLR_TickTestParticles(timeFloat delta)
+{
+    // TODO possible to update and cull in the same iteration?
+
+    // iterate and update
+    for (i32 i = 0; i < g_testEmit.numParticles; ++i)
+    {
+        ZRParticle* p = &g_testEmit.particles[i];
+        ///////////////////////////////////////////////
+        // Check for recycle
+        if (p->tick <= 0)
+        {
+            // mark for recycle
+            p->bCull = YES;
+            continue;
+        }
+        p->tick -= (f32)delta;
+        p->pos.x += p->velocity.x * (f32)delta;
+        p->pos.y += p->velocity.y * (f32)delta;
+        p->pos.z += p->velocity.z * (f32)delta;
+    }
+    // iterate again and cull
+    for (i32 i = 0; i < g_testEmit.numParticles; ++i)
+    {
+        ZRParticle* p = &g_testEmit.particles[i];
+        if (p->bCull == NO) { continue; }
+        // disable flag
+        p->bCull = NO;
+        // cull
+        i32 lastIndex = g_testEmit.numParticles - 1;
+        if (i == 0 && g_testEmit.numParticles == 1)
+        {
+            // last active particle, just reset list
+            g_testEmit.numParticles = 0;
+        }
+        else if (i == lastIndex)
+        {
+            // last in array, just truncate
+            g_testEmit.numParticles--;
+        }
+        else
+        {
+            // swap and truncate
+            ZRParticle* last = &g_testEmit.particles[lastIndex];
+            *p = *last;
+            g_testEmit.numParticles--;
+        }
+    }
+}
+
+internal void CLR_AddTestParticles(ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)
+{
+    ZRMaterial* mat = g_assetDb->GetMaterialByName(g_assetDb, ZRDB_MAT_NAME_GFX);
+    for (i32 i = 0; i < g_testEmit.numParticles; ++i)
+    {
+        ZRParticle* p = &g_testEmit.particles[i];
+        ZRDrawObj* obj = ZRDrawObj_InitInPlace(&list->cursor);
+        scene->params.numObjects++;
+        obj->data.SetAsMesh(0, mat->index);
+        obj->t.pos = p->pos;
+        obj->t.scale = { 0.2f, 0.2f, 0.2f };
+    }
 }
 
 /**
@@ -200,9 +283,12 @@ extern "C" void CLR_WriteDrawFrame(
 				(char*)data->cursor, (char*)obj->data.text.text, obj->data.text.length);
 		}
     }
-
-    scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
     scene->params.numObjects = objCount;
+
+    // Add test particles
+    CLR_AddTestParticles(scene, list, data);
+    scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
+    
     
     // Add View Model Scene
     if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
