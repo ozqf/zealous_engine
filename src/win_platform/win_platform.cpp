@@ -463,14 +463,15 @@ int CALLBACK WinMain(
         time.wMinute,
         time.wSecond
     );
-    
-    // open
+
+    // Open log file
+    #if 0
     errno_t fileErr = fopen_s(&g_logFile, logFileName, "w");
     if (fileErr != 0)
     {
         printf("Failed to open log file %s for writing\n", logFileName);
     }
-	
+	#endif
 	Win_InitTimer();
 
     // Create Mutexes
