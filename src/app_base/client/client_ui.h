@@ -13,6 +13,7 @@ static void CLUI_Init()
 	g_hud = {};
 	g_hud.objects = g_objects;
 	g_hud.maxObjects = CL_MAX_HUD_OBJECTS;
+    g_hud.state = 1;
 
 	ZUIObject* obj = NULL;
 

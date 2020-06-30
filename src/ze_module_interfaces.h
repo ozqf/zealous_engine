@@ -23,6 +23,7 @@ struct ze_window_export
 {
     i32 (*Init)();
     i32 (*MainLoop)();
+    i32 (*IsMouseCaptured)();
     // Written to by app, read by renderer
     void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();
@@ -49,6 +50,7 @@ struct ze_platform_export
     void* (*GetAssetDB)();
 	// return YES if command was handled
     i32 (*ExecTextCommand)(const char* str, const i32 len, const char** tokens, const i32 numTokens);
+    i32 (*IsMouseCaptured)();
     
     // Acquire is passed through to window if it is available
     void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);

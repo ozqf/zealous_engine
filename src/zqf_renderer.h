@@ -224,10 +224,11 @@ struct ZRSceneFrame
 // eg game/model/hud
 struct ZRViewFrame
 {
-    u32 sentinel;
+    u32 sentinel;   // should equal ZR_SENTINEL or is invalid
     f64 prebuildTime;
-    i32 bVerbose;
+    i32 bVerbose;   // dump debug info whilst rendering this frame
     i32 numScenes;
+    i32 frameNumber; // identifies a specific view frame from another
     ZEByteBuffer* list;
     ZEByteBuffer* data;
 };

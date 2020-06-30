@@ -89,7 +89,10 @@ extern "C" void CL_WriteDrawFrame(ZRViewFrame* frame)
     }
     CLR_WriteDrawFrame(
         frame, &g_sim, &camera, g_debugObjs, g_numDebugObjs, g_rendCfg);
-    CLUI_AddDrawItems(frame);
+    if (App_IsMouseCaptured() == NO)
+    {
+        CLUI_AddDrawItems(frame);
+    }
     f64 endTime = App_SampleClock();
     frame->prebuildTime = endTime - startTime;
 }

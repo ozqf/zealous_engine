@@ -125,6 +125,14 @@ internal void SVG_SpawnLineSegment(SimScene* sim, Vec3 origin, Vec3 dest)
 #define SVG_DEFINE_ENT_UPDATE(entityTypeName) internal void \
     SVG_Update##entityTypeName##(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 
+SVG_DEFINE_ENT_UPDATE(LineTrace)
+{
+    if (sim->tick >= ent->timing.nextThink)
+    {
+        Sim_RemoveEntity(sim, ent->id.serial);
+    }
+}
+
 //////////////////////////////////////////////////////
 // Spawner
 //////////////////////////////////////////////////////
@@ -275,7 +283,12 @@ SVG_DEFINE_ENT_UPDATE(Projectile)
 	SVG_StepProjectile(sim, ent, deltaTime);
 }
 
-internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
+internal void SVG_FireActorAttack(
+    SimScene* sim,
+    SimEntity* ent,
+    Vec3* dir,
+    i32 prjType,
+    i32 numProjectiles)
 {
     /*
     > identify if player...
@@ -315,7 +328,6 @@ internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
         i32 ticksEllapsed = 0;
         i32 diff = 0;
 
-
         // 1: By estimating current lag
         // Works well until jitter is introduced, and then becomes
         // inaccurate (though test jitter is excessive...)
@@ -348,7 +360,7 @@ internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
             sim->tick, eventTick, fastForwardTicks);
     }
 
-    i32 numProjectiles = ent->relationships.childSpawnCount;
+    //i32 numProjectiles = ent->relationships.childSpawnCount;
     if (numProjectiles <= 0) { numProjectiles = 1; }
     
     SimBulkSpawnEvent event = {};
@@ -396,14 +408,6 @@ internal void SVG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
     SVG_SpawnLineSegment(sim, origin, dest);
 }
 
-SVG_DEFINE_ENT_UPDATE(LineTrace)
-{
-    if (sim->tick >= ent->timing.nextThink)
-    {
-        Sim_RemoveEntity(sim, ent->id.serial);
-    }
-}
-
 internal i32 SVG_CheckInputJustOn(SimActorInput input, i32 bit)
 {
     if (input.buttons & bit &&
@@ -414,6 +418,9 @@ internal i32 SVG_CheckInputJustOn(SimActorInput input, i32 bit)
     return NO;
 }
 
+//////////////////////////////////////////////////////
+// Update Actor Attack Input
+//////////////////////////////////////////////////////
 internal void SVG_UpdateActorAttackInput(SimScene* sim, SimEntity* ent, f32 dt)
 {
     SimActorInput input = ent->input;
@@ -457,7 +464,7 @@ internal void SVG_UpdateActorAttackInput(SimScene* sim, SimEntity* ent, f32 dt)
             forward.x = -forward.x;
             forward.y = -forward.y;
             forward.z = -forward.z;
-			SVG_FireActorAttack(sim, ent, &forward);   
+			SVG_FireActorAttack(sim, ent, &forward, item->eventType, item->eventCount);
         }
         #if 0
 		Vec3 shoot {};
@@ -521,10 +528,6 @@ SVG_DEFINE_ENT_UPDATE(Actor)
 			
 		} break;
 	}
-	
-	
-
-
 }
 
 SVG_DEFINE_ENT_UPDATE(Bot)

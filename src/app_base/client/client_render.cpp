@@ -228,6 +228,7 @@ extern "C" void CLR_WriteDrawFrame(
         obj->t.scale = { 0.25f, 0.25f, 1 };
         scene->params.numObjects++;
         #endif
+        scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
     }
 }
 

@@ -57,6 +57,7 @@ struct SimInventoryItem
 {
     char* name;
     i32 eventType;
+    i32 eventCount;
     f32 duration;
 };
 

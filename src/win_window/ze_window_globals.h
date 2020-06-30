@@ -8,6 +8,8 @@
 #include "../ze_common/ze_common.h"
 #include "../ze_common/ze_byte_buffer.h"
 
+#include "../ui/zui.h"
+
 // Version of Opengl that will be requested
 const i32 MAJOR_VERSION_REQ = 3;
 const i32 MINOR_VERSION_REQ = 3;
@@ -50,7 +52,7 @@ internal ScreenInfo g_scrInfo;
 internal i32 g_pendingScrMode = 0;
 
 // cap fps
-internal i32 g_maxFPS = 60;
+internal i32 g_maxFPS = 0;
 
 internal i32 g_resolutionsX[ZW_NUM_16X9_RESOLUTIONS] =
 { 1024, 1280, 1366, 1600, 1920 };
@@ -60,5 +62,10 @@ internal const i32 g_numModes = 5;
 
 internal i32 g_bRestart = NO;
 internal GLFWwindow* g_window;
+
+#define ZE_WINDOW_NUM_CONSOLE_OBJECTS
+internal ZUIObject g_consoleUIObjs[2];
+internal ZUIScreen g_consoleScene;
+internal i32 g_lastAppFrameNumber = 0;
 
 #endif // ZE_WINDOW_GLOBALS_H

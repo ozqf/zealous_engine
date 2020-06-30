@@ -27,16 +27,9 @@ void App_Print(char* msg, i32 categoryMask)
     }
 }
 
-extern "C"
-void AppImpl_SetMouseCaptured()
+extern "C" i32 App_IsMouseCaptured()
 {
-
-}
-
-extern "C"
-void AppImpl_SetMouseFree()
-{
-
+    return g_platform.IsMouseCaptured();
 }
 
 extern "C"
@@ -396,6 +389,7 @@ internal void App_DrawFrame()
     list->cursor += sizeof(ZRViewFrame);
     *frame = {};
     frame->sentinel = ZR_SENTINEL;
+    frame->frameNumber = g_framesWritten++;
     frame->list = list;
     frame->data = data;
 

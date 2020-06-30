@@ -199,6 +199,15 @@ static ErrorCode LinkToWindowDLL(char* dllName)
 // Exported function implementations
 ////////////////////////////////////////////////////////
 
+static i32 PlatformImpl_IsMouseCaptured()
+{
+    if (g_window.sentinel == ZR_SENTINEL)
+    {
+        return g_window.IsMouseCaptured();
+    }
+    return NO;
+}
+
 static void PlatformImpl_DebugBreak()
 {
     DebugBreak();
@@ -337,6 +346,7 @@ static ze_platform_export Win_BuildExport()
 
     result.GetAssetDB = PlatformImpl_GetAssetDB;
     result.ExecTextCommand = PlatformImpl_ExecTextCommand;
+    result.IsMouseCaptured = PlatformImpl_IsMouseCaptured;
 
     result.QueryClock = PlatformImpl_QueryClock;
     result.Allocate = PlatformImpl_Allocate;

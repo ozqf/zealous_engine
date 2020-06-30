@@ -5,13 +5,14 @@
 #include "../zqf_renderer.h"
 
 /////////////////////////////////////////////////////////////////
-// Functions
+// Functions exported to Server/Client
 /////////////////////////////////////////////////////////////////
 extern "C" void App_SendTo(i32 socketIndex, ZNetAddress* addr, u8* data, i32 dataSize);
 extern "C" void App_Log(char* msg, i32 categoryMask);
 extern "C" void App_Print(char* msg, i32 categoryMask);
-extern "C" void AppImpl_SetMouseCaptured();
-extern "C" void AppImpl_SetMouseFree();
+// extern "C" void AppImpl_SetMouseCaptured();
+// extern "C" void AppImpl_SetMouseFree();
+extern "C" i32 App_IsMouseCaptured();
 extern "C" void App_Error(char* msg);
 extern "C" void App_DebugBreak();
 extern "C" timeFloat App_GetSimFrameInterval();

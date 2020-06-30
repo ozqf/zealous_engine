@@ -29,7 +29,6 @@
 
 #include "zrgl_init.h"
 
-
 extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 	ZEByteBuffer* drawList,
     ZEByteBuffer* drawData,
@@ -105,6 +104,10 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 	{
 		ZRSceneFrame* scene = (ZRSceneFrame*)groupsCursor;
 		ZE_ASSERT(scene->sentinel == ZR_SENTINEL, "Iterate scenes desync");
+		if (scene->params.numObjects > 0 && scene->params.numDataBytes <= 0)
+		{
+			ZE_ASSERT(NO, "Scene claims to have objects but no data bytes.")
+		}
     	groupsCursor += sizeof(ZRSceneFrame) + scene->params.numDataBytes;
 
 		ZRGL_SetupProjection(

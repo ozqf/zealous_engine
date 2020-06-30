@@ -26,7 +26,7 @@ set compilerDefines=/DPARANOID=1
 @rem set linkInputB=user32.lib Gdi32.lib
 set linkInputA=../lib/glfw3_vc2015/glfw3dll.lib
 set linkInputB=../buildwin_platform_libs/platlibs.lib
-set compInA=../src/win_window/win_window.cpp
+set compInA=../src/win_window/win_window.cpp ../src/ui/zui.cpp
 set compInB=../src/zqf_renderer/zr_groups.cpp ../src/zqf_renderer/zrgl.cpp
 set compInC=../src/zr_embedded/zr_embedded.cpp ../src/assetdb/zr_asset_db.cpp
 set outputDLL=/Fe../bin/wingl.dll

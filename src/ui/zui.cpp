@@ -55,6 +55,10 @@ internal i32 ZUI_WriteObjToScene(ZUIObject* uiObj, ZEByteBuffer* list, ZEByteBuf
     numObjects++;
     char* strCursor = (char*)data->cursor;
     i32 len = ZE_StrLen(uiObj->label);
+    if ((u32)data->cursor == 0x00000001)
+    {
+        int foo = 5;
+    }
     data->cursor += ZE_COPY(uiObj->label, data->cursor, len);
     drawObj->data.SetAsText(strCursor, -1, COLOUR_WHITE, ZR_TEXT_ALIGNMENT_CENTRE);
     // push object toward camera slightly, away from background

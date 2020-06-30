@@ -61,6 +61,30 @@ static void Window_EnqueueTextCommand(char* str)
     g_platform.ExecTextCommand(str, len, (const char**)tokens, numTokens);
 }
 
+static i32 WindowImpl_IsMouseCaptured()
+{
+    return Win_IsCursorDisabled();
+}
+
+// Create debug console display screen
+static void Window_InitConsoleScreen()
+{
+    g_consoleScene = {};
+	g_consoleScene.objects = g_consoleUIObjs;
+	g_consoleScene.maxObjects = 2;
+    g_consoleScene.state = 1;
+
+    ZUIObject* obj = NULL;
+    obj = &g_consoleUIObjs[g_consoleScene.numObjects++];
+    *obj = {};
+    obj->radiusInChars = { 32, 2 };
+    obj->pos.x = 0;
+    obj->pos.y = 0.9f;
+    // label will be updated per frame anyway
+    obj->label = "Testing McTest Face.";
+    obj->charSize = ZR_CharScreenSizeDefault();
+}
+
 //////////////////////////////////////////////////////////////////
 // Create Window, gl context and renderer
 //////////////////////////////////////////////////////////////////
@@ -87,11 +111,12 @@ static ErrorCode Window_SpawnWindow()
     i32 scrWidth = mode->width;
     i32 scrHeight = mode->height;
     i32 scrMode = g_pendingScrMode;
-    #if 1 // Standard: Borderless fullscreen
+
+    #if 0 // Standard: Borderless fullscreen
     glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     #endif
     
-    #if 0 // Resolution locked window
+    #if 1 // Resolution locked window
     // Disable decoration and set window size to desktop size
     // to have borderless fullscreen
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
@@ -169,6 +194,8 @@ static i32 WindowImpl_Init()
     g_drawListBuffer = Buf_FromMalloc(malloc(bytes), bytes);
     g_drawDataBuffer = Buf_FromMalloc(malloc(bytes), bytes);
     g_eventBuffer = Buf_FromMalloc(malloc(bytes), bytes);
+
+    Window_InitConsoleScreen();
 
     // create export for renderer and link up
     // but DO NOT INIT - init when window is created
@@ -275,6 +302,19 @@ static void Window_Tick()
     ZEByteBuffer* list;
     ZEByteBuffer* data;
     g_platform.Acquire_AppDrawBuffers(&list, &data);
+#if 1
+    if (g_consoleActive == YES)
+    {
+        ZRViewFrame* frame = (ZRViewFrame*)list->start;
+        // Check that we haven't written to this buffer before!
+        if (g_lastAppFrameNumber != frame->frameNumber)
+        {
+            g_lastAppFrameNumber = frame->frameNumber;
+            g_consoleUIObjs[0].label = g_consoleInputBuffer;
+            ZUI_WriteScreenForRender(frame, &g_consoleScene, list, data);
+        }
+    }
+#endif
     // Draw
     glClearColor(1, 0, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -336,6 +376,7 @@ ze_window_export __declspec(dllexport) ZE_LinkToWindowModule(ze_platform_export 
     result.Release_EventBuffer = WindowImpl_Release_EventBuffer;
     result.Acquire_AppDrawBuffers = WindowImpl_Acquire_AppDrawBuffers;
     result.Release_AppDrawBuffers = WindowImpl_Release_AppDrawBuffers;
+    result.IsMouseCaptured = WindowImpl_IsMouseCaptured;
     result.sentinel = ZE_SENTINEL;
 	return result;
 }
