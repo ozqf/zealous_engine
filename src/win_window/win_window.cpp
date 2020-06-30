@@ -66,62 +66,60 @@ static void Window_EnqueueTextCommand(char* str)
 //////////////////////////////////////////////////////////////////
 static ErrorCode Window_SpawnWindow()
 {
-
     //////////////////////////////////////////////////////////////////
     // GLFW - Build opengl context, window and callbacks
     //////////////////////////////////////////////////////////////////
-
     glfwSetErrorCallback(error_callback);
+    
+    // Check glfw is okay
     if (!glfwInit())
     {
         exit(EXIT_FAILURE);
     }
-    
-    #if 1 // normal, resolution locked window
+    // global window settings
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MAJOR_VERSION_REQ);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MINOR_VERSION_REQ);
-    
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    // if (g_pendingScrMode == 0)
-    // { g_pendingScrMode = 3; }
-    // else { g_pendingScrMode = 0; }
-
+    // grab current monitor res
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    i32 scrWidth = mode->width;
+    i32 scrHeight = mode->height;
     i32 scrMode = g_pendingScrMode;
-    // Setup window resolution
-    // tiny window
-    // const i32 scrMode = 0;
-    // bigger window
-    // const i32 scrMode = 3;
+    #if 1 // Standard: Borderless fullscreen
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    #endif
     
-    const i32 scrWidth = g_resolutionsX[scrMode];
-    const i32 scrHeight = g_resolutionsY[scrMode];
+    #if 0 // Resolution locked window
+    // Disable decoration and set window size to desktop size
+    // to have borderless fullscreen
+    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+    scrWidth = g_resolutionsX[scrMode];
+    scrHeight = g_resolutionsY[scrMode];
+    #endif
+
+    // record screen size
     g_scrInfo.width = scrWidth;
     g_scrInfo.height = scrHeight;
     g_scrInfo.aspectRatio = (f32)scrWidth / (f32)scrHeight;
     printf("Aspect ratio %.3f\n", g_scrInfo.aspectRatio);
-
-    // Create
+    // Create!
     g_window = glfwCreateWindow(scrWidth, scrHeight, "Zealous Engine", NULL, NULL);
-    #endif
+    
 
     if (!g_window)
     {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
-	
     // Init callbacks and events buffer
     ZR_InitCallbacks(g_window);
-
     glfwMakeContextCurrent(g_window);
-
-    //gladLoadGL(glfwGetProcAddress);
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	//////////////////////////////////////////////////////////////////
     // Opengl enabled from here on
     //////////////////////////////////////////////////////////////////
-    
     i32 majorVer;
     i32 minorVer;
     glGetIntegerv(GL_MAJOR_VERSION, &majorVer);
@@ -136,8 +134,7 @@ static ErrorCode Window_SpawnWindow()
 
     glfwSwapBuffers(g_window);
 
-    // Initialise the renderer itself.
-    //ErrorCode err = g_renderer.Init(g_scrInfo.width, g_scrInfo.height);
+    // Initialise the renderer itself
     ErrorCode err = ZRGL_Init(g_scrInfo.width, g_scrInfo.height);
     if (err != ZE_ERROR_NONE)
     {
@@ -147,7 +144,6 @@ static ErrorCode Window_SpawnWindow()
 
     // do a scan for either default assets or stuff an app
     // has loaded.
-    //g_renderer.CheckForUploads();
     ZRGL_CheckForUploads();
     return ZE_ERROR_NONE;
 }

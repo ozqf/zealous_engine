@@ -142,28 +142,24 @@ extern "C" void CLR_WriteDrawFrame(
     i32 numDebugObjs,
     ClientRenderSettings cfg)
 {
+    i32 objCount = 0;
     i32 requiredCapacity = sizeof(ZRViewFrame) + (sizeof(ZRDrawObj) * sim->maxEnts);
+    ZRSceneFrame* scene = NULL;
+    ZRDrawObj* obj = NULL;
 
     ZEByteBuffer* list = frame->list;
     ZEByteBuffer* data = frame->data;
-
+    
     if (cfg.debugFlags & CL_DEBUG_FLAG_VERBOSE_FRAME)
     {
         frame->bVerbose = YES;
         cfg.debugFlags &= ~CL_DEBUG_FLAG_VERBOSE_FRAME;
     }
 
-    ZRSceneFrame* scene = (ZRSceneFrame*)list->cursor;
-    list->cursor += sizeof(ZRSceneFrame);
-    *scene = {};
-    scene->params.bDeferred = YES;
-    scene->params.bIsInteresting = NO;
-    scene->params.bSkybox = YES;
-    scene->params.projectionMode = ZR_PROJECTION_MODE_3D;
+    scene = ZRSccene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, YES);
     scene->params.camera = *camera;
-    i32 objCount = 0;
-    //u8* listStart = list->cursor;
-    scene->params.objects = (ZRDrawObj*)list->cursor;
+    frame->numScenes++;
+    objCount = 0;
     
     #if 0 // DEBUG: Add a main light or objects are invisible
     ZRDrawObj* light = CLR_InitDrawObjInPlace(&list->cursor);
@@ -193,7 +189,7 @@ extern "C" void CLR_WriteDrawFrame(
 
     for (i32 i = 0; i < numDebugObjs; ++i)
     {
-        ZRDrawObj* obj = &debugObjs[i];
+        obj = &debugObjs[i];
         list->cursor += ZE_COPY_STRUCT(obj, list->cursor, ZRDrawObj);
         objCount++;
 		if (obj->data.type == ZR_DRAWOBJ_TYPE_TEXT)
@@ -207,8 +203,32 @@ extern "C" void CLR_WriteDrawFrame(
 
     scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
     scene->params.numObjects = objCount;
-    scene->sentinel = ZR_SENTINEL;
-    frame->numScenes++;
+    
+    // Add View Model Scene
+    if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
+    {
+        #if 1 // right hand
+        scene = ZRSccene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, NO);
+        Transform_SetToIdentity(&scene->params.camera);
+        frame->numScenes++;
+        obj = ZRDrawObj_InitInPlace(&list->cursor);
+        obj->data.SetAsMesh(0, 0);
+        obj->t.pos.x = 0.5f;
+        obj->t.pos.y = -0.5f;
+        obj->t.pos.z = -1;
+        obj->t.scale = { 0.25f, 0.25f, 1 };
+        scene->params.numObjects++;
+        #endif
+        #if 0 // left hand
+        obj = ZRDrawObj_InitInPlace(&list->cursor);
+        obj->data.SetAsMesh(0, 0);
+        obj->t.pos.x = -0.5f;
+        obj->t.pos.y = -0.5f;
+        obj->t.pos.z = -1;
+        obj->t.scale = { 0.25f, 0.25f, 1 };
+        scene->params.numObjects++;
+        #endif
+    }
 }
 
 #endif // CLIENT_RENDER_CPP

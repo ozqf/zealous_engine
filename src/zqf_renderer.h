@@ -236,6 +236,22 @@ struct ZRViewFrame
 // Render commands and resources
 ///////////////////////////////////////////////////////////
 
+static ZRSceneFrame* ZRSccene_InitInPlace(
+    ZEByteBuffer* list, i32 projectionMode, i32 bDeferred)
+{
+    ZRSceneFrame* scene = (ZRSceneFrame*)list->cursor;
+    list->cursor += sizeof(ZRSceneFrame);
+    *scene = {};
+    scene->sentinel = ZR_SENTINEL;
+    scene->params.bDeferred = bDeferred;
+    scene->params.bIsInteresting = NO;
+    scene->params.bSkybox = YES;
+    scene->params.projectionMode = projectionMode;
+    //Transform_SetToIdentity(&scene->params.camera);
+    scene->params.objects = (ZRDrawObj*)list->cursor;
+    return scene;
+}
+
 #include "assetdb/zr_asset_db.h"
 
 #endif // _ZQF_RENDERER_H

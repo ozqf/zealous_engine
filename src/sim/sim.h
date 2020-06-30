@@ -142,6 +142,8 @@ extern "C" i32      Sim_InBounds(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryBounce(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryStop(SimEntity* ent, Vec3* min, Vec3* max);
 
+extern "C" SimInventoryItem* SVI_GetItem(i32 index);
+
 // Entity Frame Updates
 extern "C" i32      SimEnt_TickSpawnAnimation(SimScene* sim, SimEntity* ent, timeFloat deltaTime);
 

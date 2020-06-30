@@ -265,9 +265,10 @@ internal void CLG_TickViewSway(timeFloat deltaTime)
         g_swayYOffset = 0;
         return;
     }
+    f32 swayRateBoost = 12.f;
     f32 speed = Vec3_Magnitude(&plyr->movement.velocity);
     f32 speedSwayMul = speed / ACTOR_BASE_SPEED; // ratio of max speed
-    f32 swaySpeed = 8.f * speedSwayMul; // scale max sway speed by ratio
+    f32 swaySpeed = swayRateBoost * speedSwayMul; // scale max sway speed by ratio
     //printf("Speed mul %.3f, Speed %.3f\n", speedSwayMul, swaySpeed);
     
     g_swayTick += (f32)deltaTime * swaySpeed;

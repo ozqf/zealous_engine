@@ -69,10 +69,3 @@ internal void Sim_SetEnemyDefaultFlags(SimEntity* ent)
         | SIM_ENT_FLAG_MOVE_AVOID
         | SIM_ENT_FLAG_OUT_OF_PLAY;
 }
-
-// internal void Sim_SetupEnemyDefaultStats(
-//     SimEntity* ent)
-// {
-
-// }
-

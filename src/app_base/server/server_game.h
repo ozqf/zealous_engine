@@ -404,19 +404,60 @@ SVG_DEFINE_ENT_UPDATE(LineTrace)
     }
 }
 
+internal i32 SVG_CheckInputJustOn(SimActorInput input, i32 bit)
+{
+    if (input.buttons & bit &&
+        (input.prevButtons & bit) == 0)
+    {
+        return YES;
+    }
+    return NO;
+}
+
 internal void SVG_UpdateActorAttackInput(SimScene* sim, SimEntity* ent, f32 dt)
 {
+    SimActorInput input = ent->input;
+    if (SVG_CheckInputJustOn(input, ACTOR_INPUT_SLOT_1))
+    {
+        printf("Select slot 1\n");
+        ent->inventory.pendingIndex = 0;
+    }
+    if (SVG_CheckInputJustOn(input, ACTOR_INPUT_SLOT_2))
+    {
+        printf("Select slot 2\n");
+        ent->inventory.pendingIndex = 1;
+    }
+    if (SVG_CheckInputJustOn(input, ACTOR_INPUT_SLOT_3))
+    {
+        printf("Select slot 3\n");
+        ent->inventory.pendingIndex = 2;
+    }
+    if (SVG_CheckInputJustOn(input, ACTOR_INPUT_SLOT_4))
+    {
+        printf("Select slot 4\n");
+        ent->inventory.pendingIndex = 3;
+    }
+
 	if (ent->attackTick <= 0)
 	{
-        if (ent->input.buttons & ACTOR_INPUT_ATTACK)
+        if (ent->inventory.pendingIndex != ent->inventory.index)
         {
-            ent->attackTick = ent->attackTime;
+            ent->inventory.index = ent->inventory.pendingIndex;
+            ent->inventory.pendingIndex = ent->inventory.index;
+        }
+        if (input.buttons & ACTOR_INPUT_ATTACK)
+        {
+            i32 index = ent->inventory.index;
+            SimInventoryItem* item = SVI_GetItem(index);
+
+            // shoot
+            ent->attackTick = item->duration;
             Vec3 forward = ent->body.t.rotation.zAxis;
             // flip
             forward.x = -forward.x;
             forward.y = -forward.y;
             forward.z = -forward.z;
-			SVG_FireActorAttack(sim, ent, &forward);
+			SVG_FireActorAttack(sim, ent, &forward);   
         }
         #if 0
 		Vec3 shoot {};

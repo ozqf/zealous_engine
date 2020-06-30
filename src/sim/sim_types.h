@@ -26,6 +26,11 @@
 #define ACTOR_INPUT_ATTACK (1 << 6)
 #define ACTOR_INPUT_ATTACK2 (1 << 7)
 #define ACTOR_INPUT_MOVE_SPECIAL1 (1 << 8)
+// inventory slots
+#define ACTOR_INPUT_SLOT_1 (1 << 9)
+#define ACTOR_INPUT_SLOT_2 (1 << 10)
+#define ACTOR_INPUT_SLOT_3 (1 << 11)
+#define ACTOR_INPUT_SLOT_4 (1 << 12)
 
 #define ACTOR_INPUT_SHOOT_LEFT (1 << 27)
 #define ACTOR_INPUT_SHOOT_RIGHT (1 << 28)
@@ -46,6 +51,13 @@ struct SimAvoidInfo
 {
     Vec3 dir;
     i32 numNeighbours;
+};
+
+struct SimInventoryItem
+{
+    char* name;
+    i32 eventType;
+    f32 duration;
 };
 
 #pragma pack(push, 1)
@@ -102,6 +114,7 @@ struct SimEntSyncData
     timeFloat thinkTime;
 };
 
+// TODO - breakup into ECS...?
 struct SimEntity
 {
     i32 status;
@@ -174,6 +187,13 @@ struct SimEntity
     } life;
     
 	SimActorInput input;
+
+    struct
+    {
+        i32 index;
+        i32 pendingIndex;
+    } inventory;
+    
 
     i32 touchDamage;
 

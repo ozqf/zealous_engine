@@ -4,6 +4,14 @@ sim.h implementation
 */
 #include "sim.h"
 
+extern "C" SimInventoryItem* SVI_GetItem(i32 index)
+{
+	if (index < 0) { index = 0; } 
+	if (index >= SIM_INVENTORY_ITEM_COUNT) { index = SIM_INVENTORY_ITEM_COUNT - 1; }
+
+	return &g_items[index];
+}
+
 extern "C"
 i32 Sim_CalcEntityArrayBytes(i32 capacity)
 { return (sizeof(SimEntity) * capacity); }
@@ -353,6 +361,7 @@ void Sim_Init(
     sim->ents = entityMemory;
     sim->maxEnts = maxEntities;
     sim->bVerbose = NO;
+    SVI_InitItemDefs();
 	Sim_Reset(sim);
     #ifdef SIM_USE_PHYSICS_ENGINE
     sim->world = PhysExt_Create(label, Sim_PhysicsError);

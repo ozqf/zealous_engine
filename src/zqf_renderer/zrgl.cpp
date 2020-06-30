@@ -195,6 +195,10 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 					&stats);
 			}
 		}
+		///////////////////////////////////
+		// Clear depth buffer for next scene
+		glClear(GL_DEPTH_BUFFER_BIT);
+		CHECK_GL_ERR
 	}
 
     //ZRSceneFrame* firstScene = (ZRSceneFrame*)cursor;

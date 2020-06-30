@@ -153,6 +153,11 @@ internal void CL_InitInputs(InputActionSet* actions)
     Input_InitAction(actions, Z_INPUT_CODE_MOUSE_1, "Attack1");
     Input_InitAction(actions, Z_INPUT_CODE_MOUSE_2, "Attack2");
 
+    Input_InitAction(actions, Z_INPUT_CODE_1, "Slot1");
+    Input_InitAction(actions, Z_INPUT_CODE_2, "Slot2");
+    Input_InitAction(actions, Z_INPUT_CODE_3, "Slot3");
+    Input_InitAction(actions, Z_INPUT_CODE_4, "Slot4");
+
     // Robotron style shooting
     Input_InitAction(actions, Z_INPUT_CODE_LEFT, "Shoot Left");
     Input_InitAction(actions, Z_INPUT_CODE_RIGHT, "Shoot Right");
@@ -198,6 +203,11 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 
     CL_InputCheckButton(actions, "Attack1", &flags, ACTOR_INPUT_ATTACK);
     CL_InputCheckButton(actions, "Attack2", &flags, ACTOR_INPUT_ATTACK2);
+
+    CL_InputCheckButton(actions, "Slot1", &flags, ACTOR_INPUT_SLOT_1);
+    CL_InputCheckButton(actions, "Slot2", &flags, ACTOR_INPUT_SLOT_2);
+    CL_InputCheckButton(actions, "Slot3", &flags, ACTOR_INPUT_SLOT_3);
+    CL_InputCheckButton(actions, "Slot4", &flags, ACTOR_INPUT_SLOT_4);
 
     f32 mouseX = ((f32)Input_GetActionValue(actions, "Mouse Move X") / (f32)Z_INPUT_MOUSE_SCALAR);
     f32 mouseY = ((f32)Input_GetActionValue(actions, "Mouse Move Y") / (f32)Z_INPUT_MOUSE_SCALAR);
