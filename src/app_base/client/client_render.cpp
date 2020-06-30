@@ -18,7 +18,7 @@ extern "C" void CLR_Init(ZRAssetDB* assetDb)
     g_testEmit = {};
     g_testEmit.particles = g_testParticles;
     g_testEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
-    g_testEmit.def.duration = 2.f;
+    g_testEmit.def.duration = 0.2f;
     g_testEmit.def.materialIndex = 0;
 }
 

@@ -33,12 +33,12 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
             def.serial = Sim_ReserveEntitySerial(sim, 1);
             Sim_RestoreEntity(sim, &def);
             Vec3 pos = def.pos;
-            for (i32 i = 0; i < 1; ++i)
+            for (i32 i = 0; i < 5; ++i)
             {
                 f32 rand = COM_STDRandf32();
                 Vec3 vel;
                 vel.x = COM_STDRandomInRange(-15, 15);
-                vel.y = COM_STDRandomInRange(0, 15);
+                vel.y = COM_STDRandomInRange(-10, 15);
                 vel.z = COM_STDRandomInRange(-15, 15);
                 CLR_SpawnTestParticle(pos, vel);
             }

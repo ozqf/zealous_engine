@@ -59,7 +59,7 @@ static void window_close_callback(GLFWwindow* window)
  */
 static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_ESCAPE)
+    if (key == GLFW_KEY_F8)
     {
         if (action == GLFW_PRESS)
         {
@@ -68,7 +68,7 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
         return YES;
     }
     // (not) tilde key console toggle:
-    if (key == GLFW_KEY_GRAVE_ACCENT)
+    if (key == GLFW_KEY_GRAVE_ACCENT || key == GLFW_KEY_ESCAPE)
     {
         if (action == GLFW_PRESS)
         {
