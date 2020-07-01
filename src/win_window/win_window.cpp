@@ -57,7 +57,16 @@ static void Window_EnqueueTextCommand(char* str)
         g_bRestart = YES;
         return;
     }
-
+    if (numTokens == 2 && ZE_CompareStrings(tokens[0], "WINDOWED") == 0)
+    {
+        i32 value = ZE_AsciToInt32(tokens[1]);
+        if (value != 0 && value != 1) { return; }
+        if (g_bWindowed == value) { return; }
+        g_bWindowed = value;
+        g_bRestart = YES;
+        return;
+    }
+    
     i32 rendererResponse = ZRGL_ExecTextCommand(str, len, tokens, numTokens);
     if (rendererResponse == YES) { return; }
 
@@ -115,18 +124,19 @@ static ErrorCode Window_SpawnWindow()
     i32 scrHeight = mode->height;
     i32 scrMode = g_pendingScrMode;
 
-    #if 0 // Standard: Borderless fullscreen
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-    #endif
-    
-    #if 1 // Resolution locked window
-    // Disable decoration and set window size to desktop size
-    // to have borderless fullscreen
-    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-    scrWidth = g_resolutionsX[scrMode];
-    scrHeight = g_resolutionsY[scrMode];
-    #endif
-
+    if (g_bWindowed == YES)
+    {
+        // Resolution locked window
+        // Disable decoration and set window size to desktop size
+        // to have borderless fullscreen
+        glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+        scrWidth = g_resolutionsX[scrMode];
+        scrHeight = g_resolutionsY[scrMode];
+    }
+    else
+    {
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    }
     // record screen size
     g_scrInfo.width = scrWidth;
     g_scrInfo.height = scrHeight;
