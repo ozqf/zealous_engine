@@ -178,7 +178,7 @@ static void SimEnt_MoveVsSolid(SimScene* sim, SimEntity* ent, Vec3 move)
     {
         i32 closestIndex = Sim_FindClosestRayhit(results, overlaps);
         //dest = results[closestIndex].hitPos;
-        printf("Actor overlap fraction %.3f\n", results[closestIndex].fraction);
+        //printf("Actor overlap fraction %.3f\n", results[closestIndex].fraction);
     }
     ent->body.t.pos = dest;
 

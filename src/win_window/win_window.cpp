@@ -34,7 +34,7 @@ static void ZR_Error(const char* msg)
 
 static void Window_EnqueueTextCommand(char* str) 
 {
-	printf(">> Window enqueue cmd \"%s\"\n", str);
+	printf(">> Window read cmd \"%s\"\n", str);
 	const i32 maxTokens = 64;
 	char* tokens[maxTokens];
 	i32 len = ZE_StrLen(str);
@@ -57,6 +57,9 @@ static void Window_EnqueueTextCommand(char* str)
         g_bRestart = YES;
         return;
     }
+
+    i32 rendererResponse = ZRGL_ExecTextCommand(str, len, tokens, numTokens);
+    if (rendererResponse == YES) { return; }
 
     g_platform.ExecTextCommand(str, len, (const char**)tokens, numTokens);
 }
@@ -112,11 +115,11 @@ static ErrorCode Window_SpawnWindow()
     i32 scrHeight = mode->height;
     i32 scrMode = g_pendingScrMode;
 
-    #if 1 // Standard: Borderless fullscreen
+    #if 0 // Standard: Borderless fullscreen
     glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     #endif
     
-    #if 0 // Resolution locked window
+    #if 1 // Resolution locked window
     // Disable decoration and set window size to desktop size
     // to have borderless fullscreen
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);

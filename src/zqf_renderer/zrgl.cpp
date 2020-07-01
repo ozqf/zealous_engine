@@ -29,6 +29,28 @@
 
 #include "zrgl_init.h"
 
+extern "C" i32 ZRGL_ExecTextCommand(
+	const char* str, const i32 len, char** tokens, const i32 numTokens)
+{
+	if (ZE_CompareStrings(tokens[0], "LIGHTMODE") == 0)
+	{
+		printf("ZR - change light mode\n");
+		if (numTokens == 2)
+		{
+			i32 mode = ZE_AsciToInt32(tokens[1]);
+			printf("\t mode %d\n", mode);
+			g_lightingMode = mode;
+		}
+		return YES;
+	}
+	if (ZE_CompareStrings(tokens[0], "GBUFFER") == 0)
+	{
+		g_debugFlags ^= ZRGL_DEBUG_BIT_SHOWGBUFFER;
+		return YES;
+	}
+	return NO;
+}
+
 extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 	ZEByteBuffer* drawList,
     ZEByteBuffer* drawData,
@@ -208,6 +230,11 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     //cursor += sizeof(ZRSceneFrame) + firstScene->params.numDataBytes;
 
 	//ZR_DrawMeshGroupBatched()
+
+	if (g_debugFlags & ZRGL_DEBUG_BIT_SHOWGBUFFER)
+	{
+		ZRGL_DrawGBufferDebugQuads(scrInfo.aspectRatio);
+	}
 
     /////////////////////////////////////////
     // Draw debug text

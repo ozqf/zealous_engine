@@ -186,12 +186,12 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
     stats.numLights = view->numLights;
     f64 gBufLightStart = g_platform.QueryClock();
 
-    // 1 and 2 are currently either is SUPER slow or broken
-    i32 lightMode = 0;
+    // lighting modes 1 and 2 are currently either is SUPER slow or broken
+    
     ///////////////////////////////////////////////////////////
     // individual lights mode
     // big quad per light - terrible performance.
-    if (lightMode == 1)
+    if (g_lightingMode == 1)
     {
         // disable depth testing
         glDisable(GL_DEPTH_TEST);
@@ -246,7 +246,7 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
 
         stats.gBufferLightMS = (g_platform.QueryClock() - gBufLightStart) * 1000;
     }
-    else if (lightMode == 2)
+    else if (g_lightingMode == 2)
     {
         ///////////////////////////////////////////////////////////
         // NOT WORKING! batched lights mode

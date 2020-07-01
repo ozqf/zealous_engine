@@ -149,9 +149,9 @@ internal void SV_LoadTestScene(i32 staticScene, i32 dynamicScene)
         case -1:
         break;
         case 1:
-        //SV_AddSpawner(sim, { inner, 0, inner }, SIM_FACTORY_TYPE_RUBBLE, count);
+        SV_AddSpawner(sim, { outer, 0, outer }, SIM_FACTORY_TYPE_RUBBLE, count);
         //SV_AddSpawner(sim, { 0, 0, 0 }, SIM_FACTORY_TYPE_SEEKER, count);
-        SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_SEEKER_FLYING, count);
+        //SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_SEEKER_FLYING, count);
         break;
         case 2:
         SV_AddSpawner(sim, { 10, 0, 10 }, SIM_FACTORY_TYPE_SEEKER, count);

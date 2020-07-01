@@ -3,6 +3,9 @@
 /**
  * Header for internal components of renderer
  */
+
+#define ZRGL_DEBUG_BIT_SHOWGBUFFER (1 << 0)
+
 // Advance buffer data in shader by each vertex being rendered
 #define ZRGL_DIVISOR_PER_VERTEX 0
 // Advance buffer data in shader by each instance being rendered
@@ -112,6 +115,8 @@ struct ZRGPUSpecs
     } uniformBlocks;
 };
 
+static i32 g_debugFlags = 0;
+
 static ZRGPUSpecs g_gpuLimits;
 
 static i32 g_bDrawLocked = NO;
@@ -124,6 +129,7 @@ static GLuint g_cubemapHandle;
 static ZRPlatform g_platform;
 
 static ZRGBuffer g_gBuffer;
+static i32 g_lightingMode = 0;
 
 static f64 g_platformSwapMS = 0;
 static f64 g_platformFrameMS = 0;

@@ -10,7 +10,7 @@ struct SVEntityFrame
 };
 
 #define SV_EMPTY_DYNAMIC_SCENE -1
-#define SV_DEFAULT_DYNAMIC_SCENE 2
+#define SV_DEFAULT_DYNAMIC_SCENE 1
 
 #define SV_DEBUG_TIMING (1 << 0)
 #define SV_DEBUG_USER_BANDWIDTH (1 << 1)
