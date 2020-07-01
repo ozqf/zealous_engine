@@ -1,5 +1,9 @@
 #version 330
 
+// view transforms
+uniform mat4 u_worldProjection;
+uniform mat4 u_worldView;
+
 // gBuffer
 uniform sampler2D u_positionTex;
 uniform sampler2D u_normalTex;
@@ -27,27 +31,29 @@ vec4 CalcPointLight(vec3 lightPos, vec3 colour, float lightRange, vec3 fragPos, 
 	return vec4(diff * (colour * scalar), 1);
 }
 
+// Oh... don't have the depth value for
+// the original pixel here yet...
+vec3 DepthToWorldPos()
+{
+	return vec3(0, 0, 0);
+}
+
 void main()
 {
     // gather gbuffer info
-    vec3 colour = vec3(texture2D(u_colourTex, m_texCoord));
+    vec4 colour = vec4(texture2D(u_colourTex, m_texCoord));
+	float depth = colour.w;
+	colour.w = 1;
     vec3 normal = vec3(texture2D(u_normalTex, m_texCoord));
     vec3 fragWorldPos = vec3(texture2D(u_positionTex, m_texCoord));
 	vec4 emission = vec4(texture2D(u_emissionTex, m_texCoord));
-	
-    // float lightMul = emission.x + emission.y + emission.z + emission.w;
-    // if (lightMul > 0.9)
-    // {
-    //     //outputColor = vec4(colour, 1);
-    //     outputColor = vec4(emission.x, emission.y, emission.z, 1);
-    // }
-    // else
-    // {
-        vec4 lightResult = CalcPointLight(
-        u_lightWorldPos, u_lightColour, u_lightRange, fragWorldPos, normal);
-    
-        lightResult *= u_lightMultiplier;
-        outputColor = vec4(colour, 1) * lightResult;
-    //}
-    
+	#if 1
+    vec4 lightResult = CalcPointLight(
+    	u_lightWorldPos, u_lightColour, u_lightRange, fragWorldPos, normal);
+    lightResult *= u_lightMultiplier;
+    outputColor = colour * lightResult;
+    #endif
+	#if 0 // read depth - only works with one full screen quad
+	outputColor = vec4(depth, depth, depth, 1);
+	#endif
 }

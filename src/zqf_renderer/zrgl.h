@@ -77,6 +77,8 @@ struct ZRPerformanceStats
     i32 drawCalls;
     f32 dataTexPercentUsed;
     f64 total;
+	i32 numScenes;
+	i32 numGroups;
 
     i32 listBytes;
     i32 numDataBytes;

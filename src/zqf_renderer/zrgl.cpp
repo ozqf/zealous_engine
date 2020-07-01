@@ -120,6 +120,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 
 	/////////////////////////////////////////////////////////////
 	// iterate scenes,  generating draw groups and preparing data
+	f64 preprocessStart = g_platform.QueryClock();
 	ZRGroupingStats groupStats = {};
 	u8* groupsCursor = cursor;
 	for (i32 i = 0; i < header->numScenes; ++i)
@@ -142,7 +143,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 		ZRSceneView* view = ZR_BuildDrawGroups(
 			scene->params.objects, scene->params.numObjects, &g_scratch, &groupStats);
 		scene->drawTime.view = view;
-		
+		stats.numGroups += view->numGroups;
 		// Write group batches to data texture
 		i32 dataCursorStart = g_dataTex2D.cursor;
 		ZR_WriteGroupsToTextureByIndex(
@@ -175,6 +176,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 		}
 
 	}
+	f64 preprocessEnd = g_platform.QueryClock();
 
     /////////////////////////////////////////////////////////////
 	// Preprocess finish
@@ -242,14 +244,16 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     
     // allocate space in scratch for debug string
     #if 1
+	f64 preprocessTime = preprocessEnd - preprocessStart;
     i32 written = sprintf_s((char*)debugStr.cursor, debugStr.Space(),
-        "Prebuild: %.3fMS\nObj List %dKB\nObj Data %dKB\nGBuffer Fill %.3fMS\nGBuffer Light %.3fMS\nNum lights: %d\nSwapMS %.3f\nTotalMS %.3f\n",
+        "Build drawlist: %.3fMS\nObj List %dKB\nObj Data %dKB\nNum scenes %d\nNum groups %d\nNum lights: %d\nPreprocessMS %.3f\nSwapMS %.3f\nTotalMS %.3f\n",
         header->prebuildTime * 1000,
         drawList->Written() / 1024,
         drawData->Written() / 1024,
-        gBufStats.gBufferFillMS,
-        gBufStats.gBufferLightMS,
+        header->numScenes,
+		stats.numGroups,
         gBufStats.numLights,
+		preprocessTime * 1000,
         g_platformSwapMS * 1000,
         g_platformFrameMS * 1000);
     debugStr.cursor += written;
