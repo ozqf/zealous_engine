@@ -193,7 +193,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                     && extraLights > 0)
                 {
                     obj = ZRDrawObj_InitInPlace(&list->cursor);
-                    obj->data.SetAsPointLight({ 1, 1, 0 }, 1, 15);
+                    obj->data.SetAsPointLight({ 1, 1, 0.5f }, 1, 15);
                     obj->t = ent->body.t;
                     rendObjectsAdded++;
                     extraLights--;

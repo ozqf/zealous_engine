@@ -15,6 +15,10 @@ void main()
     // 
     //float depthValue = texture(u_diffuseTex, m_texCoord).r;
     //outputColor = vec4(vec3(depthValue), 1.0);
-
-    outputColor = texture2D(u_diffuseTex, m_texCoord);
+    vec4 colour = texture2D(u_diffuseTex, m_texCoord);
+    if (colour.w < 0.9)
+    {
+        discard;
+    }
+    outputColor = colour;
 }

@@ -21,8 +21,8 @@ void main()
         gPosition = m_worldPos;
         gNormal = m_normal;
         gColour = colour;
-        //gEmission = emission;
-        gEmission = vec4(0, 0, 0, 1);
+        gEmission = emission;
+        //gEmission = vec4(0, 0, 0, 1);
     }
     else
     {

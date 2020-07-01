@@ -35,10 +35,11 @@ void main()
     vec3 fragWorldPos = vec3(texture2D(u_positionTex, m_texCoord));
 	vec4 emission = vec4(texture2D(u_emissionTex, m_texCoord));
 	
-    // float lightMul = emission.x;
+    // float lightMul = emission.x + emission.y + emission.z + emission.w;
     // if (lightMul > 0.9)
     // {
-    //     outputColor = vec4(colour, 1);
+    //     //outputColor = vec4(colour, 1);
+    //     outputColor = vec4(emission.x, emission.y, emission.z, 1);
     // }
     // else
     // {
@@ -47,6 +48,6 @@ void main()
     
         lightResult *= u_lightMultiplier;
         outputColor = vec4(colour, 1) * lightResult;
-    // }
+    //}
     
 }

@@ -182,6 +182,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	// second texture - charset for bitmap text
 	ZRDB_LoadBWImage(db, ZR_Embed_Charset());
 
+	ZRDB_GenSolidTexture(db, ZR_TRANSPARENT_TEX_NAME, { 0, 0, 0, 0});
 	ZRDB_GenSolidTexture(db, "white", { 255, 255, 255, 255 });
 	ZRDB_GenSolidTexture(db, "black", { 0, 0, 0, 255 });
 	ZRDB_GenSolidTexture(db, "grey", { 0, 0, 0, 255 });
@@ -234,13 +235,13 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         //"data/W33_5.bmp",
         "blue",
-        "black");
+        ZR_TRANSPARENT_TEX_NAME);
 	
 	db->CreateMaterial(
         db,
         ZRDB_DEFAULT_CHARSET_MAT_NAME,
         "charset",
-        "black");
+        ZR_TRANSPARENT_TEX_NAME);
     
     db->CreateMaterial(
         db,
@@ -248,35 +249,42 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         // "test",
         "data/W33_5.bmp",
         //"cyan",
-        "black"
+        ZR_TRANSPARENT_TEX_NAME
     );
 	
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_ENT,
         "red",
-        "black"
+        ZR_TRANSPARENT_TEX_NAME
     );
 
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_PRJ,
         "dark_red",
-        "black"
+        "red"
     );
 
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_GFX,
         "yellow",
-        "black"
+        ZR_TRANSPARENT_TEX_NAME
     );
     
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_LASER,
         "red",
-        "black"
+        ZR_TRANSPARENT_TEX_NAME
+    );
+	
+	db->CreateMaterial(
+        db,
+        ZRDB_MAT_NAME_ENEMY,
+        "data/W33_5.bmp",
+        ZR_TRANSPARENT_TEX_NAME
     );
 }
 

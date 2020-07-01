@@ -273,6 +273,9 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
         ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
     }
 
+    // Draw emission map
+    ZRGL_DrawEmission(scrInfo.aspectRatio);
+
     f64 end = g_platform.QueryClock();
     stats.time = end - start;
     return stats;

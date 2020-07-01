@@ -366,6 +366,16 @@ static void ZRGL_GBufferDrawPointLight(
    
 }
 
+static void ZRGL_DrawEmission(f32 aspectRatio)
+{
+    Vec2 pos = {};
+    Vec2 size = { 2, 2 };
+    Vec2 uvMin = { 0, 0 };
+    Vec2 uvMax = { 1, 1 };
+    i32 texHandle = g_gBuffer.emissionTex;
+    ZRGL_DrawDebugQuad(pos, size, uvMin, uvMax, texHandle, aspectRatio);
+}
+
 /**
  * Draw gbuffer components for debug
  */

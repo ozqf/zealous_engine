@@ -129,7 +129,7 @@ static GLuint g_cubemapHandle;
 static ZRPlatform g_platform;
 
 static ZRGBuffer g_gBuffer;
-static i32 g_lightingMode = 0;
+static i32 g_lightingMode = 1;
 
 static f64 g_platformSwapMS = 0;
 static f64 g_platformFrameMS = 0;
