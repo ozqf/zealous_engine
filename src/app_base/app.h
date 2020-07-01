@@ -76,7 +76,7 @@ timeFloat App_GetPerformanceTime(i32 index);
 #define APP_LOG_CATEGORY_INPUT (1 << 4)
 
 // comment out to disable logging/printing by app layer
-#define APP_FULL_LOGGING
+//#define APP_FULL_LOGGING
 
 #ifdef APP_FULL_LOGGING
 

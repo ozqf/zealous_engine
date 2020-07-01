@@ -9,6 +9,9 @@ struct SVEntityFrame
     Vec3 pos;
 };
 
+#define SV_EMPTY_DYNAMIC_SCENE -1
+#define SV_DEFAULT_DYNAMIC_SCENE 2
+
 #define SV_DEBUG_TIMING (1 << 0)
 #define SV_DEBUG_USER_BANDWIDTH (1 << 1)
 #define SV_DEBUG_PERFORMANCE (1 << 2)

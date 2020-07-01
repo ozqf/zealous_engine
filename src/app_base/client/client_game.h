@@ -22,6 +22,10 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
 {
     SimEntity* ent = Sim_GetEntityBySerial(sim, serial);
     if (!ent) { return; }
+    if (ent->timing.realBirthTick == sim->tick)
+    {
+        printf("CL - ent died on birth tick\n");
+    }
     switch (ent->deathType)
     {
         case SIM_DEATH_GFX_EXPLOSION:
@@ -32,6 +36,7 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
             def.pos = ent->body.t.pos;
             def.serial = Sim_ReserveEntitySerial(sim, 1);
             Sim_RestoreEntity(sim, &def);
+            // Test particle spray
             Vec3 pos = def.pos;
             for (i32 i = 0; i < 5; ++i)
             {

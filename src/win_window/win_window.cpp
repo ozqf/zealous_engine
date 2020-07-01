@@ -112,11 +112,11 @@ static ErrorCode Window_SpawnWindow()
     i32 scrHeight = mode->height;
     i32 scrMode = g_pendingScrMode;
 
-    #if 0 // Standard: Borderless fullscreen
+    #if 1 // Standard: Borderless fullscreen
     glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     #endif
     
-    #if 1 // Resolution locked window
+    #if 0 // Resolution locked window
     // Disable decoration and set window size to desktop size
     // to have borderless fullscreen
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);

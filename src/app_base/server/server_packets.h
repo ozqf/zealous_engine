@@ -143,6 +143,7 @@ internal i32 SVP_WriteReliableSection(
         {
             // If this command's sequence is out of the one byte range
             // of an offset it cannot be written to this packet!
+            // TODO - FIXME - this network issue is not handled 
             i32 seqDiff = cmd->sequence - baseSequence;
             if (Cmd_IsSequenceDiffOkay(seqDiff) == NO)
             {

@@ -134,12 +134,12 @@ static void ZR_DrawDeferredVolumeLights(ZRGBuffer* gBuf, Transform* camera, Scre
 #endif
 
 static ZRGroupingStats ZR_DrawSceneDeferred(
-    ZRSceneFrame* sceneCmd, ZEByteBuffer* scratch, ScreenInfo scrInfo)
+    ZRSceneFrame *sceneCmd, ZEByteBuffer *scratch, ScreenInfo scrInfo)
 {
     ZRGroupingStats stats = {};
     f64 start = g_platform.QueryClock();
 
-    M4x4* projection = &sceneCmd->drawTime.projection;
+    M4x4 *projection = &sceneCmd->drawTime.projection;
     // Setup
     if (sceneCmd->params.projectionMode == ZR_PROJECTION_MODE_IDENTITY)
     {
@@ -148,130 +148,130 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
     else
     {
         COM_SetupDefault3DProjection(projection->cells,
-            scrInfo.aspectRatio);
+                                     scrInfo.aspectRatio);
     }
     M4x4_CREATE(camera)
-    Transform_ToM4x4(&sceneCmd->params.camera, &camera);
+        Transform_ToM4x4(&sceneCmd->params.camera, &camera);
     // Group objects
     // TODO: Urrgh ugly:
-    sceneCmd->drawTime.objects = (ZRDrawObj*)(((u8*)sceneCmd) + sizeof(ZRSceneFrame));
-    ZRDrawObj* objects = sceneCmd->drawTime.objects;
+    sceneCmd->drawTime.objects = (ZRDrawObj *)(((u8 *)sceneCmd) + sizeof(ZRSceneFrame));
+    ZRDrawObj *objects = sceneCmd->drawTime.objects;
 
     ///////////////////////////////////////////////////////////
     // Build Groups
     // sceneCmd->drawTime.view = ZR_BuildDrawGroups(
     //     objects, sceneCmd->params.numObjects, scratch, &stats);
-    
-    ZRSceneView* view = sceneCmd->drawTime.view;
+
+    ZRSceneView *view = sceneCmd->drawTime.view;
     stats.numGroups = view->numGroups;
     stats.numLights = view->numLights;
 
     ///////////////////////////////////////////////////////////
     // Deferred Geometry pass
     f64 gBufStart = g_platform.QueryClock();
-        ZRGL_FillGBuffer(
-            &g_gBuffer,
-            &sceneCmd->params.camera,
-            scrInfo,
-            view->groups,
-            view->numGroups,
-            objects,
-            sceneCmd->params.numObjects,
-            &stats);
-        stats.gBufferFillMS = (g_platform.QueryClock() - gBufStart) * 1000;
+    ZRGL_FillGBuffer(
+        &g_gBuffer,
+        &sceneCmd->params.camera,
+        scrInfo,
+        view->groups,
+        view->numGroups,
+        objects,
+        sceneCmd->params.numObjects,
+        &stats);
+    stats.gBufferFillMS = (g_platform.QueryClock() - gBufStart) * 1000;
 
     ///////////////////////////////////////////////////////////
     // draw lights
     ///////////////////////////////////////////////////////////
     stats.numLights = view->numLights;
     f64 gBufLightStart = g_platform.QueryClock();
-    
+
+    // 1 and 2 are currently either is SUPER slow or broken
+    i32 lightMode = 0;
     ///////////////////////////////////////////////////////////
     // individual lights mode
-    #if 0
-    // disable depth testing
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE);
-
-    // enable blending
-
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_ONE, GL_ONE);
-    
-    for (i32 i = 0; i < view->numLights; ++i)
+    // big quad per light - terrible performance.
+    if (lightMode == 1)
     {
-        i32 lightObjIndex = view->lights[i];
-        ZRDrawObj* lightObj = &sceneCmd->drawTime.objects[lightObjIndex];
-        // TODO: Grouped on point light here. no way to put direct lights in
-        Vec3 dir = lightObj->t.rotation.zAxis;
-        f32 multiplier = lightObj->data.pointLight.multiplier;
-        f32 range = lightObj->data.pointLight.range;
-        Colour c = lightObj->data.pointLight.colour;
-        Vec3 pos = lightObj->t.pos;
-        
-        switch (lightObj->data.type)
+        // disable depth testing
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glDepthMask(GL_FALSE);
+
+        // enable blending
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
+        glBlendFunc(GL_ONE, GL_ONE);
+
+        for (i32 i = 0; i < view->numLights; ++i)
         {
+            i32 lightObjIndex = view->lights[i];
+            ZRDrawObj *lightObj = &sceneCmd->drawTime.objects[lightObjIndex];
+            // TODO: Grouped on point light here. no way to put direct lights in
+            Vec3 dir = lightObj->t.rotation.zAxis;
+            f32 multiplier = lightObj->data.pointLight.multiplier;
+            f32 range = lightObj->data.pointLight.range;
+            Colour c = lightObj->data.pointLight.colour;
+            Vec3 pos = lightObj->t.pos;
+
+            switch (lightObj->data.type)
+            {
             case ZR_DRAWOBJ_TYPE_POINT_LIGHT:
-            ZRGL_GBufferDrawPointLight(
-                &g_gBuffer,
-                lightObj->t.pos,
-                dir,
-                { c.r, c.g, c.b },
-                multiplier,
-                range);
-            break;
+                ZRGL_GBufferDrawPointLight(
+                    &g_gBuffer,
+                    lightObj->t.pos,
+                    dir,
+                    {c.r, c.g, c.b},
+                    multiplier,
+                    range);
+                break;
 
             case ZR_DRAWOBJ_TYPE_DIRECT_LIGHT:
-            ZRGL_GBufferDrawDirectLight(
-                &g_gBuffer,
-                lightObj->t.pos,
-                dir,
-                { c.r, c.g, c.b },
-                multiplier,
-                range);
-            break;
+                ZRGL_GBufferDrawDirectLight(
+                    &g_gBuffer,
+                    lightObj->t.pos,
+                    dir,
+                    {c.r, c.g, c.b},
+                    multiplier,
+                    range);
+                break;
+            }
         }
-    
+        glDisable(GL_BLEND);
+
+        // reenable depth test
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glDepthMask(GL_TRUE);
+
+        stats.gBufferLightMS = (g_platform.QueryClock() - gBufLightStart) * 1000;
     }
-    
-    glDisable(GL_BLEND);
-
-    // reenable depth test
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glDepthMask(GL_TRUE);
-
-    stats.gBufferLightMS = (g_platform.QueryClock() - gBufLightStart) * 1000;
-    #endif
-    
-    ///////////////////////////////////////////////////////////
-    // NOT WORKING! batched lights mode
-    #if 0
-    // disable depth testing
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE);
-
-    // load light data
-    
-    for (i32 i = 0; i < view->numLights; ++i)
+    else if (lightMode == 2)
     {
+        ///////////////////////////////////////////////////////////
+        // NOT WORKING! batched lights mode
+        // disable depth testing
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glDepthMask(GL_FALSE);
 
+        // load light data
+
+        for (i32 i = 0; i < view->numLights; ++i)
+        {
+        }
+
+        // clean up
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glDepthMask(GL_TRUE);
     }
-
-    // clean up
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glDepthMask(GL_TRUE);
-    #endif
-    
-    ///////////////////////////////////////////////////////////
-    // no light debug mode
-    #if 1
-    ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
-    #endif
+    else
+    {
+        ///////////////////////////////////////////////////////////
+        // no light debug mode
+        ZRGL_DrawDebugGBufferCombine(&g_gBuffer);
+    }
 
     f64 end = g_platform.QueryClock();
     stats.time = end - start;

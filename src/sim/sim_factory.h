@@ -472,6 +472,8 @@ internal SimEntity* Sim_SpawnEntity(
     ent->status = SIM_ENT_STATUS_IN_USE;
     // Record factory type so we know how this entity was initialised
     ent->factoryType = def->factoryType;
+    // record real birth tick, as the def's birth tick may be in the past.
+    ent->timing.realBirthTick = sim->tick;
 
     ErrorCode err;
 

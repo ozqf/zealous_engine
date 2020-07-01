@@ -74,19 +74,22 @@ internal void SVG_HandleEntityDeath(
     SimScene* sim, SimEntity* victim, SimEntity* attacker, i32 style, i32 deathIsDeterministic)
 {
 	APP_LOG(128, "SV Remove ent %d\n", victim->id.serial);
-    
     SimEntity* parent = Sim_GetEntityBySerial(
         sim, victim->relationships.parentId.serial);
+    if (victim->factoryType == SIM_FACTORY_TYPE_SEEKER)
+    {
+        printf("SVG - kill seeker\n");
+    }
     if (parent != NULL)
     {
         parent->relationships.liveChildren--;
+        printf("\tParent remaining children: %d\n",
+            parent->relationships.liveChildren);
     }
-    
     SVU_RemoveEntityForAllUsers(victim, &g_users, victim->id.serial);
-    
     // deterministic deaths will occur naturally on the client without server info
     #if 0
-    if (!deathIsDeterministic)
+    if (!deathIsDeterministi
     {
         SVU_RemoveEntityForAllUsers(victim, &g_users, victim->id.serial);
 
@@ -235,7 +238,6 @@ internal i32 SVG_StepProjectile(
         SimEntity* victim = results[i].ent;
         if (Sim_IsEntTargetable(victim) == NO) { continue; }
         ZE_ASSERT(victim->id.serial, "SV overlap victim serial is 0")
-
         
         if ((victim->flags & SIM_ENT_FLAG_INVULNERABLE) == 0)
         {
@@ -257,6 +259,11 @@ internal i32 SVG_StepProjectile(
     
     if (killed == YES)
     {
+        /*printf("PRJ real birth tick vs sim tick: %d, %d\n", (i32)ent->timing.realBirthTick, (i32)sim->tick);
+        if (ent->timing.realBirthTick == sim->tick)
+        {
+            printf("\tPRJ died on birth tick!\n");
+        }*/
         SVG_HandleEntityDeath(sim, ent, NULL, 0, 0);
         return 0;
     }

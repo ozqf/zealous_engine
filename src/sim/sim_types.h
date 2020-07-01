@@ -146,8 +146,11 @@ struct SimEntity
     {
         frameInt lastThink;
         frameInt nextThink;
-
+        // even if an ent was technically born in the current tick
+        // birth tick may be in the past for lag compensation,
         frameInt birthTick;
+        // the real, uncompensated birth tick
+        frameInt realBirthTick;
         // This entity was spawned in the past this many ticks ago
         // and needs to catch up
 	    frameInt fastForwardTicks;

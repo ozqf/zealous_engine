@@ -108,7 +108,8 @@ internal void SV_AddSpawner(
     Sim_PrepareSpawnData(sim, &data, 1, SIM_FACTORY_TYPE_SPAWNER, pos);
     data.childFactoryType = factoryType;
     data.numChildren = spawnCount;
-    data.patternType = SIM_PATTERN_3D_SCATTER;
+    data.patternType = SIM_PATTERN_FLAT_SCATTER;
+    //data.patternType = SIM_PATTERN_3D_SCATTER;
     Sim_RestoreEntity(&g_sim, &data);
 }
 
@@ -274,7 +275,7 @@ extern "C" void SV_Start()
 	Sim_Reset(&g_sim);
     // Inflate sim frame number - debugging
     g_sim.tick += 123;
-    SV_LoadTestScene(g_staticSceneIndex, -1);
+    SV_LoadTestScene(g_staticSceneIndex, SV_DEFAULT_DYNAMIC_SCENE);
 
     SV_ListAllocs();
 }

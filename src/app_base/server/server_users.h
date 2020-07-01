@@ -190,6 +190,7 @@ UserIds SVU_CreateLocalUser()
 
 internal void SVU_ClearStaleOutput(User* user, SimScene* sim, ZEByteBuffer* output)
 {
+    #if 0
     u8* read = output->start;
     u8* end = read + output->Written();
     while(read < end)
@@ -217,6 +218,7 @@ internal void SVU_ClearStaleOutput(User* user, SimScene* sim, ZEByteBuffer* outp
         //     firstSerial, numSerials);
         #if 1
         S2C_RemoveEntityGroup grp = {};
+        printf("SV - removing stale BulkSpawn %d\n", spawn->header.sequence);
         Cmd_InitRemoveEntityGroup(&grp, cmd->tick, firstSerial, (u8)numSerials);
         // Remember to copy the reliable sequence number and tick!
         grp.header.sequence = cmd->sequence;
@@ -231,4 +233,5 @@ internal void SVU_ClearStaleOutput(User* user, SimScene* sim, ZEByteBuffer* outp
         Priority_DeleteLinkRange(&user->entSync, firstSerial, numSerials);
         #endif
     }
+    #endif
 }
