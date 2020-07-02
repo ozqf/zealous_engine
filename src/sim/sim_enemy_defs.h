@@ -40,6 +40,7 @@ internal i32 Sim_InitRubble(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
+    ent->display.data.model.billboard = 1;
     ent->deathType = SIM_DEATH_GFX_GIB;
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_NONE;

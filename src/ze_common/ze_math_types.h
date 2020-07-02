@@ -621,6 +621,21 @@ inline void M4x4_SetToIdentity(f32* m)
     m[M4x4_W3] = 1;
 }
 
+inline void M4x4_ClearRotation(f32* m)
+{
+    m[M4x4_X0] = 1;
+    m[M4x4_X1] = 0;
+    m[M4x4_X2] = 0;
+
+    m[M4x4_Y0] = 0;
+    m[M4x4_Y1] = 1;
+    m[M4x4_Y2] = 0;
+
+    m[M4x4_Z0] = 0;
+    m[M4x4_Z1] = 0;
+    m[M4x4_Z2] = 1;
+}
+
 inline void M4x4_Multiply(f32* m0, f32* m1, f32* result)
 {
     /*
@@ -758,12 +773,22 @@ inline void M4x4_BuildScale(f32* m, f32 x, f32 y, f32 z)
     m[M4x4_W3] = 1;
 }
 
-inline void M4x4_Scale(f32* m, f32 x, f32 y, f32 z)
+inline void M4x4_ApplyScale(f32* m, f32 x, f32 y, f32 z)
 {
     f32 temp[16];
     M4x4_BuildScale(temp, x, y, z);
     M4x4_Multiply(m, temp, m);
 }
+
+inline Vec3 M4x4_GetScale(f32* m)
+{
+    Vec3 scale;
+    scale.x = Vec3_Magnitudef(m[M4x4_X0], m[M4x4_X1], m[M4x4_X2]);
+    scale.y = Vec3_Magnitudef(m[M4x4_Y0], m[M4x4_Y1], m[M4x4_Y2]);
+    scale.z = Vec3_Magnitudef(m[M4x4_Z0], m[M4x4_Z1], m[M4x4_Z2]);
+    return scale;
+}
+
 // Exact compare, no epsilon atm
 inline i32 M4x4_Equals(f32* a, f32* b)
 {
@@ -917,7 +942,16 @@ f32 M4x4_GetAngleY(f32* m);
 f32 M4x4_GetAngleZ(f32* m);
 void M4x4_SetPosition(f32* m, f32 x, f32 y, f32 z);
 Vec4 M4x4_GetPosition(f32* m);
-Vec3 M4x4_GetEulerAnglesRadians(f32* m);
+
+inline Vec3 M4x4_GetEulerAnglesRadians(f32* m)
+{
+    Vec3 result;
+    result.x = (f32)-asinf(m[M4x4_Z1]);
+    result.y = (f32)atan2(m[M4x4_Z0], m[M4x4_Z2]);
+    result.z = (f32)atan2(m[M4x4_X1], m[M4x4_Y1]);
+    return result;
+}
+
 Vec3 M4x4_GetEulerAnglesDegrees(f32* m);
 void M4x4_SetEulerAnglesByRadians(f32* m, f32 roll, f32 pitch, f32 yaw);
 

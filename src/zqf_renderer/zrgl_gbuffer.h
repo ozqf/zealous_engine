@@ -350,7 +350,8 @@ static void ZRGL_GBufferDrawPointLight(
         prog, GL_TEXTURE3, 3, "u_emissionTex", gBuf->emissionTex, g_samplerDataTex2D);
     
     ZR_SetProgVec3f(prog, "u_lightWorldPos", lightWorldPos);
-    ZR_SetProgVec3f(prog, "u_lightWorldDir", lightWorldDir);
+    // point light, dir not used
+    //ZR_SetProgVec3f(prog, "u_lightWorldDir", lightWorldDir);
     ZR_SetProgVec3f(prog, "u_lightColour", lightColour);
     
     ZR_SetProg1f(prog, "u_lightMultiplier", lightMultiplier);

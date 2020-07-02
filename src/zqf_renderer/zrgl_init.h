@@ -239,6 +239,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         ZR_DRAWOBJ_TYPE_MESH,
         NO,
         &g_programs[ZR_SHADER_TYPE_BUILD_GBUFFER]);
+    if (err != ZE_ERROR_NONE) { return err; }
     
     err = ZRGL_CreateProgram(
         gbuffer_combine_vert_text,

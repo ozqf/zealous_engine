@@ -352,6 +352,7 @@ internal i32 Sim_InitProp(
         ZRDB_MESH_NAME_CUBE,
 		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_NONE);
+    ent->display.data.model.billboard = 1;
     ent->tickType = SIM_TICK_TYPE_NONE;
     ent->coreTickType = SIM_TICK_TYPE_NONE;
     ent->timing.nextThink = 0;

@@ -12,7 +12,7 @@ uniform sampler2D u_emissionTex;
 
 // light params
 uniform vec3 u_lightWorldPos;
-uniform vec3 u_lightWorldDir;
+//uniform vec3 u_lightWorldDir;
 uniform vec3 u_lightColour;
 uniform float u_lightMultiplier;
 uniform float u_lightRange;

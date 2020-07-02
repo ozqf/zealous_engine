@@ -11,6 +11,11 @@ static void ZR_SetProg1i(GLuint prog, char* uniform, GLint value)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
     CHECK_GL_ERR
+    if (loc == -1)
+    {
+        printf("Failed to find loc for i uniform %s on prog %d\n", uniform, prog);
+        return;
+    }
     glUniform1i(loc, value);
     CHECK_GL_ERR
 }
@@ -19,6 +24,11 @@ static void ZR_SetProg1f(GLuint prog, char* uniform, GLfloat value)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
     CHECK_GL_ERR
+    if (loc == -1)
+    {
+        printf("Failed to find loc for f uniform %s on prog %d\n", uniform, prog);
+        return;
+    }
     glUniform1f(loc, value);
     CHECK_GL_ERR
 }
@@ -27,6 +37,11 @@ static void ZR_SetProgVec3f(GLuint prog, char* uniform, Vec3 vec)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
     CHECK_GL_ERR
+    if (loc == -1)
+    {
+        printf("Failed to find loc for v3f uniform %s on prog %d\n", uniform, prog);
+        return;
+    }
     glUniform3f(loc, vec.x, vec.y, vec.z);
     CHECK_GL_ERR
 }
@@ -35,6 +50,11 @@ static void ZR_SetProgVec4f(GLuint prog, char* uniform, Vec4 vec)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
     CHECK_GL_ERR
+    if (loc == -1)
+    {
+        printf("Failed to find loc for v4f uniform %s on prog %d\n", uniform, prog);
+        return;
+    }
     glUniform4f(loc, vec.x, vec.y, vec.z, vec.w);
     CHECK_GL_ERR
 }
@@ -43,6 +63,11 @@ static void ZR_SetProgM4x4(GLuint prog, char* uniform, f32* matrix)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
     CHECK_GL_ERR
+    if (loc == -1)
+    {
+        printf("Failed to find loc for m4x4 uniform %s on prog %d\n", uniform, prog);
+        return;
+    }
     glUniformMatrix4fv(loc, 1, GL_FALSE, matrix);
     CHECK_GL_ERR
 }
@@ -56,6 +81,12 @@ static void ZR_PrepareTextureUnit1D(
     GLint sampler)
 {
     GLint loc = glGetUniformLocation(programId, uniformName);
+    if (loc == -1)
+    {
+        printf("Failed to find loc for tex unit uniform %s on prog %d\n",
+            uniformName, programId);
+        return;
+    }
     glUniform1i(loc, textureUnit);
     CHECK_GL_ERR
     glActiveTexture(glTextureUnit);

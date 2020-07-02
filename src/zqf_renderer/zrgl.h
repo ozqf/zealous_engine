@@ -134,7 +134,7 @@ inline void ZR_BuildModelMatrix(M4x4* model, Transform* modelT)
 	M4x4_RotateByAxis(model->cells, modelEuler.y, 0, 1, 0);
 	M4x4_RotateByAxis(model->cells, modelEuler.x, 1, 0, 0);
 	M4x4_RotateByAxis(model->cells, modelEuler.z, 0, 0, 1);
-	M4x4_Scale(model->cells, modelT->scale.x, modelT->scale.y, modelT->scale.z);
+	M4x4_ApplyScale(model->cells, modelT->scale.x, modelT->scale.y, modelT->scale.z);
 }
 
 inline void ZR_BuildViewMatrix(M4x4* view, Transform* camT)

@@ -127,6 +127,7 @@ struct ZRDrawObjData
         {
             i32 meshIndex;
             i32 materialIndex;
+            i32 billboard;
         } model;
         // struct
         // {

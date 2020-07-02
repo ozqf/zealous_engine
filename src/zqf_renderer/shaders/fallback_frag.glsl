@@ -17,7 +17,7 @@ void main()
 #endif
    //outputColor = u_colour;
 #if 1 // output texture
-   vec4 diffuse = texture2D(u_diffuseTex, m_texCoord);
+   vec4 diffuse = texture2D(u_diffuseTex, m_texCoord) * u_colour;
    outputColor = diffuse;
 #endif
 }
