@@ -4,6 +4,8 @@
 uniform mat4 u_projection;
 uniform mat4 u_modelView;
 uniform mat4 u_model;
+uniform mat4 u_view;
+uniform int u_isBillboard;
 
 // Vertex Attrib 0
 layout (location = 0) in vec3 i_position;
@@ -24,7 +26,16 @@ void main()
 	// outputs for gbuffer
    	m_texCoord = i_uv;
 	// world space
-	m_normal = normalize(mat3(u_model) * i_normal);
+	if (u_isBillboard == 1)
+	{
+
+		m_normal = -u_view[2].xyz;
+	}
+	else
+	{
+		m_normal = normalize(mat3(u_model) * i_normal);
+	}
+	
 	m_worldPos = vec3(u_model * positionV4);
 	// view space
 	//m_normal = normalize(mat3(u_modelView) * i_normal);

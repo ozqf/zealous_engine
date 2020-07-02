@@ -151,6 +151,9 @@ static void ZRGL_GeometryPass_Mesh(
 	
 	ZR_SetProgM4x4(prog, "u_projection", projection->cells);
 	CHECK_GL_ERR
+
+    ZR_SetProgM4x4(prog, "u_view", view->cells);
+	CHECK_GL_ERR
 	
 	M4x4_CREATE(model)
 	M4x4_CREATE(modelView)
@@ -164,6 +167,19 @@ static void ZRGL_GeometryPass_Mesh(
 		M4x4_SetToIdentity(modelView.cells);
 		M4x4_Multiply(modelView.cells, view->cells, modelView.cells);
 		M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
+
+        if (obj->data.model.billboard == 1)
+        {
+            ZR_SetProg1i(prog, "u_isBillboard", 1);
+            Vec3 scale = M4x4_GetScale(modelView.cells);
+            M4x4_ClearRotation(modelView.cells);
+            M4x4_ApplyScale(modelView.cells, scale.x, scale.y, scale.z);
+        }
+        else
+        {
+            ZR_SetProg1i(prog, "u_isBillboard", 0);
+        }
+        
 
 		ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
 		ZR_SetProgM4x4(prog, "u_model", model.cells);

@@ -5,6 +5,7 @@ layout (location = 1) out vec3 gNormal;
 layout (location = 2) out vec4 gColour;
 layout (location = 3) out vec4 gEmission;
 
+uniform mat4 u_modelView;
 uniform sampler2D u_colourTex;
 uniform sampler2D u_emissionTex;
 
@@ -24,7 +25,19 @@ void main()
     if (colour.w > 0.5)
     {
         gPosition = m_worldPos;
+        #if 0
+        if (u_isBillboard == 1)
+        {
+            gNormal = -u_modelView[2].xyz;
+        }
+        else
+        {
+            gNormal = m_normal;
+        }
+        #endif
+        #if 1
         gNormal = m_normal;
+        #endif
         gColour = colour;
         gEmission = emission;
         //gEmission = vec4(0, 0, 0, 1);
