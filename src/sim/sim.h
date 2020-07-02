@@ -107,7 +107,8 @@ typedef u8 simFactoryType;
 #define SIM_ENT_FLAG_INVULNERABLE (1 << 6)
 
 #define SIM_DEATH_GFX_NONE 0
-#define SIM_DEATH_GFX_EXPLOSION 1
+#define SIM_DEATH_GFX_BULLET_IMPACT 1
+#define SIM_DEATH_GFX_GIB 2
 
 #include "sim_types.h"
 

@@ -158,7 +158,7 @@ internal i32 Sim_InitActor(
         { 0, 1, 0, 1 },
         ZRDB_MESH_NAME_CUBE,
 		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
-        SIM_DEATH_GFX_EXPLOSION);
+        SIM_DEATH_GFX_BULLET_IMPACT);
     ent->tickType = SIM_TICK_TYPE_ACTOR;
     ent->coreTickType = SIM_TICK_TYPE_ACTOR;
     ent->attackTime = 0.5f;
@@ -176,7 +176,7 @@ internal i32 Sim_InitBot(
         { 0, 0.6f, 0, 1 },
         ZRDB_MESH_NAME_CUBE,
 		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
-        SIM_DEATH_GFX_EXPLOSION);
+        SIM_DEATH_GFX_BULLET_IMPACT);
     ent->tickType = SIM_TICK_TYPE_BOT;
     ent->coreTickType = SIM_TICK_TYPE_BOT;
     //ent->flags = SIM_ENT_FLAG_POSITION_SYNC;
@@ -237,6 +237,7 @@ internal i32 Sim_InitPointLight(
     colour.b = def->pointLight.colour.z;
     colour.a = 1;
     ent->display.data.SetAsPointLight(colour, def->pointLight.multiplier, def->pointLight.range);
+    ent->lightType = 1;
     //Sim_SetEntityDisplay_Mesh(ent,
     //    colour,
     //    // TODO: Encoding light settings in the light's second channel? HACK! At least use a union...
@@ -375,8 +376,8 @@ internal i32 Sim_InitProjBase(
         { 1, 1, 0, 1 },
         ZRDB_MESH_NAME_SPIKE,
 		ZRDB_MAT_NAME_PRJ,
-        SIM_DEATH_GFX_EXPLOSION);
-    ent->deathType = SIM_DEATH_GFX_EXPLOSION;
+        SIM_DEATH_GFX_BULLET_IMPACT);
+    ent->deathType = SIM_DEATH_GFX_BULLET_IMPACT;
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
     ent->touchDamage = 10;
@@ -405,7 +406,7 @@ internal i32 Sim_InitProjPrediction(
         { 1, 1, 0, 1 },
         ZRDB_MESH_NAME_SPIKE,
 		ZRDB_MAT_NAME_PRJ,
-        SIM_DEATH_GFX_EXPLOSION);
+        SIM_DEATH_GFX_BULLET_IMPACT);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
     ent->touchDamage = 10;
@@ -434,10 +435,11 @@ internal i32 Sim_InitPlayerProjectile(
         { 1, 1, 0, 1 },
         ZRDB_MESH_NAME_SPIKE,
 		ZRDB_MAT_NAME_PRJ,
-        SIM_DEATH_GFX_EXPLOSION);
+        SIM_DEATH_GFX_BULLET_IMPACT);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
     ent->touchDamage = 10;
+    ent->lightType = 1;
 
     Sim_InitProjectile(
         ent,

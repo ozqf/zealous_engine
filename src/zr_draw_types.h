@@ -95,6 +95,9 @@ struct ZRParticleDef
 {
     f32 duration;
     i32 materialIndex;
+    i32 meshIndex;
+    Vec3 startScale;
+    Vec3 endScale;
     Vec3 pull;
 };
 
@@ -102,6 +105,7 @@ struct ZRParticle
 {
     Vec3 pos;
     Vec3 velocity;
+    Vec3 scale;
     f32 tick;
     i32 bCull;
 };

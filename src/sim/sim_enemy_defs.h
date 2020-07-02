@@ -18,8 +18,8 @@ internal i32 Sim_InitWanderer(
         { 1, 0, 1, 1 },
         "Cube",
         "Enemy",
-        SIM_DEATH_GFX_EXPLOSION);
-    ent->deathType = SIM_DEATH_GFX_EXPLOSION;
+        SIM_DEATH_GFX_GIB);
+    ent->deathType = SIM_DEATH_GFX_GIB;
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_WANDERER;
     ent->timing.lastThink = ent->timing.birthTick;
@@ -39,8 +39,8 @@ internal i32 Sim_InitRubble(
         { 0.7f, 0.7f, 1, 1 },
         "Cube",
         "Enemy",
-        SIM_DEATH_GFX_EXPLOSION);
-    ent->deathType = SIM_DEATH_GFX_EXPLOSION;
+        SIM_DEATH_GFX_GIB);
+    ent->deathType = SIM_DEATH_GFX_GIB;
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_NONE;
     ent->timing.lastThink = ent->timing.birthTick;
@@ -64,12 +64,12 @@ internal i32 Sim_InitBouncer(
         { 0.5f, 0.5f, 0.7f, 1 },
         "Cube",
         "Enemy",
-        SIM_DEATH_GFX_EXPLOSION);
+        SIM_DEATH_GFX_GIB);
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_BOUNCER;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(1.5f);
-    ent->deathType = SIM_DEATH_GFX_EXPLOSION;
+    ent->deathType = SIM_DEATH_GFX_GIB;
     return ZE_ERROR_NONE;
 }
 
@@ -85,8 +85,8 @@ internal i32 Sim_InitDart(
         { 1, 0.7f, 0.3f, 1 },
         "Cube",
         "Enemy",
-        SIM_DEATH_GFX_EXPLOSION);
-    ent->deathType = SIM_DEATH_GFX_EXPLOSION;
+        SIM_DEATH_GFX_GIB);
+    ent->deathType = SIM_DEATH_GFX_GIB;
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_DART;
     ent->timing.lastThink = ent->timing.birthTick;
@@ -106,12 +106,12 @@ internal i32 Sim_InitSeeker(
         { 0, 0.7f, 0.7f, 1 },
         "Cube",
         "Enemy",
-        SIM_DEATH_GFX_EXPLOSION);
+        SIM_DEATH_GFX_GIB);
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_SEEKER;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(1.5f);
-    ent->deathType = SIM_DEATH_GFX_EXPLOSION;
+    ent->deathType = SIM_DEATH_GFX_GIB;
     ent->basePriority = 8;
     return ZE_ERROR_NONE;
 }
@@ -128,12 +128,12 @@ internal i32 Sim_InitSeekerFlying(
         { 0, 0.7f, 0.7f, 1 },
         "Cube",
         "Enemy",
-        SIM_DEATH_GFX_EXPLOSION);
+        SIM_DEATH_GFX_GIB);
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_SEEKER_FLYING;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(1.5f);
-    ent->deathType = SIM_DEATH_GFX_EXPLOSION;
+    ent->deathType = SIM_DEATH_GFX_GIB;
     ent->basePriority = 8;
     return ZE_ERROR_NONE;
 }
@@ -150,7 +150,7 @@ internal i32 Sim_InitGrunt(
         { 1, 0.2f, 0.2f, 1 },
         "Cube",
         "Enemy",
-        SIM_DEATH_GFX_EXPLOSION);
+        SIM_DEATH_GFX_GIB);
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_GRUNT;
     ent->timing.lastThink = ent->timing.birthTick;
@@ -171,7 +171,7 @@ internal i32 Sim_InitBrute(
         { 1, 0.2f, 0.2f, 1 },
         "Cube",
         "Enemy",
-        SIM_DEATH_GFX_EXPLOSION);
+        SIM_DEATH_GFX_GIB);
     return ZE_ERROR_NONE;
 }
 

@@ -160,6 +160,7 @@ struct SimEntity
     timeFloat attackTime;
 
     SimEntDisplay display;
+    i32 lightType;
     u8 deathType;
 
     u32 flags;

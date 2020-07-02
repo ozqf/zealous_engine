@@ -27,6 +27,7 @@
 #define ZRDB_MAT_NAME_PRJ "Projectile"
 #define ZRDB_MAT_NAME_GFX "Gfx"
 #define ZRDB_MAT_NAME_LASER "Laser"
+#define ZRDB_MAT_NAME_LIGHT "Light"
 
 ///////////////////////////////////////////////////////////
 // Asset data types
@@ -118,6 +119,9 @@ struct ZRAssetUploader
     void (*UploadTexture)(u8* pixels, i32 width, i32 height, u32* handle);
     void (*UploadMesh)(MeshData* data, ZRMeshHandles* result, u32 flags);
 };
+
+#define ZRDB_GET_MAT_BY_NAME(assetDbPtr, matNameChars) \
+assetDbPtr->GetMaterialByName(##assetDbPtr##, ##matNameChars##)
 
 extern "C" ZRAssetDB* ZRDB_Create();
 extern "C" void ZRDB_AttachUploader(ZRAssetDB* assetDB, ZRAssetUploader uploader);

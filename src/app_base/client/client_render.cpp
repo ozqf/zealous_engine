@@ -22,14 +22,19 @@ extern "C" void CLR_Init(ZRAssetDB* assetDb)
     g_testEmit.particles = g_testParticles;
     g_testEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
     g_testEmit.def.duration = 0.2f;
-    g_testEmit.def.materialIndex = 0;
+    g_gibEmit.def.startScale = { 0.5f, 0.5f, 0.5f };
+    //g_testEmit.def.materialIndex = g_assetDb->GetMaterialByName(g_assetDb, ZRDB_MAT_NAME_PRJ)->index;
+    g_testEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_PRJ)->index;
+    g_testEmit.def.meshIndex = 1;
 
     g_gibEmit = {};
     g_gibEmit.particles = g_gibParticles;
     g_gibEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
     g_gibEmit.def.duration = 1;
-    g_gibEmit.def.materialIndex = 0;
-    g_gibEmit.def.pull = { 0, -10, 0 };
+    g_gibEmit.def.startScale = { 1, 1, 1 };
+    g_gibEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_PRJ)->index;
+    g_gibEmit.def.meshIndex = 1;
+    g_gibEmit.def.pull = { 0, -40, 0 };
 }
 
 extern "C" void CLR_Shutdown()
@@ -55,9 +60,10 @@ extern "C" void CLR_SpawnTestParticle(i32 type, Vec3 pos, Vec3 vel)
         default: emitter = &g_testEmit; break;
     }
     ZRParticle* p = CLR_GetFreeParticle(emitter);
-    if (p == NULL) { return; }
+    if (p == NULL) { printf("No particle to spawn\n"); return; }
     p->tick = emitter->def.duration;
     p->pos = pos;
+    p->scale = emitter->def.startScale;
     p->velocity = vel;
 }
 
@@ -92,14 +98,13 @@ internal void CLR_CullParticles(ZRParticleEmitter* emitter)
     }
 }
 
-extern "C" void CLR_TickTestParticles(timeFloat delta)
+internal void CLR_TickParticles(ZRParticleEmitter* emitter, timeFloat delta)
 {
     // TODO possible to update and cull in the same iteration?
-
     // iterate and update
-    for (i32 i = 0; i < g_testEmit.numParticles; ++i)
+    for (i32 i = 0; i < emitter->numParticles; ++i)
     {
-        ZRParticle* p = &g_testEmit.particles[i];
+        ZRParticle* p = &emitter->particles[i];
         ///////////////////////////////////////////////
         // Check for recycle
         if (p->tick <= 0)
@@ -109,52 +114,46 @@ extern "C" void CLR_TickTestParticles(timeFloat delta)
             continue;
         }
         p->tick -= (f32)delta;
+        Vec3 pull;
+        pull.x = emitter->def.pull.x * (f32)delta;
+        pull.y = emitter->def.pull.y * (f32)delta;
+        pull.z = emitter->def.pull.z * (f32)delta;
+        p->velocity.x += pull.x;
+        p->velocity.y += pull.y;
+        p->velocity.z += pull.z;
         p->pos.x += p->velocity.x * (f32)delta;
         p->pos.y += p->velocity.y * (f32)delta;
         p->pos.z += p->velocity.z * (f32)delta;
     }
-    CLR_CullParticles(&g_testEmit);
-    // iterate again and cull
-    /*for (i32 i = 0; i < g_testEmit.numParticles; ++i)
-    {
-        ZRParticle* p = &g_testEmit.particles[i];
-        if (p->bCull == NO) { continue; }
-        // disable flag
-        p->bCull = NO;
-        // cull
-        i32 lastIndex = g_testEmit.numParticles - 1;
-        if (i == 0 && g_testEmit.numParticles == 1)
-        {
-            // last active particle, just reset list
-            g_testEmit.numParticles = 0;
-        }
-        else if (i == lastIndex)
-        {
-            // last in array, just truncate
-            g_testEmit.numParticles--;
-        }
-        else
-        {
-            // swap and truncate
-            ZRParticle* last = &g_testEmit.particles[lastIndex];
-            *p = *last;
-            g_testEmit.numParticles--;
-        }
-    }*/
+    CLR_CullParticles(emitter);
 }
 
-internal void CLR_AddTestParticles(ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)
+extern "C" void CLR_TickTestParticles(timeFloat delta)
 {
-    ZRMaterial* mat = g_assetDb->GetMaterialByName(g_assetDb, ZRDB_MAT_NAME_GFX);
-    for (i32 i = 0; i < g_testEmit.numParticles; ++i)
+    CLR_TickParticles(&g_testEmit, delta);
+    CLR_TickParticles(&g_gibEmit, delta);
+}
+
+internal void CLR_WriteParticles(
+    ZRParticleEmitter* emitter, ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)
+{
+    ZRMaterial* mat;
+    mat = g_assetDb->GetMaterialByIndex(g_assetDb, emitter->def.materialIndex);
+    for (i32 i = 0; i < emitter->numParticles; ++i)
     {
-        ZRParticle* p = &g_testEmit.particles[i];
+        ZRParticle* p = &emitter->particles[i];
         ZRDrawObj* obj = ZRDrawObj_InitInPlace(&list->cursor);
         scene->params.numObjects++;
         obj->data.SetAsMesh(0, mat->index);
         obj->t.pos = p->pos;
-        obj->t.scale = { 0.2f, 0.2f, 0.2f };
+        obj->t.scale = p->scale;
     }
+}
+
+internal void CLR_AddTestParticles(ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)
+{
+    CLR_WriteParticles(&g_testEmit, scene, list, data);
+    CLR_WriteParticles(&g_gibEmit, scene, list, data);
 }
 
 /**
@@ -217,6 +216,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     ClientRenderSettings cfg)
 {
     ZRAssetDB* db = App_GetAssetDB();
+    i32 lightBulbMatIndex = ZRDB_GET_MAT_BY_NAME(db, ZRDB_MAT_NAME_LIGHT)->index;
     
     if (cfg.worldLightsMax <= 0) { cfg.worldLightsMax = 4; }
     if (cfg.extraLightsMax <= 0) { cfg.extraLightsMax = 4; }
@@ -244,12 +244,10 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 rendObjectsAdded++;
 
                 // add an optional light source
-                if ((ent->factoryType == SIM_FACTORY_TYPE_PROJ_PLAYER
-                    || ent->factoryType == SIM_FACTORY_TYPE_BULLET_IMPACT)
-                    && extraLights > 0)
+                if (ent->lightType == 1 && extraLights > 0)
                 {
                     obj = ZRDrawObj_InitInPlace(&list->cursor);
-                    obj->data.SetAsPointLight({ 1, 1, 0.5f }, 1, 15);
+                    obj->data.SetAsPointLight({ 1, 1, 0.5f }, 1, 10);
                     obj->t = ent->body.t;
                     rendObjectsAdded++;
                     extraLights--;
@@ -264,6 +262,13 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                     obj->data = ent->display.data;
                     obj->t = ent->body.t;
                     rendObjectsAdded++;
+                    if (ent->lightType == 1)
+                    {
+                        obj = ZRDrawObj_InitInPlace(&list->cursor);
+                        obj->data.SetAsMesh(0, lightBulbMatIndex);
+                        obj->t = ent->body.t;
+                        rendObjectsAdded++;
+                    }
                 }
                 worldLights--;
             } break;

@@ -277,7 +277,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         db,
         ZRDB_MAT_NAME_LASER,
         "red",
-        ZR_TRANSPARENT_TEX_NAME
+        "red"
     );
 	
 	db->CreateMaterial(
@@ -286,6 +286,13 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         "data/W33_5.bmp",
         ZR_TRANSPARENT_TEX_NAME
     );
+
+	db->CreateMaterial(
+		db,
+		ZRDB_MAT_NAME_LIGHT,
+		"white",
+		"white"
+	);
 }
 
 internal void ZRDB_VidRestart(ZRAssetDB* assetDb)

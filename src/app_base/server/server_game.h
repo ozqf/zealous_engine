@@ -83,8 +83,6 @@ internal void SVG_HandleEntityDeath(
     if (parent != NULL)
     {
         parent->relationships.liveChildren--;
-        printf("\tParent remaining children: %d\n",
-            parent->relationships.liveChildren);
     }
     SVU_RemoveEntityForAllUsers(victim, &g_users, victim->id.serial);
     // deterministic deaths will occur naturally on the client without server info

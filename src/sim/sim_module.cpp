@@ -13,8 +13,9 @@
 #include "sim_enemy_defs.h"
 #include "sim_items.h"
 #include "sim_factory.h"
-#include "sim_external.h"
 #include "sim_entity_ticks.h"
+#include "sim_embedded_scenes.h"
+#include "sim_external.h"
 
 // TODO: Uncouple me!
 // This should be so that the sim module can access 

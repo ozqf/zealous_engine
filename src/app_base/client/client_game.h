@@ -28,7 +28,7 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
     }
     switch (ent->deathType)
     {
-        case SIM_DEATH_GFX_EXPLOSION:
+        case SIM_DEATH_GFX_BULLET_IMPACT:
         {
             SimEntSpawnData def = {};
             def.factoryType = SIM_FACTORY_TYPE_BULLET_IMPACT;
@@ -48,6 +48,20 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
                 CLR_SpawnTestParticle(CLR_PARTICLE_TYPE_TEST, pos, vel);
             }
             
+        } break;
+        case SIM_DEATH_GFX_GIB:
+        {
+            // Test particle spray
+            Vec3 pos = ent->body.t.pos;
+            for (i32 i = 0; i < 5; ++i)
+            {
+                f32 rand = COM_STDRandf32();
+                Vec3 vel;
+                vel.x = COM_STDRandomInRange(-10, 10);
+                vel.y = COM_STDRandomInRange(-5, 20);
+                vel.z = COM_STDRandomInRange(-10, 10);
+                CLR_SpawnTestParticle(CLR_PARTICLE_TYPE_GIB, pos, vel);
+            }
         } break;
     }
 }

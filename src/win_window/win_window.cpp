@@ -27,6 +27,7 @@ static void Window_EnqueueTextCommand(char* str);
 #include "ze_window_globals.h"
 #include "ze_window_callbacks.h"
 
+
 static void ZR_Error(const char* msg)
 {
     g_platform.Error((char*)msg);

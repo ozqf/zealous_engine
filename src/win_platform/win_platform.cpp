@@ -17,6 +17,22 @@ Provides:
 #include <windows.h>
 #include <stdio.h>
 
+#define FORCE_OPTIMUS
+#ifdef FORCE_OPTIMUS
+// This export should force nvidia optimus drivers to use the dedicated video card
+// http://developer.download.nvidia.com/devzone/devcenter/gamegraphics/files/OptimusRenderingPolicies.pdf
+extern "C"
+{
+  __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+}
+// AMD version
+// http://developer.amd.com/community/blog/2015/10/02/amd-enduro-system-for-developers/
+extern "C"
+{
+  __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
+#endif // FORCE_OPTIMUS
+
 #include "../ze_module_interfaces.h"
 #include "../ze_common/ze_common.h"
 #include "../ze_common/ze_byte_buffer.h"
