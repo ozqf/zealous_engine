@@ -33,6 +33,9 @@ vec4 CalcPointLight(vec3 lightPos, vec3 colour, float lightRange, vec3 fragPos, 
 
 // Oh... don't have the depth value for
 // the original pixel here yet...
+// Try this?
+// https://mynameismjp.wordpress.com/2010/09/05/position-from-depth-3/
+// - need to pass specific distance, not depth!
 vec3 DepthToWorldPos()
 {
 	return vec3(0, 0, 0);

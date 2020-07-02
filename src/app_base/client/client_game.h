@@ -45,7 +45,7 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
                 vel.x = COM_STDRandomInRange(-15, 15);
                 vel.y = COM_STDRandomInRange(-10, 15);
                 vel.z = COM_STDRandomInRange(-15, 15);
-                CLR_SpawnTestParticle(pos, vel);
+                CLR_SpawnTestParticle(CLR_PARTICLE_TYPE_TEST, pos, vel);
             }
             
         } break;

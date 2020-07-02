@@ -11,6 +11,9 @@
 #include "../../sim/sim.h"
 #include "../../assetdb/zr_asset_db.h"
 
+#define CLR_PARTICLE_TYPE_TEST 0
+#define CLR_PARTICLE_TYPE_GIB 1
+
 struct ClientRenderSettings
 {
     u32 debugFlags;
@@ -20,7 +23,7 @@ struct ClientRenderSettings
 
 extern "C" void CLR_Init(ZRAssetDB* db);
 extern "C" void CLR_Shutdown();
-extern "C" void CLR_SpawnTestParticle(Vec3 pos, Vec3 vel);
+extern "C" void CLR_SpawnTestParticle(i32 type, Vec3 pos, Vec3 vel);
 extern "C" void CLR_TickTestParticles(timeFloat delta);
 /**
  * Write Client state to draw buffers

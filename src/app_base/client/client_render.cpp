@@ -11,6 +11,9 @@ static ZRAssetDB* g_assetDb = NULL;
 static ZRParticle g_testParticles[CLR_NUM_TEST_PARTICLES];
 static ZRParticleEmitter g_testEmit;
 
+static ZRParticle g_gibParticles[CLR_NUM_TEST_PARTICLES];
+static ZRParticleEmitter g_gibEmit;
+
 extern "C" void CLR_Init(ZRAssetDB* assetDb)
 {
     g_assetDb = assetDb;
@@ -20,6 +23,13 @@ extern "C" void CLR_Init(ZRAssetDB* assetDb)
     g_testEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
     g_testEmit.def.duration = 0.2f;
     g_testEmit.def.materialIndex = 0;
+
+    g_gibEmit = {};
+    g_gibEmit.particles = g_gibParticles;
+    g_gibEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
+    g_gibEmit.def.duration = 1;
+    g_gibEmit.def.materialIndex = 0;
+    g_gibEmit.def.pull = { 0, -10, 0 };
 }
 
 extern "C" void CLR_Shutdown()
@@ -27,14 +37,59 @@ extern "C" void CLR_Shutdown()
     g_assetDb = NULL;
 }
 
-extern "C" void CLR_SpawnTestParticle(Vec3 pos, Vec3 vel)
+internal ZRParticle* CLR_GetFreeParticle(ZRParticleEmitter* emitter)
+{
+    if (emitter->numParticles >= emitter->maxParticles) { return NULL; }
+    ZRParticle* p = &emitter->particles[emitter->numParticles++];
+    return p;
+}
+
+extern "C" void CLR_SpawnTestParticle(i32 type, Vec3 pos, Vec3 vel)
 {
     if (g_testEmit.numParticles >= g_testEmit.maxParticles)
     { return; }
-    ZRParticle* p = &g_testEmit.particles[g_testEmit.numParticles++];
-    p->tick = g_testEmit.def.duration;
+    ZRParticleEmitter* emitter = NULL;
+    switch (type)
+    {
+        case CLR_PARTICLE_TYPE_GIB: emitter = &g_gibEmit; break;
+        default: emitter = &g_testEmit; break;
+    }
+    ZRParticle* p = CLR_GetFreeParticle(emitter);
+    if (p == NULL) { return; }
+    p->tick = emitter->def.duration;
     p->pos = pos;
     p->velocity = vel;
+}
+
+internal void CLR_CullParticles(ZRParticleEmitter* emitter)
+{
+    // iterate again and cull
+    for (i32 i = 0; i < emitter->numParticles; ++i)
+    {
+        ZRParticle* p = &emitter->particles[i];
+        if (p->bCull == NO) { continue; }
+        // disable flag
+        p->bCull = NO;
+        // cull
+        i32 lastIndex = emitter->numParticles - 1;
+        if (i == 0 && emitter->numParticles == 1)
+        {
+            // last active particle, just reset list
+            emitter->numParticles = 0;
+        }
+        else if (i == lastIndex)
+        {
+            // last in array, just truncate
+            emitter->numParticles--;
+        }
+        else
+        {
+            // swap and truncate
+            ZRParticle* last = &emitter->particles[lastIndex];
+            *p = *last;
+            emitter->numParticles--;
+        }
+    }
 }
 
 extern "C" void CLR_TickTestParticles(timeFloat delta)
@@ -58,8 +113,9 @@ extern "C" void CLR_TickTestParticles(timeFloat delta)
         p->pos.y += p->velocity.y * (f32)delta;
         p->pos.z += p->velocity.z * (f32)delta;
     }
+    CLR_CullParticles(&g_testEmit);
     // iterate again and cull
-    for (i32 i = 0; i < g_testEmit.numParticles; ++i)
+    /*for (i32 i = 0; i < g_testEmit.numParticles; ++i)
     {
         ZRParticle* p = &g_testEmit.particles[i];
         if (p->bCull == NO) { continue; }
@@ -84,7 +140,7 @@ extern "C" void CLR_TickTestParticles(timeFloat delta)
             *p = *last;
             g_testEmit.numParticles--;
         }
-    }
+    }*/
 }
 
 internal void CLR_AddTestParticles(ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)

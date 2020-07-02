@@ -95,6 +95,7 @@ struct ZRParticleDef
 {
     f32 duration;
     i32 materialIndex;
+    Vec3 pull;
 };
 
 struct ZRParticle

@@ -49,8 +49,6 @@ internal ze_platform_export g_platform = {};
 internal volatile i32 g_bExit = NO;
 internal ScreenInfo g_scrInfo;
 
-
-
 // cap fps
 internal i32 g_maxFPS = 0;
 
