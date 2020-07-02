@@ -25,6 +25,7 @@ internal f32 g_prim_quadUVs[] =
 
 internal f32 g_prim_quadNormals[] =
 {
+	#if 1
 	-1, -1,  0,
 	 1, -1,  0,
 	 1,  1,  0,
@@ -32,12 +33,31 @@ internal f32 g_prim_quadNormals[] =
 	-1, -1,  0,
 	 1,  1,  0,
 	-1,  1,  0
+	#endif
+	#if 0
+	0,  0,  1,
+	0,  0,  1,
+	0,  0,  1,
+
+	0,  0,  1,
+	0,  0,  1,
+	0,  0,  1
+	#endif
+	#if 0
+	0,  1,  0,
+	0,  1,  0,
+	0,  1,  0,
+
+	0,  1,  0,
+	0,  1,  0,
+	0,  1,  0
+	#endif
 };
 
 internal MeshData g_meshPrimitive_quad = {
     6,
     g_prim_quadVerts,
-    g_prim_quadUVs
-
+    g_prim_quadUVs,
+	g_prim_quadNormals
 };
 

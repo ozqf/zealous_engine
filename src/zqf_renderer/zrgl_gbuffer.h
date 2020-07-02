@@ -171,9 +171,9 @@ static void ZRGL_GeometryPass_Mesh(
         if (obj->data.model.billboard == 1)
         {
             ZR_SetProg1i(prog, "u_isBillboard", 1);
-            Vec3 scale = M4x4_GetScale(modelView.cells);
-            M4x4_ClearRotation(modelView.cells);
-            M4x4_ApplyScale(modelView.cells, scale.x, scale.y, scale.z);
+            // Vec3 scale = M4x4_GetScale(modelView.cells);
+            // M4x4_ClearRotation(modelView.cells);
+            // M4x4_ApplyScale(modelView.cells, scale.x, scale.y, scale.z);
         }
         else
         {

@@ -22,18 +22,34 @@ out vec3 m_normal;
 void main()
 {
 	vec4 positionV4 = vec4(i_position, 1.0);
-   	gl_Position = u_projection * u_modelView * positionV4;
 	// outputs for gbuffer
    	m_texCoord = i_uv;
 	// world space
 	if (u_isBillboard == 1)
 	{
-
+		#if 1
 		m_normal = -u_view[2].xyz;
+		m_normal = normalize(mat3(u_model) * i_normal);
+		#endif
+		#if 0
+		vec3 toView = vec3(positionV4) - u_view[3].xyz;
+		toView = normalize(toView);
+		m_normal = toView;
+		#endif
+		vec3 scale;
+		mat4 mv = u_modelView;
+		scale.x = length(mv[0].xyz);
+		scale.y = length(mv[1].xyz);
+		scale.z = length(mv[2].xyz);
+		mv[0].xyz = vec3(1, 0, 0) * scale.x;
+		mv[1].xyz = vec3(0, 1, 0) * scale.y;
+		mv[2].xyz = vec3(0, 0, 1) * scale.z;
+		gl_Position = u_projection * mv * positionV4;
 	}
 	else
 	{
 		m_normal = normalize(mat3(u_model) * i_normal);
+		gl_Position = u_projection * u_modelView * positionV4;
 	}
 	
 	m_worldPos = vec3(u_model * positionV4);

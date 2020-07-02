@@ -37,7 +37,7 @@ internal i32 Sim_InitRubble(
     Sim_SetEntityDisplay_Mesh(ent,
         { 0.7f, 0.7f, 1, 1 },
         { 0.7f, 0.7f, 1, 1 },
-        "Cube",
+        "Quad",
         "Enemy",
         SIM_DEATH_GFX_GIB);
     ent->display.data.model.billboard = 1;
