@@ -123,6 +123,9 @@ struct ZRAssetUploader
 #define ZRDB_GET_MAT_BY_NAME(assetDbPtr, matNameChars) \
 assetDbPtr->GetMaterialByName(##assetDbPtr##, ##matNameChars##)
 
+#define ZRDB_GET_MESH_BY_NAME(assetDbPtr, matNameChars) \
+assetDbPtr->GetMeshByName(##assetDbPtr##, ##matNameChars##)
+
 extern "C" ZRAssetDB* ZRDB_Create();
 extern "C" void ZRDB_AttachUploader(ZRAssetDB* assetDB, ZRAssetUploader uploader);
 extern "C" void ZRDB_PrintManifest(ZRAssetDB* assetDB);

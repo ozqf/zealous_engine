@@ -9,7 +9,7 @@
 ////////////////////////////////////////////////////////////
 // Note for debugging shadow maps: This guy works okay!
 static void ZRGL_DrawDebugQuad(
-    Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax, i32 texHandle, f32 aspectRatio)
+    Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax, i32 texHandle, f32 aspectRatio, i32 bTransparent)
 {
     glDisable(GL_DEPTH_TEST);
     CHECK_GL_ERR
@@ -32,6 +32,7 @@ static void ZRGL_DrawDebugQuad(
     CHECK_GL_ERR
     ZR_SetProgM4x4(programId, "u_modelView", modelView.cells);
     CHECK_GL_ERR
+    ZR_SetProg1i(programId, "u_transparent", bTransparent);
     
     // Using Data texture sampler here as it ignores mipmapping
     ZR_PrepareTextureUnit2D(

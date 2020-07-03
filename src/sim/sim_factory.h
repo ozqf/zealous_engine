@@ -338,7 +338,7 @@ internal i32 Sim_InitTargetPoint(
 		ZRDB_MAT_NAME_LASER,
         SIM_DEATH_GFX_NONE);
     ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
-    ent->body.t.scale = { 0.5f, 0.5f, 0.5f };
+    ent->body.t.scale = { 0.15f, 0.15f, 0.15f };
     return ZE_ERROR_NONE;
 }
 

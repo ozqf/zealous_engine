@@ -18,22 +18,25 @@ extern "C" void CLR_Init(ZRAssetDB* assetDb)
 {
     g_assetDb = assetDb;
 	ZUI_Init(assetDb);
+
+    i32 quadIndex = ZRDB_GET_MESH_BY_NAME(g_assetDb, ZRDB_MESH_NAME_QUAD)->header.index;
+
     g_testEmit = {};
     g_testEmit.particles = g_testParticles;
     g_testEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
     g_testEmit.def.duration = 0.2f;
     g_gibEmit.def.startScale = { 0.5f, 0.5f, 0.5f };
-    //g_testEmit.def.materialIndex = g_assetDb->GetMaterialByName(g_assetDb, ZRDB_MAT_NAME_PRJ)->index;
     g_testEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_PRJ)->index;
-    g_testEmit.def.meshIndex = 1;
+    g_testEmit.def.meshIndex = quadIndex;
 
     g_gibEmit = {};
     g_gibEmit.particles = g_gibParticles;
     g_gibEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
+    g_gibEmit.def.billboard = YES;
     g_gibEmit.def.duration = 1;
     g_gibEmit.def.startScale = { 1, 1, 1 };
     g_gibEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_PRJ)->index;
-    g_gibEmit.def.meshIndex = 1;
+    g_gibEmit.def.meshIndex = quadIndex;
     g_gibEmit.def.pull = { 0, -40, 0 };
 }
 
@@ -144,7 +147,8 @@ internal void CLR_WriteParticles(
         ZRParticle* p = &emitter->particles[i];
         ZRDrawObj* obj = ZRDrawObj_InitInPlace(&list->cursor);
         scene->params.numObjects++;
-        obj->data.SetAsMesh(0, mat->index);
+        obj->data.SetAsMesh(emitter->def.meshIndex, emitter->def.materialIndex);
+        obj->data.model.billboard = emitter->def.billboard;
         obj->t.pos = p->pos;
         obj->t.scale = p->scale;
     }
@@ -354,12 +358,14 @@ extern "C" void CLR_WriteDrawFrame(
     // Add View Model Scene
     if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
     {
+        i32 wallMesh = ZRDB_GET_MESH_BY_NAME(g_assetDb, ZRDB_MAT_NAME_WORLD)->header.index;
+        i32 wallMat = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_WORLD)->index;
         #if 1 // right hand
         scene = ZRSccene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, NO);
         Transform_SetToIdentity(&scene->params.camera);
         frame->numScenes++;
         obj = ZRDrawObj_InitInPlace(&list->cursor);
-        obj->data.SetAsMesh(0, 0);
+        obj->data.SetAsMesh(wallMesh, wallMat);
         obj->t.pos.x = 0.5f;
         obj->t.pos.y = -0.5f;
         obj->t.pos.z = -1;

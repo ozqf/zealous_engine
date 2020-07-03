@@ -248,7 +248,7 @@ static void ZR_DrawMeshGroupFallback(
     ZRGroupingStats* stats);
 
 static void ZRGL_DrawDebugQuad(
-    Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax, i32 texHandle, f32 aspectRatio);
+    Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax, i32 texHandle, f32 aspectRatio, i32 bTransparent);
 
 static void ZRGL_ClearColourDefault()
 {

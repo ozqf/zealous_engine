@@ -96,6 +96,7 @@ struct ZRParticleDef
     f32 duration;
     i32 materialIndex;
     i32 meshIndex;
+    i32 billboard;
     Vec3 startScale;
     Vec3 endScale;
     Vec3 pull;

@@ -28,8 +28,14 @@ void main()
 	if (u_isBillboard == 1)
 	{
 		#if 1
-		m_normal = -u_view[2].xyz;
-		m_normal = normalize(mat3(u_model) * i_normal);
+		//vec3 viewNormal = vec3(0, 0, 0);// -u_view[2].xyz;
+		vec3 geoNormal = vec3(0, 0, 0);
+		// meh - mix two methods - still crap but whatever.
+		//vec3 viewNormal = -u_view[2].xyz;
+		vec3 viewNormal = u_view[2].xyz;
+		//vec3 geoNormal = mat3(u_model) * i_normal;
+		m_normal = normalize(viewNormal + geoNormal);
+		//m_normal = normalize(mat3(u_model) * i_normal);
 		#endif
 		#if 0
 		vec3 toView = vec3(positionV4) - u_view[3].xyz;

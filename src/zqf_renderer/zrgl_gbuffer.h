@@ -390,7 +390,7 @@ static void ZRGL_DrawEmission(f32 aspectRatio)
     Vec2 uvMin = { 0, 0 };
     Vec2 uvMax = { 1, 1 };
     i32 texHandle = g_gBuffer.emissionTex;
-    ZRGL_DrawDebugQuad(pos, size, uvMin, uvMax, texHandle, aspectRatio);
+    ZRGL_DrawDebugQuad(pos, size, uvMin, uvMax, texHandle, aspectRatio, YES);
 }
 
 /**
@@ -413,7 +413,7 @@ static void ZRGL_DrawGBufferDebugQuads(f32 aspectRatio)
         { debugQuadSize, debugQuadSize },
         { 0, 0 },
         { 1, 1 },
-        texA, aspectRatio);
+        texA, aspectRatio, NO);
     #endif
     #if 1 // B
     ZRGL_DrawDebugQuad(
@@ -421,7 +421,7 @@ static void ZRGL_DrawGBufferDebugQuads(f32 aspectRatio)
         { debugQuadSize, debugQuadSize },
         { 0, 0 },
         { 1, 1 },
-        texB, aspectRatio);
+        texB, aspectRatio, NO);
     #endif
     #if 1 // C
     ZRGL_DrawDebugQuad(
@@ -429,7 +429,7 @@ static void ZRGL_DrawGBufferDebugQuads(f32 aspectRatio)
         { debugQuadSize, debugQuadSize },
         { 0, 0 },
         { 1, 1 },
-        texC, aspectRatio);
+        texC, aspectRatio, NO);
     #endif
     #if 1 // D
     ZRGL_DrawDebugQuad(
@@ -437,7 +437,7 @@ static void ZRGL_DrawGBufferDebugQuads(f32 aspectRatio)
         { debugQuadSize, debugQuadSize },
         { 0, 0 },
         { 1, 1 },
-        texD, aspectRatio);
+        texD, aspectRatio, NO);
     #endif
 
 }
