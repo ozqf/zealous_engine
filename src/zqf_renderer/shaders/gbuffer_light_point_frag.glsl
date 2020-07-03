@@ -50,6 +50,11 @@ void main()
     vec3 normal = vec3(texture2D(u_normalTex, m_texCoord));
     vec3 fragWorldPos = vec3(texture2D(u_positionTex, m_texCoord));
 	vec4 emission = vec4(texture2D(u_emissionTex, m_texCoord));
+	// for billboards
+	if (length(normal) == 0)
+	{
+		normal = normalize(u_lightWorldPos - fragWorldPos);
+	}
 	#if 1
     vec4 lightResult = CalcPointLight(
     	u_lightWorldPos, u_lightColour, u_lightRange, fragWorldPos, normal);

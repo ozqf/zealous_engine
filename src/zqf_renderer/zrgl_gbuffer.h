@@ -152,9 +152,6 @@ static void ZRGL_GeometryPass_Mesh(
 	ZR_SetProgM4x4(prog, "u_projection", projection->cells);
 	CHECK_GL_ERR
 
-    ZR_SetProgM4x4(prog, "u_view", view->cells);
-	CHECK_GL_ERR
-	
 	M4x4_CREATE(model)
 	M4x4_CREATE(modelView)
 	

@@ -4,7 +4,7 @@
 uniform mat4 u_projection;
 uniform mat4 u_modelView;
 uniform mat4 u_model;
-uniform mat4 u_view;
+//uniform mat4 u_view;
 uniform int u_isBillboard;
 
 // Vertex Attrib 0
@@ -27,14 +27,18 @@ void main()
 	// world space
 	if (u_isBillboard == 1)
 	{
-		#if 1
+		m_normal = vec3(0, 0, 0);
+		// old random attempts and doing 'proper' lighting on billboards.
+		// doesn't work though
+		#if 0
 		//vec3 viewNormal = vec3(0, 0, 0);// -u_view[2].xyz;
 		vec3 geoNormal = vec3(0, 0, 0);
 		// meh - mix two methods - still crap but whatever.
 		//vec3 viewNormal = -u_view[2].xyz;
 		vec3 viewNormal = u_view[2].xyz;
 		//vec3 geoNormal = mat3(u_model) * i_normal;
-		m_normal = normalize(viewNormal + geoNormal);
+		//m_normal = normalize(viewNormal + geoNormal);
+		m_normal = vec3(0, 0, 0);
 		//m_normal = normalize(mat3(u_model) * i_normal);
 		#endif
 		#if 0
@@ -42,6 +46,7 @@ void main()
 		toView = normalize(toView);
 		m_normal = toView;
 		#endif
+		// reset rotation
 		vec3 scale;
 		mat4 mv = u_modelView;
 		scale.x = length(mv[0].xyz);
