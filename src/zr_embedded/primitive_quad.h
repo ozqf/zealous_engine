@@ -25,7 +25,7 @@ internal f32 g_prim_quadUVs[] =
 
 internal f32 g_prim_quadNormals[] =
 {
-	#if 1
+	#if 0
 	-1, -1,  0,
 	 1, -1,  0,
 	 1,  1,  0,
@@ -34,14 +34,14 @@ internal f32 g_prim_quadNormals[] =
 	 1,  1,  0,
 	-1,  1,  0
 	#endif
-	#if 0
-	0,  0,  1,
-	0,  0,  1,
-	0,  0,  1,
+	#if 1
+	0,  0,  -1,
+	0,  0,  -1,
+	0,  0,  -1,
 
-	0,  0,  1,
-	0,  0,  1,
-	0,  0,  1
+	0,  0,  -1,
+	0,  0,  -1,
+	0,  0,  -1
 	#endif
 	#if 0
 	0,  1,  0,

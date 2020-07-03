@@ -342,17 +342,34 @@ internal i32 Sim_InitTargetPoint(
     return ZE_ERROR_NONE;
 }
 
-internal i32 Sim_InitProp(
+internal i32 Sim_InitPropBillboard(
     SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
-        ZRDB_MESH_NAME_CUBE,
-		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
+        ZRDB_MESH_NAME_QUAD,
+		ZRDB_MAT_NAME_WORLD,
         SIM_DEATH_GFX_NONE);
     ent->display.data.model.billboard = 1;
+    ent->tickType = SIM_TICK_TYPE_NONE;
+    ent->coreTickType = SIM_TICK_TYPE_NONE;
+    ent->timing.nextThink = 0;
+    ent->body.t.scale = { 1, 1, 1 };
+    return ZE_ERROR_NONE;
+}
+
+internal i32 Sim_InitPropMesh(
+    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+{
+    Sim_SetEntityBase(ent, def);
+    Sim_SetEntityDisplay_Mesh(ent,
+        { 1, 1, 0, 1 },
+        { 1, 1, 0, 1 },
+        ZRDB_MESH_NAME_SPIKE,
+		ZRDB_MAT_NAME_WORLD,
+        SIM_DEATH_GFX_NONE);
     ent->tickType = SIM_TICK_TYPE_NONE;
     ent->coreTickType = SIM_TICK_TYPE_NONE;
     ent->timing.nextThink = 0;
@@ -516,8 +533,10 @@ internal SimEntity* Sim_SpawnEntity(
             err = Sim_InitGrunt(sim, ent, def); break;
         ////////////////////////////////////////////////////////
         // Misc
-        case SIM_FACTORY_TYPE_PROP:
-            err = Sim_InitProp(sim, ent, def); break;
+        case SIM_FACTORY_TYPE_PROP_BILLBOARD:
+            err = Sim_InitPropBillboard(sim, ent, def); break;
+		case SIM_FACTORY_TYPE_PROP_MESH:
+            err = Sim_InitPropMesh(sim, ent, def); break;
         case SIM_FACTORY_TYPE_ACTOR:
             err =  Sim_InitActor(sim, ent, def); break;
         case SIM_FACTORY_TYPE_BOT:

@@ -3,6 +3,7 @@
 #include "../ze_common/ze_common.h"
 #include "../ze_common/ze_math_types.h"
 
+#include "../assetdb/zr_asset_db.h"
 //#include "../physics/physics.h"
 
 //#define SIM_USE_PHYSICS_ENGINE
@@ -64,9 +65,10 @@ typedef u8 simFactoryType;
 #define SIM_FACTORY_TYPE_BULLET_IMPACT 18
 #define SIM_FACTORY_TYPE_TARGET_POINT 19
 #define SIM_FACTORY_TYPE_SEEKER_FLYING 20
-#define SIM_FACTORY_TYPE_PROP 21
-#define SIM_FACTORY_TYPE_POINT_LIGHT 22
-#define SIM_FACTORY_TYPE_DIRECT_LIGHT 23
+#define SIM_FACTORY_TYPE_PROP_BILLBOARD 21
+#define SIM_FACTORY_TYPE_PROP_MESH 22
+#define SIM_FACTORY_TYPE_POINT_LIGHT 23
+#define SIM_FACTORY_TYPE_DIRECT_LIGHT 24
 
 // Update functions
 #define SIM_TICK_TYPE_NONE 0

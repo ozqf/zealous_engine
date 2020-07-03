@@ -41,12 +41,21 @@ internal void Sim_AddDirectLight(
     Sim_RestoreEntity(sim, &def);
 }
 
-internal void Sim_AddTestProp(SimScene* sim, Vec3 pos)
+internal void Sim_AddTestProp(SimScene* sim, Vec3 pos, i32 billboard)
 {
     SimEntSpawnData def = {};
     def.serial = Sim_ReserveEntitySerial(sim, YES);
     def.isLocal = 1;
-	def.factoryType = SIM_FACTORY_TYPE_PROP;
+	if (billboard)
+	{
+		def.factoryType = SIM_FACTORY_TYPE_PROP_BILLBOARD;
+	}
+	else
+	{
+		def.factoryType = SIM_FACTORY_TYPE_PROP_MESH;
+	}
+	
+	
     def.pos = pos;
     Sim_RestoreEntity(sim, &def);
 }
@@ -108,7 +117,7 @@ i32 Sim_LoadEmbeddedScene(SimScene* sim, i32 index)
     f32 floodLightY = 10;
     f32 floodLightMul = 2;
     f32 floodLightRange = 20;
-	Sim_AddPointLight(sim, { 0, floodLightY, 0 }, { 1, 1, 1 }, 1, 35);
+	Sim_AddPointLight(sim, { 0, floodLightY, 0 }, { 1, 1, 1 }, 1, 25);
     Sim_AddPointLight(sim, { 15, floodLightY, 15 }, { 1, 0.3f, 0.3f }, floodLightMul, floodLightRange);
     Sim_AddPointLight(sim, { 15, floodLightY, -15 }, { 1, 0.3f, 0.3f }, floodLightMul, floodLightRange);
 	Sim_AddPointLight(sim, { -15, floodLightY, -15 }, { 0, 1, 0 }, floodLightMul, floodLightRange);
@@ -135,10 +144,10 @@ i32 Sim_LoadEmbeddedScene(SimScene* sim, i32 index)
     
     APP_PRINT(128, "SIM spawn props\n")
     // static sprites
-    Sim_AddTestProp(sim, { 15, 0, 15 });
-    Sim_AddTestProp(sim, { 15, 0, -15 });
-    Sim_AddTestProp(sim, { -15, 0, 15 });
-    Sim_AddTestProp(sim, { -15, 0, -15 });
+    Sim_AddTestProp(sim, { 15, 2, 15 }, 1);
+    Sim_AddTestProp(sim, { 15, 2, -15 }, 0);
+    Sim_AddTestProp(sim, { -15, 2, 15 }, 1);
+    Sim_AddTestProp(sim, { -15, 2, -15 }, 0);
 
     halfX -= 1;
     halfY -= 1;

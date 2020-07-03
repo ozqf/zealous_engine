@@ -363,4 +363,5 @@ struct SimScene
     Vec3 boundaryMax;
 
     QuantiseSet quantise;
+	ZRAssetDB* db;
 };
