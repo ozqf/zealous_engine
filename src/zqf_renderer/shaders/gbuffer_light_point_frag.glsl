@@ -23,7 +23,12 @@ out vec4 outputColor;
 vec4 CalcPointLight(vec3 lightPos, vec3 colour, float lightRange, vec3 fragPos, vec3 fragNormal)
 {
 	vec3 dir = normalize(lightPos - fragPos);
+	#if 0 // straight dot product
 	float diff = max(dot(fragNormal, dir), 0.0);
+	#endif
+	#if 1 // pulled in slightly
+	float diff = max(dot(fragNormal, dir) * 0.5 + 0.5, 0.0);
+	#endif
 	float dist = distance(fragPos, lightPos);
 	//float maxRange = 50;
 	float maxRange = lightRange;

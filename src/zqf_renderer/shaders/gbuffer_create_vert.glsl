@@ -27,7 +27,9 @@ void main()
 	// world space
 	if (u_isBillboard == 1)
 	{
+		#if 0 // tell frag shader to face light source
 		m_normal = vec3(0, 0, 0);
+		#endif
 		// old random attempts and doing 'proper' lighting on billboards.
 		// doesn't work though
 		#if 0
@@ -45,6 +47,9 @@ void main()
 		vec3 toView = vec3(positionV4) - u_view[3].xyz;
 		toView = normalize(toView);
 		m_normal = toView;
+		#endif
+		#if 1 // standard 3D
+		m_normal = normalize(mat3(u_model) * i_normal);
 		#endif
 		// reset rotation
 		vec3 scale;
