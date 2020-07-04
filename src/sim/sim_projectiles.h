@@ -23,6 +23,7 @@ internal void Sim_InitProjectile(
     if (v->z <= 0) { v->z = 1; }
     
 	ent->body.t.pos = *pos;
+    ent->body.previousPos = *pos;
     ent->movement.velocity = *velocity;
     ent->movement.speed = type->speed;
 

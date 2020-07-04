@@ -64,7 +64,6 @@ internal SimEntity* SVG_FindAndValidateTarget(
        }
        return target;
    }
-   
 }
 
 ////////////////////////////////////////////////////////
@@ -76,10 +75,10 @@ internal void SVG_HandleEntityDeath(
 	APP_LOG(128, "SV Remove ent %d\n", victim->id.serial);
     SimEntity* parent = Sim_GetEntityBySerial(
         sim, victim->relationships.parentId.serial);
-    if (victim->factoryType == SIM_FACTORY_TYPE_SEEKER)
-    {
-        printf("SVG - kill seeker\n");
-    }
+    // if (victim->factoryType == SIM_FACTORY_TYPE_SEEKER)
+    // {
+    //     printf("SVG - kill seeker\n");
+    // }
     if (parent != NULL)
     {
         parent->relationships.liveChildren--;
@@ -600,7 +599,12 @@ internal void SVG_TickSim(SimScene* sim, timeFloat deltaTime)
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
 
         SVG_TickEntity(sim, ent, deltaTime);
+        // make sure previous positions are updated
+        ent->body.previousPos = ent->body.t.pos;
     }
+    sim->tick++;
+    sim->time += deltaTime;
+
     #ifdef SIM_USE_PHYSICS_ENGINE
     ZEByteBuffer output = PhysExt_Step(sim->world, deltaTime);
     u8* read = output.start;
@@ -667,5 +671,4 @@ internal void SVG_TickSim(SimScene* sim, timeFloat deltaTime)
         }
     }
     #endif
-    sim->tick++;
 }

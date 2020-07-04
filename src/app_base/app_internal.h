@@ -17,8 +17,8 @@
 
 // 100 ms == approx 6 frames at 60fps
 // 200 ms == approx 12 frames at 60fps
-internal i32 g_fakeLagMinMS = 50;//100;
-internal i32 g_fakeLagMaxMS = 100;//350;
+internal i32 g_fakeLagMinMS = 0;//50;//100;
+internal i32 g_fakeLagMaxMS = 0;//100;//350;
 // 0 to 1 values.
 internal f32 g_fakeLoss = 0;//0.1f;
 

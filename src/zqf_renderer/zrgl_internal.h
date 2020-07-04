@@ -116,7 +116,10 @@ struct ZRGPUSpecs
 };
 
 static i32 g_debugFlags = 0;
+static i32 g_lastFrameNumber = -1;
 static i32 g_framesRendered = 0;
+static f64 g_lastTimestamp;
+static f32 g_interpolate = 0;
 
 static ZRGPUSpecs g_gpuLimits;
 

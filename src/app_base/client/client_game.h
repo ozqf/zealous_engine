@@ -314,8 +314,12 @@ internal void CLG_TickGame(SimScene* sim, timeFloat deltaTime)
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
 
         CLG_TickEntity(sim, ent, deltaTime);
+        // make sure previous positions are updated
+        ent->body.previousPos = ent->body.t.pos;
     }
+
     CLG_TickViewSway(deltaTime);
     CLR_TickTestParticles(deltaTime);
     sim->tick++;
+    sim->time += deltaTime;
 }

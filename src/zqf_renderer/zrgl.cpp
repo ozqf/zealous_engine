@@ -57,6 +57,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     ScreenInfo scrInfo)
 {
 	g_framesRendered++;
+	// Update time
 	/////////////////////////////////////////////////////////////
 	// Setup for draw
 	/////////////////////////////////////////////////////////////
@@ -117,6 +118,27 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     ZE_ASSERT(header->sentinel == ZR_SENTINEL, "Sentinel check failed")
     cursor += sizeof(ZRViewFrame);
     u8* scenesStart = cursor;
+
+	/////////////////////////////////////////////////////////////
+	// Update timing info for interpolation
+	/////////////////////////////////////////////////////////////
+	f64 diff = 0;
+	if (g_lastFrameNumber < header->frameNumber)
+	{
+		// New frame
+		g_lastFrameNumber = header->frameNumber;
+		g_lastTimestamp = g_platform.QueryClock();
+		g_interpolate = 0;
+		diff = 0;
+	}
+	else
+	{
+		diff = g_platform.QueryClock() - g_lastTimestamp;
+		g_interpolate = (f32)diff / (1.f / 60.f);
+		if (g_interpolate > 1) { g_interpolate = 1; }
+		if (g_interpolate < 0) { g_interpolate = 0; }
+		//printf("ZRGL diff - %.3f interpolate %.3f\n", diff, g_interpolate);
+	}
 
 	/////////////////////////////////////////////////////////////
 	// iterate scenes,  generating draw groups and preparing data
@@ -246,7 +268,10 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     #if 1
 	f64 preprocessTime = preprocessEnd - preprocessStart;
     i32 written = sprintf_s((char*)debugStr.cursor, debugStr.Space(),
-        "Build drawlist: %.3fMS\nObj List %dKB\nObj Data %dKB\nNum scenes %d\nNum groups %d\nNum lights: %d\nPreprocessMS %.3f\nSwapMS %.3f\nTotalMS %.3f\nApp frames %d\nRenderer frames %d\n",
+        "Timestamp: %.3f\nTime diff: %.3f\nInterpolate: %.3f\nBuild drawlist: %.3fMS\nObj List %dKB\nObj Data %dKB\nNum scenes %d\nNum groups %d\nNum lights: %d\nPreprocessMS %.3f\nSwapMS %.3f\nTotalMS %.3f\nApp frames %d\nRenderer frames %d\n",
+		header->timestamp,
+		diff,
+		g_interpolate,
         header->prebuildTime * 1000,
         drawList->Written() / 1024,
         drawData->Written() / 1024,

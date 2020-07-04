@@ -117,6 +117,7 @@ internal void CLR_TickParticles(ZRParticleEmitter* emitter, timeFloat delta)
             continue;
         }
         p->tick -= (f32)delta;
+        p->prevPos = p->pos;
         Vec3 pull;
         pull.x = emitter->def.pull.x * (f32)delta;
         pull.y = emitter->def.pull.y * (f32)delta;
@@ -151,6 +152,7 @@ internal void CLR_WriteParticles(
         obj->data.model.billboard = emitter->def.billboard;
         obj->t.pos = p->pos;
         obj->t.scale = p->scale;
+        obj->prevPos = p->prevPos;
     }
 }
 
@@ -289,6 +291,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                 obj->data = ent->display.data;
                 
                 obj->t = ent->body.t;
+                obj->prevPos = ent->body.previousPos;
                 rendObjectsAdded++;
 
                 // add an optional light source
@@ -297,6 +300,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
                     obj = ZRDrawObj_InitInPlace(&list->cursor);
                     obj->data.SetAsPointLight({ 1, 1, 0.5f }, 1, 5);
                     obj->t = ent->body.t;
+                    obj->prevPos = ent->body.previousPos;
                     rendObjectsAdded++;
                     extraLights--;
                 }
@@ -337,6 +341,8 @@ extern "C" void CLR_WriteDrawFrame(
     i32 objCount = 0;
     i32 requiredCapacity = sizeof(ZRViewFrame) + (sizeof(ZRDrawObj) * sim->maxEnts);
     ZRSceneFrame* scene = NULL;
+    frame->timestamp = sim->time;
+    
     ZRDrawObj* obj = NULL;
 
     ZEByteBuffer* list = frame->list;

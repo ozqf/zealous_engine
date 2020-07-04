@@ -161,6 +161,13 @@ static void ZRGL_GeometryPass_Mesh(
 		ZRDrawObj *obj = &objects[objIndex];
 
 		ZR_BuildModelMatrix(&model, &obj->t);
+        // interpolate position
+        if (!Vec3_IsZero(&obj->prevPos))
+        {
+            //Vec3 a = obj->prevPos;
+            Vec3 pos = Vec3_Lerp(obj->prevPos, Vec3_FromVec4(model.wAxis), g_interpolate);
+            model.wAxis = Vec4_FromVec3(pos, 1);
+        }
 		M4x4_SetToIdentity(modelView.cells);
 		M4x4_Multiply(modelView.cells, view->cells, modelView.cells);
 		M4x4_Multiply(modelView.cells, model.cells, modelView.cells);

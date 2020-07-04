@@ -268,6 +268,16 @@ internal f32 COM_CapAngleDegrees(f32 angle);
 // VECTOR 3 OPERATIONS
 /////////////////////////////////////////////////////////////////////////////
 
+internal Vec3 Vec3_FromVec4(Vec4 v)
+{
+    return { v.x, v.y, v.z };
+}
+
+internal i32 Vec3_IsZero(Vec3* v)
+{
+    return (v->x == 0 && v->y == 0 && v->z == 0);
+}
+
 internal f32 Vec3_MagnitudeSqr(Vec3* v)
 {
     return (v->x * v->x) + (v->y * v->y) + (v->z * v->z);
@@ -290,6 +300,16 @@ internal void Vec3_Normalise(Vec3* v)
     v->x /= vectorMagnitude;
     v->y /= vectorMagnitude;
     v->z /= vectorMagnitude;
+}
+
+internal Vec3 Vec3_Lerp(Vec3 start, Vec3 end, f32 lerp)
+{
+    return
+    {
+        ZE_LerpF32(start.x, end.x, lerp),
+        ZE_LerpF32(start.y, end.y, lerp),
+        ZE_LerpF32(start.z, end.z, lerp)
+    };
 }
 
 internal Vec3 Vec3_GetNormal(Vec3* v)
@@ -430,6 +450,11 @@ internal Vec3 Vec3_EulerAnglesBetween(Vec3 a, Vec3 b)
 /////////////////////////////////////////////////////////////////////////////
 // VECTOR 4 OPERATIONS
 /////////////////////////////////////////////////////////////////////////////
+
+internal Vec4 Vec4_FromVec3(Vec3 v, f32 w)
+{
+    return { v.x, v.y, v.z, w };
+}
 
 internal f32 Vec4_Magnitude(Vec4* v)
 {
@@ -811,6 +836,10 @@ inline i32 M4x4_Equals(f32* a, f32* b)
     return YES;
 }
 
+internal i32 M4x4_HasZeroPosition(f32* m)
+{
+    return (m[M4x4_W0] == 0 && m[M4x4_W1] == 0 && m[M4x4_W2] == 0);
+}
 
 ////////////////////////////////////////////////////////////////////
 // Projection

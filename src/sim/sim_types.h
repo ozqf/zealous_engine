@@ -353,6 +353,7 @@ struct SimScene
     i32 localEntitySequence;
     //i32 cmdSequence;
     i32 tick;
+    timeFloat time;
 	
 	timeFloat timeInAABBSearch;
 

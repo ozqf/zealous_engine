@@ -207,6 +207,7 @@ struct ZRSceneFrame
         i32 bSkybox;
         i32 bDeferred;
         i32 bIsInteresting;
+        f32 timestamp;
         Transform camera;
     } params;
     
@@ -229,6 +230,7 @@ struct ZRViewFrame
     i32 bVerbose;   // dump debug info whilst rendering this frame
     i32 numScenes;
     i32 frameNumber; // identifies a specific view frame from another
+    timeFloat timestamp;
     ZEByteBuffer* list;
     ZEByteBuffer* data;
 };

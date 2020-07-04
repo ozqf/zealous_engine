@@ -105,6 +105,7 @@ struct ZRParticleDef
 struct ZRParticle
 {
     Vec3 pos;
+    Vec3 prevPos;
     Vec3 velocity;
     Vec3 scale;
     f32 tick;
@@ -199,6 +200,8 @@ struct ZRDrawObjData
 struct ZRDrawObj
 {
     Transform t;
+    // For interpolation
+    Vec3 prevPos;
     // quick tag for finding objects for debugging
     i32 debugTag;
     // hash of data union, used to identify objects which are
