@@ -23,34 +23,15 @@
 #define CLIENT_STATE_SYNC 3
 #define CLIENT_STATE_PLAY 4
 
-extern "C" void CL_Init();
-extern "C" void CL_Start(ZNetAddress serverAddress, i32 updSocketId);
-extern "C" void CL_Shutdown();
-extern "C" i32 CL_IsRunning();
-extern "C" void CL_CopyCameraTransform(Transform* target);
-extern "C" void CL_Tick(
-			ZEByteBuffer* sysEvents,
-			timeFloat deltaTime,
-			i64 platformFrame);
-extern "C" void CL_WriteDrawFrame(ZRViewFrame* frame);
-/*
-void    CL_PopulateRenderScene(
-			Transform* cam,
-			RenderScene* scene,
-			i32 maxObjects,
-			i32 texIndex,
-			f32 interpolateTime);
-void    CL_GetRenderCommands(
-			RenderCommand** cmds,
-			i32* numCommands,
-			i32 texIndex,
-			f32 interpolateTime);
-*/
-extern "C" void    CL_SetLocalUser(UserIds ids);
-extern "C" void    CL_WriteDebugString(CharBuffer* str);
-extern "C" u8      CL_ParseCommandString(
-			const char* str,
-			const char** tokens,
-			const i32 numTokens);
+extern "C" void	CL_Init();
+extern "C" void	CL_Start(ZNetAddress serverAddress, i32 updSocketId);
+extern "C" void	CL_Shutdown();
+extern "C" i32	CL_IsRunning();
+extern "C" void	CL_CopyCameraTransform(Transform* target);
+extern "C" void	CL_Tick(ZEByteBuffer* sysEvents, timeFloat deltaTime, i64 platformFrame);
+extern "C" void	CL_WriteDrawFrame(ZRViewFrame* frame);
+extern "C" void	CL_SetLocalUser(UserIds ids);
+extern "C" void	CL_WriteDebugString(CharBuffer* str);
+extern "C" u8  	CL_ParseCommandString(const char* str, const char** tokens, const i32 numTokens);
 
 #endif // CLIENT_H

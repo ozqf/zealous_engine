@@ -293,14 +293,18 @@ internal void CL_TickInGame(timeFloat deltaTime, i64 platformFrame)
         // Update input
 		if (CLDebug_IsDebugInputActive() == NO)
 		{
+            g_debugInput.prevButtons = g_debugInput.buttons;
+            g_debugInput.buttons = 0;
 			CL_UpdateActorInput(&g_inputActions, &g_actorInput);
 			g_testCameraDegrees = g_actorInput.degrees;
 		}
 		else
 		{
+            // Actually, No, leave client input on so client can continue
+            // to shoot etc
 			// Debugging - Clear input to server
-			g_actorInput.buttons = 0;
-			g_actorInput.prevButtons = 0;
+			//g_actorInput.buttons = 0;
+			//g_actorInput.prevButtons = 0;
 		}
 		
         

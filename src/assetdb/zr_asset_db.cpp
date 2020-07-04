@@ -230,12 +230,13 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	///////////////////////////////////////////
     ZRMaterial* mat;
 
+	// first material index is always fullbright magenta for debugging
 	mat = db->CreateMaterial(
         db,
         ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         //"data/W33_5.bmp",
-        "blue",
-        ZR_TRANSPARENT_TEX_NAME);
+        "magenta",
+        "magenta");
 	
 	db->CreateMaterial(
         db,
@@ -293,6 +294,14 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 		"white",
 		"white"
 	);
+
+    db->CreateMaterial(
+        db,
+        ZRDB_MAT_NAME_WORLD_DEBUG,
+        "data/W33_5.bmp",
+        "data/W33_5.bmp"
+    );
+	
 }
 
 internal void ZRDB_VidRestart(ZRAssetDB* assetDb)

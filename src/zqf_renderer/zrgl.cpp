@@ -56,6 +56,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     ZEByteBuffer* drawData,
     ScreenInfo scrInfo)
 {
+	g_framesRendered++;
 	/////////////////////////////////////////////////////////////
 	// Setup for draw
 	/////////////////////////////////////////////////////////////
@@ -108,7 +109,6 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 	// Start - preprocess
 	/////////////////////////////////////////////////////////////
 	ZRViewFrame* header = (ZRViewFrame*)cursor;
-    
 	if (header->bVerbose == YES)
     {
         printf("ZRGL - Verbose frame!\n");
@@ -246,7 +246,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     #if 1
 	f64 preprocessTime = preprocessEnd - preprocessStart;
     i32 written = sprintf_s((char*)debugStr.cursor, debugStr.Space(),
-        "Build drawlist: %.3fMS\nObj List %dKB\nObj Data %dKB\nNum scenes %d\nNum groups %d\nNum lights: %d\nPreprocessMS %.3f\nSwapMS %.3f\nTotalMS %.3f\n",
+        "Build drawlist: %.3fMS\nObj List %dKB\nObj Data %dKB\nNum scenes %d\nNum groups %d\nNum lights: %d\nPreprocessMS %.3f\nSwapMS %.3f\nTotalMS %.3f\nApp frames %d\nRenderer frames %d\n",
         header->prebuildTime * 1000,
         drawList->Written() / 1024,
         drawData->Written() / 1024,
@@ -255,7 +255,9 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
         gBufStats.numLights,
 		preprocessTime * 1000,
         g_platformSwapMS * 1000,
-        g_platformFrameMS * 1000);
+        g_platformFrameMS * 1000,
+		header->frameNumber,
+		g_framesRendered);
     debugStr.cursor += written;
     
     ZRDrawCmd_Text txtCmd = {};

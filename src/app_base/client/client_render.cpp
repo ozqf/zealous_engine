@@ -160,6 +160,48 @@ internal void CLR_AddTestParticles(ZRSceneFrame* scene, ZEByteBuffer* list, ZEBy
     CLR_WriteParticles(&g_gibEmit, scene, list, data);
 }
 
+// Returns number of objects added
+internal i32 CLR_Debug_AddAABB(ZEByteBuffer* list, i32 factoryType, Vec3 pos, Vec3 scale)
+{
+    Vec3 half = scale;
+    half.x *= 0.5f;
+    half.y *= 0.5f;
+    half.z *= 0.5f;
+    ZRDrawObj* obj;
+    i32 objCount = 0;
+    if (factoryType == SIM_FACTORY_TYPE_ACTOR)
+    {
+        // turn player AABB into dots on the floor
+        pos.y -= half.y;
+        scale.y = 0.2f;
+    }
+    // vertical lines
+    obj = ZRDrawObj_InitInPlace(&list->cursor);
+    obj->data.SetAsMesh(0, 0);
+    obj->t.pos = { pos.x + half.x, pos.y, pos.z + half.z };
+    obj->t.scale = { 0.1f, scale.y, 0.1f };
+    objCount++;
+
+    obj = ZRDrawObj_InitInPlace(&list->cursor);
+    obj->data.SetAsMesh(0, 0);
+    obj->t.pos = { pos.x - half.x, pos.y, pos.z + half.z };
+    obj->t.scale = { 0.1f, scale.y, 0.1f };
+    objCount++;
+
+    obj = ZRDrawObj_InitInPlace(&list->cursor);
+    obj->data.SetAsMesh(0, 0);
+    obj->t.pos = { pos.x + half.x, pos.y, pos.z - half.z };
+    obj->t.scale = { 0.1f, scale.y, 0.1f };
+    objCount++;
+
+    obj = ZRDrawObj_InitInPlace(&list->cursor);
+    obj->data.SetAsMesh(0, 0);
+    obj->t.pos = { pos.x - half.x, pos.y, pos.z - half.z };
+    obj->t.scale = { 0.1f, scale.y, 0.1f };
+    objCount++;
+    return objCount;
+}
+
 /**
  * returns number of objects added
  */
@@ -174,8 +216,8 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     
     i32 cubeIndex = cube->header.index;
     i32 quadIndex = quad->header.index;
-    i32 defaultMaterialIndex = 0;
-    i32 prjMaterialIndex = 2;
+    i32 defaultMaterialIndex = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_WORLD_DEBUG)->index;
+    i32 prjMaterialIndex = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_PRJ)->index;
 
     i32 materialIndex = defaultMaterialIndex;
 
@@ -184,7 +226,7 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     {
         SimEntity* ent = &sim->ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
-
+        materialIndex = defaultMaterialIndex;
         switch (ent->factoryType)
         {
             case SIM_FACTORY_TYPE_PROJ_PREDICTION:
@@ -195,16 +237,19 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
             case SIM_FACTORY_TYPE_WANDERER:
             case SIM_FACTORY_TYPE_DART:
             case SIM_FACTORY_TYPE_SEEKER:
+            case SIM_FACTORY_TYPE_RUBBLE:
             case SIM_FACTORY_TYPE_ACTOR:
             case SIM_FACTORY_TYPE_EXPLOSION:
             case SIM_FACTORY_TYPE_BULLET_IMPACT:
+            //case SIM_FACTORY_TYPE_WORLD:
             {
-                ZRDrawObj* obj = ZRDrawObj_InitInPlace(&list->cursor);
-                obj->data.SetAsMesh(cubeIndex, materialIndex);
-                obj->t = ent->body.t;
+                objCount += CLR_Debug_AddAABB(list, ent->factoryType, ent->body.t.pos, ent->body.t.scale);
+                // ZRDrawObj* obj = ZRDrawObj_InitInPlace(&list->cursor);
+                // obj->data.SetAsMesh(cubeIndex, materialIndex);
+                // obj->t = ent->body.t;
+                // objCount++;
             } break;
         }
-        objCount++;
     }
     return objCount;
 }
@@ -214,7 +259,6 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
  */
 internal i32 CLR_AddSimObjectsToRenderScene(
     SimScene* sim,
-    Transform* camera,
     ZEByteBuffer* list,
     ZEByteBuffer* scratch,
     ClientRenderSettings cfg)
@@ -332,8 +376,10 @@ extern "C" void CLR_WriteDrawFrame(
             objCount += CLR_Debug_AddSimObjectsToRenderScene(serverSim, list, data);
         }
     }
-
-    objCount += CLR_AddSimObjectsToRenderScene(sim, camera, list, data, cfg);
+    // else
+    // {
+        objCount += CLR_AddSimObjectsToRenderScene(sim, list, data, cfg);
+    // }
 
     for (i32 i = 0; i < numDebugObjs; ++i)
     {

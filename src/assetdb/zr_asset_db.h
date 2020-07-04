@@ -28,6 +28,7 @@
 #define ZRDB_MAT_NAME_GFX "Gfx"
 #define ZRDB_MAT_NAME_LASER "Laser"
 #define ZRDB_MAT_NAME_LIGHT "Light"
+#define ZRDB_MAT_NAME_WORLD_DEBUG "WorldDebug"
 
 ///////////////////////////////////////////////////////////
 // Asset data types
