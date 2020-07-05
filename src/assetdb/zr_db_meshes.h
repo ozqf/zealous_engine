@@ -113,7 +113,6 @@ static ZRDBMesh* ZRDB_CreateEmptyMesh(ZRAssetDB* assetDB, char* name, i32 maxVer
 	MeshData data = ZRDB_AllocateMeshData(maxVerts);
 	ZRDBMesh* mesh = NULL;
 	mesh = ZRDB_AddMesh(assetDB, name, data, NO);
-	//mesh = assetDB->LoadMesh(assetDB, name, &data, NO);
 	return mesh;
 }
 
@@ -126,16 +125,6 @@ static ZRDBMesh* ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, MeshData* data, i
 	MeshData clone = ZRDB_CopyMeshData(*data);
 	ZRDBMesh* mesh = ZRDB_AddMesh(assetDB, name, clone, bVerbose);
 	return mesh;
-    // ZRDB_CAST_TO_INTERNAL(assetDB, db)
-    // i32 index = db->numMeshes++;
-    // ZRDBMesh* mesh = &db->meshes[index];
-	// mesh->header.index = index;
-    // mesh->header.fileName = name;
-    // //mesh->data = *data;
-    // mesh->data = ZRDB_CopyMeshData(*data);
-    // //db->uploader.UploadMesh(data, &mesh->handles, 0);
-    // printf("ZRDB - registered mesh %s handle %d\n", name, mesh->handles.vao);
-    // return mesh;
 }
 
 static i32 ZRDB_LoadMeshFromFBX(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)
