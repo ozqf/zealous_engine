@@ -96,6 +96,32 @@ internal C2S_Input g_sentCommands[CL_MAX_SENT_INPUT_COMMANDS];
 #define CLI_MAX_RESPONSE_RECORDS 60
 internal S2C_InputResponse g_serverResponses[CLI_MAX_RESPONSE_RECORDS];
 
+
+//////////////////////////////////////////////
+// Debug stuff
+//////////////////////////////////////////////
+
+#define CL_DEBUG_CAMERA_MODE_FREE 0
+#define CL_DEBUG_CAMERA_MODE_TOP_DOWN 1
+
+#define CL_DEBUG_MAX_OBJECTS 64
+
+//static SimEntity g_debugEnts[CL_DEBUG_MAX_OBJECTS];
+
+// debugging camera to fly around with
+static SimActorInput g_debugInput = {};
+static Transform g_debugCamera;
+// records static camera position for top down debug
+static Transform g_debugTopdownCamera;
+static i32 g_debugCameraMode = 0;//CL_DEBUG_CAMERA_MODE_TOP_DOWN;
+
+static ZRDrawObj g_debugObjs[CL_DEBUG_MAX_OBJECTS];
+static i32 g_numDebugObjs = 0;
+
+//////////////////////////////////////////////
+// Functions
+//////////////////////////////////////////////
+
 internal i32 CL_ReadPacket(
     SysPacketEvent* ev,
     NetStream* reliableStream,

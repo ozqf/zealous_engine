@@ -48,6 +48,7 @@ internal i32 CL_GetServerTick()
 #include "client_run_commands.h"
 #include "client_ui.h"
 
+#include "client_gen_skybox.h"
 #include "client_debug.h"
 
 extern "C" i32 CL_IsRunning() { return g_isRunning; }
@@ -193,6 +194,7 @@ extern "C" void CL_Init()
     Sim_Init("Client", &g_sim, mem, maxEnts);
 	Sim_Reset(&g_sim);
     CL_LoadTestScene();
+    CGen_CreateSkybox(App_GetAssetDB());
 
     APP_PRINT(64, "CL init completed with %d allocations (%dKB)\n ",
         g_numAllocations, (u32)BytesAsKB(g_bytesAllocated));

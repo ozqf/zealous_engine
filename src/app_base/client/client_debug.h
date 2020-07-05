@@ -1,23 +1,9 @@
 #ifndef CLIENT_DEBUG_H
 #define CLIENT_DEBUG_H
 
+#include "client_internal.h"
 #include "../../voxel_world/voxel_world.h"
 #include "../../zr_embedded/zr_embedded.h"
-
-#define CL_DEBUG_CAMERA_MODE_FREE 0
-#define CL_DEBUG_CAMERA_MODE_TOP_DOWN 1
-
-//static SimEntity g_debugEnts[16];
-
-// debugging camera to fly around with
-static SimActorInput g_debugInput = {};
-static Transform g_debugCamera;
-// records static camera position for top down debug
-static Transform g_debugTopdownCamera;
-static i32 g_debugCameraMode = 0;//CL_DEBUG_CAMERA_MODE_TOP_DOWN;
-
-static ZRDrawObj g_debugObjs[16];
-static i32 g_numDebugObjs = 0;
 
 static i32 CLDebug_IsDebugInputActive()
 {
@@ -34,7 +20,10 @@ internal void CLDebug_GenAssets()
 	printf("APP - generate assets\n");
 	ZRAssetDB* db = (ZRAssetDB*)App_GetAssetDB();
 
+    ////////////////////////////////////////////////
+    // grid
 	ZRDBTexture* base,* emit;
+    ZRMaterial* mat;
 	base = db->GenBlankTexture(db, "grid", 32, 32, { 155, 155, 155, 255 });
 	TexGen_FillRect((ColourU32*)base->data, 32, 32, { 0, 0 }, { 16, 16 },
 		{ 225, 225, 225, 255 });
@@ -46,23 +35,21 @@ internal void CLDebug_GenAssets()
 		{ 225, 225, 0, 255 });
 	TexGen_FillRect((ColourU32*)emit->data, 32, 32, { 28, 0 }, { 4, 32 },
 		{ 225, 225, 0, 255 });
-	ZRMaterial* mat = db->CreateMaterial(
+	mat = db->CreateMaterial(
         db,
         "grid",
         "grid",
         "grid_emit"
     );
 	
+    ////////////////////////////////////////////////
+    // dynamic cube
     MeshData* cube = ZR_Embed_Cube();
 	ZRDBMesh* mesh = db->CreateEmptyMesh(db, "app_mesh", cube->numVerts);
     printf("Set directly as cube\n");
 	mesh->data.CopyData(*cube);
     mesh->data.numVerts = 36;
     mesh->header.bIsDirty = YES;
-
-    //////////////////////////////////////////////////////
-    // background cuboids
-
 
     // Mark the asset db for re-uploading
     db->bDirty = YES;
@@ -72,10 +59,12 @@ static void CLDebug_InitDrawObjects()
 {
     
     ZRAssetDB* db = App_GetAssetDB();
+    i32 cubeMeshIndex = db->GetMeshByName(db, ZRDB_MESH_NAME_CUBE)->header.index;
     i32 meshIndex = db->GetMeshByName(db, "app_mesh")->header.index;
     i32 matIndex = db->GetMaterialByName(db, ZRDB_MAT_NAME_GFX)->index;
     i32 matIndex2 = db->GetMaterialByName(db, ZRDB_MAT_NAME_PRJ)->index;
     i32 matIndex3 = db->GetMaterialByName(db, ZRDB_MAT_NAME_ENT)->index;
+    i32 cityMat = db->GetMaterialByName(db, "city")->index;
     g_numDebugObjs = 0;
     
     // solid test for ent to touch
@@ -120,7 +109,6 @@ static void CLDebug_InitDrawObjects()
     line->t.pos = pos;
     line->t.scale = { 0.2f, 0.2f, d.z * 2 };
     g_numDebugObjs++;
-	
 }
 
 static void CLDebug_Init()
