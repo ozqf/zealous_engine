@@ -369,7 +369,9 @@ internal i32 Sim_InitPropMesh(
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
+        //ZRDB_MESH_NAME_CUBE,
         ZRDB_MESH_NAME_SPIKE,
+        //ZRDB_MESH_NAME_INVERSE_CUBE,
 		ZRDB_MAT_NAME_WORLD,
         SIM_DEATH_GFX_NONE);
     ent->tickType = SIM_TICK_TYPE_NONE;

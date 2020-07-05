@@ -183,7 +183,7 @@ static ErrorCode Window_SpawnWindow()
 
     // do a scan for either default assets or stuff an app
     // has loaded.
-    ZRGL_CheckForUploads();
+    ZRGL_CheckForUploads(NO);
     return ZE_ERROR_NONE;
 }
 

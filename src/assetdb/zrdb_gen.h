@@ -151,15 +151,29 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	MeshData* d;
 
 	d = ZR_Embed_Cube();
-    db->LoadMesh(db, ZRDB_MESH_NAME_CUBE, d, YES);
-    d = ZR_Embed_InverseCube();
-    db->LoadMesh(db, ZRDB_MESH_NAME_INVERSE_CUBE, d, YES);
-	d = ZR_Embed_Quad();
-    db->LoadMesh(db, ZRDB_MESH_NAME_QUAD, d, YES);
-	db->LoadMesh(db, ZRDB_MESH_NAME_DYNAMIC_QUAD, d, YES);
-	d = ZR_Embed_Spike();
-    db->LoadMesh(db, ZRDB_MESH_NAME_SPIKE, d, YES);
+    db->LoadMesh(db, ZRDB_MESH_NAME_CUBE, *d, bVerbose);
 
+    d = ZR_Embed_InverseCube();
+    db->LoadMesh(db, ZRDB_MESH_NAME_INVERSE_CUBE, *d, bVerbose);
+
+	d = ZR_Embed_Quad();
+    db->LoadMesh(db, ZRDB_MESH_NAME_QUAD, *d, bVerbose);
+	db->LoadMesh(db, ZRDB_MESH_NAME_DYNAMIC_QUAD, *d, bVerbose);
+	
+	d = ZR_Embed_Spike();
+	// d = ZR_Embed_Cube();
+    db->LoadMesh(db, ZRDB_MESH_NAME_SPIKE, *d, bVerbose);
+
+	// MeshData* appMeshDataA = ZR_Embed_Cube();
+    // ZRDBMesh* meshA = db->LoadMesh(db, "app_mesh", *appMeshDataA, bVerbose);
+
+	// MeshData* appMeshDataB = ZR_Embed_Cube();
+    // ZRDBMesh* meshB = db->LoadMesh(db, "app_mesh_b", *appMeshDataB, bVerbose);
+
+	// MeshData* appMeshDataC = ZR_Embed_Cube();
+    // ZRDBMesh* meshC = db->LoadMesh(db, "app_mesh_c", *appMeshDataB, bVerbose);
+
+	
 	////////////////////////////////////////
 	// Generate
 	
@@ -257,7 +271,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         db,
         ZRDB_MAT_NAME_GFX,
         "yellow",
-        ZR_TRANSPARENT_TEX_NAME
+        "yellow"
     );
     
     db->CreateMaterial(

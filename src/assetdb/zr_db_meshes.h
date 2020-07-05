@@ -67,13 +67,14 @@ static MeshData ZRDB_AllocateMeshData(i32 maxVerts)
 	i32 numUVBytes = (sizeof(f32) * 2) * maxVerts;
 	i32 totalBytes = numVertBytes + numUVBytes + numVertBytes;
 	u8* bytes = (u8*)malloc(totalBytes);
+    ZE_SET_ZERO(bytes, totalBytes)
 	clone.verts = (f32*)bytes;
 	clone.uvs = (f32*)(bytes + numVertBytes);
 	clone.normals = (f32*)(bytes + numVertBytes + numUVBytes);
 	return clone;
 }
 
-static MeshData ZRDB_CopyMeshData(MeshData original)
+static MeshData ZRDB_CopyMeshData(const MeshData original)
 {
 	MeshData clone = {};
 	clone.numVerts = original.numVerts;
@@ -82,6 +83,7 @@ static MeshData ZRDB_CopyMeshData(MeshData original)
 	i32 totalBytes = numVertBytes + numUVBytes + numVertBytes;
 
 	u8* bytes = (u8*)malloc(totalBytes);
+    ZE_SET_ZERO(bytes, totalBytes)
 	// copy verts
 	clone.verts = (f32*)bytes;
 	bytes += ZE_Copy(bytes, original.verts, numVertBytes);
@@ -113,6 +115,7 @@ static ZRDBMesh* ZRDB_CreateEmptyMesh(ZRAssetDB* assetDB, char* name, i32 maxVer
 	MeshData data = ZRDB_AllocateMeshData(maxVerts);
 	ZRDBMesh* mesh = NULL;
 	mesh = ZRDB_AddMesh(assetDB, name, data, NO);
+    printf("Created empty mesh %s with %d max verts\n", name, maxVerts);
 	return mesh;
 }
 
@@ -120,9 +123,9 @@ static ZRDBMesh* ZRDB_CreateEmptyMesh(ZRAssetDB* assetDB, char* name, i32 maxVer
  * Takes mesh data, clones it and creates a new mesh entry
  * for when mesh data comes from an external source like a file
  */
-static ZRDBMesh* ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVerbose)
+static ZRDBMesh* ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, const MeshData data, i32 bVerbose)
 {
-	MeshData clone = ZRDB_CopyMeshData(*data);
+	const MeshData clone = ZRDB_CopyMeshData(data);
 	ZRDBMesh* mesh = ZRDB_AddMesh(assetDB, name, clone, bVerbose);
 	return mesh;
 }

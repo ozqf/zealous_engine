@@ -94,7 +94,8 @@ struct ScreenInfo
 #define ZR_SHADER_TYPE_GBUFFER_LIGHT_VOLUME 14
 #define ZR_SHADER_TYPE_LAST__ 14
 
-#define ZR_MAX_BATCH_SIZE 100
+#define ZR_MAX_BATCH_SIZE 12
+//#define ZR_MAX_BATCH_SIZE 100
 
 #include "zr_draw_types.h"
 

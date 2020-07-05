@@ -60,8 +60,9 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 
 	if (AssetDb()->bDirty)
 	{
+		printf("ZRGL - db is dirty - checking for uploads\n");
 		AssetDb()->bDirty = NO;
-		ZRGL_CheckForUploads();
+		ZRGL_CheckForUploads(YES);
 	}
 	// Update time
 	/////////////////////////////////////////////////////////////

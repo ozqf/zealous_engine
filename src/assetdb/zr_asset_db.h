@@ -92,10 +92,23 @@ struct MeshData
 		numVerts = original.numVerts;
 		const i32 numVertBytes = (sizeof(f32) * 3) * numVerts;
 		const i32 numUVSBytes = (sizeof(f32) * 2) * numVerts;
+		printf("Copying %d verts (%d vert bytes, %d uv bytes)\n",
+			numVerts, numVertBytes, numUVSBytes);
 		ZE_Copy(verts, original.verts, numVertBytes);
 		ZE_Copy(uvs, original.uvs, numUVSBytes);
 		ZE_Copy(normals, original.normals, numVertBytes);
 		return ZE_ERROR_NONE;
+	}
+
+	void PrintVerts()
+	{
+		printf("--- %d verts ---\n", numVerts);
+		f32* cursor = verts;
+		for (u32 i = 0; i < numVerts; ++i)
+		{
+			printf("%d: %.3f, %.3f, %.3f\n", i, cursor[0], cursor[1], cursor[2]);
+			cursor += 3;
+		}
 	}
 };
 
@@ -129,7 +142,7 @@ struct ZRDBMesh
  */
 struct ZRAssetDB
 {
-	i32 bDirty;
+	volatile i32 bDirty;
     ZRDBMesh* (*GetMeshByName)(ZRAssetDB* assetDB, char* name);
     ZRDBMesh* (*GetMeshByIndex)(ZRAssetDB* assetDB, i32 index);
     void (*GetMeshHandleByName)(ZRAssetDB* assetDB, char* name, ZRMeshHandles* result);
@@ -148,7 +161,7 @@ struct ZRAssetDB
 
     i32 (*LoadTexture)(ZRAssetDB* assetDB, char* path, i32 bVerbose);
     i32 (*LoadMeshFromFBX)(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose);
-    ZRDBMesh* (*LoadMesh)(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVerbose);
+    ZRDBMesh* (*LoadMesh)(ZRAssetDB* assetDB, char* name, const MeshData data, i32 bVerbose);
 	ZRDBMesh* (*CreateEmptyMesh)(ZRAssetDB* assetDB, char* name, i32 maxVerts);
 
     void (*VidRestart)(ZRAssetDB* assetDB);

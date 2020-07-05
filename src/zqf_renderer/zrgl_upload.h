@@ -70,7 +70,6 @@ static void ZRGL_UploadMesh(MeshData* data, ZRMeshHandles* result, u32 flags)
         ILLEGAL_CODE_PATH
     }
     #endif
-	
 	//////////////////////////////////////////
     // Calculate size
     i32 numVertBytes = data->numVerts * vec3Size;
@@ -121,9 +120,8 @@ static void ZRGL_UploadMesh(MeshData* data, ZRMeshHandles* result, u32 flags)
     glVertexAttribPointer(normalDataAttrib, 3, glDataType, GL_FALSE, 0, (void*)normalOffset);
     CHECK_GL_ERR
 
-    /*if (bVerbose == YES)
-    { printf("  Uploaded %d verts (%d bytes) to VAO %d \n",
-        numVerts, totalBytes, vaoHandle); }*/
+    printf("  Uploaded %d verts (%d bytes) to VAO %d, VBO %d\n",
+        data->numVerts, totalBytes, vaoHandle, vboHandle);
     
     //ZRMeshHandles result = {};
     *result = {};
@@ -134,6 +132,8 @@ static void ZRGL_UploadMesh(MeshData* data, ZRMeshHandles* result, u32 flags)
 	result->totalVBOBytes = totalBytes;
     result->maxInstances = maxInstances;
     //return result;
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 #endif // ZRGL_UPLOAD_H

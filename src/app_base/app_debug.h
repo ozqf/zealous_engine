@@ -121,7 +121,6 @@ internal void App_GenAssets()
 {
 	printf("APP - generate assets\n");
 	ZRAssetDB* db = (ZRAssetDB*)g_platform.GetAssetDB();
-	db->bDirty = YES;
 
 	ZRDBTexture* base,* emit;
 	base = db->GenBlankTexture(db, "grid", 32, 32, { 155, 155, 155, 255 });
@@ -142,12 +141,28 @@ internal void App_GenAssets()
         "grid_emit"
     );
 	printf("\tMat %s\n", mat->name);
-	#if 1
+	
+    #if 0
 	MeshData* cube = ZR_Embed_Cube();
-	printf("APP - clone cube (%d verts)\n", cube->numVerts);
+    ZRDBMesh* mesh = db->LoadMesh(db, "app_mesh", cube, YES);
+    #endif
+    #if 1
+    MeshData* cube = ZR_Embed_Cube();
 	ZRDBMesh* mesh = db->CreateEmptyMesh(db, "app_mesh", cube->numVerts);
+    printf("Set directly as cube\n");
+    //mesh->data = *cube;
+    //printf("APP - clone cube (%d verts)\n", cube->numVerts);
 	mesh->data.CopyData(*cube);
+    mesh->data.numVerts = 36;
+    // mesh->data.PrintVerts();
 	#endif
+
+    // TODO: the last mesh to load is always corrupted for some reason!
+    // put in a placeholder here to protected the meshes above...
+    db->LoadMesh(db, "broken", *ZR_Embed_Cube(), NO);
+
+    // Mark the asset db for re-uploading
+    db->bDirty = YES;
 }
 
 #endif // APP_DEBUG_H

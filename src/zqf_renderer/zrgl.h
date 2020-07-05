@@ -155,7 +155,7 @@ inline void ZR_BuildViewMatrix(M4x4* view, Transform* camT)
 
 extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight);
 extern "C" void ZRGL_UpdateStats(f64 swapMS, f64 frameMS);
-extern "C" void ZRGL_CheckForUploads();
+extern "C" void ZRGL_CheckForUploads(i32 bVerbose);
 extern "C" i32 ZRGL_ExecTextCommand(
 	const char* str, const i32 len, char** tokens, const i32 numTokens);
 

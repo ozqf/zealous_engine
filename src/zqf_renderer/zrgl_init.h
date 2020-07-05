@@ -317,33 +317,34 @@ static void ZR_UploadDBMesh(ZRDBMesh* mesh)
  * Check over the asset database and upload anything
  * that is not uploaded yet
  */
-extern "C" void ZRGL_CheckForUploads()
+extern "C" void ZRGL_CheckForUploads(i32 bVerbose)
 {
-    printf("=== ZRGL - Check for uploads ===\n");
+    if (bVerbose) { printf("=== ZRGL - Check for uploads ===\n"); }
     ZRAssetDB* db = AssetDb();
     i32 numTextures = db->GetNumTextures(db);
-    printf("--- %d textures total ---\n", numTextures);
+    if (bVerbose) { printf("--- %d textures total ---\n", numTextures); }
     for (i32 i = 0; i < numTextures; ++i)
     {
         ZRDBTexture* tex = db->GetTextureByIndex(db, i);
         if (tex->header.bIsUploaded == NO)
         {
-            printf("Tex %d: %s is not uploaded\n", i, tex->header.fileName);
+            if (bVerbose) { printf("Tex %d: %s is not uploaded\n", i, tex->header.fileName); }
             ZR_UploadDBTex(tex);
         }
     }
     i32 numMeshes = db->GetNumMeshes(db);
-    printf("--- %d meshes total ---\n", numMeshes);
+    if (bVerbose) { printf("--- %d meshes total ---\n", numMeshes); }
     for (i32 i = 0; i < numMeshes; ++i)
     {
         ZRDBMesh* mesh = db->GetMeshByIndex(db, i);
         if (mesh->header.bIsUploaded == NO)
         {
-            printf("Mesh %d: %s is not uploaded\n", i, mesh->header.fileName);
+            if (bVerbose) { printf("Mesh %d: (%d/%d verts) %s is not uploaded\n",
+                i, mesh->data.numVerts, mesh->data.maxVerts, mesh->header.fileName); }
             ZR_UploadDBMesh(mesh);
         }
     }
-    printf("\n");
+    if (bVerbose) { printf("\n"); }
 }
 
 extern "C" void ZRGL_Link(ZRPlatform platform)
