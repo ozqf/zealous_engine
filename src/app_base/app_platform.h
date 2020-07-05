@@ -163,6 +163,7 @@ internal i32  AppImpl_Init()
     
     // initialise sub-modules
     AppUI_Init();
+	App_GenAssets();
     CL_Init();
     SV_Init();
 

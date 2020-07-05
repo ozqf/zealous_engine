@@ -2,6 +2,7 @@
 #define APP_DEBUG_H
 
 #include "app_internal.h"
+#include "../zr_embedded/zr_embedded.h"
 
 internal void App_DebugInit()
 {
@@ -115,5 +116,37 @@ internal void App_WriteDebugStrings()
     
 }
 #endif
+
+internal void App_GenAssets()
+{
+	printf("APP - generate assets\n");
+	ZRAssetDB* db = (ZRAssetDB*)g_platform.GetAssetDB();
+	db->bDirty = YES;
+
+	ZRDBTexture* base,* emit;
+	base = db->GenBlankTexture(db, "grid", 32, 32, { 155, 155, 155, 255 });
+	TexGen_FillRect((ColourU32*)base->data, 32, 32, { 0, 0 }, { 16, 16 },
+		{ 225, 225, 225, 255 });
+	TexGen_FillRect((ColourU32*)base->data, 32, 32, { 16, 16 }, { 16, 16 },
+		{ 225, 225, 225, 255 });
+	
+	emit = db->GenBlankTexture(db, "grid_emit", 32, 32, { 0, 0, 0, 0 });
+	TexGen_FillRect((ColourU32*)emit->data, 32, 32, { 0, 0 }, { 4, 32 },
+		{ 225, 225, 0, 255 });
+	TexGen_FillRect((ColourU32*)emit->data, 32, 32, { 28, 0 }, { 4, 32 },
+		{ 225, 225, 0, 255 });
+	ZRMaterial* mat = db->CreateMaterial(
+        db,
+        "grid",
+        "grid",
+        "grid_emit"
+    );
+	printf("\tMat %s\n", mat->name);
+	#if 0
+	MeshData* cube = ZR_Embed_Cube();
+	ZRDBMesh* mesh = db->CreateEmptyMesh(db, "app_mesh", cube->numVerts);
+	//mesh->data.CopyData(*cube);
+	#endif
+}
 
 #endif // APP_DEBUG_H

@@ -56,6 +56,7 @@ internal f32 g_prim_quadNormals[] =
 
 internal MeshData g_meshPrimitive_quad = {
     6,
+	6,
     g_prim_quadVerts,
     g_prim_quadUVs,
 	g_prim_quadNormals

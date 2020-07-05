@@ -118,6 +118,7 @@ internal f32 g_prim_octahedronNormals[] =
 
 internal MeshData g_meshOctahedron = {
     24,
+	24,
     g_prim_octahedronVerts,
     g_prim_octahedronUVs,
     g_prim_octahedronNormals

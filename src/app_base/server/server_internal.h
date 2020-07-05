@@ -11,7 +11,7 @@ struct SVEntityFrame
 
 #define SV_EMPTY_DYNAMIC_SCENE -1
 // scene 5 for lots of static rubble to shoot. 2 for seekers
-#define SV_DEFAULT_DYNAMIC_SCENE 2
+#define SV_DEFAULT_DYNAMIC_SCENE 5
 
 #define SV_DEBUG_TIMING (1 << 0)
 #define SV_DEBUG_USER_BANDWIDTH (1 << 1)

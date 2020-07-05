@@ -58,17 +58,60 @@ static void ZRDB_GetMeshHandleByName(ZRAssetDB* assetDB, char* name, ZRMeshHandl
     *result = db->meshes[index].handles;
 }
 
-static i32 ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVerbose)
+static MeshData ZRDB_AllocateMeshData(i32 maxVerts)
+{
+	MeshData clone = {};
+	clone.numVerts = 0;
+	clone.maxVerts = maxVerts;
+	i32 numVertBytes = (sizeof(f32) * 3) * maxVerts;
+	i32 numUVBytes = (sizeof(f32) * 2) * maxVerts;
+	i32 totalBytes = numVertBytes + numUVBytes + numVertBytes;
+	u8* bytes = (u8*)malloc(totalBytes);
+	clone.verts = (f32*)bytes;
+	clone.uvs = (f32*)(bytes + numVertBytes);
+	clone.normals = (f32*)(bytes + numVertBytes + numUVBytes);
+	return clone;
+}
+
+static ZRDBMesh* ZRDB_CreateEmptyMesh(ZRAssetDB* assetDB, char* name, i32 maxVerts)
+{
+	ZRDB_CAST_TO_INTERNAL(assetDB, db)
+	MeshData data = ZRDB_AllocateMeshData(maxVerts);
+	ZRDBMesh* mesh = assetDB->LoadMesh(assetDB, name, &data, NO);
+	return mesh;
+}
+
+static MeshData ZRDB_CopyMeshData(MeshData original)
+{
+	MeshData clone = {};
+	clone.numVerts = original.numVerts;
+	i32 numVertBytes = (sizeof(f32) * 3) * original.numVerts;
+	i32 numUVBytes = (sizeof(f32) * 2) * original.numVerts;
+	i32 totalBytes = numVertBytes + numUVBytes + numVertBytes;
+
+	u8* bytes = (u8*)malloc(totalBytes);
+	// copy verts
+	clone.verts = (f32*)bytes;
+	bytes += ZE_Copy(bytes, original.verts, numVertBytes);
+	clone.uvs = (f32*)bytes;
+	bytes += ZE_Copy(bytes, original.uvs, numUVBytes);
+	clone.normals = (f32*)bytes;
+	bytes += ZE_Copy(bytes, original.normals, numVertBytes);
+	return clone;
+}
+
+static ZRDBMesh* ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVerbose)
 {
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
     i32 index = db->numMeshes++;
     ZRDBMesh* mesh = &db->meshes[index];
 	mesh->header.index = index;
     mesh->header.fileName = name;
-    mesh->data = *data;
+    //mesh->data = *data;
+    mesh->data = ZRDB_CopyMeshData(*data);
     //db->uploader.UploadMesh(data, &mesh->handles, 0);
     printf("ZRDB - registered mesh %s handle %d\n", name, mesh->handles.vao);
-    return 0;
+    return mesh;
 }
 
 static i32 ZRDB_LoadMeshFromFBX(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)

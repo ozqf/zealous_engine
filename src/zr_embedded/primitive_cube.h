@@ -169,6 +169,7 @@ internal f32 g_prim_cubeNormals[] =
 
 internal MeshData g_meshCube = {
     36,
+	36,
     g_prim_cubeVerts,
     g_prim_cubeUVs,
     g_prim_cubeNormals
@@ -323,6 +324,7 @@ internal f32 g_prim_inverseCubeNormals[] =
 
 internal MeshData g_meshInverseCube = {
     36,
+	36,
     g_prim_inverseCubeVerts,
     g_prim_inverseCubeUVs,
     g_prim_inverseCubeNormals

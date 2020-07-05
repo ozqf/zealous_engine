@@ -54,13 +54,45 @@ struct ZRDBTexture
     i32 apiHandle;
 };
 
+#define VEC3_SIZE = 12
+#define VEC2_SIZE = 8
+
+// Currently stores every vertex, no sharing
 struct MeshData
 {
 	u32 numVerts;
+	// dynamic mesh may have more capacity.
+	u32 maxVerts;
 
 	f32* verts;
 	f32* uvs;
-    f32* normals;    
+    f32* normals;
+
+	Vec3* GetVert(i32 i) { return (Vec3*)(verts + (i * 3)); }
+
+	i32 MeasureBytes()
+	{
+		i32 bytes = 0;
+		const i32 v3size = sizeof(f32) * 3;
+		const i32 v2size = sizeof(f32) * 2;
+		bytes += v3size * numVerts;
+		bytes += v2size * numVerts;
+		bytes += v3size * numVerts;
+		return bytes;
+	}
+
+	i32 CopyData(MeshData original)
+	{
+		if (original.numVerts > maxVerts)
+		{ return ZE_ERROR_NO_SPACE; }
+		numVerts = original.numVerts;
+		const i32 numVertBytes = (sizeof(f32) * 3) * numVerts;
+		const i32 numUVSBytes = (sizeof(f32) * 2) * numVerts;
+		ZE_Copy(verts, original.verts, numVertBytes);
+		ZE_Copy(uvs, original.uvs, numUVSBytes);
+		ZE_Copy(normals, original.normals, numVertBytes);
+		return ZE_ERROR_NONE;
+	}
 };
 
 // internal types
@@ -93,6 +125,7 @@ struct ZRDBMesh
  */
 struct ZRAssetDB
 {
+	i32 bDirty;
     ZRDBMesh* (*GetMeshByName)(ZRAssetDB* assetDB, char* name);
     ZRDBMesh* (*GetMeshByIndex)(ZRAssetDB* assetDB, i32 index);
     void (*GetMeshHandleByName)(ZRAssetDB* assetDB, char* name, ZRMeshHandles* result);
@@ -102,6 +135,7 @@ struct ZRAssetDB
     ZRDBTexture* (*GetTextureByIndex)(ZRAssetDB* assetDB, i32 index);
     i32 (*GetTextureHandleByIndex)(ZRAssetDB* assetDB, i32 index);
     i32 (*GetNumTextures)(ZRAssetDB* assetDB);
+	ZRDBTexture* (*GenBlankTexture)(ZRAssetDB* handle, char* name, i32 w, i32 h, ColourU32 fill);
 
     ZRMaterial* (*CreateMaterial)(ZRAssetDB* assetDB, char* name, char* diffuseTexName, char* emissiveTexName);
     ZRMaterial* (*GetMaterialByName)(ZRAssetDB* assetDB, char* name);
@@ -110,7 +144,8 @@ struct ZRAssetDB
 
     i32 (*LoadTexture)(ZRAssetDB* assetDB, char* path, i32 bVerbose);
     i32 (*LoadMeshFromFBX)(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose);
-    i32 (*LoadMesh)(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVerbose);
+    ZRDBMesh* (*LoadMesh)(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVerbose);
+	ZRDBMesh* (*CreateEmptyMesh)(ZRAssetDB* assetDB, char* name, i32 maxVerts);
 
     void (*VidRestart)(ZRAssetDB* assetDB);
 };

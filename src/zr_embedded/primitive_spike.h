@@ -88,6 +88,7 @@ internal f32 g_prim_spikeNormals[] =
 
 internal MeshData g_meshSpike = {
     9,
+	9,
     g_prim_spikeVerts,
     g_prim_spikeUVs,
     g_prim_spikeNormals

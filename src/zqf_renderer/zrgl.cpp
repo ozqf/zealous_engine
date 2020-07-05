@@ -57,6 +57,12 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     ScreenInfo scrInfo)
 {
 	g_framesRendered++;
+
+	if (AssetDb()->bDirty)
+	{
+		AssetDb()->bDirty = NO;
+		ZRGL_CheckForUploads();
+	}
 	// Update time
 	/////////////////////////////////////////////////////////////
 	// Setup for draw

@@ -214,7 +214,9 @@ internal i32 Sim_InitWorldVolume(
         { 0.2f, 0.2f, 0.2f, 1 },
         { 0.2f, 0.2f, 0.2f, 1 },
         ZRDB_MESH_NAME_CUBE,
-		ZRDB_MAT_NAME_WORLD,
+		//ZRDB_MAT_NAME_WORLD,
+		//"app_mesh",
+		"grid",
         SIM_DEATH_GFX_NONE);
     #ifdef SIM_USE_PHYSICS_ENGINE
     ent->shape.SetAsBox(def->pos, def->scale, ZCOLLIDER_FLAG_STATIC, SIM_LAYER_WORLD, SIM_LAYER_WORLD, 0);
