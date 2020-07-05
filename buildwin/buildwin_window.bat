@@ -2,7 +2,6 @@
 
 @echo --------------------------------------------------------
 @echo Build Zealous Engine Windows Renderer
-@echo --------------------------------------------------------
 
 @echo Shaders
 @node prep_shaders.js
@@ -20,7 +19,7 @@ if not exist buildwin_renderer mkdir buildwin_renderer
 cd buildwin_renderer
 del *.* /q
 
-set compilerFlags=-nologo -Gm -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi /LD
+set compilerFlags=-nologo -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi /LD
 set compilerDefines=/DPARANOID=1
 @rem set linkInputA=opengl32.lib
 @rem set linkInputB=user32.lib Gdi32.lib
