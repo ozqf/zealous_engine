@@ -16,6 +16,7 @@ static void ZRGL_DrawDebugQuad(
     ZRMeshHandles mesh;
     AssetDb()->GetMeshHandleByName(AssetDb(), "DynamicQuad", &mesh);
     i32 vao = mesh.vao;
+    i32 vbo = mesh.vbo;
     // setup prog
     GLint programId = g_programs[ZR_SHADER_TYPE_SHADOW_MAP_DEBUG].handle;
     glUseProgram(programId);
@@ -50,6 +51,7 @@ static void ZRGL_DrawDebugQuad(
 
     // Upload to VAO
     glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferSubData(GL_ARRAY_BUFFER, ZRGL_BYTES_FOR_QUAD_VERTS, ZRGL_BYTES_FOR_QUAD_UVS, uvs);
     CHECK_GL_ERR
 
@@ -57,6 +59,8 @@ static void ZRGL_DrawDebugQuad(
     CHECK_GL_ERR
     glEnable(GL_DEPTH_TEST);
     CHECK_GL_ERR
+
+    ZRGL_ClearBoundGeometry();
 }
 
 ///////////////////////////////////////////////////////////

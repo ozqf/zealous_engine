@@ -148,7 +148,7 @@ internal void App_GenAssets()
     #endif
     #if 1
     MeshData* cube = ZR_Embed_Cube();
-	ZRDBMesh* mesh = db->CreateEmptyMesh(db, "app_mesh", cube->numVerts);
+	ZRDBMesh* mesh = db->CreateEmptyMesh(db, "app_mesh_works", cube->numVerts);
     printf("Set directly as cube\n");
     //mesh->data = *cube;
     //printf("APP - clone cube (%d verts)\n", cube->numVerts);
@@ -159,7 +159,7 @@ internal void App_GenAssets()
 
     // TODO: the last mesh to load is always corrupted for some reason!
     // put in a placeholder here to protected the meshes above...
-    db->LoadMesh(db, "broken", *ZR_Embed_Cube(), NO);
+    db->LoadMesh(db, "app_mesh", *ZR_Embed_Cube(), NO);
 
     // Mark the asset db for re-uploading
     db->bDirty = YES;

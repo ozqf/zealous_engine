@@ -149,6 +149,7 @@ static void ZR_ExecuteTextDraw(
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(quadBuffer), quadBuffer);
     CHECK_GL_ERR
     #endif
+    ZRGL_ClearBoundGeometry();
 }
 
 ////////////////////////////////////////////////////////////
