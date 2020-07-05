@@ -39,16 +39,23 @@ static void ZRGL_UploadTexture(u8* pixels, i32 width, i32 height, u32* handle)
 // Type should be either GL_FLOAT or GL_DOUBLE!
 static void ZRGL_UploadMesh(MeshData* data, ZRMeshHandles* result, u32 flags)
 {
+    u32 vaoHandle, vboHandle;
     //////////////////////////////////////////
-    // Bind
-    // > acquire vao handle and Bind to it
-    u32 vaoHandle;
-    glGenVertexArrays(1, &vaoHandle);
+    // Get handles
+    if (result->vao == 0)
+    {
+        // generate handles
+        glGenVertexArrays(1, &vaoHandle);
+        glGenBuffers(1, &vboHandle);
+    }
+    else
+    {
+        vaoHandle = result->vao;
+        vboHandle = result->vbo;
+    }
+    // bind vao/vbo
     glBindVertexArray(vaoHandle);
     CHECK_GL_ERR
-    // bind vbo
-    u32 vboHandle;
-    glGenBuffers(1, &vboHandle);
     glBindBuffer(GL_ARRAY_BUFFER, vboHandle);
     CHECK_GL_ERR
 
@@ -120,8 +127,8 @@ static void ZRGL_UploadMesh(MeshData* data, ZRMeshHandles* result, u32 flags)
     glVertexAttribPointer(normalDataAttrib, 3, glDataType, GL_FALSE, 0, (void*)normalOffset);
     CHECK_GL_ERR
 
-    printf("  Uploaded %d verts (%d bytes) to VAO %d, VBO %d\n",
-        data->numVerts, totalBytes, vaoHandle, vboHandle);
+    // printf("  Uploaded %d verts (%d bytes) to VAO %d, VBO %d\n",
+    //     data->numVerts, totalBytes, vaoHandle, vboHandle);
     
     //ZRMeshHandles result = {};
     *result = {};

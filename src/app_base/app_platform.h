@@ -411,6 +411,7 @@ internal i32 AppImpl_Tick()
     {
         g_lastTimeSample = time;
         App_SimFrame(frameInterval);
+        App_TickDebugUtils(frameInterval);
         App_DrawFrame();
     }
     return ZE_ERROR_NONE;

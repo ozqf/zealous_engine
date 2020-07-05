@@ -303,14 +303,14 @@ static void ZR_UploadDBTex(ZRDBTexture* tex)
     ZRGL_UploadTexture((u8*)tex->data, tex->width, tex->height, &handle);
     tex->apiHandle = handle;
     tex->header.bIsUploaded = YES;
-    printf("Tex %s uploaded to handle %d\n", tex->header.fileName, tex->apiHandle);
+    //printf("Tex %s uploaded to handle %d\n", tex->header.fileName, tex->apiHandle);
 }
 
 static void ZR_UploadDBMesh(ZRDBMesh* mesh)
 {
     ZRGL_UploadMesh(&mesh->data, &mesh->handles, 0);
     mesh->header.bIsUploaded = YES;
-    printf("Mesh %s uploaded to vao handle %d\n", mesh->header.fileName, mesh->handles.vao);
+    //printf("Mesh %s uploaded to vao handle %d\n", mesh->header.fileName, mesh->handles.vao);
 }
 
 /**
@@ -337,7 +337,7 @@ extern "C" void ZRGL_CheckForUploads(i32 bVerbose)
     for (i32 i = 0; i < numMeshes; ++i)
     {
         ZRDBMesh* mesh = db->GetMeshByIndex(db, i);
-        if (mesh->header.bIsUploaded == NO)
+        if (mesh->header.bIsUploaded == NO || mesh->header.bIsDirty == YES)
         {
             if (bVerbose) { printf("Mesh %d: (%d/%d verts) %s is not uploaded\n",
                 i, mesh->data.numVerts, mesh->data.maxVerts, mesh->header.fileName); }

@@ -39,7 +39,10 @@ struct ZRAsset
     i32 id;
     i32 index;
     i32 type;
+	// On GPU - handles are set
 	i32 bIsUploaded;
+	// Data has changed - needs to be re-uploaded
+	i32 bIsDirty;
     char* fileName;
 };
 
