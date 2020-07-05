@@ -73,14 +73,6 @@ static MeshData ZRDB_AllocateMeshData(i32 maxVerts)
 	return clone;
 }
 
-static ZRDBMesh* ZRDB_CreateEmptyMesh(ZRAssetDB* assetDB, char* name, i32 maxVerts)
-{
-	ZRDB_CAST_TO_INTERNAL(assetDB, db)
-	MeshData data = ZRDB_AllocateMeshData(maxVerts);
-	ZRDBMesh* mesh = assetDB->LoadMesh(assetDB, name, &data, NO);
-	return mesh;
-}
-
 static MeshData ZRDB_CopyMeshData(MeshData original)
 {
 	MeshData clone = {};
@@ -100,18 +92,50 @@ static MeshData ZRDB_CopyMeshData(MeshData original)
 	return clone;
 }
 
-static ZRDBMesh* ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVerbose)
+static ZRDBMesh* ZRDB_AddMesh(ZRAssetDB* assetDB, char* name, MeshData data, i32 bVerbose)
 {
-    ZRDB_CAST_TO_INTERNAL(assetDB, db)
+	ZRDB_CAST_TO_INTERNAL(assetDB, db)
     i32 index = db->numMeshes++;
     ZRDBMesh* mesh = &db->meshes[index];
 	mesh->header.index = index;
     mesh->header.fileName = name;
-    //mesh->data = *data;
-    mesh->data = ZRDB_CopyMeshData(*data);
-    //db->uploader.UploadMesh(data, &mesh->handles, 0);
-    printf("ZRDB - registered mesh %s handle %d\n", name, mesh->handles.vao);
+    mesh->data = data;
     return mesh;
+}
+
+/**
+ * Allocate space for an empty mesh with the given vertex capacity
+ * create a mesh entry and return it
+ */
+static ZRDBMesh* ZRDB_CreateEmptyMesh(ZRAssetDB* assetDB, char* name, i32 maxVerts)
+{
+	ZRDB_CAST_TO_INTERNAL(assetDB, db)
+	MeshData data = ZRDB_AllocateMeshData(maxVerts);
+	ZRDBMesh* mesh = NULL;
+	mesh = ZRDB_AddMesh(assetDB, name, data, NO);
+	//mesh = assetDB->LoadMesh(assetDB, name, &data, NO);
+	return mesh;
+}
+
+/**
+ * Takes mesh data, clones it and creates a new mesh entry
+ * for when mesh data comes from an external source like a file
+ */
+static ZRDBMesh* ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, MeshData* data, i32 bVerbose)
+{
+	MeshData clone = ZRDB_CopyMeshData(*data);
+	ZRDBMesh* mesh = ZRDB_AddMesh(assetDB, name, clone, bVerbose);
+	return mesh;
+    // ZRDB_CAST_TO_INTERNAL(assetDB, db)
+    // i32 index = db->numMeshes++;
+    // ZRDBMesh* mesh = &db->meshes[index];
+	// mesh->header.index = index;
+    // mesh->header.fileName = name;
+    // //mesh->data = *data;
+    // mesh->data = ZRDB_CopyMeshData(*data);
+    // //db->uploader.UploadMesh(data, &mesh->handles, 0);
+    // printf("ZRDB - registered mesh %s handle %d\n", name, mesh->handles.vao);
+    // return mesh;
 }
 
 static i32 ZRDB_LoadMeshFromFBX(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)

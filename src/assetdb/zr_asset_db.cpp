@@ -102,6 +102,7 @@ extern "C" ZRAssetDB* ZRDB_Create()
     db->header.LoadMesh = ZRDB_LoadMesh;
     db->header.LoadMeshFromFBX = ZRDB_LoadMeshFromFBX;
     db->header.LoadTexture = ZRDB_LoadTexture;
+	db->header.CreateEmptyMesh = ZRDB_CreateEmptyMesh;
 
 	db->header.VidRestart = ZRDB_VidRestart;
 

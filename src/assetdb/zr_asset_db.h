@@ -84,7 +84,11 @@ struct MeshData
 	i32 CopyData(MeshData original)
 	{
 		if (original.numVerts > maxVerts)
-		{ return ZE_ERROR_NO_SPACE; }
+		{
+			printf("No space to copy mesh! %d verts have %d\n",
+				original.numVerts, maxVerts);
+			return ZE_ERROR_NO_SPACE;
+		}
 		numVerts = original.numVerts;
 		const i32 numVertBytes = (sizeof(f32) * 3) * numVerts;
 		const i32 numUVSBytes = (sizeof(f32) * 2) * numVerts;

@@ -142,10 +142,11 @@ internal void App_GenAssets()
         "grid_emit"
     );
 	printf("\tMat %s\n", mat->name);
-	#if 0
+	#if 1
 	MeshData* cube = ZR_Embed_Cube();
+	printf("APP - clone cube (%d verts)\n", cube->numVerts);
 	ZRDBMesh* mesh = db->CreateEmptyMesh(db, "app_mesh", cube->numVerts);
-	//mesh->data.CopyData(*cube);
+	mesh->data.CopyData(*cube);
 	#endif
 }
 
