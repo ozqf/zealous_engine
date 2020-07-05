@@ -2,11 +2,12 @@
 #define CLIENT_DEBUG_H
 
 #include "../../voxel_world/voxel_world.h"
+#include "../../zr_embedded/zr_embedded.h"
 
 #define CL_DEBUG_CAMERA_MODE_FREE 0
 #define CL_DEBUG_CAMERA_MODE_TOP_DOWN 1
 
-static SimEntity g_debugEnts[16];
+//static SimEntity g_debugEnts[16];
 
 // debugging camera to fly around with
 static SimActorInput g_debugInput = {};
@@ -28,6 +29,100 @@ static i32 CLDebug_IsDebugInputActive()
 	return NO;
 }
 
+internal void CLDebug_GenAssets()
+{
+	printf("APP - generate assets\n");
+	ZRAssetDB* db = (ZRAssetDB*)App_GetAssetDB();
+
+	ZRDBTexture* base,* emit;
+	base = db->GenBlankTexture(db, "grid", 32, 32, { 155, 155, 155, 255 });
+	TexGen_FillRect((ColourU32*)base->data, 32, 32, { 0, 0 }, { 16, 16 },
+		{ 225, 225, 225, 255 });
+	TexGen_FillRect((ColourU32*)base->data, 32, 32, { 16, 16 }, { 16, 16 },
+		{ 225, 225, 225, 255 });
+	
+	emit = db->GenBlankTexture(db, "grid_emit", 32, 32, { 0, 0, 0, 0 });
+	TexGen_FillRect((ColourU32*)emit->data, 32, 32, { 0, 0 }, { 4, 32 },
+		{ 225, 225, 0, 255 });
+	TexGen_FillRect((ColourU32*)emit->data, 32, 32, { 28, 0 }, { 4, 32 },
+		{ 225, 225, 0, 255 });
+	ZRMaterial* mat = db->CreateMaterial(
+        db,
+        "grid",
+        "grid",
+        "grid_emit"
+    );
+	
+    MeshData* cube = ZR_Embed_Cube();
+	ZRDBMesh* mesh = db->CreateEmptyMesh(db, "app_mesh", cube->numVerts);
+    printf("Set directly as cube\n");
+	mesh->data.CopyData(*cube);
+    mesh->data.numVerts = 36;
+    mesh->header.bIsDirty = YES;
+
+    //////////////////////////////////////////////////////
+    // background cuboids
+
+
+    // Mark the asset db for re-uploading
+    db->bDirty = YES;
+}
+
+static void CLDebug_InitDrawObjects()
+{
+    
+    ZRAssetDB* db = App_GetAssetDB();
+    i32 meshIndex = db->GetMeshByName(db, "app_mesh")->header.index;
+    i32 matIndex = db->GetMaterialByName(db, ZRDB_MAT_NAME_GFX)->index;
+    i32 matIndex2 = db->GetMaterialByName(db, ZRDB_MAT_NAME_PRJ)->index;
+    i32 matIndex3 = db->GetMaterialByName(db, ZRDB_MAT_NAME_ENT)->index;
+    g_numDebugObjs = 0;
+    
+    // solid test for ent to touch
+    ZRDrawObj* wall = &g_debugObjs[g_numDebugObjs];
+    *wall = {};
+    Transform_SetToIdentity(&wall->t);
+    wall->data.SetAsMesh(meshIndex, matIndex);
+    wall->t.pos.x = -5;
+    wall->t.pos.z = -5;
+    wall->t.pos.y = 1;
+    g_numDebugObjs++;
+
+    // touching ent
+    ZRDrawObj* actor = &g_debugObjs[g_numDebugObjs];
+    *actor = {};
+    Transform_SetToIdentity(&actor->t);
+    actor->data.SetAsMesh(meshIndex, matIndex2);
+    actor->t.pos.x = 5;
+    actor->t.pos.y = 3;
+    g_numDebugObjs++;
+
+    // line between
+    Vec3 b = wall->t.pos;
+    Vec3 a = actor->t.pos;
+    Vec3 d = {};
+    d.x = b.x - a.x;
+    d.y = b.y - a.y;
+    d.z = b.z - a.z;
+
+    Vec3 angles = Vec3_EulerAnglesBetween(a, b);
+    Vec3 pos = {};
+    pos.x = a.x + (d.x / 2);
+    pos.y = a.y + (d.y / 2);
+    pos.z = a.z + (d.z / 2);
+
+    ZRDrawObj* line = &g_debugObjs[g_numDebugObjs];
+    *line = {};
+    Transform_SetToIdentity(&line->t);
+    line->data.SetAsMesh(meshIndex, matIndex3);
+    M3x3_RotateY(line->t.rotation.cells, angles.y);
+	M3x3_RotateX(line->t.rotation.cells, -angles.x);
+    line->t.pos = pos;
+    line->t.scale = { 0.2f, 0.2f, d.z * 2 };
+    g_numDebugObjs++;
+	
+}
+
 static void CLDebug_Init()
 {
     VWChunk* chunk;
@@ -47,6 +142,8 @@ static void CLDebug_Init()
 
 	g_debugCamera = g_debugTopdownCamera;
 
+    CLDebug_GenAssets();
+    CLDebug_InitDrawObjects();
 }
 
 static void CLDebug_FlyCamera(
@@ -112,7 +209,27 @@ static void CLDebug_FlyCamera(
 
 static void CLDebug_SetAsLine(ZRDrawObj* obj, Vec3 a, Vec3 b)
 {
+    
+}
 
+internal void CLD_UpdateDynamicMesh(timeFloat delta)
+{
+    static f32 time = 0;
+    ZRDBMesh* base = ZRDB_GET_MESH_BY_NAME(App_GetAssetDB(), ZRDB_MESH_NAME_CUBE);
+    ZRDBMesh* mesh = ZRDB_GET_MESH_BY_NAME(App_GetAssetDB(), "app_mesh");
+
+    for (u32 i = 0; i < mesh->data.numVerts; ++i)
+    {
+        Vec3 src = *base->data.GetVert(i);
+        Vec3* v = mesh->data.GetVert(i);
+        v->x = src.x * (sinf(time));
+        v->y = src.y * (sinf(time));
+        v->z = src.z * (sinf(time));
+    }
+    mesh->header.bIsDirty = YES;
+    App_GetAssetDB()->bDirty = YES;
+
+    time += ((f32)delta * 2.f);
 }
 
 internal void CL_ProcessDebugInput(InputActionSet* actions, i64 platformFrame)
@@ -167,65 +284,18 @@ internal void CL_ProcessDebugInput(InputActionSet* actions, i64 platformFrame)
 
 static void CLDebug_UpdateDebugObjects(timeFloat delta)
 {
+    CLD_UpdateDynamicMesh(delta);
 	// update debug input for fly camera
 	CLDebug_FlyCamera(&g_debugCamera, &g_debugInput, 12, delta);
 
-    ZRAssetDB* db = App_GetAssetDB();
-    i32 meshIndex = db->GetMeshByName(db, ZRDB_MESH_NAME_CUBE)->header.index;
-    i32 matIndex = db->GetMaterialByName(db, ZRDB_MAT_NAME_GFX)->index;
-    i32 matIndex2 = db->GetMaterialByName(db, ZRDB_MAT_NAME_PRJ)->index;
-    i32 matIndex3 = db->GetMaterialByName(db, ZRDB_MAT_NAME_ENT)->index;
-    g_numDebugObjs = 0;
-    
-    // solid test for ent to touch
-    ZRDrawObj* wall = &g_debugObjs[g_numDebugObjs];
-    *wall = {};
-    Transform_SetToIdentity(&wall->t);
-    wall->data.SetAsMesh(meshIndex, matIndex);
-    wall->t.pos.x = -5;
-    wall->t.pos.z = -5;
-    wall->t.pos.y = 1;
-    g_numDebugObjs++;
-
-    // touching ent
-    ZRDrawObj* actor = &g_debugObjs[g_numDebugObjs];
-    *actor = {};
-    Transform_SetToIdentity(&actor->t);
-    actor->data.SetAsMesh(meshIndex, matIndex2);
-    actor->t.pos.x = 5;
-    actor->t.pos.y = 3;
-    g_numDebugObjs++;
-
-    // line between
-    Vec3 b = wall->t.pos;
-    Vec3 a = actor->t.pos;
-    Vec3 d = {};
-    d.x = b.x - a.x;
-    d.y = b.y - a.y;
-    d.z = b.z - a.z;
-
-    Vec3 angles = Vec3_EulerAnglesBetween(a, b);
-    Vec3 pos = {};
-    pos.x = a.x + (d.x / 2);
-    pos.y = a.y + (d.y / 2);
-    pos.z = a.z + (d.z / 2);
-
-    ZRDrawObj* line = &g_debugObjs[g_numDebugObjs];
-    *line = {};
-    Transform_SetToIdentity(&line->t);
-    line->data.SetAsMesh(meshIndex, matIndex3);
-    M3x3_RotateY(line->t.rotation.cells, angles.y);
-	M3x3_RotateX(line->t.rotation.cells, -angles.x);
-    line->t.pos = pos;
-    line->t.scale = { 0.2f, 0.2f, d.z * 2 };
-    g_numDebugObjs++;
-	
 	// Text test
+    #if 0
 	ZRDrawObj* textObj = &g_debugObjs[g_numDebugObjs++];
 	*textObj = {};
 	Transform_SetToIdentity(&textObj->t);
 	textObj->data.SetAsText(
 		"Test\nText", -1, COLOUR_WHITE, ZR_TEXT_ALIGNMENT_TOP_LEFT);
+    #endif
 
     //o->t.scale = { 2, 2, 2 };
     /* Testing actor movement:

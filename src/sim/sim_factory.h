@@ -213,9 +213,9 @@ internal i32 Sim_InitWorldVolume(
     Sim_SetEntityDisplay_Mesh(ent,
         { 0.2f, 0.2f, 0.2f, 1 },
         { 0.2f, 0.2f, 0.2f, 1 },
-        //ZRDB_MESH_NAME_CUBE,
+        ZRDB_MESH_NAME_CUBE,
 		//ZRDB_MAT_NAME_WORLD,
-		"app_mesh",
+		//"app_mesh",
 		"grid",
         SIM_DEATH_GFX_NONE);
     #ifdef SIM_USE_PHYSICS_ENGINE
