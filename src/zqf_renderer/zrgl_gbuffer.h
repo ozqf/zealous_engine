@@ -132,8 +132,6 @@ static void ZRGL_GeometryPass_Mesh(
 	CHECK_GL_ERR
 
 	// setup VAO and textures
-	//i32 vao, vertCount;
-	//i32 diffuse, emissive;
 	ZRMeshDrawHandles h = ZRGL_ExtractDrawHandles(
         AssetDb(), group->data.model.meshIndex, group->data.model.materialIndex);
 	

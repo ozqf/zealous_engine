@@ -351,6 +351,14 @@ internal f32 Vec3_Distance(Vec3 a, Vec3 b)
     return Vec3_Magnitudef(b.x - a.x, b.y - a.y, b.z - a.z);
 }
 
+internal i32 Point_Distance(Point a, Point b)
+{
+    i32 x = b.x - a.x;
+    i32 y = b.y - a.y;
+    
+    return (i32)roundf((f32)sqrt((f32)(x * x) + (f32)(y * y)));
+}
+
 internal Vec3 Vec3_CrossProduct(Vec3* a, Vec3* b)
 {
     return 

@@ -71,7 +71,9 @@ internal void CGen_CreateSkybox(ZRAssetDB* db)
     // background cuboids
     CLDebug_NewMaterial(db, 32, 32, "city", "citybase", "cityemit", &mat, &base, &emit);
     TexGen_SetRGBA((ColourU32*)base->data, 32, 32, { 50, 200, 100, 255 });
-    TexGen_SetRGBA((ColourU32*)emit->data, 32, 32, { 50, 200, 100, 255 });
+    TexGen_SetRGBA((ColourU32*)emit->data, 32, 32, { 50, 200, 100, 0 });
+    //TexGen_DrawFilledCircle((ColourU32*)emit->data, 32, 32, { 16, 16 }, 10, { 255, 255, 255, 255});
+    TexGen_PaintHorizontalLines((ColourU32*)emit->data, 32, 32, 5, { 255, 0, 0, 255 });
     //TexGen_FillRect()
 	CLDebug_CreateBuilding(db);
 

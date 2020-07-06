@@ -27,6 +27,10 @@ extern "C" void TexGen_SetRGBA(
 	ColourU32* pixels, i32 width, i32 height, ColourU32 colour);
 extern "C" void TexGen_FillRect(
 	ColourU32* pixels, i32 texWidth, i32 texHeight, Point topLeft, Point size, ColourU32 colour);
+extern "C" void TexGen_DrawFilledCircle(
+	ColourU32* pixels, i32 texWidth, i32 texHeight, Point pos, i32 radius, ColourU32 colour);
+extern "C" void TexGen_PaintHorizontalLines(
+	ColourU32* pixels, i32 texWidth, i32 texHeight, i32 numLines, ColourU32 colour);
 
 extern "C" i32 TexGen_EncodeBW(
 	u8* dest, const i32 destSize, ColourU32* pixels, const i32 w, const i32 h);

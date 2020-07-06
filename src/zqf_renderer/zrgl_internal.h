@@ -79,6 +79,9 @@ struct ZRShaderHandle
     i32 batchingFunction;
 };
 
+/**
+ * handles for executing a draw call
+ */
 struct ZRMeshDrawHandles
 {
     i32 vao;

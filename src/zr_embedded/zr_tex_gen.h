@@ -51,11 +51,44 @@ extern "C" void TexGen_FillRect(
  * move down the texture drawing lines across it at intervals
  */
 extern "C" void TexGen_PaintHorizontalLines(
-	ColourU32* pixels, i32 texWidth, i32 texHeight, ColourU32 colour)
+	ColourU32* pixels, i32 texWidth, i32 texHeight, i32 numLines, ColourU32 colour)
 {
-	i32 numLines = 5;
-	i32 step = texHeight / 5;
-	ILLEGAL_CODE_PATH
+	i32 step = texHeight / (numLines);
+	i32 y = step / 2;
+	for (i32 i = 0; i < numLines; ++i)
+	{
+		for (i32 x = 0; x < texWidth; ++x)
+		{
+			i32 index = x + (y * texWidth);
+			pixels[index] = colour;
+		}
+		y += step;
+	}
+}
+
+/**
+ * TODO: Wrote this super quick and it doesn't draw a proper circle lawl.
+ * A proper algorithm for this please!
+ */
+extern "C" void TexGen_DrawFilledCircle(
+	ColourU32* pixels, i32 texWidth, i32 texHeight, Point pos, i32 radius, ColourU32 colour)
+{
+	i32 minX = pos.x - radius;
+	i32 maxX = pos.x + radius;
+	i32 minY = pos.y - radius;
+	i32 maxY = pos.y + radius;
+	for (i32 y = minY; y < maxY; ++y)
+	{
+		for (i32 x = minX; x < maxX; ++x)
+		{
+			i32 dist = Point_Distance({ x, y}, pos);
+			if (dist <= radius)
+			{
+				i32 i = x + (y * texWidth);
+				pixels[i] = colour;
+			}
+		}
+	}
 }
 
 //////////////////////////////////////////////////
