@@ -5,8 +5,8 @@ Note: This is not a road map and features may be listed but dropped. Items are n
 ## Architectyre Notes
 
 ### Overall
-KISS, YAGNI, etc - reduce usage of function pointers and window DLL
-
+* KISS, YAGNI, etc - reduce usage of function pointers and window DLL
+* Merge Client and Server modules into single game module.
 
 ### Asset DB
 
@@ -19,7 +19,6 @@ Renderer
         - Callback to renderer?
     * Convert db Id to GPU handle.
     * Get list of currently un-uploading
-
 
 ## Gameplay
 

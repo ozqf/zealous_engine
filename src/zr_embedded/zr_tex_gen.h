@@ -47,6 +47,16 @@ extern "C" void TexGen_FillRect(
 	}
 }
 
+/**
+ * move down the texture drawing lines across it at intervals
+ */
+extern "C" void TexGen_PaintHorizontalLines(
+	ColourU32* pixels, i32 texWidth, i32 texHeight, ColourU32 colour)
+{
+	i32 numLines = 5;
+	i32 step = texHeight / 5;
+	ILLEGAL_CODE_PATH
+}
 
 //////////////////////////////////////////////////
 // Black & White

@@ -116,10 +116,10 @@ i32 Sim_LoadEmbeddedScene(SimScene* sim, i32 index)
     // flood lights
     f32 floodLightY = 10;
     f32 floodLightMul = 2;
-    f32 floodLightRange = 20;
-	Sim_AddPointLight(sim, { 0, floodLightY, 0 }, { 1, 1, 1 }, 1, 25);
-    Sim_AddPointLight(sim, { 15, floodLightY, 15 }, { 1, 0.3f, 0.3f }, floodLightMul, floodLightRange);
-    Sim_AddPointLight(sim, { 15, floodLightY, -15 }, { 1, 0.3f, 0.3f }, floodLightMul, floodLightRange);
+    f32 floodLightRange = 18;
+	Sim_AddPointLight(sim, { 0, floodLightY, 0 }, { 1, 1, 1 }, 1, 18);
+    Sim_AddPointLight(sim, { 15, floodLightY, 15 }, { 1, 0, 0 }, floodLightMul, floodLightRange);
+    Sim_AddPointLight(sim, { 15, floodLightY, -15 }, { 1, 1, 0 }, floodLightMul, floodLightRange);
 	Sim_AddPointLight(sim, { -15, floodLightY, -15 }, { 0, 1, 0 }, floodLightMul, floodLightRange);
 	Sim_AddPointLight(sim, { -15, floodLightY, 15 }, { 0, 1, 1 }, floodLightMul, floodLightRange);
 

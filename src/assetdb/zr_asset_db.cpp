@@ -118,10 +118,11 @@ extern "C" ZRAssetDB* ZRDB_Create()
 
     return &db->header;
 }
-
+#if 0
 extern "C" void ZRDB_AttachUploader(ZRAssetDB* assetDB, ZRAssetUploader uploader)
 {
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
     db->uploader = uploader;
 }
+#endif
 #endif // ZR_ASSET_DB_CPP

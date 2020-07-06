@@ -15,7 +15,7 @@
 struct ZRAssetDBData
 {
     ZRAssetDB header;
-    ZRAssetUploader uploader;
+    //ZRAssetUploader uploader;
 
     i32 nextId;
     ZRDBTexture* textures;

@@ -169,13 +169,13 @@ struct ZRAssetDB
 
     void (*VidRestart)(ZRAssetDB* assetDB);
 };
-
+#if 0
 struct ZRAssetUploader
 {
     void (*UploadTexture)(u8* pixels, i32 width, i32 height, u32* handle);
     void (*UploadMesh)(MeshData* data, ZRMeshHandles* result, u32 flags);
 };
-
+#endif
 #define ZRDB_GET_MAT_BY_NAME(assetDbPtr, matNameChars) \
 assetDbPtr->GetMaterialByName(##assetDbPtr##, ##matNameChars##)
 
@@ -183,6 +183,6 @@ assetDbPtr->GetMaterialByName(##assetDbPtr##, ##matNameChars##)
 assetDbPtr->GetMeshByName(##assetDbPtr##, ##matNameChars##)
 
 extern "C" ZRAssetDB* ZRDB_Create();
-extern "C" void ZRDB_AttachUploader(ZRAssetDB* assetDB, ZRAssetUploader uploader);
+//extern "C" void ZRDB_AttachUploader(ZRAssetDB* assetDB, ZRAssetUploader uploader);
 extern "C" void ZRDB_PrintManifest(ZRAssetDB* assetDB);
 #endif // ZR_ASSET_DB_H

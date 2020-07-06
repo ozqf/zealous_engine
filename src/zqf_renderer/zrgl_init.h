@@ -281,13 +281,14 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
     // Assets
     /////////////////////////////////////////
 
+    #if 0
     // Setup assets
     ZRAssetUploader uploader = {};
     uploader.UploadTexture = ZRGL_UploadTexture;
     uploader.UploadMesh = ZRGL_UploadMesh;
 
     ZRDB_AttachUploader((ZRAssetDB*)g_platform.GetAssetDB(), uploader);
-	
+    #endif
     return ZE_ERROR_NONE;
 }
 
