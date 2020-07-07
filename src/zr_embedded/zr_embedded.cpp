@@ -11,6 +11,7 @@
 #include "bw_charset.h"
 
 #include "zr_tex_gen.h"
+#include "zr_mesh_gen.h"
 
 extern "C" MeshData* ZR_Embed_Cube()
 {

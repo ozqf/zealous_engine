@@ -409,6 +409,13 @@ internal Vec3 Vec3_MultiplyByM4x4(Vec3* v, f32* m)
 	return r;
 }
 
+internal void Vec3_MultiplyArrayByM4x4(Vec3* vecs, i32 numVecs, f32* m)
+{
+    for (i32 i = 0; i < numVecs; ++i)
+    {
+        vecs[i] = Vec3_MultiplyByM4x4(&vecs[i], m);
+    }
+}
 
 // returns 1 if vectors are different
 internal i32 Vec3_AreDifferent(Vec3* a, Vec3* b, f32 epsilon)

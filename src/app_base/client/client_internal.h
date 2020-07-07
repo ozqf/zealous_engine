@@ -104,7 +104,7 @@ internal S2C_InputResponse g_serverResponses[CLI_MAX_RESPONSE_RECORDS];
 #define CL_DEBUG_CAMERA_MODE_FREE 0
 #define CL_DEBUG_CAMERA_MODE_TOP_DOWN 1
 
-#define CL_DEBUG_MAX_OBJECTS 64
+#define CL_DEBUG_MAX_OBJECTS 1024
 
 //static SimEntity g_debugEnts[CL_DEBUG_MAX_OBJECTS];
 

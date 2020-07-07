@@ -60,6 +60,19 @@ internal ZRDrawObj* CLDebug_CreateBuilding(ZRAssetDB* db)
 	return obj;
 }
 
+internal void PrintQuad(ZEQuad q)
+{
+	for (i32 i = 0; i < MESH_GEN_VERTS_PER_QUAD; ++i)
+	{
+		Vec3 v = q.verts[i];
+		Vec2 uv = q.uvs[i];
+		Vec3 normal = q.normals[i];
+		printf("%.3f, %.3f, %.3f\n", v.x, v.y, v.z);
+		printf("\t%.3f, %.3f\n", uv.x, uv.y);
+		printf("\t%.3f, %.3f, %.3f\n", normal.x, normal.y, normal.z);
+	}
+}
+
 internal void CGen_CreateSkybox(ZRAssetDB* db)
 {
 	////////////////////////////////////////////////
@@ -87,4 +100,68 @@ internal void CGen_CreateSkybox(ZRAssetDB* db)
         obj->t.pos.x = t->pos.x;
         obj->t.pos.z = t->pos.z;
     }
+	
+	////////////////////////////////////////////////
+    // Quad test
+	printf("------------- QUAD TEST --------------\n");
+	i32 numQuads = 4;
+	i32 numVerts = MeshGen_NumVertsForQuads(numQuads);
+	printf("Creating %d quads (%d verts)\n", numQuads, numVerts);
+    printf("\tNum verts per quad %d\n", MESH_GEN_VERTS_PER_QUAD);
+	ZRDBMesh* quadMesh = db->CreateEmptyMesh(db, "quad_gen", numVerts);
+    ZEQuad q1, q2, q3, q4;
+    q1 = MeshGen_SelectQuad(quadMesh->data, 0);
+    MeshGen_ResetQuad(q1, { 2, 2 });
+    MeshGen_SetSquareUVs(q1, 32, 32);
+
+    q2 = MeshGen_SelectQuad(quadMesh->data, 1);
+    MeshGen_ResetQuad(q2, { 2, 2 });
+    q3 = MeshGen_SelectQuad(quadMesh->data, 2);
+    MeshGen_ResetQuad(q3, { 2, 2 });
+    q4 = MeshGen_SelectQuad(quadMesh->data, 3);
+    MeshGen_ResetQuad(q4, { 2, 2 });
+
+    ///////////////////////////////////////////////
+    // Translate quads
+    M4x4_CREATE(translate)
+    M4x4_CREATE(rotate)
+    f32 radius = 2;
+    // position q1
+    M4x4_BuildTranslation(translate.cells, 0, 0, radius);
+    Vec3_MultiplyArrayByM4x4(q1.verts, MESH_GEN_VERTS_PER_QUAD, translate.cells);
+    // position q2
+    M4x4_BuildRotateByAxis(rotate.cells, 180 * DEG2RAD, 0, 1, 0);
+    rotate.posZ = -radius;
+    Vec3_MultiplyArrayByM4x4(q2.verts, MESH_GEN_VERTS_PER_QUAD, rotate.cells);
+    // position q3
+    M4x4_BuildRotateByAxis(rotate.cells, 90 * DEG2RAD, 0, 1, 0);
+    rotate.posX = radius;
+    Vec3_MultiplyArrayByM4x4(q3.verts, MESH_GEN_VERTS_PER_QUAD, rotate.cells);
+    // position q4
+    M4x4_BuildRotateByAxis(rotate.cells, 270 * DEG2RAD, 0, 1, 0);
+    rotate.posX = -radius;
+    Vec3_MultiplyArrayByM4x4(q4.verts, MESH_GEN_VERTS_PER_QUAD, rotate.cells);
+
+    ///////////////////////////////////////////////
+    // update mesh vert count and mark assets as dirty
+    quadMesh->data.numVerts = MESH_GEN_VERTS_PER_QUAD * numQuads;
+    quadMesh->header.bIsDirty = YES;
+    db->bDirty = YES;
+    quadMesh->data.PrintVerts();
+    
+    ///////////////////////////////////////////////
+    // Create objects to display mesh
+    Vec3 pos = { 0, 2, 0 };
+    // mark quad obj position with a mesh that will render properly!
+    ZRDrawObj* marker = &g_debugObjs[g_numDebugObjs++];
+    ZRDrawObj_Clear(marker);
+    marker->data.SetAsMesh(0, 0);
+    marker->t.pos = pos;
+    marker->t.scale = { 0.2f, 0.2f, 0.2f };
+
+    ZRDrawObj* quadObj = &g_debugObjs[g_numDebugObjs++];
+    ZRDrawObj_Clear(quadObj);
+    quadObj->data.SetAsMesh(quadMesh->header.index, mat->index);
+    //quadObj->data.SetAsMesh(0, mat->index);
+    quadObj->t.pos = pos;
 }

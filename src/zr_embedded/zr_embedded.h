@@ -4,6 +4,8 @@
 #include "../ze_common/ze_common.h"
 #include "../zqf_renderer.h"
 
+#define MESH_GEN_VERTS_PER_QUAD 6
+
 struct BWImage
 {
 	char* name;
@@ -13,11 +15,27 @@ struct BWImage
 	i32 h;
 };
 
+/**
+ * Contains pointers into a mesh data instance
+ */
+struct ZEQuad
+{
+	Vec3* verts;
+	Vec2* uvs;
+	Vec3* normals;
+};
+
 extern "C" MeshData* ZR_Embed_Cube();
 extern "C" MeshData* ZR_Embed_InverseCube();
 extern "C" MeshData* ZR_Embed_Quad();
 extern "C" MeshData* ZR_Embed_Spike();
 extern "C" MeshData* ZR_Embed_Octahedron();
+
+extern "C" i32 MeshGen_MeasureQuadArray(i32 numQuads);
+extern "C" ZEQuad MeshGen_SelectQuad(MeshData data, i32 quadIndex);
+extern "C" void MeshGen_ResetQuad(ZEQuad q, Vec2 size);
+extern "C" i32 MeshGen_NumVertsForQuads(i32 numQuads);
+extern "C" void MeshGen_SetSquareUVs(ZEQuad q, i32 pixPerMetre, i32 texSize);
 
 extern "C" BWImage ZR_Embed_Charset();
 

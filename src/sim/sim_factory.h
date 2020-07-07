@@ -366,13 +366,18 @@ internal i32 Sim_InitPropMesh(
     SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
 {
     Sim_SetEntityBase(ent, def);
+    // TODO: Storing indexes to assets doesn't work if the
+    // asset isn't loaded before this point!
+    // need to store the original asset name as well
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
         //ZRDB_MESH_NAME_CUBE,
-        ZRDB_MESH_NAME_SPIKE,
+        //ZRDB_MESH_NAME_SPIKE,
         //ZRDB_MESH_NAME_INVERSE_CUBE,
-		ZRDB_MAT_NAME_WORLD,
+        "quad_gen",
+		//ZRDB_MAT_NAME_WORLD,
+        "city",
         SIM_DEATH_GFX_NONE);
     ent->tickType = SIM_TICK_TYPE_NONE;
     ent->coreTickType = SIM_TICK_TYPE_NONE;

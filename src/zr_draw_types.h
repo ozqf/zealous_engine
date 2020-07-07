@@ -241,6 +241,12 @@ static ZRDrawObj* ZRDrawObj_InitInPlace(u8** ptr)
     return obj;
 }
 
+static void ZRDrawObj_Clear(ZRDrawObj* obj)
+{
+    *obj = {};
+    Transform_SetToIdentity(&obj->t);
+}
+
 static f32 ZR_CharScreenSizeDefault()
 {
 	return ZR_SCREEN_SPACE_HEIGHT / ZR_TEXT_SCREEN_LINE_COUNT;
