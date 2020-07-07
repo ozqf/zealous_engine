@@ -39,6 +39,7 @@ extern "C"
 #include "../assetdb/zr_asset_db.h"
 
 #include "ze_win_socket.h"
+#include "ze_win_sound.h"
 
 ////////////////////////////////////////////////////////
 // Data types
@@ -322,6 +323,10 @@ static i32 PlatformImpl_ExecTextCommand(
 		ZRDB_PrintManifest(g_assets);
 		return YES;
 	}
+    if (Snd_ParseCommandString(str, tokens, numTokens))
+    {
+        return YES;
+    }
 	return (g_app.ParseCommandString(str, tokens, numTokens) == YES);
 }
 
@@ -498,6 +503,14 @@ int CALLBACK WinMain(
 
     // alloc asset db
     g_assets = ZRDB_Create();
+
+    // init sound
+    i32 sndErr = Snd_Init();
+    if (sndErr != ZE_ERROR_NONE)
+    {
+        Win_Error("Error starting sound");
+        return 1;
+    }
 
     #if 0
     g_diagnosticSocket = Net_OpenSocket(ZE_TEST_TRANSMIT_PORT, &g_diagnosticTransPort);
