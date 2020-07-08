@@ -41,23 +41,7 @@ Sound notes:
     eg Music
 
 */
-/*
-/////////////////////////////////////////////////////////////////////
-// External functions
-/////////////////////////////////////////////////////////////////////
-static i32 Snd_LoadSound(char* name64, u8* data, i32 numBytes);
-static u8 Snd_Play2(ZSoundEvent* ev);
-static u8 Snd_Init();
-static u8 Snd_ParseCommandString(char* str, char** tokens, i32 numTokens);
 
-/////////////////////////////////////////////////////////////////////
-// Internal functions
-static u8 Snd_Shutdown();
-/////////////////////////////////////////////////////////////////////
-static u8 SndClearWorldScene();
-static u8 SndClearUIScene();
-static u8 SndClearBGM();
-*/
 /////////////////////////////////////////////////////////////////////
 // Globals
 /////////////////////////////////////////////////////////////////////
@@ -136,7 +120,7 @@ internal i32 Snd_LoadSound(char* name64, u8* data, i32 numBytes)
 }
 
 #if 1 // Low level API only
-extern "C" u8 Snd_Init()
+extern "C" ErrorCode Snd_Init()
 {
     printf("SOUND Init\n");
     FMOD_RESULT result;
@@ -147,7 +131,7 @@ extern "C" u8 Snd_Init()
     {
         return ZE_ERROR_UNKNOWN;
     }
-
+    gsnd_channel->setVolume(0.5f);
     // Initialize FMOD Low Level
     result = sys->init(512, FMOD_INIT_NORMAL, 0);
     if (result != FMOD_OK)
@@ -166,7 +150,7 @@ extern "C" u8 Snd_Init()
 }
 #endif
 
-extern "C" u8 Snd_Shutdown()
+extern "C" ErrorCode Snd_Shutdown()
 {
     printf("SOUND Shutting down\n");
     FMOD_RESULT result;
@@ -178,7 +162,7 @@ extern "C" u8 Snd_Shutdown()
     return 1;
 }
 
-extern "C" u8 Snd_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
+extern "C" ErrorCode Snd_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
     if (ZE_CompareStrings(tokens[0], "SND") == 0)
     {

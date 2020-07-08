@@ -42,8 +42,8 @@ void SND_SetMoveSoundEvent(ZSoundEvent* ev)
 }
 */
 
-extern "C" u8 Snd_Init();
-extern "C" u8 Snd_Shutdown();
-extern "C" u8 Snd_ParseCommandString(const char* str, const char** tokens, const i32 numTokens);
+extern "C" ErrorCode Snd_Init();
+extern "C" ErrorCode Snd_Shutdown();
+extern "C" ErrorCode Snd_ParseCommandString(const char* str, const char** tokens, const i32 numTokens);
 
 #endif // ZE_WIN_SOUND_H
