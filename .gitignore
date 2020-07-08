@@ -17,6 +17,8 @@
 # For 3rd party DLLs
 /bin/*
 !/bin/glfw3.dll
+!/bin/fmod.dll
+!/bin/fmodstudio.dll
 
 # Shaders file is auto-generated
 /lib/shaders.h
