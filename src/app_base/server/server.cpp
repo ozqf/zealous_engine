@@ -32,7 +32,6 @@ extern "C" void SV_Debug_GetSimInstance(void** ptr)
 
 extern "C" u8 SV_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
-	printf("SV try parse\n");
 	if (!ZE_CompareStrings(tokens[0], "SPAWN"))
 	{
 		if (numTokens == 1)

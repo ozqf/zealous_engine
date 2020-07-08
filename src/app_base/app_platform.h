@@ -342,7 +342,18 @@ internal i32 AppImpl_RendererReloaded()
 
 internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
-	printf("APP exec %s\n", str);
+    // fall through
+    if (ZE_CompareStrings(tokens[0], "VERSION") == 0)
+	{
+		printf("APP Built %s: %s\n", __DATE__, __TIME__);
+	}
+	if (!ZE_CompareStrings(tokens[0], "HELP"))
+    {
+        printf("DRAW SV - toggle drawing local server ontop of client scene\n");
+        printf("STAT <CLS, APP, SV or CL> - toggle disabling debug text\n");
+        printf("LAG <minMS, maxMS, loss> - set fake lag conditions\n");
+        printf("\t eg LAG 100 200 5 for 100-200 ms lag and 5%% packet loss\n");
+    }
     if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "DRAW"))
     {
         if (!ZE_CompareStrings(tokens[1], "SV"))

@@ -110,8 +110,7 @@ internal void* CL_Malloc(i32 numBytes)
 
 extern "C" u8 CL_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
-	printf("CL try parse\n");
-    return NO;
+	return NO;
 }
 
 

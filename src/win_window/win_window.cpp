@@ -67,6 +67,27 @@ static void Window_EnqueueTextCommand(char* str)
         g_bRestart = YES;
         return;
     }
+    if (ZE_CompareStrings(str, "EXIT") == 0
+        || ZE_CompareStrings(str, "QUIT") == 0)
+	{
+        printf("WIN - exiting\n");
+        glfwSetWindowShouldClose(g_window, YES);
+		return;
+	}
+    // Help and version commands should fall through
+    // let other modules list their commands too!
+    if (ZE_CompareStrings(str, "HELP") == 0)
+	{
+        printf("=== command list ===\n");
+        printf("EXIT / QUIT - shutdown game, surprisingly enough\n");
+        printf("VID <integer> - set windowed resolution mode\n");
+        printf("WINDOWED <0 or 1> - if 0, activate borderless fullscreen\n");
+        printf("VERSION - list module build dates\n");
+	}
+    if (ZE_CompareStrings(tokens[0], "VERSION") == 0)
+	{
+		printf("WINDOW Built %s: %s\n", __DATE__, __TIME__);
+	}
     
     i32 rendererResponse = ZRGL_ExecTextCommand(str, len, tokens, numTokens);
     if (rendererResponse == YES) { return; }

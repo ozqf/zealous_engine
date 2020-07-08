@@ -314,7 +314,6 @@ static void PlatformImpl_ReleaseEventBuffer()
 static i32 PlatformImpl_ExecTextCommand(
     const char* str, const i32 len, const char** tokens, const i32 numTokens)
 {
-    printf("PLAT: Exec %s\n", str);
     // call all loaded modules to attempt to run the given command
     // a result of true from any module means the command was
     // handled
@@ -326,6 +325,16 @@ static i32 PlatformImpl_ExecTextCommand(
     if (Snd_ParseCommandString(str, tokens, numTokens))
     {
         return YES;
+    }
+
+    // fall through
+    if (ZE_CompareStrings(tokens[0], "VERSION") == 0)
+	{
+		printf("PLATFORM Built %s: %s\n", __DATE__, __TIME__);
+	}
+    if (ZE_CompareStrings(str, "HELP") == 0)
+    {
+        printf("MANIFEST - list assets loaded to heap\n");
     }
 	return (g_app.ParseCommandString(str, tokens, numTokens) == YES);
 }

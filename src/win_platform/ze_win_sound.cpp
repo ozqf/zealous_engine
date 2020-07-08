@@ -164,6 +164,10 @@ extern "C" ErrorCode Snd_Shutdown()
 
 extern "C" ErrorCode Snd_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
+    if (ZE_CompareStrings(tokens[0], "HELP") == 0)
+    {
+        printf("SND TEST - play test sound\n");
+    }
     if (ZE_CompareStrings(tokens[0], "SND") == 0)
     {
         if (numTokens == 2 && ZE_CompareStrings(tokens[1],"TEST") == 0)
