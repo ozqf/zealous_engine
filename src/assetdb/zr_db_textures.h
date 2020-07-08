@@ -15,7 +15,7 @@ static i32 ZRDB_GetNumTextures(ZRAssetDB* assetDB)
 }
 
 static i32 ZRDB_RegisterTexture(
-    ZRAssetDB* assetDB, char* fileName, void* data, i32 dataSize, i32 width, i32 height, i32 apiHandle)
+    ZRAssetDB* assetDB, char* fileName, ColourU32* data, i32 dataSize, i32 width, i32 height, i32 apiHandle)
 {
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
     
@@ -70,7 +70,7 @@ static i32 ZRDB_GetTextureHandleByIndex(ZRAssetDB* assetDB, i32 index)
     return tex->apiHandle;
 }
 
-static u8* ZRDB_LoadTextureToHeap(
+static ColourU32* ZRDB_LoadTextureToHeap(
     char* path, i32 bVerbose, int* x, int* y, i32 bFlipY)
 {
     ZEByteBuffer b;
@@ -88,7 +88,7 @@ static u8* ZRDB_LoadTextureToHeap(
     if (bVerbose == YES)
     { printf("Loaded img res %d, %d - comp %d\n", *x, *y, comp); }
     free(b.start);
-    return tex;
+    return (ColourU32*)tex;
 }
 
 static i32 ZRDB_UploadTexture(ZRDBTexture* tex)
@@ -104,7 +104,7 @@ static i32 ZRDB_LoadTexture(ZRAssetDB* assetDB, char* path, i32 bVerbose)
 	{
 		return 0;
 	}
-	u8* pixels;
+	ColourU32* pixels;
 	i32 x, y;
 	u32 handle = 0;
     pixels = ZRDB_LoadTextureToHeap(path, bVerbose, &x, &y, YES);

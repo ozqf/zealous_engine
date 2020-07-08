@@ -30,6 +30,7 @@ struct SysInputEvent
     SysEvent header;
     u32 inputID = 0;
     i32 value = 0;
+    f32 normalised = 0;
 };
 
 struct SysPacketEvent
@@ -74,7 +75,7 @@ static void Sys_EnqueueEvent(ZEByteBuffer* buf, SysEvent* ev)
 ////////////////////////////////////////////////////
 // Concrete event types
 ////////////////////////////////////////////////////
-static void Sys_CreateInputEvent(SysInputEvent* ev, u32 inputID, i32 value)
+static void Sys_CreateInputEvent(SysInputEvent* ev, u32 inputID, i32 value, f32 normalised)
 {
     Sys_PrepareEvent(
         SYS_CAST_EVENT_TO_BASE(ev),
@@ -82,12 +83,13 @@ static void Sys_CreateInputEvent(SysInputEvent* ev, u32 inputID, i32 value)
         sizeof(SysInputEvent));
     ev->inputID = inputID;
     ev->value = value;
+    ev->normalised = normalised;
 }
 
-static void Sys_WriteInputEvent(ZEByteBuffer* b, u32 inputID, i32 value)
+static void Sys_WriteInputEvent(ZEByteBuffer* b, u32 inputID, i32 value, f32 normalised)
 {
     SysInputEvent ev = {};
-    Sys_CreateInputEvent(&ev, inputID, value);
+    Sys_CreateInputEvent(&ev, inputID, value, normalised);
     Sys_EnqueueEvent(b, SYS_CAST_EVENT_TO_BASE(&ev));
 }
 

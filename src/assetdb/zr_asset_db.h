@@ -50,7 +50,8 @@ struct ZRDBTexture
 {
     //char* fileName;
     ZRAsset header;
-    void* data;
+	// 32 bit pixel data.
+    ColourU32* data;
     i32 dataSize;
     i32 width;
     i32 height;

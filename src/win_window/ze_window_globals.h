@@ -47,7 +47,11 @@ internal f64 g_mouseAccumulatorSampleY = 0;
 internal ze_platform_export g_platform = {};
 //internal ZRRenderer g_renderer = {};
 internal volatile i32 g_bExit = NO;
-internal ScreenInfo g_scrInfo;
+// dimensions of window the current window
+internal ScreenInfo g_windowSize;
+// monitor dimensions - read at load time so won't update
+// if screen moves around
+internal ScreenInfo g_monitorSize;
 
 // cap fps
 internal i32 g_maxFPS = 0;

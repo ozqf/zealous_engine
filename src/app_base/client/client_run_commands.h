@@ -67,6 +67,7 @@ internal void CL_ReadSystemEvents(
                 Input_TestForAction(
 					&g_inputActions,
 					inputEv->value,
+                    inputEv->normalised,
 					inputEv->inputID,
 					platformFrame);
 				

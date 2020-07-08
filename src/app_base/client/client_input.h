@@ -209,9 +209,21 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     CL_InputCheckButton(actions, "Slot3", &flags, ACTOR_INPUT_SLOT_3);
     CL_InputCheckButton(actions, "Slot4", &flags, ACTOR_INPUT_SLOT_4);
 
+    #if 0 // old mouse input reads movement in pixels directly - resolution dependent!
     f32 mouseX = ((f32)Input_GetActionValue(actions, "Mouse Move X") / (f32)Z_INPUT_MOUSE_SCALAR);
     f32 mouseY = ((f32)Input_GetActionValue(actions, "Mouse Move Y") / (f32)Z_INPUT_MOUSE_SCALAR);
+    printf("CL Mouse move X/Y %f, %f\n", mouseX, mouseY);
+    printf("CL normalised mouse move: %f, %f\n",
+        Input_GetActionValueNormalised(actions, "Mouse Move X") / (f32)1000,
+        Input_GetActionValueNormalised(actions, "Mouse Move Y") / (f32)1000
+        );
+    #endif
 
+    f32 mouseX = Input_GetActionValueNormalised(actions, "Mouse Move X") / Z_INPUT_MOUSE_SCALAR;
+    f32 mouseY = Input_GetActionValueNormalised(actions, "Mouse Move Y") / Z_INPUT_MOUSE_SCALAR;
+    const f32 sensitivity = 2.f;
+    mouseX *= sensitivity;
+    mouseY *= sensitivity;
 	// apply
     input->buttons = flags;
 

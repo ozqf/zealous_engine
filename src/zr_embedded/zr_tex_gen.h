@@ -67,6 +67,25 @@ extern "C" void TexGen_PaintHorizontalLines(
 }
 
 /**
+ * move across the texture drawing lines across it at intervals
+ */
+extern "C" void TexGen_PaintVerticalLines(
+	ColourU32* pixels, i32 texWidth, i32 texHeight, i32 numLines, ColourU32 colour)
+{
+	i32 step = texWidth / (numLines);
+	i32 x = step / 2;
+	for (i32 i = 0; i < numLines; ++i)
+	{
+		for (i32 y = 0; y < texHeight; ++y)
+		{
+			i32 index = x + (y * texWidth);
+			pixels[index] = colour;
+		}
+		x += step;
+	}
+}
+
+/**
  * TODO: Wrote this super quick and it doesn't draw a proper circle lawl.
  * A proper algorithm for this please!
  */

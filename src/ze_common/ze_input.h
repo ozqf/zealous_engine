@@ -7,7 +7,7 @@ enum ZMouseMode { Free = 0, Captured = 1 };
 
 typedef int zeInputCode;
 
-#define Z_INPUT_MOUSE_SCALAR 100000
+#define Z_INPUT_MOUSE_SCALAR 100000.f
 
 //////////////////////////////////////////////////////////////////////
 // Input codes
@@ -102,6 +102,8 @@ struct InputAction
     u32 keyCode1;
     // u32 keyCode2; // Alt key. needs better checking logic though
     i32 value;
+    // value in a range between 0 and 1 (eg resolution independent mouse movement)
+    f32 normalised;
     frameInt lastFrame;
     char label[16];
 };
@@ -155,6 +157,13 @@ internal i32 Input_GetActionValue(InputActionSet* actions, char* actionName)
     return Input_GetActionValue(actions->actions, actions->count, actionName);
 }
 
+internal f32 Input_GetActionValueNormalised(InputActionSet* actions, char* actionName)
+{
+    InputAction* action = Input_FindAction(actions->actions, actions->count, actionName);
+    ZE_ASSERT(action != NULL, actionName);
+    return action->normalised;
+}
+
 internal u8 Input_CheckActionToggledOn(InputActionSet* actions, char* actionName, frameInt frameNumber)
 {
     InputAction* action = Input_FindAction(actions->actions, actions->count, actionName);
@@ -174,7 +183,7 @@ internal u8 Input_CheckActionToggledOff(InputActionSet* actions, char* actionNam
 
 // Test an input event vs actions array. Return an input if it has changed, NULL if nothing changed
 internal InputAction* Input_TestForAction(
-    InputActionSet* actions, i32 inputValue, u32 inputKeyCode, frameInt frameNumber)
+    InputActionSet* actions, i32 inputValue, f32 normalised, u32 inputKeyCode, frameInt frameNumber)
 {
 	for (i32 i = 0; i < actions->count; ++i)
     {
@@ -185,6 +194,7 @@ internal InputAction* Input_TestForAction(
         {
             action->value = inputValue;
             action->lastFrame = frameNumber;
+            action->normalised = normalised;
             return action;
         }
     }

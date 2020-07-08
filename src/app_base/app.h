@@ -18,7 +18,7 @@ extern "C" void App_DebugBreak();
 extern "C" timeFloat App_GetSimFrameInterval();
 extern "C" frameInt App_CalcTickInterval(timeFloat seconds);
 extern "C" timeFloat App_SampleClock();
-extern "C" ScreenInfo App_GetScreenInfo();
+//extern "C" ScreenInfo App_GetScreenInfo();
 extern "C" ZRAssetDB* App_GetAssetDB();
 
 // For debug inspection purposes ONLY!

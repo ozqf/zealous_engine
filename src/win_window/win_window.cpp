@@ -125,6 +125,12 @@ static ErrorCode Window_SpawnWindow()
     i32 scrHeight = mode->height;
     i32 scrMode = g_pendingScrMode;
 
+    // set monitor size - necessary to get the ratio between
+    // full screen size and window size for mouse input
+    g_monitorSize.width = scrWidth;
+    g_monitorSize.height = scrHeight;
+    g_monitorSize.aspectRatio = (f32)scrWidth / (f32)scrHeight;
+
     if (g_bWindowed == YES)
     {
         // Resolution locked window
@@ -139,10 +145,10 @@ static ErrorCode Window_SpawnWindow()
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     }
     // record screen size
-    g_scrInfo.width = scrWidth;
-    g_scrInfo.height = scrHeight;
-    g_scrInfo.aspectRatio = (f32)scrWidth / (f32)scrHeight;
-    printf("Aspect ratio %.3f\n", g_scrInfo.aspectRatio);
+    g_windowSize.width = scrWidth;
+    g_windowSize.height = scrHeight;
+    g_windowSize.aspectRatio = (f32)scrWidth / (f32)scrHeight;
+    printf("Aspect ratio %.3f\n", g_windowSize.aspectRatio);
     // Create!
     g_window = glfwCreateWindow(scrWidth, scrHeight, "Zealous Engine", NULL, NULL);
     
@@ -174,7 +180,7 @@ static ErrorCode Window_SpawnWindow()
     glfwSwapBuffers(g_window);
 
     // Initialise the renderer itself
-    ErrorCode err = ZRGL_Init(g_scrInfo.width, g_scrInfo.height);
+    ErrorCode err = ZRGL_Init(g_windowSize.width, g_windowSize.height);
     if (err != ZE_ERROR_NONE)
     {
         g_platform.Error("Error initialising renderer");
@@ -241,7 +247,7 @@ static void ZR_PollMouseForApp()
         g_lastMouseSampleX = posX;
         if (Win_IsCursorDisabled())
         {
-            g_mouseAccumulatorSampleX += (diffX / g_scrInfo.width);
+            g_mouseAccumulatorSampleX += (diffX / g_windowSize.width);
         }
     }
     if (diffY != 0)
@@ -250,7 +256,7 @@ static void ZR_PollMouseForApp()
         g_lastMouseSampleY = posY;
         if (Win_IsCursorDisabled())
         {
-            g_mouseAccumulatorSampleY += (diffY / g_scrInfo.height);
+            g_mouseAccumulatorSampleY += (diffY / g_windowSize.height);
         }
     }
     #if 0 // dump mouse input samples
@@ -258,7 +264,7 @@ static void ZR_PollMouseForApp()
     {
         printf("Mouse Pos: %.3f, %.3f\n", posX, posY);
         printf("\tNormalised: %.3f, %.3f\n",
-            posX / g_scrInfo.width, posY / g_scrInfo.height);
+            posX / g_windowSize.width, posY / g_windowSize.height);
         printf("\tMouse accumulator: %.3f, %.3f\n",
             g_mouseAccumulatorSampleX, g_mouseAccumulatorSampleY);
     }
@@ -267,6 +273,7 @@ static void ZR_PollMouseForApp()
 
 static void ZR_PollInput()
 {
+    // grab input buffer and poll for events. handled by callbacks
     g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
 	glfwPollEvents();
     g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
@@ -293,11 +300,25 @@ static void WindowImpl_Acquire_EventBuffer(ZEByteBuffer** buf)
     {
         ZR_PollMouseForApp();
         // inputs take integers...
+        Vec2 scrRatio;
+        scrRatio.x = (f32)g_monitorSize.width / (f32)g_windowSize.width;
+        scrRatio.y = (f32)g_monitorSize.height / (f32)g_windowSize.height;
         i32 mouseMoveIntX = (i32)(g_mouseAccumulatorSampleX * Z_INPUT_MOUSE_SCALAR);
         i32 mouseMoveIntY = (i32)(g_mouseAccumulatorSampleY * Z_INPUT_MOUSE_SCALAR);
+        f32 normalisedMoveX = (f32)mouseMoveIntX / scrRatio.x;
+        f32 normalisedMoveY = (f32)mouseMoveIntY / scrRatio.y;
+        //printf("WIN normalised mouse: %f, %f\n", normalisedMoveX, normalisedMoveY);
         //printf("WIN mouse moved %d / %d\n", mouseMoveIntX, mouseMoveIntY);
-        Sys_WriteInputEvent(&g_eventBuffer, Z_INPUT_CODE_MOUSE_MOVE_X, mouseMoveIntX);
-        Sys_WriteInputEvent(&g_eventBuffer, Z_INPUT_CODE_MOUSE_MOVE_Y, mouseMoveIntY);
+        Sys_WriteInputEvent(
+            &g_eventBuffer,
+            Z_INPUT_CODE_MOUSE_MOVE_X,
+            mouseMoveIntX,
+            normalisedMoveX);
+        Sys_WriteInputEvent(
+            &g_eventBuffer,
+            Z_INPUT_CODE_MOUSE_MOVE_Y,
+            mouseMoveIntY,
+            normalisedMoveY);
         // Clear for next sample
         g_mouseAccumulatorSampleX = 0;
         g_mouseAccumulatorSampleY = 0;
@@ -320,7 +341,10 @@ static void Window_Tick()
     if (g_consoleActive == YES)
     {
         ZRViewFrame* frame = (ZRViewFrame*)list->start;
+        // TODO: This render buffer write stuff sounds bad:
         // Check that we haven't written to this buffer before!
+        // Otherwise we will repeatedly write duplicate draw data into the buffer
+        // before the app resets it!
         if (g_lastAppFrameNumber != frame->frameNumber)
         {
             g_lastAppFrameNumber = frame->frameNumber;
@@ -332,7 +356,7 @@ static void Window_Tick()
     // Draw
     glClearColor(1, 0, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    ZRGL_DrawFrame(list, data, g_scrInfo);
+    ZRGL_DrawFrame(list, data, g_windowSize);
     // Finish Frame
     g_platform.Release_AppDrawBuffers();
     f64 swapStart = g_platform.QueryClock();
