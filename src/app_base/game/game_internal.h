@@ -4,6 +4,7 @@
 #include "../../ze_common/ze_common_full.h"
 #include "../../sim/sim.h"
 #include "../app.h"
+#include "../client/client_render.h"
 
 #include "game_ent_ticks.h"
 
@@ -13,6 +14,8 @@
 internal MallocItem g_mallocItems[GAME_MAX_MALLOCS];
 internal MallocList g_mallocs;
 internal SimScene g_sim;
+internal ClientRenderSettings g_rendCfg;
+internal ClientRenderer* g_rend;
 internal Transform g_camera;
 
 #endif // GAME_INTERNAL_H

@@ -431,19 +431,23 @@ extern "C" void CLR_WriteDrawFrame(
         objCount += CLR_AddSimObjectsToRenderScene(sim, list, data, cfg);
     // }
 
-    for (i32 i = 0; i < numDebugObjs; ++i)
+    if (debugObjs != NULL)
     {
-        obj = &debugObjs[i];
-        list->cursor += ZE_COPY_STRUCT(obj, list->cursor, ZRDrawObj);
-        objCount++;
-		if (obj->data.type == ZR_DRAWOBJ_TYPE_TEXT)
-		{
-			ZE_ASSERT(data->Space() >= obj->data.text.length, "No space for string in draw data buffer")
-			// copy string to data buffer
-			data->cursor += ZE_Copy(
-				(char*)data->cursor, (char*)obj->data.text.text, obj->data.text.length);
-		}
+        for (i32 i = 0; i < numDebugObjs; ++i)
+        {
+            obj = &debugObjs[i];
+            list->cursor += ZE_COPY_STRUCT(obj, list->cursor, ZRDrawObj);
+            objCount++;
+	    	if (obj->data.type == ZR_DRAWOBJ_TYPE_TEXT)
+	    	{
+	    		ZE_ASSERT(data->Space() >= obj->data.text.length, "No space for string in draw data buffer")
+	    		// copy string to data buffer
+	    		data->cursor += ZE_Copy(
+	    			(char*)data->cursor, (char*)obj->data.text.text, obj->data.text.length);
+	    	}
+        }
     }
+    
     scene->params.numObjects = objCount;
 
     // Add test particles

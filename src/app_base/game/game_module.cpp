@@ -16,6 +16,12 @@ extern "C" i32 Game_Init()
 	Sim_Init("Server", &g_sim, ents, GAME_MAX_ENTS);
 	Sim_Reset(&g_sim);
 	Sim_LoadStaticScene(&g_sim, 0);
+
+	g_rendCfg = {};
+	g_rendCfg.extraLightsMax = 16;
+	g_rendCfg.worldLightsMax = 16;
+	g_rend = CLR_Create(App_GetAssetDB(), 128);
+
 	return ZE_ERROR_NONE;
 }
 
@@ -37,5 +43,5 @@ extern "C" i32 Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
 
 extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame)
 {
-	
+	CLR_WriteDrawFrame(g_rend, frame, &g_sim, &g_camera, NULL, 0, g_rendCfg);
 }
