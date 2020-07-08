@@ -29,6 +29,7 @@ internal u32 g_clDebugFlags = 0
 ;
 
 internal ClientRenderSettings g_rendCfg;
+internal ClientRenderer* g_rend;
 
 internal i32 g_clientState = CLIENT_STATE_NONE;
 

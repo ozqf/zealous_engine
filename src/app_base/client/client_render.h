@@ -21,14 +21,24 @@ struct ClientRenderSettings
     i32 extraLightsMax;
 };
 
-extern "C" void CLR_Init(ZRAssetDB* db);
-extern "C" void CLR_Shutdown();
-extern "C" void CLR_SpawnTestParticle(i32 type, Vec3 pos, Vec3 vel);
-extern "C" void CLR_TickTestParticles(timeFloat delta);
+struct ClientRenderer
+{
+    ZRAssetDB* db;
+    ZRParticleEmitter testEmit;
+    ZRParticleEmitter gibEmit;
+};
+
+// Allocate a renderer
+extern "C" ClientRenderer* CLR_Create(ZRAssetDB* assetDb, i32 particlesPerPool);
+//extern "C" void CLR_Init(ZRAssetDB* db);
+extern "C" void CLR_Shutdown(ClientRenderer* cr);
+extern "C" void CLR_SpawnTestParticle(ClientRenderer* cr, i32 type, Vec3 pos, Vec3 vel);
+extern "C" void CLR_TickTestParticles(ClientRenderer* cr, timeFloat delta);
 /**
  * Write Client state to draw buffers
  */
 extern "C" void CLR_WriteDrawFrame(
+    ClientRenderer* cr,
     ZRViewFrame* frame,
     SimScene* sim,
     Transform* camera,

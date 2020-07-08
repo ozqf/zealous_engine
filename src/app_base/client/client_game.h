@@ -45,7 +45,7 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
                 vel.x = COM_STDRandomInRange(-15, 15);
                 vel.y = COM_STDRandomInRange(-10, 15);
                 vel.z = COM_STDRandomInRange(-15, 15);
-                CLR_SpawnTestParticle(CLR_PARTICLE_TYPE_TEST, pos, vel);
+                CLR_SpawnTestParticle(g_rend, CLR_PARTICLE_TYPE_TEST, pos, vel);
             }
             
         } break;
@@ -60,7 +60,7 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
                 vel.x = COM_STDRandomInRange(-10, 10);
                 vel.y = COM_STDRandomInRange(-5, 20);
                 vel.z = COM_STDRandomInRange(-10, 10);
-                CLR_SpawnTestParticle(CLR_PARTICLE_TYPE_GIB, pos, vel);
+                CLR_SpawnTestParticle(g_rend, CLR_PARTICLE_TYPE_GIB, pos, vel);
             }
         } break;
     }
@@ -319,7 +319,7 @@ internal void CLG_TickGame(SimScene* sim, timeFloat deltaTime)
     }
 
     CLG_TickViewSway(deltaTime);
-    CLR_TickTestParticles(deltaTime);
+    CLR_TickTestParticles(g_rend, deltaTime);
     sim->tick++;
     sim->time += deltaTime;
 }

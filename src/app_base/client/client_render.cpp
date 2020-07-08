@@ -5,28 +5,66 @@
 #include "../../zqf_renderer.h"
 #include "../../ui/zui.h"
 
-static ZRAssetDB* g_assetDb = NULL;
+// #define CLR_NUM_TEST_PARTICLES 128
+// static ZRParticle g_testParticles[CLR_NUM_TEST_PARTICLES];
+// static ZRParticleEmitter g_testEmit;
 
-#define CLR_NUM_TEST_PARTICLES 128
-static ZRParticle g_testParticles[CLR_NUM_TEST_PARTICLES];
-static ZRParticleEmitter g_testEmit;
+// static ZRParticle g_gibParticles[CLR_NUM_TEST_PARTICLES];
+// static ZRParticleEmitter g_gibEmit;
 
-static ZRParticle g_gibParticles[CLR_NUM_TEST_PARTICLES];
-static ZRParticleEmitter g_gibEmit;
-
-extern "C" void CLR_Init(ZRAssetDB* assetDb)
+extern "C" ClientRenderer* CLR_Create(ZRAssetDB* assetDb, i32 particlesPerPool)
 {
-    g_assetDb = assetDb;
+    /////////////////////////////////////
+    // Allocate
+    i32 numParticleArrayBytes = sizeof(ZRParticle) * particlesPerPool;
+    i32 totalBytes = sizeof(ClientRenderer) + numParticleArrayBytes * 2;
+    u8* bytes = (u8*)malloc(totalBytes);
+    ClientRenderer* cr = (ClientRenderer*)bytes;
+    bytes += sizeof(ClientRenderer);
+    cr->testEmit = {};
+    cr->testEmit.particles = (ZRParticle*)bytes;
+    cr->testEmit.maxParticles = particlesPerPool;
+    bytes += numParticleArrayBytes;
+    cr->gibEmit = {};
+    cr->gibEmit.particles = (ZRParticle*)bytes;
+    cr->gibEmit.maxParticles = particlesPerPool;
+
+    cr->db = assetDb;
 	ZUI_Init(assetDb);
 
-    i32 quadIndex = ZRDB_GET_MESH_BY_NAME(g_assetDb, ZRDB_MESH_NAME_QUAD)->header.index;
+    /////////////////////////////////////
+    // config
+
+    i32 quadIndex = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_QUAD)->header.index;
+
+    cr->testEmit.def.duration = 0.2f;
+    cr->testEmit.def.startScale = { 0.5f, 0.5f, 0.5f };
+    cr->testEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->index;
+    cr->testEmit.def.meshIndex = quadIndex;
+
+    cr->gibEmit.def.billboard = YES;
+    cr->gibEmit.def.duration = 1;
+    cr->gibEmit.def.startScale = { 1, 1, 1 };
+    cr->gibEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->index;
+    cr->gibEmit.def.meshIndex = quadIndex;
+    cr->gibEmit.def.pull = { 0, -40, 0 };
+
+    return cr;
+}
+/*
+extern "C" void CLR_Init(ZRAssetDB* assetDb)
+{
+    cr->db = assetDb;
+	ZUI_Init(assetDb);
+
+    i32 quadIndex = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_QUAD)->header.index;
 
     g_testEmit = {};
     g_testEmit.particles = g_testParticles;
     g_testEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
     g_testEmit.def.duration = 0.2f;
     g_gibEmit.def.startScale = { 0.5f, 0.5f, 0.5f };
-    g_testEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_PRJ)->index;
+    g_testEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->index;
     g_testEmit.def.meshIndex = quadIndex;
 
     g_gibEmit = {};
@@ -35,14 +73,14 @@ extern "C" void CLR_Init(ZRAssetDB* assetDb)
     g_gibEmit.def.billboard = YES;
     g_gibEmit.def.duration = 1;
     g_gibEmit.def.startScale = { 1, 1, 1 };
-    g_gibEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_PRJ)->index;
+    g_gibEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->index;
     g_gibEmit.def.meshIndex = quadIndex;
     g_gibEmit.def.pull = { 0, -40, 0 };
 }
-
-extern "C" void CLR_Shutdown()
+*/
+extern "C" void CLR_Shutdown(ClientRenderer* cr)
 {
-    g_assetDb = NULL;
+    
 }
 
 internal ZRParticle* CLR_GetFreeParticle(ZRParticleEmitter* emitter)
@@ -52,15 +90,15 @@ internal ZRParticle* CLR_GetFreeParticle(ZRParticleEmitter* emitter)
     return p;
 }
 
-extern "C" void CLR_SpawnTestParticle(i32 type, Vec3 pos, Vec3 vel)
+extern "C" void CLR_SpawnTestParticle(ClientRenderer* cr, i32 type, Vec3 pos, Vec3 vel)
 {
-    if (g_testEmit.numParticles >= g_testEmit.maxParticles)
+    if (cr->testEmit.numParticles >= cr->testEmit.maxParticles)
     { return; }
     ZRParticleEmitter* emitter = NULL;
     switch (type)
     {
-        case CLR_PARTICLE_TYPE_GIB: emitter = &g_gibEmit; break;
-        default: emitter = &g_testEmit; break;
+        case CLR_PARTICLE_TYPE_GIB: emitter = &cr->gibEmit; break;
+        default: emitter = &cr->testEmit; break;
     }
     ZRParticle* p = CLR_GetFreeParticle(emitter);
     if (p == NULL) { printf("No particle to spawn\n"); return; }
@@ -132,17 +170,21 @@ internal void CLR_TickParticles(ZRParticleEmitter* emitter, timeFloat delta)
     CLR_CullParticles(emitter);
 }
 
-extern "C" void CLR_TickTestParticles(timeFloat delta)
+extern "C" void CLR_TickTestParticles(ClientRenderer* cr, timeFloat delta)
 {
-    CLR_TickParticles(&g_testEmit, delta);
-    CLR_TickParticles(&g_gibEmit, delta);
+    CLR_TickParticles(&cr->testEmit, delta);
+    CLR_TickParticles(&cr->gibEmit, delta);
 }
 
 internal void CLR_WriteParticles(
-    ZRParticleEmitter* emitter, ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)
+    ClientRenderer* cr,
+    ZRParticleEmitter* emitter,
+    ZRSceneFrame* scene,
+    ZEByteBuffer* list,
+    ZEByteBuffer* data)
 {
     ZRMaterial* mat;
-    mat = g_assetDb->GetMaterialByIndex(g_assetDb, emitter->def.materialIndex);
+    mat = cr->db->GetMaterialByIndex(cr->db, emitter->def.materialIndex);
     for (i32 i = 0; i < emitter->numParticles; ++i)
     {
         ZRParticle* p = &emitter->particles[i];
@@ -156,10 +198,10 @@ internal void CLR_WriteParticles(
     }
 }
 
-internal void CLR_AddTestParticles(ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)
+internal void CLR_AddTestParticles(ClientRenderer* cr, ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)
 {
-    CLR_WriteParticles(&g_testEmit, scene, list, data);
-    CLR_WriteParticles(&g_gibEmit, scene, list, data);
+    CLR_WriteParticles(cr, &cr->testEmit, scene, list, data);
+    CLR_WriteParticles(cr, &cr->gibEmit, scene, list, data);
 }
 
 // Returns number of objects added
@@ -208,18 +250,19 @@ internal i32 CLR_Debug_AddAABB(ZEByteBuffer* list, i32 factoryType, Vec3 pos, Ve
  * returns number of objects added
  */
 internal i32 CLR_Debug_AddSimObjectsToRenderScene(
+    ClientRenderer* cr,
     SimScene* sim,
     ZEByteBuffer* list,
     ZEByteBuffer* scratch)
 {
     // TODO: Look these up in asset db!
-    ZRDBMesh* cube = g_assetDb->GetMeshByName(g_assetDb, ZRDB_MESH_NAME_CUBE);
-    ZRDBMesh* quad = g_assetDb->GetMeshByName(g_assetDb, ZRDB_MESH_NAME_QUAD);
+    ZRDBMesh* cube = cr->db->GetMeshByName(cr->db, ZRDB_MESH_NAME_CUBE);
+    ZRDBMesh* quad = cr->db->GetMeshByName(cr->db, ZRDB_MESH_NAME_QUAD);
     
     i32 cubeIndex = cube->header.index;
     i32 quadIndex = quad->header.index;
-    i32 defaultMaterialIndex = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_WORLD_DEBUG)->index;
-    i32 prjMaterialIndex = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_PRJ)->index;
+    i32 defaultMaterialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD_DEBUG)->index;
+    i32 prjMaterialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->index;
 
     i32 materialIndex = defaultMaterialIndex;
 
@@ -331,6 +374,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
 }
 
 extern "C" void CLR_WriteDrawFrame(
+    ClientRenderer* cr,
     ZRViewFrame* frame,
     SimScene* sim,
     Transform* camera,
@@ -379,7 +423,7 @@ extern "C" void CLR_WriteDrawFrame(
         App_Debug_GetServerSim((void**)&serverSim);
         if (serverSim != NULL)
         {
-            objCount += CLR_Debug_AddSimObjectsToRenderScene(serverSim, list, data);
+            objCount += CLR_Debug_AddSimObjectsToRenderScene(cr, serverSim, list, data);
         }
     }
     // else
@@ -403,15 +447,15 @@ extern "C" void CLR_WriteDrawFrame(
     scene->params.numObjects = objCount;
 
     // Add test particles
-    CLR_AddTestParticles(scene, list, data);
+    CLR_AddTestParticles(cr, scene, list, data);
     scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
     
     
     // Add View Model Scene
     if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
     {
-        i32 wallMesh = ZRDB_GET_MESH_BY_NAME(g_assetDb, ZRDB_MAT_NAME_WORLD)->header.index;
-        i32 wallMat = ZRDB_GET_MAT_BY_NAME(g_assetDb, ZRDB_MAT_NAME_WORLD)->index;
+        i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD)->header.index;
+        i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD)->index;
         #if 1 // right hand
         scene = ZRSccene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, NO);
         Transform_SetToIdentity(&scene->params.camera);

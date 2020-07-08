@@ -6,6 +6,7 @@
 #include "app.h"
 #include "server/server.h"
 #include "client/client.h"
+#include "game/game.h"
 #include "app_fake_socket.h"
 
 #define APP_SESSION_TYPE_NONE 0
@@ -44,6 +45,7 @@ internal i32 g_apptick = 0;
 /////////////////////////////////////////////////////////////////
 // MEMORY
 
+internal ZEDoubleByteBuffer g_gameBuffers;
 // Client/Server input buffers
 internal ZEDoubleByteBuffer g_serverLoopback;
 internal ZEDoubleByteBuffer g_clientLoopback;

@@ -89,7 +89,7 @@ extern "C" void CL_WriteDrawFrame(ZRViewFrame* frame)
         g_bVerboseFrame = NO;
     }
     CLR_WriteDrawFrame(
-        frame, &g_sim, &camera, g_debugObjs, g_numDebugObjs, g_rendCfg);
+        g_rend, frame, &g_sim, &camera, g_debugObjs, g_numDebugObjs, g_rendCfg);
     if (App_IsMouseCaptured() == NO)
     {
         CLUI_AddDrawItems(frame);
@@ -181,7 +181,8 @@ extern "C" void CL_Init()
         Buf_FromMalloc(CL_Malloc(cmdBufferSize), cmdBufferSize)
     );
     // init sub-components
-    CLR_Init(App_GetAssetDB());
+    //CLR_Init(App_GetAssetDB());
+    g_rend = CLR_Create(App_GetAssetDB(), 128);
     CLUI_Init();
     CLDebug_Init();
     CL_InitInputs(&g_inputActions);
@@ -232,7 +233,7 @@ extern "C" void CL_Start(ZNetAddress serverAddress, i32 updSocketId)
 extern "C" void CL_Shutdown()
 {
     g_isRunning = NO;
-    CLR_Shutdown();
+    CLR_Shutdown(g_rend);
 	for (i32 i = 0; i < g_numAllocations; ++i)
 	{
 		free(g_allocations[i]);

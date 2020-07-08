@@ -142,6 +142,13 @@ internal i32  AppImpl_Init()
     i32 bufferSize = KiloBytes(64);
 
     // Internal loopbacks for client and server
+    g_gameBuffers.a = Buf_FromMalloc(
+        COM_Malloc(&g_mallocs, bufferSize, "Game Buffer A"),
+        bufferSize);
+    g_gameBuffers.a = Buf_FromMalloc(
+        COM_Malloc(&g_mallocs, bufferSize, "Game Buffer B"),
+        bufferSize);
+
     g_serverLoopback.a = Buf_FromMalloc(
         COM_Malloc(&g_mallocs, bufferSize, "Server Loopback A"),
         bufferSize);
@@ -165,6 +172,7 @@ internal i32  AppImpl_Init()
     AppUI_Init();
     CL_Init();
     SV_Init();
+    Game_Init();
 
     // server and client areas currently acquiring their own memory
     App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER);
@@ -272,6 +280,7 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
     i32 diff = end - read;
     if (diff == 0) { return; }
     
+    ZEByteBuffer* gameInput = g_gameBuffers.GetWrite();
     ZEByteBuffer* serverInput = g_serverLoopback.GetWrite();
     ZEByteBuffer* clientInput = g_clientLoopback.GetWrite();
     while (read < end)
@@ -309,6 +318,10 @@ internal void App_SimFrame(timeFloat interval)
     events->Clear(NO);
     g_platform.Release_EventBuffer();
     APP_LOG(64, "\nAPP Frame\n");
+
+    g_gameBuffers.Swap();
+    g_gameBuffers.GetWrite()->Clear(NO);
+    Game_Tick(g_gameBuffers.GetRead(), interval);
 
     if (SV_IsRunning())
     {

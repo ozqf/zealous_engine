@@ -1,0 +1,10 @@
+#ifndef GAME_H
+#define GAME_H
+
+#include "../../ze_common/ze_common.h"
+
+extern "C" i32 Game_Init();
+extern "C" i32 Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta);
+extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame);
+
+#endif // GAME_H

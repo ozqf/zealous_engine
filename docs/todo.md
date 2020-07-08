@@ -4,6 +4,12 @@ Note: This is not a road map and features may be listed but dropped. Items are n
 
 ## Architectyre Notes
 
+### Merge Client/Server modules
+
+* Original plan of making this a networking test is kind of in the bin!
+    * Merge separated client/server into a single 'game' module with 
+        client/server as specific logic to manipulate the game instance.
+
 ### Minimum Viable Features Missing:
 
 * Err, gameplay for one thing.
