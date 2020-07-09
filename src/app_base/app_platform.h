@@ -145,7 +145,7 @@ internal i32  AppImpl_Init()
     g_gameBuffers.a = Buf_FromMalloc(
         COM_Malloc(&g_mallocs, bufferSize, "Game Buffer A"),
         bufferSize);
-    g_gameBuffers.a = Buf_FromMalloc(
+    g_gameBuffers.b = Buf_FromMalloc(
         COM_Malloc(&g_mallocs, bufferSize, "Game Buffer B"),
         bufferSize);
 
@@ -301,6 +301,7 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
             //printf("Copying %d bytes of input ev to client loopback\n", ev->size);
             // Copy input events to client buffer
             BUF_COPY(clientInput, ev, ev->size);
+            BUF_COPY(gameInput, ev, ev->size);
         }
     }
 }

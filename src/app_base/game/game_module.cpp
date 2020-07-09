@@ -10,6 +10,8 @@ extern "C" i32 Game_Init()
     g_camera.pos.z = 10;
     g_camera.pos.y += 34;
     Transform_SetRotation(&g_camera, -(80.0f    * DEG2RAD), 0, 0);
+	g_debugInput = {};
+	g_debugInput.degrees.x = -80;
 
 	g_mallocs = COM_InitMallocList(g_mallocItems, GAME_MAX_MALLOCS);
 	i32 entBytes = Sim_CalcEntityArrayBytes(GAME_MAX_ENTS);
@@ -23,16 +25,19 @@ extern "C" i32 Game_Init()
 	g_rendCfg.worldLightsMax = 16;
 	g_rend = CLR_Create(App_GetAssetDB(), 128);
 
+	GI_InitInputs(&g_inputActions);
+
 	return ZE_ERROR_NONE;
 }
 
 internal void Game_ReadSystemEvents(ZEByteBuffer* sysEvents, timeFloat delta)
 {
+	g_systemEventTicks++;
 	u8* read = sysEvents->start;
 	u8* end = sysEvents->cursor;
 	while (read < end)
 	{
-		SysEvent* ev;
+		SysEvent* ev = (SysEvent*)read;
 		ErrorCode err = Sys_ValidateEvent(ev);
 		if (err != ZE_ERROR_NONE)
 		{
@@ -44,13 +49,17 @@ internal void Game_ReadSystemEvents(ZEByteBuffer* sysEvents, timeFloat delta)
 		if (ev->type == SYS_EVENT_INPUT)
 		{
 			SysInputEvent* input = (SysInputEvent*)ev;
-			
+			GI_ReadInputEvent(&g_inputActions, input, g_systemEventTicks);
 		}
 	}
 }
 
 extern "C" i32 Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
 {
+	Game_ReadSystemEvents(sysEvents, delta);
+	GI_UpdateActorInput(&g_inputActions, &g_debugInput);
+	Sim_TickDebugCamera(&g_camera, g_debugInput, 16, delta);
+
 	g_sim.timeInAABBSearch = 0;
     for (i32 i = 0; i < g_sim.maxEnts; ++i)
     {

@@ -1,7 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "../../ze_common/ze_common.h"
+#include "../../ze_common/ze_common_full.h"
+#include "../../zqf_renderer.h"
 
 extern "C" i32 Game_Init();
 extern "C" i32 Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta);

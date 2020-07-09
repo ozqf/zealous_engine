@@ -3,13 +3,13 @@
 
 #include "ze_common.h"
 
-#define BUF_COPY(ptrToByteBuffer, ptrToByteArray, numOfBytesInArray) \
-{##ptrToByteBuffer##->cursor += \
-    ZE_COPY((u8*)##ptrToByteArray##, ##ptrToByteBuffer##->cursor##, numOfBytesInArray##);}
+#define BUF_COPY(trToByteBufferDest, ptrToSourceBytes, numOfBytesInArray) \
+{##trToByteBufferDest##->cursor += \
+    ZE_COPY((u8*)##ptrToSourceBytes##, ##trToByteBufferDest##->cursor##, numOfBytesInArray##);}
 
-#define ZE_INIT_PTR_IN_PLACE(ptrVariableName, structTypeName, ptrToByteBuffer) \
-structTypeName##* ptrVariableName = (##structTypeName##*)##ptrToByteBuffer##->cursor; \
-ptrToByteBuffer##->cursor += sizeof(##structTypeName##); \
+#define ZE_INIT_PTR_IN_PLACE(ptrVariableName, structTypeName, trToByteBufferDest) \
+structTypeName##* ptrVariableName = (##structTypeName##*)##trToByteBufferDest##->cursor; \
+trToByteBufferDest##->cursor += sizeof(##structTypeName##); \
 *##ptrVariableName = {};
 
 struct ZEByteBuffer
