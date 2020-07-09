@@ -1,4 +1,5 @@
 #include "game_internal.h"
+#include "../../sys_events.h"
 
 
 extern "C" i32 Game_Init()
@@ -23,6 +24,29 @@ extern "C" i32 Game_Init()
 	g_rend = CLR_Create(App_GetAssetDB(), 128);
 
 	return ZE_ERROR_NONE;
+}
+
+internal void Game_ReadSystemEvents(ZEByteBuffer* sysEvents, timeFloat delta)
+{
+	u8* read = sysEvents->start;
+	u8* end = sysEvents->cursor;
+	while (read < end)
+	{
+		SysEvent* ev;
+		ErrorCode err = Sys_ValidateEvent(ev);
+		if (err != ZE_ERROR_NONE)
+		{
+			printf("GAME - sys event read error %d\n", err);
+			return;
+		}
+		read += ev->size;
+		// read event
+		if (ev->type == SYS_EVENT_INPUT)
+		{
+			SysInputEvent* input = (SysInputEvent*)ev;
+			
+		}
+	}
 }
 
 extern "C" i32 Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)

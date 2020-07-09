@@ -15,6 +15,7 @@
 #include "sim_factory.h"
 #include "sim_entity_ticks.h"
 #include "sim_embedded_scenes.h"
+#include "sim_fly_camera.h"
 #include "sim_external.h"
 
 // TODO: Uncouple me!

@@ -157,6 +157,7 @@ extern "C" void     SimEnt_TickSeeker(SimScene* sim, SimEntity* ent, timeFloat d
 extern "C" void     SimEnt_TickSeekerFlying(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
 
 extern "C" void     SimEnt_StepActorMovement(SimScene* sim, SimEntity* ent, SimActorInput* input, timeFloat deltaTime);
+extern "C" void     Sim_TickDebugCamera(Transform* t, SimActorInput input, f32 moveSpeed, timeFloat delta);
 
 // Searching/Querying
 extern "C" i32        Sim_IsEntInPlay(SimEntity* ent);

@@ -5,13 +5,6 @@
 #include "../../zqf_renderer.h"
 #include "../../ui/zui.h"
 
-// #define CLR_NUM_TEST_PARTICLES 128
-// static ZRParticle g_testParticles[CLR_NUM_TEST_PARTICLES];
-// static ZRParticleEmitter g_testEmit;
-
-// static ZRParticle g_gibParticles[CLR_NUM_TEST_PARTICLES];
-// static ZRParticleEmitter g_gibEmit;
-
 extern "C" ClientRenderer* CLR_Create(ZRAssetDB* assetDb, i32 particlesPerPool)
 {
     /////////////////////////////////////
@@ -51,33 +44,7 @@ extern "C" ClientRenderer* CLR_Create(ZRAssetDB* assetDb, i32 particlesPerPool)
 
     return cr;
 }
-/*
-extern "C" void CLR_Init(ZRAssetDB* assetDb)
-{
-    cr->db = assetDb;
-	ZUI_Init(assetDb);
 
-    i32 quadIndex = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_QUAD)->header.index;
-
-    g_testEmit = {};
-    g_testEmit.particles = g_testParticles;
-    g_testEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
-    g_testEmit.def.duration = 0.2f;
-    g_gibEmit.def.startScale = { 0.5f, 0.5f, 0.5f };
-    g_testEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->index;
-    g_testEmit.def.meshIndex = quadIndex;
-
-    g_gibEmit = {};
-    g_gibEmit.particles = g_gibParticles;
-    g_gibEmit.maxParticles = CLR_NUM_TEST_PARTICLES;
-    g_gibEmit.def.billboard = YES;
-    g_gibEmit.def.duration = 1;
-    g_gibEmit.def.startScale = { 1, 1, 1 };
-    g_gibEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->index;
-    g_gibEmit.def.meshIndex = quadIndex;
-    g_gibEmit.def.pull = { 0, -40, 0 };
-}
-*/
 extern "C" void CLR_Shutdown(ClientRenderer* cr)
 {
     

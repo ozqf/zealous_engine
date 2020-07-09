@@ -30,7 +30,6 @@ struct ClientRenderer
 
 // Allocate a renderer
 extern "C" ClientRenderer* CLR_Create(ZRAssetDB* assetDb, i32 particlesPerPool);
-//extern "C" void CLR_Init(ZRAssetDB* db);
 extern "C" void CLR_Shutdown(ClientRenderer* cr);
 extern "C" void CLR_SpawnTestParticle(ClientRenderer* cr, i32 type, Vec3 pos, Vec3 vel);
 extern "C" void CLR_TickTestParticles(ClientRenderer* cr, timeFloat delta);
