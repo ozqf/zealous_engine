@@ -122,6 +122,12 @@ extern "C" i32 	    Sim_LoadStaticScene(SimScene* sim, i32 index);
 extern "C" i32      Sim_CalcEntityArrayBytes(i32 capacity);
 extern "C" i32		Sim_GetFrameNumber(SimScene* sim);
 
+extern "C" i32      Sim_Tick(
+                        SimScene* sim,
+                        ZEByteBuffer* input,
+                        ZEByteBuffer* output,
+                        timeFloat delta);
+
 // Entity list functions
 extern "C" SimEntity* Sim_GetEntityBySerial(SimScene* sim, i32 serial);
 extern "C" SimEntity* Sim_GetEntityByIndex(SimScene* sim, SimEntIndex index);

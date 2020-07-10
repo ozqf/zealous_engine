@@ -15,6 +15,8 @@ trToByteBufferDest##->cursor += sizeof(##structTypeName##); \
 struct ZEByteBuffer
 {
     u8* start;
+    // when writing, advance cursor forward,
+    // when reading, read from start to cursor
     u8* cursor;
     i32 capacity;
 

@@ -211,6 +211,8 @@ internal i32 App_StartSession(i32 sessionType)
             i32 serverPortId = -1;
             i32 clientPortId = -2;
 
+            Game_Start();
+
             //////////////////////////////////////
             // Normal - auto create a local client
             #if 0

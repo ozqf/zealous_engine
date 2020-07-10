@@ -72,6 +72,18 @@ extern "C" void CL_Init()
 	g_debugInput.degrees.x = -80;
 }
 
+extern "C" void CLG_Start()
+{
+    printf("CL Start\n");
+    g_bIsRunning = YES;
+}
+
+extern "C" void CL_Stop()
+{
+    printf("CL Stop\n");
+    g_bIsRunning = NO;
+}
+
 extern "C" void CL_InputCheckButton(
     InputActionSet* actions,
     char* inputName,

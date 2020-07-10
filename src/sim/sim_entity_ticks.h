@@ -27,6 +27,16 @@ internal SimEntity* SimEnt_UpdateTargetting(SimScene* sim, SimEntity* ent, i32 b
 /////////////////////////////////////////////////////////
 // Entity tick functions shared between client and server
 /////////////////////////////////////////////////////////
+extern "C" i32 SimEnt_TickTimeout(
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+{
+    if (sim->tick >= ent->timing.nextThink)
+    {
+        Sim_RemoveEntity(sim, ent->id.serial);
+    }
+    return ZE_ERROR_NONE;
+}
+
 extern "C" i32 SimEnt_TickSpawnAnimation(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {

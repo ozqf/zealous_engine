@@ -6,7 +6,8 @@
 // Input
 extern "C" void CL_Init();
 extern "C" void CL_ReadInputEvent(SysInputEvent* ev, frameInt frameNumber);
-//extern "C" void CL_UpdateActorInput(SimActorInput* input);
+extern "C" void CLG_Start();
+extern "C" void CL_Stop();
 
 // If local client - write input
 extern "C" void CL_PreTick(timeFloat delta);

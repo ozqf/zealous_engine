@@ -2,8 +2,6 @@
 
 #include "../ze_common/ze_common.h"
 
-#include "sim.h"
-
 #include "sim_internal.h"
 
 #include "sim_patterns.h"
@@ -16,6 +14,7 @@
 #include "sim_entity_ticks.h"
 #include "sim_embedded_scenes.h"
 #include "sim_fly_camera.h"
+#include "sim_commands.h"
 #include "sim_external.h"
 
 // TODO: Uncouple me!

@@ -1,6 +1,6 @@
 #include "game_internal.h"
 
-
+#if 0
 #define SVG_DEFINE_ENT_UPDATE(entityTypeName) internal void \
     SVG_Update##entityTypeName##(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 
@@ -20,6 +20,12 @@ internal void Game_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime
     {
 		// case SIM_TICK_TYPE_PROJECTILE:
         // { SVG_UpdateProjectile(sim, ent, deltaTime); } break;
+		// case SIM_TICK_TYPE_ACTOR:
+        // { SVG_UpdateActor(sim, ent, deltaTime); } break;
+        // case SIM_TICK_TYPE_BOT:
+        // { SVG_UpdateBot(sim, ent, deltaTime); } break;
+        // case SIM_TICK_TYPE_SPAWNER:
+        // { SVG_UpdateSpawner(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_SEEKER:
         { SimEnt_TickSeeker(sim, ent, deltaTime, bIsServer); } break;
         case SIM_TICK_TYPE_SEEKER_FLYING:
@@ -30,12 +36,6 @@ internal void Game_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime
         { SimEnt_TickBouncer(sim, ent, deltaTime, bIsServer); } break;
         case SIM_TICK_TYPE_DART:
         { SimEnt_TickDart(sim, ent, deltaTime, bIsServer); } break;
-		// case SIM_TICK_TYPE_ACTOR:
-        // { SVG_UpdateActor(sim, ent, deltaTime); } break;
-        // case SIM_TICK_TYPE_BOT:
-        // { SVG_UpdateBot(sim, ent, deltaTime); } break;
-        // case SIM_TICK_TYPE_SPAWNER:
-        // { SVG_UpdateSpawner(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_LINE_TRACE:
         { SVG_UpdateLineTrace(sim, ent, deltaTime); } break;
         case SIM_TICK_TYPE_SPAWN:
@@ -46,3 +46,4 @@ internal void Game_TickEntity(SimScene* sim, SimEntity* ent, timeFloat deltaTime
         { ZE_ASSERT(0, "Unknown Ent Tick Type"); } break;
     }
 }
+#endif
