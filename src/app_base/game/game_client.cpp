@@ -1,7 +1,24 @@
 
-#include "game_user_input.h"
+#include "game_client.h"
+#include "../../sim/sim.h"
 
-extern "C" void GI_InitInputs(InputActionSet* actions)
+#define GAME_MAX_INPUT_ACTIONS 256
+internal InputAction g_inputActionItems[GAME_MAX_INPUT_ACTIONS];
+internal InputActionSet g_inputActions = {
+    g_inputActionItems,
+    0
+};
+
+internal Transform g_camera;
+internal SimActorInput g_debugInput;
+internal i32 g_bIsRunning = NO;
+
+extern "C" Transform CL_GetDebugCamera()
+{
+    return g_camera;
+}
+
+internal void CL_CreateActions(InputActionSet* actions)
 {
     Input_InitAction(actions, Z_INPUT_CODE_V, "Debug Forward");
     Input_InitAction(actions, Z_INPUT_CODE_C, "Debug Backward");
@@ -43,7 +60,19 @@ extern "C" void GI_InitInputs(InputActionSet* actions)
     Input_InitAction(actions, Z_INPUT_CODE_DOWN, "Shoot Down");
 }
 
-extern "C" void GI_InputCheckButton(
+extern "C" void CL_Init()
+{
+    CL_CreateActions(&g_inputActions);
+
+    Transform_SetToIdentity(&g_camera);
+    g_camera.pos.z = 10;
+    g_camera.pos.y += 34;
+    Transform_SetRotation(&g_camera, -(80.0f    * DEG2RAD), 0, 0);
+	g_debugInput = {};
+	g_debugInput.degrees.x = -80;
+}
+
+extern "C" void CL_InputCheckButton(
     InputActionSet* actions,
     char* inputName,
     u32* flags,
@@ -55,13 +84,13 @@ extern "C" void GI_InputCheckButton(
     }
 }
 
-extern "C" void GI_ReadInputEvent(
-    InputActionSet* actions, SysInputEvent* ev, frameInt frameNumber)
+extern "C" void CL_ReadInputEvent(SysInputEvent* ev, frameInt frameNumber)
 {
-    Input_TestForAction(actions, ev->value, ev->normalised, ev->inputID, frameNumber);
+    if (!g_bIsRunning) { return; }
+    Input_TestForAction(&g_inputActions, ev->value, ev->normalised, ev->inputID, frameNumber);
 }
 
-extern "C" void GI_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
+internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 {
 	// record last frame
 	input->prevButtons = input->buttons;
@@ -73,25 +102,25 @@ extern "C" void GI_UpdateActorInput(InputActionSet* actions, SimActorInput* inpu
     const f32 KEY_TURN_RATE = 4.f;
 
 	// Read
-    GI_InputCheckButton(actions, "Move Forward", &flags, ACTOR_INPUT_MOVE_FORWARD);
-    GI_InputCheckButton(actions, "Move Backward", &flags, ACTOR_INPUT_MOVE_BACKWARD);
-    GI_InputCheckButton(actions, "Move Left", &flags, ACTOR_INPUT_MOVE_LEFT);
-    GI_InputCheckButton(actions, "Move Right", &flags, ACTOR_INPUT_MOVE_RIGHT);
+    CL_InputCheckButton(actions, "Move Forward", &flags, ACTOR_INPUT_MOVE_FORWARD);
+    CL_InputCheckButton(actions, "Move Backward", &flags, ACTOR_INPUT_MOVE_BACKWARD);
+    CL_InputCheckButton(actions, "Move Left", &flags, ACTOR_INPUT_MOVE_LEFT);
+    CL_InputCheckButton(actions, "Move Right", &flags, ACTOR_INPUT_MOVE_RIGHT);
 
-    GI_InputCheckButton(actions, "MoveSpecial1", &flags, ACTOR_INPUT_MOVE_SPECIAL1);
+    CL_InputCheckButton(actions, "MoveSpecial1", &flags, ACTOR_INPUT_MOVE_SPECIAL1);
 
-    GI_InputCheckButton(actions, "Shoot Up", &flags, ACTOR_INPUT_SHOOT_UP);
-    GI_InputCheckButton(actions, "Shoot Down", &flags, ACTOR_INPUT_SHOOT_DOWN);
-    GI_InputCheckButton(actions, "Shoot Left", &flags, ACTOR_INPUT_SHOOT_LEFT);
-    GI_InputCheckButton(actions, "Shoot Right", &flags, ACTOR_INPUT_SHOOT_RIGHT);
+    CL_InputCheckButton(actions, "Shoot Up", &flags, ACTOR_INPUT_SHOOT_UP);
+    CL_InputCheckButton(actions, "Shoot Down", &flags, ACTOR_INPUT_SHOOT_DOWN);
+    CL_InputCheckButton(actions, "Shoot Left", &flags, ACTOR_INPUT_SHOOT_LEFT);
+    CL_InputCheckButton(actions, "Shoot Right", &flags, ACTOR_INPUT_SHOOT_RIGHT);
 
-    GI_InputCheckButton(actions, "Attack1", &flags, ACTOR_INPUT_ATTACK);
-    GI_InputCheckButton(actions, "Attack2", &flags, ACTOR_INPUT_ATTACK2);
+    CL_InputCheckButton(actions, "Attack1", &flags, ACTOR_INPUT_ATTACK);
+    CL_InputCheckButton(actions, "Attack2", &flags, ACTOR_INPUT_ATTACK2);
 
-    GI_InputCheckButton(actions, "Slot1", &flags, ACTOR_INPUT_SLOT_1);
-    GI_InputCheckButton(actions, "Slot2", &flags, ACTOR_INPUT_SLOT_2);
-    GI_InputCheckButton(actions, "Slot3", &flags, ACTOR_INPUT_SLOT_3);
-    GI_InputCheckButton(actions, "Slot4", &flags, ACTOR_INPUT_SLOT_4);
+    CL_InputCheckButton(actions, "Slot1", &flags, ACTOR_INPUT_SLOT_1);
+    CL_InputCheckButton(actions, "Slot2", &flags, ACTOR_INPUT_SLOT_2);
+    CL_InputCheckButton(actions, "Slot3", &flags, ACTOR_INPUT_SLOT_3);
+    CL_InputCheckButton(actions, "Slot4", &flags, ACTOR_INPUT_SLOT_4);
 
     #if 0 // old mouse input reads movement in pixels directly - resolution dependent!
     f32 mouseX = ((f32)Input_GetActionValue(actions, "Mouse Move X") / (f32)Z_INPUT_MOUSE_SCALAR);
@@ -138,4 +167,16 @@ extern "C" void GI_UpdateActorInput(InputActionSet* actions, SimActorInput* inpu
 	{
 		input->degrees.x = 89;
 	}
+}
+
+extern "C" void CL_PreTick(timeFloat delta)
+{
+    if (!g_bIsRunning) { return; }
+    CL_UpdateActorInput(&g_inputActions, &g_debugInput);
+    Sim_TickDebugCamera(&g_camera, g_debugInput, 16, delta);
+}
+
+extern "C" void CL_PostTick(timeFloat delta)
+{
+    if (!g_bIsRunning) { return; }
 }

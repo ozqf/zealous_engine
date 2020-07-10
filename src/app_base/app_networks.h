@@ -38,7 +38,7 @@ internal void App_UpdateLoopbackSocket(FakeSocket* socket, timeFloat deltaTime)
 	{
 		socket->Read(&socketIndex, &data, &dataSize, &addr);
 		if (data == NULL) { break; }
-		
+		#if 0
 		if (addr.port == APP_CLIENT_LOOPBACK_PORT)
 		{
 			ZE_ASSERT(CL_IsRunning(), "Not running a client!")
@@ -56,5 +56,6 @@ internal void App_UpdateLoopbackSocket(FakeSocket* socket, timeFloat deltaTime)
 			// TODO: Call Socket for remote sends!
 			ILLEGAL_CODE_PATH
 		}
+		#endif
 	}
 }

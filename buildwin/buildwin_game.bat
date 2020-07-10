@@ -19,15 +19,20 @@ del *.* /q
 @rem -- Common module input --
 @rem set in1=../src/common/com_module.cpp
 set in1=
+set in2=
+set in3=
+set in4=
+set in5=
+set in6=
 
 @rem -- Main App input --
 set in1=../src/app_base/client/client_render.cpp ../src/ui/zui.cpp
 set in2=../src/app_base/app_module.cpp ../src/app_base/app_ui.cpp
 set in3=../src/sim/sim_module.cpp ../src/voxel_world/voxel_world.cpp
-set in4=../src/app_base/server/server.cpp ../src/app_base/client/client.cpp
+set in4=../src/app_base/game/game_server.cpp ../src/app_base/game/game_client.cpp
 @rem set in5=../src/physics/bullet_wrapper/bullet_module.cpp
 set in5=../src/network/zqf_network_module.cpp ../src/zr_embedded/zr_embedded.cpp
-set in6=../src/app_base/game/game_module.cpp ../src/app_base/game/game_user_input.cpp
+set in6=../src/app_base/game/game_module.cpp
 
 @rem -- Stub App input --
 @rem set in2=../src/app_stub/app_stub.cpp

@@ -87,7 +87,8 @@ timeFloat App_GetPerformanceTime(i32 index)
 
 extern "C" void App_Debug_GetServerSim(void** ptr)
 {
-    return SV_Debug_GetSimInstance(ptr);
+    *ptr = NULL;
+    //return SV_Debug_GetSimInstance(ptr);
 }
 
 extern "C" void App_DebugBreak()
@@ -170,8 +171,8 @@ internal i32  AppImpl_Init()
     
     // initialise sub-modules
     AppUI_Init();
-    CL_Init();
-    SV_Init();
+    // CL_Init();
+    // SV_Init();
     Game_Init();
 
     // server and client areas currently acquiring their own memory
@@ -189,8 +190,8 @@ internal i32  AppImpl_Shutdown()
 
 internal i32 App_EndSession()
 {
-    if (SV_IsRunning()) { SV_Shutdown(); }
-    if (CL_IsRunning()) { CL_Shutdown(); }
+    // if (SV_IsRunning()) { SV_Shutdown(); }
+    // if (CL_IsRunning()) { CL_Shutdown(); }
     //ZNet_EndSession(g_serverNet);
     //ZNet_EndSession(g_clientNet);
     return ZE_ERROR_NONE;
@@ -212,7 +213,7 @@ internal i32 App_StartSession(i32 sessionType)
 
             //////////////////////////////////////
             // Normal - auto create a local client
-            #if 1
+            #if 0
             // start server, add client immediately
             SV_Start();
             // creating a local user will start transmission to loopback buffer.
@@ -324,6 +325,7 @@ internal void App_SimFrame(timeFloat interval)
     g_gameBuffers.GetWrite()->Clear(NO);
     Game_Tick(g_gameBuffers.GetRead(), interval);
 
+    #if 0
     if (SV_IsRunning())
     {
         g_serverLoopback.Swap();
@@ -336,6 +338,7 @@ internal void App_SimFrame(timeFloat interval)
         g_clientLoopback.GetWrite()->Clear(NO);
         CL_Tick(g_clientLoopback.GetRead(), interval, g_lastPlatformFrame);
     }
+    #endif
 }
 
 internal i32 AppImpl_RendererReloaded()
@@ -395,8 +398,10 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
         g_loopbackSocket.SetLagStats(minMS, maxMS, loss);
         return YES;
     }
+    #if 0
     if (SV_IsRunning() && SV_ParseCommandString(str, tokens, numTokens)) { return YES; }
     if (CL_IsRunning() && CL_ParseCommandString(str, tokens, numTokens)) { return YES; }
+    #endif
     return NO;
 }
 
