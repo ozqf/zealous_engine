@@ -47,8 +47,8 @@ internal i32 g_apptick = 0;
 
 internal ZEDoubleByteBuffer g_gameBuffers;
 // Client/Server input buffers
-internal ZEDoubleByteBuffer g_serverLoopback;
-internal ZEDoubleByteBuffer g_clientLoopback;
+// internal ZEDoubleByteBuffer g_serverLoopback;
+// internal ZEDoubleByteBuffer g_clientLoopback;
 
 #define APP_MAX_MALLOCS 1024
 internal MallocItem g_mallocItems[APP_MAX_MALLOCS];

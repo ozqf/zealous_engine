@@ -70,6 +70,7 @@ internal void Game_ReadSystemEvents(ZEByteBuffer* sysEvents, timeFloat delta)
 
 extern "C" i32 Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
 {
+	printf("GTICK - Reading %d bytes\n", sysEvents->Written());
 	Game_ReadSystemEvents(sysEvents, delta);
 	CL_PreTick(delta);
 	

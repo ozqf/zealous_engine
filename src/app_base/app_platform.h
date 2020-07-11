@@ -150,19 +150,19 @@ internal i32  AppImpl_Init()
         COM_Malloc(&g_mallocs, bufferSize, "Game Buffer B"),
         bufferSize);
 
-    g_serverLoopback.a = Buf_FromMalloc(
-        COM_Malloc(&g_mallocs, bufferSize, "Server Loopback A"),
-        bufferSize);
-	g_serverLoopback.b = Buf_FromMalloc(
-        COM_Malloc(&g_mallocs, bufferSize, "Server Loopback B"),
-        bufferSize);
+    // g_serverLoopback.a = Buf_FromMalloc(
+    //     COM_Malloc(&g_mallocs, bufferSize, "Server Loopback A"),
+    //     bufferSize);
+	// g_serverLoopback.b = Buf_FromMalloc(
+    //     COM_Malloc(&g_mallocs, bufferSize, "Server Loopback B"),
+    //     bufferSize);
 
-    g_clientLoopback.a = Buf_FromMalloc(
-        COM_Malloc(&g_mallocs, bufferSize, "Client Loopback A"),
-        bufferSize);
-	g_clientLoopback.b = Buf_FromMalloc(
-        COM_Malloc(&g_mallocs, bufferSize, "Client Loopback B"),
-        bufferSize);
+    // g_clientLoopback.a = Buf_FromMalloc(
+    //     COM_Malloc(&g_mallocs, bufferSize, "Client Loopback A"),
+    //     bufferSize);
+	// g_clientLoopback.b = Buf_FromMalloc(
+    //     COM_Malloc(&g_mallocs, bufferSize, "Client Loopback B"),
+    //     bufferSize);
     
 	g_loopbackSocket.Init(g_fakeLagMinMS, g_fakeLagMaxMS, g_fakeLoss);
     
@@ -284,8 +284,8 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
     if (diff == 0) { return; }
     
     ZEByteBuffer* gameInput = g_gameBuffers.GetWrite();
-    ZEByteBuffer* serverInput = g_serverLoopback.GetWrite();
-    ZEByteBuffer* clientInput = g_clientLoopback.GetWrite();
+    // ZEByteBuffer* serverInput = g_serverLoopback.GetWrite();
+    // ZEByteBuffer* clientInput = g_clientLoopback.GetWrite();
     while (read < end)
     {
         SysEvent* ev = (SysEvent*)read;
@@ -303,7 +303,7 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
         {
             //printf("Copying %d bytes of input ev to client loopback\n", ev->size);
             // Copy input events to client buffer
-            BUF_COPY(clientInput, ev, ev->size);
+            //BUF_COPY(clientInput, ev, ev->size);
             BUF_COPY(gameInput, ev, ev->size);
         }
     }

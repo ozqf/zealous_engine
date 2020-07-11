@@ -3,10 +3,10 @@
 
 #include "game.h"
 
-extern "C" void SV_Init();
-extern "C" void SV_Start();
-extern "C" void SV_Stop();
-extern "C" void SV_PreTick(timeFloat delta);
-extern "C" void SV_PostTick(timeFloat delta);
+extern "C" void GSV_Init();
+extern "C" void GSV_Start();
+extern "C" void GSV_Stop();
+extern "C" void GSV_PreTick(timeFloat delta);
+extern "C" void GSV_PostTick(timeFloat delta);
 
 #endif // GAME_SERVER_H

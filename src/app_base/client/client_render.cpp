@@ -151,6 +151,7 @@ internal void CLR_WriteParticles(
     ZEByteBuffer* data)
 {
     ZRMaterial* mat;
+    printf("Write %d Particles\n", emitter->numParticles);
     mat = cr->db->GetMaterialByIndex(cr->db, emitter->def.materialIndex);
     for (i32 i = 0; i < emitter->numParticles; ++i)
     {
