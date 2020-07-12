@@ -11,7 +11,11 @@ internal InputActionSet g_inputActions = {
 
 internal Transform g_camera;
 internal SimActorInput g_debugInput;
+internal SimPlayer g_player;
 internal i32 g_bIsRunning = NO;
+
+internal i32 g_playerId;
+internal i32 g_avatarId;
 
 extern "C" Transform CL_GetDebugCamera()
 {
@@ -179,6 +183,12 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 	{
 		input->degrees.x = 89;
 	}
+}
+
+extern "C" void CL_RegisterLocalPlayer(SimPlayer plyr)
+{
+    g_player = plyr;
+    printf("GCL plyr Id %d avatar %d\n", g_player.id, g_player.avatarId);
 }
 
 extern "C" void CL_PreTick(timeFloat delta)

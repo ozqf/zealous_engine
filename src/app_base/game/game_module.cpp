@@ -34,6 +34,7 @@ extern "C" i32 Game_Start()
 	// start sub-modules
 	CLG_Start();
 	GSV_Start();
+	CL_RegisterLocalPlayer(GSV_CreateLocalPlayer(&g_sim));
 	return ZE_ERROR_NONE;
 }
 
@@ -70,7 +71,7 @@ internal void Game_ReadSystemEvents(ZEByteBuffer* sysEvents, timeFloat delta)
 
 extern "C" i32 Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
 {
-	printf("GTICK - Reading %d bytes\n", sysEvents->Written());
+	//printf("GTICK - Reading %d bytes\n", sysEvents->Written());
 	Game_ReadSystemEvents(sysEvents, delta);
 	CL_PreTick(delta);
 	
