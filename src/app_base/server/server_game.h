@@ -3,19 +3,6 @@
 #include "server_internal.h"
 #include <math.h>
 
-
-internal void Sim_PrepareSpawnData(
-    SimScene* sim, SimEntSpawnData* data,
-    i32 bIsLocal, u8 factoryType,
-    Vec3 pos)
-{
-    *data = {};
-    data->isLocal = bIsLocal;
-    data->serial = Sim_ReserveEntitySerial(&g_sim, bIsLocal);
-    data->pos = pos;
-    data->factoryType = factoryType;
-}
-
 internal void SVG_ReplicateSpawn(
     SimScene* sim, SimBulkSpawnEvent* event,
     i32 bSyncPosition, f32 priority)

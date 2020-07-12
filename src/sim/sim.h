@@ -145,6 +145,10 @@ extern "C" i32      Sim_ExecuteBulkSpawn(
 						i32 fastForwardTicks,
                         i32* spawnedEntityFlags,
                         f32* spawnedEntityPriority);
+extern "C" void Sim_PrepareSpawnData(
+                        SimScene* sim, SimEntSpawnData* data,
+                        i32 bIsLocal, u8 factoryType,
+                        Vec3 pos);
 
 // Entity behaviour
 extern "C" void     Sim_SimpleMove(SimEntity* ent, timeFloat deltaTime);

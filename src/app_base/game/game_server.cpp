@@ -3,15 +3,29 @@
 
 internal i32 g_bIsRunning = NO;
 
+internal void SV_AddSpawner(
+    SimScene* sim, Vec3 pos, simFactoryType factoryType, u8 spawnCount)
+{
+    SimEntSpawnData data = {};
+    data.numChildren = spawnCount;
+    Sim_PrepareSpawnData(sim, &data, 1, SIM_FACTORY_TYPE_SPAWNER, pos);
+    data.childFactoryType = factoryType;
+    data.numChildren = spawnCount;
+    data.patternType = SIM_PATTERN_FLAT_SCATTER;
+    //data.patternType = SIM_PATTERN_3D_SCATTER;
+    Sim_RestoreEntity(sim, &data);
+}
+
 extern "C" void GSV_Init()
 {
 	
 }
 
-extern "C" void GSV_Start()
+extern "C" void GSV_Start(SimScene* sim)
 {
 	printf("SV Start\n");
 	g_bIsRunning = YES;
+	SV_AddSpawner(sim, {}, SIM_FACTORY_TYPE_WANDERER, 10);
 }
 
 extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim)

@@ -184,6 +184,11 @@ extern "C" void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat del
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
 
+extern "C" void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+{
+    printf("Update spawner\n");
+}
+
 internal void SimEnt_UpdateActorLook(
     SimScene* sim,
     SimEntity* ent,
@@ -445,6 +450,51 @@ extern "C" void SimEnt_StepActorMovement(
 			
 		} break;
 	}
+}
+
+internal void Sim_TickEntities(SimScene* sim, ZEByteBuffer* output, timeFloat delta)
+{
+    for (i32 i = 0; i < sim->maxEnts; ++i)
+    {
+        SimEntity* ent = &sim->ents[i];
+        if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
+		
+        const i32 bIsServer = YES;
+	    switch (ent->tickType)
+        {
+	    	// case SIM_TICK_TYPE_PROJECTILE:
+            // { SVG_UpdateProjectile(sim, ent, delta); } break;
+	    	// case SIM_TICK_TYPE_ACTOR:
+            // { SVG_UpdateActor(sim, ent, delta); } break;
+            // case SIM_TICK_TYPE_BOT:
+            // { SVG_UpdateBot(sim, ent, delta); } break;
+            case SIM_TICK_TYPE_SPAWNER:
+            { SimEnt_TickSpawner(sim, ent, delta, bIsServer); } break;
+            case SIM_TICK_TYPE_SEEKER:
+            { SimEnt_TickSeeker(sim, ent, delta, bIsServer); } break;
+            case SIM_TICK_TYPE_SEEKER_FLYING:
+	    	{ SimEnt_TickSeekerFlying(sim, ent, delta, bIsServer); } break;
+	    	case SIM_TICK_TYPE_WANDERER:
+            { SimEnt_TickWanderer(sim, ent, delta, bIsServer); break; }
+            case SIM_TICK_TYPE_BOUNCER:
+            { SimEnt_TickBouncer(sim, ent, delta, bIsServer); } break;
+            case SIM_TICK_TYPE_DART:
+            { SimEnt_TickDart(sim, ent, delta, bIsServer); } break;
+            case SIM_TICK_TYPE_LINE_TRACE:
+            { SimEnt_TickTimeout(sim, ent, delta); } break;
+            case SIM_TICK_TYPE_SPAWN:
+            { SimEnt_TickSpawnAnimation(sim, ent, delta); } break;
+            case SIM_TICK_TYPE_WORLD: { } break;
+            case SIM_TICK_TYPE_NONE: { } break;
+            default:
+            { ZE_ASSERT(0, "Unknown Ent Tick Type"); } break;
+        }
+
+        // make sure previous positions are updated
+        ent->body.previousPos = ent->body.t.pos;
+    }
+    sim->tick++;
+    sim->time += delta;
 }
 
 #endif // SIM_ENTITY_TICKS_H

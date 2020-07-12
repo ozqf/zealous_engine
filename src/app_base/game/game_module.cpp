@@ -33,7 +33,7 @@ extern "C" i32 Game_Start()
 	Sim_LoadStaticScene(&g_sim, 0);
 	// start sub-modules
 	CLG_Start();
-	GSV_Start();
+	GSV_Start(&g_sim);
 	CL_RegisterLocalPlayer(GSV_CreateLocalPlayer(&g_sim));
 	return ZE_ERROR_NONE;
 }
