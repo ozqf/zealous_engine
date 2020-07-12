@@ -21,7 +21,7 @@ extern "C" i32 Game_Init()
 	g_rend = CLR_Create(App_GetAssetDB(), 128);
 
 	CL_Init();
-	SV_Init();
+	GSV_Init();
 	
 	return ZE_ERROR_NONE;
 }
@@ -33,14 +33,14 @@ extern "C" i32 Game_Start()
 	Sim_LoadStaticScene(&g_sim, 0);
 	// start sub-modules
 	CLG_Start();
-	SV_Start();
+	GSV_Start();
 	return ZE_ERROR_NONE;
 }
 
 extern "C" i32 Game_Stop()
 {
 	CL_Stop();
-	SV_Stop();
+	GSV_Stop();
 	return ZE_ERROR_NONE;
 }
 

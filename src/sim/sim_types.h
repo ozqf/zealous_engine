@@ -121,6 +121,7 @@ struct SimEntity
     i32 status;
     i32 isLocal;
     SimEntId id;
+	i32 playerId;	// if a player owns this
 
     simFactoryType factoryType;
     i32 tickType; // REPLICATED
@@ -340,12 +341,24 @@ struct SimRaycastResult
     SimEntity* ent;
 };
 
+#define SIM_MAX_PLAYERS 4
+
+#define SIM_PLAYER_STATE_NONE 0
+#define SIM_PLAYER_STATE_IN_GAME 1
+
+struct SimPlayer
+{
+	i32 id;
+	i32 state;
+	i32 avatarId;
+};
+
 struct SimScene
 {
     SimEntity* ents;
     i32 maxEnts;
-    i32 bVerbose;
-
+	
+	// physics
     WorldHandle* world;
 
     // sequential, unrelated to blocks
@@ -365,4 +378,9 @@ struct SimScene
 
     QuantiseSet quantise;
 	ZRAssetDB* db;
+	i32 bVerbose;
+
+	i32 nextPlayerId;
+	i32 maxPlayers;
+	SimPlayer players[SIM_MAX_PLAYERS];
 };

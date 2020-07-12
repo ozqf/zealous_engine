@@ -360,6 +360,7 @@ void Sim_Init(
     
     sim->ents = entityMemory;
     sim->maxEnts = maxEntities;
+	sim->maxPlayers = SIM_MAX_PLAYERS;
     sim->bVerbose = NO;
     SVI_InitItemDefs();
 	Sim_Reset(sim);

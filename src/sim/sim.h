@@ -127,7 +127,8 @@ extern "C" i32      Sim_Tick(
                         ZEByteBuffer* input,
                         ZEByteBuffer* output,
                         timeFloat delta);
-
+// Players
+extern "C" SimPlayer* SimPlyr_Create(SimScene* sim);
 // Entity list functions
 extern "C" SimEntity* Sim_GetEntityBySerial(SimScene* sim, i32 serial);
 extern "C" SimEntity* Sim_GetEntityByIndex(SimScene* sim, SimEntIndex index);
