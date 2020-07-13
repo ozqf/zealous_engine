@@ -145,7 +145,7 @@ internal i32 Sim_RecycleEntity(
 // Entity initialisation
 ////////////////////////////////////////////////////////////////////
 internal i32 Sim_InitActor(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     printf("SIM Create actor, scale %.3f, %.3f, %.3f\n",
         def->scale.x, def->scale.y, def->scale.z
@@ -167,7 +167,7 @@ internal i32 Sim_InitActor(
 }
 
 internal i32 Sim_InitBot(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityStats(ent, 6.5f, 1, 0.05f);
@@ -184,7 +184,7 @@ internal i32 Sim_InitBot(
 }
 
 internal i32 Sim_InitSpawner(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_SPAWNER;
@@ -200,7 +200,7 @@ internal i32 Sim_InitSpawner(
 // WORLD
 ///////////////////////////////////////////////////////
 internal i32 Sim_InitWorldVolume(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     APP_PRINT(256, "SIM Spawning world volume at %.3f, %.3f, %.3f\n",
@@ -226,7 +226,7 @@ internal i32 Sim_InitWorldVolume(
 }
 
 internal i32 Sim_InitPointLight(
-    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Vec3 settings = def->scale;
     def->scale = { 1, 1, 1 };
@@ -251,7 +251,7 @@ internal i32 Sim_InitPointLight(
 }
 
 internal i32 Sim_InitDirectLight(
-    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Vec3 settings = def->scale;
     def->scale = { 1, 1, 1 };
@@ -280,7 +280,7 @@ internal i32 Sim_InitDirectLight(
 }
 
 internal i32 Sim_InitLineTrace(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
 	//printf("SIM Create line trace\n");
     Sim_SetEntityBase(ent, def);
@@ -294,7 +294,7 @@ internal i32 Sim_InitLineTrace(
 // GFX
 ///////////////////////////////////////////////////////
 internal i32 Sim_InitExplosion(
-    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_EXPLOSION;
@@ -311,7 +311,7 @@ internal i32 Sim_InitExplosion(
 }
 
 internal i32 Sim_InitBulletImpact(
-    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_EXPLOSION;
@@ -328,7 +328,7 @@ internal i32 Sim_InitBulletImpact(
 }
 
 internal i32 Sim_InitTargetPoint(
-    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_TARGET_POINT;
@@ -345,7 +345,7 @@ internal i32 Sim_InitTargetPoint(
 }
 
 internal i32 Sim_InitPropBillboard(
-    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -363,7 +363,7 @@ internal i32 Sim_InitPropBillboard(
 }
 
 internal i32 Sim_InitPropMesh(
-    SimScene* sim, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     // TODO: Storing indexes to assets doesn't work if the
@@ -390,7 +390,7 @@ internal i32 Sim_InitPropMesh(
 // Projectiles
 ///////////////////////////////////////////////////////
 internal i32 Sim_InitProjBase(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     SimProjectileType t;
     t.speed = 10.0f;
@@ -420,7 +420,7 @@ internal i32 Sim_InitProjBase(
 }
 
 internal i32 Sim_InitProjPrediction(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     SimProjectileType t;
     t.speed = 45.0f;
@@ -449,7 +449,7 @@ internal i32 Sim_InitProjPrediction(
 }
 
 internal i32 Sim_InitPlayerProjectile(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     SimProjectileType t;
     t.speed = SIM_PLAYER_PROJECTILE_SPEED;
@@ -479,7 +479,7 @@ internal i32 Sim_InitPlayerProjectile(
 }
 
 internal SimEntity* Sim_SpawnEntity(
-    SimScene* sim, SimEntSpawnData* def)
+    SimScene* sim, SimEvent_Spawn* def)
 {
     SimEntity* ent;
     if (def->isLocal)

@@ -125,7 +125,7 @@ void CL_LoadTestScene()
 	
 	// Add local test avatar
 	#if 0
-	SimEntSpawnData def = {};
+	SimEvent_Spawn def = {};
     def = {};
     def.isLocal = 1;
 	g_avatarSerial = Sim_ReserveEntitySerial(&g_sim, def.isLocal);
@@ -140,7 +140,7 @@ void CL_LoadTestScene()
 
     #if 1 // Create target sight
     
-    SimEntSpawnData def = {};
+    SimEvent_Spawn def = {};
     def.isLocal = 1;
     def.serial = Sim_ReserveEntitySerial(&g_sim, def.isLocal);
     def.factoryType = SIM_FACTORY_TYPE_TARGET_POINT;

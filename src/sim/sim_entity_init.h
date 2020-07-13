@@ -7,7 +7,7 @@
 // Shared Entity initialisation
 ////////////////////////////////////////////////////////////////////
 internal void Sim_SetEntityBase(
-    SimEntity* ent, SimEntSpawnData* def)
+    SimEntity* ent, SimEvent_Spawn* def)
 {
     ent->timing.birthTick = def->birthTick;
     ent->body.t.pos = def->pos;

@@ -13,7 +13,7 @@ extern "C" SimInventoryItem* SVI_GetItem(i32 index)
 }
 
 extern "C" void Sim_PrepareSpawnData(
-    SimScene* sim, SimEntSpawnData* data,
+    SimScene* sim, SimEvent_Spawn* data,
     i32 bIsLocal, u8 factoryType,
     Vec3 pos)
 {
@@ -258,7 +258,7 @@ i32 Sim_ReserveEntitySerials(
  * (create it if it doesn't exist)
  */
 extern "C"
-SimEntity* Sim_RestoreEntity(SimScene* scene, SimEntSpawnData* def)
+SimEntity* Sim_RestoreEntity(SimScene* scene, SimEvent_Spawn* def)
 {
 	// an id of zero is considered invalid
 	ZE_ASSERT(def->serial != SIM_ENT_NULL_SERIAL,
@@ -296,7 +296,7 @@ i32 Sim_SetActorInput(
 extern "C"
 i32 Sim_ExecuteBulkSpawn(
     SimScene* sim,
-    SimBulkSpawnEvent* event,
+    SimEvent_BulkSpawn* event,
 	i32 fastForwardTicks,
     i32* spawnedEntityFlags,
     f32* spawnedEntityPriority)
@@ -318,7 +318,7 @@ i32 Sim_ExecuteBulkSpawn(
     {
         SimSpawnPatternItem* item = &items[i];
 		
-        SimEntSpawnData entDef = {};
+        SimEvent_Spawn entDef = {};
         entDef.factoryType = event->factoryType;
         entDef.serial = item->entSerial;
         entDef.pos = item->pos;
@@ -401,6 +401,7 @@ i32 Sim_Tick(
 {
     sim->tempOutput = output;
     Sim_ExecuteCommands(sim, input, delta);
+    SimPlyr_Tick(sim);
     Sim_TickEntities(sim, output, delta);
     return ZE_ERROR_NONE;
 }

@@ -84,12 +84,15 @@ extern "C" i32 Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
 {
 	//printf("GTICK - Reading %d bytes\n", sysEvents->Written());
 	Game_ReadSystemEvents(sysEvents, delta);
-	CL_PreTick(delta);
+	CL_PreTick(&g_sim, &g_gameBuf, delta);
+	GSV_PreTick(&g_sim, &g_gameBuf, delta);
 	
 	g_gameBuf.Swap();
 	g_gameBuf.GetWrite()->Clear(NO);
 	Sim_Tick(&g_sim, g_gameBuf.GetRead(), g_gameBuf.GetWrite(), delta);
 
+	CL_PostTick(&g_sim, &g_gameBuf, delta);
+	GSV_PostTick(&g_sim, &g_gameBuf, delta);
 	#if 0
 	g_sim.timeInAABBSearch = 0;
     for (i32 i = 0; i < g_sim.maxEnts; ++i)

@@ -9,7 +9,7 @@
 
 internal void CLG_SpawnLineSegment(SimScene* sim, Vec3 origin, Vec3 dest)
 {
-    SimEntSpawnData def = {};
+    SimEvent_Spawn def = {};
     def.factoryType = SIM_FACTORY_TYPE_LINE_TRACE;
     def.serial = Sim_ReserveEntitySerial(sim, 1);
     def.isLocal = 1;
@@ -30,7 +30,7 @@ internal void CLG_HandleEntityDeath(SimScene* sim, i32 serial)
     {
         case SIM_DEATH_GFX_BULLET_IMPACT:
         {
-            SimEntSpawnData def = {};
+            SimEvent_Spawn def = {};
             def.factoryType = SIM_FACTORY_TYPE_BULLET_IMPACT;
             def.birthTick = sim->tick;
             def.pos = ent->body.t.pos;
@@ -140,7 +140,7 @@ internal void CLG_FireActorAttack(SimScene* sim, SimEntity* ent, Vec3* dir)
 {
     /* Debug - Fire a local projectile to see how it matches the server */
     #if 0
-    SimBulkSpawnEvent def = {};
+    SimEvent_BulkSpawn def = {};
     def.factoryType = SIM_FACTORY_TYPE_PROJ_PREDICTION;
     def.base.firstSerial = Sim_ReserveEntitySerial(sim, 1);
     def.base.pos = ent->body.t.pos;

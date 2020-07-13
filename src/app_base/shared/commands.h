@@ -322,12 +322,12 @@ internal i32 Cmd_EntSyncDeserialise(u8* source, u8* dest, i32 baseTick)
 struct S2C_BulkSpawn
 {
     Command header;
-    SimBulkSpawnEvent def;
+    SimEvent_BulkSpawn def;
 };
 
 internal void Cmd_InitBulkSpawn(
     S2C_BulkSpawn* cmd,
-    SimBulkSpawnEvent* event,
+    SimEvent_BulkSpawn* event,
     i32 tick)
 {
     *cmd = {};

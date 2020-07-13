@@ -2,7 +2,7 @@
 
 internal void Sim_AddWorldVolume(SimScene* sim, Vec3 pos, Vec3 size)
 {
-    SimEntSpawnData def = {};
+    SimEvent_Spawn def = {};
     def.serial = Sim_ReserveEntitySerial(sim, 1);
     def.isLocal = 1;
 	def.factoryType = SIM_FACTORY_TYPE_WORLD;
@@ -13,7 +13,7 @@ internal void Sim_AddWorldVolume(SimScene* sim, Vec3 pos, Vec3 size)
 
 internal void Sim_AddPointLight(SimScene* sim, Vec3 pos, Vec3 colour, f32 multiplier, f32 range)
 {
-    SimEntSpawnData def = {};
+    SimEvent_Spawn def = {};
     def.serial = Sim_ReserveEntitySerial(sim, 1);
     def.isLocal = 1;
 	def.factoryType = SIM_FACTORY_TYPE_POINT_LIGHT;
@@ -28,7 +28,7 @@ internal void Sim_AddDirectLight(
     SimScene* sim, Vec3 pos, Vec3 colour, f32 multiplier, f32 range,
     f32 pitchDegrees, f32 yawDegrees)
 {
-    SimEntSpawnData def = {};
+    SimEvent_Spawn def = {};
     def.serial = Sim_ReserveEntitySerial(sim, 1);
     def.isLocal = 1;
 	def.factoryType = SIM_FACTORY_TYPE_DIRECT_LIGHT;
@@ -43,7 +43,7 @@ internal void Sim_AddDirectLight(
 
 internal void Sim_AddTestProp(SimScene* sim, Vec3 pos, i32 billboard)
 {
-    SimEntSpawnData def = {};
+    SimEvent_Spawn def = {};
     def.serial = Sim_ReserveEntitySerial(sim, YES);
     def.isLocal = 1;
 	if (billboard)

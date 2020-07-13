@@ -4,7 +4,7 @@
 #include <math.h>
 
 internal void SVG_ReplicateSpawn(
-    SimScene* sim, SimBulkSpawnEvent* event,
+    SimScene* sim, SimEvent_BulkSpawn* event,
     i32 bSyncPosition, f32 priority)
 {
     // Replicate!
@@ -100,7 +100,7 @@ internal void SVG_HandleEntityDeath(
 
 internal void SVG_SpawnLineSegment(SimScene* sim, Vec3 origin, Vec3 dest)
 {
-    SimEntSpawnData def = {};
+    SimEvent_Spawn def = {};
     def.factoryType = SIM_FACTORY_TYPE_LINE_TRACE;
     def.serial = Sim_ReserveEntitySerial(sim, 1);
     def.isLocal = 1;
@@ -136,7 +136,7 @@ SVG_DEFINE_ENT_UPDATE(Spawner)
         ent->timing.nextThink += App_CalcTickInterval(2);
         // think
         // Spawn projectiles
-        SimBulkSpawnEvent event = {};
+        SimEvent_BulkSpawn event = {};
         /*
         event.factoryType = ent->relationships.childFactoryType;
         event.base.firstSerial = Sim_ReserveEntitySerials(
@@ -354,7 +354,7 @@ internal void SVG_FireActorAttack(
     //i32 numProjectiles = ent->relationships.childSpawnCount;
     if (numProjectiles <= 0) { numProjectiles = 1; }
     
-    SimBulkSpawnEvent event = {};
+    SimEvent_BulkSpawn event = {};
     Transform t = ent->body.t;
     Sim_SetBulkSpawn(
         &event,

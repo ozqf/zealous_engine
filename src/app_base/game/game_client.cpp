@@ -14,9 +14,6 @@ internal SimActorInput g_debugInput;
 internal SimPlayer g_player;
 internal i32 g_bIsRunning = NO;
 
-internal i32 g_playerId;
-internal i32 g_avatarId;
-
 extern "C" Transform CL_GetDebugCamera()
 {
     return g_camera;
@@ -191,14 +188,24 @@ extern "C" void CL_RegisterLocalPlayer(SimPlayer plyr)
     printf("GCL plyr Id %d avatar %d\n", g_player.id, g_player.avatarId);
 }
 
-extern "C" void CL_PreTick(timeFloat delta)
+extern "C" void CL_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
 {
     if (!g_bIsRunning) { return; }
+
     CL_UpdateActorInput(&g_inputActions, &g_debugInput);
     Sim_TickDebugCamera(&g_camera, g_debugInput, 16, delta);
+
+    SimEvent_PlayerInput input = {};
+    input.header.sentinel = ZCMD_SENTINEL;
+    input.header.size = sizeof(SimEvent_PlayerInput);
+    input.header.type = SIM_CMD_TYPE_PLAYER_INPUT;
+    input.playerId = g_player.id;
+    input.input = g_debugInput;
+
+    ZCmd_Write(&input.header, &buf->GetWrite()->cursor);
 }
 
-extern "C" void CL_PostTick(timeFloat delta)
+extern "C" void CL_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
 {
     if (!g_bIsRunning) { return; }
 }

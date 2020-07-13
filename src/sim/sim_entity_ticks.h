@@ -200,7 +200,7 @@ internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaT
             ent->relationships.childSpawnCount;
         
         // Write spawn cmd
-        SimBulkSpawnEvent event = {};
+        SimEvent_BulkSpawn event = {};
         Transform t;
         t.pos = ent->body.t.pos;
         M3x3_SetToIdentity(t.rotation.cells);

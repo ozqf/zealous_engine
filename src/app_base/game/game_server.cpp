@@ -6,7 +6,7 @@ internal i32 g_bIsRunning = NO;
 internal void SV_AddSpawner(
     SimScene* sim, Vec3 pos, simFactoryType factoryType, u8 spawnCount)
 {
-    SimEntSpawnData data = {};
+    SimEvent_Spawn data = {};
     data.numChildren = spawnCount;
     Sim_PrepareSpawnData(sim, &data, 1, SIM_FACTORY_TYPE_SPAWNER, pos);
     data.childFactoryType = factoryType;
@@ -41,12 +41,20 @@ extern "C" void GSV_Stop()
 	g_bIsRunning = NO;
 }
 
-extern "C" void GSV_PreTick(timeFloat delta)
+extern "C" void GSV_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
 {
 	if (!g_bIsRunning) { return; }
 }
 
-extern "C" void GSV_PostTick(timeFloat delta)
+extern "C" void GSV_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
 {
 	if (!g_bIsRunning) { return; }
+    u8* read = buf->GetWrite()->start;
+    u8* end = buf->GetWrite()->cursor;
+    while (read < end)
+    {
+        ZECommand* cmd = (ZECommand*)read;
+        read += cmd->size;
+        printf("SV read output cmd type %d (%d bytes\n", cmd->type, cmd->size);
+    }
 }

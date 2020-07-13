@@ -3,7 +3,11 @@
 
 #include "sim.h"
 
-#define SIM_CMD_TYPE_BULK_SPAWN 255
+#define SIM_CMD_TYPE_RESTORE_ENTITY 255
+#define SIM_CMD_TYPE_REMOVE_ENTITY 254
+#define SIM_CMD_TYPE_BULK_SPAWN 253
+#define SIM_CMD_TYPE_SYNC_ENTITY 252
+#define SIM_CMD_TYPE_PLAYER_INPUT 251
 
 #if 0
 struct SimCommand
@@ -13,8 +17,21 @@ struct SimCommand
 };
 #endif
 
+struct SimEvent_PlayerInput
+{
+    ZECommand header;
+    i32 playerId;
+    SimActorInput input;
+};
+
+struct SimEvent_RemoveEnt
+{
+    ZECommand header;
+    i32 entityId;
+};
+
 // Configurable data for spawning an entity.
-struct SimEntSpawnData
+struct SimEvent_Spawn
 {
     i32 serial;
     i32 parentSerial;
@@ -56,7 +73,7 @@ struct SimSpawnBase
     Transform xForm;
 };
 
-struct SimBulkSpawnEvent
+struct SimEvent_BulkSpawn
 {
 	ZECommand header;
     SimSpawnBase base;
@@ -65,7 +82,7 @@ struct SimBulkSpawnEvent
 };
 
 internal void Sim_SetBulkSpawn(
-    SimBulkSpawnEvent* ev,
+    SimEvent_BulkSpawn* ev,
     i32 firstSerial,
     i32 sourceSerial,
     Transform xForm,
@@ -77,7 +94,7 @@ internal void Sim_SetBulkSpawn(
     f32 radius,
     f32 arc)
 {
-	ZCmd_Prepare(&ev->header, SIM_CMD_TYPE_BULK_SPAWN, sizeof(SimBulkSpawnEvent));
+	ZCmd_Prepare(&ev->header, SIM_CMD_TYPE_BULK_SPAWN, sizeof(SimEvent_BulkSpawn));
 	
     ev->factoryType = factoryType;
     ev->base.firstSerial = firstSerial;

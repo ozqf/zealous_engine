@@ -41,6 +41,13 @@ struct SimActorInput
     u32 buttons;
 	u32 prevButtons;
     Vec3 degrees;
+
+    i32 HasBitToggledOff(i32 bit)
+    {
+        return ((buttons & bit) == 0
+            && (prevButtons & bit) != 0
+        );
+    }
 };
 
 struct SimScene;
@@ -269,6 +276,7 @@ struct SimPlayer
 	i32 id;
 	i32 state;
 	i32 avatarId;
+    SimActorInput input;
 };
 
 struct SimScene

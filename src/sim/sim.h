@@ -130,6 +130,8 @@ extern "C" i32      Sim_Tick(
                         timeFloat delta);
 // Players
 extern "C" SimPlayer* SimPlyr_Create(SimScene* sim);
+extern "C" SimPlayer* SimPlyr_Get(SimScene* sim, i32 playerId);
+
 // Entity list functions
 extern "C" SimEntity* Sim_GetEntityBySerial(SimScene* sim, i32 serial);
 extern "C" SimEntity* Sim_GetEntityByIndex(SimScene* sim, SimEntIndex index);
@@ -137,17 +139,17 @@ extern "C" i32      Sim_ScanForSerialRange(SimScene* sim, i32 firstSerial, i32 n
 extern "C" i32      Sim_ReserveEntitySerial(SimScene* sim, i32 isLocal);
 extern "C" i32      Sim_ReserveEntitySerials(
                         SimScene* scene, i32 isLocal, i32 count);
-extern "C" SimEntity* Sim_RestoreEntity(SimScene* sim, SimEntSpawnData* def);
+extern "C" SimEntity* Sim_RestoreEntity(SimScene* sim, SimEvent_Spawn* def);
 extern "C" i32      Sim_RemoveEntity(SimScene* sim, i32 serialNumber);
 extern "C" i32      Sim_SetActorInput(SimScene* sim, SimActorInput* input, i32 entitySerial);
 extern "C" i32      Sim_ExecuteBulkSpawn(
                         SimScene* sim,
-                        SimBulkSpawnEvent* def,
+                        SimEvent_BulkSpawn* def,
 						i32 fastForwardTicks,
                         i32* spawnedEntityFlags,
                         f32* spawnedEntityPriority);
 extern "C" void Sim_PrepareSpawnData(
-                        SimScene* sim, SimEntSpawnData* data,
+                        SimScene* sim, SimEvent_Spawn* data,
                         i32 bIsLocal, u8 factoryType,
                         Vec3 pos);
 

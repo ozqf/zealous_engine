@@ -129,7 +129,7 @@ internal i32 Cmd_Deserialise(
             ZE_ASSERT(sentinel == 0xBEEF, "Bulk spawn deserialise failed")
 
             // Build command
-            SimBulkSpawnEvent ev = {};
+            SimEvent_BulkSpawn ev = {};
             Sim_SetBulkSpawn(&ev, firstSerial, sourceSerial,
                 t, tick, factoryType, patternId, numItems,
                 seedIndex, radius, arc);

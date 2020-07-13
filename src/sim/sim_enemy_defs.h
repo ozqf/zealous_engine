@@ -7,7 +7,7 @@
 // Enemies
 ///////////////////////////////////////////////////////
 internal i32 Sim_InitWanderer(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityStats(ent, 1, 1, 1);
@@ -28,7 +28,7 @@ internal i32 Sim_InitWanderer(
 }
 
 internal i32 Sim_InitRubble(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityStats(ent, 4, 1, 1);
@@ -54,7 +54,7 @@ internal i32 Sim_InitRubble(
 }
 
 internal i32 Sim_InitBouncer(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityStats(ent, 6.0f, 1, 1);
@@ -75,7 +75,7 @@ internal i32 Sim_InitBouncer(
 }
 
 internal i32 Sim_InitDart(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityStats(ent, 5.5f, 1, 1);
@@ -96,7 +96,7 @@ internal i32 Sim_InitDart(
 }
 
 internal i32 Sim_InitSeeker(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityStats(ent, 4, 60, 1);
@@ -118,7 +118,7 @@ internal i32 Sim_InitSeeker(
 }
 
 internal i32 Sim_InitSeekerFlying(
-    SimScene* scene, SimEntity* ent, SimEntSpawnData* def)
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityStats(ent, 6, 60, 1);
@@ -140,7 +140,7 @@ internal i32 Sim_InitSeekerFlying(
 }
 
 internal i32 Sim_InitGrunt(
-    SimScene* sim, SimEntity* ent, SimEntSpawnData* data)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* data)
 {
     Sim_SetEntityBase(ent, data);
     Sim_SetEntityStats(ent, 3, 1, 1);
@@ -160,7 +160,7 @@ internal i32 Sim_InitGrunt(
 }
 
 internal i32 Sim_InitBrute(
-    SimScene* sim, SimEntity* ent, SimEntSpawnData* data)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* data)
 {
     ZE_ASSERT(0, "Not implemented");
     Sim_SetEntityBase(ent, data);
@@ -177,7 +177,7 @@ internal i32 Sim_InitBrute(
 }
 
 internal i32 Sim_InitCharger(
-    SimScene* sim, SimEntity* ent, SimEntSpawnData* data)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* data)
 {
     ZE_ASSERT(0, "Not implemented");
     Sim_SetEntityBase(ent, data);

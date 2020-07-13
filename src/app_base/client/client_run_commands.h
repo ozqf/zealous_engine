@@ -133,7 +133,7 @@ internal i32 CL_ExecReliableCommand(
 				spawn->networkId, spawn->pos.x, spawn->pos.y, spawn->pos.z
 			);
 			
-			SimEntSpawnData def = {};
+			SimEvent_Spawn def = {};
 			def.serial = spawn->networkId;
             def.birthTick = h->tick;
             def.factoryType = spawn->factoryType;

@@ -86,7 +86,7 @@ extern "C" u8 SV_ParseCommandString(const char* str, const char** tokens, const 
 
 internal void SV_AddWanderer()
 {
-    SimEntSpawnData def = {};
+    SimEvent_Spawn def = {};
     def = {};
     def.isLocal = 0;
     def.serial = Sim_ReserveEntitySerial(&g_sim, def.isLocal);
@@ -102,7 +102,7 @@ internal void SV_AddWanderer()
 internal void SV_AddSpawner(
     SimScene* sim, Vec3 pos, simFactoryType factoryType, u8 spawnCount)
 {
-    SimEntSpawnData data = {};
+    SimEvent_Spawn data = {};
     data.numChildren = spawnCount;
     Sim_PrepareSpawnData(sim, &data, 1, SIM_FACTORY_TYPE_SPAWNER, pos);
     data.childFactoryType = factoryType;
@@ -114,7 +114,7 @@ internal void SV_AddSpawner(
 
 internal void SV_AddBot(SimScene* sim, Vec3 pos)
 {
-    SimEntSpawnData data = {};
+    SimEvent_Spawn data = {};
     Sim_PrepareSpawnData(sim, &data, 0, SIM_FACTORY_TYPE_BOT, pos);
     SimEntity* ent = Sim_RestoreEntity(&g_sim, &data);
     S2C_RestoreEntity cmd = {};
@@ -124,7 +124,7 @@ internal void SV_AddBot(SimScene* sim, Vec3 pos)
 
 internal void SV_AddGrunt(SimScene* sim, Vec3 pos)
 {
-    SimEntSpawnData data = {};
+    SimEvent_Spawn data = {};
     Sim_PrepareSpawnData(sim, &data, 1, SIM_FACTORY_TYPE_GRUNT, pos);
     SimEntity* ent = Sim_RestoreEntity(&g_sim, &data);
     S2C_RestoreEntity cmd = {};
