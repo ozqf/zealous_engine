@@ -33,6 +33,7 @@ struct SimEvent_RemoveEnt
 // Configurable data for spawning an entity.
 struct SimEvent_Spawn
 {
+    ZECommand header;
     i32 serial;
     i32 parentSerial;
     i32 fastForwardTicks;

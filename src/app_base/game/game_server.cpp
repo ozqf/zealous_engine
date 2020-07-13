@@ -26,12 +26,23 @@ extern "C" void GSV_Start(SimScene* sim)
 	printf("SV Start\n");
 	g_bIsRunning = YES;
 	SV_AddSpawner(sim, {}, SIM_FACTORY_TYPE_WANDERER, 10);
+
 }
 
-extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim)
+extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf)
 {
 	SimPlayer* plyr = SimPlyr_Create(sim);
 	plyr->avatarId = Sim_ReserveEntitySerial(sim, NO);
+    SimEvent_Spawn* cmd = (SimEvent_Spawn*)buf->cursor;
+    *cmd = {};
+    cmd->header.type = SIM_CMD_TYPE_RESTORE_ENTITY;
+    cmd->header.sentinel = ZCMD_SENTINEL;
+    cmd->header.size = sizeof(SimEvent_Spawn);
+    cmd->factoryType = SIM_TICK_TYPE_ACTOR;
+    cmd->pos = { -6, 1, 6 };
+    cmd->serial = plyr->avatarId;
+
+    buf->cursor += cmd->header.size;
 	return *plyr;
 }
 

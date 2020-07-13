@@ -39,13 +39,15 @@ extern "C" i32 Game_Init()
 
 extern "C" i32 Game_Start()
 {
+	g_gameBuf.a.Clear(NO);
+	g_gameBuf.b.Clear(NO);
 	// setup sim
 	Sim_Reset(&g_sim);
 	Sim_LoadStaticScene(&g_sim, 0);
 	// start sub-modules
 	CLG_Start();
 	GSV_Start(&g_sim);
-	CL_RegisterLocalPlayer(GSV_CreateLocalPlayer(&g_sim));
+	CL_RegisterLocalPlayer(GSV_CreateLocalPlayer(&g_sim, g_gameBuf.GetWrite()));
 	return ZE_ERROR_NONE;
 }
 
@@ -96,6 +98,6 @@ extern "C" void Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
 
 extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame)
 {
-	Transform cam = CL_GetDebugCamera();
+	Transform cam = CL_GetCamera(&g_sim);
 	CLR_WriteDrawFrame(g_rend, frame, &g_sim, &cam, NULL, 0, g_rendCfg);
 }

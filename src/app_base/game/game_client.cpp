@@ -14,9 +14,11 @@ internal SimActorInput g_debugInput;
 internal SimPlayer g_player;
 internal i32 g_bIsRunning = NO;
 
-extern "C" Transform CL_GetDebugCamera()
+extern "C" Transform CL_GetCamera(SimScene* sim)
 {
-    return g_camera;
+    SimEntity* ent = Sim_GetEntityBySerial(sim, g_player.avatarId);
+    if (ent == NULL) { return g_camera; }
+    return ent->body.t;
 }
 
 internal void CL_CreateActions(InputActionSet* actions)

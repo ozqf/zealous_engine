@@ -16,4 +16,4 @@ extern "C" void CL_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat del
 // If remote client - send local avatar state
 extern "C" void CL_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta);
 
-extern "C" Transform CL_GetDebugCamera();
+extern "C" Transform CL_GetCamera(SimScene* sim);
