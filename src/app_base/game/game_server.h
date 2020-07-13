@@ -8,7 +8,7 @@ extern "C" void GSV_Init();
 extern "C" void GSV_Start(SimScene* sim);
 extern "C" void GSV_Stop();
 extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim);
-extern "C" void GSV_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta);
-extern "C" void GSV_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta);
+extern "C" void SV_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta);
+extern "C" void SV_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta);
 
 #endif // GAME_SERVER_H

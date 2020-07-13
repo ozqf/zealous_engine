@@ -80,33 +80,18 @@ internal void Game_ReadSystemEvents(ZEByteBuffer* sysEvents, timeFloat delta)
 	}
 }
 
-extern "C" i32 Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
+extern "C" void Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
 {
-	//printf("GTICK - Reading %d bytes\n", sysEvents->Written());
 	Game_ReadSystemEvents(sysEvents, delta);
 	CL_PreTick(&g_sim, &g_gameBuf, delta);
-	GSV_PreTick(&g_sim, &g_gameBuf, delta);
+	SV_PreTick(&g_sim, &g_gameBuf, delta);
 	
 	g_gameBuf.Swap();
 	g_gameBuf.GetWrite()->Clear(NO);
 	Sim_Tick(&g_sim, g_gameBuf.GetRead(), g_gameBuf.GetWrite(), delta);
 
 	CL_PostTick(&g_sim, &g_gameBuf, delta);
-	GSV_PostTick(&g_sim, &g_gameBuf, delta);
-	#if 0
-	g_sim.timeInAABBSearch = 0;
-    for (i32 i = 0; i < g_sim.maxEnts; ++i)
-    {
-        SimEntity* ent = &g_sim.ents[i];
-        if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
-		Game_TickEntity(&g_sim, ent, delta);
-        // make sure previous positions are updated
-        ent->body.previousPos = ent->body.t.pos;
-    }
-    g_sim.tick++;
-    g_sim.time += delta;
-	#endif
-	return ZE_ERROR_NONE;
+	SV_PostTick(&g_sim, &g_gameBuf, delta);
 }
 
 extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame)

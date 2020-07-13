@@ -41,12 +41,12 @@ extern "C" void GSV_Stop()
 	g_bIsRunning = NO;
 }
 
-extern "C" void GSV_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
+extern "C" void SV_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
 {
 	if (!g_bIsRunning) { return; }
 }
 
-extern "C" void GSV_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
+extern "C" void SV_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
 {
 	if (!g_bIsRunning) { return; }
     u8* read = buf->GetWrite()->start;
