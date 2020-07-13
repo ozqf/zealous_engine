@@ -1,7 +1,7 @@
 #include "sim_internal.h"
 
 // TODO: Move sim related commands into sim module!
-#include "../app_base/shared/commands.h"
+// #include "../app_base/shared/commands.h"
 
 internal void Sim_ExecuteCommands(
 	SimScene* sim,
@@ -13,8 +13,8 @@ internal void Sim_ExecuteCommands(
 	i32 tickDiff = 0;
 	while (read < end)
 	{
-		Command* h = (Command*)read;
-		i32 err = Cmd_Validate(h);
+		ZECommand* h = (ZECommand*)read;
+		i32 err = ZCmd_Validate(h);
 		if (err != ZE_ERROR_NONE)
 		{
 			printf("Sim command validation error %d\n", err);
@@ -23,15 +23,9 @@ internal void Sim_ExecuteCommands(
 		read += h->size;
 		switch (h->type)
 		{
-			case CMD_TYPE_S2C_SYNC_ENTITY:
-			{
-				// TODO: Sim internal entity sync.
-				// S2C_EntitySync* cmd = (S2C_EntitySync*)h;
-                // CLG_SyncEntity(sim, cmd);
-			} break;
-			case CMD_TYPE_S2C_BULK_SPAWN:
+			case SIM_CMD_TYPE_BULK_SPAWN:
         	{
-        	    S2C_BulkSpawn* cmd = (S2C_BulkSpawn*)h;
+        	    SimBulkSpawnEvent* cmd = (SimBulkSpawnEvent*)h;
         	    APP_LOG(256, "CL Spawn cmd %d on SV tick %d (local sv tick diff %d. Cmd tick %d)\n",
         	        cmd->def.factoryType,
 					cmd->def.base.tick,
@@ -41,8 +35,15 @@ internal void Sim_ExecuteCommands(
         	    // flip diff to specify fast forwarding
         	    i32 flags;
         	    f32 priority;
-        	    Sim_ExecuteBulkSpawn(sim, &cmd->def, -tickDiff, &flags, &priority);
+        	    Sim_ExecuteBulkSpawn(sim, cmd, -tickDiff, &flags, &priority);
         	} break;
+			#if 0
+			case CMD_TYPE_S2C_SYNC_ENTITY:
+			{
+				// TODO: Sim internal entity sync.
+				// S2C_EntitySync* cmd = (S2C_EntitySync*)h;
+                // CLG_SyncEntity(sim, cmd);
+			} break;
 			case CMD_TYPE_S2C_RESTORE_ENTITY:
 			{
 				S2C_RestoreEntity* spawn = (S2C_RestoreEntity*)h;
@@ -81,6 +82,7 @@ internal void Sim_ExecuteCommands(
         	        Sim_RemoveEntity(sim, serial);
         	    }
         	} break;
+			#endif
 		}
 	}
 }

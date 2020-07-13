@@ -14,5 +14,6 @@
 #include "ze_input.h"
 #include "ze_alloc.h"
 #include "ze_random_table.h"
+#include "ze_command.h"
 
 #endif // ZE_COMMON_FULL_H

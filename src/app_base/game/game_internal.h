@@ -21,6 +21,8 @@ internal ClientRenderer* g_rend;
 internal frameInt g_systemEventTicks = 0;
 
 // buffer holds pending commands given to game each tick
-internal ZEByteBuffer g_pendingGameInput;
+// internal ZEByteBuffer g_pendingGameInput;
+// internal ZEByteBuffer g_pendingGameOutput;
+internal ZEDoubleByteBuffer g_gameBuf;
 
 #endif // GAME_INTERNAL_H

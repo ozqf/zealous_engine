@@ -27,7 +27,7 @@ internal SimEntity* SimEnt_UpdateTargetting(SimScene* sim, SimEntity* ent, i32 b
 /////////////////////////////////////////////////////////
 // Entity tick functions shared between client and server
 /////////////////////////////////////////////////////////
-extern "C" i32 SimEnt_TickTimeout(
+internal i32 SimEnt_TickTimeout(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
     if (sim->tick >= ent->timing.nextThink)
@@ -37,7 +37,7 @@ extern "C" i32 SimEnt_TickTimeout(
     return ZE_ERROR_NONE;
 }
 
-extern "C" i32 SimEnt_TickSpawnAnimation(
+internal i32 SimEnt_TickSpawnAnimation(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
     Vec3* halfSize = &ent->body.baseHalfSize;
@@ -61,7 +61,7 @@ extern "C" i32 SimEnt_TickSpawnAnimation(
     return ZE_ERROR_NONE;
 }
 
-extern "C" void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+internal void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
     if (sim->tick >= ent->timing.nextThink)
     {
@@ -69,7 +69,7 @@ extern "C" void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTi
     }
 }
 
-extern "C" void SimEnt_TickSeeker(
+internal void SimEnt_TickSeeker(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
     SimEntity* target = SimEnt_UpdateTargetting(sim, ent, bIsServer);
@@ -108,7 +108,7 @@ extern "C" void SimEnt_TickSeeker(
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
 
-extern "C" void SimEnt_TickSeekerFlying(
+internal void SimEnt_TickSeekerFlying(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
     SimEntity* target = SimEnt_UpdateTargetting(sim, ent, bIsServer);
@@ -147,7 +147,7 @@ extern "C" void SimEnt_TickSeekerFlying(
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
 
-extern "C" void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+internal void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
 	Vec3 previousPos = ent->body.t.pos;
     Sim_SimpleMove(ent, deltaTime);
@@ -160,13 +160,13 @@ extern "C" void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTi
     }
 }
 
-extern "C" void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+internal void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
 	Sim_SimpleMove(ent, deltaTime);
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
 
-extern "C" void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+internal void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
 	if (ent->timing.nextThink >= sim->tick)
     {
@@ -184,9 +184,42 @@ extern "C" void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat del
     Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
 }
 
-extern "C" void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
-    printf("Update spawner\n");
+    //printf("Update spawner\n");
+    i32 spawnSpaces = ent->relationships.maxLiveChildren - 
+        ent->relationships.liveChildren;
+    if (spawnSpaces < ent->relationships.childSpawnCount)
+    { return; }
+
+    if (sim->tick >= ent->timing.nextThink)
+    {
+        ent->timing.lastThink = ent->timing.nextThink;
+        ent->timing.nextThink += App_CalcTickInterval(2);
+        ent->relationships.liveChildren += 
+            ent->relationships.childSpawnCount;
+        
+        // Write spawn cmd
+        SimBulkSpawnEvent event = {};
+        Transform t;
+        t.pos = ent->body.t.pos;
+        M3x3_SetToIdentity(t.rotation.cells);
+        t.scale = { 1, 1, 1 };
+        Sim_SetBulkSpawn(
+            &event,
+            Sim_ReserveEntitySerials(sim, 0, ent->relationships.childSpawnCount),
+            ent->id.serial,
+            t,
+            sim->tick,
+            ent->relationships.childFactoryType,
+            ent->relationships.patternType,
+            (u8)ent->relationships.childSpawnCount,
+            COM_STDRandU8(),
+            10.0f,
+            0
+        );
+        ZCmd_Write(&event.header, &sim->tempOutput->cursor);
+    }
 }
 
 internal void SimEnt_UpdateActorLook(
@@ -422,7 +455,7 @@ internal void SimEnt_UpdateActorWalk_TopDown(
 /**
  * Input is optional to override the input attached to ent for client prediction
  */
-extern "C" void SimEnt_StepActorMovement(
+internal void SimEnt_StepActorMovement(
     SimScene* sim,
     SimEntity* ent,
     SimActorInput* input,

@@ -4,22 +4,33 @@
 extern "C" i32 Game_Init()
 {
 	printf("GAME - init\n");
+	void* ptr = NULL;
 
-	g_pendingGameInput = {};
-	i32 pendingCmdBytes = MegaBytes(1);
-	g_pendingGameInput = Buf_FromMalloc(malloc(pendingCmdBytes), pendingCmdBytes);
-
+	// prepare alloc track
 	g_mallocs = COM_InitMallocList(g_mallocItems, GAME_MAX_MALLOCS);
+
+	// allocate sim
 	i32 entBytes = Sim_CalcEntityArrayBytes(GAME_MAX_ENTS);
 	SimEntity* ents = (SimEntity*)COM_Malloc(&g_mallocs, entBytes, "Sim Ents");
 	Sim_Init("Server", &g_sim, ents, GAME_MAX_ENTS);
 	Sim_Reset(&g_sim);
+	
+	// Buffers for simulation I/O
+	i32 pendingCmdBytes = MegaBytes(1);
+	
+	ptr = COM_Malloc(&g_mallocs, pendingCmdBytes, "Sim Input");
+	g_gameBuf.a = Buf_FromBytes((u8*)ptr, pendingCmdBytes);
 
+	ptr = COM_Malloc(&g_mallocs, pendingCmdBytes, "Sim Output");
+	g_gameBuf.b = Buf_FromBytes((u8*)ptr, pendingCmdBytes);
+
+	// scene render
 	g_rendCfg = {};
 	g_rendCfg.extraLightsMax = 16;
 	g_rendCfg.worldLightsMax = 16;
 	g_rend = CLR_Create(App_GetAssetDB(), 128);
 
+	// sub modules
 	CL_Init();
 	GSV_Init();
 	
@@ -75,7 +86,9 @@ extern "C" i32 Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
 	Game_ReadSystemEvents(sysEvents, delta);
 	CL_PreTick(delta);
 	
-	Sim_Tick(&g_sim, &g_pendingGameInput, NULL, delta);
+	g_gameBuf.Swap();
+	g_gameBuf.GetWrite()->Clear(NO);
+	Sim_Tick(&g_sim, g_gameBuf.GetRead(), g_gameBuf.GetWrite(), delta);
 
 	#if 0
 	g_sim.timeInAABBSearch = 0;

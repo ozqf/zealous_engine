@@ -399,6 +399,7 @@ i32 Sim_Tick(
     ZEByteBuffer* output,
     timeFloat delta)
 {
+    sim->tempOutput = output;
     Sim_ExecuteCommands(sim, input, delta);
     Sim_TickEntities(sim, output, delta);
     return ZE_ERROR_NONE;

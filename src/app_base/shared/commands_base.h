@@ -1,4 +1,5 @@
 #pragma once
+#if 1
 /*
 Header only - base for command structs.
 */
@@ -110,4 +111,6 @@ internal void Cmd_PrintBuffer(u8* ptr, i32 numBytes)
     }
 	printf("  Ptr diff check: %d\n", (read - end));
 }
+#endif
+
 #endif

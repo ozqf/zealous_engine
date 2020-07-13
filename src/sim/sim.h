@@ -113,6 +113,7 @@ typedef u8 simFactoryType;
 #define SIM_DEATH_GFX_GIB 2
 
 #include "sim_types.h"
+#include "sim_command_types.h"
 
 // Scene management
 extern "C" void     Sim_Init(char* label, SimScene* sim, SimEntity* entityMemory, i32 maxEntities);
@@ -159,6 +160,7 @@ extern "C" void     Sim_BoundaryStop(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" SimInventoryItem* SVI_GetItem(i32 index);
 
 // Entity Frame Updates
+/*
 extern "C" i32      SimEnt_TickSpawnAnimation(SimScene* sim, SimEntity* ent, timeFloat deltaTime);
 
 extern "C" void     SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
@@ -168,6 +170,7 @@ extern "C" void     SimEnt_TickSeeker(SimScene* sim, SimEntity* ent, timeFloat d
 extern "C" void     SimEnt_TickSeekerFlying(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
 
 extern "C" void     SimEnt_StepActorMovement(SimScene* sim, SimEntity* ent, SimActorInput* input, timeFloat deltaTime);
+*/
 extern "C" void     Sim_TickDebugCamera(Transform* t, SimActorInput input, f32 moveSpeed, timeFloat delta);
 
 // Searching/Querying
