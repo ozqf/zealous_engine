@@ -93,8 +93,11 @@ struct SimEntId
     i32 serial;
 };
 
+#define SIM_DISPLAY_FLAG_DISABLED (1 << 0)
+
 struct SimEntDisplay
 {
+    u32 flags;
     Vec3 scale;
     Colour colourA;
     Colour colourB;

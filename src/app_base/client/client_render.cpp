@@ -290,6 +290,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
         SimEntity* ent = &sim->ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
         if (ent->display.data.type == ZR_DRAWOBJ_TYPE_NONE) { continue; }
+        if (ent->display.flags & SIM_DISPLAY_FLAG_DISABLED) { continue; }
         i32 rendObjectsAdded = 0;
         
         switch (ent->display.data.type)

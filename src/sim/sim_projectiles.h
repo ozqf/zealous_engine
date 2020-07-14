@@ -99,3 +99,28 @@ internal i32 Sim_StepProjectile(
 	}
     return 1;
 }
+
+//////////////////////////////////////////////////////
+// Projectiles
+//////////////////////////////////////////////////////
+
+internal void SimEnt_TickProjectile(
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+{
+    while(ent->timing.fastForwardTicks > 0)
+    {
+        ent->timing.fastForwardTicks--;
+        if (!Sim_StepProjectile(sim, ent, deltaTime))
+        {
+            return;
+        }
+    }
+	if (Sim_StepProjectile(sim, ent, deltaTime))
+    {
+        // check for age of projectile and toggle on display
+        if (sim->tick - ent->timing.birthTick > 2)
+        {
+            ent->display.flags &= ~SIM_DISPLAY_FLAG_DISABLED;
+        }
+    }
+}

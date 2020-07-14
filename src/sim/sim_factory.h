@@ -539,7 +539,7 @@ internal i32 Sim_InitPlayerProjectile(
         def->velocity,
         &t,
         def->fastForwardTicks);
-
+    ent->display.flags |= SIM_DISPLAY_FLAG_DISABLED;
     return ZE_ERROR_NONE;
 }
 

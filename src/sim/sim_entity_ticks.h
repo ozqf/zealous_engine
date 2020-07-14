@@ -223,24 +223,6 @@ internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaT
     }
 }
 
-//////////////////////////////////////////////////////
-// Projectiles
-//////////////////////////////////////////////////////
-
-internal void SimEnt_TickProjectile(
-    SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
-{
-    while(ent->timing.fastForwardTicks > 0)
-    {
-        ent->timing.fastForwardTicks--;
-        if (!Sim_StepProjectile(sim, ent, deltaTime))
-        {
-            return;
-        }
-    }
-	Sim_StepProjectile(sim, ent, deltaTime);
-}
-
 internal void Sim_TickEntities(SimScene* sim, ZEByteBuffer* output, timeFloat delta)
 {
     for (i32 i = 0; i < sim->maxEnts; ++i)
