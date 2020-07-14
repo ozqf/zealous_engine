@@ -13,6 +13,7 @@
 #include "sim_enemy_defs.h"
 #include "sim_items.h"
 #include "sim_factory.h"
+#include "sim_ent_actor.h"
 #include "sim_entity_ticks.h"
 #include "sim_embedded_scenes.h"
 #include "sim_fly_camera.h"

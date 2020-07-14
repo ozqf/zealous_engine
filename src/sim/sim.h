@@ -25,8 +25,13 @@
 #define SIM_ENT_STATUS_FREE 0
 #define SIM_ENT_STATUS_RESERVED 1
 #define SIM_ENT_STATUS_IN_USE 2
+#define SIM_ENT_STATUS_CULL 3
 
 #define SIM_ENT_NULL_SERIAL 0
+
+#define SIM_DEATH_STYLE_NONE 0
+#define SIM_DEATH_STYLE_TIMEOUT 1
+#define SIM_DEATH_STYLE_SHOT 2
 
 // Render prefabs
 #define SIM_PREFAB_NONE 0
@@ -140,7 +145,7 @@ extern "C" i32      Sim_ReserveEntitySerial(SimScene* sim, i32 isLocal);
 extern "C" i32      Sim_ReserveEntitySerials(
                         SimScene* scene, i32 isLocal, i32 count);
 extern "C" SimEntity* Sim_RestoreEntity(SimScene* sim, SimEvent_Spawn* def);
-extern "C" i32      Sim_RemoveEntity(SimScene* sim, i32 serialNumber);
+//extern "C" i32      Sim_RemoveEntity(SimScene* sim, i32 serialNumber);
 extern "C" i32      Sim_SetActorInput(SimScene* sim, SimActorInput* input, i32 entitySerial);
 extern "C" i32      Sim_ExecuteBulkSpawn(
                         SimScene* sim,

@@ -43,6 +43,8 @@ extern "C" i32 Game_Start()
 	g_gameBuf.b.Clear(NO);
 	// setup sim
 	Sim_Reset(&g_sim);
+	g_sim.flags |= SIM_SCENE_BIT_IS_SERVER;
+	g_sim.flags |= SIM_SCENE_BIT_IS_CLIENT;
 	Sim_LoadStaticScene(&g_sim, 0);
 	// start sub-modules
 	CLG_Start();

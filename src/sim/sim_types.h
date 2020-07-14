@@ -279,11 +279,16 @@ struct SimPlayer
     SimActorInput input;
 };
 
+#define SIM_SCENE_BIT_IS_SERVER (1 << 0)
+#define SIM_SCENE_BIT_IS_CLIENT (1 << 1)
+
 struct SimScene
 {
     SimEntity* ents;
     i32 maxEnts;
 	
+    u32 flags;
+
 	// physics
     WorldHandle* world;
 

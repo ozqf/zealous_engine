@@ -41,8 +41,13 @@ internal void Sim_ExecuteCommands(
 			case SIM_CMD_TYPE_REMOVE_ENTITY:
         	{
         	    SimEvent_RemoveEnt* cmd = (SimEvent_RemoveEnt*)h;
+				if (cmd->style != 0 && (sim->flags & SIM_SCENE_BIT_IS_CLIENT) != 0)
+				{
+					// spawn fx
+				}
         	    //CLG_HandleEntityDeath(&g_sim, cmd->entityId);
-        	    Sim_RemoveEntity(sim, cmd->entityId);
+				Sim_RecycleEntity(sim, cmd->entityId);
+        	    //Sim_RemoveEntity(sim, cmd->entityId);
         	    //APP_PRINT(64, "CL Remove Ent %d\n", cmd->entityId);
         	} break;
 			case SIM_CMD_TYPE_RESTORE_ENTITY:

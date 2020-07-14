@@ -28,6 +28,8 @@ struct SimEvent_RemoveEnt
 {
     ZECommand header;
     i32 entityId;
+    i32 style;
+    Vec3 dir;
 };
 
 // Configurable data for spawning an entity.

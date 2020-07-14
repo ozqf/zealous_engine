@@ -111,12 +111,30 @@ internal i32 Sim_RecycleEntity(
         sim, entitySerialNumber);
     if (ent)
     {
+        // Check for and inform parent
+        i32 parentSerial = ent->relationships.parentId.serial;
+        if (parentSerial != SIM_ENT_NULL_SERIAL)
+        {
+            SimEntity* parent = Sim_GetEntityBySerial(sim, parentSerial);
+            if (parent == NULL)
+            {
+                printf("SIM no parent %d for recycling ent %d\n", parentSerial, ent->id.serial);
+            }
+            else
+            {
+                parent->relationships.liveChildren--;
+            }
+        }
+
+        // remove
         SimEntIndex slot = ent->id.slot;
+        #if 0
         if (sim->bVerbose)
         {
             APP_LOG(64, "SIM Removing ent %d (slot %d/%d)\n",
                 entitySerialNumber, slot.iteration, slot.index);
         }
+        #endif
         #ifdef SIM_USE_PHYSICS_ENGINE
         if (ent->shape.handleId > 0)
         {
@@ -139,6 +157,50 @@ internal i32 Sim_RecycleEntity(
         }
         return ZE_ERROR_BAD_ARGUMENT;
     }
+}
+
+/**
+ * Marks an entity as removed so that it is not involved in any further logic.
+ * the actual removal will occur on the following frame.
+ */
+internal i32 Sim_MarkEntityAsRemoved(SimScene* sim, i32 serialNumber)
+{
+	ZE_ASSERT(serialNumber != SIM_ENT_NULL_SERIAL,
+        "Removing entity with null serial")
+    if (serialNumber == SIM_ENT_NULL_SERIAL)
+    {
+        printf("SIM - mark for cull serial is empty\n");
+        return ZE_ERROR_BAD_ARGUMENT;
+    }
+    SimEntity* ent = Sim_GetEntityBySerial(sim, serialNumber);
+    if (ent == NULL)
+    {
+        printf("SIM - no ent %d to mark for cull\n", serialNumber);
+        return ZE_ERROR_BAD_ARGUMENT;
+    }
+    ent->status = SIM_ENT_STATUS_CULL;
+    return ZE_ERROR_NONE;
+    //return Sim_RecycleEntity(sim, serialNumber);
+}
+
+internal void Sim_WriteRemoveEntity(
+    SimScene* sim,
+    SimEntity* victim,
+    SimEntity* attacker,
+    i32 style,
+    Vec3 dir,
+    i32 deathIsDeterministic)
+{
+    SimEvent_RemoveEnt ev = {};
+    ev.header.type = SIM_CMD_TYPE_REMOVE_ENTITY;
+    ev.header.size = sizeof(SimEvent_RemoveEnt);
+    ev.header.sentinel = ZCMD_SENTINEL;
+    ev.entityId = victim->id.serial;
+    ev.style = style;
+    ev.dir = dir;
+    ZCmd_Write(&ev.header, &sim->tempOutput->cursor);
+
+    Sim_MarkEntityAsRemoved(sim, victim->id.serial);
 }
 
 ////////////////////////////////////////////////////////////////////

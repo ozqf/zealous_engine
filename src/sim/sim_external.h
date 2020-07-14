@@ -271,14 +271,6 @@ SimEntity* Sim_RestoreEntity(SimScene* scene, SimEvent_Spawn* def)
 }
 
 extern "C"
-i32 Sim_RemoveEntity(SimScene* scene, i32 serialNumber)
-{
-	ZE_ASSERT(serialNumber != SIM_ENT_NULL_SERIAL,
-        "Removing entity with null serial")
-    return Sim_RecycleEntity(scene, serialNumber);
-}
-
-extern "C"
 i32 Sim_SetActorInput(
     SimScene* sim,
     SimActorInput* input,

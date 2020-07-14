@@ -293,6 +293,11 @@ internal f32 Vec3_Magnitudef(f32 x, f32 y, f32 z)
 	return (f32)sqrt((f32)(x * x) + (y * y) + (z * z));
 }
 
+internal Vec3 Vec3_Flipped(Vec3 v)
+{
+    return { -v.x, -v.y, -v.z };
+}
+
 internal void Vec3_Normalise(Vec3* v)
 {
     f32 vectorMagnitude = Vec3_Magnitude(v);
