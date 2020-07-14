@@ -529,6 +529,8 @@ internal i32 Sim_InitPlayerProjectile(
         SIM_DEATH_GFX_BULLET_IMPACT);
     // must set birth tick here
     ent->timing.birthTick = def->birthTick;
+    ent->relationships.parentId.serial = def->parentSerial;
+
     ent->touchDamage = 10;
     ent->lightType = 1;
 
@@ -539,7 +541,10 @@ internal i32 Sim_InitPlayerProjectile(
         def->velocity,
         &t,
         def->fastForwardTicks);
-    ent->display.flags |= SIM_DISPLAY_FLAG_DISABLED;
+    if (ent->relationships.parentId.serial == scene->localAvatarId)
+    {
+        ent->display.flags |= SIM_DISPLAY_FLAG_DISABLED;
+    }
     return ZE_ERROR_NONE;
 }
 

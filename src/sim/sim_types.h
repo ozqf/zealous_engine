@@ -289,8 +289,11 @@ struct SimScene
 {
     SimEntity* ents;
     i32 maxEnts;
-	
     u32 flags;
+    // Ent Id of local player's avatar
+    // required so it can be hidden during draw, and so that projectiles
+    // the player fires can be hidden for a few frames
+    i32 localAvatarId;
 
 	// physics
     WorldHandle* world;

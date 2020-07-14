@@ -49,7 +49,7 @@ extern "C" i32 Game_Start()
 	// start sub-modules
 	CLG_Start();
 	GSV_Start(&g_sim);
-	CL_RegisterLocalPlayer(GSV_CreateLocalPlayer(&g_sim, g_gameBuf.GetWrite()));
+	CL_RegisterLocalPlayer(&g_sim, GSV_CreateLocalPlayer(&g_sim, g_gameBuf.GetWrite()));
 	return ZE_ERROR_NONE;
 }
 

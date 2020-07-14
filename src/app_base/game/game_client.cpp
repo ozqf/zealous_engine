@@ -184,9 +184,10 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 	}
 }
 
-extern "C" void CL_RegisterLocalPlayer(SimPlayer plyr)
+extern "C" void CL_RegisterLocalPlayer(SimScene* sim, SimPlayer plyr)
 {
     g_player = plyr;
+    sim->localAvatarId = g_player.avatarId;
     printf("GCL plyr Id %d avatar %d\n", g_player.id, g_player.avatarId);
 }
 

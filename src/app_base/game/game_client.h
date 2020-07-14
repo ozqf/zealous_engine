@@ -9,7 +9,7 @@ extern "C" void CLG_Start();
 extern "C" void CL_Stop();
 
 extern "C" void CL_ReadInputEvent(SysInputEvent* ev, frameInt frameNumber);
-extern "C" void CL_RegisterLocalPlayer(SimPlayer plyr);
+extern "C" void CL_RegisterLocalPlayer(SimScene* sim, SimPlayer plyr);
 
 // If local client - write input
 extern "C" void CL_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta);
