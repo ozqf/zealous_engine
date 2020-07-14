@@ -44,6 +44,7 @@ internal void Sim_ExecuteCommands(
 				if (cmd->style != 0 && (sim->flags & SIM_SCENE_BIT_IS_CLIENT) != 0)
 				{
 					// spawn fx
+					SimGfx_EntityDeath(sim, cmd);
 				}
         	    //CLG_HandleEntityDeath(&g_sim, cmd->entityId);
 				Sim_RecycleEntity(sim, cmd->entityId);

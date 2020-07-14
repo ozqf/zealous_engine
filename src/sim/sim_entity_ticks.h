@@ -230,11 +230,13 @@ internal void Sim_TickEntities(SimScene* sim, ZEByteBuffer* output, timeFloat de
         SimEntity* ent = &sim->ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
 		
-        const i32 bIsServer = YES;
+        const i32 bIsServer = (sim->flags & SIM_SCENE_BIT_IS_SERVER) > 0;
 	    switch (ent->tickType)
         {
 	    	case SIM_TICK_TYPE_PROJECTILE:
             { SimEnt_TickProjectile(sim, ent, delta, bIsServer); } break;
+            case SIM_TICK_TYPE_EXPLOSION:
+            { SimEnt_TickTimeout(sim, ent, delta); } break;
 	    	case SIM_TICK_TYPE_ACTOR:
             { SimEnt_TickActor(sim, ent, delta, bIsServer); } break;
             // case SIM_TICK_TYPE_BOT:
