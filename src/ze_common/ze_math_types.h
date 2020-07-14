@@ -169,9 +169,15 @@ struct M3x3
     };
 };
 
+static_assert(sizeof(M3x3) == 36, "M4x4 is not 36 bytes!");
+
 /////////////////////////////////////////////////////////////////////////////
 // MATRIX 4x4
 /////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Should pack together to 64 bytes.
+ */
 struct M4x4
 {
     union
@@ -215,6 +221,7 @@ struct M4x4
     };
 };
 
+static_assert(sizeof(M4x4) == 64, "M4x4 is not 64 bytes!");
 
 #define M3x3_CREATE(varName) M3x3 varName##; M3x3_SetToIdentity(##varName.cells##);
 #define M4x4_CREATE(varName) M4x4 varName##; M4x4_SetToIdentity(##varName.cells##);
@@ -450,6 +457,17 @@ internal Vec3 Vec3_VectorMA(Vec3 start, f32 scale, Vec3 forward)
 	result.y = start.y + (forward.y * scale);
 	result.z = start.z + (forward.z * scale);
 	return result;
+}
+
+internal Vec3 Vec3_EulerAngles(Vec3 v)
+{
+    Vec3 result = {};
+    f32 flatMagnitude = Vec3_Magnitudef(v.x, 0, v.z);
+    // yaw
+    result.y = atan2f(v.x, v.z);
+    // pitch
+    result.x = -atan2f(v.y, flatMagnitude);
+    return result;
 }
 
 internal Vec3 Vec3_EulerAnglesBetween(Vec3 a, Vec3 b)

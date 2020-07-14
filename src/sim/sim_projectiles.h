@@ -4,8 +4,9 @@
 
 internal void Sim_InitProjectile(
     SimEntity* ent,
-    Vec3* pos,
-    Vec3* velocity,
+    Vec3 pos,
+    Vec3 eulerDegrees,
+    Vec3 velocity,
     SimProjectileType* type,
     i32 fastForwardTicks)
 {
@@ -15,16 +16,17 @@ internal void Sim_InitProjectile(
     ent->flags |= SIM_ENT_FLAG_USE_OVERRIDE_SCALE;
     ent->display.scale = { 0.15f, 0.15f, 1.0f };
 	Transform_SetToIdentity(&ent->body.t);
-    ent->body.t.scale = type->scale;
+    Transform_SetRotation(&ent->body.t, eulerDegrees.x * DEG2RAD, eulerDegrees.y * DEG2RAD, 0);
     // check scale
     Vec3* v = &ent->body.t.scale;
     if (v->x <= 0) { v->x = 1; }
     if (v->y <= 0) { v->y = 1; }
     if (v->z <= 0) { v->z = 1; }
     
-	ent->body.t.pos = *pos;
-    ent->body.previousPos = *pos;
-    ent->movement.velocity = *velocity;
+	ent->body.t.pos = pos;
+    ent->body.previousPos = pos;
+    ent->body.t.scale = ent->display.scale;
+    ent->movement.velocity = velocity;
     ent->movement.speed = type->speed;
 
     ent->timing.nextThink = ent->timing.birthTick +

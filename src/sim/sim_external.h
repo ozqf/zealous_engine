@@ -314,6 +314,9 @@ i32 Sim_ExecuteBulkSpawn(
         entDef.factoryType = event->factoryType;
         entDef.serial = item->entSerial;
         entDef.pos = item->pos;
+        Vec3 euler = Vec3_EulerAngles(item->forward);
+        entDef.pitchDegrees = euler.x * RAD2DEG;
+        entDef.yawDegrees = euler.y * RAD2DEG;
         entDef.scale = { 1, 1, 1 };
         entDef.birthTick = sim->tick - fastForwardTicks;
         entDef.fastForwardTicks = fastForwardTicks;
@@ -323,7 +326,7 @@ i32 Sim_ExecuteBulkSpawn(
         ent->movement.velocity.x = (-item->forward.x) * ent->movement.speed;
         ent->movement.velocity.y = (-item->forward.y) * ent->movement.speed;
         ent->movement.velocity.z = (-item->forward.z) * ent->movement.speed;
-        
+
         // TODO: Hack! Find Better way to return new entity info
         // The caller needs to know whether or not to track these
         // entities for priority queue sync.

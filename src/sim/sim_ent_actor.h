@@ -274,8 +274,8 @@ internal void SimEnt_StepActorMovement(
 internal void SimEnt_FireAttack(
 	SimScene* sim,
     SimEntity* ent,
-    Vec3* dir,
-    i32 prjType,
+    Vec3* dir, // not used!
+    i32 prjType, // not used!
     i32 numProjectiles)
 {
 	if (numProjectiles <= 0) { numProjectiles = 1; }

@@ -31,8 +31,8 @@ extern "C" void GSV_Start(SimScene* sim)
 
 extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf)
 {
-	SimPlayer* plyr = SimPlyr_Create(sim);
-	plyr->avatarId = Sim_ReserveEntitySerial(sim, NO);
+    SimPlayer* plyr = SimPlyr_Create(sim);
+    plyr->avatarId = Sim_ReserveEntitySerial(sim, NO);
     SimEvent_Spawn* cmd = (SimEvent_Spawn*)buf->cursor;
     *cmd = {};
     cmd->header.type = SIM_CMD_TYPE_RESTORE_ENTITY;
@@ -60,6 +60,7 @@ extern "C" void SV_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat del
 extern "C" void SV_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
 {
 	if (!g_bIsRunning) { return; }
+    #if 0
     u8* read = buf->GetWrite()->start;
     u8* end = buf->GetWrite()->cursor;
     while (read < end)
@@ -68,4 +69,5 @@ extern "C" void SV_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat de
         read += cmd->size;
         printf("SV read output cmd type %d (%d bytes\n", cmd->type, cmd->size);
     }
+    #endif
 }

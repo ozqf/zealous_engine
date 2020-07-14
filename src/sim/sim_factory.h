@@ -473,8 +473,9 @@ internal i32 Sim_InitProjBase(
 
     Sim_InitProjectile(
         ent,
-        &def->pos,
-        &def->velocity,
+        def->pos,
+        { def->pitchDegrees, def->yawDegrees, 0 },
+        def->velocity,
         &t,
         def->fastForwardTicks);
 
@@ -502,8 +503,9 @@ internal i32 Sim_InitProjPrediction(
 
     Sim_InitProjectile(
         ent,
-        &def->pos,
-        &def->velocity,
+        def->pos,
+        { def->pitchDegrees, def->yawDegrees, 0 },
+        def->velocity,
         &t,
         def->fastForwardTicks);
 
@@ -532,8 +534,9 @@ internal i32 Sim_InitPlayerProjectile(
 
     Sim_InitProjectile(
         ent,
-        &def->pos,
-        &def->velocity,
+        def->pos,
+        { def->pitchDegrees, def->yawDegrees, 0 },
+        def->velocity,
         &t,
         def->fastForwardTicks);
 
