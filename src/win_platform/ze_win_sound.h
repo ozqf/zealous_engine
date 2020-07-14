@@ -3,47 +3,13 @@
 
 #include "../ze_common/ze_common_full.h"
 
-enum ZSoundEventType
-{
-    zPlaySound,
-    zMoveSound
-};
-
-union ZSoundEventUnion
-{
-    struct ZPlaySound
-    {
-        u8 spatial;
-	    f32 pos[3];
-    };
-
-    struct ZMoveSound
-    {
-        f32 pos[3];
-    };
-};
-
-// An event that kicks off a sound source
-struct ZSoundEvent
-{
-	i32 soundId;
-    ZSoundEventType type;
-    ZSoundEventUnion data;
-};
-/*
-void SND_SetPlaySoundEvent(ZSoundEvent* ev, i32 soundId, u8 spatial)
-{
-    ev->type = zPlaySound;
-}
-
-void SND_SetMoveSoundEvent(ZSoundEvent* ev)
-{
-    
-}
-*/
-
 extern "C" ErrorCode Snd_Init();
 extern "C" ErrorCode Snd_Shutdown();
 extern "C" ErrorCode Snd_ParseCommandString(const char* str, const char** tokens, const i32 numTokens);
+
+extern "C" i32 Snd_LoadSoundWavFile(char* name64, char* filePath);
+extern "C" i32 Snd_LoadSoundRaw(char* name64, u8* data, i32 numBytes);
+extern "C" void Snd_PlayQuick(i32 sampleIndex);
+extern "C" void Snd_ExecuteEvents(ZEByteBuffer buf);
 
 #endif // ZE_WIN_SOUND_H

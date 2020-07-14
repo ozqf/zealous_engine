@@ -132,6 +132,7 @@ extern "C" i32      Sim_Tick(
                         SimScene* sim,
                         ZEByteBuffer* input,
                         ZEByteBuffer* output,
+                        ZEByteBuffer* soundOutput,
                         timeFloat delta);
 // Players
 extern "C" SimPlayer* SimPlyr_Create(SimScene* sim);

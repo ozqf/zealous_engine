@@ -64,6 +64,13 @@ struct ze_platform_export
 
     void (*LockMutex)(i32 index, i32 tag);
     void (*UnlockMutex)(i32 index, i32 tag);
+
+    // sound
+    i32 (*SndLoadFile)(char* name, char* filePath);
+    void (*SndPlayQuick)(i32 sampleIndex);
+    void (*Snd_ExecuteEvents)(ZEByteBuffer buf);
+
+    //
     i32 sentinel;
 };
 

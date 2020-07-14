@@ -392,9 +392,11 @@ i32 Sim_Tick(
     SimScene* sim,
     ZEByteBuffer* input,
     ZEByteBuffer* output,
+    ZEByteBuffer* soundOutput,
     timeFloat delta)
 {
-    sim->tempOutput = output;
+    sim->outputBuf = output;
+    sim->soundOutputBuf = soundOutput;
     Sim_ExecuteCommands(sim, input, delta);
     SimPlyr_Tick(sim);
     Sim_TickEntities(sim, output, delta);

@@ -84,7 +84,7 @@ internal void Game_ReadSystemEvents(ZEByteBuffer* sysEvents, timeFloat delta)
 	}
 }
 
-extern "C" void Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
+extern "C" void Game_Tick(ZEByteBuffer* sysEvents, ZEByteBuffer* soundOutput, timeFloat delta)
 {
 	Game_ReadSystemEvents(sysEvents, delta);
 	CL_PreTick(&g_sim, &g_gameBuf, delta);
@@ -92,7 +92,7 @@ extern "C" void Game_Tick(ZEByteBuffer* sysEvents, timeFloat delta)
 	
 	g_gameBuf.Swap();
 	g_gameBuf.GetWrite()->Clear(NO);
-	Sim_Tick(&g_sim, g_gameBuf.GetRead(), g_gameBuf.GetWrite(), delta);
+	Sim_Tick(&g_sim, g_gameBuf.GetRead(), g_gameBuf.GetWrite(), soundOutput, delta);
 
 	CL_PostTick(&g_sim, &g_gameBuf, delta);
 	SV_PostTick(&g_sim, &g_gameBuf, delta);

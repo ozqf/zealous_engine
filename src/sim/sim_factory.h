@@ -198,7 +198,7 @@ internal void Sim_WriteRemoveEntity(
     ev.entityId = victim->id.serial;
     ev.style = style;
     ev.dir = dir;
-    ZCmd_Write(&ev.header, &sim->tempOutput->cursor);
+    ZCmd_Write(&ev.header, &sim->outputBuf->cursor);
 
     Sim_MarkEntityAsRemoved(sim, victim->id.serial);
 }

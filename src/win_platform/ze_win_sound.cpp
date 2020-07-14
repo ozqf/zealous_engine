@@ -5,6 +5,9 @@
 #include "ze_win_sound.h"
 #include "../ze_common/ze_common_full.h"
 
+#define SND_MAX_SOUND_HANDLES 256
+#define SND_MAX_CHANNELS 32
+
 /////////////////////////////////////////////////////////////////////
 // Internal data structures
 /////////////////////////////////////////////////////////////////////
@@ -55,27 +58,22 @@ Sound notes:
 // so data must be manually handled. requires Sound::release to free
 // bit field FMOD_OPENMEMORY_POINT
 
-internal FMOD::Sound* gsnd_soundHandle;
+//internal FMOD::Sound* gsnd_soundHandle;
+internal FMOD::Sound* g_soundHandles[SND_MAX_SOUND_HANDLES];
+internal i32 g_nextSoundHandle = 0;
 internal FMOD::Channel* gsnd_channel;
+internal FMOD::Channel* g_channels[SND_MAX_CHANNELS];
+internal FMOD::System* sys = NULL;
 
 internal ZSound g_sounds[128];
 internal i32 g_nextSoundId = 0;
 internal ZSoundSource g_sources[128];
 
-internal FMOD::Channel* g_channels[32];
-
-internal FMOD::System* sys = NULL;
-
-internal u8 g_testSoundLoaded = 0;
-
 //internal ZSound g_sounds[128];
 
-internal u8 Snd_Play2(ZSoundEvent* ev)
-{
-    //gsnd_channel.set3DAttributes()
-    return 1;
-}
-
+////////////////////////////////////////////////////////
+// Init/Shutdown
+////////////////////////////////////////////////////////
 #if 0 // FMOD Studio - broken atm
 u8 Snd_Init()
 {
@@ -102,23 +100,6 @@ u8 Snd_Init()
 }
 #endif
 
-// Returns id of new sound
-internal i32 Snd_LoadSound(char* name64, u8* data, i32 numBytes)
-{
-    printf("SOUND Creating sound, %d bytes from %d\n", numBytes, (u32)data);
-    // test example, commented out until I've made a decision on asset storage/version control
-    FMOD_CREATESOUNDEXINFO info = {};
-    info.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
-    info.length = numBytes;
-    FMOD_RESULT result = sys->createSound((const char*)data, FMOD_OPENMEMORY, &info, &gsnd_soundHandle);
-    printf(" create result: %d\n", result);
-    if (result == FMOD_OK)
-    {
-        g_testSoundLoaded = 1;
-    }
-    return 1;
-}
-
 #if 1 // Low level API only
 extern "C" ErrorCode Snd_Init()
 {
@@ -131,7 +112,7 @@ extern "C" ErrorCode Snd_Init()
     {
         return ZE_ERROR_UNKNOWN;
     }
-    gsnd_channel->setVolume(0.5f);
+    gsnd_channel->setVolume(0.4f);
     // Initialize FMOD Low Level
     result = sys->init(512, FMOD_INIT_NORMAL, 0);
     if (result != FMOD_OK)
@@ -153,35 +134,122 @@ extern "C" ErrorCode Snd_Init()
 extern "C" ErrorCode Snd_Shutdown()
 {
     printf("SOUND Shutting down\n");
-    FMOD_RESULT result;
-    if (g_testSoundLoaded == 1)
+    //FMOD_RESULT result;
+    for (i32 i = g_nextSoundHandle - 1; i >= 0; --i)
     {
-        result = gsnd_soundHandle->release();
-        printf("SND release result: %d\n", result);
+        g_soundHandles[i]->release();
     }
-    return 1;
+    return ZE_ERROR_NONE;
 }
 
+////////////////////////////////////////////////////////
+// handles
+////////////////////////////////////////////////////////
+internal FMOD::Sound** Snd_GetFreeSoundHandle(i32* resultIndex)
+{
+    *resultIndex = g_nextSoundHandle;
+    return &g_soundHandles[g_nextSoundHandle++];
+}
+
+////////////////////////////////////////////////////////
+// Load Sounds
+////////////////////////////////////////////////////////
+extern "C" i32 Snd_LoadSoundWavFile(char* name64, char* filePath)
+{
+    //char* name = "data/Frenzy_Beam_Loop.wav";
+    i32 index = -1;
+    FMOD::Sound** handlePtr = Snd_GetFreeSoundHandle(&index);
+    printf("Loading test sound %s to index %d\n", filePath, index);
+    FMOD_RESULT result = sys->createSound(filePath, 0, NULL, handlePtr);
+    if (result == FMOD_OK)
+    {
+        //result = sys->playSound(handle, NULL, false, &gsnd_channel);
+        return index;
+    }
+    else
+    {
+        printf("SND error %d loading file %s\n", result, filePath);
+        return -1;
+    }
+}
+
+// Returns id of new sound
+extern "C" i32 Snd_LoadSoundRaw(char* name64, u8* data, i32 numBytes)
+{
+    printf("SOUND Creating sound, %d bytes from %d\n", numBytes, (u32)data);
+    // test example, commented out until I've made a decision on asset storage/version control
+    FMOD_CREATESOUNDEXINFO info = {};
+    info.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
+    info.length = numBytes;
+
+    i32 index;
+    FMOD::Sound** handlePtr = Snd_GetFreeSoundHandle(&index);
+    FMOD_RESULT result = sys->createSound((const char*)data, FMOD_OPENMEMORY, &info, handlePtr);
+    printf(" create result: %d\n", result);
+    if (result == FMOD_OK)
+    {
+        return index;
+    }
+    return -1;
+}
+
+////////////////////////////////////////////////////////
+// Play
+////////////////////////////////////////////////////////
+extern "C" void Snd_PlayQuick(i32 sampleIndex)
+{
+    if (sampleIndex < 0 || sampleIndex >= g_nextSoundHandle)
+    {
+        printf("\tsound index %d out of bounds\n", sampleIndex);
+        return;
+    }
+    //printf("Play sound %d\n", sampleIndex);
+    FMOD::Sound* handle = g_soundHandles[sampleIndex];
+    if (handle == NULL)
+    {
+        printf("\tsound handle %d is null!\n", sampleIndex);
+        return;
+    }
+    FMOD_RESULT result = sys->playSound(handle, NULL, false, &gsnd_channel);
+    if (result != FMOD_OK)
+    {
+        printf("\tError %d playing sound %d\n", result, sampleIndex);
+    }
+}
+
+extern "C" void Snd_ExecuteEvents(ZEByteBuffer buf)
+{
+    if (Buf_IsValid(&buf) == NO) { return; }
+    if (buf.Written() == 0) { return; }
+    u8* read = buf.start;
+    u8* end = buf.cursor;
+    while (read < end)
+    {
+
+    }
+}
+
+////////////////////////////////////////////////////////
+// Commands
+////////////////////////////////////////////////////////
 extern "C" ErrorCode Snd_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
     if (ZE_CompareStrings(tokens[0], "HELP") == 0)
     {
         printf("SND TEST - play test sound\n");
     }
+    #if 1
     if (ZE_CompareStrings(tokens[0], "SND") == 0)
     {
         if (numTokens == 2 && ZE_CompareStrings(tokens[1],"TEST") == 0)
         {
-            if (g_testSoundLoaded == 0)
-            {
-                printf("Cannot play sound test - no sounds loaded");
-                return 1;
-            }
-            FMOD_RESULT result = sys->playSound(gsnd_soundHandle, NULL, false, &gsnd_channel);
-            printf("  play result: %d\n", result);
+            i32 index = 0;
+            printf("SND - test play index %d\n", index);
+            Snd_PlayQuick(index);
         }
         return 1;
     }
+    #endif
     if (ZE_CompareStrings(tokens[0], "VERSION") == 0)
 	{
 		printf("SOUND Built %s: %s\n", __DATE__, __TIME__);

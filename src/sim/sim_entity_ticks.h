@@ -219,7 +219,7 @@ internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaT
             10.0f,
             0
         );
-        ZCmd_Write(&event.header, &sim->tempOutput->cursor);
+        ZCmd_Write(&event.header, &sim->outputBuf->cursor);
     }
 }
 

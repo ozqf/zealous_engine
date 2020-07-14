@@ -149,21 +149,11 @@ internal i32  AppImpl_Init()
     g_gameBuffers.b = Buf_FromMalloc(
         COM_Malloc(&g_mallocs, bufferSize, "Game Buffer B"),
         bufferSize);
-
-    // g_serverLoopback.a = Buf_FromMalloc(
-    //     COM_Malloc(&g_mallocs, bufferSize, "Server Loopback A"),
-    //     bufferSize);
-	// g_serverLoopback.b = Buf_FromMalloc(
-    //     COM_Malloc(&g_mallocs, bufferSize, "Server Loopback B"),
-    //     bufferSize);
-
-    // g_clientLoopback.a = Buf_FromMalloc(
-    //     COM_Malloc(&g_mallocs, bufferSize, "Client Loopback A"),
-    //     bufferSize);
-	// g_clientLoopback.b = Buf_FromMalloc(
-    //     COM_Malloc(&g_mallocs, bufferSize, "Client Loopback B"),
-    //     bufferSize);
     
+    g_soundBuffer = Buf_FromMalloc(
+        COM_Malloc(&g_mallocs, bufferSize, "Sound Events"),
+        bufferSize);
+
 	g_loopbackSocket.Init(g_fakeLagMinMS, g_fakeLagMaxMS, g_fakeLoss);
     
     g_localServerAddress = {};
@@ -171,9 +161,14 @@ internal i32  AppImpl_Init()
     
     // initialise sub-modules
     AppUI_Init();
-    // CL_Init();
-    // SV_Init();
     Game_Init();
+
+    i32 index = -1;
+    
+    index = g_platform.SndLoadFile("weapon_pickup", "data/sound/Weapon_Pickup.wav");
+    index = g_platform.SndLoadFile("weapon_switch", "data/sound/Weapon_Switch.wav");
+    index = g_platform.SndLoadFile("heavy_shoot", "data/sound/EXPL_D_01.wav");
+    index = g_platform.SndLoadFile("light_shoot", "data/sound/Boss_Shoot_Red_Oneshot.wav");
 
     // server and client areas currently acquiring their own memory
     App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER);
@@ -190,10 +185,6 @@ internal i32  AppImpl_Shutdown()
 
 internal i32 App_EndSession()
 {
-    // if (SV_IsRunning()) { SV_Shutdown(); }
-    // if (CL_IsRunning()) { CL_Shutdown(); }
-    //ZNet_EndSession(g_serverNet);
-    //ZNet_EndSession(g_clientNet);
     return ZE_ERROR_NONE;
 }
 
@@ -284,8 +275,6 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
     if (diff == 0) { return; }
     
     ZEByteBuffer* gameInput = g_gameBuffers.GetWrite();
-    // ZEByteBuffer* serverInput = g_serverLoopback.GetWrite();
-    // ZEByteBuffer* clientInput = g_clientLoopback.GetWrite();
     while (read < end)
     {
         SysEvent* ev = (SysEvent*)read;
@@ -301,9 +290,6 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
         }
         else if (ev->type == SYS_EVENT_INPUT)
         {
-            //printf("Copying %d bytes of input ev to client loopback\n", ev->size);
-            // Copy input events to client buffer
-            //BUF_COPY(clientInput, ev, ev->size);
             BUF_COPY(gameInput, ev, ev->size);
         }
     }
@@ -325,22 +311,7 @@ internal void App_SimFrame(timeFloat interval)
 
     g_gameBuffers.Swap();
     g_gameBuffers.GetWrite()->Clear(NO);
-    Game_Tick(g_gameBuffers.GetRead(), interval);
-
-    #if 0
-    if (SV_IsRunning())
-    {
-        g_serverLoopback.Swap();
-        g_serverLoopback.GetWrite()->Clear(NO);
-        SV_Tick(g_serverLoopback.GetRead(), interval);
-    }
-    if (CL_IsRunning())
-    {
-        g_clientLoopback.Swap();
-        g_clientLoopback.GetWrite()->Clear(NO);
-        CL_Tick(g_clientLoopback.GetRead(), interval, g_lastPlatformFrame);
-    }
-    #endif
+    Game_Tick(g_gameBuffers.GetRead(), &g_soundBuffer, interval);
 }
 
 internal i32 AppImpl_RendererReloaded()
@@ -400,10 +371,6 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
         g_loopbackSocket.SetLagStats(minMS, maxMS, loss);
         return YES;
     }
-    #if 0
-    if (SV_IsRunning() && SV_ParseCommandString(str, tokens, numTokens)) { return YES; }
-    if (CL_IsRunning() && CL_ParseCommandString(str, tokens, numTokens)) { return YES; }
-    #endif
     return NO;
 }
 
@@ -426,7 +393,6 @@ internal void App_DrawFrame()
     frame->data = data;
 
     // Add draw data
-    //CL_WriteDrawFrame(frame);
     Game_WriteDrawFrame(frame);
 
     // release
@@ -445,6 +411,8 @@ internal i32 AppImpl_Tick()
         App_SimFrame(frameInterval);
         App_TickDebugUtils(frameInterval);
         App_DrawFrame();
+        g_platform.Snd_ExecuteEvents(g_soundBuffer);
+        g_soundBuffer.Clear(NO);
     }
     return ZE_ERROR_NONE;
 }

@@ -394,6 +394,12 @@ static ze_platform_export Win_BuildExport()
     result.CloseSocket = PlatformImpl_CloseSocket;
     result.Send = PlatformImpl_Send;
 
+    result.SndLoadFile = Snd_LoadSoundWavFile;
+    result.SndPlayQuick = Snd_PlayQuick;
+    result.Snd_ExecuteEvents = Snd_ExecuteEvents;
+
+    result.sentinel = ZE_SENTINEL;
+
     return result;
 }
 

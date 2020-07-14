@@ -296,7 +296,7 @@ internal void SimEnt_FireAttack(
         0.1f
     );
 
-	ZCmd_Write(&event.header, &sim->tempOutput->cursor);
+	ZCmd_Write(&event.header, &sim->outputBuf->cursor);
 }
 
 //////////////////////////////////////////////

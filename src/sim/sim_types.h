@@ -318,7 +318,8 @@ struct SimScene
 	i32 bVerbose;
 
     // pointer to buffer for game logic commands from the current tick
-    ZEByteBuffer* tempOutput;
+    ZEByteBuffer* outputBuf;
+    ZEByteBuffer* soundOutputBuf;
 
 	i32 nextPlayerId;
 	i32 maxPlayers;
