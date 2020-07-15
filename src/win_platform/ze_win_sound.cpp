@@ -1,5 +1,5 @@
 
-#include "../../lib/fmod/fmod_studio.hpp"
+//#include "../../lib/fmod/fmod_studio.hpp"
 #include "../../lib/fmod/fmod.hpp"
 
 #include "ze_win_sound.h"
@@ -43,6 +43,10 @@ Sound notes:
 > Non-spatial, looping, constant volume:
     eg Music
 
+API reading
+https://documentation.help/FMOD-Studio-API/lowlevel_api_interfaces.html
+https://documentation.help/FMOD-Studio-API/3dsound.html
+https://documentation.help/FMOD-Studio-API/FMOD_Studio_EventInstance_Set3DAttributes.html
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -58,18 +62,21 @@ Sound notes:
 // so data must be manually handled. requires Sound::release to free
 // bit field FMOD_OPENMEMORY_POINT
 
-//internal FMOD::Sound* gsnd_soundHandle;
+internal FMOD::System* sys = NULL;
 internal FMOD::Sound* g_soundHandles[SND_MAX_SOUND_HANDLES];
 internal i32 g_nextSoundHandle = 0;
-internal FMOD::Channel* gsnd_channel;
-internal FMOD::Channel* g_channels[SND_MAX_CHANNELS];
-internal FMOD::System* sys = NULL;
+//internal FMOD::Channel* gsnd_channel;
 
-internal ZSound g_sounds[128];
-internal i32 g_nextSoundId = 0;
-internal ZSoundSource g_sources[128];
+internal f32 g_fxVolume = 0.5f;
+internal f32 g_bgmVolume = 0.5f;
 
-//internal ZSound g_sounds[128];
+internal Transform g_listener;
+
+//internal FMOD::Channel* g_channels[ND_MAX_CHANNELS];
+
+// internal ZSound g_sounds[128];
+// internal i32 g_nextSoundId = 0;
+// internal ZSoundSource g_sources[128];
 
 ////////////////////////////////////////////////////////
 // Init/Shutdown
@@ -100,33 +107,60 @@ u8 Snd_Init()
 }
 #endif
 
+internal void Snd_Update3DListener(i32 listenerId)
+{
+    FMOD_VECTOR vel = {};
+    FMOD_RESULT result = sys->set3DListenerAttributes(
+        listenerId,
+        (FMOD_VECTOR*)&g_listener.pos,
+        &vel,
+        (FMOD_VECTOR*)&g_listener.rotation.zAxis,
+        (FMOD_VECTOR*)&g_listener.rotation.yAxis
+        );
+    if (result != FMOD_OK)
+    {
+        printf("SND error code %d updating listener %d\n", result, listenerId);
+    }
+    printf("SND - 3D position updated\n");
+}
+
 #if 1 // Low level API only
 extern "C" ErrorCode Snd_Init()
 {
-    printf("SOUND Init\n");
+    printf("SOUND init\n");
     FMOD_RESULT result;
     //FMOD::System* system = NULL;
 
     result = FMOD::System_Create(&sys); // Create the Studio System object.
     if (result != FMOD_OK)
     {
+        printf("Create FMOD system failed %d\n", result);
         return ZE_ERROR_UNKNOWN;
     }
-    gsnd_channel->setVolume(0.4f);
+    
     // Initialize FMOD Low Level
-    result = sys->init(512, FMOD_INIT_NORMAL, 0);
+    result = sys->init(100, FMOD_INIT_NORMAL, 0);
     if (result != FMOD_OK)
     {
-        //printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+        printf("Init fmod system failed %d\n", result);
         return ZE_ERROR_UNKNOWN;
     }
-#if 0
-    // test example, commented out until I've made a decision on asset storage/version control
-    char* name = "data/Frenzy_Beam_Loop.wav";
-    printf("Loading test sound %s\n", name);
-    result = sys->createSound(name, 0, NULL, &gsnd_soundHandle);
-    result = sys->playSound(gsnd_soundHandle, NULL, false, &gsnd_channel);
-#endif
+
+    Transform_SetToIdentity(&g_listener);
+    #if 1
+    result = sys->set3DNumListeners(1);
+    if (result != FMOD_OK)
+    {
+        printf("SND error %d setting num 3d listeners\n", result);
+        return ZE_ERROR_UNKNOWN;
+    }
+    Snd_Update3DListener(0);
+    #endif
+    sys->set3DSettings(10.f, 10.f, 10.f);
+
+    //gsnd_channel->setVolume(g_fxVolume);
+
+    printf("SND Initialised\n");
     return ZE_ERROR_NONE;
 }
 #endif
@@ -159,10 +193,16 @@ extern "C" i32 Snd_LoadSoundWavFile(char* name64, char* filePath)
     //char* name = "data/Frenzy_Beam_Loop.wav";
     i32 index = -1;
     FMOD::Sound** handlePtr = Snd_GetFreeSoundHandle(&index);
-    printf("Loading test sound %s to index %d\n", filePath, index);
-    FMOD_RESULT result = sys->createSound(filePath, 0, NULL, handlePtr);
+    FMOD::Sound* handle = *handlePtr;
+    FMOD_MODE modeFlags = FMOD_3D | FMOD_LOOP_OFF | FMOD_3D_WORLDRELATIVE;
+    FMOD_RESULT result = sys->createSound(filePath, modeFlags, NULL, handlePtr);
+    
+    handle->setLoopCount(0);
+    handle->set3DMinMaxDistance(1.f, 5000.f);
+    
     if (result == FMOD_OK)
     {
+        printf("SND Loaded sound %s to index %d\n", filePath, index);
         //result = sys->playSound(handle, NULL, false, &gsnd_channel);
         return index;
     }
@@ -176,8 +216,11 @@ extern "C" i32 Snd_LoadSoundWavFile(char* name64, char* filePath)
 // Returns id of new sound
 extern "C" i32 Snd_LoadSoundRaw(char* name64, u8* data, i32 numBytes)
 {
-    printf("SOUND Creating sound, %d bytes from %d\n", numBytes, (u32)data);
-    // test example, commented out until I've made a decision on asset storage/version control
+    ILLEGAL_CODE_PATH
+
+
+
+    printf("SND Creating sound, %d bytes from %d\n", numBytes, (u32)data);
     FMOD_CREATESOUNDEXINFO info = {};
     info.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
     info.length = numBytes;
@@ -185,6 +228,11 @@ extern "C" i32 Snd_LoadSoundRaw(char* name64, u8* data, i32 numBytes)
     i32 index;
     FMOD::Sound** handlePtr = Snd_GetFreeSoundHandle(&index);
     FMOD_RESULT result = sys->createSound((const char*)data, FMOD_OPENMEMORY, &info, handlePtr);
+    // TODO: some samples seem to have an auto-loop flag.
+    // want to disable here but doesn't seem to work:
+    FMOD::Sound* handle = *handlePtr;
+    handle->setLoopCount(0);
+
     printf(" create result: %d\n", result);
     if (result == FMOD_OK)
     {
@@ -210,11 +258,35 @@ extern "C" void Snd_PlayQuick(i32 sampleIndex)
         printf("\tsound handle %d is null!\n", sampleIndex);
         return;
     }
-    FMOD_RESULT result = sys->playSound(handle, NULL, false, &gsnd_channel);
+    f32 randX = COM_STDRandomInRange(-50, 50);
+    //f32 randY = COM_STDRandomInRange(-50, 50);
+    f32 randZ = COM_STDRandomInRange(-50, 50);
+    FMOD_VECTOR soundPos = { randX, 0, randZ };
+    
+    FMOD::Channel* chnl;
+    FMOD_RESULT result = sys->playSound(handle, NULL, false, &chnl);
+    chnl->setVolume(g_fxVolume);
+    FMOD_MODE mode = 0;
+    chnl->getMode(&mode);
+    if ((mode & FMOD_3D) != 0)
+    {
+        printf("Sound is 3D\n");
+        result = chnl->set3DAttributes(&soundPos, NULL, NULL);
+        Snd_Update3DListener(0);
+    }
+    //chnl->setMode(FMOD_3D | FMOD_3D_WORLDRELATIVE);
+    
     if (result != FMOD_OK)
     {
         printf("\tError %d playing sound %d\n", result, sampleIndex);
+        return;
     }
+    Vec3 forward = g_listener.rotation.zAxis;
+    printf("Play %d at %.3f, %.3f, %.3f - listener at %.3f, %.3f, %.3f\n",
+        sampleIndex,
+        soundPos.x, soundPos.y, soundPos.z,
+        g_listener.pos.x, g_listener.pos.y, g_listener.pos.z
+    );
 }
 
 extern "C" void Snd_ExecuteEvents(ZEByteBuffer buf)
@@ -229,6 +301,17 @@ extern "C" void Snd_ExecuteEvents(ZEByteBuffer buf)
     }
 }
 
+internal f32 Snd_ParseVolume(const char* asci)
+{
+    // read as 0 to 100
+    i32 levelInt = ZE_AsciToInt32(asci);
+    // normalise
+    f32 level = (f32)levelInt / 100.f;
+    if (level < 0) { level = 0; }
+    if (level > 1) { level = 1; }
+    return level;
+}
+
 ////////////////////////////////////////////////////////
 // Commands
 ////////////////////////////////////////////////////////
@@ -236,24 +319,40 @@ extern "C" ErrorCode Snd_ParseCommandString(const char* str, const char** tokens
 {
     if (ZE_CompareStrings(tokens[0], "HELP") == 0)
     {
-        printf("SND TEST - play test sound\n");
+        printf("SND TEST <index> - play test sound\n");
+        printf("SND FX <0 to 100> - set FX volume\n");
+        printf("SND BGM <0 to 100> - set music volume\n");
+        return 0;
     }
-    #if 1
-    if (ZE_CompareStrings(tokens[0], "SND") == 0)
-    {
-        if (numTokens == 2 && ZE_CompareStrings(tokens[1],"TEST") == 0)
-        {
-            i32 index = 0;
-            printf("SND - test play index %d\n", index);
-            Snd_PlayQuick(index);
-        }
-        return 1;
-    }
-    #endif
     if (ZE_CompareStrings(tokens[0], "VERSION") == 0)
 	{
 		printf("SOUND Built %s: %s\n", __DATE__, __TIME__);
 		return 0;
 	}
+
+    if (ZE_CompareStrings(tokens[0], "SND") == 0)
+    {
+        if (numTokens == 3 && ZE_CompareStrings(tokens[1],"TEST") == 0)
+        {
+            i32 index = ZE_AsciToInt32(tokens[2]);
+            printf("SND - test play index %d\n", index);
+            Snd_PlayQuick(index);
+            return 1;
+        }
+        if (numTokens == 3 && ZE_CompareStrings(tokens[1],"FX") == 0)
+        {
+            g_fxVolume = Snd_ParseVolume(tokens[2]);
+            printf("SND set FX vol %.3f\n", g_fxVolume);
+            return 1;
+        }
+        if (numTokens == 3 && ZE_CompareStrings(tokens[1], "BGM") == 0)
+        {
+            g_bgmVolume = Snd_ParseVolume(tokens[2]);
+            printf("SND set BGM vol %.3f\n", g_bgmVolume);
+            return 1;
+        }
+        printf("SND - unknown command or token mismatch\n");
+        return 1;
+    }
     return 0;
 }
