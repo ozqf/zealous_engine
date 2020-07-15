@@ -258,9 +258,9 @@ extern "C" void Snd_PlayQuick(i32 sampleIndex)
         printf("\tsound handle %d is null!\n", sampleIndex);
         return;
     }
-    f32 randX = COM_STDRandomInRange(-50, 50);
+    f32 randX = COM_STDRandomInRange(-10, 10);
     //f32 randY = COM_STDRandomInRange(-50, 50);
-    f32 randZ = COM_STDRandomInRange(-50, 50);
+    f32 randZ = COM_STDRandomInRange(-10, 10);
     FMOD_VECTOR soundPos = { randX, 0, randZ };
     
     FMOD::Channel* chnl;
@@ -274,8 +274,9 @@ extern "C" void Snd_PlayQuick(i32 sampleIndex)
         result = chnl->set3DAttributes(&soundPos, NULL, NULL);
         Snd_Update3DListener(0);
     }
+    // TODO: Move this update call to a frame loop?
+    sys->update();
     //chnl->setMode(FMOD_3D | FMOD_3D_WORLDRELATIVE);
-    
     if (result != FMOD_OK)
     {
         printf("\tError %d playing sound %d\n", result, sampleIndex);
