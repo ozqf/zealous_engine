@@ -3,32 +3,61 @@
 
 #include "ze_common.h"
 
-enum ZSoundEventType
+///////////////////////////////////////
+// Commands
+///////////////////////////////////////
+#define ZS_FLAG_3D (1 << 0)
+
+enum ZSoundCommandType
 {
     PlaySound,
-    MoveSound
+    MoveSound,
+	KillSound
 };
 
-union ZSoundEventUnion
+union ZSoundCommandUnion
 {
-    struct ZPlaySound
+    struct play
     {
-        u8 spatial;
+		i32 userEventId;
+        i32 flags;
 	    f32 pos[3];
     };
 
-    struct ZMoveSound
+    struct move
     {
         f32 pos[3];
     };
 };
 
-// An event that kicks off a sound source
-struct ZSoundEvent
+// Holds instructions to the sound system.
+struct ZSoundCommand
 {
-	i32 soundId;
-    ZSoundEventType type;
-    ZSoundEventUnion data;
+	// caller's Identifier for this sound source.
+	i32 userId;
+	// bits to group sound events together
+	i32 groupMask;
+    ZSoundCommandType type;
+    ZSoundCommandUnion data;
+};
+
+struct ZSndCreate
+{
+	i32 userEventId;
+	char* sourceFileName64;
+	
+};
+
+struct ZSoundInstance
+{
+    i32 userId;
+    i32 groupMask;
+};
+
+struct ZSoundScene
+{
+    i32 nextEventId;
+
 };
 
 #endif // ZE_SOUND_TYPES_H

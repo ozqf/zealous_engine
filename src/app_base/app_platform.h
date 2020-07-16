@@ -169,6 +169,7 @@ internal i32  AppImpl_Init()
     index = g_platform.SndLoadFile("weapon_switch", "data/sound/Weapon_Switch.wav");
     index = g_platform.SndLoadFile("heavy_shoot", "data/sound/EXPL_D_01.wav");
     index = g_platform.SndLoadFile("light_shoot", "data/sound/Boss_Shoot_Red_Oneshot.wav");
+    index = g_platform.SndLoadFile("shield_break", "data/sound/Shield_Break.wav");
 
     // server and client areas currently acquiring their own memory
     App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER);
