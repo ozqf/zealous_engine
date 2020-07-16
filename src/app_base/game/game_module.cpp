@@ -98,6 +98,11 @@ extern "C" void Game_Tick(ZEByteBuffer* sysEvents, ZEByteBuffer* soundOutput, ti
 	SV_PostTick(&g_sim, &g_gameBuf, delta);
 }
 
+extern "C" Transform Game_GetCamera()
+{
+	return CL_GetCamera(&g_sim);
+}
+
 extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame)
 {
 	Transform cam = CL_GetCamera(&g_sim);

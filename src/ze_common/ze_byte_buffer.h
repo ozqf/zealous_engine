@@ -3,14 +3,22 @@
 
 #include "ze_common.h"
 
-#define BUF_COPY(trToByteBufferDest, ptrToSourceBytes, numOfBytesInArray) \
-{##trToByteBufferDest##->cursor += \
-    ZE_COPY((u8*)##ptrToSourceBytes##, ##trToByteBufferDest##->cursor##, numOfBytesInArray##);}
+#define BUF_COPY(ptrToByteBufferDest, ptrToSourceBytes, numOfBytesInArray) \
+{##ptrToByteBufferDest##->cursor += \
+    ZE_COPY((u8*)##ptrToSourceBytes##, ##ptrToByteBufferDest##->cursor##, numOfBytesInArray##);}
 
-#define ZE_INIT_PTR_IN_PLACE(ptrVariableName, structTypeName, trToByteBufferDest) \
-structTypeName##* ptrVariableName = (##structTypeName##*)##trToByteBufferDest##->cursor; \
-trToByteBufferDest##->cursor += sizeof(##structTypeName##); \
-*##ptrVariableName = {};
+/**
+ * allocate space for an instance of the given struct type in the bytebuffer.
+ * if byte buffer has no space, ptr will be null
+ */
+#define ZE_INIT_PTR_IN_PLACE(ptrVariableName, structTypeName, ptrToByteBufferDest) \
+structTypeName##* ptrVariableName = NULL; \
+if (ptrToByteBufferDest##->Space() >= sizeof(##structTypeName##)) \
+{ \
+    ptrVariableName = (##structTypeName##*)##ptrToByteBufferDest##->cursor; \
+    ptrToByteBufferDest##->cursor += sizeof(##structTypeName##); \
+    *##ptrVariableName = {}; \
+}
 
 struct ZEByteBuffer
 {

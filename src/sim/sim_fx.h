@@ -26,6 +26,18 @@ internal void SimGfx_EntityDeath(SimScene* sim, SimEvent_RemoveEnt* cmd)
                 vel.z = COM_STDRandomInRange(-15, 15);
                 //CLR_SpawnTestParticle(g_rend, CLR_PARTICLE_TYPE_TEST, pos, vel);
             }
+            ZE_INIT_PTR_IN_PLACE(soundEv, ZSoundCommand, sim->soundOutputBuf);
+            if (soundEv != NULL)
+            {
+                //printf("SIM - init sound event\n");
+                soundEv->type = ZSOUND_EVENT_PLAY;
+                soundEv->data.play.soundEventType = 1;
+                soundEv->data.play.pos = ent->body.t.pos;
+            }
+            else
+            {
+                printf("SIM - no space for sound event (%d bytes left)\n", sim->soundOutputBuf->Space());
+            }
             
         } break;
         case SIM_DEATH_GFX_GIB:

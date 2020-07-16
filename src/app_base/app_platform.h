@@ -313,6 +313,9 @@ internal void App_SimFrame(timeFloat interval)
     g_gameBuffers.Swap();
     g_gameBuffers.GetWrite()->Clear(NO);
     Game_Tick(g_gameBuffers.GetRead(), &g_soundBuffer, interval);
+    ZE_INIT_PTR_IN_PLACE(soundEv, ZSoundCommand, (&g_soundBuffer));
+    soundEv->type = ZSOUND_EVENT_SET_LISTENER;
+    soundEv->data.listener = Game_GetCamera();
 }
 
 internal i32 AppImpl_RendererReloaded()
@@ -412,7 +415,7 @@ internal i32 AppImpl_Tick()
         App_SimFrame(frameInterval);
         App_TickDebugUtils(frameInterval);
         App_DrawFrame();
-        g_platform.Snd_ExecuteEvents(g_soundBuffer);
+        g_platform.Snd_ExecuteEvents(&g_soundBuffer);
         g_soundBuffer.Clear(NO);
     }
     return ZE_ERROR_NONE;

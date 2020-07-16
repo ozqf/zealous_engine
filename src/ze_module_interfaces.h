@@ -1,9 +1,7 @@
 #ifndef ZE_MODULE_INTERFACES_H
 #define ZE_MODULE_INTERFACES_H
 
-#include "../ze_common/ze_common.h"
-#include "../ze_common/ze_byte_buffer.h"
-#include "../ze_common/ze_net_types.h"
+#include "../ze_common/ze_common_full.h"
 
 // app (game) module function pointers
 struct ze_app_export
@@ -67,8 +65,8 @@ struct ze_platform_export
 
     // sound
     i32 (*SndLoadFile)(char* name, char* filePath);
-    void (*SndPlayQuick)(i32 sampleIndex);
-    void (*Snd_ExecuteEvents)(ZEByteBuffer buf);
+    void (*SndPlayQuick)(i32 sampleIndex, Vec3 pos);
+    void (*Snd_ExecuteEvents)(ZEByteBuffer* buf);
 
     //
     i32 sentinel;

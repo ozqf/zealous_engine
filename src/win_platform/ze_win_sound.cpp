@@ -107,11 +107,20 @@ u8 Snd_Init()
 }
 #endif
 
-internal void Snd_Update3DListener(i32 listenerId)
+internal void Snd_Update3DListener(Transform* t)
 {
+    if (t != NULL)
+    {
+        g_listener = *t;
+    }
+    else
+    {
+        Transform_SetToIdentity(&g_listener);
+    }
+    
     FMOD_VECTOR vel = {};
     FMOD_RESULT result = sys->set3DListenerAttributes(
-        listenerId,
+        0,
         (FMOD_VECTOR*)&g_listener.pos,
         &vel,
         (FMOD_VECTOR*)&g_listener.rotation.zAxis,
@@ -119,9 +128,8 @@ internal void Snd_Update3DListener(i32 listenerId)
         );
     if (result != FMOD_OK)
     {
-        printf("SND error code %d updating listener %d\n", result, listenerId);
+        printf("SND error code %d updating listener %d\n", result, 0);
     }
-    printf("SND - 3D position updated\n");
 }
 
 #if 1 // Low level API only
@@ -244,7 +252,7 @@ extern "C" i32 Snd_LoadSoundRaw(char* name64, u8* data, i32 numBytes)
 ////////////////////////////////////////////////////////
 // Play
 ////////////////////////////////////////////////////////
-extern "C" void Snd_PlayQuick(i32 sampleIndex)
+extern "C" void Snd_PlayQuick(i32 sampleIndex, Vec3 pos)
 {
     if (sampleIndex < 0 || sampleIndex >= g_nextSoundHandle)
     {
@@ -258,10 +266,6 @@ extern "C" void Snd_PlayQuick(i32 sampleIndex)
         printf("\tsound handle %d is null!\n", sampleIndex);
         return;
     }
-    f32 randX = COM_STDRandomInRange(-10, 10);
-    //f32 randY = COM_STDRandomInRange(-50, 50);
-    f32 randZ = COM_STDRandomInRange(-10, 10);
-    FMOD_VECTOR soundPos = { randX, 0, randZ };
     
     FMOD::Channel* chnl;
     FMOD_RESULT result = sys->playSound(handle, NULL, false, &chnl);
@@ -271,35 +275,47 @@ extern "C" void Snd_PlayQuick(i32 sampleIndex)
     if ((mode & FMOD_3D) != 0)
     {
         printf("Sound is 3D\n");
-        result = chnl->set3DAttributes(&soundPos, NULL, NULL);
+        result = chnl->set3DAttributes((FMOD_VECTOR*)&pos, NULL, NULL);
         Snd_Update3DListener(0);
     }
-    // TODO: Move this update call to a frame loop?
-    sys->update();
     //chnl->setMode(FMOD_3D | FMOD_3D_WORLDRELATIVE);
     if (result != FMOD_OK)
     {
         printf("\tError %d playing sound %d\n", result, sampleIndex);
         return;
     }
-    Vec3 forward = g_listener.rotation.zAxis;
-    printf("Play %d at %.3f, %.3f, %.3f - listener at %.3f, %.3f, %.3f\n",
-        sampleIndex,
-        soundPos.x, soundPos.y, soundPos.z,
-        g_listener.pos.x, g_listener.pos.y, g_listener.pos.z
-    );
+    // Vec3 forward = g_listener.rotation.zAxis;
+    // printf("Play %d at %.3f, %.3f, %.3f - listener at %.3f, %.3f, %.3f\n",
+    //     sampleIndex,
+    //     pos.x, pos.y, pos.z,
+    //     g_listener.pos.x, g_listener.pos.y, g_listener.pos.z
+    // );
 }
 
-extern "C" void Snd_ExecuteEvents(ZEByteBuffer buf)
+extern "C" void Snd_ExecuteEvents(ZEByteBuffer* buf)
 {
-    if (Buf_IsValid(&buf) == NO) { return; }
-    if (buf.Written() == 0) { return; }
-    u8* read = buf.start;
-    u8* end = buf.cursor;
-    while (read < end)
-    {
+    ZSoundCommand* cmds = (ZSoundCommand*)buf->start;
+    i32 numCommands = buf->Written() / sizeof(ZSoundCommand);
 
+    for (i32 i = 0; i < numCommands; ++i)
+    {
+        ZSoundCommand* cmd = &cmds[i];
+        //printf("SND - read event type %d\n", cmd->type);
+        switch (cmd->type)
+        {
+            case ZSOUND_EVENT_PLAY:
+            Snd_PlayQuick(cmd->data.play.soundEventType, cmd->data.play.pos);
+            break;
+            case ZSOUND_EVENT_SET_LISTENER:
+            Snd_Update3DListener(&cmd->data.listener);
+            break;
+            default:
+            printf("SND - unknown event type %d\n", cmd->type);
+            break;
+        }
+        
     }
+    sys->update();
 }
 
 internal f32 Snd_ParseVolume(const char* asci)
@@ -337,7 +353,11 @@ extern "C" ErrorCode Snd_ParseCommandString(const char* str, const char** tokens
         {
             i32 index = ZE_AsciToInt32(tokens[2]);
             printf("SND - test play index %d\n", index);
-            Snd_PlayQuick(index);
+            f32 randX = COM_STDRandomInRange(-10, 10);
+            //f32 randY = COM_STDRandomInRange(-50, 50);
+            f32 randZ = COM_STDRandomInRange(-10, 10);
+            Vec3 soundPos = { randX, 0, randZ };
+            Snd_PlayQuick(index, soundPos);
             return 1;
         }
         if (numTokens == 3 && ZE_CompareStrings(tokens[1],"FX") == 0)

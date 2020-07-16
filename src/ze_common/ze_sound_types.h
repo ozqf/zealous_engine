@@ -8,26 +8,26 @@
 ///////////////////////////////////////
 #define ZS_FLAG_3D (1 << 0)
 
-enum ZSoundCommandType
-{
-    PlaySound,
-    MoveSound,
-	KillSound
-};
+#define ZSOUND_EVENT_NONE 0
+#define ZSOUND_EVENT_PLAY 1
+#define ZSOUND_EVENT_MOVE 2
+#define ZSOUND_EVENT_KILL 3
+#define ZSOUND_EVENT_SET_LISTENER 4
 
 union ZSoundCommandUnion
 {
-    struct play
+    struct
     {
-		i32 userEventId;
+		i32 soundEventType;
         i32 flags;
-	    f32 pos[3];
-    };
+	    Vec3 pos;
+    } play;
 
-    struct move
+    struct
     {
-        f32 pos[3];
-    };
+        Vec3 pos;
+    } move;
+    Transform listener;
 };
 
 // Holds instructions to the sound system.
@@ -37,7 +37,7 @@ struct ZSoundCommand
 	i32 userId;
 	// bits to group sound events together
 	i32 groupMask;
-    ZSoundCommandType type;
+    i32 type;
     ZSoundCommandUnion data;
 };
 

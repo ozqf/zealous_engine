@@ -2,6 +2,10 @@
 #define SIM_ENTITY_TICKS_H
 
 #include "sim.h"
+
+#define SIM_DEFINE_ENT_UPDATE(entityTypeName) internal void \
+    SVG_Update##entityTypeName##(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+
 /////////////////////////////////////////////////////////
 // Utility functions for entity ticks
 /////////////////////////////////////////////////////////
