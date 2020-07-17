@@ -45,7 +45,7 @@ internal void Sim_SetEntityDisplay_Mesh(
     //ent->display.prefabIndex = prefabIndex;
     ent->display.data.type = ZR_DRAWOBJ_TYPE_MESH;
     ent->display.data.model.meshIndex = db->GetMeshByName(db, meshName)->header.index;
-	ent->display.data.model.materialIndex = db->GetMaterialByName(db, materialName)->index;
+	ent->display.data.model.materialIndex = db->GetMaterialByName(db, materialName)->header.index;
     
     ent->deathType = deathType;
     ent->display.colourA = colourA;

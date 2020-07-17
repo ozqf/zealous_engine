@@ -32,13 +32,13 @@ extern "C" ClientRenderer* CLR_Create(ZRAssetDB* assetDb, i32 particlesPerPool)
 
     cr->testEmit.def.duration = 0.2f;
     cr->testEmit.def.startScale = { 0.5f, 0.5f, 0.5f };
-    cr->testEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->index;
+    cr->testEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->header.index;
     cr->testEmit.def.meshIndex = quadIndex;
 
     cr->gibEmit.def.billboard = YES;
     cr->gibEmit.def.duration = 1;
     cr->gibEmit.def.startScale = { 1, 1, 1 };
-    cr->gibEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->index;
+    cr->gibEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->header.index;
     cr->gibEmit.def.meshIndex = quadIndex;
     cr->gibEmit.def.pull = { 0, -40, 0 };
 
@@ -150,7 +150,7 @@ internal void CLR_WriteParticles(
     ZEByteBuffer* list,
     ZEByteBuffer* data)
 {
-    ZRMaterial* mat;
+    ZRDBMaterial* mat;
     mat = cr->db->GetMaterialByIndex(cr->db, emitter->def.materialIndex);
     for (i32 i = 0; i < emitter->numParticles; ++i)
     {
@@ -228,8 +228,8 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     
     i32 cubeIndex = cube->header.index;
     i32 quadIndex = quad->header.index;
-    i32 defaultMaterialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD_DEBUG)->index;
-    i32 prjMaterialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->index;
+    i32 defaultMaterialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD_DEBUG)->header.index;
+    i32 prjMaterialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->header.index;
 
     i32 materialIndex = defaultMaterialIndex;
 
@@ -276,7 +276,7 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     ClientRenderSettings cfg)
 {
     ZRAssetDB* db = App_GetAssetDB();
-    i32 lightBulbMatIndex = ZRDB_GET_MAT_BY_NAME(db, ZRDB_MAT_NAME_LIGHT)->index;
+    i32 lightBulbMatIndex = ZRDB_GET_MAT_BY_NAME(db, ZRDB_MAT_NAME_LIGHT)->header.index;
     
     if (cfg.worldLightsMax <= 0) { cfg.worldLightsMax = 4; }
     if (cfg.extraLightsMax <= 0) { cfg.extraLightsMax = 4; }
@@ -428,7 +428,7 @@ extern "C" void CLR_WriteDrawFrame(
     if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
     {
         i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD)->header.index;
-        i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD)->index;
+        i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD)->header.index;
         #if 1 // right hand
         scene = ZRSccene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, NO);
         Transform_SetToIdentity(&scene->params.camera);

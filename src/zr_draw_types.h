@@ -81,8 +81,6 @@ union ColourU32
 
 struct ZRMaterial
 {
-	char* name;
-    i32 index;
 	i32 diffuseTexIndex;   	    // default checkerboard 32x32
 	i32 emissionTexIndex;		    // default black 16x16
     //i32 normalTexHandle;		// default blue 16x16

@@ -317,9 +317,9 @@ static ZRMeshDrawHandles ZRGL_ExtractDrawHandles(ZRAssetDB* db, i32 meshIndex, i
 	h.vao = mesh->handles.vao;
 	h.vertCount = mesh->data.numVerts;
 
-    ZRMaterial* mat = AssetDb()->GetMaterialByIndex(AssetDb(), materialIndex);
-	h.diffuseHandle = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->diffuseTexIndex);
-	h.emissiveHandle = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->emissionTexIndex);
+    ZRDBMaterial* mat = AssetDb()->GetMaterialByIndex(AssetDb(), materialIndex);
+	h.diffuseHandle = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->data.diffuseTexIndex);
+	h.emissiveHandle = AssetDb()->GetTextureHandleByIndex(AssetDb(), mat->data.emissionTexIndex);
 	
     
     return h;

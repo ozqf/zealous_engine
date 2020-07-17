@@ -228,7 +228,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
     // Create materials
     // Textures need to be loaded before this point!
 	///////////////////////////////////////////
-    ZRMaterial* mat;
+    ZRDBMaterial* mat;
 
 	// first material index is always fullbright magenta for debugging
 	mat = db->CreateMaterial(

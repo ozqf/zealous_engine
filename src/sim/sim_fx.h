@@ -1,6 +1,6 @@
 #include "sim_internal.h"
 
-internal void SimGfx_EntityDeath(SimScene* sim, SimEvent_RemoveEnt* cmd)
+internal void SimFx_EntityDeath(SimScene* sim, SimEvent_RemoveEnt* cmd)
 {
 	SimEntity* ent = Sim_GetEntityBySerial(sim, cmd->entityId);
 	if (ent == NULL) { return; }

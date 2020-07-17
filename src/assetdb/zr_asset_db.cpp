@@ -35,9 +35,19 @@ extern "C" void ZRDB_PrintManifest(ZRAssetDB* assetDB)
 	printf("--- Materials (%d) ---\n", db->numMaterials);
 	for (i32 i = 0; i < db->numMaterials; ++i)
 	{
-		ZRMaterial* mat = &db->materials[i];
-		printf("%d: %s: diffuse: %d\n", i, mat->name, mat->diffuseTexIndex);
+		ZRDBMaterial* mat = &db->materials[i];
+		printf("%d: %s: diffuse: %d\n", i,
+			mat->header.fileName, mat->data.diffuseTexIndex);
 	}
+	
+	printf("--- Allocations (%d of %d - %dMB)\n",
+		db->allocs.next, db->allocs.max, COM_SumMallocs(&db->allocs) / (1024 * 1024));
+	for (i32 i = 0; i < db->allocs.next; ++i)
+	{
+		printf("%d: %dKB - %s\n",
+			i, db->allocs.items[i].capacity, db->allocs.items[i].label);
+	}
+	printf("Strings %d of %d bytes\n", db->strings.Written(), db->strings.capacity);
 	printf("\n");
 }
 
@@ -73,8 +83,32 @@ internal void ZRDB_VidRestart(ZRAssetDB* assetDb)
 
 extern "C" ZRAssetDB* ZRDB_Create()
 {
-    ZRAssetDBData* db = (ZRAssetDBData*)malloc(sizeof(ZRAssetDBData));
-    *db = {};
+	const i32 maxTrackedAllocs = 1024;
+	i32 spaceForStruct = sizeof(ZRAssetDBData);
+	i32 spaceForAllocList = sizeof(MallocItem) * maxTrackedAllocs;
+	i32 spaceForStrings = MegaBytes(1);
+	i32 total = spaceForStruct + spaceForAllocList + spaceForStrings;
+	u8* ptr = (u8*)malloc(total);
+	ZE_SET_ZERO(ptr, total)
+	ZRAssetDBData* db = (ZRAssetDBData*)ptr;
+	*db = {};
+
+	void* mallocItems = ptr + spaceForStruct;
+	db->allocs = COM_InitMallocList((MallocItem*)mallocItems, maxTrackedAllocs);
+	char* strPtr = (char*)db->strings.cursor;
+	db->strings.cursor += ZE_CopyStringLimited("ZRDB", strPtr, db->strings.Space());
+	COM_SetAlloc(&db->allocs, ptr, total, strPtr);
+	db->strings = Buf_FromBytes(ptr + spaceForStruct + spaceForAllocList, spaceForStrings);
+	printf("ZRDB - %d alloc items %dKB for strings\n", db->allocs.max, db->strings.capacity / 1024);
+
+	// Allocate struct
+    //ZRAssetDBData* db = (ZRAssetDBData*)malloc(sizeof(ZRAssetDBData));
+    //*db = {};
+	// init malloc list
+
+	// allocate space to store strings
+
+
     /////////////////////////////////////////////////////
     // functions
     db->nextId = ZR_ASSET_DB_FIRST_ID;
@@ -111,7 +145,7 @@ extern "C" ZRAssetDB* ZRDB_Create()
     db->maxTextures = ZR_ASSET_DB_MAX_HANDLES;
     db->meshes = (ZRDBMesh*)malloc(sizeof(ZRDBMesh) * ZR_ASSET_DB_MAX_HANDLES);
     db->maxMeshes = ZR_ASSET_DB_MAX_HANDLES;
-    db->materials = (ZRMaterial*)malloc(sizeof(ZRMaterial) * ZR_ASSET_DB_MAX_HANDLES);
+    db->materials = (ZRDBMaterial*)malloc(sizeof(ZRDBMaterial) * ZR_ASSET_DB_MAX_HANDLES);
     db->maxMaterials = ZR_ASSET_DB_MAX_HANDLES;
 
 	ZRDB_LoadEmbedded(&db->header);

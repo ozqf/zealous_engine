@@ -16,6 +16,8 @@ static i32 ZRDB_RegisterMesh(ZRAssetDB* assetDB, char* name, ZRMeshHandles handl
     ZRDBMesh* mesh = &db->meshes[index];
     *mesh = {};
     mesh->header.fileName = name;
+    mesh->header.id = db->nextId;
+    db->nextId++;
     mesh->handles = handles;
     mesh->data = data;
     printf("ZRDB - registered Mesh %s at index %d\n", name, index);

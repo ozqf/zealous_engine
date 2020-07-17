@@ -32,6 +32,16 @@ internal MallocList COM_InitMallocList(MallocItem* items, i32 capacity)
     return list;
 }
 
+internal u32 COM_SumMallocs(MallocList* list)
+{
+    i32 total = 0;
+    for (i32 i = 0; i < list->next; ++i)
+    {
+        total += list->items[i].capacity;
+    }
+    return total;
+}
+
 internal void* COM_Malloc(MallocList* list, i32 capacity, char* label)
 {
     MallocItem* a = &list->items[list->next++];
@@ -43,10 +53,10 @@ internal void* COM_Malloc(MallocList* list, i32 capacity, char* label)
     list->totalBytes += capacity;
     return a->ptr;
 }
-#if 0
-internal Alloc* COM_SetAlloc(MallocList* list, void* ptr, i32 capacity, char* label)
+#if 1
+internal MallocItem* COM_SetAlloc(MallocList* list, void* ptr, i32 capacity, char* label)
 {
-    Alloc* a = &list->items[list->next++];
+    MallocItem* a = &list->items[list->next++];
     a->ptr = ptr;
     a->capacity = capacity;
     a->label = label;

@@ -141,12 +141,21 @@ struct ZRDBMesh
     MeshData data;
 };
 
+struct ZRDBMaterial
+{
+	ZRAsset header;
+	ZRMaterial data;
+};
+
 /**
  * Architecture of this is... a bit wild?
  */
 struct ZRAssetDB
 {
+	// Fields
 	volatile i32 bDirty;
+	
+	// "Methods"
     ZRDBMesh* (*GetMeshByName)(ZRAssetDB* assetDB, char* name);
     ZRDBMesh* (*GetMeshByIndex)(ZRAssetDB* assetDB, i32 index);
     void (*GetMeshHandleByName)(ZRAssetDB* assetDB, char* name, ZRMeshHandles* result);
@@ -158,9 +167,9 @@ struct ZRAssetDB
     i32 (*GetNumTextures)(ZRAssetDB* assetDB);
 	ZRDBTexture* (*GenBlankTexture)(ZRAssetDB* handle, char* name, i32 w, i32 h, ColourU32 fill);
 
-    ZRMaterial* (*CreateMaterial)(ZRAssetDB* assetDB, char* name, char* diffuseTexName, char* emissiveTexName);
-    ZRMaterial* (*GetMaterialByName)(ZRAssetDB* assetDB, char* name);
-    ZRMaterial* (*GetMaterialByIndex)(ZRAssetDB* assetDB, i32 index);
+    ZRDBMaterial* (*CreateMaterial)(ZRAssetDB* assetDB, char* name, char* diffuseTexName, char* emissiveTexName);
+    ZRDBMaterial* (*GetMaterialByName)(ZRAssetDB* assetDB, char* name);
+    ZRDBMaterial* (*GetMaterialByIndex)(ZRAssetDB* assetDB, i32 index);
     i32 (*GetNumMaterials)(ZRAssetDB* assetDB);
 
     i32 (*LoadTexture)(ZRAssetDB* assetDB, char* path, i32 bVerbose);

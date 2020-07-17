@@ -1,8 +1,8 @@
 #ifndef ZR_DB_INTERNAL_H
 #define ZR_DB_INTERNAL_H
 
-
 #include "zr_asset_db.h"
+#include "../ze_common/ze_common_full.h"
 
 #define ZR_ASSET_DB_MAX_HANDLES 512
 
@@ -14,17 +14,24 @@
 
 struct ZRAssetDBData
 {
+    // public head contains function pointers
     ZRAssetDB header;
     //ZRAssetUploader uploader;
+    
+    ZEByteBuffer strings;
+	MallocList allocs;
 
     i32 nextId;
+
     ZRDBTexture* textures;
     i32 numTextures;
     i32 maxTextures;
+
     ZRDBMesh* meshes;
     i32 numMeshes;
     i32 maxMeshes;
-    ZRMaterial* materials;
+
+    ZRDBMaterial* materials;
     i32 numMaterials;
     i32 maxMaterials;
 };
@@ -38,6 +45,21 @@ static ZRDBTexture* ZRDB_GenBlankTexture(ZRAssetDB* handle, char* name, i32 w, i
 ///////////////////////////////////////////////////////////////////////////
 // Shared utility functions
 ///////////////////////////////////////////////////////////////////////////
+
+static u32 ZRDB_MeasureFile(char* path)
+{
+    FILE* f;
+    i32 err = fopen_s(&f, path, "rb");
+    if (err != 0)
+    {
+        printf("FAILED: Could not open file \"%s\" for reading\n", path);
+        return 0;
+    }
+    fseek(f, 0, SEEK_END);
+    u32 size = ftell(f);
+    fclose(f);
+    return size;
+}
 
 /**
  * Load an entire file, unaltered, into memory.
