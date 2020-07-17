@@ -48,6 +48,11 @@ struct ZSndCreate
 	
 };
 
+struct ZSoundEventType
+{
+    i32 index;
+};
+
 struct ZSoundInstance
 {
     i32 userId;

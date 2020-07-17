@@ -10,6 +10,6 @@ extern "C" ErrorCode Snd_ParseCommandString(const char* str, const char** tokens
 extern "C" i32 Snd_LoadSoundWavFile(char* name64, char* filePath);
 extern "C" i32 Snd_LoadSoundRaw(char* name64, u8* data, i32 numBytes);
 extern "C" void Snd_PlayQuick(i32 sampleIndex, Vec3 pos);
-extern "C" void Snd_ExecuteEvents(ZEByteBuffer* buf);
+extern "C" void Snd_ExecCommands(ZEByteBuffer* buf);
 
 #endif // ZE_WIN_SOUND_H

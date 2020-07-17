@@ -396,7 +396,7 @@ static ze_platform_export Win_BuildExport()
 
     result.SndLoadFile = Snd_LoadSoundWavFile;
     result.SndPlayQuick = Snd_PlayQuick;
-    result.Snd_ExecuteEvents = Snd_ExecuteEvents;
+    result.Snd_ExecCommands = Snd_ExecCommands;
 
     result.sentinel = ZE_SENTINEL;
 

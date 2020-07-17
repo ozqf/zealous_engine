@@ -415,7 +415,7 @@ internal i32 AppImpl_Tick()
         App_SimFrame(frameInterval);
         App_TickDebugUtils(frameInterval);
         App_DrawFrame();
-        g_platform.Snd_ExecuteEvents(&g_soundBuffer);
+        g_platform.Snd_ExecCommands(&g_soundBuffer);
         g_soundBuffer.Clear(NO);
     }
     return ZE_ERROR_NONE;

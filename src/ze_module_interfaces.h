@@ -66,7 +66,7 @@ struct ze_platform_export
     // sound
     i32 (*SndLoadFile)(char* name, char* filePath);
     void (*SndPlayQuick)(i32 sampleIndex, Vec3 pos);
-    void (*Snd_ExecuteEvents)(ZEByteBuffer* buf);
+    void (*Snd_ExecCommands)(ZEByteBuffer* buf);
 
     //
     i32 sentinel;

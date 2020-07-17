@@ -11,7 +11,7 @@
 /////////////////////////////////////////////////////////////////////
 // Internal data structures
 /////////////////////////////////////////////////////////////////////
-
+#if 0
 // A playable sound sample loaded by FMOD
 struct ZSound
 {
@@ -27,6 +27,13 @@ struct ZSoundSource
 	i32 soundId;            // id of -1 == unused
 	f32 pos[3];
 	f32 tick;
+};
+#endif
+
+struct ZSoundFmodEventType
+{
+    ZSoundEventType event;
+    FMOD::Sound* handle;
 };
 
 
@@ -65,7 +72,8 @@ https://documentation.help/FMOD-Studio-API/FMOD_Studio_EventInstance_Set3DAttrib
 internal FMOD::System* sys = NULL;
 internal FMOD::Sound* g_soundHandles[SND_MAX_SOUND_HANDLES];
 internal i32 g_nextSoundHandle = 0;
-//internal FMOD::Channel* gsnd_channel;
+
+internal ZSoundFmodEventType g_eventTypes[SND_MAX_SOUND_HANDLES];
 
 internal f32 g_fxVolume = 0.5f;
 internal f32 g_bgmVolume = 0.5f;
@@ -249,6 +257,14 @@ extern "C" i32 Snd_LoadSoundRaw(char* name64, u8* data, i32 numBytes)
     return -1;
 }
 
+extern "C" void Snd_SetupEvent(ZSoundEventType evType, char* soundName)
+{
+    ZSoundFmodEventType* ev = &g_eventTypes[evType.index];
+    ev->event = evType;
+    // TODO: attach samples
+    //ev->handle =
+}
+
 ////////////////////////////////////////////////////////
 // Play
 ////////////////////////////////////////////////////////
@@ -274,9 +290,7 @@ extern "C" void Snd_PlayQuick(i32 sampleIndex, Vec3 pos)
     chnl->getMode(&mode);
     if ((mode & FMOD_3D) != 0)
     {
-        printf("Sound is 3D\n");
         result = chnl->set3DAttributes((FMOD_VECTOR*)&pos, NULL, NULL);
-        Snd_Update3DListener(0);
     }
     //chnl->setMode(FMOD_3D | FMOD_3D_WORLDRELATIVE);
     if (result != FMOD_OK)
@@ -292,7 +306,7 @@ extern "C" void Snd_PlayQuick(i32 sampleIndex, Vec3 pos)
     // );
 }
 
-extern "C" void Snd_ExecuteEvents(ZEByteBuffer* buf)
+extern "C" void Snd_ExecCommands(ZEByteBuffer* buf)
 {
     ZSoundCommand* cmds = (ZSoundCommand*)buf->start;
     i32 numCommands = buf->Written() / sizeof(ZSoundCommand);
