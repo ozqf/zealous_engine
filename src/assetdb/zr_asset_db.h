@@ -46,6 +46,12 @@ struct ZRAsset
     char* fileName;
 };
 
+struct ZRDBBlob
+{
+    ZRAsset header;
+	ZEByteBuffer data;
+};
+
 struct ZRDBTexture
 {
     //char* fileName;
@@ -160,6 +166,10 @@ struct ZRAssetDB
     ZRDBMesh* (*GetMeshByIndex)(ZRAssetDB* assetDB, i32 index);
     void (*GetMeshHandleByName)(ZRAssetDB* assetDB, char* name, ZRMeshHandles* result);
     i32 (*GetNumMeshes)(ZRAssetDB* assetDB);
+
+	i32 (*ZRDB_GetBlobIndexName)(ZRAssetDB* handle, char* name);
+	ZRDBBlob* (*ZRDB_GetBlobByName)(ZRAssetDB* assetDB, char* name);
+	ZRDBBlob* (*ZRDB_CreateBlob)(ZRAssetDB* assetDB, char* name, i32 numBytes);
 
     ZRDBTexture* (*GetTextureByName)(ZRAssetDB* assetDB, char* name);
     ZRDBTexture* (*GetTextureByIndex)(ZRAssetDB* assetDB, i32 index);

@@ -21,7 +21,12 @@ struct ZRAssetDBData
     ZEByteBuffer strings;
 	MallocList allocs;
 
+    // unique serial number shared across all assets.
     i32 nextId;
+    
+    ZRDBBlob* blobs;
+    i32 numBlobs;
+    i32 maxBlobs;
 
     ZRDBTexture* textures;
     i32 numTextures;

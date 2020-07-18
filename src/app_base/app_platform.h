@@ -144,14 +144,14 @@ internal i32  AppImpl_Init()
 
     // Internal loopbacks for client and server
     g_gameBuffers.a = Buf_FromMalloc(
-        COM_Malloc(&g_mallocs, bufferSize, "Game Buffer A"),
+        COM_Malloc(&g_mallocs, bufferSize, 0, "Game Buffer A"),
         bufferSize);
     g_gameBuffers.b = Buf_FromMalloc(
-        COM_Malloc(&g_mallocs, bufferSize, "Game Buffer B"),
+        COM_Malloc(&g_mallocs, bufferSize, 0, "Game Buffer B"),
         bufferSize);
     
     g_soundBuffer = Buf_FromMalloc(
-        COM_Malloc(&g_mallocs, bufferSize, "Sound Events"),
+        COM_Malloc(&g_mallocs, bufferSize, 0, "Sound Events"),
         bufferSize);
 
 	g_loopbackSocket.Init(g_fakeLagMinMS, g_fakeLagMaxMS, g_fakeLoss);

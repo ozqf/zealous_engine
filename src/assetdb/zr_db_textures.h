@@ -15,7 +15,13 @@ static i32 ZRDB_GetNumTextures(ZRAssetDB* assetDB)
 }
 
 static i32 ZRDB_RegisterTexture(
-    ZRAssetDB* assetDB, char* fileName, ColourU32* data, i32 dataSize, i32 width, i32 height, i32 apiHandle)
+    ZRAssetDB* assetDB,
+    char* fileName,
+    ColourU32* data,
+    i32 dataSize,
+    i32 width,
+    i32 height,
+    i32 apiHandle)
 {
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
     

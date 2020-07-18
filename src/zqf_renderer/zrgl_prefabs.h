@@ -21,7 +21,8 @@ static ZRDataTexture ZRGL_CreateDataTexture2D(
     tex.height = length;
     // Calc bytes required
     tex.numBytes = sizeof(Vec4) * (tex.width * tex.height);
-    tex.mem = (Vec4*)plat->Allocate(tex.numBytes);
+    tex.mem = (Vec4*)COM_Malloc(&g_mallocs, tex.numBytes, ZRGL_ALLOC_TAG_DATA_TEXTURE, "2d data tex");
+    //tex.mem = (Vec4*)plat->Allocate(tex.numBytes);
     ZE_ASSERT(tex.mem != NULL, "Failed to allocate memory for texture\n");
     ZE_SET_ZERO((u8*)tex.mem, tex.numBytes);
     glGenTextures(1, &tex.handle);
@@ -43,7 +44,7 @@ static ZRDataTexture ZRGL_CreateDataTexture1D(
     tex.height = 1;
     // Calc bytes required
     tex.numBytes = sizeof(Vec4) * tex.width;
-    tex.mem = (Vec4*)plat->Allocate(tex.numBytes);
+    tex.mem = (Vec4*)COM_Malloc(&g_mallocs, tex.numBytes, ZRGL_ALLOC_TAG_DATA_TEXTURE, "1d data tex");
     ZE_ASSERT(tex.mem != NULL, "Failed to allocate memory for texture\n");
     ZE_SET_ZERO((u8*)tex.mem, tex.numBytes);
     glGenTextures(1, &tex.handle);

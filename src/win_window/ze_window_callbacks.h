@@ -162,7 +162,7 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
 static ErrorCode ZR_InitCallbacks(GLFWwindow* window)
 {
 	// Prepare buffer for platform events
-    i32 eventBufferSize = KiloBytes(64);
+    //i32 eventBufferSize = KiloBytes(64);
     //g_events = Buf_FromMalloc(malloc(eventBufferSize), eventBufferSize);
 
     glfwSetWindowCloseCallback(window, window_close_callback);

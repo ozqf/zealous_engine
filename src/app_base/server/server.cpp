@@ -238,7 +238,7 @@ internal void SV_ResetEntityPositionRecords()
     if (g_entityRecords == NULL)
     {
         g_entityRecords = (SVEntityFrame*)COM_Malloc(
-            &g_mallocs, bytesTotal, "Entity Frames");
+            &g_mallocs, bytesTotal, 0, "Entity Frames");
     }
     ZE_SET_ZERO((u8*)g_entityRecords, bytesTotal);
 }
@@ -260,7 +260,7 @@ extern "C" void SV_Start()
     g_users = {};
     g_users.max = APP_MAX_USERS;
     i32 userBytes = sizeof(User) * APP_MAX_USERS;
-    User* users = (User*)COM_Malloc(&g_mallocs, userBytes, "SV Users");
+    User* users = (User*)COM_Malloc(&g_mallocs, userBytes, 0, "SV Users");
     g_users.items = users;
 
     SV_ResetEntityPositionRecords();
@@ -269,7 +269,7 @@ extern "C" void SV_Start()
 
     i32 maxEnts = APP_MAX_ENTITIES;
     size = Sim_CalcEntityArrayBytes(maxEnts);
-    SimEntity* mem = (SimEntity*)COM_Malloc(&g_mallocs, size, "Sim Ents");
+    SimEntity* mem = (SimEntity*)COM_Malloc(&g_mallocs, size, 0, "Sim Ents");
     Sim_Init("Server", &g_sim, mem, maxEnts);
 	Sim_Reset(&g_sim);
     // Inflate sim frame number - debugging

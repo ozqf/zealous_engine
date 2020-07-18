@@ -40,6 +40,7 @@ internal i32 ZE_CompareStrings(const char *a, const char *b)
 }
 
 /**
+ * Returns chars written
  * Copy a string without exceeding the specified limit
  * Will always patch a NULL terminator at the final position
  */

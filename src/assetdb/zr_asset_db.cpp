@@ -95,10 +95,14 @@ extern "C" ZRAssetDB* ZRDB_Create()
 
 	void* mallocItems = ptr + spaceForStruct;
 	db->allocs = COM_InitMallocList((MallocItem*)mallocItems, maxTrackedAllocs);
+
+	// strings space
+	db->strings = Buf_FromBytes(ptr + spaceForStruct + spaceForAllocList, spaceForStrings);
+
 	char* strPtr = (char*)db->strings.cursor;
 	db->strings.cursor += ZE_CopyStringLimited("ZRDB", strPtr, db->strings.Space());
 	COM_SetAlloc(&db->allocs, ptr, total, strPtr);
-	db->strings = Buf_FromBytes(ptr + spaceForStruct + spaceForAllocList, spaceForStrings);
+
 	printf("ZRDB - %d alloc items %dKB for strings\n", db->allocs.max, db->strings.capacity / 1024);
 
 	// Allocate struct
@@ -140,7 +144,7 @@ extern "C" ZRAssetDB* ZRDB_Create()
 
 	db->header.VidRestart = ZRDB_VidRestart;
 
-    // store
+    // store handles to asset data
     db->textures = (ZRDBTexture*)malloc(sizeof(ZRDBTexture) * ZR_ASSET_DB_MAX_HANDLES);
     db->maxTextures = ZR_ASSET_DB_MAX_HANDLES;
     db->meshes = (ZRDBMesh*)malloc(sizeof(ZRDBMesh) * ZR_ASSET_DB_MAX_HANDLES);

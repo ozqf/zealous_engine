@@ -11,17 +11,17 @@ extern "C" i32 Game_Init()
 
 	// allocate sim
 	i32 entBytes = Sim_CalcEntityArrayBytes(GAME_MAX_ENTS);
-	SimEntity* ents = (SimEntity*)COM_Malloc(&g_mallocs, entBytes, "Sim Ents");
+	SimEntity* ents = (SimEntity*)COM_Malloc(&g_mallocs, entBytes, 0, "Sim Ents");
 	Sim_Init("Server", &g_sim, ents, GAME_MAX_ENTS);
 	Sim_Reset(&g_sim);
 	
 	// Buffers for simulation I/O
 	i32 pendingCmdBytes = MegaBytes(1);
 	
-	ptr = COM_Malloc(&g_mallocs, pendingCmdBytes, "Sim Input");
+	ptr = COM_Malloc(&g_mallocs, pendingCmdBytes, 0, "Sim Input");
 	g_gameBuf.a = Buf_FromBytes((u8*)ptr, pendingCmdBytes);
 
-	ptr = COM_Malloc(&g_mallocs, pendingCmdBytes, "Sim Output");
+	ptr = COM_Malloc(&g_mallocs, pendingCmdBytes, 0, "Sim Output");
 	g_gameBuf.b = Buf_FromBytes((u8*)ptr, pendingCmdBytes);
 
 	// scene render

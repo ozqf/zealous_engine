@@ -9,8 +9,10 @@
 struct MallocItem
 {
     void* ptr;
-    // for debugging
     i32 capacity;
+    // group/identify this alloc
+    i32 tag;
+    // for debugging, what is this memory for?
     char* label;
 };
 
@@ -39,13 +41,15 @@ internal u32 COM_SumMallocs(MallocList* list)
     {
         total += list->items[i].capacity;
     }
+    list->totalBytes = total;
     return total;
 }
 
-internal void* COM_Malloc(MallocList* list, i32 capacity, char* label)
+internal void* COM_Malloc(MallocList* list, i32 capacity, i32 tag, char* label)
 {
     MallocItem* a = &list->items[list->next++];
     a->ptr = malloc(capacity);
+    a->tag = tag;
     ZE_ASSERT(a->ptr, "malloc failed");
     a->capacity = capacity;
     a->label = label;
@@ -53,6 +57,17 @@ internal void* COM_Malloc(MallocList* list, i32 capacity, char* label)
     list->totalBytes += capacity;
     return a->ptr;
 }
+
+internal void COM_FreeAll(MallocList* list)
+{
+    for (i32 i = 0; i < list->next; ++i)
+    {
+        free(list->items[i].ptr);
+        list->items[i] = {};
+    }
+    list->next = 0;
+}
+
 #if 1
 internal MallocItem* COM_SetAlloc(MallocList* list, void* ptr, i32 capacity, char* label)
 {

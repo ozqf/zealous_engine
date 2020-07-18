@@ -124,6 +124,7 @@ static void Window_InitConsoleScreen()
 //////////////////////////////////////////////////////////////////
 static ErrorCode Window_SpawnWindow()
 {
+    printf("WINDOW - spawn window\n");
     //////////////////////////////////////////////////////////////////
     // GLFW - Build opengl context, window and callbacks
     //////////////////////////////////////////////////////////////////
@@ -216,6 +217,7 @@ static ErrorCode Window_SpawnWindow()
 
 static void Window_Restart()
 {
+    printf("WINDOW - restart\n");
     // Kill window
     glfwDestroyWindow(g_window);
     g_window = NULL;
@@ -227,10 +229,12 @@ static void Window_Restart()
 
 static i32 WindowImpl_Init()
 {
+    printf("WINDOW - init\n");
     //g_platform.Warning("Hello from window DLL", "666");
     // This NEVER happens honest gov.
     ZE_SetFatalError(ZR_Error);
 
+    printf("WINDOW - allocate draw list + event buffers\n");
     i32 bytes = MegaBytes(1);
     g_drawListBuffer = Buf_FromMalloc(malloc(bytes), bytes);
     g_drawDataBuffer = Buf_FromMalloc(malloc(bytes), bytes);
@@ -241,8 +245,8 @@ static i32 WindowImpl_Init()
     // create export for renderer and link up
     // but DO NOT INIT - init when window is created
     ZRPlatform platform = {};
-    platform.Allocate = g_platform.Allocate;
-    platform.Free = g_platform.Free;
+    // platform.Allocate = g_platform.Allocate;
+    // platform.Free = g_platform.Free;
     platform.QueryClock = g_platform.QueryClock;
     platform.GetAssetDB = g_platform.GetAssetDB;
     platform.DebugBreak = g_platform.DebugBreak;

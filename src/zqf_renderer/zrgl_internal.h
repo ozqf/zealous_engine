@@ -4,6 +4,8 @@
  * Header for internal components of renderer
  */
 
+#define ZRGL_ALLOC_TAG_DATA_TEXTURE 1
+
 #define ZRGL_DEBUG_BIT_SHOWGBUFFER (1 << 0)
 
 // Advance buffer data in shader by each vertex being rendered
@@ -116,6 +118,13 @@ struct ZRGPUSpecs
         //GLint maxGeometryUniformBlocks; // GL_MAX_VERTEX_UNIFORM_BLOCKS
         //GLint maxFragmentUniformBLocks; // GL_MAX_FRAGMENT_UNIFORM_BLOCKS
     } uniformBlocks;
+};
+
+#define ZRGL_MAX_ALLOCS 1024
+static MallocItem g_mallocItems[ZRGL_MAX_ALLOCS];
+static MallocList g_mallocs = 
+{
+    g_mallocItems, 0, ZRGL_MAX_ALLOCS, 0
 };
 
 static i32 g_debugFlags = 0;

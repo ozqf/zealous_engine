@@ -54,8 +54,10 @@ static ZRGPUSpecs ZRGL_QueryGPUSpecs()
 
 extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
 {
-    printf("==== RENDERER - init ====\n");
-    
+    printf("==== ZRGL - init ====\n");
+    printf("Free alloc list\n");
+    COM_FreeAll(&g_mallocs);
+
     // Scan GPU info
     g_gpuLimits = ZRGL_QueryGPUSpecs();
     ZRGL_PrintGPUInfo();
@@ -350,7 +352,7 @@ extern "C" void ZRGL_CheckForUploads(i32 bVerbose)
 
 extern "C" void ZRGL_Link(ZRPlatform platform)
 {
-    printf("==== Renderer Link ====\n");
+    printf("ZRGL - link\n");
     g_platform = platform;
 }
 #endif // ZRGL_INIT_H

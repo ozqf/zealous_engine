@@ -44,11 +44,11 @@ internal void SVU_AllocateUserStream(
     if (stream->initialised) { return; }
     stream->initialised = 1;
     stream->inputBuffer = Buf_FromMalloc(
-        COM_Malloc(&g_mallocs, capacityPerBuffer, "User Input"),
+        COM_Malloc(&g_mallocs, capacityPerBuffer, 0, "User Input"),
         capacityPerBuffer
     );
     stream->outputBuffer = Buf_FromMalloc(
-        COM_Malloc(&g_mallocs, capacityPerBuffer, "User Output"),
+        COM_Malloc(&g_mallocs, capacityPerBuffer, 0, "User Output"),
         capacityPerBuffer
     );
 }
@@ -145,6 +145,7 @@ internal User* SVU_CreateUser(UserIds ids, ZNetAddress* addr)
     user->entSync.links = (PriorityLink*)COM_Malloc(
         &g_mallocs,
         Priority_CalcEntityLinkArrayBytes(APP_MAX_ENTITIES),
+        0,
         "EntLinks");
     user->entSync.maxLinks = APP_MAX_ENTITIES;
     user->entSync.numLinks = 0;
