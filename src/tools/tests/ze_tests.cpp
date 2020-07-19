@@ -198,9 +198,9 @@ extern "C" void ZETests_Run()
 	printf("=== ZE tests ===\n");
 	// Test core common lib
 	Test_StringFunctions();
-	TestBlobStore();
+	//TestBlobStore();
 
 	// Test more specialised modules
-	NetworkUnitTests();
-	Test_Introspection();
+	//NetworkUnitTests();
+	//Test_Introspection();
 }

@@ -9,9 +9,9 @@
  * > Destination must be at least as long as source!
  * > Returns number of tokens found, up to the max allowed by
  * the passed in results array
- * > Should be okay of destination's memory is not cleared.
+ * > Should be okay if destination and token list memory is not cleared.
  */
-internal i32 ZE_ReadTokens(char* source, char* destination, char** tokens, i32 maxTokens)
+internal i32 ZE_ReadTokens(const char* source, char* destination, char** tokens, i32 maxTokens)
 {
     i32 len = ZE_StrLen(source);
     i32 tokensCount = 0;
@@ -81,6 +81,38 @@ internal i32 ZE_ReadTokens(char* source, char* destination, char** tokens, i32 m
     return tokensCount;
 }
 
+/**
+Send a target length of -1 to measure the string. Use a target length > 0
+allows for strings with terminators in them
+*/
+internal i32 ZE_ReplaceChars(char* str, i32 strLen, char* targets, i32 numTargets, char* replacements, i32 numReplacements)
+{
+    i32 totalReplaced = 0;
+    if (str == NULL) { return -1; }
+    if (targets == NULL) { return -1; }
+    if (replacements == NULL) { return -1; }
+    if (numTargets != numReplacements) { return -1; }
+
+    if (strLen < 0)
+    {
+        strLen = ZE_StrLen(str);
+    }
+    char* cursor = str;
+    for (i32 i = 0; i < strLen; ++i)
+    {
+        char c = str[i];
+        for (i32 j = 0; j < numTargets; ++j)
+        {
+            if (c == targets[j])
+            {
+                printf("Replacing %d with %d\n", targets[j], replacements[j]);
+                str[i] = replacements[j];
+                totalReplaced++;
+            }
+        }
+    }
+    return totalReplaced;
+}
 
 internal char* ZE_RunToNewLine(char* buffer)
 {

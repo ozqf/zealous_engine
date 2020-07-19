@@ -25,4 +25,5 @@ void main(int argc, char** argv)
 	{
 		printf("Unknown mode %s\n", argv[1]);
 	}
+	printf("ZT - done\n");
 }
