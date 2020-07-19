@@ -42,6 +42,9 @@ static void Test_ZEVars()
 	// Create lookup table at the front of the memory block.
 	// Store added variables after table.
 	i32 maxKeys = 16;
+	printf("Bytes for table with %d (%d scaled up) for hash table\n",
+		sizeof(ZELookupStrKey) * maxKeys,
+		sizeof(ZELookupStrKey) * (maxKeys * 2));
 	i32 tableBytes = ZE_MeasureStringHashTable(maxKeys);
 	ZELookupStrTable* table = ZE_CreateStringHashTable(maxKeys, buf.start);
 	buf.cursor = buf.start + tableBytes;
@@ -59,15 +62,16 @@ static void Test_ZEVars()
 
 	// Recall something
 	char* queryKey = "mob_health";
-	i32 offset = table->FindKeyIndex(queryKey);
+	i32 offset = table->GetData(queryKey, -1);
 	if (offset == -1)
 	{
 		printf("Failed to find key %s\n", queryKey);
 		free(buf.start);
 		return;
 	}
-	ZEVar* v = (ZEVar*)(buf.start + offset);
-	printf("Key %s: %d\n", queryKey, v->data.i);
+	printf("Offset for %s: %d\n", queryKey, offset);
+	ZEVar* v = (ZEVar*)(table->data.start + offset);
+	printf("Key %s: %d\n", v->name, v->data.i);
 
 	free(buf.start);
 }

@@ -212,7 +212,10 @@ static i32 ZE_LT_CalcBytesForTable(i32 numKeys)
  * > if mem is NULL, the table will be allocated
  *   > allocation is |table struct|...keys...|
  * > use CalcBytes function to measure required space!
- * > capacity passed in should be double size of the lookup array to reduce collisions
+ * > capacity passed in should be double size of the target
+ * 		array to reduce collisions
+ * 	eg 32 item array should have a lookup keys set of
+ * 		 64 to avoid key collisions
  */
 static ZELookupTable* ZE_LT_Create(i32 capacity, i32 invalidDataValue, u8* mem)
 {

@@ -3,6 +3,9 @@
 
 #include "ze_common.h"
 #include "ze_byte_buffer.h"
+#include "ze_string_utils.h"
+#include "ze_lookup_table.h"
+//#include "ze_lookup_string_table.h"
 
 //////////////////////////////////////////
 // Data types
@@ -34,12 +37,6 @@ struct ZEVar
 	i32 nameLength;
 
 	ZEVarUnion data;
-};
-
-struct ZEVarSet
-{
-	i32 numItems;
-	char* name;
 };
 
 static ZEVar* ZEVar_InitVar(ZEByteBuffer* b, char* name, i32 type)
@@ -83,34 +80,34 @@ static u32 ZEVar_AddInt(ZEByteBuffer* b, char* name, i32 value)
 	if (v == NULL) { return 0; }
 	v->data.i = value;
 	return ((u8*)v - b->start);
-	#if 0
-	const u8* writeStart = b->cursor;
-	// init var
-	ZE_INIT_PTR_IN_PLACE(intVar, ZEVar, b)
-	if (intVar == NULL) { return 0; }
-
-	// copy name string
-	i32 len = ZE_StrLen(name);
-	b->cursor += ZE_CopyStringLimited(name, (char*)b->cursor, len);
-	
-	// setup var
-	intVar->sentinel = ZE_SENTINEL;
-	intVar->name = name;
-	intVar->nameLength = len;
-	intVar->type = ZEVAR_TYPE_INT;
-	intVar->size = sizeof(ZEVar) + len;
-	intVar->data.i = value;
-	
-	return (writeStart - b->start);
-	#endif
 }
 
 /**
  * returns fail if the var found was not valid
  */
-static i32 ZEVar_GetInt(ZEByteBuffer* b, i32 offset, i32 fail)
+// static i32 ZEVar_GetInt(ZELookupStrTable* table, char* key, i32 fail)
+// {
+// 	i32 data = table->GetData(key, fail);
+// 	if (data == -1) { return fail; }
+// 	return data;
+// }
+
+struct ZEVarSet
 {
-	return fail;
+	i32 numItems;
+	char* name;
+	ZELookupTable* table;
+	ZEByteBuffer data;
+
+	void Insert
+};
+
+static ZEVarSet ZEVar_CreateSet(i32 numKeys, i32 dataBytes)
+{
+	ZEVarSet s = {};
+	s.table = ZE_LT_Create(numKeys * 2, -1, NULL);
+	s.data = Buf_FromMalloc(malloc(dataBytes), dataBytes);
+	return s;
 }
 
 #endif // ZE_VARS_H

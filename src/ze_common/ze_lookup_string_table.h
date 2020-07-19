@@ -58,6 +58,13 @@ struct ZELookupStrTable
 		return -1;
 	}
 
+	i32 GetData(char* key, i32 fail)
+	{
+		i32 index = FindKeyIndex(key);
+		if (index == -1) { return fail; }
+		return m_keys[index].data;
+	}
+
 	ErrorCode Insert(char* newKey, i32 newData)
 	{
 		//i32 len = ZE_StrLen(newKey);
