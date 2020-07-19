@@ -1,5 +1,13 @@
 #include "../../ze_common/ze_common_full.h"
 
+struct ZEStringStackItem
+{
+	i32 offset;
+	i32 hash;
+	i32 len;
+	char* chars;
+};
+
 static const char* g_testIniTextFile =
 "str classname=mob_base\r\n"
 "int health=100\r\n";
