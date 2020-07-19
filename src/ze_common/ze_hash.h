@@ -4,15 +4,16 @@
 #include "ze_common.h"
 
 // source http://www.cse.yorku.ca/~oz/hash.html
-#if 0
-unsigned long ZE_Hash_djb2(unsigned char *str)
+#if 1
+static unsigned long ZE_Hash_djb2(unsigned char *str)
 {
     unsigned long hash = 5381;
     int c;
 
-    while (c = *str++) // this line gives compiler warning
+    while ((c = *str++) != '\0') // this line gives compiler warning
+    {
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
+    }
     return hash;
 }
 #endif

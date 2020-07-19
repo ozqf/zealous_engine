@@ -5,6 +5,9 @@
 #include "ze_byte_buffer.h"
 #include "ze_hash.h"
 
+////////////////////////////////////////
+// Way to store static strings
+////////////////////////////////////////
 struct ZEStringStackItem
 {
 	i32 sentinel;

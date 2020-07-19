@@ -2,6 +2,7 @@
 
 #include "../../ze_common/ze_common_full.h"
 #include "../../ze_common/ze_blob_store.h"
+#include "../../ze_common/ze_lookup_string_table.h"
 #include "../../ze_common/ze_random_table.h"
 
 #include "../../network/zqf_network.h"
@@ -29,6 +30,24 @@ internal void TestBlobStore()
 	u32 saltB = ZN_CreateSalt();
 	printf("Salts A: %d, B: %d\n", saltA, saltB);
 	printf("Xor: %d\n", saltA ^ saltB);
+}
+
+internal void Test_StringHashTable()
+{
+	printf("=== Test String hash Table ===\n");
+
+
+	ZELookupStrTable* table = ZE_CreateStringHashTable(32, NULL);
+	table->Insert("mob_class", 1);
+	table->Insert("mob_health", 100);
+	printf("Inserted %d keys\n", table->m_numKeys);
+
+	for (i32 i = 0; i < table->m_maxKeys; ++i)
+	{
+		ZELookupStrKey* key = &table->m_keys[i];
+		if (key->keyHash == 0) { continue; }
+		printf("%d: Hash %d, key %s, data %d\n", i, key->keyHash, key->key, key->data);
+	}
 
 }
 
@@ -199,6 +218,7 @@ internal void NetworkUnitTests()
 #define TEST_NETWORK_PACKETS (1 << 2)
 #define TEST_INTROSPECTION (1 << 3)
 #define TEST_ZEVARS (1 << 4)
+#define TEST_STRING_HASH_TABLE (1 << 5)
 
 extern "C" void ZETests_Run()
 {
@@ -206,12 +226,14 @@ extern "C" void ZETests_Run()
 	i32 testMask = 0;
 	// test everything:
 	//testMask = ~0;
-	testMask |= TEST_ZEVARS | TEST_STRINGS;
+	//testMask |= TEST_ZEVARS | TEST_STRINGS;
+	testMask |= TEST_ZEVARS;
 
 	// Test core common lib
 	if (testMask & TEST_STRINGS) { Test_StringFunctions(); }
 	if (testMask & TEST_BLOB_STORE) { TestBlobStore(); }
 	if (testMask & TEST_ZEVARS) { Test_ZEVars(); }
+	if (testMask & TEST_STRING_HASH_TABLE) { Test_StringHashTable(); }
 
 	// Test more specialised modules
 	if (testMask & TEST_NETWORK_PACKETS) { NetworkUnitTests(); }

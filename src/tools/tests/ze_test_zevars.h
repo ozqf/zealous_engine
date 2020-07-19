@@ -39,8 +39,35 @@ static void Test_ZEVars()
 		> a buffer to hold the names of said variables.
 	*/
 	ZEByteBuffer buf = Buf_FromMalloc(malloc(MegaBytes(1)), MegaBytes(1));
-	i32 c = ZEVar_AddString(&buf, "mob_class", "base_goblin");
-	i32 a = ZEVar_AddInt(&buf, "mob_health", 100);
-	i32 b = ZEVar_AddInt(&buf, "mob_run_speed", 5);
-	ZEVar_List(&buf);
+	// Create lookup table at the front of the memory block.
+	// Store added variables after table.
+	i32 maxKeys = 16;
+	i32 tableBytes = ZE_MeasureStringHashTable(maxKeys);
+	ZELookupStrTable* table = ZE_CreateStringHashTable(maxKeys, buf.start);
+	buf.cursor = buf.start + tableBytes;
+	// setup buffer inside var list
+	table->data = Buf_FromBytes(buf.cursor, buf.Space());
+
+	// test. create key in buffer and record key
+	i32 c = ZEVar_AddString(&table->data, "mob_class", "base_goblin");
+	table->Insert("mob_class", c);
+	i32 a = ZEVar_AddInt(&table->data, "mob_health", 100);
+	table->Insert("mob_health", a);
+	i32 b = ZEVar_AddInt(&table->data, "mob_run_speed", 5);
+	table->Insert("mob_run_speed", b);
+	ZEVar_List(&table->data);
+
+	// Recall something
+	char* queryKey = "mob_health";
+	i32 offset = table->FindKeyIndex(queryKey);
+	if (offset == -1)
+	{
+		printf("Failed to find key %s\n", queryKey);
+		free(buf.start);
+		return;
+	}
+	ZEVar* v = (ZEVar*)(buf.start + offset);
+	printf("Key %s: %d\n", queryKey, v->data.i);
+
+	free(buf.start);
 }
