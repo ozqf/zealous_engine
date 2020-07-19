@@ -9,7 +9,8 @@
 //////////////////////////////////////////
 
 #define ZEVAR_TYPE_INT 1
-#define ZEVAR_TYPE_STR 2
+#define ZEVAR_TYPE_FLOAT 1
+#define ZEVAR_TYPE_STR 3
 
 struct ZEVarUnion
 {

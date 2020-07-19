@@ -3,6 +3,10 @@
 
 #include "ze_common.h"
 
+/////////////////////////////////////////////
+// general parsing/formatting utils
+/////////////////////////////////////////////
+
 static i32 ZE_StrLenNoTerminator(const char* str)
 {
     i32 count = 0;
@@ -118,5 +122,9 @@ internal i32 ZE_AsciToInt32(const char *str)
     }
     return val * sign;
 }
+
+/////////////////////////////////////////////
+// string stack
+/////////////////////////////////////////////
 
 #endif // ZE_STRING_UTILS_H
