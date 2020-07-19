@@ -8,6 +8,7 @@
 
 #include "test_delta_introspection.h"
 #include "ze_test_strings.h"
+#include "ze_test_zevars.h"
 
 struct TestBlobObj
 {
@@ -193,14 +194,26 @@ internal void NetworkUnitTests()
 	Test_CreateConnection();
 }
 
+#define TEST_STRINGS (1 << 0)
+#define TEST_BLOB_STORE (1 << 1)
+#define TEST_NETWORK_PACKETS (1 << 2)
+#define TEST_INTROSPECTION (1 << 3)
+#define TEST_ZEVARS (1 << 4)
+
 extern "C" void ZETests_Run()
 {
 	printf("=== ZE tests ===\n");
+	i32 testMask = 0;
+	// test everything:
+	//testMask = ~0;
+	testMask |= TEST_ZEVARS;
+
 	// Test core common lib
-	Test_StringFunctions();
-	//TestBlobStore();
+	if (testMask & TEST_STRINGS) { Test_StringFunctions(); }
+	if (testMask & TEST_BLOB_STORE) { TestBlobStore(); }
+	if (testMask & TEST_ZEVARS) { Test_ZEVars(); }
 
 	// Test more specialised modules
-	//NetworkUnitTests();
-	//Test_Introspection();
+	if (testMask & TEST_NETWORK_PACKETS) { NetworkUnitTests(); }
+	if (testMask & TEST_INTROSPECTION) { Test_Introspection(); }
 }
