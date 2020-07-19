@@ -3,6 +3,14 @@
 
 #include "ze_common.h"
 
+struct ZEStringStackItem
+{
+	i32 offset;
+	i32 hash;
+	i32 len;
+	char* chars;
+};
+
 static i32 ZE_StrLenNoTerminator(const char* str)
 {
     i32 count = 0;
