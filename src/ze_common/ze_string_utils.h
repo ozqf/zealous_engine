@@ -52,13 +52,14 @@ internal i32 ZE_CopyStringLimited(const char *source, char *target, i32 limit)
 {
     if (limit < 1) { return 0; }
     i32 written = 0;
+    char* targetStart = target;
     while (*source && limit > 0)
     {
         *target++ = *source++;
         --limit;
         ++written;
     }
-	target[written] = '\0';
+	*target = '\0';
     return ++written;
 }
 
@@ -123,6 +124,11 @@ internal i32 ZE_AsciToInt32(const char *str)
     return val * sign;
 }
 
+static char* ZE_ReadToNullChar(char* start)
+{
+    while (*start++ != '\0') { };
+    return start;
+}
 /////////////////////////////////////////////
 // string stack
 /////////////////////////////////////////////

@@ -4,19 +4,30 @@ static void ZEVar_List(ZEByteBuffer* b)
 {
 	printf("--- List ZEVars ---\n");
 	u8* read = b->start;
+	// name is stored at the front of the array so
+	// advance until passed it
+	read = (u8*)ZE_ReadToNullChar((char*)read);
 	u8* end = b->cursor;
+	i32 numVars = 0;
+	i32 totalSize = 0;
 	while (read < end)
 	{
 		ZEVar* v = (ZEVar*)read;
 		if (v->sentinel != ZE_SENTINEL)
 		{ printf("\tdesync - read vars failed\n"); return; }
 		read += v->size;
+		totalSize += v->size;
+		numVars++;
 		i32 offset = (i32)((u8*)v - b->start);
 		switch(v->type)
 		{
 			case ZEVAR_TYPE_INT:
 			printf("Int %d. Name %s, Offset %d\n",
 				v->data.i, v->name, offset);
+			break;
+			case ZEVAR_TYPE_FLOAT:
+			printf("float %f. Name %s, Offset %d\n",
+				v->data.f, v->name, offset);
 			break;
 			case ZEVAR_TYPE_STR:
 			printf("Str \"%s\". Len (%d) Name %s, Offset %d\n",
@@ -27,6 +38,7 @@ static void ZEVar_List(ZEByteBuffer* b)
 			break;
 		}
 	}
+	printf("\t%d vars, avg size %.3f\n", numVars, (f32)totalSize / (f32)numVars);
 }
 
 static void Test_ZEVars_Version1()
@@ -74,16 +86,33 @@ static void Test_ZEVars_Version1()
 	free(buf.start);
 }
 
+// example fields for mob definition
+#define ZV_MOB_CLASS "mob_class"
+#define ZV_MOB_HEALTH "mob_health"
+#define ZV_MOB_DAMAGE "mob_damage"
+#define ZV_MOB_SPEED "mob_speed"
+#define ZV_MOB_STUN_HEALTH "mob_stun_health"
+#define ZV_MOB_STUNTIME "mob_stun_time"
+#define ZV_MOB_MOVE_TYPE "mob_move_type"
+
 static void Test_ZEVars_Version2()
 {
 	printf("--- ZE Set Version 2 ---\n");
-	char* intAName = "mob_health";
-	char* intBName = "mob_damage";
 	ZEVarSet set = ZEVar_CreateSet("goblin", 16, 1024);
-	set.AddInt(intAName, 100);
-	set.AddInt(intBName, 5);
-	printf("%s: %d\n", intAName, set.GetInt(intAName, 0));
-	printf("%s: %d\n", intBName, set.GetInt(intBName, 0));
+	set.AddInt(ZV_MOB_HEALTH, 100);
+	set.AddInt(ZV_MOB_DAMAGE, 5);
+	set.AddString(ZV_MOB_CLASS, "class_goblin");
+	set.AddFloat(ZV_MOB_SPEED, 5.5f);
+	set.AddInt(ZV_MOB_STUN_HEALTH, 1);
+	set.AddFloat(ZV_MOB_STUNTIME, 2.f);
+	set.AddString(ZV_MOB_MOVE_TYPE, "walk");
+
+	ZEVar_List(&set.data);
+
+	printf("%s: %d\n", ZV_MOB_HEALTH, set.GetInt(ZV_MOB_HEALTH, 0));
+	printf("%s: %d\n", ZV_MOB_DAMAGE, set.GetInt(ZV_MOB_DAMAGE, 0));
+	printf("%s: %s\n", ZV_MOB_CLASS, set.GetString(ZV_MOB_CLASS));
+	printf("%s: %.3f\n", ZV_MOB_SPEED, set.GetFloat(ZV_MOB_SPEED, 0));
 	printf("Set %s: %d of %d keys, %d of %d bytes\n",
 		set.name,
 		set.table->m_numKeys, set.table->m_maxKeys,
@@ -93,6 +122,6 @@ static void Test_ZEVars_Version2()
 static void Test_ZEVars()
 {
 	printf("\n=== Test ZEVars ===\n");
-	Test_ZEVars_Version1();
+	//Test_ZEVars_Version1();
 	Test_ZEVars_Version2();
 }

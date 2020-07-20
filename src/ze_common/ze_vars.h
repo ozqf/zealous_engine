@@ -13,8 +13,10 @@
 //////////////////////////////////////////
 
 #define ZEVAR_TYPE_INT 1
-#define ZEVAR_TYPE_FLOAT 1
+#define ZEVAR_TYPE_FLOAT 2
 #define ZEVAR_TYPE_STR 3
+
+#define ZEVAR_EMPTY_STRING "\0"
 
 struct ZEVarUnion
 {
@@ -55,6 +57,8 @@ static ZEVar* ZEVar_InitVar(ZEByteBuffer* b, char* name, i32 type)
 	zeVar->name = name;
 	zeVar->nameLength = len;
 	zeVar->type = type;
+	// TODO: if further data is stored (eg a string) this size will
+	// have to be updated by the caller! pass in size of additional data?
 	zeVar->size = sizeof(ZEVar) + len;
 	return zeVar;
 }
@@ -65,6 +69,7 @@ static u32 ZEVar_AddString(ZEByteBuffer* b, char* name, char* txt)
 	ZEVar* v = ZEVar_InitVar(b, name, ZEVAR_TYPE_STR);
 	// copy string
 	i32 len = ZE_StrLen(txt);
+	printf("Copy str with limit %d: %s\n", len, txt);
 	v->data.txt.chars = (char*)b->cursor;
 	v->data.txt.len = len;
 	b->cursor += ZE_CopyStringLimited(txt, (char*)b->cursor, len);
@@ -84,6 +89,17 @@ static u32 ZEVar_AddInt(ZEByteBuffer* b, char* name, i32 value)
 }
 
 /**
+ * return offset to new variable, or 0 if add failed
+ */
+static u32 ZEVar_AddFloat(ZEByteBuffer* b, char* name, f32 value)
+{
+	ZEVar* v = ZEVar_InitVar(b, name, ZEVAR_TYPE_FLOAT);
+	if (v == NULL) { return 0; }
+	v->data.f = value;
+	return ((u8*)v - b->start);
+}
+
+/**
  * returns fail if the var found was not valid
  */
 // static i32 ZEVar_GetInt(ZELookupStrTable* table, char* key, i32 fail)
@@ -99,26 +115,75 @@ struct ZEVarSet
 	char* name;
 	ZELookupTable* table;
 	ZEByteBuffer data;
-
+	
+	//////////////////////////////////////////
+	// Add vars
+	//////////////////////////////////////////
 	ZEVar* AddInt(char* varName, i32 i)
 	{
 		i32 offset = ZEVar_AddInt(&data, varName, i);
 		u32 hash = ZE_Hash_djb2((u8*)varName);
 		table->Insert(hash, offset);
-		ZEVar* r = (ZEVar*)(data.start + offset);
-		return r;
+		ZEVar* v = (ZEVar*)(data.start + offset);
+		return v;
+	}
+
+	ZEVar* AddFloat(char* varName, f32 f)
+	{
+		i32 offset = ZEVar_AddFloat(&data, varName, f);
+		u32 hash = ZE_Hash_djb2((u8*)varName);
+		table->Insert(hash, offset);
+		ZEVar* v = (ZEVar*)(data.start + offset);
+		return v;
+	}
+
+	ZEVar* AddString(char* varName, char* str)
+	{
+		i32 offset = ZEVar_AddString(&data, varName, str);
+		u32 hash = ZE_Hash_djb2((u8*)varName);
+		table->Insert(hash, offset);
+		ZEVar* v = (ZEVar*)(data.start + offset);
+		return v;
+	}
+	
+	//////////////////////////////////////////
+	// Retrieval
+	//////////////////////////////////////////
+	ZEVar* GetVar(char* varName, i32 type)
+	{
+		u32 hash = ZE_Hash_djb2((u8*)varName);
+		i32 offset = table->FindData(hash);
+		if (offset == ZE_ERROR_BAD_INDEX) { return NULL; }
+		ZEVar* v = (ZEVar*)(data.start + offset);
+		if (v->type != type) { return NULL; }
+		return v;
+	}
+	
+	f32 GetFloat(char* varName, f32 fail)
+	{
+		ZEVar* v = GetVar(varName, ZEVAR_TYPE_FLOAT);
+		if (v == NULL) { return fail; }
+		return v->data.f;
 	}
 
 	i32 GetInt(char* varName, i32 fail)
 	{
-		u32 hash = ZE_Hash_djb2((u8*)varName);
-		i32 offset = table->FindData(hash);
-		if (offset == ZE_ERROR_BAD_INDEX) { return fail; }
-		ZEVar* r = (ZEVar*)(data.start + offset);
-		return r->data.i;
+		ZEVar* v = GetVar(varName, ZEVAR_TYPE_INT);
+		if (v == NULL) { return fail; }
+		return v->data.i;
+	}
+
+	char* GetString(char* varName)
+	{
+		ZEVar* v = GetVar(varName, ZEVAR_TYPE_STR);
+		if (v == NULL) { return ZEVAR_EMPTY_STRING; }
+		return v->data.txt.chars;
 	}
 };
 
+//////////////////////////////////////////
+// Retrieval
+//////////////////////////////////////////
 static ZEVarSet ZEVar_CreateSet(char* setName, i32 numKeys, i32 dataBytes)
 {
 	ZEVarSet s = {};
