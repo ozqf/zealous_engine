@@ -3,6 +3,7 @@
 
 #include "ze_common.h"
 #include "ze_byte_buffer.h"
+#include "ze_hash.h"
 #include "ze_string_utils.h"
 #include "ze_lookup_table.h"
 //#include "ze_lookup_string_table.h"
@@ -99,7 +100,23 @@ struct ZEVarSet
 	ZELookupTable* table;
 	ZEByteBuffer data;
 
-	void Insert
+	ZEVar* AddInt(char* varName, i32 i)
+	{
+		i32 offset = ZEVar_AddInt(&data, varName, i);
+		u32 hash = ZE_Hash_djb2((u8*)varName);
+		table->Insert(hash, offset);
+		ZEVar* r = (ZEVar*)(data.start + offset);
+		return r;
+	}
+
+	i32 GetInt(char* varName, i32 fail)
+	{
+		u32 hash = ZE_Hash_djb2((u8*)varName);
+		i32 offset = table->FindData(hash);
+		if (offset == ZE_ERROR_BAD_INDEX) { return fail; }
+		ZEVar* r = (ZEVar*)(data.start + offset);
+		return r->data.i;
+	}
 };
 
 static ZEVarSet ZEVar_CreateSet(i32 numKeys, i32 dataBytes)

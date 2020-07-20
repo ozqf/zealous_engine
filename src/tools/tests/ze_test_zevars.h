@@ -29,10 +29,8 @@ static void ZEVar_List(ZEByteBuffer* b)
 	}
 }
 
-static void Test_ZEVars()
+static void Test_ZEVars_Version1()
 {
-	printf("\n=== Test ZEVars ===\n");
-
 	/*
 	> required:
 		> a buffer to hold the variables themselves.
@@ -74,4 +72,26 @@ static void Test_ZEVars()
 	printf("Key %s: %d\n", v->name, v->data.i);
 
 	free(buf.start);
+}
+
+static void Test_ZEVars_Version2()
+{
+	printf("--- ZE Set Version 2 ---\n");
+	char* intAName = "mob_health";
+	char* intBName = "mob_damage";
+	ZEVarSet set = ZEVar_CreateSet(16, 1024);
+	set.AddInt(intAName, 100);
+	set.AddInt(intBName, 5);
+	printf("%s: %d\n", intAName, set.GetInt(intAName, 0));
+	printf("%s: %d\n", intBName, set.GetInt(intBName, 0));
+	printf("%d of %d keys, %d of %d bytes\n",
+		set.table->m_numKeys, set.table->m_maxKeys,
+		set.data.Written(), set.data.capacity);
+}
+
+static void Test_ZEVars()
+{
+	printf("\n=== Test ZEVars ===\n");
+	Test_ZEVars_Version1();
+	Test_ZEVars_Version2();
 }
