@@ -119,11 +119,15 @@ struct ZEVarSet
 	}
 };
 
-static ZEVarSet ZEVar_CreateSet(i32 numKeys, i32 dataBytes)
+static ZEVarSet ZEVar_CreateSet(char* setName, i32 numKeys, i32 dataBytes)
 {
 	ZEVarSet s = {};
 	s.table = ZE_LT_Create(numKeys * 2, -1, NULL);
 	s.data = Buf_FromMalloc(malloc(dataBytes), dataBytes);
+	// store set name in data, before vars
+	s.data.cursor += ZE_CopyStringLimited(
+		setName, (char*)s.data.cursor, s.data.capacity);
+	s.name = (char*)s.data.start;
 	return s;
 }
 

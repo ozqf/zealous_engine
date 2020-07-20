@@ -79,12 +79,13 @@ static void Test_ZEVars_Version2()
 	printf("--- ZE Set Version 2 ---\n");
 	char* intAName = "mob_health";
 	char* intBName = "mob_damage";
-	ZEVarSet set = ZEVar_CreateSet(16, 1024);
+	ZEVarSet set = ZEVar_CreateSet("goblin", 16, 1024);
 	set.AddInt(intAName, 100);
 	set.AddInt(intBName, 5);
 	printf("%s: %d\n", intAName, set.GetInt(intAName, 0));
 	printf("%s: %d\n", intBName, set.GetInt(intBName, 0));
-	printf("%d of %d keys, %d of %d bytes\n",
+	printf("Set %s: %d of %d keys, %d of %d bytes\n",
+		set.name,
 		set.table->m_numKeys, set.table->m_maxKeys,
 		set.data.Written(), set.data.capacity);
 }
