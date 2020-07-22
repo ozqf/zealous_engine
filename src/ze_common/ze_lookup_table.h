@@ -224,6 +224,7 @@ static ZELookupTable* ZE_LT_Create(i32 capacity, i32 invalidDataValue, u8* mem)
         i32 numBytes = ZE_LT_CalcBytesForTable(capacity);
         mem = (u8*)ZE_LT_MALLOC(numBytes);
     }
+    printf("Creating lookup table with %d max keys\n", capacity);
     ZELookupTable* table = (ZELookupTable*)mem;
     *table = {};
     table->m_maxKeys = capacity;

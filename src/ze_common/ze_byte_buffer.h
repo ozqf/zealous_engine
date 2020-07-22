@@ -64,6 +64,7 @@ internal i32 Buf_IsValid(ZEByteBuffer* b)
 
 internal ZEByteBuffer Buf_FromBytes(u8* ptr, i32 numBytes)
 {
+    ZE_ASSERT(ptr != NULL, "Buf from bytes - ptr is null");
     ZEByteBuffer b = {};
     b.start = ptr;
     b.cursor = ptr;
@@ -73,6 +74,7 @@ internal ZEByteBuffer Buf_FromBytes(u8* ptr, i32 numBytes)
 
 internal ZEByteBuffer Buf_FromMalloc(void* ptr, i32 size)
 {
+    ZE_ASSERT(ptr != NULL, "Buf from malloc - ptr is null");
     ZEByteBuffer b = {};
     b.start = (u8*)ptr;
     b.cursor = b.start;

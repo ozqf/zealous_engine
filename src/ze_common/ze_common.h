@@ -183,6 +183,7 @@ typedef int ErrorCode;
 #define ZE_ERROR_OUT_OF_BOUNDS 17
 #define ZE_ERROR_LINK_UP_FAILED 18
 #define ZE_ERROR_TEST_FAILED 19
+#define ZE_ERROR_STRING_TOO_LONG 20
 
 typedef void (*ZE_FatalErrorFunction)(const char* message);
 

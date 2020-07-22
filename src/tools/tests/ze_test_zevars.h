@@ -1,12 +1,15 @@
 #include "../../ze_common/ze_vars.h"
 
-static void ZEVar_List(ZEByteBuffer* b)
+static void ZEVar_List(ZEVarSet* varSet)
 {
-	printf("--- List ZEVars ---\n");
+	printf("=== List ZEVars ===\n");
+	printf("--- Var data ---\n");
+	ZEByteBuffer* b = &varSet->data;
 	u8* read = b->start;
 	// name is stored at the front of the array so
 	// advance until passed it
-	read = (u8*)ZE_ReadToNullChar((char*)read);
+	//read = (u8*)ZE_ReadToNullChar((char*)read);
+	//read += skipBytes;
 	u8* end = b->cursor;
 	i32 numVars = 0;
 	i32 totalSize = 0;
@@ -39,10 +42,20 @@ static void ZEVar_List(ZEByteBuffer* b)
 		}
 	}
 	printf("\t%d vars, avg size %.3f\n", numVars, (f32)totalSize / (f32)numVars);
+	
+	printf("--- keys ---\n");
+	ZELookupTable* t = varSet->table;
+	for (i32 i = 0; i < t->m_maxKeys; ++i)
+	{
+		if (t->m_keys[i].idHash == 0) { continue; }
+		printf("%d: hash %d data %d\n", i, t->m_keys[i].idHash, t->m_keys[i].data);
+	}
+	printf("\n");
 }
 
 static void Test_ZEVars_Version1()
 {
+	#if 0
 	/*
 	> required:
 		> a buffer to hold the variables themselves.
@@ -84,6 +97,7 @@ static void Test_ZEVars_Version1()
 	printf("Key %s: %d\n", v->name, v->data.i);
 
 	free(buf.start);
+	#endif
 }
 
 // example fields for mob definition
@@ -98,25 +112,53 @@ static void Test_ZEVars_Version1()
 static void Test_ZEVars_Version2()
 {
 	printf("--- ZE Set Version 2 ---\n");
-	ZEVarSet set = ZEVar_CreateSet("goblin", 16, 1024);
-	set.AddInt(ZV_MOB_HEALTH, 100);
-	set.AddInt(ZV_MOB_DAMAGE, 5);
-	set.AddString(ZV_MOB_CLASS, "class_goblin");
-	set.AddFloat(ZV_MOB_SPEED, 5.5f);
-	set.AddInt(ZV_MOB_STUN_HEALTH, 1);
-	set.AddFloat(ZV_MOB_STUNTIME, 2.f);
-	set.AddString(ZV_MOB_MOVE_TYPE, "walk");
+	
+	ZEVarSet* readTest = NULL;
 
-	ZEVar_List(&set.data);
-
-	printf("%s: %d\n", ZV_MOB_HEALTH, set.GetInt(ZV_MOB_HEALTH, 0));
-	printf("%s: %d\n", ZV_MOB_DAMAGE, set.GetInt(ZV_MOB_DAMAGE, 0));
-	printf("%s: %s\n", ZV_MOB_CLASS, set.GetString(ZV_MOB_CLASS));
-	printf("%s: %.3f\n", ZV_MOB_SPEED, set.GetFloat(ZV_MOB_SPEED, 0));
+	ZEVarSet* goblin = NULL;
+	ZEVar_CreateSet(&goblin, "goblin", 2, 10);
+	goblin->AddInt(ZV_MOB_HEALTH, 100);
+	goblin->AddInt(ZV_MOB_DAMAGE, 5);
+	goblin->AddString(ZV_MOB_CLASS, "class_goblin");
+	goblin->AddFloat(ZV_MOB_SPEED, 5.5f);
+	goblin->AddInt(ZV_MOB_STUN_HEALTH, 1);
+	goblin->AddFloat(ZV_MOB_STUNTIME, 2.f);
+	goblin->AddString(ZV_MOB_MOVE_TYPE, "walk");
+	
+	// Clone set:
+	printf("- Created cloned set -\n");
+	ZEVarSet* clone = NULL;
+	ZEVar_CreateSet(&clone, "goblin_clone",
+		goblin->table->m_maxKeys,
+		goblin->data.capacity);
+	printf("Cloning\n");
+	ErrorCode err = ZEVar_CopySet(goblin, clone);
+	if (err != ZE_ERROR_NONE)
+	{
+		printf("Error %d copying set\n", err);
+		ZEVar_FreeSet(goblin);
+		ZEVar_FreeSet(clone);
+		return;
+	}
+	
+	readTest = clone;
+	
+	ZEVar_List(readTest);
+	
+	printf("%s: %d\n", ZV_MOB_HEALTH, readTest->GetInt(ZV_MOB_HEALTH, 0));
+	printf("%s: %d\n", ZV_MOB_DAMAGE, readTest->GetInt(ZV_MOB_DAMAGE, 0));
+	printf("%s: %s\n", ZV_MOB_CLASS, readTest->GetString(ZV_MOB_CLASS));
+	printf("%s: %.3f\n", ZV_MOB_SPEED, readTest->GetFloat(ZV_MOB_SPEED, 0));
 	printf("Set %s: %d of %d keys, %d of %d bytes\n",
-		set.name,
-		set.table->m_numKeys, set.table->m_maxKeys,
-		set.data.Written(), set.data.capacity);
+		readTest->name,
+		readTest->table->m_numKeys, readTest->table->m_maxKeys,
+		readTest->data.Written(), readTest->data.capacity);
+	/////////////////////////////////////////////////
+	// Test resizing
+	
+	// Cleanup
+	ZEVar_FreeSet(goblin);
+	ZEVar_FreeSet(clone);
 }
 
 static void Test_ZEVars()
