@@ -100,6 +100,27 @@ static void Test_ZEVars_Version1()
 	#endif
 }
 
+static i32 g_allocCount = 0;
+
+static void* Test_ZEVarMalloc(size_t numBytes)
+{
+	void* ptr = malloc(numBytes);
+	g_allocCount++;
+	printf(">>>>>>>>>>>> Allocated %d at %d - total %d\n",
+		numBytes, (u32)ptr, g_allocCount);
+	return ptr;
+}
+
+static void Test_ZEVarFree(void* ptr)
+{
+	--g_allocCount;
+	printf(">>>>>>>>>>>> Freed memory at %d - total %d\n",
+		(u32)ptr, g_allocCount);
+	free(ptr);
+}
+
+static ZELookupTable* g_table = NULL;
+
 // example fields for mob definition
 #define ZV_MOB_CLASS "mob_class"
 #define ZV_MOB_HEALTH "mob_health"
@@ -112,23 +133,29 @@ static void Test_ZEVars_Version1()
 static void Test_ZEVars_Version2()
 {
 	printf("--- ZE Set Version 2 ---\n");
-	
-	ZEVarSet* readTest = NULL;
 
+	ZEVarSet* readTest = NULL;
+	ZEAllocator alloc = { Test_ZEVarMalloc, Test_ZEVarFree };
+
+	// store sets
+
+
+	// create sets
 	ZEVarSet* goblin = NULL;
-	ZEVar_CreateSet(&goblin, "goblin", 2, 10);
+	ZEVar_CreateSet(&goblin, alloc, "goblin", 32, 1024);
 	goblin->AddInt(ZV_MOB_HEALTH, 100);
 	goblin->AddInt(ZV_MOB_DAMAGE, 5);
 	goblin->AddString(ZV_MOB_CLASS, "class_goblin");
 	goblin->AddFloat(ZV_MOB_SPEED, 5.5f);
 	goblin->AddInt(ZV_MOB_STUN_HEALTH, 1);
-	goblin->AddFloat(ZV_MOB_STUNTIME, 2.f);
-	goblin->AddString(ZV_MOB_MOVE_TYPE, "walk");
 	
 	// Clone set:
 	printf("- Created cloned set -\n");
 	ZEVarSet* clone = NULL;
-	ZEVar_CreateSet(&clone, "goblin_clone",
+	ZEVar_CreateSet(
+		&clone,
+		alloc,
+		"goblin_clone",
 		goblin->table->m_maxKeys,
 		goblin->data.capacity);
 	printf("Cloning\n");
@@ -140,6 +167,11 @@ static void Test_ZEVars_Version2()
 		ZEVar_FreeSet(clone);
 		return;
 	}
+
+	printf(">> Add additional fields to clone\n");
+	clone->AddFloat(ZV_MOB_STUNTIME, 2.f);
+	clone->AddString(ZV_MOB_MOVE_TYPE, "walk");
+	
 	
 	readTest = clone;
 	

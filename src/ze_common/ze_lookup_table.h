@@ -217,14 +217,14 @@ static i32 ZE_LT_CalcBytesForTable(i32 numKeys)
  * 	eg 32 item array should have a lookup keys set of
  * 		 64 to avoid key collisions
  */
-static ZELookupTable* ZE_LT_Create(i32 capacity, i32 invalidDataValue, u8* mem)
+static ZELookupTable* ZE_LT_Create(
+	i32 capacity, i32 invalidDataValue, u8* mem)
 {
     if (mem == NULL)
     {
         i32 numBytes = ZE_LT_CalcBytesForTable(capacity);
         mem = (u8*)ZE_LT_MALLOC(numBytes);
     }
-    printf("Creating lookup table with %d max keys\n", capacity);
     ZELookupTable* table = (ZELookupTable*)mem;
     *table = {};
     table->m_maxKeys = capacity;

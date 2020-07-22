@@ -6,6 +6,12 @@
 ////////////////////////////////////////////
 // Ultra basic tracking of memory allocations
 ////////////////////////////////////////////
+struct ZEAllocator
+{
+	void* (*Allocate)(size_t numBytes);
+    void (*Free)(void* ptr);
+};
+
 struct MallocItem
 {
     void* ptr;

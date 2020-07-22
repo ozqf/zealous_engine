@@ -109,6 +109,7 @@ struct ZEVarSet
 	ZEByteBuffer data;
 	i32 nameLength;
 	char name[ZEVAR_MAX_SET_NAME_LENGTH];
+	ZEAllocator alloc;
 	
 	//////////////////////////////////////////
 	// Add vars
@@ -222,9 +223,6 @@ static i32 ZEVar_CopySet(ZEVarSet* source, ZEVarSet* target)
 	{
 		return ZE_ERROR_NO_SPACE;
 	}
-	printf("Copying set: %d bytes, %d keys\n",
-		source->data.Written(),
-		source->table->m_numKeys);
 	// clear data section of target and copy.
 	target->data.Clear(NO);
 	target->data.cursor += target->nameLength;
@@ -238,8 +236,6 @@ static i32 ZEVar_CopySet(ZEVarSet* source, ZEVarSet* target)
 	{
 		printf("Failed to generate ZEVarSet lookup table: %d\n", err);
 	}
-	printf("Copied %d bytes and %d keys\n",
-		target->data.Written(), target->table->m_numKeys);
 	return ZE_ERROR_NONE;
 }
 
@@ -252,8 +248,6 @@ static void ZEVar_CheckSize(ZEVarSet* varSet, i32 dataSize)
 	{
 		// enlarge keys table
 		bResize = YES;
-		printf("Enlarging keys array from %d to %d\n",
-			maxKeys, maxKeys * 2);
 		maxKeys *= 2;
 	}
 
@@ -268,60 +262,71 @@ static void ZEVar_CheckSize(ZEVarSet* varSet, i32 dataSize)
 		{
 			capacity *= 2;
 		}
-
-		printf("Enlarging data buffer from %dKB to %dKB\n",
-			varSet->data.capacity, capacity);
 	}
 	if (!bResize) { return; }
 
 	// Resize time
 	// Create new buffers, copy, free old ones, assign new ones.
-	printf("Rebuild data - alloc %d bytes\n", capacity);
 	ZEByteBuffer oldBuf = varSet->data;
 	// huh? Exception thrown at 0x771635D0 (ntdll.dll) in zetools.exe: 0xC0000005 : Access violation reading location 0x0049F13A.
-	void* ptr = malloc(capacity);
+	void* ptr = varSet->alloc.Allocate(capacity);
 	varSet->data = Buf_FromMalloc(ptr, capacity);
-	printf("Copy %d bytes\n", oldBuf.Written());
 	varSet->data.cursor += ZE_COPY(oldBuf.start, varSet->data.cursor, oldBuf.Written());
-	free(oldBuf.start);
+	varSet->alloc.Free(oldBuf.start);
 	
 	// just trash the key store and rebuild
-	printf("Rebuild table\n");
-	free(varSet->table);
-	varSet->table = ZE_LT_Create(maxKeys, -1, NULL);
+	varSet->alloc.Free(varSet->table);
+	i32 tableBytes = ZE_LT_CalcBytesForTable(maxKeys);
+	varSet->table = ZE_LT_Create(maxKeys, -1,
+		(u8*)varSet->alloc.Allocate(tableBytes));
 	varSet->RebuildLookupTable();
 }
 
 /**
  * if passed in set is null a new one will be allocated
  */
-static i32 ZEVar_CreateSet(ZEVarSet** result, char* setName, i32 numKeys, i32 dataBytes)
+static i32 ZEVar_CreateSet(
+	ZEVarSet** result,
+	ZEAllocator allocator,
+	char* setName,
+	i32 numKeys,
+	i32 dataBytes)
 {
 	i32 nameLen = ZE_StrLen(setName);
 	if (nameLen > ZEVAR_MAX_SET_NAME_LENGTH)
 	{
 		return ZE_ERROR_STRING_TOO_LONG;
 	}
+	// setup allocator
+	if (allocator.Allocate == NULL || allocator.Free == NULL)
+	{
+		printf("ZEVARSET - no allocator funcs passed\n");
+		allocator.Allocate = malloc;
+		allocator.Free = free;
+	}
 	// allocate set if not provided
 	if (*result == NULL)
 	{
-		*result = (ZEVarSet*)malloc(sizeof(ZEVarSet));
+		*result = (ZEVarSet*)allocator.Allocate(sizeof(ZEVarSet));
 	}
 	ZEVarSet* s = *result;
+	s->alloc = allocator;
 	ZE_CopyStringLimited(setName, s->name, nameLen);
 	s->nameLength = nameLen;
 	// Create lookup table
-	s->table = ZE_LT_Create(numKeys * 2, -1, NULL);
+	i32 tableBytes = ZE_LT_CalcBytesForTable(numKeys);
+	s->table = ZE_LT_Create(numKeys, -1,
+		(u8*)allocator.Allocate(tableBytes));
 	// store set name in data, before vars
-	s->data = Buf_FromMalloc(malloc(dataBytes), dataBytes);
+	s->data = Buf_FromMalloc(allocator.Allocate(dataBytes), dataBytes);
 	return ZE_ERROR_NONE;
 }
 
 static void ZEVar_FreeSet(ZEVarSet* varSet)
 {
-	free(varSet->table);
-	free(varSet->data.start);
-	free(varSet);
+	varSet->alloc.Free(varSet->table);
+	varSet->alloc.Free(varSet->data.start);
+	varSet->alloc.Free(varSet);
 }
 
 #endif // ZE_VARS_H
