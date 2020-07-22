@@ -28,7 +28,7 @@ struct ZEVarUnion
 		char* chars;
 		i32 len;
 	} txt;
-	//Vec4 v4;
+	Vec4 v4;
 };
 
 struct ZEVar
@@ -83,7 +83,7 @@ struct ZEVarSet
 	//////////////////////////////////////////
 	ZEVar* AddInt(char* varName, i32 i)
 	{
-		i32 size = sizeof(ZEVar);
+		i32 size = sizeof(ZEVar) + ZE_StrLen(varName);
 		ZEVar_CheckSize(this, size);
 
 		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_INT);
@@ -97,7 +97,7 @@ struct ZEVarSet
 
 	ZEVar* AddFloat(char* varName, f32 f)
 	{
-		i32 size = sizeof(ZEVar);
+		i32 size = sizeof(ZEVar) + ZE_StrLen(varName);
 		ZEVar_CheckSize(this, size);
 		
 		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_FLOAT);
@@ -109,14 +109,28 @@ struct ZEVarSet
 		return v;
 	}
 
+	ZEVar* AddVec4(char* varName, Vec4 v4)
+	{
+		i32 size = sizeof(ZEVar) + ZE_StrLen(varName);
+		ZEVar_CheckSize(this, size);
+		
+		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_VEC_4);
+		v->data.v4 = v4;
+
+		i32 offset = ((u8*)v - data.start);
+		u32 hash = ZE_Hash_djb2((u8*)varName);
+		table->Insert(hash, offset);
+		return v;
+	}
+
 	ZEVar* AddString(char* varName, char* str)
 	{
 		// TODO: calculating string length multiple times here
 		i32 strLen = ZE_StrLen(str);
-		i32 size = sizeof(ZEVar) + strLen;
+		i32 size = sizeof(ZEVar) + strLen +  + ZE_StrLen(varName);
 		ZEVar_CheckSize(this, size);
 		
-		ZEVar* v = ZEVar_InitVar(&data, name, ZEVAR_TYPE_STR);
+		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_STR);
 		v->data.txt.chars = (char*)(data.cursor);
 		v->data.txt.len = strLen;
 		data.cursor += ZE_CopyStringLimited(

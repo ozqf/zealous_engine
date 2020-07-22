@@ -25,16 +25,23 @@ static void ZEVar_List(ZEVarSet* varSet)
 		switch(v->type)
 		{
 			case ZEVAR_TYPE_INT:
-			printf("Int %d. Name %s, Offset %d\n",
-				v->data.i, v->name, offset);
+			printf("%s: %d. Int Offset %d\n",
+				v->name, v->data.i, offset);
 			break;
 			case ZEVAR_TYPE_FLOAT:
-			printf("float %f. Name %s, Offset %d\n",
-				v->data.f, v->name, offset);
+			printf("%s: %f. float Offset %d\n",
+				v->name, v->data.f, offset);
 			break;
 			case ZEVAR_TYPE_STR:
-			printf("Str \"%s\". Len (%d) Name %s, Offset %d\n",
-				v->data.txt.chars, v->data.txt.len, v->name, offset);
+			printf("%s: \"%s\". Len (%d) Offset %d\n",
+				v->name, v->data.txt.chars, v->data.txt.len, offset);
+			break;
+			case ZEVAR_TYPE_VEC_4:
+			Vec4 v4 = v->data.v4;
+			printf("%s: %.3f, %.3f, %.3f, %.3f. Vec4 Offset %d\n",
+				v->name,
+				v4.x, v4.y, v4.z, v4.w,
+				offset);
 			break;
 			default:
 			printf("Unknown var type %d\n", v->type);
@@ -129,6 +136,7 @@ static ZELookupTable* g_table = NULL;
 #define ZV_MOB_STUN_HEALTH "mob_stun_health"
 #define ZV_MOB_STUNTIME "mob_stun_time"
 #define ZV_MOB_MOVE_TYPE "mob_move_type"
+#define ZV_MOB_BODY_SIZE "mob_body_size"
 
 static void Test_ZEVars_Version2()
 {
@@ -144,7 +152,6 @@ static void Test_ZEVars_Version2()
 	ZEVarSet* goblin = NULL;
 	ZEVar_CreateSet(&goblin, alloc, "goblin", 32, 1024);
 	goblin->AddInt(ZV_MOB_HEALTH, 100);
-	goblin->AddInt(ZV_MOB_DAMAGE, 5);
 	goblin->AddString(ZV_MOB_CLASS, "class_goblin");
 	goblin->AddFloat(ZV_MOB_SPEED, 5.5f);
 	goblin->AddInt(ZV_MOB_STUN_HEALTH, 1);
@@ -170,7 +177,9 @@ static void Test_ZEVars_Version2()
 
 	printf(">> Add additional fields to clone\n");
 	clone->AddFloat(ZV_MOB_STUNTIME, 2.f);
+	clone->AddVec4(ZV_MOB_BODY_SIZE, { 1.2f, 1.9f, 1.2f, 1 });
 	clone->AddString(ZV_MOB_MOVE_TYPE, "walk");
+	clone->AddInt(ZV_MOB_DAMAGE, 5);
 	
 	
 	readTest = clone;
