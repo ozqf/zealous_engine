@@ -15,6 +15,7 @@
 #define ZEVAR_TYPE_INT 1
 #define ZEVAR_TYPE_FLOAT 2
 #define ZEVAR_TYPE_STR 3
+#define ZEVAR_TYPE_VEC_4 4
 
 #define ZEVAR_EMPTY_STRING "\0"
 
@@ -27,6 +28,7 @@ struct ZEVarUnion
 		char* chars;
 		i32 len;
 	} txt;
+	//Vec4 v4;
 };
 
 struct ZEVar
@@ -63,41 +65,6 @@ static ZEVar* ZEVar_InitVar(ZEByteBuffer* b, char* name, i32 type)
 	return zeVar;
 }
 
-static u32 ZEVar_AddString(ZEByteBuffer* b, char* name, char* txt)
-{
-	// prepare var
-	ZEVar* v = ZEVar_InitVar(b, name, ZEVAR_TYPE_STR);
-	// copy string
-	i32 len = ZE_StrLen(txt);
-	v->data.txt.chars = (char*)b->cursor;
-	v->data.txt.len = len;
-	b->cursor += ZE_CopyStringLimited(txt, (char*)b->cursor, len);
-	v->size = (b->cursor - (u8*)v);
-	return ((u8*)v - b->start);
-}
-
-/**
- * return offset to new variable, or 0 if add failed
- */
-static u32 ZEVar_AddInt(ZEByteBuffer* b, char* name, i32 value)
-{
-	ZEVar* v = ZEVar_InitVar(b, name, ZEVAR_TYPE_INT);
-	if (v == NULL) { return 0; }
-	v->data.i = value;
-	return ((u8*)v - b->start);
-}
-
-/**
- * return offset to new variable, or 0 if add failed
- */
-static u32 ZEVar_AddFloat(ZEByteBuffer* b, char* name, f32 value)
-{
-	ZEVar* v = ZEVar_InitVar(b, name, ZEVAR_TYPE_FLOAT);
-	if (v == NULL) { return 0; }
-	v->data.f = value;
-	return ((u8*)v - b->start);
-}
-
 #define ZEVAR_MAX_SET_NAME_LENGTH 32
 
 struct ZEVarSet;
@@ -119,10 +86,12 @@ struct ZEVarSet
 		i32 size = sizeof(ZEVar);
 		ZEVar_CheckSize(this, size);
 
-		i32 offset = ZEVar_AddInt(&data, varName, i);
+		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_INT);
+		v->data.i = i;
+
+		i32 offset = ((u8*)v - data.start);
 		u32 hash = ZE_Hash_djb2((u8*)varName);
 		table->Insert(hash, offset);
-		ZEVar* v = (ZEVar*)(data.start + offset);
 		return v;
 	}
 
@@ -131,22 +100,32 @@ struct ZEVarSet
 		i32 size = sizeof(ZEVar);
 		ZEVar_CheckSize(this, size);
 		
-		i32 offset = ZEVar_AddFloat(&data, varName, f);
+		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_FLOAT);
+		v->data.f = f;
+
+		i32 offset = ((u8*)v - data.start);
 		u32 hash = ZE_Hash_djb2((u8*)varName);
 		table->Insert(hash, offset);
-		ZEVar* v = (ZEVar*)(data.start + offset);
 		return v;
 	}
 
 	ZEVar* AddString(char* varName, char* str)
 	{
-		i32 size = sizeof(ZEVar) + ZE_StrLen(str);
+		// TODO: calculating string length multiple times here
+		i32 strLen = ZE_StrLen(str);
+		i32 size = sizeof(ZEVar) + strLen;
 		ZEVar_CheckSize(this, size);
 		
-		i32 offset = ZEVar_AddString(&data, varName, str);
+		ZEVar* v = ZEVar_InitVar(&data, name, ZEVAR_TYPE_STR);
+		v->data.txt.chars = (char*)(data.cursor);
+		v->data.txt.len = strLen;
+		data.cursor += ZE_CopyStringLimited(
+			str, (char*)data.cursor, strLen);
+		v->size = size;
+
+		i32 offset = ((u8*)v - data.start);
 		u32 hash = ZE_Hash_djb2((u8*)varName);
 		table->Insert(hash, offset);
-		ZEVar* v = (ZEVar*)(data.start + offset);
 		return v;
 	}
 	
