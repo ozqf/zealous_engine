@@ -12,10 +12,17 @@
 // Data types
 //////////////////////////////////////////
 
+#define ZEVAR_MAX_SET_NAME_LENGTH 32
+
+struct ZEVarSet;
+static void ZEVar_CheckSize(ZEVarSet* varSet, i32 dataSize);
+static void ZEVar_FreeSet(ZEVarSet* varSet);
+
 #define ZEVAR_TYPE_INT 1
 #define ZEVAR_TYPE_FLOAT 2
 #define ZEVAR_TYPE_STR 3
 #define ZEVAR_TYPE_VEC_4 4
+#define ZEVAR_TYPE_SET_PTR 5
 
 #define ZEVAR_EMPTY_STRING "\0"
 
@@ -29,6 +36,7 @@ struct ZEVarUnion
 		i32 len;
 	} txt;
 	Vec4 v4;
+	ZEVarSet* ptr;
 };
 
 struct ZEVar
@@ -65,11 +73,6 @@ static ZEVar* ZEVar_InitVar(ZEByteBuffer* b, char* name, i32 type)
 	return zeVar;
 }
 
-#define ZEVAR_MAX_SET_NAME_LENGTH 32
-
-struct ZEVarSet;
-static void ZEVar_CheckSize(ZEVarSet* varSet, i32 dataSize);
-
 struct ZEVarSet
 {
 	ZELookupTable* table;
@@ -102,6 +105,20 @@ struct ZEVarSet
 		
 		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_FLOAT);
 		v->data.f = f;
+
+		i32 offset = ((u8*)v - data.start);
+		u32 hash = ZE_Hash_djb2((u8*)varName);
+		table->Insert(hash, offset);
+		return v;
+	}
+
+	ZEVar* AddSetPointer(char* varName, ZEVarSet* set)
+	{
+		i32 size = sizeof(ZEVar) + ZE_StrLen(varName);
+		ZEVar_CheckSize(this, size);
+		
+		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_SET_PTR);
+		v->data.ptr = set;
 
 		i32 offset = ((u8*)v - data.start);
 		u32 hash = ZE_Hash_djb2((u8*)varName);
@@ -168,6 +185,13 @@ struct ZEVarSet
 		ZEVar* v = GetVar(varName, ZEVAR_TYPE_INT);
 		if (v == NULL) { return fail; }
 		return v->data.i;
+	}
+
+	ZEVarSet* GetVarSet(char* varName)
+	{
+		ZEVar* v = GetVar(varName, ZEVAR_TYPE_SET_PTR);
+		if (v == NULL) { return NULL; }
+		return v->data.ptr;
 	}
 
 	char* GetString(char* varName)
@@ -317,9 +341,98 @@ static i32 ZEVar_CreateSet(
 
 static void ZEVar_FreeSet(ZEVarSet* varSet)
 {
+	// Recursively free children!
+	#if 0 // TODO: This is really unsafe if two sets point at the same child set.
+	u8* read = varSet->data.start;
+	u8* end = varSet->data.cursor;
+	while (read < end)
+	{
+		ZEVar* v = (ZEVar*)read;
+		read += v->size;
+		if (v->type == ZEVAR_TYPE_SET_PTR && v->data.ptr != NULL)
+		{
+			printf("Freeing child set %s\n", v->name);
+			ZEVar_FreeSet(v->data.ptr);
+		}
+	}
+	#endif
 	varSet->alloc.Free(varSet->table);
 	varSet->alloc.Free(varSet->data.start);
 	varSet->alloc.Free(varSet);
+}
+
+/////////////////////////////////////////////////
+// Load from file
+/////////////////////////////////////////////////
+#define ZEVAR_READ_STATE_NONE 0
+#define ZEVAR_READ_STATE_EAT_LINE 1
+
+static i32 ZEVar_ReadFromText(char* file, i32 len, ZEAllocator alloc)
+{
+	if (file == NULL)
+	{ return ZE_ERROR_NULL_ARGUMENT; }
+	if (len <= 0) { return ZE_ERROR_BAD_ARGUMENT; }
+	if (alloc.Allocate == NULL || alloc.Free == NULL)
+	{ return ZE_ERROR_NULL_ARGUMENT; }
+
+	printf("ZEVar - reading from %d chars\n", len);
+
+	// okay lets do some dodgy parsing
+	char* cursor = file;
+	char* end = cursor + len;
+	i32 state = ZEVAR_READ_STATE_NONE;
+	i32 lineCount = 0;
+	while (cursor < end)
+	{
+		#if 1
+		char* lineStart = cursor;
+		char* lineEnd = ZE_FindNewLineOrEnd(cursor, end);
+		lineCount++;
+		i32 lineLen = (lineEnd - cursor);
+		printf("Line %d chars %d\n", lineCount, lineLen);
+		// move main cursor to just passed line end
+		cursor = ++lineEnd;
+
+		// parse line
+		// tokenise!
+		if (lineLen >= 256) { printf("Line too long, skipping\n"); continue; }
+		// have to copy into a buffer and stick on the null terminator
+		// required by the tokenise function
+		//char lineBuf[256];
+
+
+		#endif
+		#if 0
+		char c = *cursor;
+		cursor++;
+		switch (state)
+		{
+			case ZEVAR_READ_STATE_NONE:
+			if (c == '#')
+			{
+				state = ZEVAR_READ_STATE_EAT_LINE;
+			}
+			else if (c == ' ' || c == '\t')
+			{
+				continue;
+			}
+			else
+			{
+				printf("%c", c);
+			}
+			
+			break;
+			case ZEVAR_READ_STATE_EAT_LINE:
+			if (c == '\n') { state = ZEVAR_READ_STATE_NONE; }
+			break;
+			default:
+			printf("%c", c);
+			break;
+		}
+		#endif
+	}
+	printf("\n\tDone - read %d lines\n", lineCount);
+	return ZE_ERROR_NONE;
 }
 
 #endif // ZE_VARS_H

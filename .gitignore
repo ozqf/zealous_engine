@@ -19,6 +19,7 @@
 !/bin/glfw3.dll
 !/bin/fmod.dll
 !/bin/fmodstudio.dll
+!/bin_tools/stats.txt
 
 # Shaders file is auto-generated
 /lib/shaders.h

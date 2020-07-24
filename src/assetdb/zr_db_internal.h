@@ -97,5 +97,4 @@ static i32 ZRDB_StageRawFile(char* path, ZEByteBuffer* dest)
 #define ZRDB_CAST_TO_INTERNAL(assetDBHeader, newVarName) \
 ZRAssetDBData*##newVarName##=##(ZRAssetDBData*)##assetDBHeader##;
 
-
 #endif // ZR_DB_INTERNAL_H

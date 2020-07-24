@@ -81,6 +81,16 @@ internal i32 ZE_ReadTokens(const char* source, char* destination, char** tokens,
     return tokensCount;
 }
 
+static char* ZE_FindNewLineOrEnd(char* start, char* bufferEnd)
+{
+    char* cursor = start;
+    while(cursor < bufferEnd && *cursor != '\n')
+    {
+        cursor++;
+    }
+    return cursor;
+}
+
 /**
 Send a target length of -1 to measure the string. Use a target length > 0
 allows for strings with terminators in them

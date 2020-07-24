@@ -43,6 +43,20 @@ static void ZEVar_List(ZEVarSet* varSet)
 				v4.x, v4.y, v4.z, v4.w,
 				offset);
 			break;
+			case ZEVAR_TYPE_SET_PTR:
+			{
+				ZEVarSet* s = v->data.ptr;
+				if (s == NULL)
+				{
+					printf("%s: NULL set ptr\n", v->name);
+				}
+				else
+				{
+					printf("%s: Set with %d bytes and %d keys\n",
+						v->name, s->data.Written(), s->table->m_numKeys);
+				}
+			}
+			break;
 			default:
 			printf("Unknown var type %d\n", v->type);
 			break;
@@ -126,7 +140,10 @@ static void Test_ZEVarFree(void* ptr)
 	free(ptr);
 }
 
-static ZELookupTable* g_table = NULL;
+// #define ZV_MAX_MAPS 64
+// static ZELookupTable* g_mapTable = NULL;
+// static ZEVarSet* g_maps[ZV_MAX_MAPS];
+static ZEVarSet* g_maps = NULL;
 
 // example fields for mob definition
 #define ZV_MOB_CLASS "mob_class"
@@ -138,7 +155,43 @@ static ZELookupTable* g_table = NULL;
 #define ZV_MOB_MOVE_TYPE "mob_move_type"
 #define ZV_MOB_BODY_SIZE "mob_body_size"
 
+// static void Test_ZEVars_CreateDb()
+// {
+// 	g_mapTable = ZE_LT_Create(ZV_MAX_MAPS * 2, -1, NULL);
+// 	ZE_SET_ZERO(g_maps, sizeof(ZEVarSet*) * ZV_MAX_MAPS);
+// }
+
 static void Test_ZEVars_Version2()
+{
+	ZEAllocator alloc = { Test_ZEVarMalloc, Test_ZEVarFree };
+	char* path = "stats.txt";
+	printf("Reading stats from file %s\n", path);
+	FILE* f = NULL;
+	errno_t err = fopen_s(&f, path, "rb");
+	if (f == NULL)
+	{
+		printf("Couldn't open stat file %s\n", path);
+		return;
+	}
+	fseek(f, 0, SEEK_END);
+	i32 strLen = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	void* mem = alloc.Allocate(strLen);
+	if (mem == NULL)
+	{
+		printf("Failed to alloc %d bytes for stat file %s\n", strLen, path);
+		fclose(f);
+		return;
+	}
+	fread((void*)mem, strLen, 1, f);
+	fclose(f);
+	ZEVar_ReadFromText((char*)mem, strLen, alloc);
+	alloc.Free(mem);
+}
+
+
+
+static void Test_ZEVars_Version2_b()
 {
 	printf("--- ZE Set Version 2 ---\n");
 
@@ -146,11 +199,14 @@ static void Test_ZEVars_Version2()
 	ZEAllocator alloc = { Test_ZEVarMalloc, Test_ZEVarFree };
 
 	// store sets
-
+	ZEVar_CreateSet(&g_maps, alloc, "maps", 16, 512);
 
 	// create sets
 	ZEVarSet* goblin = NULL;
-	ZEVar_CreateSet(&goblin, alloc, "goblin", 32, 1024);
+	ZEVar_CreateSet(&goblin, alloc, "goblin", 4, 128);
+
+	g_maps->AddSetPointer(goblin->name, goblin);
+
 	goblin->AddInt(ZV_MOB_HEALTH, 100);
 	goblin->AddString(ZV_MOB_CLASS, "class_goblin");
 	goblin->AddFloat(ZV_MOB_SPEED, 5.5f);
@@ -165,6 +221,7 @@ static void Test_ZEVars_Version2()
 		"goblin_clone",
 		goblin->table->m_maxKeys,
 		goblin->data.capacity);
+	g_maps->AddSetPointer(clone->name, clone);
 	printf("Cloning\n");
 	ErrorCode err = ZEVar_CopySet(goblin, clone);
 	if (err != ZE_ERROR_NONE)
@@ -195,11 +252,13 @@ static void Test_ZEVars_Version2()
 		readTest->table->m_numKeys, readTest->table->m_maxKeys,
 		readTest->data.Written(), readTest->data.capacity);
 	/////////////////////////////////////////////////
-	// Test resizing
+	
+	ZEVar_List(g_maps);
 	
 	// Cleanup
 	ZEVar_FreeSet(goblin);
 	ZEVar_FreeSet(clone);
+	ZEVar_FreeSet(g_maps);
 }
 
 static void Test_ZEVars()
