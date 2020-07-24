@@ -10,8 +10,6 @@
 /buildwin_game/
 /buildwin_tools/
 
-/bin_tools/
-
 /release/
 
 # For 3rd party DLLs
@@ -19,6 +17,9 @@
 !/bin/glfw3.dll
 !/bin/fmod.dll
 !/bin/fmodstudio.dll
+
+# test data files
+/bin_tools/*
 !/bin_tools/stats.txt
 
 # Shaders file is auto-generated

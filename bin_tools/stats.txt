@@ -1,0 +1,25 @@
+# stat test 
+# this is a comment
+# t == text
+# i == integer
+# f == float
+# v == vector
+
+# this is an example data set for a monster
+map goblin_base
+{
+	t prototype null
+	t mob_class goblin_base
+	i mob_health 75
+	i mob_damage 10
+	f mob_speed 6.5
+	i mob_stun_health 15
+	f mob_stun_time 0.8
+	t mob_move_type walk
+	v mob_body_size 0.8 1.8 0.8
+}
+map goblin_archer
+{
+	t prototype goblin_base
+	t mob_class 
+}
