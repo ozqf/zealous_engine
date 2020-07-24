@@ -6,9 +6,9 @@
 # v == vector
 
 # this is an example data set for a monster
-map goblin_base
+map goblin_base # this is a comment on a map line
 {
-	t prototype null
+	t prototype null # this is a comment on a var line
 	t mob_class goblin_base
 	i mob_health 75
 	i mob_damage 10
@@ -21,5 +21,5 @@ map goblin_base
 map goblin_archer
 {
 	t prototype goblin_base
-	t mob_class 
+	t mob_class goblin_archer
 }

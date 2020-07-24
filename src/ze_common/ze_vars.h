@@ -366,6 +366,7 @@ static void ZEVar_FreeSet(ZEVarSet* varSet)
 /////////////////////////////////////////////////
 #define ZEVAR_READ_STATE_NONE 0
 #define ZEVAR_READ_STATE_EAT_LINE 1
+#define ZEVAR_READ_STATE_TOKEN 2
 
 static i32 ZEVar_ReadFromText(char* file, i32 len, ZEAllocator alloc)
 {
@@ -377,31 +378,67 @@ static i32 ZEVar_ReadFromText(char* file, i32 len, ZEAllocator alloc)
 
 	printf("ZEVar - reading from %d chars\n", len);
 
+	// The way you should probably do it:
+	// https://stackoverflow.com/questions/9930758/best-way-to-read-a-parse-data-from-text-file-in-c
+
 	// okay lets do some dodgy parsing
 	char* cursor = file;
 	char* end = cursor + len;
+	char* tokenStart = NULL;
 	i32 state = ZEVAR_READ_STATE_NONE;
 	i32 lineCount = 0;
 	while (cursor < end)
 	{
+		// tokenise per line... kinda irritating to isolate lines thanks to \r\n
 		#if 1
 		char* lineStart = cursor;
 		char* lineEnd = ZE_FindNewLineOrEnd(cursor, end);
+		cursor = ZE_RunToNextLine(cursor, end);
 		lineCount++;
-		i32 lineLen = (lineEnd - cursor);
-		printf("Line %d chars %d\n", lineCount, lineLen);
-		// move main cursor to just passed line end
-		cursor = ++lineEnd;
+		i32 lineLen = (lineEnd - lineStart);
 
-		// parse line
 		// tokenise!
-		if (lineLen >= 256) { printf("Line too long, skipping\n"); continue; }
+		if (lineLen >= 256)
+		{
+			printf("Line len %d too long, skipping\n", lineLen);
+			continue;
+		}
 		// have to copy into a buffer and stick on the null terminator
 		// required by the tokenise function
-		//char lineBuf[256];
+		char lineBuf[256];
+		
+		ZE_COPY(lineStart, lineBuf, lineLen);
+		lineBuf[lineLen] = '\0';
+		char* tokens[32];
 
+		i32 numTokens = ZE_ReadTokens(lineBuf, lineBuf, tokens, 32);
+		// find comment tokens and reduce count.
+		for (i32 i = 0; i < numTokens; ++i)
+		{
+			if (tokens[i][0] == '#')
+			{ numTokens = i; break; }
+		}
+		if (numTokens == 0)
+		{
+			printf("Line %d has zero tokens\n", lineCount);
+			continue;
+		}
+
+		// parse tokens
+		
+
+		//////////////////////////////////////////
+		// print
+		printf("Line %d (%d chars) - %d tokens\n",
+			lineCount, lineLen, numTokens);
+		for (i32 i = 0; i < numTokens; ++i)
+		{
+			printf("%s, ", tokens[i]);
+		}
+		printf("\n");
 
 		#endif
+		// ignore tokenise function and just parse char by char
 		#if 0
 		char c = *cursor;
 		cursor++;
@@ -418,10 +455,19 @@ static i32 ZEVar_ReadFromText(char* file, i32 len, ZEAllocator alloc)
 			}
 			else
 			{
-				printf("%c", c);
+				// start token
+				state = ZEVAR_READ_STATE_TOKEN;
+				tokenStart = cursor;
+				//printf("%c", c);
 			}
-			
 			break;
+			case ZEVAR_READ_STATE_TOKEN:
+			{
+				if (c == ' ' || c == '\t')
+				{
+					// end token
+				}
+			} break;
 			case ZEVAR_READ_STATE_EAT_LINE:
 			if (c == '\n') { state = ZEVAR_READ_STATE_NONE; }
 			break;

@@ -10,6 +10,7 @@
  * > Returns number of tokens found, up to the max allowed by
  * the passed in results array
  * > Should be okay if destination and token list memory is not cleared.
+ * > Send same pointer to source and destination to tokenise in-place.
  */
 internal i32 ZE_ReadTokens(const char* source, char* destination, char** tokens, i32 maxTokens)
 {
@@ -84,7 +85,23 @@ internal i32 ZE_ReadTokens(const char* source, char* destination, char** tokens,
 static char* ZE_FindNewLineOrEnd(char* start, char* bufferEnd)
 {
     char* cursor = start;
-    while(cursor < bufferEnd && *cursor != '\n')
+    while(cursor < bufferEnd && (*cursor != '\n' && *cursor != '\r'))
+    {
+        cursor++;
+    }
+    return cursor;
+}
+
+static char* ZE_RunToNextLine(char* start, char* bufferEnd)
+{
+    char* cursor = start;
+    // find the end of the line
+    while(cursor < bufferEnd && (*cursor != '\n'))
+    {
+        cursor++;
+    }
+    // move to next char if available.
+    if (cursor < bufferEnd)
     {
         cursor++;
     }
