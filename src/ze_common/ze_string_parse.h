@@ -82,6 +82,43 @@ internal i32 ZE_ReadTokens(const char* source, char* destination, char** tokens,
     return tokensCount;
 }
 
+static i32 ZE_CharOkayForFieldName(char c)
+{
+    // 0...9
+    if (c >= 48 && c <= 57) { return YES; }
+    // A...Z
+    if (c >= 65 && c <= 90) { return YES; }
+    // a...z
+    if (c >= 97 && c <= 122) { return YES; }
+    // underscore
+    if (c == 95) { return YES; }
+    return NO;
+}
+#if 0
+static void ZE_FindNextToken(char* readStart, char* readEnd, char** tokenStart, char** tokenEnd)
+{
+    *tokenStart = NULL;
+    *tokenEnd = NULL;
+    char* cursor = readStart;
+    i32 bBuildingToken = NO;
+    for (;;)
+    {
+        char c = *cursor;
+        if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+        {
+            if (bBuildingToken == YES)
+            {
+                // finish token
+                *tokenEnd = cursor;
+            }
+        }
+        else if (c >= 48 && c)
+        {
+
+        }
+    }
+}
+#endif
 static char* ZE_FindNewLineOrEnd(char* start, char* bufferEnd)
 {
     char* cursor = start;

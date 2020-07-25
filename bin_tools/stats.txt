@@ -1,25 +1,5 @@
-# stat test 
-# this is a comment
-# t == text
-# i == integer
-# f == float
-# v == vector
-
-# this is an example data set for a monster
-map goblin_base # this is a comment on a map line
-{
-	t prototype null # this is a comment on a var line
-	t mob_class goblin_base
-	i mob_health 75
+map goblin_base
 	i mob_damage 10
 	f mob_speed 6.5
-	i mob_stun_health 15
-	f mob_stun_time 0.8
-	t mob_move_type walk
-	v mob_body_size 0.8 1.8 0.8
-}
-map goblin_archer
-{
-	t prototype goblin_base
-	t mob_class goblin_archer
-}
+map set_b
+	i int_b 1
