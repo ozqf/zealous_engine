@@ -412,6 +412,8 @@ static i32 ZEVar_ReadFromText(
 	// The way you should probably do it:
 	// https://stackoverflow.com/questions/9930758/best-way-to-read-a-parse-data-from-text-file-in-c
 
+	// or perhaps "Handwritten recursive decent parsing"
+
 	// okay lets do some dodgy parsing
 	char* cursor = file;
 	char* end = cursor + len;
