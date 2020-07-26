@@ -75,210 +75,6 @@ static void ZEVar_List(ZEVarSet* varSet)
 }
 
 
-/////////////////////////////////////////////////
-// Load from file
-/////////////////////////////////////////////////
-#define ZEVAR_READ_STATE_NONE 0
-#define ZEVAR_READ_STATE_EAT_LINE 1
-#define ZEVAR_READ_STATE_TOKEN 2
-
-static i32 ZEVar_ReadFromText(
-	char* file, i32 len, ZEAllocator alloc, ZEVarSet** sets, i32* numSets, i32 maxSets)
-{
-	if (file == NULL)
-	{ return ZE_ERROR_NULL_ARGUMENT; }
-	if (len <= 0) { return ZE_ERROR_BAD_ARGUMENT; }
-	if (alloc.Allocate == NULL || alloc.Free == NULL)
-	{ return ZE_ERROR_NULL_ARGUMENT; }
-
-	printf("ZEVar - reading from %d chars\n", len);
-
-	// The way you should probably do it:
-	// https://stackoverflow.com/questions/9930758/best-way-to-read-a-parse-data-from-text-file-in-c
-
-	// okay lets do some dodgy parsing
-	char* cursor = file;
-	char* end = cursor + len;
-	char* tokenStart = NULL;
-	i32 state = ZEVAR_READ_STATE_NONE;
-	i32 lineCount = 0;
-	*numSets = 0;
-	ZEVarSet* set = NULL;
-	while (cursor < end)
-	{
-
-		// tokenise per line... kinda irritating to isolate lines thanks to \r\n
-		#if 1
-		char* lineStart = cursor;
-		char* lineEnd = ZE_FindNewLineOrEnd(cursor, end);
-		cursor = ZE_RunToNextLine(cursor, end);
-		lineCount++;
-		i32 lineLen = (lineEnd - lineStart);
-
-		// tokenise!
-		if (lineLen >= 256)
-		{
-			printf("Line len %d too long, skipping\n", lineLen);
-			continue;
-		}
-		// have to copy into a buffer and stick on the null terminator
-		// required by the tokenise function
-		char lineBuf[256];
-		
-		ZE_COPY(lineStart, lineBuf, lineLen);
-		lineBuf[lineLen] = '\0';
-		char* tokens[32];
-
-		i32 numTokens = ZE_ReadTokens(lineBuf, lineBuf, tokens, 32);
-		// find comment tokens and reduce count.
-		for (i32 i = 0; i < numTokens; ++i)
-		{
-			if (tokens[i][0] == '#')
-			{ numTokens = i; break; }
-		}
-		if (numTokens == 0)
-		{
-			//printf("Line %d has zero tokens\n", lineCount);
-			continue;
-		}
-
-		// parse tokens
-		if (ZE_CompareStrings(tokens[0], "map") == 0)
-		{
-			// Create set... previous in progress set is now 'closed'
-			if (*numSets >= maxSets)
-			{
-				printf("No more available handles to create set %s\n", tokens[1]);
-				return ZE_ERROR_NONE;
-			}
-			if (set != NULL)
-			{
-				printf("Finished set:\n");
-				ZEVar_List(set);
-			}
-			printf("Creating set %s\n", tokens[1]);
-			ErrorCode err = ZEVar_CreateSet(&set, alloc, tokens[1], 8, 256);
-			printf("Set pointer %d\n", *numSets);
-			sets[*numSets] = set;
-			*numSets += 1;
-		}
-		else if (set == NULL) 
-		{
-			// we're not currently creating a set so ignore anything else!
-			continue;
-		}
-		else if (ZE_CompareStrings(tokens[0], "i") == 0)
-		{
-			// create int
-			if (numTokens < 3)
-			{ printf("Line %d Not enough tokens to declare int", lineCount); continue; }
-			char* varName = tokens[1];
-			i32 i = ZE_AsciToInt32(tokens[2]);
-			printf("Create int %s value %d\n", varName, i);
-			set->AddInt(varName, i);
-		}
-		else if (ZE_CompareStrings(tokens[0], "f") == 0)
-		{
-			// create float
-			if (numTokens < 3)
-			{ printf("Line %d Not enough tokens to declare float", lineCount); continue; }
-			char* varName = tokens[1];
-			f32 f = (f32)atof(tokens[2]);
-			printf("Create float %s value %.3f\n", varName, f);
-			set->AddFloat(varName, f);
-		}
-		else if (ZE_CompareStrings(tokens[0], "t") == 0)
-		{
-			// create string
-			if (numTokens < 3)
-			{ printf("Line %d Not enough tokens to declare string", lineCount); continue; }
-		}
-		else if (ZE_CompareStrings(tokens[0], "v") == 0)
-		{
-			// create vector
-			if (numTokens < 3)
-			{ printf("Line %d Not enough tokens to declare vector", lineCount); continue; }
-			char* varName = tokens[1];
-			Vec4 v = {};
-			// vector fields are optional.
-			// x (token 2)
-			if (numTokens >= 3) { v.x = (f32)atof(tokens[2]); }
-			// y (token 3)
-			if (numTokens >= 4) { v.y = (f32)atof(tokens[3]); }
-			// z (token 4)
-			if (numTokens >= 5) { v.z = (f32)atof(tokens[4]); }
-			// w (token 5)
-			if (numTokens >= 6) { v.w = (f32)atof(tokens[5]); }
-			printf("Create v4 %s value %.3f, %.3f, %.3f, %.3f\n",
-				varName, v.x, v.y, v.z, v.w);
-			set->AddVec4(varName, v);
-		}
-		else
-		{
-			printf("Unrecognised starting token \"%s\"\n", tokens[0]);
-		}
-		
-
-		//////////////////////////////////////////
-		// print
-		/*printf("Line %d (%d chars) - %d tokens\n",
-			lineCount, lineLen, numTokens);
-		for (i32 i = 0; i < numTokens; ++i)
-		{
-			printf("%s, ", tokens[i]);
-		}
-		printf("\n");*/
-
-		#endif
-		// ignore tokenise function and just parse char by char
-		#if 0
-		char c = *cursor;
-		cursor++;
-		switch (state)
-		{
-			case ZEVAR_READ_STATE_NONE:
-			if (c == '#')
-			{
-				state = ZEVAR_READ_STATE_EAT_LINE;
-			}
-			else if (c == ' ' || c == '\t')
-			{
-				continue;
-			}
-			else
-			{
-				// start token
-				state = ZEVAR_READ_STATE_TOKEN;
-				tokenStart = cursor;
-				//printf("%c", c);
-			}
-			break;
-			case ZEVAR_READ_STATE_TOKEN:
-			{
-				if (c == ' ' || c == '\t')
-				{
-					// end token
-				}
-			} break;
-			case ZEVAR_READ_STATE_EAT_LINE:
-			if (c == '\n') { state = ZEVAR_READ_STATE_NONE; }
-			break;
-			default:
-			printf("%c", c);
-			break;
-		}
-		#endif
-	}
-	if (set != NULL)
-	{
-		printf("Finished set:\n");
-		ZEVar_List(set);
-	}
-	printf("\n\tDone - read %d lines\n", lineCount);
-	return ZE_ERROR_NONE;
-}
-
-
 static void Test_ZEVars_Version1()
 {
 	#if 0
@@ -337,6 +133,14 @@ static void* Test_ZEVarMalloc(size_t numBytes)
 	return ptr;
 }
 
+static void* Test_Realloc(void* originalPtr, size_t numBytes)
+{
+	void* ptr = realloc(originalPtr, numBytes);
+	printf(">>>>>>>>>>>> Realloced %d to %d - total %d\n",
+		(u32)originalPtr, (u32)ptr, g_allocCount);
+	return ptr;
+}
+
 static void Test_ZEVarFree(void* ptr)
 {
 	--g_allocCount;
@@ -368,7 +172,7 @@ static ZEVarSet* g_maps = NULL;
 
 static void Test_ZEVars_Version2()
 {
-	ZEAllocator alloc = { Test_ZEVarMalloc, Test_ZEVarFree };
+	ZEAllocator alloc = { Test_ZEVarMalloc, Test_Realloc, Test_ZEVarFree };
 	char* path = "stats.txt";
 	printf("Reading stats from file %s\n", path);
 	FILE* f = NULL;
@@ -401,6 +205,7 @@ static void Test_ZEVars_Version2()
 	for (i32 i = 0; i < numSets; ++i)
 	{
 		ZEVar_List(sets[i]);
+		//ZE_PrintChars(sets[i]->data.start, sets[i]->data.Written(), 16);
 	}
 	alloc.Free(mem);
 }
@@ -412,7 +217,7 @@ static void Test_ZEVars_Version2_b()
 	printf("--- ZE Set Version 2 ---\n");
 
 	ZEVarSet* readTest = NULL;
-	ZEAllocator alloc = { Test_ZEVarMalloc, Test_ZEVarFree };
+	ZEAllocator alloc = { Test_ZEVarMalloc, Test_Realloc, Test_ZEVarFree };
 
 	// store sets
 	ZEVar_CreateSet(&g_maps, alloc, "maps", 16, 512);

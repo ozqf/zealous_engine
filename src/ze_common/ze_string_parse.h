@@ -3,6 +3,25 @@
 #include "ze_common.h"
 #include "ze_string_utils.h"
 
+internal void ZE_PrintChars(u8* buf, i32 size, i32 bytesPerLine)
+{
+	printf("ZN --- Chars (%d) ---\n0:\t", size);
+	u8* end = buf + size;
+	i32 index = 0;
+	while (buf < end)
+	{
+		printf("%c, ", *buf);
+		buf++;
+		index++;
+		if (index % bytesPerLine == 0)
+		{
+			printf("\n%d:\t", index);
+			//lineChars = 0;
+		}
+	}
+	printf("\n");
+}
+
 /**
  * Find string tokens:
  * > Copies source into dest, placing '\0' at the end of every token

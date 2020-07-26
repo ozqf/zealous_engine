@@ -9,6 +9,7 @@
 struct ZEAllocator
 {
 	void* (*Allocate)(size_t numBytes);
+	void* (*Realloc)(void* ptr, size_t numBytes);
     void (*Free)(void* ptr);
 };
 

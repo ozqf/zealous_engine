@@ -1,5 +1,19 @@
+map projectile_base
+	f prj_speed 15
+	i prj_damage 10
+	s prj_sprite fireball
+map goblin_archer_projectile
+	s prototype projectile_base
+	s prj_sprite arrow
 map goblin_base
+	s mob_move_type walk
 	i mob_damage 10
 	f mob_speed 6.5
-map set_b
-	i int_b 1
+	v mob_size 0.75 1.85 0.75
+map goblin_archer
+	s prototype goblin_base
+	s atk_set goblin_archer_projectile
+
+# defines 'generic 'enemy list
+map mob_classes
+	s mob_goblin goblin_base
