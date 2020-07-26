@@ -54,6 +54,11 @@ struct ZEByteBuffer
         }
 	    cursor = start;
     }
+
+    i32 CursorOffset()
+    {
+        return this->cursor - this->start;
+    }
 };
 
 internal i32 Buf_IsValid(ZEByteBuffer* b)

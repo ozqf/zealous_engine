@@ -32,7 +32,7 @@ struct ZEVarUnion
 	f32 f;
 	struct
 	{
-		char* chars;
+		i32 offset;
 		i32 len;
 	} txt;
 	Vec4 v4;
@@ -46,7 +46,7 @@ struct ZEVar
 	// total size of struct, name and data to jump to next.
 	i32 size;
 	//i32 nameHash;
-	char* name;
+	i32 nameOffset;
 	i32 nameLength;
 
 	ZEVarUnion data;
@@ -60,12 +60,12 @@ static ZEVar* ZEVar_InitVar(ZEByteBuffer* b, char* name, i32 type)
 
 	// copy name string
 	i32 len = ZE_StrLen(name);
-	char* namePtr = (char*)b->cursor;
+	i32 nameOffset = b->CursorOffset();
 	b->cursor += ZE_CopyStringLimited(name, (char*)b->cursor, len);
 	
 	// setup var
 	zeVar->sentinel = ZE_SENTINEL;
-	zeVar->name = namePtr;
+	zeVar->nameOffset = nameOffset;
 	zeVar->nameLength = len;
 	zeVar->type = type;
 	// TODO: if further data is stored (eg a string) this size will
@@ -96,7 +96,7 @@ struct ZEVarSet
 		i32 offset = ((u8*)v - data.start);
 		u32 hash = ZE_Hash_djb2((u8*)varName);
 		table->Insert(hash, offset);
-		printf("ZEVAR Created int %s: %d\n", v->name, v->data.i);
+		printf("ZEVAR Created int %s: %d\n", (char*)(this->data.start + v->nameOffset), v->data.i);
 		return v;
 	}
 
@@ -150,7 +150,7 @@ struct ZEVarSet
 		ZEVar_CheckSize(this, size);
 		
 		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_STR);
-		v->data.txt.chars = (char*)(data.cursor);
+		v->data.txt.offset = data.CursorOffset();
 		v->data.txt.len = strLen;
 		data.cursor += ZE_CopyStringLimited(
 			str, (char*)data.cursor, strLen);
@@ -200,9 +200,19 @@ struct ZEVarSet
 	{
 		ZEVar* v = GetVar(varName, ZEVAR_TYPE_STR);
 		if (v == NULL) { return ZEVAR_EMPTY_STRING; }
-		return v->data.txt.chars;
+		return (char*)(this->data.start + v->data.txt.offset);
 	}
-	
+
+	char* GetStringFromVar(ZEVar* v)
+	{
+		return (char*)(this->data.start + v->data.txt.offset);
+	}
+
+	char* GetVarName(ZEVar* v)
+	{
+		return (char*)(this->data.start + v->nameOffset);
+	}
+
 	//////////////////////////////////////////
 	// Rebuild
 	//////////////////////////////////////////
@@ -220,7 +230,7 @@ struct ZEVarSet
 				return ZE_ERROR_UNKNOWN;
 			}
 			i32 offset = read - this->data.start;
-			u32 hash = ZE_Hash_djb2((u8*)v->name);
+			u32 hash = ZE_Hash_djb2((u8*)(GetVarName(v)));
 			// step cursor
 			read += v->size;
 			table->Insert(hash, offset);
@@ -328,7 +338,12 @@ static i32 ZEVar_CreateSet(
 	// allocate set if not provided
 	if (*result == NULL)
 	{
+		printf("ZEVARSET - allocating new\n");
 		*result = (ZEVarSet*)allocator.Allocate(sizeof(ZEVarSet));
+	}
+	else
+	{
+		printf("ZEVARSET - Build pre-allocated set\n");
 	}
 	ZEVarSet* s = *result;
 	s->alloc = allocator;
@@ -495,7 +510,8 @@ static i32 ZEVar_ReadFromText(
 			{ printf("Line %d Not enough tokens to declare string", lineCount); continue; }
 
 			// TODO: Only third token can be included in string
-			set->AddString(tokens[1], tokens[2]);
+			v = set->AddString(tokens[1], tokens[2]);
+			printf("Created Str %s: \"%s\"\n", set->GetVarName(v), set->GetStringFromVar(v));
 		}
 		else if (ZE_CompareStrings(tokens[0], "v") == 0)
 		{

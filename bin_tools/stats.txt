@@ -1,19 +1,11 @@
-map projectile_base
-	f prj_speed 15
-	i prj_damage 10
-	s prj_sprite fireball
-map goblin_archer_projectile
-	s prototype projectile_base
-	s prj_sprite arrow
-map goblin_base
-	s mob_move_type walk
-	i mob_damage 10
-	f mob_speed 6.5
-	v mob_size 0.75 1.85 0.75
-map goblin_archer
-	s prototype goblin_base
-	s atk_set goblin_archer_projectile
+# #################################
+map var_set_1
+	f float_1 10.55
+	i integer_1 12
+	s string_1 the_quick_brown_fox
 
-# defines 'generic 'enemy list
-map mob_classes
-	s mob_goblin goblin_base
+map var_set_2
+	s string_2 jumps_over_the_lazy_dog
+	s string_2_b this_is_another_string
+	f float_2 10.55
+	i integer_2 34

@@ -3,6 +3,7 @@
 static void ZEVar_List(ZEVarSet* varSet)
 {
 	printf("=== List ZEVars in set %s ===\n", varSet->name);
+	#if 1
 	printf("--- Var data ---\n");
 	ZEByteBuffer* b = &varSet->data;
 	u8* read = b->start;
@@ -26,20 +27,20 @@ static void ZEVar_List(ZEVarSet* varSet)
 		{
 			case ZEVAR_TYPE_INT:
 			printf("%s: %d. Int Offset %d\n",
-				v->name, v->data.i, offset);
+				varSet->GetVarName(v), v->data.i, offset);
 			break;
 			case ZEVAR_TYPE_FLOAT:
 			printf("%s: %f. float Offset %d\n",
-				v->name, v->data.f, offset);
+				varSet->GetVarName(v), v->data.f, offset);
 			break;
 			case ZEVAR_TYPE_STR:
 			printf("%s: \"%s\". Len (%d) Offset %d\n",
-				v->name, v->data.txt.chars, v->data.txt.len, offset);
+				varSet->GetVarName(v), varSet->GetStringFromVar(v), v->data.txt.len, offset);
 			break;
 			case ZEVAR_TYPE_VEC_4:
 			Vec4 v4 = v->data.v4;
 			printf("%s: %.3f, %.3f, %.3f, %.3f. Vec4 Offset %d\n",
-				v->name,
+				varSet->GetVarName(v),
 				v4.x, v4.y, v4.z, v4.w,
 				offset);
 			break;
@@ -48,22 +49,23 @@ static void ZEVar_List(ZEVarSet* varSet)
 				ZEVarSet* s = v->data.ptr;
 				if (s == NULL)
 				{
-					printf("%s: NULL set ptr\n", v->name);
+					printf("%s: NULL set ptr\n", varSet->GetVarName(v));
 				}
 				else
 				{
 					printf("%s: Set with %d bytes and %d keys\n",
-						v->name, s->data.Written(), s->table->m_numKeys);
+						varSet->GetVarName(v), s->data.Written(), s->table->m_numKeys);
 				}
 			}
 			break;
 			default:
-			printf("Unknown var type %d\n", v->type);
+			printf("!!Unknown var type %d\n", v->type);
 			break;
 		}
 	}
 	printf("\t%d vars, avg size %.3f\n", numVars, (f32)totalSize / (f32)numVars);
-	
+	#endif
+	#if 0
 	printf("--- keys ---\n");
 	ZELookupTable* t = varSet->table;
 	for (i32 i = 0; i < t->m_maxKeys; ++i)
@@ -71,6 +73,7 @@ static void ZEVar_List(ZEVarSet* varSet)
 		if (t->m_keys[i].idHash == 0) { continue; }
 		printf("%d: hash %d data %d\n", i, t->m_keys[i].idHash, t->m_keys[i].data);
 	}
+	#endif
 	printf("\n");
 }
 
@@ -173,7 +176,8 @@ static ZEVarSet* g_maps = NULL;
 static void Test_ZEVars_Version2()
 {
 	ZEAllocator alloc = { Test_ZEVarMalloc, Test_Realloc, Test_ZEVarFree };
-	char* path = "stats.txt";
+	//char* path = "stats.txt";
+	char* path = "stats copy.txt";
 	printf("Reading stats from file %s\n", path);
 	FILE* f = NULL;
 	errno_t err = fopen_s(&f, path, "rb");
