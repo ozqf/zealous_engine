@@ -47,25 +47,6 @@ extern "C"
 i32 Sim_GetFrameNumber(SimScene* sim){ return sim->tick; }
 
 extern "C"
-void Sim_SimpleMove(SimEntity* ent, timeFloat delta)
-{
-    Vec3* pos = &ent->body.t.pos;
-    ent->body.previousPos.x = pos->x;
-    ent->body.previousPos.y = pos->y;
-    ent->body.previousPos.z = pos->z;
-    Vec3 move =
-    {
-        ent->movement.velocity.x * (f32)delta,
-        ent->movement.velocity.y * (f32)delta,
-        ent->movement.velocity.z * (f32)delta
-    };
-    
-    ent->body.t.pos.x += move.x;
-    ent->body.t.pos.y += move.y;
-    ent->body.t.pos.z += move.z;
-}
-
-extern "C"
 i32 Sim_InBounds(SimEntity* ent, Vec3* min, Vec3* max)
 {
     Vec3* p = &ent->body.t.pos;
@@ -118,6 +99,54 @@ void Sim_BoundaryStop(SimEntity* ent, Vec3* min, Vec3* max)
     { p->z = max->z; }
 }
 
+extern "C"
+i32 Sim_GroundCheck(SimScene* sim, SimEntity* ent)
+{
+    f32 entMinY = ent->body.t.pos.y - ent->body.baseHalfSize.y;
+    if (entMinY <= sim->groundOrigin.y)
+    {
+        // snap to exactly on ground
+        ent->body.t.pos.y = entMinY + ent->body.baseHalfSize.y;
+        return YES;
+    }
+    return NO;
+}
+
+extern "C"
+void Sim_SimpleMove(SimScene* sim, SimEntity* ent, timeFloat delta)
+{
+    Vec3* pos = &ent->body.t.pos;
+    ent->body.previousPos.x = pos->x;
+    ent->body.previousPos.y = pos->y;
+    ent->body.previousPos.z = pos->z;
+    Vec3 move =
+    {
+        ent->movement.velocity.x * (f32)delta,
+        ent->movement.velocity.y * (f32)delta,
+        ent->movement.velocity.z * (f32)delta
+    };
+    
+    // ground check
+    i32 bGrounded = Sim_GroundCheck(sim, ent);
+    if (bGrounded)
+    {
+        ent->movement.stateFlags |= SIM_ENT_MOVE_STATE_BIT_GROUNDED;
+        move.y = 0;
+        
+    }
+    else
+    {
+        ent->movement.stateFlags &= ~SIM_ENT_MOVE_STATE_BIT_GROUNDED;
+        move.y -= sim->gravity.y * (f32)delta;
+    }
+    
+    ent->body.t.pos.x += move.x;
+    ent->body.t.pos.y += move.y;
+    ent->body.t.pos.z += move.z;
+
+    Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+}
+
 ////////////////////////////////////////////////////////////
 // Targetting and validation
 ////////////////////////////////////////////////////////////
@@ -141,14 +170,6 @@ inline i32 Sim_IsEntTargetable(SimEntity* ent)
     if (result == NO) { return NO; }
     return ((ent->flags & SIM_ENT_FLAG_SHOOTABLE) != NO);
 }
-
-// If no then this ent cannot be attacked
-/*extern "C"
-inline i32 Sim_IsEntHurtable(SimEntity* ent)
-{
-    if (!(ent->flags & SIM_ENT_FLAG_SHOOTABLE)) { return NO; }
-    return Sim_IsEntInPlay(ent);
-}*/
 
 /**
  * Returns NULL if no suitable target can be found
@@ -385,6 +406,9 @@ void Sim_Init(
 	sim->maxPlayers = SIM_MAX_PLAYERS;
     sim->bVerbose = NO;
     sim->tickRate = 60;
+    sim->groundOrigin = { };
+    sim->groundNormal = { 0, 1, 0 };
+    sim->gravity = { 0, 12.f, 0 };
     SVI_InitItemDefs();
 	Sim_Reset(sim);
     #ifdef SIM_USE_PHYSICS_ENGINE

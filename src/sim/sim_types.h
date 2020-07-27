@@ -104,6 +104,8 @@ struct SimEntDisplay
     ZRDrawObjData data;
 };
 
+#define SIM_ENT_MOVE_STATE_BIT_GROUNDED (1 << 0)
+
 struct SimEntMovement
 {
     f32 speed;
@@ -112,6 +114,7 @@ struct SimEntMovement
     timeFloat moveTime;
     // An abritrary position this entity is moving toward
     Vec3 destination;
+    i32 stateFlags;
 };
 
 // Fields replicated to clients
@@ -318,6 +321,10 @@ struct SimScene
 
     // for client. server has remote sequence anyway
     i32 highestAssignedSequence;
+
+    Vec3 groundOrigin;
+    Vec3 groundNormal;
+    Vec3 gravity;
 
     Vec3 boundaryMin;
     Vec3 boundaryMax;

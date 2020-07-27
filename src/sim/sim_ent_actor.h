@@ -138,6 +138,20 @@ internal void SimEnt_UpdateActorWalk(
     // move for this frame
     move.x = ent->movement.velocity.x * dt;
 	move.z = ent->movement.velocity.z * dt;
+
+    // ground check
+    i32 bGrounded = Sim_GroundCheck(sim, ent);
+    if (bGrounded)
+    {
+        ent->movement.stateFlags |= SIM_ENT_MOVE_STATE_BIT_GROUNDED;
+        move.y = 0;
+        
+    }
+    else
+    {
+        ent->movement.stateFlags &= ~SIM_ENT_MOVE_STATE_BIT_GROUNDED;
+        move.y -= sim->gravity.y * dt;
+    }
     
     Transform* t = &ent->body.t;
     // record previous position

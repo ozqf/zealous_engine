@@ -163,25 +163,14 @@ extern "C" void Sim_PrepareSpawnData(
                         Vec3 pos);
 
 // Entity behaviour
-extern "C" void     Sim_SimpleMove(SimEntity* ent, timeFloat deltaTime);
+extern "C" void     Sim_SimpleMove(SimScene* sim, SimEntity* ent, timeFloat deltaTime);
 extern "C" i32      Sim_InBounds(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryBounce(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryStop(SimEntity* ent, Vec3* min, Vec3* max);
+extern "C" i32      Sim_GroundCheck(SimScene* sim, SimEntity* ent);
 
 extern "C" SimInventoryItem* SVI_GetItem(i32 index);
 
-// Entity Frame Updates
-/*
-extern "C" i32      SimEnt_TickSpawnAnimation(SimScene* sim, SimEntity* ent, timeFloat deltaTime);
-
-extern "C" void     SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
-extern "C" void     SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
-extern "C" void     SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
-extern "C" void     SimEnt_TickSeeker(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
-extern "C" void     SimEnt_TickSeekerFlying(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
-
-extern "C" void     SimEnt_StepActorMovement(SimScene* sim, SimEntity* ent, SimActorInput* input, timeFloat deltaTime);
-*/
 extern "C" void     Sim_TickDebugCamera(Transform* t, SimActorInput input, f32 moveSpeed, timeFloat delta);
 
 // Searching/Querying
