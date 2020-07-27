@@ -52,13 +52,13 @@ ZRAssetDB* App_GetAssetDB()
     ZE_ASSERT(db != NULL, "Asset DB is null");
     return db;
 }
-
+#if 1
 extern "C"
 timeFloat App_GetSimFrameInterval()
 {
     return (timeFloat)(1.0f / g_simFrameRate);
 }
-
+#endif
 extern "C"
 frameInt App_CalcTickInterval(timeFloat seconds)
 {

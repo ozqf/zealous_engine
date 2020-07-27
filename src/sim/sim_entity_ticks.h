@@ -177,10 +177,8 @@ internal void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat delta
     {
         ent->timing.lastThink = ent->timing.nextThink;
         
-        ent->timing.nextThink += (i32)COM_STDRandomInRange(
-            (f32)App_CalcTickInterval(1),
-            (f32)App_CalcTickInterval(6)
-        );
+        f32 randomWait = COM_STDRandomInRange(1, 6);
+        ent->timing.nextThink = Sim_CalcThinkTick(sim, randomWait);
         f32 radians = COM_STDRandomInRange(0, 360) * DEG2RAD;
         ent->movement.velocity.x = cosf(radians) * ent->movement.speed;
         ent->movement.velocity.z = sinf(radians) * ent->movement.speed;
@@ -200,7 +198,7 @@ internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaT
     if (sim->tick >= ent->timing.nextThink)
     {
         ent->timing.lastThink = ent->timing.nextThink;
-        ent->timing.nextThink += App_CalcTickInterval(2);
+        ent->timing.nextThink = Sim_CalcThinkTick(sim, 2);
         ent->relationships.liveChildren += 
             ent->relationships.childSpawnCount;
         
@@ -245,6 +243,8 @@ internal void Sim_TickEntities(SimScene* sim, ZEByteBuffer* output, timeFloat de
             { SimEnt_TickActor(sim, ent, delta, bIsServer); } break;
             // case SIM_TICK_TYPE_BOT:
             // { SVG_UpdateBot(sim, ent, delta); } break;
+            case SIM_TICK_TYPE_STUN:
+            { SimEnt_TickStun(sim, ent, delta); break; }
             case SIM_TICK_TYPE_SPAWNER:
             { SimEnt_TickSpawner(sim, ent, delta, bIsServer); } break;
             case SIM_TICK_TYPE_SEEKER:

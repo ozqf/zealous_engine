@@ -93,6 +93,7 @@ typedef u8 simFactoryType;
 #define SIM_TICK_TYPE_TARGET_POINT 15
 #define SIM_TICK_TYPE_SEEKER_FLYING 16
 #define SIM_TICK_TYPE_PROJECTILE_VOLUME 17
+#define SIM_TICK_TYPE_STUN 18
 
 // Spawn pattern types.
 #define SIM_PATTERN_NONE 0
@@ -127,6 +128,8 @@ extern "C" void 	Sim_Reset(SimScene* sim);
 extern "C" i32 	    Sim_LoadStaticScene(SimScene* sim, i32 index);
 extern "C" i32      Sim_CalcEntityArrayBytes(i32 capacity);
 extern "C" i32		Sim_GetFrameNumber(SimScene* sim);
+extern "C" timeFloat Sim_GetFrameInterval(SimScene* sim);
+extern "C" frameInt Sim_CalcThinkTick(SimScene* sim, timeFloat secondsToThink);
 
 extern "C" i32      Sim_Tick(
                         SimScene* sim,

@@ -18,6 +18,7 @@ internal void Sim_SetEntityBase(
     ent->relationships.parentId.serial = def->parentSerial;
     ent->priority = 1;
     ent->basePriority = 1;
+    ent->life.stunDuration = 1;
     Transform_SetScaleSafe(&ent->body.t, def->scale);
 }
 

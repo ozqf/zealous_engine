@@ -12,6 +12,21 @@ extern "C" SimInventoryItem* SVI_GetItem(i32 index)
 	return &g_items[index];
 }
 
+extern "C" timeFloat Sim_GetFrameInterval(SimScene* sim)
+{
+    return (timeFloat)(1.0f / (f32)sim->tickRate);
+}
+
+/**
+ * Calculate the tick number for a think event in the future.
+ */
+extern "C" frameInt Sim_CalcThinkTick(SimScene* sim, timeFloat secondsToThink)
+{
+    timeFloat result = secondsToThink / Sim_GetFrameInterval(sim);
+    // round
+    return sim->tick + (frameInt)(result + 0.5);
+}
+
 extern "C" void Sim_PrepareSpawnData(
     SimScene* sim, SimEvent_Spawn* data,
     i32 bIsLocal, u8 factoryType,
@@ -369,6 +384,7 @@ void Sim_Init(
     sim->maxEnts = maxEntities;
 	sim->maxPlayers = SIM_MAX_PLAYERS;
     sim->bVerbose = NO;
+    sim->tickRate = 60;
     SVI_InitItemDefs();
 	Sim_Reset(sim);
     #ifdef SIM_USE_PHYSICS_ENGINE

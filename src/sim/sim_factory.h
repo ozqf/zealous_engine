@@ -348,7 +348,7 @@ internal i32 Sim_InitLineTrace(
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_LINE_TRACE;
     ent->coreTickType = SIM_TICK_TYPE_LINE_TRACE;
-    ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(2);
+    ent->timing.nextThink = Sim_CalcThinkTick(scene, 2);
     return ZE_ERROR_NONE;
 }
 
@@ -367,7 +367,7 @@ internal i32 Sim_InitExplosion(
         ZRDB_MESH_NAME_CUBE,
 		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_NONE);
-    ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
+    ent->timing.nextThink = Sim_CalcThinkTick(sim, 0.5f);
     ent->body.t.scale = { 2, 1, 2 };
     return ZE_ERROR_NONE;
 }
@@ -384,7 +384,7 @@ internal i32 Sim_InitBulletImpact(
         ZRDB_MESH_NAME_CUBE,
 		ZRDB_MAT_NAME_GFX,
         SIM_DEATH_GFX_NONE);
-    ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
+    ent->timing.nextThink = Sim_CalcThinkTick(sim, 0.5f);
     ent->body.t.scale = { 0.25f, 0.25f, 0.25f };
     return ZE_ERROR_NONE;
 }
@@ -401,7 +401,7 @@ internal i32 Sim_InitTargetPoint(
         ZRDB_MESH_NAME_CUBE,
 		ZRDB_MAT_NAME_LASER,
         SIM_DEATH_GFX_NONE);
-    ent->timing.nextThink = ent->timing.birthTick + App_CalcTickInterval(0.5f);
+    ent->timing.nextThink = Sim_CalcThinkTick(sim, 0.5f);
     ent->body.t.scale = { 0.15f, 0.15f, 0.15f };
     return ZE_ERROR_NONE;
 }
@@ -472,6 +472,7 @@ internal i32 Sim_InitProjBase(
     ent->touchDamage = 10;
 
     Sim_InitProjectile(
+        scene,
         ent,
         def->pos,
         { def->pitchDegrees, def->yawDegrees, 0 },
@@ -502,6 +503,7 @@ internal i32 Sim_InitProjPrediction(
     ent->touchDamage = 10;
 
     Sim_InitProjectile(
+        scene,
         ent,
         def->pos,
         { def->pitchDegrees, def->yawDegrees, 0 },
@@ -535,6 +537,7 @@ internal i32 Sim_InitPlayerProjectile(
     ent->lightType = 1;
 
     Sim_InitProjectile(
+        scene,
         ent,
         def->pos,
         { def->pitchDegrees, def->yawDegrees, 0 },

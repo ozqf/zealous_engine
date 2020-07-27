@@ -20,7 +20,9 @@ internal i32 SimEnt_Hit(
 		else
 		{
 			// stun?
-			
+			victim->tickType = SIM_TICK_TYPE_STUN;
+            victim->timing.nextThink = Sim_CalcThinkTick(
+                sim, victim->life.stunDuration);
 		}
 		
     }

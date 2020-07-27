@@ -3,6 +3,7 @@
 #include "sim_internal.h"
 
 internal void Sim_InitProjectile(
+    SimScene* sim,
     SimEntity* ent,
     Vec3 pos,
     Vec3 eulerDegrees,
@@ -29,8 +30,7 @@ internal void Sim_InitProjectile(
     ent->movement.velocity = velocity;
     ent->movement.speed = type->speed;
 
-    ent->timing.nextThink = ent->timing.birthTick +
-        App_CalcTickInterval(type->lifeTime);
+    ent->timing.nextThink = Sim_CalcThinkTick(sim, type->lifeTime);
 	ent->timing.fastForwardTicks = fastForwardTicks;
 }
 internal i32 Sim_StepProjectile(

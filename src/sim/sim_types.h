@@ -296,6 +296,7 @@ struct SimPlayer
 struct SimScene
 {
     SimEntity* ents;
+    i32 tickRate;
     i32 maxEnts;
     u32 flags;
     // Ent Id of local player's avatar
