@@ -176,8 +176,8 @@ static ZEVarSet* g_maps = NULL;
 static void Test_ZEVars_Version2()
 {
 	ZEAllocator alloc = { Test_ZEVarMalloc, Test_Realloc, Test_ZEVarFree };
-	//char* path = "stats.txt";
-	char* path = "stats copy.txt";
+	char* path = "stats.txt";
+	//char* path = "stats copy.txt";
 	printf("Reading stats from file %s\n", path);
 	FILE* f = NULL;
 	errno_t err = fopen_s(&f, path, "rb");
@@ -198,6 +198,7 @@ static void Test_ZEVars_Version2()
 	}
 	fread((void*)mem, strLen, 1, f);
 	fclose(f);
+	f = NULL;
 
 	const i32 maxSets = 32;
 	ZEVarSet* sets[maxSets];
@@ -212,6 +213,17 @@ static void Test_ZEVars_Version2()
 		//ZE_PrintChars(sets[i]->data.start, sets[i]->data.Written(), 16);
 	}
 	alloc.Free(mem);
+
+	// Test save
+	char* saveFilePath = "stats_save_test.txt";
+	err = fopen_s(&f, saveFilePath, "w");
+	for (i32 i = 0; i < numSets; ++i)
+	{
+		ZEVar_WriteToTextFile(f, sets[i]);
+	}
+	i32 bytesWritten = ftell(f);
+	printf("Wrote %d sets (%d bytes) to %s\n", numSets, bytesWritten, saveFilePath);
+	fclose(f);
 }
 
 

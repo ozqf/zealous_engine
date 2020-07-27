@@ -10,7 +10,7 @@ internal i32 Sim_InitWanderer(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityStats(ent, 1, 1, 1);
+    Sim_SetEntityStats(ent, 2, 100, 1);
     Sim_SetEntityBody(ent, { 1, 1, 1 });
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -31,7 +31,7 @@ internal i32 Sim_InitRubble(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityStats(ent, 4, 1, 1);
+    Sim_SetEntityStats(ent, 4, 100, 1);
     Sim_SetEntityBody(ent, { 1, 1, 1 });
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,

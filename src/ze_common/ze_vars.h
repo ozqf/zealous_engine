@@ -1,6 +1,10 @@
 #ifndef ZE_VARS_H
 #define ZE_VARS_H
-
+/*
+TODO: This whole implementation is kinda shit isn't it.
+Plan to refactor to intern strings for idenfier names and values into
+a shared store. Sets will be hash tables into this store.
+*/
 #include "ze_common.h"
 #include "ze_byte_buffer.h"
 #include "ze_hash.h"
@@ -383,10 +387,37 @@ static void ZEVar_FreeSet(ZEVarSet* varSet)
 /////////////////////////////////////////////////
 // Save sets to text buffer
 /////////////////////////////////////////////////
-static i32 ZEVar_WriteToText(
+static i32 ZEVar_WriteToTextFile(
 	FILE* f, ZEVarSet* set)
 {
 	fprintf_s(f, "map %s\n", set->name);
+	u8* read = set->data.start;
+	u8* end = set->data.cursor;
+	while (read < end)
+	{
+		ZEVar* v = (ZEVar*)read;
+		read += v->size;
+		char* varName = set->GetVarName(v);
+		switch (v->type)
+		{
+			case ZEVAR_TYPE_INT:
+			fprintf_s(f, "\ti %s %d\n", varName, v->data.i);
+			break;
+			case ZEVAR_TYPE_FLOAT:
+			fprintf_s(f, "\tf %s %d\n", varName, v->data.i);
+			break;
+			case ZEVAR_TYPE_VEC_4:
+			Vec4 v4 = v->data.v4;
+			fprintf_s(f, "\tv %s %f %f %f %f\n",
+				varName, v4.x, v4.y, v4.z, v4.w);
+			break;
+			case ZEVAR_TYPE_STR:
+			char* str = set->GetStringFromVar(v);
+			fprintf_s(f, "\ts %s %s\n", varName, str);
+			break;
+		}
+	}
+	fprintf_s(f, "\n");
 	
 	return ZE_ERROR_NONE;
 }

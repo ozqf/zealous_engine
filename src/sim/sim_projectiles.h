@@ -59,22 +59,11 @@ internal i32 Sim_StepProjectile(
     for (i32 i = 0; i < overlaps; ++i)
     {
         SimEntity* victim = results[i].ent;
-        if (Sim_IsEntTargetable(victim) == NO) { continue; }
-        ZE_ASSERT(victim->id.serial, "SV overlap victim serial is 0")
-        
-        if ((victim->flags & SIM_ENT_FLAG_INVULNERABLE) == 0)
-        {
-            // Hurt/kill victim
-            victim->life.health -= ent->touchDamage;
-            if (victim->life.health <= 0)
-            {
-                Sim_WriteRemoveEntity(sim, victim, ent, SIM_DEATH_STYLE_SHOT, dir, NO);
-            }
-        }
+        i32 hitResponse = SimEnt_Hit(sim, ent, victim, dir);
+        if (hitResponse == 0) { continue; }
+        // hit something, remove self.
         frameDest = results[i].hitPos;
         killed = YES;
-
-        break;
     }
     
     // place projectile at end of move

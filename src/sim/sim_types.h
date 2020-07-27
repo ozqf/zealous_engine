@@ -125,6 +125,56 @@ struct SimEntSyncData
     timeFloat thinkTime;
 };
 
+struct SimEntBody
+{
+    Transform t;
+    Vec3 previousPos;
+    Vec3 error;
+    f32 errorRate;
+    f32 pitchDegrees;
+    f32 yawDegrees;
+    // use this to store the default scale of an entity, as the transform
+    // scale may be changed by game logic
+    Vec3 baseHalfSize;
+};
+
+struct SimEntRelationships
+{
+    // TODO: For the client only the serial of targetid is safe.
+    // Slot is not!!
+    SimEntId targetId;  // current enemy // REPLICATED
+    SimEntId parentId;  // Who spawned this entity
+    simFactoryType childFactoryType;
+    i32 childSpawnCount;
+    i32 liveChildren;
+    i32 maxLiveChildren;
+    i32 totalChildren;
+    u8 patternType;
+};
+
+struct SimEntTiming
+{
+    frameInt lastThink;
+    frameInt nextThink;
+    // even if an ent was technically born in the current tick
+    // birth tick may be in the past for lag compensation,
+    frameInt birthTick;
+    // the real, uncompensated birth tick
+    frameInt realBirthTick;
+    // This entity was spawned in the past this many ticks ago
+    // and needs to catch up
+	frameInt fastForwardTicks;
+};
+
+struct SimEntHealth
+{
+    i32 health;
+    i32 healthMax;
+    i32 healthOverchargeMax;
+    i32 stunThreshold;
+    timeFloat stunDuration;
+};
+
 // TODO - breakup into ECS...?
 struct SimEntity
 {
@@ -137,35 +187,11 @@ struct SimEntity
     i32 tickType; // REPLICATED
     i32 coreTickType;
 
-    ZShapeDef shape;
+    //ZShapeDef shape;
 
-    struct
-    {
-        // TODO: For the client only the serial of targetid is safe.
-        // Slot is not!!
-        SimEntId targetId;  // current enemy // REPLICATED
-        SimEntId parentId;  // Who spawned this entity
-        simFactoryType childFactoryType;
-        i32 childSpawnCount;
-        i32 liveChildren;
-        i32 maxLiveChildren;
-        i32 totalChildren;
-        u8 patternType;
-    } relationships;
+    SimEntRelationships relationships;
     
-    struct
-    {
-        frameInt lastThink;
-        frameInt nextThink;
-        // even if an ent was technically born in the current tick
-        // birth tick may be in the past for lag compensation,
-        frameInt birthTick;
-        // the real, uncompensated birth tick
-        frameInt realBirthTick;
-        // This entity was spawned in the past this many ticks ago
-        // and needs to catch up
-	    frameInt fastForwardTicks;
-    } timing;
+    SimEntTiming timing;
 
     timeFloat attackTick;
     timeFloat attackTime;
@@ -180,27 +206,9 @@ struct SimEntity
     SimEntMovement movement;
     
     // physical
-    struct
-    {
-        Transform t;
-        Vec3 previousPos;
-        Vec3 error;
-        f32 errorRate;
-        f32 pitchDegrees;
-        f32 yawDegrees;
-        // use this to store the default scale of an entity, as the transform
-        // scale may be changed by game logic
-        Vec3 baseHalfSize;
-    } body;
-
-    struct
-    {
-        i32 health;
-        i32 healthMax;
-        i32 healthOverchargeMax;
-        i32 stunThreshold;
-        timeFloat stunDuration;
-    } life;
+    SimEntBody body;
+    
+    SimEntHealth life;
     
 	SimActorInput input;
 

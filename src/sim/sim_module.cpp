@@ -8,9 +8,10 @@
 // Implementations
 #include "sim_patterns.h"
 #include "sim_collision.h"
-#include "sim_projectiles.h"
 #include "sim_entity_init.h"
+#include "sim_interactions.h"
 #include "sim_enemy_defs.h"
+#include "sim_projectiles.h"
 #include "sim_items.h"
 #include "sim_ent_actor.h"
 #include "sim_entity_ticks.h"
