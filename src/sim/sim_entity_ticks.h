@@ -68,10 +68,17 @@ internal i32 SimEnt_TickSpawnAnimation(
 
 internal void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
 {
-    if (sim->tick >= ent->timing.nextThink)
+	i32 bIgnoreTimeout = NO;
+	// ground based enemies remain stunned until they fall to the ground
+	if (ent->movement.moveMode == SIM_ENT_MOVE_TYPE_WALK
+		&& !IF_BIT(ent->movement.flags, SIM_ENT_MOVE_BIT_GROUNDED))
+	{ bIgnoreTimeout = YES; }
+
+    if (!bIgnoreTimeout && sim->tick >= ent->timing.nextThink)
     {
         ent->tickType = ent->coreTickType;
     }
+
 }
 
 internal void SimEnt_TickSeeker(

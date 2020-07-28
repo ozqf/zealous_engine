@@ -308,6 +308,21 @@ i32 Sim_GroundCheck(SimScene* sim, SimEntity* ent)
     return NO;
 }
 
+internal void Sim_MoveMobGround(
+	SimScene* sim, SimEntity* ent, Vec3 move, timeFloat delta)
+{
+	SimEntMovement* mover = &ent->movement;
+	/**
+	 * > velocity - current real movement
+	 * > move - desired direction of movement
+	 * 
+	 * > velocity x/z are defined by move unless mob is stunned,
+	 * 	then the mob should drift
+	 * > y is affected by gravity
+	 */
+	i32 bGrounded = Sim_GroundCheck(sim, ent);
+}
+
 extern "C"
 void Sim_SimpleMove(SimScene* sim, SimEntity* ent, SimEntMovement* mover, timeFloat delta)
 {
