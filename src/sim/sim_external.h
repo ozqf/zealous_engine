@@ -313,7 +313,7 @@ void Sim_Init(
     sim->tickRate = 60;
     sim->groundOrigin = { };
     sim->groundNormal = { 0, 1, 0 };
-    sim->gravity = { 0, 12.f, 0 };
+    sim->gravity = { 0, -12.f, 0 };
     SVI_InitItemDefs();
 	Sim_Reset(sim);
     #ifdef SIM_USE_PHYSICS_ENGINE

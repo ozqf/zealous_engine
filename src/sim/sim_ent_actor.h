@@ -150,7 +150,7 @@ internal void SimEnt_UpdateActorWalk(
     else
     {
         ent->movement.flags &= ~SIM_ENT_MOVE_BIT_GROUNDED;
-        move.y -= sim->gravity.y * dt;
+        move.y += sim->gravity.y * dt;
     }
     
     Transform* t = &ent->body.t;

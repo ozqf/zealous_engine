@@ -336,7 +336,7 @@ void Sim_SimpleMove(SimScene* sim, SimEntity* ent, SimEntMovement* mover, timeFl
     else
     {
         ent->movement.flags &= ~SIM_ENT_MOVE_BIT_GROUNDED;
-        move.y -= sim->gravity.y * (f32)delta;
+        move.y += sim->gravity.y * (f32)delta;
     }
     
     ent->body.t.pos.x += move.x;
