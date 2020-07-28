@@ -22,16 +22,33 @@ internal void Sim_SetEntityBase(
     Transform_SetScaleSafe(&ent->body.t, def->scale);
 }
 
-internal void Sim_SetEntityStats(
-    SimEntity* ent,
-    f32 speed,
-    i32 health,
-    f32 attackTime)
+internal void Sim_SetEntLife(SimEntity* ent, i32 bInvulnerable, i32 bIsShootable, i32 startHealth)
 {
-    ent->movement.speed = speed;
-    ent->life.health = health;
-    ent->attackTime = attackTime;
+    // eg: a wall is shootable, but it is also invulernable.
+    IF_TO_BIT(bIsShootable, ent->flags, SIM_ENT_FLAG_SHOOTABLE)
+    IF_TO_BIT(bInvulnerable, ent->flags, SIM_ENT_FLAG_INVULNERABLE)
+    ent->life.health = startHealth;
+    ent->life.healthMax = startHealth;
 }
+
+internal void Sim_SetEntMoveType(
+    SimEntity* ent, SimEntMovement* mover, f32 moveSpeed, i32 moveType, i32 bAvoidOthers)
+{
+    IF_TO_BIT(bAvoidOthers, ent->flags, SIM_ENT_FLAG_MOVE_AVOID)
+    mover->moveMode = moveType;
+    mover->speed = moveSpeed;
+}
+
+// internal void Sim_SetEntityStats(
+//     SimEntity* ent,
+//     f32 speed,
+//     i32 health,
+//     f32 attackTime)
+// {
+//     ent->movement.speed = speed;
+//     ent->life.health = health;
+//     ent->attackTime = attackTime;
+// }
 
 internal void Sim_SetEntityDisplay_Mesh(
     SimEntity* ent,

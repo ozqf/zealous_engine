@@ -10,6 +10,12 @@
 
 #define SIM_LAYER_WORLD (1 << 0)
 
+#define SIM_ENT_TEAM_FREELANCE 0
+#define SIM_ENT_TEAM_PLAYER 1
+#define SIM_ENT_TEAM_ENEMY 2
+#define SIM_ENT_TEAM_NON_COMBATANT 3
+
+
 // TODO: This is set for quantisating individual axes,
 // but will need to be applied as vector magnitude to work properly
 #define SIM_MAX_AXIS_SPEED 127
@@ -22,6 +28,10 @@
 
 #define SIM_DEFAULT_SPAWN_DELAY 1.5
 
+#define SIM_ENT_MOVE_TYPE_NONE 0
+#define SIM_ENT_MOVE_TYPE_FLOAT 1
+#define SIM_ENT_MOVE_TYPE_WALK 1
+
 #define SIM_ENT_STATUS_FREE 0
 #define SIM_ENT_STATUS_RESERVED 1
 #define SIM_ENT_STATUS_IN_USE 2
@@ -32,19 +42,6 @@
 #define SIM_DEATH_STYLE_NONE 0
 #define SIM_DEATH_STYLE_TIMEOUT 1
 #define SIM_DEATH_STYLE_SHOT 2
-
-// Render prefabs
-#define SIM_PREFAB_NONE 0
-#define SIM_PREFAB_PLAYER 1
-#define SIM_PREFAB_PLAYER_PROJECTILE 2
-#define SIM_PREFAB_BOT 3
-#define SIM_PREFAB_WALL 4
-#define SIM_PREFAB_ENEMY 5
-#define SIM_PREFAB_ENEMY_PROJECTILE 6
-#define SIM_PREFAB_ITEM 7
-#define SIM_PREFAB_EXPLOSION 8
-#define SIM_PREFAB_POINT_LIGHT 9
-#define SIM_PREFAB_DIRECT_LIGHT 10
 
 // Spawn functions
 typedef u8 simFactoryType;
@@ -163,7 +160,7 @@ extern "C" void Sim_PrepareSpawnData(
                         Vec3 pos);
 
 // Entity behaviour
-extern "C" void     Sim_SimpleMove(SimScene* sim, SimEntity* ent, timeFloat deltaTime);
+extern "C" void Sim_SimpleMove(SimScene* sim, SimEntity* ent, SimEntMovement* mover, timeFloat delta);
 extern "C" i32      Sim_InBounds(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryBounce(SimEntity* ent, Vec3* min, Vec3* max);
 extern "C" void     Sim_BoundaryStop(SimEntity* ent, Vec3* min, Vec3* max);

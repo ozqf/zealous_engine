@@ -18,3 +18,4 @@ internal i32        Sim_MarkEntityAsRemoved(SimScene* sim, i32 serialNumber);
 internal void Sim_WriteRemoveEntity(
     SimScene* sim, SimEntity* victim, SimEntity* attacker, i32 style, Vec3 dir, i32 deathIsDeterministic);
 static void         SimEnt_MoveVsSolid(SimScene* sim, SimEntity* ent, Vec3 move);
+internal i32        SimEnt_CheckTeamDiffer(i32 atkTeam, i32 victimTeam);

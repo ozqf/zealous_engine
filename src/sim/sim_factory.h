@@ -214,7 +214,11 @@ internal i32 Sim_InitActor(
     );
     Sim_SetEntityBase(ent, def);
     Sim_SetEntityBody(ent, { 1, 2, 1 });
-    Sim_SetEntityStats(ent, ACTOR_BASE_SPEED, 1, 0.05f);
+    
+    Sim_SetEntLife(ent, NO, YES, 100);
+    Sim_SetEntMoveType(ent, &ent->movement, ACTOR_BASE_SPEED, SIM_ENT_MOVE_TYPE_WALK, NO);
+    
+    
     Sim_SetEntityDisplay_Mesh(ent,
         { 0, 1, 0, 1 },
         { 0, 1, 0, 1 },
@@ -232,7 +236,12 @@ internal i32 Sim_InitBot(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityStats(ent, 6.5f, 1, 0.05f);
+    ent->attackTick = 0;
+    ent->attackTime = 0.05f;
+    Sim_SetEntLife(ent, NO, YES, 100);
+    Sim_SetEntMoveType(ent, &ent->movement, 6.5f, SIM_ENT_MOVE_TYPE_WALK, YES);
+    
+    
     Sim_SetEntityDisplay_Mesh(ent,
         { 0, 0.6f, 0, 1 },
         { 0, 0.6f, 0, 1 },
@@ -249,6 +258,7 @@ internal i32 Sim_InitSpawner(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
+    ent->teamId = SIM_ENT_TEAM_NON_COMBATANT;
     ent->tickType = SIM_TICK_TYPE_SPAWNER;
     ent->coreTickType = SIM_TICK_TYPE_SPAWNER;
     ent->relationships.childSpawnCount = def->numChildren;
@@ -269,6 +279,8 @@ internal i32 Sim_InitWorldVolume(
         def->pos.x, def->pos.y, def->pos.z);
     ent->tickType = SIM_TICK_TYPE_WORLD;
     ent->coreTickType = SIM_TICK_TYPE_WORLD;
+    // this ent cannot be directly targetted!
+    ent->teamId = SIM_ENT_TEAM_NON_COMBATANT;
     ent->flags = SIM_ENT_FLAG_SHOOTABLE | SIM_ENT_FLAG_INVULNERABLE;
     // world volumes can't move (yet!)
     ent->movement.velocity = {};
@@ -320,6 +332,7 @@ internal i32 Sim_InitDirectLight(
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_NONE;
     ent->coreTickType = SIM_TICK_TYPE_NONE;
+    ent->teamId = SIM_ENT_TEAM_NON_COMBATANT;
     Colour colour;
     colour.r = def->pointLight.colour.x;
     colour.g = def->pointLight.colour.y;
@@ -348,6 +361,7 @@ internal i32 Sim_InitLineTrace(
     Sim_SetEntityBase(ent, def);
     ent->tickType = SIM_TICK_TYPE_LINE_TRACE;
     ent->coreTickType = SIM_TICK_TYPE_LINE_TRACE;
+    ent->teamId = SIM_ENT_TEAM_NON_COMBATANT;
     ent->timing.nextThink = Sim_CalcThinkTick(scene, 2);
     return ZE_ERROR_NONE;
 }

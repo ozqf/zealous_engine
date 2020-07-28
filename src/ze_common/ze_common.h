@@ -81,6 +81,11 @@ log_message( foo == 7, "x %d", x)
 #define F32_EPSILON 1.19209290E-07F // decimal constant
 #define ZALMOST_ZERO(value)  (value < F32_EPSILON && value > -F32_EPSILON)
 
+// shorten some bitwise stuff
+#define IF_BIT(uintFlags, uintBit) ((uintFlags & uintBit) != 0)
+#define IF_TO_BIT(bitCondition, uintFlags, uintBit) \
+{ if (bitCondition) { uintFlags |= uintBit; } else { uintFlags &= ~uintBit; } }
+
 #define pi32 3.14159265359f
 #define DEG2RAD 3.141593f / 180.0f
 #define RAD2DEG 57.2958f

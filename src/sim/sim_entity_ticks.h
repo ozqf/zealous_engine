@@ -109,7 +109,7 @@ internal void SimEnt_TickSeeker(
             toTarget.z * ent->movement.speed,
         };
     }
-    Sim_SimpleMove(sim, ent, deltaTime);
+    Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
 }
 
 internal void SimEnt_TickSeekerFlying(
@@ -147,14 +147,13 @@ internal void SimEnt_TickSeekerFlying(
             toTarget.z * ent->movement.speed,
         };
     }
-    Sim_SimpleMove(sim, ent, deltaTime);
+    Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
 }
 
 internal void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
 	Vec3 previousPos = ent->body.t.pos;
-    Sim_SimpleMove(sim, ent, deltaTime);
-    // TODO: With boundary bounce in simple move now, this will not work:
+    Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
     if (!Sim_InBounds(ent, &sim->boundaryMin, &sim->boundaryMax))
     {
         ent->movement.velocity.x *= -1;
@@ -166,7 +165,7 @@ internal void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime
 
 internal void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
-	Sim_SimpleMove(sim, ent, deltaTime);
+	Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
 }
 
 internal void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
@@ -181,7 +180,7 @@ internal void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat delta
         ent->movement.velocity.x = cosf(radians) * ent->movement.speed;
         ent->movement.velocity.z = sinf(radians) * ent->movement.speed;
     }
-    Sim_SimpleMove(sim, ent, deltaTime);
+    Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
 }
 
 internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)

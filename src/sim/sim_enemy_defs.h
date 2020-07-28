@@ -10,7 +10,9 @@ internal i32 Sim_InitWanderer(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityStats(ent, 2, 100, 1);
+    Sim_SetEntLife(ent, NO, YES, 100);
+    Sim_SetEntMoveType(ent, &ent->movement, 2, SIM_ENT_MOVE_TYPE_WALK, NO);
+    
     Sim_SetEntityBody(ent, { 1, 1, 1 });
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -19,6 +21,7 @@ internal i32 Sim_InitWanderer(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
+    ent->movement.flags |= SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE;
     ent->deathType = SIM_DEATH_GFX_GIB;
     ent->tickType = SIM_TICK_TYPE_SPAWN;
     ent->coreTickType = SIM_TICK_TYPE_WANDERER;
@@ -31,7 +34,9 @@ internal i32 Sim_InitRubble(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityStats(ent, 4, 100, 1);
+    Sim_SetEntLife(ent, NO, YES, 100);
+    Sim_SetEntMoveType(ent, &ent->movement, 0, SIM_ENT_MOVE_TYPE_NONE, NO);
+
     Sim_SetEntityBody(ent, { 1, 1, 1 });
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -57,7 +62,9 @@ internal i32 Sim_InitBouncer(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityStats(ent, 6.0f, 1, 1);
+    Sim_SetEntLife(ent, NO, YES, 100);
+    Sim_SetEntMoveType(ent, &ent->movement, 6, SIM_ENT_MOVE_TYPE_WALK, NO);
+
     Sim_SetEntityBody(ent, { 1, 2, 1});
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -78,7 +85,9 @@ internal i32 Sim_InitDart(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityStats(ent, 5.5f, 1, 1);
+    Sim_SetEntLife(ent, NO, YES, 100);
+    Sim_SetEntMoveType(ent, &ent->movement, 5.5f, SIM_ENT_MOVE_TYPE_WALK, NO);
+    
     Sim_SetEntityBody(ent, { 1, 2, 1});
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -99,7 +108,9 @@ internal i32 Sim_InitSeeker(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityStats(ent, 4, 60, 1);
+    Sim_SetEntLife(ent, NO, YES, 60);
+    Sim_SetEntMoveType(ent, &ent->movement, 4, SIM_ENT_MOVE_TYPE_WALK, NO);
+    
     Sim_SetEntityBody(ent, { 1, 2, 1});
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -121,7 +132,9 @@ internal i32 Sim_InitSeekerFlying(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    Sim_SetEntityStats(ent, 6, 60, 1);
+    Sim_SetEntLife(ent, NO, YES, 60);
+    Sim_SetEntMoveType(ent, &ent->movement, 6, SIM_ENT_MOVE_TYPE_WALK, NO);
+    
     Sim_SetEntityBody(ent, { 1.5f, 1.5f, 1.5f });
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -143,7 +156,9 @@ internal i32 Sim_InitGrunt(
     SimScene* sim, SimEntity* ent, SimEvent_Spawn* data)
 {
     Sim_SetEntityBase(ent, data);
-    Sim_SetEntityStats(ent, 3, 1, 1);
+    Sim_SetEntLife(ent, NO, YES, 100);
+    Sim_SetEntMoveType(ent, &ent->movement, 3, SIM_ENT_MOVE_TYPE_WALK, NO);
+    
     Sim_SetEntityBody(ent, { 1.5, 1, 1.5 });
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -164,7 +179,9 @@ internal i32 Sim_InitBrute(
 {
     ZE_ASSERT(0, "Not implemented");
     Sim_SetEntityBase(ent, data);
-    Sim_SetEntityStats(ent, 3, 1, 1);
+    Sim_SetEntLife(ent, NO, YES, 100);
+    Sim_SetEntMoveType(ent, &ent->movement, 3, SIM_ENT_MOVE_TYPE_WALK, NO);
+    
     Sim_SetEntityBody(ent, { 3.0f, 2.0f, 3.0f });
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -181,7 +198,9 @@ internal i32 Sim_InitCharger(
 {
     ZE_ASSERT(0, "Not implemented");
     Sim_SetEntityBase(ent, data);
-    Sim_SetEntityStats(ent, 3, 1, 1);
+    Sim_SetEntLife(ent, NO, YES, 100);
+    Sim_SetEntMoveType(ent, &ent->movement, 3, SIM_ENT_MOVE_TYPE_WALK, NO);
+    
     Sim_SetEntityBody(ent, { 2.0f, 2.0f, 2.0f });
     Sim_SetEnemyDefaultFlags(ent);
     return ZE_ERROR_NONE;

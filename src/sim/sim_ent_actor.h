@@ -143,13 +143,13 @@ internal void SimEnt_UpdateActorWalk(
     i32 bGrounded = Sim_GroundCheck(sim, ent);
     if (bGrounded)
     {
-        ent->movement.stateFlags |= SIM_ENT_MOVE_STATE_BIT_GROUNDED;
+        ent->movement.flags |= SIM_ENT_MOVE_BIT_GROUNDED;
         move.y = 0;
         
     }
     else
     {
-        ent->movement.stateFlags &= ~SIM_ENT_MOVE_STATE_BIT_GROUNDED;
+        ent->movement.flags &= ~SIM_ENT_MOVE_BIT_GROUNDED;
         move.y -= sim->gravity.y * dt;
     }
     

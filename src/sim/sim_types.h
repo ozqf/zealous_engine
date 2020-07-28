@@ -104,17 +104,21 @@ struct SimEntDisplay
     ZRDrawObjData data;
 };
 
-#define SIM_ENT_MOVE_STATE_BIT_GROUNDED (1 << 0)
+#define SIM_ENT_MOVE_BIT_GROUNDED (1 << 0)
+#define SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE (1 << 1)
+#define SIM_ENT_MOVE_BIT_IGNORE_BOUNDARY (1 << 2)
 
 struct SimEntMovement
 {
     f32 speed;
     Vec3 velocity;
     i32 moveMode;
+    // current condition flags eg grounded
+    i32 flags;
+    // for recording time-limits for specific movements, eg evading
     timeFloat moveTime;
     // An abritrary position this entity is moving toward
     Vec3 destination;
-    i32 stateFlags;
 };
 
 // Fields replicated to clients
@@ -185,6 +189,7 @@ struct SimEntity
     i32 isLocal;
     SimEntId id;
 	i32 playerId;	// if a player owns this
+    i32 teamId;
 
     simFactoryType factoryType;
     i32 tickType; // REPLICATED

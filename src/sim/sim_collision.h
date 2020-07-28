@@ -242,4 +242,117 @@ SimAvoidInfo Sim_BuildAvoidVector(
     #endif
 }
 
+extern "C"
+i32 Sim_InBounds(SimEntity* ent, Vec3* min, Vec3* max)
+{
+    Vec3* p = &ent->body.t.pos;
+    if (p->x < min->x) { return NO; }
+    if (p->x > max->x) { return NO; }
+    if (p->y < min->y) { return NO; }
+    if (p->y > max->y) { return NO; }
+    if (p->z < min->z) { return NO; }
+    if (p->z > max->z) { return NO; }
+    return YES;
+}
+
+extern "C"
+void Sim_BoundaryBounce(SimEntity* ent, Vec3* min, Vec3* max)
+{
+    Vec3* p = &ent->body.t.pos;
+    if (p->x < min->x)
+    { p->x = min->x; ent->movement.velocity.x = -ent->movement.velocity.x; }
+    if (p->x > max->x)
+    { p->x = max->x; ent->movement.velocity.x = -ent->movement.velocity.x; }
+
+    if (p->y < min->y)
+    { p->y = min->y; ent->movement.velocity.y = -ent->movement.velocity.y; }
+    if (p->y > max->y)
+    { p->y = max->y; ent->movement.velocity.y = -ent->movement.velocity.y; }
+
+    if (p->z < min->z)
+    { p->z = min->z; ent->movement.velocity.z = -ent->movement.velocity.z; }
+    if (p->z > max->z)
+    { p->z = max->z; ent->movement.velocity.z = -ent->movement.velocity.z; }
+}
+
+extern "C"
+void Sim_BoundaryStop(SimEntity* ent, Vec3* min, Vec3* max)
+{
+    Vec3* p = &ent->body.t.pos;
+    if (p->x < min->x)
+    { p->x = min->x; }
+    if (p->x > max->x)
+    { p->x = max->x; }
+
+    if (p->y < min->y)
+    { p->y = min->y; }
+    if (p->y > max->y)
+    { p->y = max->y; }
+
+    if (p->z < min->z)
+    { p->z = min->z; }
+    if (p->z > max->z)
+    { p->z = max->z; }
+}
+
+extern "C"
+i32 Sim_GroundCheck(SimScene* sim, SimEntity* ent)
+{
+    f32 entMinY = ent->body.t.pos.y - ent->body.baseHalfSize.y;
+    if (entMinY <= sim->groundOrigin.y)
+    {
+        // snap to exactly on ground
+        ent->body.t.pos.y = entMinY + ent->body.baseHalfSize.y;
+        return YES;
+    }
+    return NO;
+}
+
+extern "C"
+void Sim_SimpleMove(SimScene* sim, SimEntity* ent, SimEntMovement* mover, timeFloat delta)
+{
+    if (mover->moveMode == SIM_ENT_MOVE_TYPE_NONE) { return; }
+
+
+    Vec3* pos = &ent->body.t.pos;
+    ent->body.previousPos.x = pos->x;
+    ent->body.previousPos.y = pos->y;
+    ent->body.previousPos.z = pos->z;
+    Vec3 move =
+    {
+        ent->movement.velocity.x * (f32)delta,
+        ent->movement.velocity.y * (f32)delta,
+        ent->movement.velocity.z * (f32)delta
+    };
+    
+    // ground check
+    i32 bGrounded = Sim_GroundCheck(sim, ent);
+    if (bGrounded)
+    {
+        ent->movement.flags |= SIM_ENT_MOVE_BIT_GROUNDED;
+        move.y = 0;
+        
+    }
+    else
+    {
+        ent->movement.flags &= ~SIM_ENT_MOVE_BIT_GROUNDED;
+        move.y -= sim->gravity.y * (f32)delta;
+    }
+    
+    ent->body.t.pos.x += move.x;
+    ent->body.t.pos.y += move.y;
+    ent->body.t.pos.z += move.z;
+    if (!IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_IGNORE_BOUNDARY))
+    {
+        if (IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE))
+        {
+            Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+        }
+        else
+        {
+            Sim_BoundaryStop(ent, &sim->boundaryMin, &sim->boundaryMax);
+        }
+    }
+}
+
 #endif // SIM_COLLISION_H
