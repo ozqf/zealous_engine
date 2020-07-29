@@ -93,7 +93,7 @@ internal
 i32 Sim_LoadEmbeddedScene(SimScene* sim, i32 index)
 {
 	APP_PRINT(128, "SIM - load local scene\n")
-    f32 halfX = 35;
+    f32 halfX = 25;
     f32 halfY = 25;
     f32 halfZ = 25;
     const i32 largestHalfAxis = 35 + 10;
@@ -116,7 +116,7 @@ i32 Sim_LoadEmbeddedScene(SimScene* sim, i32 index)
     // flood lights
     f32 floodLightY = 10;
     f32 floodLightMul = 2;
-    f32 floodLightRange = 18;
+    f32 floodLightRange = 25;// 18;
 	Sim_AddPointLight(sim, { 0, floodLightY, 0 }, { 1, 1, 1 }, 1, 18);
     Sim_AddPointLight(sim, { 15, floodLightY, 15 }, { 1, 0, 0 }, floodLightMul, floodLightRange);
     Sim_AddPointLight(sim, { 15, floodLightY, -15 }, { 1, 1, 0 }, floodLightMul, floodLightRange);

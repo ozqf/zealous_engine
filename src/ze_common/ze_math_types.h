@@ -308,10 +308,22 @@ internal Vec3 Vec3_Flipped(Vec3 v)
 internal void Vec3_Normalise(Vec3* v)
 {
     f32 vectorMagnitude = Vec3_Magnitude(v);
-    if (vectorMagnitude == 0) { return; }
+    if (vectorMagnitude == 0) { *v = { 0, 0, 0 }; return; }
     v->x /= vectorMagnitude;
     v->y /= vectorMagnitude;
     v->z /= vectorMagnitude;
+}
+
+internal Vec3 Vec3_Normalised(Vec3 v)
+{
+    f32 vectorMagnitude = Vec3_Magnitude(&v);
+    if (vectorMagnitude == 0) { return { 0, 0, 0 }; }
+    return
+    {
+        v.x /= vectorMagnitude,
+        v.y /= vectorMagnitude,
+        v.z /= vectorMagnitude
+    };
 }
 
 internal Vec3 Vec3_Lerp(Vec3 start, Vec3 end, f32 lerp)

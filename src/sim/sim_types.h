@@ -117,8 +117,10 @@ struct SimEntMovement
     i32 flags;
     // for recording time-limits for specific movements, eg evading
     timeFloat moveTime;
-    // An abritrary position this entity is moving toward
-    Vec3 destination;
+    // Move is either the direction an AI wants to move in
+    // or an abritrary position this entity is moving toward
+    // depending on mode
+    Vec3 move;
 };
 
 // Fields replicated to clients

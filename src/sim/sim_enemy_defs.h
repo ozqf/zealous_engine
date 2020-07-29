@@ -6,29 +6,6 @@
 ///////////////////////////////////////////////////////
 // Enemies
 ///////////////////////////////////////////////////////
-internal i32 Sim_InitWanderer(
-    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
-{
-    Sim_SetEntityBase(ent, def);
-    Sim_SetEntLife(ent, NO, YES, 100);
-    Sim_SetEntMoveType(ent, &ent->movement, 2, SIM_ENT_MOVE_TYPE_WALK, NO);
-    
-    Sim_SetEntityBody(ent, { 1, 1, 1 });
-    Sim_SetEnemyDefaultFlags(ent);
-    Sim_SetEntityDisplay_Mesh(ent,
-        { 1, 0, 1, 1 },
-        { 1, 0, 1, 1 },
-        "Cube",
-        "Enemy",
-        SIM_DEATH_GFX_GIB);
-    ent->movement.flags |= SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE;
-    ent->deathType = SIM_DEATH_GFX_GIB;
-    ent->tickType = SIM_TICK_TYPE_SPAWN;
-    ent->coreTickType = SIM_TICK_TYPE_WANDERER;
-    ent->timing.lastThink = ent->timing.birthTick; 
-    ent->timing.nextThink = Sim_CalcThinkTick(scene, 1.5f);
-    return ZE_ERROR_NONE;
-}
 
 internal i32 Sim_InitRubble(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
@@ -58,12 +35,36 @@ internal i32 Sim_InitRubble(
     return ZE_ERROR_NONE;
 }
 
+internal i32 Sim_InitWanderer(
+    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
+{
+    Sim_SetEntityBase(ent, def);
+    Sim_SetEntLife(ent, NO, YES, 100);
+    Sim_SetEntMoveType(ent, &ent->movement, 3, SIM_ENT_MOVE_TYPE_WALK, NO);
+    
+    Sim_SetEntityBody(ent, { 1, 2, 1 });
+    Sim_SetEnemyDefaultFlags(ent);
+    Sim_SetEntityDisplay_Mesh(ent,
+        { 1, 0, 1, 1 },
+        { 1, 0, 1, 1 },
+        "Cube",
+        "Enemy",
+        SIM_DEATH_GFX_GIB);
+    ent->movement.flags |= SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE;
+    ent->deathType = SIM_DEATH_GFX_GIB;
+    ent->tickType = SIM_TICK_TYPE_SPAWN;
+    ent->coreTickType = SIM_TICK_TYPE_WANDERER;
+    ent->timing.lastThink = ent->timing.birthTick; 
+    ent->timing.nextThink = Sim_CalcThinkTick(scene, 1.5f);
+    return ZE_ERROR_NONE;
+}
+
 internal i32 Sim_InitBouncer(
     SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     Sim_SetEntLife(ent, NO, YES, 100);
-    Sim_SetEntMoveType(ent, &ent->movement, 6, SIM_ENT_MOVE_TYPE_WALK, NO);
+    Sim_SetEntMoveType(ent, &ent->movement, 3, SIM_ENT_MOVE_TYPE_WALK, NO);
 
     Sim_SetEntityBody(ent, { 1, 2, 1});
     Sim_SetEnemyDefaultFlags(ent);

@@ -173,19 +173,28 @@ internal void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime
 internal void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
 	Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
+    // update desired move to velocity in case we bounced off something.
+    ent->movement.move = Vec3_Normalised(ent->movement.velocity);
 }
 
 internal void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
-	if (ent->timing.nextThink >= sim->tick)
+    SimEntMovement* mover = &ent->movement;
+	if (ent->timing.nextThink <= sim->tick)
     {
         ent->timing.lastThink = ent->timing.nextThink;
         
         f32 randomWait = COM_STDRandomInRange(1, 6);
         ent->timing.nextThink = Sim_CalcThinkTick(sim, randomWait);
         f32 radians = COM_STDRandomInRange(0, 360) * DEG2RAD;
-        ent->movement.velocity.x = cosf(radians) * ent->movement.speed;
-        ent->movement.velocity.z = sinf(radians) * ent->movement.speed;
+        ent->movement.move = 
+        {
+            cosf(radians),
+            0,
+            sinf(radians)
+        };
+        mover->velocity.x = mover->move.x * mover->speed;
+        mover->velocity.z = mover->move.z * mover->speed;
     }
     Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
 }
@@ -234,6 +243,9 @@ internal void Sim_TickEntities(SimScene* sim, ZEByteBuffer* output, timeFloat de
     {
         SimEntity* ent = &sim->ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
+        
+        // make sure previous positions are updated
+        ent->body.previousPos = ent->body.t.pos;
 		
         const i32 bIsServer = (sim->flags & SIM_SCENE_BIT_IS_SERVER) > 0;
 	    switch (ent->tickType)
@@ -270,9 +282,6 @@ internal void Sim_TickEntities(SimScene* sim, ZEByteBuffer* output, timeFloat de
             //{ ZE_ASSERT(0, "Unknown Ent Tick Type"); } break;
             { printf("Unknown Ent Tick Type %d\n", ent->tickType); } break;
         }
-
-        // make sure previous positions are updated
-        ent->body.previousPos = ent->body.t.pos;
     }
     sim->tick++;
     sim->time += delta;

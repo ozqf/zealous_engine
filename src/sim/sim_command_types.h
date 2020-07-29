@@ -52,7 +52,7 @@ struct SimEvent_Spawn
     Vec3 pos;
     Vec3 scale;
     Vec3 velocity;
-    Vec3 destination;
+    Vec3 move;
     f32 pitchDegrees;
     f32 yawDegrees; 
 

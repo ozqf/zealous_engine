@@ -301,17 +301,34 @@ i32 Sim_GroundCheck(SimScene* sim, SimEntity* ent)
     f32 entMinY = ent->body.t.pos.y - ent->body.baseHalfSize.y;
     if (entMinY <= sim->groundOrigin.y)
     {
+        ent->movement.flags |= SIM_ENT_MOVE_BIT_GROUNDED;
         // snap to exactly on ground
         ent->body.t.pos.y = entMinY + ent->body.baseHalfSize.y;
         return YES;
     }
+    ent->movement.flags &= ~SIM_ENT_MOVE_BIT_GROUNDED;
     return NO;
 }
 
-internal void Sim_MoveMobGround(
-	SimScene* sim, SimEntity* ent, Vec3 move, timeFloat delta)
+/**
+ * Move entity based on velocity + gravity only
+ */
+internal void Sim_MoveThrown(
+	SimScene* sim, SimEntity* ent, timeFloat delta)
 {
+    i32 bGrounded = Sim_GroundCheck(sim, ent);
+}
+
+/**
+ * Move mob based on desired move direction.
+ */
+internal void Sim_MoveMobGround(
+	SimScene* sim, SimEntity* ent, timeFloat delta)
+{
+    #if 0
+    f32 dt = (f32)delta;
 	SimEntMovement* mover = &ent->movement;
+    Vec3* vel = &mover->velocity;
 	/**
 	 * > velocity - current real movement
 	 * > move - desired direction of movement
@@ -321,6 +338,35 @@ internal void Sim_MoveMobGround(
 	 * > y is affected by gravity
 	 */
 	i32 bGrounded = Sim_GroundCheck(sim, ent);
+    if (bGrounded = YES && vel->y < 0)
+    {
+        vel->y = 0;
+    }
+    else
+    {
+        vel->y += sim->gravity.y * dt;
+    }
+    Vec3 step = 
+    {
+        vel->x * dt,
+        vel->y * dt,
+        vel->z * dt
+    };
+    ent->body.t.pos.x += step.x;
+    ent->body.t.pos.y += step.y;
+    ent->body.t.pos.z += step.z;
+    if (!IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_IGNORE_BOUNDARY))
+    {
+        if (IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE))
+        {
+            Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+        }
+        else
+        {
+            Sim_BoundaryStop(ent, &sim->boundaryMin, &sim->boundaryMax);
+        }
+    }
+    #endif
 }
 
 extern "C"
@@ -330,9 +376,9 @@ void Sim_SimpleMove(SimScene* sim, SimEntity* ent, SimEntMovement* mover, timeFl
 
 
     Vec3* pos = &ent->body.t.pos;
-    ent->body.previousPos.x = pos->x;
-    ent->body.previousPos.y = pos->y;
-    ent->body.previousPos.z = pos->z;
+    // ent->body.previousPos.x = pos->x;
+    // ent->body.previousPos.y = pos->y;
+    // ent->body.previousPos.z = pos->z;
     Vec3 move =
     {
         ent->movement.velocity.x * (f32)delta,
@@ -344,13 +390,11 @@ void Sim_SimpleMove(SimScene* sim, SimEntity* ent, SimEntMovement* mover, timeFl
     i32 bGrounded = Sim_GroundCheck(sim, ent);
     if (bGrounded)
     {
-        ent->movement.flags |= SIM_ENT_MOVE_BIT_GROUNDED;
         move.y = 0;
         
     }
     else
     {
-        ent->movement.flags &= ~SIM_ENT_MOVE_BIT_GROUNDED;
         move.y += sim->gravity.y * (f32)delta;
     }
     
