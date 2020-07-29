@@ -316,7 +316,43 @@ i32 Sim_GroundCheck(SimScene* sim, SimEntity* ent)
 internal void Sim_MoveThrown(
 	SimScene* sim, SimEntity* ent, timeFloat delta)
 {
+	SimEntMovement* mover = &ent->movement;
+	Vec3* vel = &mover->velocity;
+	Vec3* pos = &ent->body.t.pos;
     i32 bGrounded = Sim_GroundCheck(sim, ent);
+	// clear speed into floor
+	if (bGrounded && vel->y < 0)
+	{
+		vel->y = 0;
+	}
+	else
+	{
+		vel->y += sim->gravity.y * (f32)delta;
+	}
+	// calc frame step
+	Vec3 step =
+    {
+        vel->x * (f32)delta,
+        vel->y * (f32)delta,
+        vel->z * (f32)delta
+    };
+	// move
+	pos->x += step.x;
+	pos->y += step.y;
+	pos->z += step.z;
+
+	// check boundaries
+    if (!IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_IGNORE_BOUNDARY))
+    {
+        if (IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE))
+        {
+            Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+        }
+        else
+        {
+            Sim_BoundaryStop(ent, &sim->boundaryMin, &sim->boundaryMax);
+        }
+    }
 }
 
 /**
@@ -346,15 +382,6 @@ internal void Sim_MoveMobGround(
     {
         vel->y += sim->gravity.y * dt;
     }
-    Vec3 step = 
-    {
-        vel->x * dt,
-        vel->y * dt,
-        vel->z * dt
-    };
-    ent->body.t.pos.x += step.x;
-    ent->body.t.pos.y += step.y;
-    ent->body.t.pos.z += step.z;
     if (!IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_IGNORE_BOUNDARY))
     {
         if (IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE))

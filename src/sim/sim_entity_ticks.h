@@ -76,9 +76,13 @@ internal void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTime
 
     if (!bIgnoreTimeout && sim->tick >= ent->timing.nextThink)
     {
+		// leave next tick alone so new tick type "tocks" immediataly.
         ent->tickType = ent->coreTickType;
     }
-
+	if (ent->movement.moveMode == SIM_ENT_MOVE_TYPE_WALK)
+	{
+		Sim_MoveThrown(sim, ent, deltaTime);
+	}
 }
 
 internal void SimEnt_TickSeeker(

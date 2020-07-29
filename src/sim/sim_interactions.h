@@ -38,6 +38,10 @@ internal i32 SimEnt_Hit(
 			victim->tickType = SIM_TICK_TYPE_STUN;
             victim->timing.nextThink = Sim_CalcThinkTick(
                 sim, victim->life.stunDuration);
+			if (victim->movement.moveMode == SIM_ENT_MOVE_TYPE_WALK)
+			{
+				victim->movement.velocity = { 0, 10, 0 };
+			}
 		}
     }
 	return 1;
