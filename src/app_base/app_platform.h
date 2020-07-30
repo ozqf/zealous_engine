@@ -398,6 +398,7 @@ internal void App_DrawFrame()
 
     // Add draw data
     Game_WriteDrawFrame(frame);
+	AppUI_WriteFrame(frame);
 
     // release
     g_platform.Release_AppDrawBuffers();
