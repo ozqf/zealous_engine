@@ -4,20 +4,20 @@
 #include "app.h"
 #include "../ui/zui.h"
 
-#define ZE_WINDOW_NUM_CONSOLE_OBJECTS
-internal ZUIObject g_consoleUIObjs[2];
-internal ZUIScreen g_consoleScene;
+#define ZE_WINDOW_NUM_CONSOLE_OBJECTS 2
+internal ZUIObject g_mainMenuObjects[ZE_WINDOW_NUM_CONSOLE_OBJECTS];
+internal ZUIScreen g_mainMenu;
 
 extern "C" void AppUI_Init()
 {
 	APP_PRINT(64, "App UI Init\n");
-	g_consoleScene = {};
-	g_consoleScene.objects = g_consoleUIObjs;
-	g_consoleScene.maxObjects = 2;
-    g_consoleScene.state = 1;
+	g_mainMenu = {};
+	g_mainMenu.objects = g_mainMenuObjects;
+	g_mainMenu.maxObjects = 2;
+    g_mainMenu.state = 1;
 
     ZUIObject* obj = NULL;
-    obj = &g_consoleUIObjs[g_consoleScene.numObjects++];
+    obj = &g_mainMenuObjects[g_mainMenu.numObjects++];
     *obj = {};
     obj->radiusInChars = { 32, 2 };
     obj->pos.x = 0;
@@ -35,7 +35,7 @@ extern "C" void AppUI_Update(Vec2 mouseScreenPos)
 extern "C" ErrorCode AppUI_WriteFrame(ZRViewFrame* frame)
 {
 	ZUI_WriteScreenForRender(
-		frame, &g_consoleScene, frame->list, frame->data);
+		frame, &g_mainMenu, frame->list, frame->data);
 	return ZE_ERROR_NONE;
 }
 
