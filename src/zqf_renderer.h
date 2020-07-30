@@ -122,6 +122,7 @@ struct ZRScene
 
 #define ZR_PROJECTION_MODE_3D 0
 #define ZR_PROJECTION_MODE_IDENTITY 1
+#define ZR_PROJECTION_MODE_ORTHO_BASE 2
 
 // Header before a serialised list of objects
 // 
@@ -204,7 +205,7 @@ struct ZRSceneFrame
         ZRDrawObj* objects;
         // num data bytes is stored but since draw obj is a union, could just
         // do sizeof(ZRDrawObj) * numObjects
-        i32 numDataBytes;
+        i32 numListBytes;
         i32 bSkybox;
         i32 bDeferred;
         i32 bIsInteresting;

@@ -161,9 +161,6 @@ internal void SimEnt_TickSeeker(
 
     Vec3 rot = Vec3_EulerAngles(ent->movement.velocity);
     Transform_SetRotation(&ent->body.t, 0, rot.y, 0);
-    Vec3 zAxis = ent->body.t.rotation.zAxis;
-    printf("Seeker forward: %.3f, %.3f, %.3f\n", zAxis.x, zAxis.y, zAxis.z);
-    //M3x3_SetEulerAnglesByRadians(ent->body.t.rotation.cells, 0, 0, rot.y);
 }
 
 internal void SimEnt_TickSeekerFlying(

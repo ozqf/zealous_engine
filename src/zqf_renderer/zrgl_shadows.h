@@ -75,7 +75,7 @@ static void ZRGL_WriteTestShadowMap(
     // Setup shadow transforms
     ZRShadowCaster* shadow = &g_shadow;
     shadow->worldT = *camera;
-	COM_SetupOrthoProjection(shadow->projection.cells);
+	COM_SetupOrthoProjection(shadow->projection.cells, 40, 1);
     //COM_SetupDefault3DProjection(shadow->projection.cells, 1);
     ZR_BuildViewMatrix(&shadow->view, camera);
 

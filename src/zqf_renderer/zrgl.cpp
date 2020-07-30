@@ -86,7 +86,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     g_bDrawLocked = YES;
 
     stats.listBytes = drawList->Written();
-    stats.numDataBytes = drawData->Written();
+    stats.numListBytes = drawData->Written();
 
     // Reset frame scratch memory cursor
     g_scratch.Clear(NO);
@@ -156,11 +156,11 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 	{
 		ZRSceneFrame* scene = (ZRSceneFrame*)groupsCursor;
 		ZE_ASSERT(scene->sentinel == ZR_SENTINEL, "Iterate scenes desync");
-		if (scene->params.numObjects > 0 && scene->params.numDataBytes <= 0)
+    	groupsCursor += sizeof(ZRSceneFrame) + scene->params.numListBytes;
+		if (scene->params.numObjects > 0 && scene->params.numListBytes <= 0)
 		{
 			ZE_ASSERT(NO, "Scene claims to have objects but no data bytes.")
 		}
-    	groupsCursor += sizeof(ZRSceneFrame) + scene->params.numDataBytes;
 
 		ZRGL_SetupProjection(
 			&scene->drawTime.projection,
@@ -188,7 +188,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 		if (g_verboseFrame)
 		{
 			printf("--- Scene %d - %d objects, %dKB ---\n",
-				i, scene->params.numObjects, scene->params.numDataBytes / 1024);
+				i, scene->params.numObjects, scene->params.numListBytes / 1024);
 			printf("\tGroups %d, lights %d\n",
 				view->numGroups,
 				view->numLights);
@@ -224,7 +224,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 	{
 		// Draw first scene - deferred if that is set
 		ZRSceneFrame* scene = (ZRSceneFrame*)cursor;
-    	cursor += sizeof(ZRSceneFrame) + scene->params.numDataBytes;
+    	cursor += sizeof(ZRSceneFrame) + scene->params.numListBytes;
 
 		if (scene->params.bDeferred)
 		{
@@ -258,7 +258,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 	}
 
     //ZRSceneFrame* firstScene = (ZRSceneFrame*)cursor;
-    //cursor += sizeof(ZRSceneFrame) + firstScene->params.numDataBytes;
+    //cursor += sizeof(ZRSceneFrame) + firstScene->params.numListBytes;
 
 	//ZR_DrawMeshGroupBatched()
 

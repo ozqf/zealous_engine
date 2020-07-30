@@ -18,6 +18,7 @@ void main()
    //outputColor = u_colour;
 #if 1 // output texture
    vec4 diffuse = texture2D(u_diffuseTex, m_texCoord) * u_colour;
+   if (diffuse.w < 0.5) { discard; }
    outputColor = diffuse;
 #endif
 }

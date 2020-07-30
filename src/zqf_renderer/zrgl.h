@@ -81,7 +81,7 @@ struct ZRPerformanceStats
 	i32 numGroups;
 
     i32 listBytes;
-    i32 numDataBytes;
+    i32 numListBytes;
 
     ZRGroupingStats grouping;
 };

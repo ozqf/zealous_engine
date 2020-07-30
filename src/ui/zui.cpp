@@ -93,7 +93,7 @@ extern "C" void ZUI_WriteScreenForRender(ZRViewFrame* frame, ZUIScreen* scr, ZEB
         scene->params.numObjects += ZUI_WriteObjToScene(&scr->objects[i], list, data);
     }
     // Finish scene
-    scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
+    scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
     frame->numScenes += sceneCount;
     //return sceneCount;
 }
@@ -120,7 +120,7 @@ extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data)
     scene->params.numObjects += ZUI_WriteObjToScene(&g_testObj2, list, data);
 
     // Finish scene
-    scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
+    scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
 	return sceneCount;
 }
 
@@ -172,7 +172,7 @@ extern "C" i32 ZUI_WriteRenderTest_2(ZEByteBuffer* list, ZEByteBuffer* data)
 		strCursor, -1, COLOUR_WHITE, align);
 	#endif
     // Finish scene
-    scene->params.numDataBytes = list->cursor - (u8*)scene->params.objects;
+    scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
 	
 	return sceneCount;
 }

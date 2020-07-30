@@ -1,2 +1,2 @@
-"D:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.exe" ..\bin\zealous.exe
-@rem "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\devenv.exe" ..\bin\zealous.exe
+@rem "D:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.exe" ..\bin\zealous.exe
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\devenv.exe" ..\bin\zealous.exe

@@ -158,7 +158,7 @@ static void ZRScene_WriteScene2Frame(
             } break;
         }
     }
-    cmd->params.numDataBytes = (objectListBuf->cursor - dataStart);
+    cmd->params.numListBytes = (objectListBuf->cursor - dataStart);
     cmd->params.numObjects = scene->numObjects;
 }
 

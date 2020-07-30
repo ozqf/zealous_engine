@@ -2,6 +2,7 @@
 #define SIM_COMMAND_TYPES_H
 
 #include "sim.h"
+#include "../ze_common/ze_command.h"
 
 #define SIM_CMD_TYPE_RESTORE_ENTITY 255
 #define SIM_CMD_TYPE_REMOVE_ENTITY 254

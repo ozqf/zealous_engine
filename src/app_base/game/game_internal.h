@@ -4,7 +4,7 @@
 #include "../../ze_common/ze_common_full.h"
 #include "../../sim/sim.h"
 #include "../app.h"
-#include "../client/client_render.h"
+#include "../game_draw/game_draw.h"
 
 #include "game_client.h"
 #include "game_server.h"

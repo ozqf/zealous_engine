@@ -311,6 +311,10 @@ static void ZRGL_SetupProjection(M4x4* target, i32 mode, f32 aspectRatio)
     {
         M4x4_SetToIdentity(target->cells);
     }
+    else if (mode == ZR_PROJECTION_MODE_ORTHO_BASE)
+    {
+        COM_SetupOrthoProjection(target->cells, 1, aspectRatio);
+    }
     else
     {
         COM_SetupDefault3DProjection(target->cells,

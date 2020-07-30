@@ -1,7 +1,7 @@
-#ifndef CLIENT_RENDER_CPP
-#define CLIENT_RENDER_CPP
+#ifndef GAME_DRAW_CPP
+#define GAME_DRAW_CPP
 
-#include "client_render.h"
+#include "game_draw.h"
 #include "../../zqf_renderer.h"
 #include "../../ui/zui.h"
 
@@ -165,10 +165,30 @@ internal void CLR_WriteParticles(
     }
 }
 
-internal void CLR_AddTestParticles(ClientRenderer* cr, ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)
+internal void CLR_AddTestParticles(
+	ClientRenderer* cr, ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)
 {
     CLR_WriteParticles(cr, &cr->testEmit, scene, list, data);
     CLR_WriteParticles(cr, &cr->gibEmit, scene, list, data);
+}
+
+internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame)
+{
+	i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_QUAD)->header.index;
+    i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_CROSSHAIR)->header.index;
+	ZRSceneFrame* scene = ZRSccene_InitInPlace(frame->list, ZR_PROJECTION_MODE_ORTHO_BASE, NO);
+	Transform_SetToIdentity(&scene->params.camera);
+    scene->params.camera.pos.z = 1;
+	frame->numScenes++;
+	ZRDrawObj* obj = NULL;
+	obj = ZRDrawObj_InitInPlace(&frame->list->cursor);
+    obj->data.SetAsMesh(wallMesh, wallMat);
+    obj->t.pos.x = 0;
+    obj->t.pos.y = 0;
+    obj->t.pos.z = 0;
+    obj->t.scale = { 0.25f, 0.25f, 0.25f };
+    scene->params.numObjects++;
+    scene->params.numListBytes = frame->list->cursor - (u8*)scene->params.objects;
 }
 
 // Returns number of objects added
@@ -270,13 +290,14 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
  * returns number of objects added
  */
 internal i32 CLR_AddSimObjectsToRenderScene(
+	ClientRenderer* clr,
     SimScene* sim,
     ZEByteBuffer* list,
     ZEByteBuffer* scratch,
     ClientRenderSettings cfg)
 {
-    ZRAssetDB* db = App_GetAssetDB();
-    i32 lightBulbMatIndex = ZRDB_GET_MAT_BY_NAME(db, ZRDB_MAT_NAME_LIGHT)->header.index;
+    //ZRAssetDB* db = App_GetAssetDB();
+    i32 lightBulbMatIndex = ZRDB_GET_MAT_BY_NAME(clr->db, ZRDB_MAT_NAME_LIGHT)->header.index;
     
     if (cfg.worldLightsMax <= 0) { cfg.worldLightsMax = 4; }
     if (cfg.extraLightsMax <= 0) { cfg.extraLightsMax = 4; }
@@ -386,6 +407,7 @@ extern "C" void CLR_WriteDrawFrame(
     //////////////////////////////////////////////////
     // For debugging local listen servers ONLY!
     //////////////////////////////////////////////////
+	#if 0
     if (cfg.debugFlags & CL_DEBUG_FLAG_DRAW_LOCAL_SERVER)
     {
         SimScene* serverSim;
@@ -395,9 +417,10 @@ extern "C" void CLR_WriteDrawFrame(
             objCount += CLR_Debug_AddSimObjectsToRenderScene(cr, serverSim, list, data);
         }
     }
+	#endif
     // else
     // {
-        objCount += CLR_AddSimObjectsToRenderScene(sim, list, data, cfg);
+        objCount += CLR_AddSimObjectsToRenderScene(cr, sim, list, data, cfg);
     // }
 
     if (debugObjs != NULL)
@@ -427,7 +450,7 @@ extern "C" void CLR_WriteDrawFrame(
     // Add View Model Scene
     if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
     {
-        i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD)->header.index;
+        i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_CUBE)->header.index;
         i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD)->header.index;
         #if 1 // right hand
         scene = ZRSccene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, NO);
@@ -452,6 +475,9 @@ extern "C" void CLR_WriteDrawFrame(
         #endif
         scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
     }
+
+	// Add HUD
+	CLR_AddHUD(cr, frame);
 }
 
-#endif // CLIENT_RENDER_CPP
+#endif // GAME_DRAW_CPP

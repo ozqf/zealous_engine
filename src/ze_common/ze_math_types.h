@@ -941,11 +941,16 @@ internal void M4x4_SetOrthoProjection(f32* m, f32 left, f32 right, f32 top, f32 
     #endif
 }
 
-inline void COM_SetupOrthoProjection(f32* m)
+inline void COM_SetupOrthoProjection(f32* m, f32 size, f32 aspectRatio)
 {
 	//M4x4_SetOrthoProjection(m, -1, 1, 1, -1, 0.1f, 20.f);
-	float size = 40;
-	M4x4_SetOrthoProjection(m, -40, size, size, -size, 0.1f, 60.f);
+	//float size = 40;
+	M4x4_SetOrthoProjection(m,
+        -size * aspectRatio,
+        size * aspectRatio,
+        size,
+        -size,
+        0.1f, 60.f);
 }
 
 inline void COM_Setup3DProjection(

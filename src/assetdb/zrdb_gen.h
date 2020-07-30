@@ -206,6 +206,9 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 		{ 8, 8 },
 		{ 32 - 16, 32 - 16 },
 		{ 127, 127, 127, 255 });
+	
+	tex = ZRDB_GenBlankTexture(db, ZRDB_TEX_NAME_CROSSHAIR, 32, 32, { 0, 0, 0, 0 });
+	TexGen_FillRect(tex->data, 32, 32, { 14, 14 }, { 4, 4 }, { 0, 255, 0, 255 });
 
 	///////////////////////////////////////////
 	// Load texture manifest
@@ -300,6 +303,13 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         ZRDB_MAT_NAME_WORLD_DEBUG,
         "data/W33_5.bmp",
         "data/W33_5.bmp"
+    );
+	
+    db->CreateMaterial(
+        db,
+        ZRDB_MAT_NAME_CROSSHAIR,
+        ZRDB_TEX_NAME_CROSSHAIR,
+        ZRDB_TEX_NAME_CROSSHAIR
     );
 	//ZRDB_GenerateExperiements(db);
 }
