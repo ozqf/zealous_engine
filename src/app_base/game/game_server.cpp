@@ -26,8 +26,9 @@ extern "C" void GSV_Start(SimScene* sim)
 	printf("SV Start\n");
 	g_bIsRunning = YES;
 	//SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 10);
-	SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 1);
+	//SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 1);
     //SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_BOUNCER, 1);
+    SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_SEEKER, 1);
 }
 
 extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf)

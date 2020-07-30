@@ -65,6 +65,7 @@ internal i32 Sim_InitBouncer(
     Sim_SetEntityBase(ent, def);
     Sim_SetEntLife(ent, NO, YES, 100);
     Sim_SetEntMoveType(ent, &ent->movement, 3, SIM_ENT_MOVE_TYPE_WALK, NO);
+    ent->movement.flags |= SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE;
 
     Sim_SetEntityBody(ent, { 1, 2, 1});
     Sim_SetEnemyDefaultFlags(ent);

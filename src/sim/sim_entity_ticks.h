@@ -85,6 +85,43 @@ internal void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTime
 	}
 }
 
+internal void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+{
+    
+    // check for movement
+    if (IF_BIT(ent->movement.flags, SIM_ENT_MOVE_BIT_GROUNDED))
+    {
+        SimEntMovement* mov = &ent->movement;
+        mov->velocity.x = mov->move.x * mov->speed;
+        mov->velocity.z = mov->move.z * mov->speed;
+    }
+	Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
+    // update desired move to velocity in case we bounced off something.
+    ent->movement.move = Vec3_Normalised(ent->movement.velocity);
+}
+
+internal void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+{
+    SimEntMovement* mover = &ent->movement;
+	if (ent->timing.nextThink <= sim->tick)
+    {
+        ent->timing.lastThink = ent->timing.nextThink;
+        
+        f32 randomWait = COM_STDRandomInRange(1, 6);
+        ent->timing.nextThink = Sim_CalcThinkTick(sim, randomWait);
+        f32 radians = COM_STDRandomInRange(0, 360) * DEG2RAD;
+        ent->movement.move = 
+        {
+            cosf(radians),
+            0,
+            sinf(radians)
+        };
+        mover->velocity.x = mover->move.x * mover->speed;
+        mover->velocity.z = mover->move.z * mover->speed;
+    }
+    Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
+}
+
 internal void SimEnt_TickSeeker(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
@@ -121,6 +158,12 @@ internal void SimEnt_TickSeeker(
         };
     }
     Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
+
+    Vec3 rot = Vec3_EulerAngles(ent->movement.velocity);
+    Transform_SetRotation(&ent->body.t, 0, rot.y, 0);
+    Vec3 zAxis = ent->body.t.rotation.zAxis;
+    printf("Seeker forward: %.3f, %.3f, %.3f\n", zAxis.x, zAxis.y, zAxis.z);
+    //M3x3_SetEulerAnglesByRadians(ent->body.t.rotation.cells, 0, 0, rot.y);
 }
 
 internal void SimEnt_TickSeekerFlying(
@@ -172,35 +215,6 @@ internal void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime
         ent->movement.velocity.z *= -1;
         ent->body.t.pos = previousPos;
     }
-}
-
-internal void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
-{
-	Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
-    // update desired move to velocity in case we bounced off something.
-    ent->movement.move = Vec3_Normalised(ent->movement.velocity);
-}
-
-internal void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
-{
-    SimEntMovement* mover = &ent->movement;
-	if (ent->timing.nextThink <= sim->tick)
-    {
-        ent->timing.lastThink = ent->timing.nextThink;
-        
-        f32 randomWait = COM_STDRandomInRange(1, 6);
-        ent->timing.nextThink = Sim_CalcThinkTick(sim, randomWait);
-        f32 radians = COM_STDRandomInRange(0, 360) * DEG2RAD;
-        ent->movement.move = 
-        {
-            cosf(radians),
-            0,
-            sinf(radians)
-        };
-        mover->velocity.x = mover->move.x * mover->speed;
-        mover->velocity.z = mover->move.z * mover->speed;
-    }
-    Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
 }
 
 internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
