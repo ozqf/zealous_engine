@@ -148,6 +148,8 @@ static void ZR_DrawTextGroup(
         text.aspectRatio = scrInfo->aspectRatio;
         text.offsetToString = 0; // TODO Remove.
         text.alignmentMode = item->data.text.alignment;
+        text.fontColour = item->data.text.colour;
+        text.bgColour = item->data.text.bgColour;
 
         ZR_ExecuteTextDraw(&text, projection, item->data.text.text, stats);
 	}

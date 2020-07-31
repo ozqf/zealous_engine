@@ -299,6 +299,8 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     txtCmd.aspectRatio = scrInfo.aspectRatio;
     txtCmd.offsetToString = 0; // TOOD: Remove
     txtCmd.alignmentMode = ZR_TEXT_ALIGNMENT_TOP_LEFT;
+	txtCmd.fontColour = COLOUR_GREEN;
+	txtCmd.bgColour = COLOUR_BLACK;
     M4x4_CREATE(textProjection);
     //printf("Draw %d debug chars\n", txtCmd.numChars);
     ZR_ExecuteTextDraw(&txtCmd, &textProjection, (char*)debugStr.start, &stats);

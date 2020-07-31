@@ -60,7 +60,8 @@ internal i32 ZUI_WriteObjToScene(ZUIObject* uiObj, ZEByteBuffer* list, ZEByteBuf
         int foo = 5;
     }
     data->cursor += ZE_COPY(uiObj->label, data->cursor, len);
-    drawObj->data.SetAsText(strCursor, -1, COLOUR_WHITE, ZR_TEXT_ALIGNMENT_CENTRE);
+    drawObj->data.SetAsText(
+        strCursor, -1, uiObj->fontColour, uiObj->bgColour, ZR_TEXT_ALIGNMENT_CENTRE);
     // push object toward camera slightly, away from background
     drawObj->t.pos.x = uiObj->pos.x;
     drawObj->t.pos.y = uiObj->pos.y;
@@ -169,7 +170,7 @@ extern "C" i32 ZUI_WriteRenderTest_2(ZEByteBuffer* list, ZEByteBuffer* data)
 	i32 align = ZR_TEXT_ALIGNMENT_CENTRE;
 	// i32 align = ZR_TEXT_ALIGNMENT_TOP_RIGHT;
     uiObj->data.SetAsText(
-		strCursor, -1, COLOUR_WHITE, align);
+		strCursor, -1, COLOUR_WHITE, COLOUR_EMPTY, align);
 	#endif
     // Finish scene
     scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;

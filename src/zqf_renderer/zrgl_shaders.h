@@ -249,9 +249,12 @@ static ErrorCode ZRGL_CreateProgram(
 static void ZRGL_SetupProg_Text(
     M4x4* projection,
     M4x4* modelView,
-    i32 programHandle,
-    i32 diffuseTexHandle)
+    i32 diffuseTexHandle,
+    i32 charSheetStencilTexHandle,
+    Colour fontColour,
+    Colour bgColour)
 {
+    i32 programHandle = g_programs[ZR_SHADER_TYPE_TEXT].handle;
     GLuint programId = programHandle;
     static i32 printed = NO;
     if (printed == NO)
@@ -261,17 +264,19 @@ static void ZRGL_SetupProg_Text(
     }
     glUseProgram(programId);
     CHECK_GL_ERR
+    Vec4 c = { fontColour.r, fontColour.g, fontColour.b, fontColour.a };
+    Vec4 bg = { bgColour.r, bgColour.g, bgColour.b, bgColour.a };
+    ZR_SetProgVec4f(programHandle, "u_colour", c);
+    ZR_SetProgVec4f(programHandle, "u_backgroundColour", bg);
 
     ///////////////////////////////////////////////////
     // Setup texture samplers
-    GLint diffuseTexLoc = glGetUniformLocation(programId, "u_diffuseTex");
+    
+    ZR_PrepareTextureUnit2D(
+        programHandle, GL_TEXTURE0, 0, "u_diffuseTex", diffuseTexHandle, g_samplerA);
 
-    glUniform1i(diffuseTexLoc, 0); // Texture unit 0 is for base images.
-    CHECK_GL_ERR
-    glActiveTexture(GL_TEXTURE0 + 0);
-    CHECK_GL_ERR
-    glBindTexture(GL_TEXTURE_2D, diffuseTexHandle);
-    CHECK_GL_ERR
+    ZR_PrepareTextureUnit2D(
+        programHandle, GL_TEXTURE1, 1, "u_stencilTex", charSheetStencilTexHandle, g_samplerDataTex2D);
 
     ///////////////////////////////////////////////////
     // Upload matrices

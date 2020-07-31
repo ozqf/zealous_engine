@@ -50,8 +50,10 @@ static void ZR_ExecuteTextDraw(
     ZRGL_SetupProg_Text(
         prj,
         &modelView,
-        g_programs[ZR_SHADER_TYPE_TEXT].handle,
-        tex->apiHandle);
+        tex->apiHandle,
+        tex->apiHandle,
+        cmd->fontColour,
+        cmd->bgColour);
 
     glBindVertexArray(mesh->handles.vao);
     CHECK_GL_ERR
@@ -155,9 +157,11 @@ static void ZR_ExecuteTextDraw(
 ////////////////////////////////////////////////////////////
 // Draw text old Partial implementation
 ////////////////////////////////////////////////////////////
+#if 0
 static void ZR_ExecuteTextDraw_Old(
     const ZRDrawCmd_Text* cmd, M4x4* prj, char* str, ZRPerformanceStats* stats)
 {
+    printf("Old tex draw\n");
     // Size of quad on screen, to offset verts from char position
     f32 charHalfWidth = (cmd->charSize * (cmd->aspectRatio - 1.f)) / 2.f;
     f32 charHalfHeight = cmd->charSize / 2.f;
@@ -191,8 +195,10 @@ static void ZR_ExecuteTextDraw_Old(
     ZRGL_SetupProg_Text(
         prj,
         &modelView,
-        g_programs[ZR_SHADER_TYPE_TEXT].handle,
-        tex->apiHandle);
+        tex->apiHandle,
+        tex->apiHandle,
+        { 1, 0, 0, 1 },
+        { 0, 0, 0, 1 });
 
     glBindVertexArray(mesh->handles.vao);
     CHECK_GL_ERR
@@ -291,5 +297,5 @@ static void ZR_ExecuteTextDraw_Old(
     CHECK_GL_ERR
     #endif
 }
-
+#endif
 

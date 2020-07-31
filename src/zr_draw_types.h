@@ -53,6 +53,7 @@ union Colour
 	};
 };
 
+#define COLOUR_EMPTY { 0, 0, 0, 0 }
 #define COLOUR_WHITE { 1, 1, 1, 1 }
 #define COLOUR_BLACK { 0, 0, 0, 1 }
 #define COLOUR_RED { 1, 0, 0, 1 }
@@ -153,6 +154,7 @@ struct ZRDrawObjData
             i32 length;
 			i32 charTextureIndex;
 			Colour colour;
+            Colour bgColour;
 			i32 alignment;
         } text;
         ZRParticleDef particleEmitter;
@@ -181,7 +183,7 @@ struct ZRDrawObjData
         this->directLight.range = radius;
     }
 
-	void SetAsText(char* chars, i32 texIndex, Colour colour, i32 alignment)
+	void SetAsText(char* chars, i32 texIndex, Colour colour, Colour bgColour, i32 alignment)
 	{
 		this->type = ZR_DRAWOBJ_TYPE_TEXT;
 		this->text.text = chars;
@@ -191,6 +193,7 @@ struct ZRDrawObjData
 			this->text.charTextureIndex = -1;
 		}
 		this->text.colour = colour;
+        this->text.bgColour = bgColour;
 		this->text.alignment = alignment;
 	}
 };

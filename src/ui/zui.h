@@ -14,6 +14,8 @@ struct ZUIObject
 	i32 state;
 	char* label;
 	f32 charSize;
+	Colour fontColour;
+	Colour bgColour;
 };
 
 struct ZUIScreen
