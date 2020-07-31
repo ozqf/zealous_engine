@@ -96,7 +96,7 @@ internal Vec3 g_debugStrPositions[APP_MAX_DEBUG_STRING_POSITIONS] =
 /////////////////////////////////////////////////////////////////
 // INTERNAL FUNCTIONS
 /////////////////////////////////////////////////////////////////
-internal i32 App_StartSession(i32 sessionType);
+internal i32 App_StartSession(i32 sessionType, const char* mapName);
 
 void App_FatalError(char* msg, char* heading)
 {

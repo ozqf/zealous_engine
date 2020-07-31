@@ -334,8 +334,9 @@ Load world geometry and non-replicated entities.
 ALL entities created here should be local!
 */
 extern "C"
-i32 Sim_LoadStaticScene(SimScene* sim, i32 index)
+i32 Sim_LoadStaticScene(SimScene* sim, const char* mapName)
 {
+	i32 index = 0;
     return Sim_LoadEmbeddedScene(sim, index);
 }
 

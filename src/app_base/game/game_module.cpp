@@ -37,7 +37,7 @@ extern "C" i32 Game_Init()
 	return ZE_ERROR_NONE;
 }
 
-extern "C" i32 Game_Start()
+extern "C" i32 Game_Start(const char* mapName)
 {
 	g_gameBuf.a.Clear(NO);
 	g_gameBuf.b.Clear(NO);
@@ -45,7 +45,7 @@ extern "C" i32 Game_Start()
 	Sim_Reset(&g_sim);
 	g_sim.flags |= SIM_SCENE_BIT_IS_SERVER;
 	g_sim.flags |= SIM_SCENE_BIT_IS_CLIENT;
-	Sim_LoadStaticScene(&g_sim, 0);
+	Sim_LoadStaticScene(&g_sim, mapName);
 	// start sub-modules
 	CLG_Start();
 	GSV_Start(&g_sim);
@@ -57,6 +57,7 @@ extern "C" i32 Game_Stop()
 {
 	CL_Stop();
 	GSV_Stop();
+	Sim_Reset(&g_sim);
 	return ZE_ERROR_NONE;
 }
 

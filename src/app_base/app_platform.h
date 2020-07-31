@@ -172,7 +172,7 @@ internal i32  AppImpl_Init()
     index = g_platform.SndLoadFile("shield_break", "data/sound/Shield_Break.wav");
 
     // server and client areas currently acquiring their own memory
-    App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER);
+    App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER, "test");
 
     return ZE_ERROR_NONE;
 }
@@ -186,10 +186,11 @@ internal i32  AppImpl_Shutdown()
 
 internal i32 App_EndSession()
 {
+	Game_Stop();
     return ZE_ERROR_NONE;
 }
 
-internal i32 App_StartSession(i32 sessionType)
+internal i32 App_StartSession(i32 sessionType, const char* mapName)
 {
     APP_LOG(128, "\n=== START SESSION ===\n");
     switch (sessionType)
@@ -203,7 +204,7 @@ internal i32 App_StartSession(i32 sessionType)
             i32 serverPortId = -1;
             i32 clientPortId = -2;
 
-            Game_Start();
+            Game_Start(mapName);
 
             //////////////////////////////////////
             // Normal - auto create a local client
@@ -375,6 +376,10 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
         g_loopbackSocket.SetLagStats(minMS, maxMS, loss);
         return YES;
     }
+	if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "START"))
+	{
+		App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER, tokens[1]);
+	}
     return NO;
 }
 
