@@ -117,7 +117,8 @@ static void Window_InitConsoleScreen()
     // label will be updated per frame anyway
     obj->label = "Testing McTest Face.";
     obj->charSize = ZR_CharScreenSizeDefault();
-    obj->fontColour = COLOUR_WHITE;
+    obj->offColour = COLOUR_WHITE;
+    obj->onColour = COLOUR_WHITE;
     obj->bgColour = COLOUR_BLACK;
 }
 

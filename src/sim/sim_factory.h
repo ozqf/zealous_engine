@@ -280,7 +280,7 @@ internal i32 Sim_InitWorldVolume(
     ent->tickType = SIM_TICK_TYPE_WORLD;
     ent->coreTickType = SIM_TICK_TYPE_WORLD;
     // this ent cannot be directly targetted!
-    ent->teamId = SIM_ENT_TEAM_NON_COMBATANT;
+    ent->teamId = SIM_ENT_TEAM_FREELANCE;
     ent->flags = SIM_ENT_FLAG_SHOOTABLE | SIM_ENT_FLAG_INVULNERABLE;
     // world volumes can't move (yet!)
     ent->movement.velocity = {};
