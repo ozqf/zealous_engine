@@ -346,5 +346,6 @@ struct SimScene
 
 	i32 nextPlayerId;
 	i32 maxPlayers;
+    Vec3 playerStartPos;
 	SimPlayer players[SIM_MAX_PLAYERS];
 };

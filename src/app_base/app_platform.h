@@ -190,7 +190,7 @@ internal i32 App_EndSession()
     return ZE_ERROR_NONE;
 }
 
-internal i32 App_StartSession(i32 sessionType, const char* mapName)
+internal i32 App_StartSession(const i32 sessionType, const char* mapName)
 {
     APP_LOG(128, "\n=== START SESSION ===\n");
     switch (sessionType)
@@ -204,7 +204,7 @@ internal i32 App_StartSession(i32 sessionType, const char* mapName)
             i32 serverPortId = -1;
             i32 clientPortId = -2;
 
-            Game_Start(mapName);
+            Game_Start(mapName, sessionType);
 
             //////////////////////////////////////
             // Normal - auto create a local client

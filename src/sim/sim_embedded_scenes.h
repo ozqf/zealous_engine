@@ -89,10 +89,9 @@ internal void Sim_AddLightTower(SimScene* sim, Vec3 basePos, f32 height)
     }
 }
 
-internal
-i32 Sim_LoadEmbeddedScene(SimScene* sim, i32 index)
+internal ErrorCode Sim_LoadStaticScene(SimScene* sim, i32 index)
 {
-	APP_PRINT(128, "SIM - load local scene\n")
+    printf("SIM - load static scene %d\n", index);
     f32 halfX = 25;
     f32 halfY = 25;
     f32 halfZ = 25;
@@ -163,6 +162,45 @@ i32 Sim_LoadEmbeddedScene(SimScene* sim, i32 index)
     // TODO: Configure this more precisely for radians
     COM_QuantiseInit(&sim->quantise.rot, 7, 16);
 
+    // Setup player spawn position
+    sim->playerStartPos = { -6, 15, 6 };
+
+    return ZE_ERROR_NONE;
+}
+
+internal void SV_AddSpawner(
+    SimScene* sim, Vec3 pos, simFactoryType factoryType, u8 spawnCount)
+{
+    SimEvent_Spawn data = {};
+    data.numChildren = spawnCount;
+    Sim_PrepareSpawnData(sim, &data, 1, SIM_FACTORY_TYPE_SPAWNER, pos);
+    data.childFactoryType = factoryType;
+    data.numChildren = spawnCount;
+    data.patternType = SIM_PATTERN_FLAT_SCATTER;
+    //data.patternType = SIM_PATTERN_3D_SCATTER;
+    Sim_RestoreEntity(sim, &data);
+    
+}
+
+internal ErrorCode Sim_LoadDynamicEntities(SimScene* sim, i32 index)
+{
+    printf("SIM - load dynamic scene %d\n", index);
+    //SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 10);
+	//SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 1);
+    //SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_BOUNCER, 1);
+    SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_SEEKER, 1);
+    return ZE_ERROR_NONE;
+}
+
+internal
+i32 Sim_LoadEmbeddedScene(SimScene* sim, i32 index, i32 bLocalOnly)
+{
+	APP_PRINT(128, "SIM - load embedded scene\n")
+    Sim_LoadStaticScene(sim, index);
+    if (bLocalOnly == NO)
+    {
+        Sim_LoadDynamicEntities(sim, index);
+    }
     APP_PRINT(128, "\tDONE\n")
 
 	return ZE_ERROR_NONE;

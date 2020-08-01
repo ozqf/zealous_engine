@@ -4,10 +4,6 @@
 #include "app.h"
 #include "../ui/zui.h"
 
-#define ZE_WINDOW_NUM_CONSOLE_OBJECTS 64
-internal ZUIObject g_mainMenuObjects[ZE_WINDOW_NUM_CONSOLE_OBJECTS];
-internal ZUIScreen g_mainMenu;
-
 internal ZUIScreen* g_menu = NULL;
 
 internal i32 g_currentMenu = 0;
@@ -32,9 +28,9 @@ extern "C" ErrorCode AppUI_WriteFrame(ZRViewFrame* frame)
     switch (g_currentMenu)
     {
         case 0:
-        //printf("Draw app menu (%d objects)\n", g_menu->numObjects);
-        ZUI_WriteScreenForRender(
-		    frame, g_menu, frame->list, frame->data);
+        //printf("Try draw app menu (%d objects, %d state)\n", g_menu->numObjects, g_menu->state);
+        //ILLEGAL_CODE_PATH
+        ZUI_WriteScreenForRender(frame, g_menu, frame->list, frame->data);
         break;
     }
 	return ZE_ERROR_NONE;

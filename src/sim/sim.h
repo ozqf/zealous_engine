@@ -122,7 +122,7 @@ typedef u8 simFactoryType;
 extern "C" void     Sim_Init(char* label, SimScene* sim, SimEntity* entityMemory, i32 maxEntities);
 extern "C" void 	Sim_Reset(SimScene* sim);
 // Load static/local geometry/entities. Dynamic stuff handled by server!
-extern "C" i32 	    Sim_LoadStaticScene(SimScene* sim, const char* mapName);
+extern "C" i32      Sim_LoadMapFile(SimScene* sim, const char* mapName, i32 bLocalOnly);
 extern "C" i32      Sim_CalcEntityArrayBytes(i32 capacity);
 extern "C" i32		Sim_GetFrameNumber(SimScene* sim);
 extern "C" timeFloat Sim_GetFrameInterval(SimScene* sim);

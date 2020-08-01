@@ -3,19 +3,6 @@
 
 internal i32 g_bIsRunning = NO;
 
-internal void SV_AddSpawner(
-    SimScene* sim, Vec3 pos, simFactoryType factoryType, u8 spawnCount)
-{
-    SimEvent_Spawn data = {};
-    data.numChildren = spawnCount;
-    Sim_PrepareSpawnData(sim, &data, 1, SIM_FACTORY_TYPE_SPAWNER, pos);
-    data.childFactoryType = factoryType;
-    data.numChildren = spawnCount;
-    data.patternType = SIM_PATTERN_FLAT_SCATTER;
-    //data.patternType = SIM_PATTERN_3D_SCATTER;
-    Sim_RestoreEntity(sim, &data);
-}
-
 extern "C" void GSV_Init()
 {
 	
@@ -25,10 +12,6 @@ extern "C" void GSV_Start(SimScene* sim)
 {
 	printf("SV Start\n");
 	g_bIsRunning = YES;
-	//SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 10);
-	//SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 1);
-    //SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_BOUNCER, 1);
-    SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_SEEKER, 1);
 }
 
 extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf)
@@ -41,7 +24,7 @@ extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf)
     cmd->header.sentinel = ZCMD_SENTINEL;
     cmd->header.size = sizeof(SimEvent_Spawn);
     cmd->factoryType = SIM_TICK_TYPE_ACTOR;
-    cmd->pos = { -6, 15, 6 };
+    cmd->pos = sim->playerStartPos;
     cmd->serial = plyr->avatarId;
 
     buf->cursor += cmd->header.size;

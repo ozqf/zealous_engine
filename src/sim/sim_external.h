@@ -330,14 +330,15 @@ void Sim_Init(
 }
 
 /*
-Load world geometry and non-replicated entities.
-ALL entities created here should be local!
+Load entities from a map file.
+if bLocalOnly, do not load any dynamic (replicated) entities,
+just static/geometry
 */
 extern "C"
-i32 Sim_LoadStaticScene(SimScene* sim, const char* mapName)
+i32 Sim_LoadMapFile(SimScene* sim, const char* mapName, i32 bLocalOnly)
 {
 	i32 index = 0;
-    return Sim_LoadEmbeddedScene(sim, index);
+    return Sim_LoadEmbeddedScene(sim, index, bLocalOnly);
 }
 
 extern "C"
