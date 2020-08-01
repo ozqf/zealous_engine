@@ -5,8 +5,9 @@
 #include "../../zqf_renderer.h"
 #include "../../ui/zui.h"
 
-extern "C" ClientRenderer* CLR_Create(ZRAssetDB* assetDb, i32 particlesPerPool)
+extern "C" ClientRenderer* CLR_Create(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* assetDb, i32 particlesPerPool)
 {
+    ZE_SetFatalError(fatalFunc);
     /////////////////////////////////////
     // Allocate
     i32 numParticleArrayBytes = sizeof(ZRParticle) * particlesPerPool;
@@ -23,7 +24,7 @@ extern "C" ClientRenderer* CLR_Create(ZRAssetDB* assetDb, i32 particlesPerPool)
     cr->gibEmit.maxParticles = particlesPerPool;
 
     cr->db = assetDb;
-	ZUI_Init(assetDb);
+	ZUI_Init(fatalFunc, assetDb);
 
     /////////////////////////////////////
     // config

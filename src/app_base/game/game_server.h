@@ -4,7 +4,7 @@
 #include "game.h"
 #include "../../sim/sim.h"
 
-extern "C" void GSV_Init();
+extern "C" void GSV_Init(ZE_FatalErrorFunction fatalFunc);
 extern "C" void GSV_Start(SimScene* sim);
 extern "C" void GSV_Stop();
 extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf);

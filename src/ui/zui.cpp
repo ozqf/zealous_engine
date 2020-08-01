@@ -3,10 +3,14 @@
 
 #include "zui_draw.h"
 
+static i32 g_bInitialised = NO;
 static ZRAssetDB* g_db = NULL;
 
-extern "C" void ZUI_Init(ZRAssetDB* db)
+extern "C" void ZUI_Init(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* db)
 {
+    if (g_bInitialised) { return; }
+    g_bInitialised = YES;
+    ZE_SetFatalError(fatalFunc);
 	g_db = db;
 } 
 

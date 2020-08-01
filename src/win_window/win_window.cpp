@@ -100,9 +100,16 @@ static i32 WindowImpl_IsMouseCaptured()
     return Win_IsCursorDisabled();
 }
 
+static void Window_Error(const char* msg)
+{
+    // casting down from const...
+    g_platform.Error((char*)msg);
+}
+
 // Create debug console display screen
 static void Window_InitConsoleScreen()
 {
+    ZUI_Init(Window_Error, (ZRAssetDB*)g_platform.GetAssetDB());
     g_consoleScene = {};
 	g_consoleScene.objects = g_consoleUIObjs;
 	g_consoleScene.maxObjects = 2;

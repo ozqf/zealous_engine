@@ -4,7 +4,7 @@
 #include "../../sys_events.h"
 
 // Session
-extern "C" void CL_Init();
+extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc);
 extern "C" void CLG_Start();
 extern "C" void CL_Stop();
 

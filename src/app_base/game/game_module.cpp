@@ -30,11 +30,11 @@ extern "C" i32 Game_Init(ZE_FatalErrorFunction fatalFunc)
 	g_rendCfg = {};
 	g_rendCfg.extraLightsMax = 16;
 	g_rendCfg.worldLightsMax = 16;
-	g_rend = CLR_Create(App_GetAssetDB(), 128);
+	g_rend = CLR_Create(fatalFunc, App_GetAssetDB(), 128);
 
 	// sub modules
-	CL_Init();
-	GSV_Init();
+	CL_Init(fatalFunc);
+	GSV_Init(fatalFunc);
 	
 	return ZE_ERROR_NONE;
 }

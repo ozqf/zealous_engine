@@ -3,7 +3,7 @@
 
 internal i32 g_bIsRunning = NO;
 
-extern "C" void GSV_Init()
+extern "C" void GSV_Init(ZE_FatalErrorFunction fatalFunc)
 {
 	
 }

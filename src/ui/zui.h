@@ -34,7 +34,7 @@ struct ZUIScreen
 	Point buttonRadius;
 };
 
-extern "C" void ZUI_Init(ZRAssetDB* db);
+extern "C" void ZUI_Init(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* db);
 extern "C" ZUIScreen* ZUI_CreateScreen();
 //extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data);
 extern "C" void ZUI_WriteScreenForRender(

@@ -77,7 +77,7 @@ internal void CL_CreateActions(InputActionSet* actions)
     Input_InitAction(actions, Z_INPUT_CODE_DOWN, "Shoot Down");
 }
 
-extern "C" void CL_Init()
+extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc)
 {
     CL_CreateActions(&g_inputActions);
 
