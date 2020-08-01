@@ -289,9 +289,6 @@ struct SimRaycastResult
 
 #define SIM_MAX_PLAYERS 4
 
-#define SIM_PLAYER_STATE_NONE 0
-#define SIM_PLAYER_STATE_IN_GAME 1
-
 struct SimPlayer
 {
 	i32 id;
@@ -313,6 +310,10 @@ struct SimScene
     // required so it can be hidden during draw, and so that projectiles
     // the player fires can be hidden for a few frames
     i32 localAvatarId;
+
+    i32 gameState;
+    // count of players actually in-game
+    i32 numActivePlayers;
 
 	// physics
     WorldHandle* world;
@@ -348,4 +349,6 @@ struct SimScene
 	i32 maxPlayers;
     Vec3 playerStartPos;
 	SimPlayer players[SIM_MAX_PLAYERS];
+
+    Transform observePos;
 };

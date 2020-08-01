@@ -17,7 +17,10 @@ extern "C" void GSV_Start(SimScene* sim)
 extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf)
 {
     SimPlayer* plyr = SimPlyr_Create(sim);
+    // reserve the Id for this player's avatar although we're not
+    // necessarily spawning it yet.
     plyr->avatarId = Sim_ReserveEntitySerial(sim, NO);
+    #if 0 // spawn avatar
     SimEvent_Spawn* cmd = (SimEvent_Spawn*)buf->cursor;
     *cmd = {};
     cmd->header.type = SIM_CMD_TYPE_RESTORE_ENTITY;
@@ -28,6 +31,7 @@ extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf)
     cmd->serial = plyr->avatarId;
 
     buf->cursor += cmd->header.size;
+    #endif
 	return *plyr;
 }
 

@@ -9,16 +9,30 @@ internal InputActionSet g_inputActions = {
     0
 };
 
+#define CL_DEBUG_FLAG_DRAW_LOCAL_SERVER (1 << 0)
+#define CL_DEBUG_FLAG_NO_ENEMY_TICK (1 << 1)
+#define CL_DEBUG_FLAG_NO_PLAYER_SMOOTHING (1 << 2)
+#define CL_DEBUG_FLAG_DRAW_REAL_LOCAL_POSITION (1 << 3)
+#define CL_DEBUG_FLAG_DEBUG_CAMERA (1 << 4)
+
+#define CL_DEBUG_FLAG_VERBOSE_FRAME (1 << 31)
+
 internal Transform g_camera;
 internal SimActorInput g_debugInput;
 internal SimPlayer g_player;
 internal i32 g_bIsRunning = NO;
+internal u32 g_debugFlags;
 
 extern "C" Transform CL_GetCamera(SimScene* sim)
 {
     SimEntity* ent = Sim_GetEntityBySerial(sim, g_player.avatarId);
-    if (ent == NULL) { return g_camera; }
-    return ent->body.t;
+    if (ent != NULL)
+    {
+        return ent->body.t;
+        
+    }
+    if (IF_BIT(g_debugFlags, CL_DEBUG_FLAG_DEBUG_CAMERA)) { return g_camera; }
+    return sim->observePos;
 }
 
 internal void CL_CreateActions(InputActionSet* actions)
@@ -121,6 +135,9 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     CL_InputCheckButton(actions, "Move Backward", &flags, ACTOR_INPUT_MOVE_BACKWARD);
     CL_InputCheckButton(actions, "Move Left", &flags, ACTOR_INPUT_MOVE_LEFT);
     CL_InputCheckButton(actions, "Move Right", &flags, ACTOR_INPUT_MOVE_RIGHT);
+
+    CL_InputCheckButton(actions, "Move Up", &flags, ACTOR_INPUT_MOVE_UP);
+    CL_InputCheckButton(actions, "Move Down", &flags, ACTOR_INPUT_MOVE_DOWN);
 
     CL_InputCheckButton(actions, "MoveSpecial1", &flags, ACTOR_INPUT_MOVE_SPECIAL1);
 

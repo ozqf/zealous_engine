@@ -165,6 +165,13 @@ internal ErrorCode Sim_LoadStaticScene(SimScene* sim, i32 index)
     // Setup player spawn position
     sim->playerStartPos = { -6, 15, 6 };
 
+    // Setup default camera position
+    Transform_SetToIdentity(&sim->observePos);
+    sim->observePos.pos.z = 10;
+    sim->observePos.pos.y += 34;
+    Transform_SetRotation(&sim->observePos, -(80.0f    * DEG2RAD), 0, 0);
+    
+
     return ZE_ERROR_NONE;
 }
 
@@ -179,16 +186,29 @@ internal void SV_AddSpawner(
     data.patternType = SIM_PATTERN_FLAT_SCATTER;
     //data.patternType = SIM_PATTERN_3D_SCATTER;
     Sim_RestoreEntity(sim, &data);
-    
 }
 
 internal ErrorCode Sim_LoadDynamicEntities(SimScene* sim, i32 index)
 {
     printf("SIM - load dynamic scene %d\n", index);
-    //SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 10);
 	//SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 1);
     //SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_BOUNCER, 1);
-    SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_SEEKER, 1);
+    
+    switch (index)
+    {
+        case 1:
+        SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 10);
+        break;
+        case 2:
+        SV_AddSpawner(sim, { 10, 10, 10 }, SIM_FACTORY_TYPE_SEEKER, 10);
+        SV_AddSpawner(sim, { -10, 10, -10 }, SIM_FACTORY_TYPE_SEEKER, 10);
+        SV_AddSpawner(sim, { 10, 10, -10 }, SIM_FACTORY_TYPE_BOUNCER, 10);
+        SV_AddSpawner(sim, { -10, 10, 10 }, SIM_FACTORY_TYPE_BOUNCER, 10);
+        break;
+        default:
+        SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_SEEKER, 1);
+        break;
+    }
     return ZE_ERROR_NONE;
 }
 

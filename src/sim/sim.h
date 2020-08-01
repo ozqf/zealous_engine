@@ -8,6 +8,15 @@
 
 //#define SIM_USE_PHYSICS_ENGINE
 
+#define SIM_GAME_STATE_WARMUP 0
+#define SIM_GAME_STATE_GAMEPLAY 1
+#define SIM_GAME_STATE_GAME_OVER 2
+
+#define SIM_PLAYER_STATE_NONE 0
+#define SIM_PLAYER_STATE_OBSERVING 1
+#define SIM_PLAYER_STATE_IN_GAME 2
+#define SIM_PLAYER_STATE_DEAD 3
+
 #define SIM_LAYER_WORLD (1 << 0)
 
 #define SIM_ENT_TEAM_FREELANCE 0
@@ -119,7 +128,7 @@ typedef u8 simFactoryType;
 #include "sim_command_types.h"
 
 // Scene management
-extern "C" void     Sim_Init(char* label, SimScene* sim, SimEntity* entityMemory, i32 maxEntities);
+extern "C" void     Sim_Init(ZE_FatalErrorFunction fatalFunc, char* label, SimScene* sim, SimEntity* entityMemory, i32 maxEntities);
 extern "C" void 	Sim_Reset(SimScene* sim);
 // Load static/local geometry/entities. Dynamic stuff handled by server!
 extern "C" i32      Sim_LoadMapFile(SimScene* sim, const char* mapName, i32 bLocalOnly);

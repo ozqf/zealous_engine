@@ -1,9 +1,11 @@
 #include "game_internal.h"
 #include "../../sys_events.h"
 
-extern "C" i32 Game_Init()
+extern "C" i32 Game_Init(ZE_FatalErrorFunction fatalFunc)
 {
 	printf("GAME - init\n");
+	ZE_SetFatalError(fatalFunc);
+
 	void* ptr = NULL;
 
 	// prepare alloc track
@@ -12,7 +14,7 @@ extern "C" i32 Game_Init()
 	// allocate sim
 	i32 entBytes = Sim_CalcEntityArrayBytes(GAME_MAX_ENTS);
 	SimEntity* ents = (SimEntity*)COM_Malloc(&g_mallocs, entBytes, 0, "Sim Ents");
-	Sim_Init("Server", &g_sim, ents, GAME_MAX_ENTS);
+	Sim_Init(fatalFunc, "Server", &g_sim, ents, GAME_MAX_ENTS);
 	Sim_Reset(&g_sim);
 	
 	// Buffers for simulation I/O

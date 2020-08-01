@@ -1,6 +1,9 @@
 #pragma once
 /*
 sim.h implementation
+
+TODO: Rename this file, it WAS exclusively external functions
+but that is pointless. It is general misc crap now
 */
 #include "sim.h"
 
@@ -293,10 +296,12 @@ void Sim_Reset(SimScene* sim)
     ZE_SET_ZERO(sim->ents, arraySize)
 	//sim->cmdSequence = 0;
 	sim->tick = 0;
-	// 0 == an invalid serial for error handling. Means once less
-	// replicated entity, oh well
+	// 0 == an invalid serial for error handling.
 	sim->remoteEntitySequence = 1;
 	sim->localEntitySequence = -1;
+    sim->numActivePlayers = 0;
+    sim->nextPlayerId = 1;
+    ZE_SET_ZERO(sim->players, sizeof(SimPlayer) * sim->maxPlayers)
 }
 
 internal void Sim_PhysicsError(char* msg)
@@ -306,11 +311,14 @@ internal void Sim_PhysicsError(char* msg)
 
 extern "C"
 void Sim_Init(
+            ZE_FatalErrorFunction fatalFunc,
             char* label,
             SimScene* sim,
             SimEntity* entityMemory,
             i32 maxEntities)
 {
+    ZE_SetFatalError(fatalFunc);
+
     *sim = {};
     
     sim->ents = entityMemory;
@@ -337,7 +345,8 @@ just static/geometry
 extern "C"
 i32 Sim_LoadMapFile(SimScene* sim, const char* mapName, i32 bLocalOnly)
 {
-	i32 index = 0;
+	i32 index = ZE_AsciToInt32(mapName);
+    
     return Sim_LoadEmbeddedScene(sim, index, bLocalOnly);
 }
 
