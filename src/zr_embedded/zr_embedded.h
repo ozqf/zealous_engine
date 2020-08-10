@@ -44,9 +44,9 @@ extern "C" i32 TexGen_BytesForBWImage(i32 width, i32 height);
 extern "C" void TexGen_SetRGBA(
 	ColourU32* pixels, i32 width, i32 height, ColourU32 colour);
 extern "C" void TexGen_FillRect(
-	ColourU32* pixels, i32 texWidth, i32 texHeight, Point topLeft, Point size, ColourU32 colour);
+	ColourU32* pixels, i32 texWidth, i32 texHeight, Point2 topLeft, Point2 size, ColourU32 colour);
 extern "C" void TexGen_DrawFilledCircle(
-	ColourU32* pixels, i32 texWidth, i32 texHeight, Point pos, i32 radius, ColourU32 colour);
+	ColourU32* pixels, i32 texWidth, i32 texHeight, Point2 pos, i32 radius, ColourU32 colour);
 extern "C" void TexGen_PaintHorizontalLines(
 	ColourU32* pixels, i32 texWidth, i32 texHeight, i32 numLines, ColourU32 colour);
 

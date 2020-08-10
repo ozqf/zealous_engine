@@ -28,7 +28,7 @@ extern "C" void TexGen_SetRGBA(ColourU32* pixels, i32 width, i32 height, ColourU
 
 
 extern "C" void TexGen_FillRect(
-	ColourU32* pixels, i32 texWidth, i32 texHeight, Point topLeft, Point size, ColourU32 colour)
+	ColourU32* pixels, i32 texWidth, i32 texHeight, Point2 topLeft, Point2 size, ColourU32 colour)
 {
 	i32 endX = topLeft.x + size.x;
 	i32 endY = topLeft.y + size.y;
@@ -90,7 +90,7 @@ extern "C" void TexGen_PaintVerticalLines(
  * A proper algorithm for this please!
  */
 extern "C" void TexGen_DrawFilledCircle(
-	ColourU32* pixels, i32 texWidth, i32 texHeight, Point pos, i32 radius, ColourU32 colour)
+	ColourU32* pixels, i32 texWidth, i32 texHeight, Point2 pos, i32 radius, ColourU32 colour)
 {
 	i32 minX = pos.x - radius;
 	i32 maxX = pos.x + radius;

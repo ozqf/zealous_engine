@@ -10,11 +10,11 @@ struct ZUIObject
 {
 	i32 id;
 	i32 type;
-	Point gridPos;
+	Point2 gridPos;
 	Vec2 pos;
 	// depth range is 1 (back) to -1 (front)
 	f32 depth;
-	Point radiusInChars;
+	Point2 radiusInChars;
 	i32 state;
 	char* label;
 	f32 charSize;
@@ -31,7 +31,7 @@ struct ZUIScreen
 	i32 maxObjects;
 	i32 state;
 	f32 charSize;
-	Point buttonRadius;
+	Point2 buttonRadius;
 };
 
 extern "C" void ZUI_Init(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* db);

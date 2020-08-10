@@ -42,5 +42,9 @@ struct VWScene
 
 extern "C"
 VWError VW_AllocChunk(i32 size, VWChunk** result);
+extern "C"
+i32 VW_CalcIndex(Point3 chunkSize, Point3 pos);
+extern "C"
+void VW_Test();
 
 #endif // VOXEL_WORLD_H

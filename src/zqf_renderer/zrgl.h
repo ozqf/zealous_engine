@@ -15,7 +15,7 @@ struct ZRDataTexture
     i32 width;
     i32 height;
     Vec4* mem;
-    //Point cursor;
+    //Point2 cursor;
     i32 cursor;
     i32 numBytes;
 };

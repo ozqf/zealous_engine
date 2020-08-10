@@ -103,7 +103,7 @@ internal i32 CL_IsCommandTickSensitive(i32 cmdType)
 }
 
 /**
- * Point of execution for the most important server messages.
+ * Point2 of execution for the most important server messages.
  */
 internal i32 CL_ExecReliableCommand(
     SimScene* sim, Command* h, timeFloat deltaTime, i32 tickDiff)

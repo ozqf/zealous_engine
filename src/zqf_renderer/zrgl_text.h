@@ -7,7 +7,7 @@
 static void ZR_ExecuteTextDraw(
     const ZRDrawCmd_Text* cmd, M4x4* prj, char* str, ZRPerformanceStats* stats)
 {
-	Point textSize = {};
+	Point2 textSize = {};
 	ZE_StrMeasure2D(str, &textSize.x, &textSize.y);
     // Size of quad on screen, to offset verts from char position
     f32 charHalfWidth = ZR_CalcCharHalfWidth(cmd->charSize, cmd->aspectRatio);

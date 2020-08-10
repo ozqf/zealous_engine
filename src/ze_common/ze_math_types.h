@@ -60,7 +60,7 @@ OpenGL uses column major, y/x matrices
 /////////////////////////////////////////////////////////////////////////////
 // Vector
 /////////////////////////////////////////////////////////////////////////////
-struct Point
+struct Point2
 {
     union
     {
@@ -69,6 +69,18 @@ struct Point
             i32 x, y;
         };
         i32 parts[2];
+    };
+};
+
+struct Point3
+{
+    union
+    {
+        struct
+        {
+            i32 x, y, z;
+        };
+        i32 parts[3];
     };
 };
 
@@ -375,7 +387,7 @@ internal f32 Vec3_Distance(Vec3 a, Vec3 b)
     return Vec3_Magnitudef(b.x - a.x, b.y - a.y, b.z - a.z);
 }
 
-internal i32 Point_Distance(Point a, Point b)
+internal i32 Point_Distance(Point2 a, Point2 b)
 {
     i32 x = b.x - a.x;
     i32 y = b.y - a.y;

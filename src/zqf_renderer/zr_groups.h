@@ -36,7 +36,7 @@ struct ZRDrawObjLightData
 // Functions
 ///////////////////////////////////////////////////////////////
 
-extern "C" Point ZR_IndexToPixel(int index, int imageWidth);
+extern "C" Point2 ZR_IndexToPixel(int index, int imageWidth);
 extern "C" i32 ZR_PixelToIndex(i32 x, i32 y, int imageWidth);
 
 extern "C" ZRSceneView* ZR_BuildDrawGroups(

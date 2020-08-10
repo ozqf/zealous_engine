@@ -334,6 +334,7 @@ void Sim_Init(
     #ifdef SIM_USE_PHYSICS_ENGINE
     sim->world = PhysExt_Create(label, Sim_PhysicsError);
     #endif
+	VW_Test();
     //PhysExt_Init(NULL, 0, NULL, 0, NULL);
 }
 
