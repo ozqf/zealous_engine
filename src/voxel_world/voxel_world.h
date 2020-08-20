@@ -7,6 +7,21 @@
 #define VW_ERROR_UNKNOWN 1
 #define VW_ERROR_ALLOC_FAILED 2
 
+#define VW_BLOCK_TYPE_EMPTY 0
+
+// + x
+#define VW_FACE_LEFT (1 << 0)
+// - x
+#define VW_FACE_RIGHT (1 << 1)
+// + y
+#define VW_FACE_TOP (1 << 2)
+// - y
+#define VW_FACE_BOTTOM (1 << 3)
+// + z
+#define VW_FACE_FRONT (1 << 4)
+// - z
+#define VW_FACE_BACK (1 << 5)
+
 typedef int VWError;
 
 struct VWMeshData
