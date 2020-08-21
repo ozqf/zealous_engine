@@ -20,10 +20,14 @@ VWError VW_AllocChunk(i32 size, VWChunk** result)
 		return VW_ERROR_ALLOC_FAILED;
 	}
 
+	printf("%d bytes for chunk's %d blocks\n", sizeOfBlocksArray, totalBlocks);
+
 	*result = (VWChunk*)mem;
 	(*result)->size = size;
 	(*result)->numBlocks = totalBlocks;
 	(*result)->blocks = (VWBlock*)(mem + sizeOfChunkStruct);
+	// zero out memory
+	ZE_SET_ZERO((*result)->blocks, sizeOfBlocksArray)
 	return VW_ERROR_NONE;
 }
 

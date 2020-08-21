@@ -6,6 +6,7 @@
 #include "../../ze_common/ze_random_table.h"
 
 #include "../../network/zqf_network.h"
+#include "../../voxel_world/voxel_world.h"
 
 #include "test_delta_introspection.h"
 #include "ze_test_strings.h"
@@ -213,12 +214,32 @@ internal void NetworkUnitTests()
 	Test_CreateConnection();
 }
 
+internal void Test_VoxelWorld()
+{
+	printf("=== Test Voxel World ===\n");
+	const i32 chunkSize = 3;
+	printf("Chunk size %d\n", chunkSize);
+	VWChunk* chunk = NULL;
+	VWError err = VW_AllocChunk(chunkSize, &chunk);
+	if (err != VW_ERROR_NONE)
+	{
+		printf("Error allocating VW chunk\n");
+		return;
+	}
+	printf("Created voxel chunk size %d with %d cells\n", chunk->size, chunk->numBlocks);
+	Point3 p = { chunkSize / 2, chunkSize / 2, chunkSize / 2 };
+	Point3 size = { chunkSize, chunkSize, chunkSize };
+	i32 index = VW_CalcIndex(size, p);
+	printf("Index for block %d, %d, %d is %d\n", p.x, p.y, p.z, index);
+}
+
 #define TEST_STRINGS (1 << 0)
 #define TEST_BLOB_STORE (1 << 1)
 #define TEST_NETWORK_PACKETS (1 << 2)
 #define TEST_INTROSPECTION (1 << 3)
 #define TEST_ZEVARS (1 << 4)
 #define TEST_STRING_HASH_TABLE (1 << 5)
+#define TEST_VOXEL_WORLD (1 << 6)
 
 extern "C" void ZETests_Run()
 {
@@ -227,7 +248,8 @@ extern "C" void ZETests_Run()
 	// test everything:
 	//testMask = ~0;
 	//testMask |= TEST_ZEVARS | TEST_STRINGS;
-	testMask |= TEST_ZEVARS;
+	//testMask |= TEST_ZEVARS;
+	testMask |= TEST_VOXEL_WORLD;
 
 	// Test core common lib
 	if (testMask & TEST_STRINGS) { Test_StringFunctions(); }
@@ -238,4 +260,6 @@ extern "C" void ZETests_Run()
 	// Test more specialised modules
 	if (testMask & TEST_NETWORK_PACKETS) { NetworkUnitTests(); }
 	if (testMask & TEST_INTROSPECTION) { Test_Introspection(); }
+
+	if (testMask & TEST_VOXEL_WORLD) { Test_VoxelWorld(); }
 }
