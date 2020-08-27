@@ -63,6 +63,11 @@ static ze_platform_export Win_BuildExport();
 ////////////////////////////////////////////////////////
 // Globals
 ////////////////////////////////////////////////////////
+
+// store current app path
+#define MAX_APP_FOLDER_LEN 64
+static char g_appFolder[MAX_APP_FOLDER_LEN];
+
 static ze_windows_thread g_appThread = {};
 static volatile i32 g_bExitAppThread = NO;
 
@@ -409,8 +414,18 @@ static ze_platform_export Win_BuildExport()
 static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
 {
     printf("Start App Thread\n");
+
+    // TODO: Move this linking out of the thread function!
+    //char* appFolder = ZE_DEFAULT_APP_DIR;
+    char* appFolder = "stub";
+    i32 len = ZE_StrLen(appFolder);
+    if (len > MAX_APP_FOLDER_LEN)
+    {
+        Win_Error("App folder name is too long\n");
+        return 1;
+    }
     
-    ErrorCode err = LinkToGameDLL(ZE_DEFAULT_APP_DIR, ZE_DEFAULT_APP_DLL_NAME);
+    ErrorCode err = LinkToGameDLL(appFolder, ZE_DEFAULT_APP_DLL_NAME);
     if (err != ZE_ERROR_NONE)
     {
         Win_Error("Error linking to App DLL");
@@ -450,6 +465,9 @@ static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
 
 static void AppThread_Init()
 {
+    // Link up to app should be here!
+
+    // Start thread
     g_appThread = {};
     g_appThread.header.sentinel = ZE_SENTINEL;
     g_appThread.header.label = "App Thread";

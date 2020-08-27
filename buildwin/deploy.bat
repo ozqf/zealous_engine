@@ -14,10 +14,13 @@ mkdir release
 @rem cd..
 
 @rem copy
+@rem engine
 robocopy x:\bin x:\release zealous.exe /NJH /NJS
 robocopy x:\bin x:\release glfw3.dll /NJH /NJS
 robocopy x:\bin x:\release wingl.dll /NJH /NJS
+@rem apps
 robocopy x:\bin\base x:\release\base game.dll /NJH /NJS
+robocopy x:\bin\stub x:\release\stub game.dll /NJH /NJS
 
 cd buildwin
 @echo on
