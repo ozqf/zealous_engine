@@ -1,36 +1,14 @@
 /*
 App Stub - smallest possible app DLL implementation
-
 */
 #include "../ze_common/ze_common.h"
 #include "../zqf_renderer.h"
 #include "../ze_module_interfaces.h"
 
 internal ze_platform_export g_platform = {};
-
-#define APP_FRAME_RATE 60
-#define APP_FRAME_INTERVAL (1.f / (f32)APP_FRAME_RATE)
-
 internal i32 g_frameCount = 0;
-internal f64 g_lastTimeSample = 0;
-internal i32 g_lastPlatformFrame = 0;
 
-internal i32 App_TimeForFrame()
-{
-    timeFloat frameInterval = (timeFloat)APP_FRAME_INTERVAL;
-    f64 time = g_platform.QueryClock();
-    f64 diff = time - g_lastTimeSample;
-    g_lastPlatformFrame++;
-    if (diff > frameInterval)
-    {
-        g_lastTimeSample = time;
-        g_frameCount++;
-        return YES;
-    }
-    return NO;
-}
-
-internal void App_Frame(i32 frameNumber)
+internal void App_DrawFrame(i32 frameNumber)
 {
     // Acquire buffers
     ZEByteBuffer* list;
@@ -80,14 +58,11 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
 	return NO;
 }
 
-internal i32 AppImpl_Tick()
+internal i32 AppImpl_Tick(app_frame_info info)
 {
-    if (App_TimeForFrame())
-    {
-        App_Frame(g_frameCount);
-    }
-    
-    
+    // -- do game logic --
+
+    App_DrawFrame(g_frameCount++);
 	return ZE_ERROR_NONE;
 }
 

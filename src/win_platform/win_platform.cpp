@@ -76,6 +76,9 @@ static ze_window_export g_window;
 
 static HMODULE g_appDLL;
 static ze_app_export g_app;
+static i32 g_appFrameRate = 60;
+static f64 g_lastAppTime = 0;
+static i32 g_appFrameNumber = 0;
 
 static FILE* g_logFile = NULL;
 
@@ -411,35 +414,43 @@ static ze_platform_export Win_BuildExport()
 ////////////////////////////////////////////////////////
 // App Thread
 ////////////////////////////////////////////////////////
+static i32 CheckTimeForAppFrame(app_frame_info* info)
+{
+    f32 interval = 1.f / (f32)g_appFrameRate;
+    timeFloat frameInterval = (timeFloat)interval;
+    f64 time = PlatformImpl_QueryClock();
+    f64 diff = time - g_lastAppTime;
+    if (diff > frameInterval)
+    {
+        g_lastAppTime = time;
+        g_appFrameNumber++;
+
+        info->frameRate = g_appFrameRate;
+        info->frameNumber = g_appFrameNumber;
+        info->interval = interval;
+        info->time = (f32)time;
+        return YES;
+    }
+    return NO;
+}
+
 static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
 {
     printf("Start App Thread\n");
-
-    // TODO: Move this linking out of the thread function!
-    //char* appFolder = ZE_DEFAULT_APP_DIR;
-    char* appFolder = "stub";
-    i32 len = ZE_StrLen(appFolder);
-    if (len > MAX_APP_FOLDER_LEN)
-    {
-        Win_Error("App folder name is too long\n");
-        return 1;
-    }
-    
-    ErrorCode err = LinkToGameDLL(appFolder, ZE_DEFAULT_APP_DLL_NAME);
-    if (err != ZE_ERROR_NONE)
-    {
-        Win_Error("Error linking to App DLL");
-        return 1;
-    }
+    ErrorCode err = ZE_ERROR_NONE;
 
     while (!g_bExitAppThread)
     {
-        err = g_app.Tick();
-        if (err != ZE_ERROR_NONE)
+        app_frame_info info;
+        if (CheckTimeForAppFrame(&info))
         {
-            Win_Error("Error during app tick");
-            g_app.Shutdown();
-            g_bExitAppThread = YES;
+            err = g_app.Tick(info);
+            if (err != ZE_ERROR_NONE)
+            {
+                Win_Error("Error during app tick");
+                g_app.Shutdown();
+                g_bExitAppThread = YES;
+            }
         }
     }
 
@@ -463,9 +474,24 @@ static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
     return 0;
 }
 
-static void AppThread_Init()
+static ErrorCode AppThread_Init()
 {
-    // Link up to app should be here!
+    // link to app dll
+    char* appFolder = ZE_DEFAULT_APP_DIR;
+    //char* appFolder = "stub";
+    i32 len = ZE_StrLen(appFolder);
+    if (len > MAX_APP_FOLDER_LEN)
+    {
+        Win_Error("App folder name is too long\n");
+        return ZE_ERROR_BAD_ARGUMENT;
+    }
+    
+    ErrorCode err = LinkToGameDLL(appFolder, ZE_DEFAULT_APP_DLL_NAME);
+    if (err != ZE_ERROR_NONE)
+    {
+        Win_Error("Error linking to App DLL");
+        return err;
+    }
 
     // Start thread
     g_appThread = {};
@@ -473,6 +499,7 @@ static void AppThread_Init()
     g_appThread.header.label = "App Thread";
     g_appThread.handle = CreateThread(
         0, 0, AppThreadStartup, &g_appThread, 0, &g_appThread.threadId);
+    return ZE_ERROR_NONE;
 }
 
 /**

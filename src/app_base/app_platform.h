@@ -409,21 +409,14 @@ internal void App_DrawFrame()
     g_platform.Release_AppDrawBuffers();
 }
 
-internal i32 AppImpl_Tick()
+internal i32 AppImpl_Tick(app_frame_info info)
 {
     timeFloat frameInterval = App_GetSimFrameInterval();
-    f64 time = g_platform.QueryClock();
-    f64 diff = time - g_lastTimeSample;
-    g_lastPlatformFrame++;
-    if (diff >= frameInterval)
-    {
-        g_lastTimeSample = time;
-        App_SimFrame(frameInterval);
-        App_TickDebugUtils(frameInterval);
-        App_DrawFrame();
-        g_platform.Snd_ExecCommands(&g_soundBuffer);
-        g_soundBuffer.Clear(NO);
-    }
+    App_SimFrame(frameInterval);
+    App_TickDebugUtils(frameInterval);
+    App_DrawFrame();
+    g_platform.Snd_ExecCommands(&g_soundBuffer);
+    g_soundBuffer.Clear(NO);
     return ZE_ERROR_NONE;
 }
 

@@ -3,13 +3,22 @@
 
 #include "../ze_common/ze_common_full.h"
 
+// timing information given to app each tick
+struct app_frame_info
+{
+    i32 frameRate;
+    i32 frameNumber;
+    f32 interval;
+    f32 time;
+};
+
 // app (game) module function pointers
 struct ze_app_export
 {
     i32     isValid;
     i32     (*Init)();
     i32     (*Shutdown)();
-    i32     (*Tick)();
+    i32     (*Tick)(app_frame_info info);
     i32     (*RendererReloaded)();
     i32     sentinel;
 	// return YES if command was handled
