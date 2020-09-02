@@ -187,7 +187,7 @@ internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame)
     obj->t.pos.x = 0;
     obj->t.pos.y = 0;
     obj->t.pos.z = 0;
-    obj->t.scale = { 0.25f, 0.25f, 0.25f };
+    obj->t.scale = { 0.1f, 0.1f, 0.1f };
     scene->params.numObjects++;
     scene->params.numListBytes = frame->list->cursor - (u8*)scene->params.objects;
 }

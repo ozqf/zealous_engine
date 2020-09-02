@@ -17,6 +17,7 @@
 #define ZQF_R_DEFAULT_DIFFUSE_TEX "data/W33_5.bmp"
 #define ZR_TRANSPARENT_TEX_NAME "transparent"
 #define ZRDB_TEX_NAME_CROSSHAIR "crosshair"
+#define ZRDB_TEX_NAME_SHEET_TEST "sheet_test"
 
 #define ZRDB_DEFAULT_DIFFUSE_MAT_NAME "default"
 #define ZRDB_DEFAULT_CHARSET_MAT_NAME "charset"

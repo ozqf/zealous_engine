@@ -6,6 +6,23 @@
 
 #if 0
 
+struct ZRScene
+{
+    //ZRPlatform platform;
+
+    // Tightly packed list of objects
+    ZRDrawObj* objects;
+    i32 bSkybox;
+    i32 bDeferred;
+    i32 bDebug;
+    i32 nextId;
+    i32 numObjects;
+    i32 maxObjects;
+
+    i32 projectionMode;
+    Transform camera;
+};
+
 /**
  * TODO: REPLACE THIS IMPLEMENTATION
  * This scene graph is a placeholder implementation

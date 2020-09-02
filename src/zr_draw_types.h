@@ -17,6 +17,7 @@
 #define ZR_DRAWOBJ_TYPE_TEXT 4
 #define ZR_DRAWOBJ_TYPE_BILLBOARD 5
 #define ZR_DRAWOBJ_TYPE_PARTICLES 6
+#define ZR_DRAWOBJ_TYPE_SPRITE 7
 
 #define ZR_DRAWOBJ_STATUS_FREE 0
 #define ZR_DRAWOBJ_STATUS_ASSIGNED 1
@@ -54,14 +55,27 @@ union Colour
 };
 
 #define COLOUR_EMPTY { 0, 0, 0, 0 }
-#define COLOUR_WHITE { 1, 1, 1, 1 }
-#define COLOUR_BLACK { 0, 0, 0, 1 }
-#define COLOUR_RED { 1, 0, 0, 1 }
-#define COLOUR_GREEN { 0, 1, 0, 1 }
-#define COLOUR_BLUE { 0, 0, 1, 1 }
-#define COLOUR_YELLOW { 1, 1, 0, 1 }
-#define COLOUR_CYAN { 0, 1, 1, 1 }
-#define COLOUR_PURPLE { 1, 0, 1, 1 }
+#define COLOUR_WHITE { 1.f, 1.f, 1.f, 1.f }
+#define COLOUR_BLACK { 0, 0, 0, 1.f }
+#define COLOUR_RED { 1.f, 0, 0, 1.f }
+#define COLOUR_GREEN { 0, 1.f, 0, 1.f }
+#define COLOUR_BLUE { 0, 0, 1.f, 1.f }
+#define COLOUR_YELLOW { 1.f, 1.f, 0, 1.f }
+#define COLOUR_CYAN { 0, 1.f, 1.f, 1.f }
+#define COLOUR_PURPLE { 1.f, 0, 1.f, 1.f }
+
+#define COLOUR_U32_EMPTY { 0, 0, 0, 0 }
+#define COLOUR_U32_WHITE { 255, 255, 255, 255 }
+#define COLOUR_U32_BLACK { 0, 0, 0, 255 }
+#define COLOUR_U32_RED { 255, 0, 0, 255 }
+#define COLOUR_U32_GREEN { 0, 255, 0, 255 }
+#define COLOUR_U32_BLUE { 0, 0, 255, 255 }
+#define COLOUR_U32_YELLOW { 255, 255, 0, 255 }
+#define COLOUR_U32_CYAN { 0, 255, 255, 255 }
+#define COLOUR_U32_PURPLE { 255, 0, 255, 255 }
+
+#define COLOUR_U32_GREY { 155, 155, 155, 155 }
+#define COLOUR_U32_GREY_DARK { 200, 200, 200, 200 }
 
 union ColourU32
 {
@@ -130,10 +144,10 @@ struct ZRDrawObjData
             i32 materialIndex;
             i32 billboard;
         } model;
-        // struct
-        // {
-        //     i32 frame;
-        // } billboard;
+        struct
+        {
+            u32 frameId;
+        } sprite;
         struct
         {
             i32 bCastShadows;
@@ -165,6 +179,12 @@ struct ZRDrawObjData
         this->type = ZR_DRAWOBJ_TYPE_MESH;
         this->model.meshIndex = meshIndex;
         this->model.materialIndex = materialIndex;
+    }
+
+    void SetAsSprite(u32 spriteFrameId)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_SPRITE;
+        this->sprite.frameId = spriteFrameId;
     }
 
     void SetAsPointLight(Colour colour, f32 multiplier, f32 radius)

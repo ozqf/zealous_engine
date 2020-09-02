@@ -164,16 +164,6 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	// d = ZR_Embed_Cube();
     db->LoadMesh(db, ZRDB_MESH_NAME_SPIKE, *d, bVerbose);
 
-	// MeshData* appMeshDataA = ZR_Embed_Cube();
-    // ZRDBMesh* meshA = db->LoadMesh(db, "app_mesh", *appMeshDataA, bVerbose);
-
-	// MeshData* appMeshDataB = ZR_Embed_Cube();
-    // ZRDBMesh* meshB = db->LoadMesh(db, "app_mesh_b", *appMeshDataB, bVerbose);
-
-	// MeshData* appMeshDataC = ZR_Embed_Cube();
-    // ZRDBMesh* meshC = db->LoadMesh(db, "app_mesh_c", *appMeshDataB, bVerbose);
-
-	
 	////////////////////////////////////////
 	// Generate
 	
@@ -207,8 +197,18 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 		{ 32 - 16, 32 - 16 },
 		{ 127, 127, 127, 255 });
 	
-	tex = ZRDB_GenBlankTexture(db, ZRDB_TEX_NAME_CROSSHAIR, 32, 32, { 0, 0, 0, 0 });
-	TexGen_FillRect(tex->data, 32, 32, { 14, 14 }, { 4, 4 }, { 0, 255, 0, 255 });
+	i32 texSize = 32;
+	tex = ZRDB_GenBlankTexture(db, ZRDB_TEX_NAME_CROSSHAIR, texSize, texSize, { 0, 0, 0, 0 });
+	// make a square in the middle
+	
+	TexGen_FillRect(tex->data, texSize, texSize, { 0, 14 }, { 32, 4 }, COLOUR_U32_GREEN);
+	TexGen_FillRect(tex->data, texSize, texSize, { 14, 0 }, { 4, 32 }, COLOUR_U32_GREEN);
+
+	tex = ZRDB_GenBlankTexture(db, ZRDB_TEX_NAME_SHEET_TEST, texSize, texSize, { 0, 0, 0, 0 });
+	TexGen_FillRect(tex->data, texSize, texSize, { 0, 0 }, { 16, 16 }, COLOUR_U32_GREY);
+	TexGen_FillRect(tex->data, texSize, texSize, { 16, 0 }, { 16, 16 }, COLOUR_U32_GREY_DARK);
+	TexGen_FillRect(tex->data, texSize, texSize, { 0, 16 }, { 16, 16 }, COLOUR_U32_WHITE);
+	TexGen_FillRect(tex->data, texSize, texSize, { 16, 16 }, { 16, 16 }, COLOUR_U32_BLACK);
 
 	///////////////////////////////////////////
 	// Load texture manifest
@@ -308,7 +308,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_CROSSHAIR,
-        ZRDB_TEX_NAME_CROSSHAIR,
+        ZRDB_TEX_NAME_SHEET_TEST,
         ZRDB_TEX_NAME_CROSSHAIR
     );
 	//ZRDB_GenerateExperiements(db);

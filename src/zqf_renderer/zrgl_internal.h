@@ -51,7 +51,7 @@
 #include "../ze_common/ze_buf_block.h"
 
 ///////////////////////////////////////////////////////
-// Frame buffers:
+// Internal datatypes
 ///////////////////////////////////////////////////////
 struct ZRFrameBuffer
 {
@@ -97,6 +97,21 @@ struct ZRShadowCaster
     Transform worldT;
     M4x4 projection;
     M4x4 view;
+};
+
+struct ZRSpriteAtlas
+{
+    i32 id;
+    i32 textureHandle;
+    i32 numSprites;
+};
+
+struct ZRSprite
+{
+    i32 id;
+    i32 atlasId;
+    Vec3 uvMin;
+    Vec3 uvMax;
 };
 
 ////////////////////////////////////////////////////////////
