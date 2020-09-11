@@ -104,14 +104,16 @@ struct ZRSpriteAtlas
     i32 id;
     i32 textureHandle;
     i32 numSprites;
+    // control scaling of sprites to screen.
+    i32 pixPerUnit;
 };
 
 struct ZRSprite
 {
     i32 id;
     i32 atlasId;
-    Vec3 uvMin;
-    Vec3 uvMax;
+    Vec2 uvMin;
+    Vec2 uvMax;
 };
 
 ////////////////////////////////////////////////////////////

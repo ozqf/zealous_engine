@@ -283,6 +283,9 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
     // Assets
     /////////////////////////////////////////
 
+    // build test altas
+    ZR_AtlasInit();
+
     #if 0
     // Setup assets
     ZRAssetUploader uploader = {};

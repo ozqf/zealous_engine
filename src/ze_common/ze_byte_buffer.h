@@ -20,6 +20,7 @@ if (ptrToByteBufferDest##->Space() >= sizeof(##structTypeName##)) \
     *##ptrVariableName = {}; \
 }
 
+// TODO: Change this to a char buffer - was dumb to not do that to begin with :/
 struct ZEByteBuffer
 {
     u8* start;
