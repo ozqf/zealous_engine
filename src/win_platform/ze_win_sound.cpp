@@ -75,8 +75,8 @@ internal i32 g_nextSoundHandle = 0;
 
 internal ZSoundFmodEventType g_eventTypes[SND_MAX_SOUND_HANDLES];
 
-internal f32 g_fxVolume = 0.5f;
-internal f32 g_bgmVolume = 0.5f;
+internal f32 g_fxVolume = 0.0f;
+internal f32 g_bgmVolume = 0.0f;
 
 internal Transform g_listener;
 

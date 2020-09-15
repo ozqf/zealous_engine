@@ -66,7 +66,7 @@ static ze_platform_export Win_BuildExport();
 
 // store current app path
 #define MAX_APP_FOLDER_LEN 64
-static char g_appFolder[MAX_APP_FOLDER_LEN];
+static char g_appFolderBuf[MAX_APP_FOLDER_LEN];
 
 static ze_windows_thread g_appThread = {};
 static volatile i32 g_bExitAppThread = NO;
@@ -477,16 +477,16 @@ static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
 static ErrorCode AppThread_Init()
 {
     // link to app dll
-    char* appFolder = ZE_DEFAULT_APP_DIR;
+    //char* appFolder = ZE_DEFAULT_APP_DIR;
     //char* appFolder = "stub";
-    i32 len = ZE_StrLen(appFolder);
-    if (len > MAX_APP_FOLDER_LEN)
-    {
-        Win_Error("App folder name is too long\n");
-        return ZE_ERROR_BAD_ARGUMENT;
-    }
+    // i32 len = ZE_StrLen(appFolder);
+    // if (len > MAX_APP_FOLDER_LEN)
+    // {
+    //     Win_Error("App folder name is too long\n");
+    //     return ZE_ERROR_BAD_ARGUMENT;
+    // }
     
-    ErrorCode err = LinkToGameDLL(appFolder, ZE_DEFAULT_APP_DLL_NAME);
+    ErrorCode err = LinkToGameDLL(g_appFolderBuf, ZE_DEFAULT_APP_DLL_NAME);
     if (err != ZE_ERROR_NONE)
     {
         Win_Error("Error linking to App DLL");
@@ -553,6 +553,28 @@ int CALLBACK WinMain(
         printf("Failed to open log file %s for writing\n", logFileName);
     }
 	#endif
+
+    //////////////////////////////////////////////////////
+    char* tokens[32];
+    char buf[512];
+    i32 numTokens = ZE_ReadTokens(lpCmdLine, buf, tokens, 32);
+    printf("%d cmd line tokens\n", numTokens);
+    for (i32 i = 0; i < numTokens; ++i)
+    {
+        printf("> %s\n", tokens[i]);
+    }
+    i32 baseDirToken = ZE_FindParamIndex(tokens, numTokens, "-g");
+    if (baseDirToken >= 0 && baseDirToken < (numTokens -1))
+    {
+        char* dir = tokens[baseDirToken + 1];
+        printf("Base dir: %s\n", dir);
+        ZE_CopyStringLimited(dir, g_appFolderBuf, MAX_APP_FOLDER_LEN);
+    }
+    else
+    {
+        ZE_CopyStringLimited(ZE_DEFAULT_APP_DIR, g_appFolderBuf, MAX_APP_FOLDER_LEN);
+    }
+
 	Win_InitTimer();
 
     // Create Mutexes

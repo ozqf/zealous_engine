@@ -24,7 +24,7 @@ internal ZRSpriteAtlas g_atlas;
 
 internal i32 ZR_GetSpriteAtlasId(i32 id)
 {
-                                                                                                                                                                                                                            
+        
 }
 
 internal void ZR_InitSprite(ZRSprite* spr, char* name, i32 atlasId, Vec2 uvMin, Vec2 uvMax)

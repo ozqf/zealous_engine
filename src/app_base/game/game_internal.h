@@ -20,6 +20,8 @@ internal ClientRenderSettings g_rendCfg;
 internal ClientRenderer* g_rend;
 internal frameInt g_systemEventTicks = 0;
 
+internal VWChunk* g_chunk = NULL;
+
 // buffer holds pending commands given to game each tick
 // internal ZEByteBuffer g_pendingGameInput;
 // internal ZEByteBuffer g_pendingGameOutput;

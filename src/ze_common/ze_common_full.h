@@ -17,5 +17,6 @@
 #include "ze_random_table.h"
 #include "ze_sound_types.h"
 #include "ze_command.h"
+#include "ze_parse_parameters.h"
 
 #endif // ZE_COMMON_FULL_H

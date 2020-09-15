@@ -35,6 +35,14 @@ extern "C" i32 Game_Init(ZE_FatalErrorFunction fatalFunc)
 	// sub modules
 	CL_Init(fatalFunc);
 	GSV_Init(fatalFunc);
+
+	printf("--- Game Init Voxel World test ---\n");
+	VW_Test();
+	VWError err = VW_AllocChunk(16, &g_chunk);
+	if (err != VW_ERROR_NONE)
+	{
+		printf("Error %d allocating voxel world chunk\n", err);
+	}
 	
 	return ZE_ERROR_NONE;
 }
