@@ -27,6 +27,7 @@ static void Window_EnqueueTextCommand(char* str);
 #include "ze_window_globals.h"
 #include "ze_window_callbacks.h"
 
+i32 g_framesWritten = 0;
 
 static void ZR_Error(const char* msg)
 {
@@ -372,10 +373,24 @@ static void Window_Tick()
     ZEByteBuffer* list;
     ZEByteBuffer* data;
     g_platform.Acquire_AppDrawBuffers(&list, &data);
+    list->Clear(NO);
+    data->Clear(NO);
+
+    // setup frame data header and pass to app so it can write its scenes
+    ZRViewFrame* frame = (ZRViewFrame*)list->cursor;
+    list->cursor += sizeof(ZRViewFrame);
+    *frame = {};
+    frame->sentinel = ZR_SENTINEL;
+    frame->frameNumber = g_framesWritten++;
+    frame->list = list;
+    frame->data = data;
+
+    g_platform.AppWriteDraw(frame);
+
 #if 1
     if (g_consoleActive == YES)
     {
-        ZRViewFrame* frame = (ZRViewFrame*)list->start;
+        //ZRViewFrame* frame = (ZRViewFrame*)list->start;
         // TODO: This render buffer write stuff sounds bad:
         // Check that we haven't written to this buffer before!
         // Otherwise we will repeatedly write duplicate draw data into the buffer

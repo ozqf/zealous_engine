@@ -19,6 +19,7 @@ struct ze_app_export
     i32     (*Init)();
     i32     (*Shutdown)();
     i32     (*Tick)(app_frame_info info);
+    i32     (*WriteDraw)(void* zrViewFrame);
     i32     (*RendererReloaded)();
     i32     sentinel;
 	// return YES if command was handled
@@ -59,6 +60,9 @@ struct ze_platform_export
     i32 (*ExecTextCommand)(const char* str, const i32 len, const char** tokens, const i32 numTokens);
     i32 (*IsMouseCaptured)();
     
+    // platform will pass to app for writing
+    i32 (*AppWriteDraw)(void* zrViewFrame);
+
     // Acquire is passed through to window if it is available
     void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();

@@ -290,6 +290,11 @@ static void PlatformImpl_Free(void* ptr)
     free(ptr);
 }
 
+static i32 PlatformImpl_AppWriteDraw(void* zrViewFrame)
+{
+    return g_app.WriteDraw(zrViewFrame);
+}
+
 static void PlatformImpl_GetAppDrawbuffers(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf)
 {
     if (g_window.sentinel == ZE_SENTINEL)
@@ -393,6 +398,7 @@ static ze_platform_export Win_BuildExport()
     result.LockMutex = PlatformImpl_LockMutex;
     result.UnlockMutex = PlatformImpl_UnlockMutex;
 
+    result.AppWriteDraw = PlatformImpl_AppWriteDraw;
     result.Acquire_AppDrawBuffers = PlatformImpl_GetAppDrawbuffers;
     result.Release_AppDrawBuffers = PlatformImpl_ReleaseAppDrawBuffers;
     result.Acquire_EventBuffer = PlatformImpl_AcquireEventBuffer;

@@ -383,40 +383,23 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
     return NO;
 }
 
-internal void App_DrawFrame()
-{
-    // Acquire buffers
-    ZEByteBuffer* list;
-    ZEByteBuffer* data;
-    g_platform.Acquire_AppDrawBuffers(&list, &data);
-    list->Clear(NO);
-    data->Clear(NO);
-
-    // Prepare frame header    
-    ZRViewFrame* frame = (ZRViewFrame*)list->cursor;
-    list->cursor += sizeof(ZRViewFrame);
-    *frame = {};
-    frame->sentinel = ZR_SENTINEL;
-    frame->frameNumber = g_framesWritten++;
-    frame->list = list;
-    frame->data = data;
-
-    // Add draw data
-    Game_WriteDrawFrame(frame);
-	AppUI_WriteFrame(frame);
-
-    // release
-    g_platform.Release_AppDrawBuffers();
-}
-
 internal i32 AppImpl_Tick(app_frame_info info)
 {
     timeFloat frameInterval = App_GetSimFrameInterval();
     App_SimFrame(frameInterval);
     App_TickDebugUtils(frameInterval);
-    App_DrawFrame();
     g_platform.Snd_ExecCommands(&g_soundBuffer);
     g_soundBuffer.Clear(NO);
+    return ZE_ERROR_NONE;
+}
+
+internal i32 AppImpl_WriteDraw(void* zrViewFrame)
+{
+    ZRViewFrame* frame = (ZRViewFrame*)zrViewFrame;
+    
+    // Add draw data
+    Game_WriteDrawFrame(frame);
+	AppUI_WriteFrame(frame);
     return ZE_ERROR_NONE;
 }
 
@@ -434,6 +417,7 @@ ze_app_export __declspec(dllexport) ZE_LinkToGameModule(ze_platform_export platf
     ze_app_export appExport = {};
     appExport.Init = AppImpl_Init;
     appExport.Tick = AppImpl_Tick;
+    appExport.WriteDraw = AppImpl_WriteDraw;
     appExport.ParseCommandString = AppImpl_ParseCommandString;
     appExport.RendererReloaded = AppImpl_RendererReloaded;
     appExport.Shutdown = AppImpl_Shutdown;

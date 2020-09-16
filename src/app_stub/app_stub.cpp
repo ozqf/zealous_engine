@@ -6,30 +6,13 @@ App Stub - smallest possible app DLL implementation
 #include "../ze_module_interfaces.h"
 
 internal ze_platform_export g_platform = {};
-internal i32 g_frameCount = 0;
 
-internal void App_DrawFrame(i32 frameNumber)
+internal i32 AppImpl_WriteDraw(void* zrViewFrame)
 {
-    // Acquire buffers
-    ZEByteBuffer* list;
-    ZEByteBuffer* data;
-    g_platform.Acquire_AppDrawBuffers(&list, &data);
-    list->Clear(NO);
-    data->Clear(NO);
+    ZRViewFrame* frame = (ZRViewFrame*)zrViewFrame;
+    // Add draw scenes and objects here...
 
-    // Prepare frame header    
-    ZRViewFrame* frame = (ZRViewFrame*)list->cursor;
-    list->cursor += sizeof(ZRViewFrame);
-    *frame = {};
-    frame->sentinel = ZR_SENTINEL;
-    frame->frameNumber = frameNumber;
-    frame->list = list;
-    frame->data = data;
-
-    // -- Add draw scenes here --
-
-    // release
-    g_platform.Release_AppDrawBuffers();
+    return ZE_ERROR_NONE;
 }
 
 /***************************************
@@ -62,7 +45,6 @@ internal i32 AppImpl_Tick(app_frame_info info)
 {
     // -- do game logic --
 
-    App_DrawFrame(g_frameCount++);
 	return ZE_ERROR_NONE;
 }
 
@@ -79,6 +61,7 @@ ze_app_export __declspec(dllexport) ZE_LinkToGameModule(ze_platform_export platf
     ze_app_export appExport = {};
     appExport.Init = AppImpl_Init;
     appExport.Tick = AppImpl_Tick;
+    appExport.WriteDraw = AppImpl_WriteDraw;
     appExport.ParseCommandString = AppImpl_ParseCommandString;
     appExport.RendererReloaded = AppImpl_RendererReloaded;
     appExport.Shutdown = AppImpl_Shutdown;
