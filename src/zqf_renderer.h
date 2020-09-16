@@ -40,7 +40,7 @@ struct ScreenInfo
 };
 
 #define ZR_MAX_PREFABS 64
-
+/*
 // Indices to render pre-configured objects
 #define ZR_PREFAB_TYPE_CUBE 0
 #define ZR_PREFAB_TYPE_INVERSE_CUBE 1
@@ -62,7 +62,7 @@ struct ScreenInfo
 #define ZR_PREFAB_TYPE_DEBUG_EXPLOSION 17
 #define ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX 18
 #define ZR_PREFAB_TYPE_SPHERE 19
-
+*/
 #define ZR_CUBEMAP_LOAD_INDEX_RIGHT 0
 #define ZR_CUBEMAP_LOAD_INDEX_LEFT 1
 
@@ -74,25 +74,9 @@ struct ScreenInfo
 
 #define ZR_PREFAB_FLAG_DYNAMIC_MESH (1 << 0)
 
-
-#define ZR_MAX_PROGRAMS 128
-
-#define ZR_SHADER_TYPE_NONE -1
-#define ZR_SHADER_TYPE_FALLBACK 0
-#define ZR_SHADER_TYPE_TEST 1
-#define ZR_SHADER_TYPE_BLOCK_COLOUR 2
-#define ZR_SHADER_TYPE_BATCHED 3
-#define ZR_SHADER_TYPE_TEXT 4
-#define ZR_SHADER_TYPE_SKYBOX 5
-#define ZR_SHADER_TYPE_BLOCK_COLOUR_BATCHED 6
-#define ZR_SHADER_TYPE_SHADOW_MAP 7
-#define ZR_SHADER_TYPE_SHADOW_MAP_DEBUG 8
-#define ZR_SHADER_TYPE_BUILD_GBUFFER 9
-#define ZR_SHADER_TYPE_COMBINE_GBUFFER 11
-#define ZR_SHADER_TYPE_GBUFFER_LIGHT_DIRECT 12
-#define ZR_SHADER_TYPE_GBUFFER_LIGHT_POINT 13
-#define ZR_SHADER_TYPE_GBUFFER_LIGHT_VOLUME 14
-#define ZR_SHADER_TYPE_LAST__ 14
+#define ZR_PROJECTION_MODE_3D 0
+#define ZR_PROJECTION_MODE_IDENTITY 1
+#define ZR_PROJECTION_MODE_ORTHO_BASE 2
 
 #define ZR_MAX_BATCH_SIZE 12
 //#define ZR_MAX_BATCH_SIZE 100
@@ -102,14 +86,6 @@ struct ScreenInfo
 ///////////////////////////////////////////////////////////////////////////////////
 // Draw Frame types:
 ///////////////////////////////////////////////////////////////////////////////////
-
-#define ZR_PROJECTION_MODE_3D 0
-#define ZR_PROJECTION_MODE_IDENTITY 1
-#define ZR_PROJECTION_MODE_ORTHO_BASE 2
-
-// Header before a serialised list of objects
-// 
-// Output from game scene, input to Renderer
 
 /*
 Buffers:
@@ -131,18 +107,6 @@ Stack of random allocations for objects in the scene lists.
 Eg text objects will write their strings into here.
 Contents is nonsense without the draw frame objects.
 */
-
-/*
-TODO: Shader, draw group etc should ideally be internal to renderer module.
-They are only here due to the need for 'drawTime' data in the SceneFrame struct
-*/
-struct ZRShader
-{
-    i32 handle; // considered invalid if this is 0
-    i32 drawObjType; // considered invalid if this is 0
-    i32 bBatchable;
-    char* name;
-};
 
 struct ZRDrawGroup
 {
@@ -216,6 +180,7 @@ struct ZRViewFrame
     i32 numScenes;
     i32 frameNumber; // identifies a specific view frame from another
     timeFloat timestamp;
+    // pointers to the two buffers, draw list and scratch data.
     ZEByteBuffer* list;
     ZEByteBuffer* data;
 };

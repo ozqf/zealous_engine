@@ -22,6 +22,25 @@
 #define ZRGL_DATA_ATTRIB_MODEL_VIEW_COLUMN_2 5
 #define ZRGL_DATA_ATTRIB_MODEL_VIEW_COLUMN_3 6
 
+#define ZR_MAX_PROGRAMS 128
+
+#define ZR_SHADER_TYPE_NONE -1
+#define ZR_SHADER_TYPE_FALLBACK 0
+#define ZR_SHADER_TYPE_TEST 1
+#define ZR_SHADER_TYPE_BLOCK_COLOUR 2
+#define ZR_SHADER_TYPE_BATCHED 3
+#define ZR_SHADER_TYPE_TEXT 4
+#define ZR_SHADER_TYPE_SKYBOX 5
+#define ZR_SHADER_TYPE_BLOCK_COLOUR_BATCHED 6
+#define ZR_SHADER_TYPE_SHADOW_MAP 7
+#define ZR_SHADER_TYPE_SHADOW_MAP_DEBUG 8
+#define ZR_SHADER_TYPE_BUILD_GBUFFER 9
+#define ZR_SHADER_TYPE_COMBINE_GBUFFER 11
+#define ZR_SHADER_TYPE_GBUFFER_LIGHT_DIRECT 12
+#define ZR_SHADER_TYPE_GBUFFER_LIGHT_POINT 13
+#define ZR_SHADER_TYPE_GBUFFER_LIGHT_VOLUME 14
+#define ZR_SHADER_TYPE_LAST__ 14
+
 ////////////////////////////////////////////////////
 // For drawing quick bitmap text:
 ////////////////////////////////////////////////////
@@ -53,6 +72,15 @@
 ///////////////////////////////////////////////////////
 // Internal datatypes
 ///////////////////////////////////////////////////////
+
+struct ZRShader
+{
+    i32 handle; // considered invalid if this is 0
+    i32 drawObjType; // considered invalid if this is 0
+    i32 bBatchable;
+    char* name;
+};
+
 struct ZRFrameBuffer
 {
     GLuint fbo;
