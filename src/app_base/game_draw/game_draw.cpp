@@ -177,7 +177,7 @@ internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame)
 {
 	i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_QUAD)->header.index;
     i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_CROSSHAIR)->header.index;
-	ZRSceneFrame* scene = ZRSccene_InitInPlace(frame->list, ZR_PROJECTION_MODE_ORTHO_BASE, NO);
+	ZRSceneFrame* scene = ZRScene_InitInPlace(frame->list, ZR_PROJECTION_MODE_ORTHO_BASE, NO);
 	Transform_SetToIdentity(&scene->params.camera);
     scene->params.camera.pos.z = 1;
 	frame->numScenes++;
@@ -389,7 +389,7 @@ extern "C" void CLR_WriteDrawFrame(
         cfg.debugFlags &= ~CL_DEBUG_FLAG_VERBOSE_FRAME;
     }
 
-    scene = ZRSccene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, YES);
+    scene = ZRScene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, YES);
     scene->params.camera = *camera;
     frame->numScenes++;
     objCount = 0;
@@ -453,32 +453,41 @@ extern "C" void CLR_WriteDrawFrame(
     {
         i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_CUBE)->header.index;
         i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD)->header.index;
-        #if 1 // right hand
-        scene = ZRSccene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, NO);
-        Transform_SetToIdentity(&scene->params.camera);
-        frame->numScenes++;
-        obj = ZRDrawObj_InitInPlace(&list->cursor);
-        obj->data.SetAsMesh(wallMesh, wallMat);
-        obj->t.pos.x = 0.5f;
-        obj->t.pos.y = -0.5f;
-        obj->t.pos.z = -1;
-        obj->t.scale = { 0.25f, 0.25f, 1 };
-        scene->params.numObjects++;
-        #endif
-        #if 0 // left hand
-        obj = ZRDrawObj_InitInPlace(&list->cursor);
-        obj->data.SetAsMesh(0, 0);
-        obj->t.pos.x = -0.5f;
-        obj->t.pos.y = -0.5f;
-        obj->t.pos.z = -1;
-        obj->t.scale = { 0.25f, 0.25f, 1 };
-        scene->params.numObjects++;
-        #endif
+        if (cfg.viewModels.rightHand > 0)
+        {
+            #if 1 // right hand
+            scene = ZRScene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, NO);
+            Transform_SetToIdentity(&scene->params.camera);
+            frame->numScenes++;
+            obj = ZRDrawObj_InitInPlace(&list->cursor);
+            obj->data.SetAsMesh(wallMesh, wallMat);
+            obj->t.pos.x = 0.5f;
+            obj->t.pos.y = -0.5f;
+            obj->t.pos.z = -1;
+            obj->t.scale = { 0.25f, 0.25f, 1 };
+            scene->params.numObjects++;
+            #endif
+        }
+        if (cfg.viewModels.rightHand > 0)
+        {  
+            #if 1 // left hand
+            obj = ZRDrawObj_InitInPlace(&list->cursor);
+            obj->data.SetAsMesh(wallMesh, wallMat);
+            obj->t.pos.x = -0.5f;
+            obj->t.pos.y = -0.5f;
+            obj->t.pos.z = -1;
+            obj->t.scale = { 0.25f, 0.25f, 1 };
+            scene->params.numObjects++;
+            #endif
+        }
         scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
     }
 
 	// Add HUD
-	CLR_AddHUD(cr, frame);
+    if (cfg.viewModels.showHud)
+    {
+        CLR_AddHUD(cr, frame);
+    }
 }
 
 #endif // GAME_DRAW_CPP

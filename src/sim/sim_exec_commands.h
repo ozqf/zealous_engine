@@ -27,11 +27,10 @@ internal void Sim_ExecuteCommands(
 			case SIM_CMD_TYPE_BULK_SPAWN:
         	{
         	    SimEvent_BulkSpawn* cmd = (SimEvent_BulkSpawn*)h;
-        	    APP_LOG(256, "CL Spawn cmd %d on SV tick %d (local sv tick diff %d. Cmd tick %d)\n",
-        	        cmd->def.factoryType,
-					cmd->def.base.tick,
-					cmd->def.base.tick - CL_GetServerTick(),
-					cmd->header.tick
+        	    APP_LOG(256, "CL Spawn cmd %d on SV tick %d (local sv tick diff %d)\n",
+        	        cmd->factoryType,
+					cmd->base.tick,
+					cmd->base.tick - sim->tick
         	    );
         	    // flip diff to specify fast forwarding
         	    i32 flags;

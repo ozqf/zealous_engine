@@ -117,5 +117,6 @@ extern "C" Transform Game_GetCamera()
 extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame)
 {
 	Transform cam = CL_GetCamera(&g_sim);
+	g_rendCfg.viewModels = CL_GetClientView(&g_sim);
 	CLR_WriteDrawFrame(g_rend, frame, &g_sim, &cam, NULL, 0, g_rendCfg);
 }

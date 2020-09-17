@@ -81,6 +81,10 @@ static f64 g_lastAppTime = 0;
 static i32 g_appFrameNumber = 0;
 
 static FILE* g_logFile = NULL;
+static i32 g_bConsoleInit = NO;
+
+static char* g_tokens[32];
+static char g_buf[512];
 
 global_variable HWND consoleHandle;
 
@@ -517,29 +521,14 @@ static void MainLoop()
 	g_window.MainLoop();
 }
 
-////////////////////////////////////////////////////////
-// Entry point
-////////////////////////////////////////////////////////
-int CALLBACK WinMain(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-    LPSTR lpCmdLine,
-    int nCmdShow)
+static void InitLogFile()
 {
-    // init live debug console
-    FILE *stream;
-    AllocConsole();
-    freopen_s(&stream, "conin$", "r", stdin);
-    freopen_s(&stream, "conout$", "w", stdout);
-    freopen_s(&stream, "conout$", "w", stderr);
-    consoleHandle = GetConsoleWindow();
-    MoveWindow(consoleHandle, 1, 1, 680, 600, 1);
-    printf("[%s] Console initialized.\n", __FILE__);
-
     //////////////////////////////////////////////////////
     // Init log file
 
+    #if 1
     // Build file name
+    #if 0 // unique file per run
     SYSTEMTIME time;
     GetSystemTime(&time);
     ZE_BUILD_STRING(logFileName, 128, "ex90_log_%d_%d_%d - %d_%d_%d.txt",
@@ -550,29 +539,61 @@ int CALLBACK WinMain(
         time.wMinute,
         time.wSecond
     );
-
+    #endif
+    #if 1 // single, rewritten file
+    ZE_BUILD_STRING(logFileName, 128, "ze_log.txt");
+    #endif
     // Open log file
-    #if 0
     errno_t fileErr = fopen_s(&g_logFile, logFileName, "w");
     if (fileErr != 0)
     {
         printf("Failed to open log file %s for writing\n", logFileName);
     }
+    printf("Logging to %s\n", logFileName);
 	#endif
+}
+
+static void InitConsole()
+{
+    if (g_bConsoleInit) { return; }
+    g_bConsoleInit = YES;
+    // init live debug console
+    FILE *stream;
+    AllocConsole();
+    freopen_s(&stream, "conin$", "r", stdin);
+    freopen_s(&stream, "conout$", "w", stdout);
+    freopen_s(&stream, "conout$", "w", stderr);
+    consoleHandle = GetConsoleWindow();
+    MoveWindow(consoleHandle, 1, 1, 680, 600, 1);
+    printf("[%s] Console initialized.\n", __FILE__);
+}
+
+static void ReadCommandLine(LPSTR lpCmdLine)
+{
 
     //////////////////////////////////////////////////////
-    char* tokens[32];
-    char buf[512];
-    i32 numTokens = ZE_ReadTokens(lpCmdLine, buf, tokens, 32);
+    
+    i32 numTokens = ZE_ReadTokens(lpCmdLine, g_buf, g_tokens, 32);
     printf("%d cmd line tokens\n", numTokens);
     for (i32 i = 0; i < numTokens; ++i)
     {
-        printf("> %s\n", tokens[i]);
+        printf("> %s\n", g_tokens[i]);
     }
-    i32 baseDirToken = ZE_FindParamIndex(tokens, numTokens, "-g");
-    if (baseDirToken >= 0 && baseDirToken < (numTokens -1))
+    
+    // Read options
+    i32 tokenIndex;
+    // console
+    tokenIndex = ZE_FindParamIndex(g_tokens, numTokens, "-c", 0);
+    if (tokenIndex >= 0)
     {
-        char* dir = tokens[baseDirToken + 1];
+        InitConsole();
+    }
+
+    // game dll directory
+    tokenIndex = ZE_FindParamIndex(g_tokens, numTokens, "-g", 1);
+    if (tokenIndex >= 0 && tokenIndex < (numTokens -1))
+    {
+        char* dir = g_tokens[tokenIndex + 1];
         printf("Base dir: %s\n", dir);
         ZE_CopyStringLimited(dir, g_appFolderBuf, MAX_APP_FOLDER_LEN);
     }
@@ -580,6 +601,25 @@ int CALLBACK WinMain(
     {
         ZE_CopyStringLimited(ZE_DEFAULT_APP_DIR, g_appFolderBuf, MAX_APP_FOLDER_LEN);
     }
+
+    // log file
+    tokenIndex = ZE_FindParamIndex(g_tokens, numTokens, "-l", 0);
+    if (tokenIndex >= 0)
+    {
+        InitLogFile();
+    }
+}
+
+////////////////////////////////////////////////////////
+// Entry point
+////////////////////////////////////////////////////////
+int CALLBACK WinMain(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    LPSTR lpCmdLine,
+    int nCmdShow)
+{    
+    ReadCommandLine(lpCmdLine);
 
 	Win_InitTimer();
 

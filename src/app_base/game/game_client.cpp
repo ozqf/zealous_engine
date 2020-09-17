@@ -22,6 +22,7 @@ internal SimActorInput g_debugInput;
 internal SimPlayer g_player;
 internal i32 g_bIsRunning = NO;
 internal u32 g_debugFlags;
+internal ClientView g_view;
 
 extern "C" Transform CL_GetCamera(SimScene* sim)
 {
@@ -33,6 +34,11 @@ extern "C" Transform CL_GetCamera(SimScene* sim)
     }
     if (IF_BIT(g_debugFlags, CL_DEBUG_FLAG_DEBUG_CAMERA)) { return g_camera; }
     return sim->observePos;
+}
+
+extern "C" ClientView CL_GetClientView(SimScene* sim)
+{
+    return g_view;
 }
 
 internal void CL_CreateActions(InputActionSet* actions)
@@ -93,6 +99,7 @@ extern "C" void CLG_Start()
 {
     printf("CL Start\n");
     g_bIsRunning = YES;
+    g_player = {};
 }
 
 extern "C" void CL_Stop()
@@ -228,4 +235,22 @@ extern "C" void CL_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat del
 extern "C" void CL_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
 {
     if (!g_bIsRunning) { return; }
+    // update view
+    SimEntity* ent = Sim_GetEntityBySerial(sim, g_player.avatarId);
+    if (ent != NULL)
+    {
+        g_view.camera = ent->body.t;
+        g_view.showHud = 1;
+        g_view.rightHand = 1;
+        g_view.leftHand = 1;
+    }
+    else
+    {
+        g_view.camera = g_camera;
+        g_view.showHud = NO;
+        g_view.rightHand = 0;
+        g_view.leftHand = 0;
+    }
+    
+    
 }

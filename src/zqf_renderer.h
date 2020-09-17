@@ -189,7 +189,7 @@ struct ZRViewFrame
 // Render commands and resources
 ///////////////////////////////////////////////////////////
 
-static ZRSceneFrame* ZRSccene_InitInPlace(
+static ZRSceneFrame* ZRScene_InitInPlace(
     ZEByteBuffer* list, i32 projectionMode, i32 bDeferred)
 {
     ZRSceneFrame* scene = (ZRSceneFrame*)list->cursor;

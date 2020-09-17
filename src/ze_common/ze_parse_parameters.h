@@ -34,12 +34,25 @@ struct ZEParam
 // static i32 g_numParamTypes = 0;
 // static ZPGParam g_paramTypes[64];
 
-internal i32 ZE_FindParamIndex(char** params, i32 numParams, const char* query)
+internal i32 ZE_FindParamIndex(
+    char** params,
+    const i32 numTokens,
+    const char* query,
+    const i32 trailingTokens)
 {
-    for (i32 i = 0; i < numParams; ++i)
+    for (i32 i = 0; i < numTokens; ++i)
     {
         const char* txt = params[i];
-        if (!ZE_CompareStrings(txt, query)) { return i; }
+        if (!ZE_CompareStrings(txt, query))
+        {
+            if (trailingTokens <= 0) { return i; }
+            i32 remainingTokens = (numTokens) - (i = 1);
+            if (remainingTokens >= trailingTokens)
+            {
+                return i;
+            }
+            return ZE_ERROR_BAD_INDEX;
+        }
     }
     return ZE_ERROR_BAD_INDEX;
 }

@@ -22,11 +22,20 @@
 #define CLR_PARTICLE_TYPE_TEST 0
 #define CLR_PARTICLE_TYPE_GIB 1
 
+struct ClientView
+{
+    Transform camera;
+    i32 showHud;
+    i32 rightHand;
+    i32 leftHand;
+};
+
 struct ClientRenderSettings
 {
     u32 debugFlags;
     i32 worldLightsMax;
     i32 extraLightsMax;
+    ClientView viewModels;
 };
 
 struct ClientRenderer
