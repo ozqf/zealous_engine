@@ -33,6 +33,12 @@
 extern "C" i32 ZRGL_ExecTextCommand(
 	const char* str, const i32 len, char** tokens, const i32 numTokens)
 {
+	if (ZE_CompareStrings(tokens[0], "HELP") == 0)
+	{
+		printf("LIGHTMODE modeInt - set 3D scene lighting mode\n");
+		printf("GBUFFER - toggle gbuffer mode\n");
+		return NO;
+	}
 	if (ZE_CompareStrings(tokens[0], "LIGHTMODE") == 0)
 	{
 		printf("ZR - change light mode\n");

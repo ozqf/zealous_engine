@@ -243,7 +243,6 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     ZEByteBuffer* list,
     ZEByteBuffer* scratch)
 {
-    // TODO: Look these up in asset db!
     ZRDBMesh* cube = cr->db->GetMeshByName(cr->db, ZRDB_MESH_NAME_CUBE);
     ZRDBMesh* quad = cr->db->GetMeshByName(cr->db, ZRDB_MESH_NAME_QUAD);
     
