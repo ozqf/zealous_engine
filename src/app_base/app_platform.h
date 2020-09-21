@@ -85,12 +85,6 @@ timeFloat App_GetPerformanceTime(i32 index)
     return g_performanceStats[index].Sum();
 }
 
-extern "C" void App_Debug_GetServerSim(void** ptr)
-{
-    *ptr = NULL;
-    //return SV_Debug_GetSimInstance(ptr);
-}
-
 extern "C" void App_DebugBreak()
 {
     g_platform.DebugBreak();
@@ -292,7 +286,26 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
         }
         else if (ev->type == SYS_EVENT_INPUT)
         {
-            BUF_COPY(gameInput, ev, ev->size);
+            SysInputEvent* input = (SysInputEvent*)ev;
+            if (!AppUI_IsActive())
+            {
+                // check for reserved key to open menu
+                if (input->inputID == Z_INPUT_CODE_ESCAPE
+                    && input->value == 1)
+                {
+                    printf("Escape toggle!\n");
+                    AppUI_OpenRoot();
+                }
+                else
+                {
+                    // Pass on to game
+                    BUF_COPY(gameInput, ev, ev->size);
+                }
+            }
+            else
+            {
+                AppUI_ProcessInput(*input);
+            }
         }
     }
 }
@@ -351,9 +364,7 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
     }
     if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "DRAW"))
     {
-        if (!ZE_CompareStrings(tokens[1], "SV"))
-        { g_debugRenderFlags ^= APP_REND_FLAG_SERVER_SCENE; }
-
+        Game_ToggleDrawFlag(tokens[1]);
         return YES;
     }
     if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "STAT"))

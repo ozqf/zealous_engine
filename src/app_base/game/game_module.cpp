@@ -120,3 +120,18 @@ extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame)
 	g_rendCfg.viewModels = CL_GetClientView(&g_sim);
 	CLR_WriteDrawFrame(g_rend, frame, &g_sim, &cam, NULL, 0, g_rendCfg);
 }
+
+extern "C" void Game_ToggleDrawFlag(const char* name)
+{
+	if (!ZE_CompareStrings(name, "AABB"))
+	{
+		printf("Toggle draw flag %s\n", name);
+		g_rendCfg.debugFlags ^= CL_DEBUG_FLAG_DRAW_LOCAL_SERVER;
+		return;
+	}
+}
+
+extern "C" void Game_ResetDrawFlags()
+{
+	g_rendCfg.debugFlags = 0;
+}

@@ -114,7 +114,7 @@ static void Window_InitConsoleScreen()
     g_consoleScene = {};
 	g_consoleScene.objects = g_consoleUIObjs;
 	g_consoleScene.maxObjects = 2;
-    g_consoleScene.state = 1;
+    g_consoleScene.state = ZUI_SCREEN_STATE_ON;
 
     ZUIObject* obj = NULL;
     obj = &g_consoleUIObjs[g_consoleScene.numObjects++];

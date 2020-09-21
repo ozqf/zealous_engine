@@ -10,5 +10,7 @@ extern "C" i32 Game_Stop();
 extern "C" void Game_Tick(ZEByteBuffer* sysEvents, ZEByteBuffer* soundOutput, timeFloat delta);
 extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame);
 extern "C" Transform Game_GetCamera();
+extern "C" void Game_ToggleDrawFlag(const char* name);
+extern "C" void Game_ResetDrawFlags();
 
 #endif // GAME_H

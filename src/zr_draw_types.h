@@ -35,7 +35,7 @@
 // Guestimate of an appropriate char size. screen space is 2 units high
 // divide this height into N lines:
 #define  ZR_SCREEN_SPACE_HEIGHT 2.f
-#define  ZR_TEXT_SCREEN_LINE_COUNT 64.f
+#define  ZR_TEXT_SCREEN_LINE_COUNT 64
 
 
 ///////////////////////////////////////////////////////////
@@ -166,6 +166,7 @@ struct ZRDrawObjData
         {
             char* text;
             i32 length;
+            i32 linesPerScreen;
 			i32 charTextureIndex;
 			Colour colour;
             Colour bgColour;

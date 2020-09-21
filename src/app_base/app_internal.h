@@ -66,14 +66,6 @@ internal AppPerformanceStat g_performanceStats[APP_STAT_COUNT];
 internal char g_debugStrBuffer[DEBUG_STRING_LENGTH];
 internal CharBuffer g_debugStr;
 
-#define APP_REND_FLAG_SERVER_SCENE (1 << 0)
-#define APP_REND_FLAG_SERVER_TESTS (1 << 1)
-#define APP_REND_FLAG_CLIENT_PREDICTIONS (1 << 2)
-
-internal i32 g_debugRenderFlags = 0
-    | APP_REND_FLAG_CLIENT_PREDICTIONS
-;
-
 #define APP_PRINT_FLAG_SPEEDS (1 << 0)
 #define APP_PRINT_FLAG_SERVER (1 << 1)
 #define APP_PRINT_FLAG_CLIENT (1 << 2)

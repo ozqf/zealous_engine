@@ -3,6 +3,9 @@
 
 #include "../ze_common/ze_common_full.h"
 
+#define ZUI_SCREEN_STATE_OFF 0
+#define ZUI_SCREEN_STATE_ON 1
+
 #define ZUI_OBJ_TYPE_NONE 0
 #define ZUI_OBJ_TYPE_BUTTON 1
 

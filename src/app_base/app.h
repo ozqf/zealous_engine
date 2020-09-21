@@ -21,9 +21,6 @@ extern "C" timeFloat App_SampleClock();
 //extern "C" ScreenInfo App_GetScreenInfo();
 extern "C" ZRAssetDB* App_GetAssetDB();
 
-// For debug inspection purposes ONLY!
-extern "C" void App_Debug_GetServerSim(void** ptr);
-
 extern "C"
 void App_SetPerformanceTime(i32 index, i32 tick, timeFloat milliSeconds);
 

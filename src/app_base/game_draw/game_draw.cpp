@@ -189,23 +189,26 @@ internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame)
     obj->t.pos.z = 0;
     obj->t.scale = { 0.1f, 0.1f, 0.1f };
     scene->params.numObjects++;
-    scene->params.numListBytes = frame->list->cursor - (u8*)scene->params.objects;
-
+    
     // Test status text
     // create a temp text draw obj
     char* txt = "HEALTH 100\nAMMO 999";
     ZRDrawObj txtObj = {};
     txtObj.data.SetAsText(
         txt, -1, COLOUR_WHITE, COLOUR_EMPTY, ZR_TEXT_ALIGNMENT_TOP_LEFT);
+    txtObj.data.text.linesPerScreen = 16;
     // push object toward camera slightly, away from background
-    txtObj.t.pos.x = -1;
-    txtObj.t.pos.y = 0;
+    txtObj.t.pos.x = -1.5f;
+    txtObj.t.pos.y = -0.5f;
     // TODO: Depth currently doesn't work for text!
     txtObj.t.pos.z -= 0.5f;
 
     // add to draw list
     ZR_WriteTextObj(&txtObj, frame->list, frame->data);
     scene->params.numObjects++;
+
+    // finish
+    scene->params.numListBytes = frame->list->cursor - (u8*)scene->params.objects;
 }
 
 // Returns number of objects added
@@ -275,6 +278,11 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
         SimEntity* ent = &sim->ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
         materialIndex = defaultMaterialIndex;
+        if (ent->flags & SIM_ENT_FLAG_SHOOTABLE)
+        {
+            objCount += CLR_Debug_AddAABB(list, ent->factoryType, ent->body.t.pos, ent->body.t.scale);
+        }
+        #if 0
         switch (ent->factoryType)
         {
             case SIM_FACTORY_TYPE_PROJ_PREDICTION:
@@ -298,6 +306,7 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
                 // objCount++;
             } break;
         }
+        #endif
     }
     return objCount;
 }
@@ -423,15 +432,10 @@ extern "C" void CLR_WriteDrawFrame(
     //////////////////////////////////////////////////
     // For debugging local listen servers ONLY!
     //////////////////////////////////////////////////
-	#if 0
+	#if 1
     if (cfg.debugFlags & CL_DEBUG_FLAG_DRAW_LOCAL_SERVER)
     {
-        SimScene* serverSim;
-        App_Debug_GetServerSim((void**)&serverSim);
-        if (serverSim != NULL)
-        {
-            objCount += CLR_Debug_AddSimObjectsToRenderScene(cr, serverSim, list, data);
-        }
+        objCount += CLR_Debug_AddSimObjectsToRenderScene(cr, sim, list, data);
     }
 	#endif
     // else

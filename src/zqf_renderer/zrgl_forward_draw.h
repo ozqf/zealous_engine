@@ -140,11 +140,13 @@ static void ZR_DrawTextGroup(
             printf("DrawObj type is not text!\n");
             continue;
         }
-        
+        i32 screenLineCount = item->data.text.linesPerScreen;
+        if (screenLineCount <= 0) { screenLineCount = ZR_TEXT_SCREEN_LINE_COUNT; }
+
         ZRDrawCmd_Text text = {};
         text.origin = item->t.pos;
         text.numChars = 0;
-        text.charSize = ZR_SCREEN_SPACE_HEIGHT / ZR_TEXT_SCREEN_LINE_COUNT;
+        text.charSize = ZR_SCREEN_SPACE_HEIGHT / (f32)screenLineCount;
         text.aspectRatio = scrInfo->aspectRatio;
         text.offsetToString = 0; // TODO Remove.
         text.alignmentMode = item->data.text.alignment;
