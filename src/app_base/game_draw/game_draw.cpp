@@ -190,6 +190,22 @@ internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame)
     obj->t.scale = { 0.1f, 0.1f, 0.1f };
     scene->params.numObjects++;
     scene->params.numListBytes = frame->list->cursor - (u8*)scene->params.objects;
+
+    // Test status text
+    // create a temp text draw obj
+    char* txt = "HEALTH 100\nAMMO 999";
+    ZRDrawObj txtObj = {};
+    txtObj.data.SetAsText(
+        txt, -1, COLOUR_WHITE, COLOUR_EMPTY, ZR_TEXT_ALIGNMENT_TOP_LEFT);
+    // push object toward camera slightly, away from background
+    txtObj.t.pos.x = -1;
+    txtObj.t.pos.y = 0;
+    // TODO: Depth currently doesn't work for text!
+    txtObj.t.pos.z -= 0.5f;
+
+    // add to draw list
+    ZR_WriteTextObj(&txtObj, frame->list, frame->data);
+    scene->params.numObjects++;
 }
 
 // Returns number of objects added
@@ -467,7 +483,7 @@ extern "C" void CLR_WriteDrawFrame(
             scene->params.numObjects++;
             #endif
         }
-        if (cfg.viewModels.rightHand > 0)
+        if (cfg.viewModels.leftHand > 0)
         {  
             #if 1 // left hand
             obj = ZRDrawObj_InitInPlace(&list->cursor);

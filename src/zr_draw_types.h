@@ -262,6 +262,27 @@ static ZRDrawObj* ZRDrawObj_InitInPlace(u8** ptr)
     return obj;
 }
 
+/*
+A text object requires a pointer to the string, which must be copied into the
+data buffer for this frame
+*/
+static void ZR_WriteTextObj(
+    ZRDrawObj* source,
+    ZEByteBuffer* list,
+    ZEByteBuffer* data)
+{
+    ZRDrawObj* drawObj = ZRDrawObj_InitInPlace(&list->cursor);
+    // copy from source, then copy text to data and
+    // patch pointer
+    *drawObj = *source;
+
+    char* strCursor = (char*)data->cursor;
+    i32 len = ZE_StrLen(source->data.text.text);
+    data->cursor += ZE_COPY(source->data.text.text, data->cursor, len);
+    drawObj->data.text.text = strCursor;
+    //return len;
+}
+
 static void ZRDrawObj_Clear(ZRDrawObj* obj)
 {
     *obj = {};

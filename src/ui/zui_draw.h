@@ -26,21 +26,23 @@ internal i32 ZUI_WriteObjToScene(ZUIObject* uiObj, ZEByteBuffer* list, ZEByteBuf
     };
     #endif
     // add text
-    #if 1
-    drawObj = ZRDrawObj_InitInPlace(&list->cursor);
-    numObjects++;
-    char* strCursor = (char*)data->cursor;
-    i32 len = ZE_StrLen(uiObj->label);
-    data->cursor += ZE_COPY(uiObj->label, data->cursor, len);
-    drawObj->data.SetAsText(
-        strCursor, -1, uiObj->offColour, uiObj->bgColour, ZR_TEXT_ALIGNMENT_CENTRE);
-    // push object toward camera slightly, away from background
-    drawObj->t.pos.x = uiObj->pos.x;
-    drawObj->t.pos.y = uiObj->pos.y;
-    // TODO: Depth currently doesn't work for text!
-    drawObj->t.pos.z -= 0.5f;
-    #endif
-
+    if (uiObj->label != NULL)
+    {
+        // create a temp text draw obj
+        ZRDrawObj txtObj = {};
+        txtObj.data.SetAsText(
+            uiObj->label, -1, uiObj->offColour, uiObj->bgColour, ZR_TEXT_ALIGNMENT_CENTRE);
+        // push object toward camera slightly, away from background
+        txtObj.t.pos.x = uiObj->pos.x;
+        txtObj.t.pos.y = uiObj->pos.y;
+        // TODO: Depth currently doesn't work for text!
+        txtObj.t.pos.z -= 0.5f;
+    
+        // add to draw list
+        ZR_WriteTextObj(&txtObj, list, data);
+        numObjects++;
+    }
+    
     return numObjects;
 }
 

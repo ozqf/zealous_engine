@@ -11,4 +11,4 @@ cls
 @call buildwin_platform.bat
 @call buildwin_window.bat
 @call buildwin_game.bat
-
+@call buildwin_stub.bat

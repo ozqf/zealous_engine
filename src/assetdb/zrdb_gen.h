@@ -308,7 +308,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_CROSSHAIR,
-        ZRDB_TEX_NAME_SHEET_TEST,
+        ZRDB_TEX_NAME_CROSSHAIR,
         ZRDB_TEX_NAME_CROSSHAIR
     );
 	//ZRDB_GenerateExperiements(db);
