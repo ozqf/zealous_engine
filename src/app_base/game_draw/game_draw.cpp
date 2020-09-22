@@ -466,7 +466,6 @@ extern "C" void CLR_WriteDrawFrame(
     CLR_AddTestParticles(cr, scene, list, data);
     scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
     
-    
     // Add View Model Scene
     if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
     {
@@ -488,7 +487,7 @@ extern "C" void CLR_WriteDrawFrame(
             #endif
         }
         if (cfg.viewModels.leftHand > 0)
-        {  
+        {
             #if 1 // left hand
             obj = ZRDrawObj_InitInPlace(&list->cursor);
             obj->data.SetAsMesh(wallMesh, wallMat);

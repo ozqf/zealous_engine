@@ -287,13 +287,29 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
         else if (ev->type == SYS_EVENT_INPUT)
         {
             SysInputEvent* input = (SysInputEvent*)ev;
+            // submit to UI - if false pass on to game
+            i32 menuResponse = AppUI_ProcessInput(*input);
+            switch (menuResponse)
+            {
+                case APPUI_INPUT_TOGGLED_ON:
+                    g_platform.SetMouseCaptured(NO);
+                    break;
+                case APPUI_INPUT_TOGGLED_OFF:
+                    g_platform.SetMouseCaptured(YES);
+                    break;
+                default:
+                    BUF_COPY(gameInput, ev, ev->size);
+                    break;
+            }
+            #if 0
             if (!AppUI_IsActive())
             {
                 // check for reserved key to open menu
-                if (input->inputID == Z_INPUT_CODE_ESCAPE
+                if (input->inputID == APPUI_MENU_TOGGLE_KEY
                     && input->value == 1)
                 {
                     printf("Escape toggle!\n");
+                    g_platform.SetMouseCaptured(NO);
                     AppUI_OpenRoot();
                 }
                 else
@@ -305,7 +321,13 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
             else
             {
                 AppUI_ProcessInput(*input);
+                // check for ui closing
+                if (!AppUI_IsActive())
+                {
+                    g_platform.SetMouseCaptured(YES);
+                }
             }
+            #endif
         }
     }
 }

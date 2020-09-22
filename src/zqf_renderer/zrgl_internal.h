@@ -7,6 +7,7 @@
 #define ZRGL_ALLOC_TAG_DATA_TEXTURE 1
 
 #define ZRGL_DEBUG_BIT_SHOWGBUFFER (1 << 0)
+#define ZRGL_DEBUG_BIT_SHOWSTATS (1 << 1)
 
 // Advance buffer data in shader by each vertex being rendered
 #define ZRGL_DIVISOR_PER_VERTEX 0

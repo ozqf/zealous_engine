@@ -44,22 +44,37 @@ extern "C" ErrorCode AppUI_WriteFrame(ZRViewFrame* frame)
 	return ZE_ERROR_NONE;
 }
 
-extern "C" void AppUI_ProcessInput(SysInputEvent ev)
+extern "C" i32 AppUI_ProcessInput(SysInputEvent ev)
 {
-    if (ev.inputID == Z_INPUT_CODE_ESCAPE
+    if (ev.inputID == APPUI_MENU_TOGGLE_KEY
                     && ev.value == 1)
     {
-        g_currentMenu = APP_MENU_NONE;
-        printf("Close menu\n");
-        return;
+        // process open/close
+        if (AppUI_IsActive())
+        {
+            printf("Close menu\n");
+            g_currentMenu = APP_MENU_NONE;
+            return APPUI_INPUT_TOGGLED_OFF;
+        }
+        else
+        {
+            printf("Open menu\n");
+            g_currentMenu = APP_MENU_ROOT;
+            return APPUI_INPUT_TOGGLED_ON;
+        }
     }
-    // process menu input
+    if (AppUI_IsActive())
+    {
+        return APPUI_INPUT_HANDLED;
+    }
+    // unhandled
+    return APPUI_INPUT_UNHANDLED;
 }
 
 extern "C" void AppUI_OpenRoot()
 {
-    printf("Open menu\n");
-    g_currentMenu = APP_MENU_ROOT;
+    // printf("Open menu\n");
+    // g_currentMenu = APP_MENU_ROOT;
 }
 
 #endif // APP_UI_CPP

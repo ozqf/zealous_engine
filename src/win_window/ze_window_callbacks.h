@@ -18,10 +18,12 @@ static void Window_ApplyMouseState(GLFWwindow* window)
     printf("Cursor disabled: %d\n", bCursorDisabled);
     if (bCursorDisabled)
     {
+        printf("\tCapture cursor\n");
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
     else
     {
+        printf("\tEnable cursor\n");
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 }

@@ -237,6 +237,14 @@ static i32 PlatformImpl_IsMouseCaptured()
     return NO;
 }
 
+static void PlatformImpl_SetMouseCaptured(bool flag)
+{
+    if (g_window.sentinel == ZR_SENTINEL)
+    {
+        g_window.SetMouseCaptured(flag);
+    }
+}
+
 static void PlatformImpl_DebugBreak()
 {
     DebugBreak();
@@ -394,6 +402,7 @@ static ze_platform_export Win_BuildExport()
     result.GetAssetDB = PlatformImpl_GetAssetDB;
     result.ExecTextCommand = PlatformImpl_ExecTextCommand;
     result.IsMouseCaptured = PlatformImpl_IsMouseCaptured;
+    result.SetMouseCaptured = PlatformImpl_SetMouseCaptured;
 
     result.QueryClock = PlatformImpl_QueryClock;
     result.Allocate = PlatformImpl_Allocate;

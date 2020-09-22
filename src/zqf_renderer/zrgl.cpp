@@ -35,6 +35,7 @@ extern "C" i32 ZRGL_ExecTextCommand(
 {
 	if (ZE_CompareStrings(tokens[0], "HELP") == 0)
 	{
+		printf("RSTATS - toggle display render info\n");
 		printf("LIGHTMODE modeInt - set 3D scene lighting mode\n");
 		printf("GBUFFER - toggle gbuffer mode\n");
 		return NO;
@@ -53,6 +54,11 @@ extern "C" i32 ZRGL_ExecTextCommand(
 	if (ZE_CompareStrings(tokens[0], "GBUFFER") == 0)
 	{
 		g_debugFlags ^= ZRGL_DEBUG_BIT_SHOWGBUFFER;
+		return YES;
+	}
+	if (ZE_CompareStrings(tokens[0], "RSTATS") == 0)
+	{
+		g_debugFlags ^= ZRGL_DEBUG_BIT_SHOWSTATS;
 		return YES;
 	}
 	return NO;
@@ -279,40 +285,40 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     /////////////////////////////////////////
     
     // allocate space in scratch for debug string
-    #if 1
-	f64 preprocessTime = preprocessEnd - preprocessStart;
-    i32 written = sprintf_s((char*)debugStr.cursor, debugStr.Space(),
-        "Timestamp: %.3f\nTime diff: %.3f\nInterpolate: %.3f\nBuild drawlist: %.3fMS\nObj List %dKB\nObj Data %dKB\nNum scenes %d\nNum groups %d\nNum lights: %d\nPreprocessMS %.3f\nSwapMS %.3f\nTotalMS %.3f\nApp frames %d\nRenderer frames %d\n",
-		header->timestamp,
-		diff,
-		g_interpolate,
-        header->prebuildTime * 1000,
-        drawList->Written() / 1024,
-        drawData->Written() / 1024,
-        header->numScenes,
-		stats.numGroups,
-        gBufStats.numLights,
-		preprocessTime * 1000,
-        g_platformSwapMS * 1000,
-        g_platformFrameMS * 1000,
-		header->frameNumber,
-		g_framesRendered);
-    debugStr.cursor += written;
+	if (g_debugFlags & ZRGL_DEBUG_BIT_SHOWSTATS)
+	{
+		f64 preprocessTime = preprocessEnd - preprocessStart;
+    	i32 written = sprintf_s((char*)debugStr.cursor, debugStr.Space(),
+    	    "Timestamp: %.3f\nTime diff: %.3f\nInterpolate: %.3f\nBuild drawlist: %.3fMS\nObj List %dKB\nObj Data %dKB\nNum scenes %d\nNum groups %d\nNum lights: %d\nPreprocessMS %.3f\nSwapMS %.3f\nTotalMS %.3f\nApp frames %d\nRenderer frames %d\n",
+			header->timestamp,
+			diff,
+			g_interpolate,
+    	    header->prebuildTime * 1000,
+    	    drawList->Written() / 1024,
+    	    drawData->Written() / 1024,
+    	    header->numScenes,
+			stats.numGroups,
+    	    gBufStats.numLights,
+			preprocessTime * 1000,
+    	    g_platformSwapMS * 1000,
+    	    g_platformFrameMS * 1000,
+			header->frameNumber,
+			g_framesRendered);
+    	debugStr.cursor += written;
     
-    ZRDrawCmd_Text txtCmd = {};
-    txtCmd.origin = { -1, 1 }; // screen topleft
-    txtCmd.numChars = written;// strlen(testText);
-    txtCmd.charSize = ZR_SCREEN_SPACE_HEIGHT / ZR_TEXT_SCREEN_LINE_COUNT;
-    txtCmd.aspectRatio = scrInfo.aspectRatio;
-    txtCmd.offsetToString = 0; // TOOD: Remove
-    txtCmd.alignmentMode = ZR_TEXT_ALIGNMENT_TOP_LEFT;
-	txtCmd.fontColour = COLOUR_GREEN;
-	txtCmd.bgColour = COLOUR_BLACK;
-    M4x4_CREATE(textProjection);
-    //printf("Draw %d debug chars\n", txtCmd.numChars);
-    ZR_ExecuteTextDraw(&txtCmd, &textProjection, (char*)debugStr.start, &stats);
-    #endif
-
+    	ZRDrawCmd_Text txtCmd = {};
+    	txtCmd.origin = { -1, 1 }; // screen topleft
+    	txtCmd.numChars = written;// strlen(testText);
+    	txtCmd.charSize = ZR_SCREEN_SPACE_HEIGHT / ZR_TEXT_SCREEN_LINE_COUNT;
+    	txtCmd.aspectRatio = scrInfo.aspectRatio;
+    	txtCmd.offsetToString = 0; // TOOD: Remove
+    	txtCmd.alignmentMode = ZR_TEXT_ALIGNMENT_TOP_LEFT;
+		txtCmd.fontColour = COLOUR_GREEN;
+		txtCmd.bgColour = COLOUR_BLACK;
+    	M4x4_CREATE(textProjection);
+    	//printf("Draw %d debug chars\n", txtCmd.numChars);
+    	ZR_ExecuteTextDraw(&txtCmd, &textProjection, (char*)debugStr.start, &stats);
+	}
 	
     /////////////////////////////////////////////////////////////
     // Done. Gather stats

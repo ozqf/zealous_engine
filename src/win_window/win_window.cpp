@@ -101,6 +101,12 @@ static i32 WindowImpl_IsMouseCaptured()
     return Win_IsCursorDisabled();
 }
 
+static void WindowImpl_SetMouseCaptured(bool flag)
+{
+    g_bMouseCaptured = flag;
+    Window_ApplyMouseState(g_window);
+}
+
 static void Window_Error(const char* msg)
 {
     // casting down from const...
@@ -465,6 +471,7 @@ ze_window_export __declspec(dllexport) ZE_LinkToWindowModule(ze_platform_export 
     result.Acquire_AppDrawBuffers = WindowImpl_Acquire_AppDrawBuffers;
     result.Release_AppDrawBuffers = WindowImpl_Release_AppDrawBuffers;
     result.IsMouseCaptured = WindowImpl_IsMouseCaptured;
+    result.SetMouseCaptured = WindowImpl_SetMouseCaptured;
     result.sentinel = ZE_SENTINEL;
 	return result;
 }

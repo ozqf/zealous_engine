@@ -32,6 +32,7 @@ struct ze_window_export
     i32 (*Init)();
     i32 (*MainLoop)();
     i32 (*IsMouseCaptured)();
+    void (*SetMouseCaptured)(bool flag);
     // Written to by app, read by renderer
     void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();
@@ -59,6 +60,7 @@ struct ze_platform_export
 	// return YES if command was handled
     i32 (*ExecTextCommand)(const char* str, const i32 len, const char** tokens, const i32 numTokens);
     i32 (*IsMouseCaptured)();
+    void (*SetMouseCaptured)(bool flag);
     
     // platform will pass to app for writing
     i32 (*AppWriteDraw)(void* zrViewFrame);
