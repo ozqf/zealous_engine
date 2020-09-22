@@ -173,7 +173,7 @@ internal void CLR_AddTestParticles(
     CLR_WriteParticles(cr, &cr->gibEmit, scene, list, data);
 }
 
-internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame)
+internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSettings cfg)
 {
 	i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_QUAD)->header.index;
     i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_CROSSHAIR)->header.index;
@@ -192,21 +192,40 @@ internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame)
     
     // Test status text
     // create a temp text draw obj
-    char* txt = "HEALTH 100\nAMMO 999";
-    ZRDrawObj txtObj = {};
-    txtObj.data.SetAsText(
-        txt, -1, COLOUR_WHITE, COLOUR_EMPTY, ZR_TEXT_ALIGNMENT_TOP_LEFT);
-    txtObj.data.text.linesPerScreen = 16;
-    // push object toward camera slightly, away from background
-    txtObj.t.pos.x = -1.5f;
-    txtObj.t.pos.y = -0.5f;
-    // TODO: Depth currently doesn't work for text!
-    txtObj.t.pos.z -= 0.5f;
+    if (cfg.viewModels.textFieldFlags & CLR_HUD_TEXT_PLAYER_STATUS)
+    {
+        char* txt = "HEALTH 100\nAMMO 999";
+        ZRDrawObj txtObj = {};
+        txtObj.data.SetAsText(
+            txt, -1, COLOUR_WHITE, COLOUR_EMPTY, ZR_TEXT_ALIGNMENT_TOP_LEFT);
+        txtObj.data.text.linesPerScreen = 32;
+        // push object toward camera slightly, away from background
+        txtObj.t.pos.x = -1.5f;
+        txtObj.t.pos.y = -0.5f;
+        // TODO: Depth currently doesn't work for text!
+        txtObj.t.pos.z -= 0.5f;
 
-    // add to draw list
-    ZR_WriteTextObj(&txtObj, frame->list, frame->data);
-    scene->params.numObjects++;
+        // add to draw list
+        ZR_WriteTextObj(&txtObj, frame->list, frame->data);
+        scene->params.numObjects++;
+    }
+    if (cfg.viewModels.textFieldFlags & CLR_HUD_TEXT_SPAWN_PROMPT)
+    {
+        char* txt = "PRESS SPACE TO SPAWN";
+        ZRDrawObj txtObj = {};
+        txtObj.data.SetAsText(
+            txt, -1, COLOUR_WHITE, COLOUR_EMPTY, ZR_TEXT_ALIGNMENT_CENTRE);
+        txtObj.data.text.linesPerScreen = 16;
+        // push object toward camera slightly, away from background
+        txtObj.t.pos.x = 0;
+        txtObj.t.pos.y = -0.3f;
+        // TODO: Depth currently doesn't work for text!
+        txtObj.t.pos.z -= 0.5f;
 
+        // add to draw list
+        ZR_WriteTextObj(&txtObj, frame->list, frame->data);
+        scene->params.numObjects++;
+    }
     // finish
     scene->params.numListBytes = frame->list->cursor - (u8*)scene->params.objects;
 }
@@ -438,10 +457,7 @@ extern "C" void CLR_WriteDrawFrame(
         objCount += CLR_Debug_AddSimObjectsToRenderScene(cr, sim, list, data);
     }
 	#endif
-    // else
-    // {
-        objCount += CLR_AddSimObjectsToRenderScene(cr, sim, list, data, cfg);
-    // }
+    objCount += CLR_AddSimObjectsToRenderScene(cr, sim, list, data, cfg);
 
     if (debugObjs != NULL)
     {
@@ -501,11 +517,7 @@ extern "C" void CLR_WriteDrawFrame(
         scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
     }
 
-	// Add HUD
-    if (cfg.viewModels.showHud)
-    {
-        CLR_AddHUD(cr, frame);
-    }
+	CLR_AddHUD(cr, frame, cfg);
 }
 
 #endif // GAME_DRAW_CPP

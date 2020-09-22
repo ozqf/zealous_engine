@@ -98,6 +98,9 @@ extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc)
     Transform_SetRotation(&g_camera, -(80.0f    * DEG2RAD), 0, 0);
 	g_debugInput = {};
 	g_debugInput.degrees.x = -80;
+
+    g_view = {};
+    g_view.textFieldFlags |= CLR_HUD_TEXT_SPAWN_PROMPT;
 }
 
 extern "C" void CLG_Start()
@@ -105,6 +108,9 @@ extern "C" void CLG_Start()
     printf("CL Start\n");
     g_bIsRunning = YES;
     g_player = {};
+
+    g_view = {};
+    g_view.textFieldFlags |= CLR_HUD_TEXT_SPAWN_PROMPT;
 }
 
 extern "C" void CL_Stop()
@@ -213,6 +219,23 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 	}
 }
 
+internal void CL_CheckForSimEvents(ZEByteBuffer* buf)
+{
+    u8* read = buf->start;
+    u8* end = buf->cursor;
+    while (read < end)
+    {
+        ZECommand* header = (ZECommand*)read;
+        read += header->size;
+        if (header->type != SIM_CMD_TYPE_RESTORE_ENTITY) { continue; }
+        SimEvent_Spawn* cmd = (SimEvent_Spawn*)header;
+        if (cmd->serial != g_player.avatarId) { continue; }
+        printf("Client saw self spawn\n");
+        g_view.textFieldFlags ^= CLR_HUD_TEXT_SPAWN_PROMPT;
+        g_view.textFieldFlags |= CLR_HUD_TEXT_PLAYER_STATUS;
+    }
+}
+
 extern "C" void CL_RegisterLocalPlayer(SimScene* sim, SimPlayer plyr)
 {
     g_player = plyr;
@@ -235,24 +258,25 @@ extern "C" void CL_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat del
     input.input = g_debugInput;
 
     ZCmd_Write(&input.header, &buf->GetWrite()->cursor);
+    CL_CheckForSimEvents(buf->GetRead());
 }
 
 extern "C" void CL_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
 {
     if (!g_bIsRunning) { return; }
-    // update view
+    // update view and detech player state changes
     SimEntity* ent = Sim_GetEntityBySerial(sim, g_player.avatarId);
     if (ent != NULL)
     {
         g_view.camera = ent->body.t;
-        g_view.showHud = 1;
+        //g_view.showHud = 1;
         g_view.rightHand = 1;
         g_view.leftHand = 1;
     }
     else
     {
         g_view.camera = g_camera;
-        g_view.showHud = NO;
+        //g_view.showHud = NO;
         g_view.rightHand = 0;
         g_view.leftHand = 0;
     }
