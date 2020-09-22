@@ -175,24 +175,27 @@ internal void CLR_AddTestParticles(
 
 internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSettings cfg)
 {
-	i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_QUAD)->header.index;
-    i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_CROSSHAIR)->header.index;
-	ZRSceneFrame* scene = ZRScene_InitInPlace(frame->list, ZR_PROJECTION_MODE_ORTHO_BASE, NO);
-	Transform_SetToIdentity(&scene->params.camera);
+    ZRSceneFrame* scene = ZRScene_InitInPlace(frame->list, ZR_PROJECTION_MODE_ORTHO_BASE, NO);
+    Transform_SetToIdentity(&scene->params.camera);
     scene->params.camera.pos.z = 1;
-	frame->numScenes++;
-	ZRDrawObj* obj = NULL;
-	obj = ZRDrawObj_InitInPlace(&frame->list->cursor);
-    obj->data.SetAsMesh(wallMesh, wallMat);
-    obj->t.pos.x = 0;
-    obj->t.pos.y = 0;
-    obj->t.pos.z = 0;
-    obj->t.scale = { 0.1f, 0.1f, 0.1f };
-    scene->params.numObjects++;
-    
+    frame->numScenes++;
+    if (cfg.viewModels.textFieldFlags & CLR_HUD_ITEM_CROSSHAIR)
+    {
+        i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_QUAD)->header.index;
+        i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_CROSSHAIR)->header.index;
+	    ZRDrawObj* obj = NULL;
+	    obj = ZRDrawObj_InitInPlace(&frame->list->cursor);
+        obj->data.SetAsMesh(wallMesh, wallMat);
+        obj->t.pos.x = 0;
+        obj->t.pos.y = 0;
+        obj->t.pos.z = 0;
+        obj->t.scale = { 0.1f, 0.1f, 0.1f };
+        scene->params.numObjects++;
+    }
+	
     // Test status text
     // create a temp text draw obj
-    if (cfg.viewModels.textFieldFlags & CLR_HUD_TEXT_PLAYER_STATUS)
+    if (cfg.viewModels.textFieldFlags & CLR_HUD_ITEM_PLAYER_STATUS)
     {
         char* txt = "HEALTH 100\nAMMO 999";
         ZRDrawObj txtObj = {};
@@ -209,7 +212,7 @@ internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSet
         ZR_WriteTextObj(&txtObj, frame->list, frame->data);
         scene->params.numObjects++;
     }
-    if (cfg.viewModels.textFieldFlags & CLR_HUD_TEXT_SPAWN_PROMPT)
+    if (cfg.viewModels.textFieldFlags & CLR_HUD_ITEM_SPAWN_PROMPT)
     {
         char* txt = "PRESS SPACE TO SPAWN";
         ZRDrawObj txtObj = {};

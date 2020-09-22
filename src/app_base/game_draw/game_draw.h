@@ -23,9 +23,10 @@
 #define CLR_PARTICLE_TYPE_TEST 0
 #define CLR_PARTICLE_TYPE_GIB 1
 
-#define CLR_HUD_TEXT_SPAWN_PROMPT (1 << 0)
-#define CLR_HUD_TEXT_PLAYER_STATUS (1 << 1)
-#define CLR_HUD_TEXT_DEAD (1 << 2)
+#define CLR_HUD_ITEM_SPAWN_PROMPT (1 << 0)
+#define CLR_HUD_ITEM_PLAYER_STATUS (1 << 1)
+#define CLR_HUD_ITEM_CROSSHAIR (1 << 2)
+#define CLR_HUD_ITEM_DEAD (1 << 3)
 
 struct ClientView
 {

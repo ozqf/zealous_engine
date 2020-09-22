@@ -100,7 +100,7 @@ extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc)
 	g_debugInput.degrees.x = -80;
 
     g_view = {};
-    g_view.textFieldFlags |= CLR_HUD_TEXT_SPAWN_PROMPT;
+    g_view.textFieldFlags |= CLR_HUD_ITEM_SPAWN_PROMPT;
 }
 
 extern "C" void CLG_Start()
@@ -110,7 +110,7 @@ extern "C" void CLG_Start()
     g_player = {};
 
     g_view = {};
-    g_view.textFieldFlags |= CLR_HUD_TEXT_SPAWN_PROMPT;
+    g_view.textFieldFlags |= CLR_HUD_ITEM_SPAWN_PROMPT;
 }
 
 extern "C" void CL_Stop()
@@ -231,8 +231,9 @@ internal void CL_CheckForSimEvents(ZEByteBuffer* buf)
         SimEvent_Spawn* cmd = (SimEvent_Spawn*)header;
         if (cmd->serial != g_player.avatarId) { continue; }
         printf("Client saw self spawn\n");
-        g_view.textFieldFlags ^= CLR_HUD_TEXT_SPAWN_PROMPT;
-        g_view.textFieldFlags |= CLR_HUD_TEXT_PLAYER_STATUS;
+        g_view.textFieldFlags ^= CLR_HUD_ITEM_SPAWN_PROMPT;
+        g_view.textFieldFlags |= CLR_HUD_ITEM_PLAYER_STATUS;
+        g_view.textFieldFlags |= CLR_HUD_ITEM_CROSSHAIR;
     }
 }
 
