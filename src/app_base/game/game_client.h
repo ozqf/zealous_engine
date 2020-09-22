@@ -19,3 +19,4 @@ extern "C" void CL_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat de
 
 extern "C" Transform CL_GetCamera(SimScene* sim);
 extern "C" ClientView CL_GetClientView(SimScene* sim);
+extern "C" void CL_ClearActionInputs();

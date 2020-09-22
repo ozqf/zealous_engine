@@ -292,6 +292,7 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
             switch (menuResponse)
             {
                 case APPUI_INPUT_TOGGLED_ON:
+                    Game_ClearInputActions();
                     g_platform.SetMouseCaptured(NO);
                     break;
                 case APPUI_INPUT_TOGGLED_OFF:

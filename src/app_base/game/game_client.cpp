@@ -41,6 +41,11 @@ extern "C" ClientView CL_GetClientView(SimScene* sim)
     return g_view;
 }
 
+extern "C" void CL_ClearActionInputs()
+{
+    Input_ClearValues(&g_inputActions);
+}
+
 internal void CL_CreateActions(InputActionSet* actions)
 {
     Input_InitAction(actions, Z_INPUT_CODE_V, "Debug Forward");

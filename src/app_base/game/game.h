@@ -12,5 +12,6 @@ extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame);
 extern "C" Transform Game_GetCamera();
 extern "C" void Game_ToggleDrawFlag(const char* name);
 extern "C" void Game_ResetDrawFlags();
+extern "C" void Game_ClearInputActions();
 
 #endif // GAME_H

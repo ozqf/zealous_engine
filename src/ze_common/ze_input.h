@@ -130,6 +130,15 @@ internal void Input_InitAction(InputActionSet* actions, u32 keyCode1, char* labe
     ZE_CopyStringLimited(label, actions->actions[index].label, 16);
 }
 
+internal void Input_ClearValues(InputActionSet* actions)
+{
+    for (i32 i = 0; i < actions->count; ++i)
+    {
+        actions->actions[i].value = 0;
+        actions->actions[i].normalised = 0;
+    }
+}
+
 // Find an action... duh
 internal InputAction* Input_FindAction(InputAction* actions, i32 numActions, char* name)
 {

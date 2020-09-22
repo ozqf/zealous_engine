@@ -135,3 +135,8 @@ extern "C" void Game_ResetDrawFlags()
 {
 	g_rendCfg.debugFlags = 0;
 }
+
+extern "C" void Game_ClearInputActions()
+{
+	CL_ClearActionInputs();
+}
