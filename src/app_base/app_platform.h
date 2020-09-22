@@ -297,37 +297,10 @@ internal void App_ReadSysEvents(ZEByteBuffer* events)
                 case APPUI_INPUT_TOGGLED_OFF:
                     g_platform.SetMouseCaptured(YES);
                     break;
-                default:
+                case APPUI_INPUT_UNHANDLED:
                     BUF_COPY(gameInput, ev, ev->size);
                     break;
             }
-            #if 0
-            if (!AppUI_IsActive())
-            {
-                // check for reserved key to open menu
-                if (input->inputID == APPUI_MENU_TOGGLE_KEY
-                    && input->value == 1)
-                {
-                    printf("Escape toggle!\n");
-                    g_platform.SetMouseCaptured(NO);
-                    AppUI_OpenRoot();
-                }
-                else
-                {
-                    // Pass on to game
-                    BUF_COPY(gameInput, ev, ev->size);
-                }
-            }
-            else
-            {
-                AppUI_ProcessInput(*input);
-                // check for ui closing
-                if (!AppUI_IsActive())
-                {
-                    g_platform.SetMouseCaptured(YES);
-                }
-            }
-            #endif
         }
     }
 }

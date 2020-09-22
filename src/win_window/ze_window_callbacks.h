@@ -15,44 +15,14 @@ static i32 Win_IsCursorDisabled()
 static void Window_ApplyMouseState(GLFWwindow* window)
 {
     i32 bCursorDisabled = Win_IsCursorDisabled();
-    printf("Cursor disabled: %d\n", bCursorDisabled);
     if (bCursorDisabled)
     {
-        printf("\tCapture cursor\n");
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
     else
     {
-        printf("\tEnable cursor\n");
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
-}
-
-// TODO: App thread can cause a 'GLFW is not initialised' error here
-// by call into main thread during shutdown. Make sure App has closed before
-// closing GLFW
-static void error_callback(int error, const char* description)
-{
-    fprintf(stderr, "Error: %s\n", description);
-}
-
-static void window_close_callback(GLFWwindow* window)
-{
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
-    // TODO: Handle multithreading here for shutting down full app:
-    /*
-    if (g_app.isValid == YES)
-    {
-        g_app.AppImpl_BeginShutdown();
-    }
-    */
-    // example where a close request could be denied...
-    /*
-    if (!time_to_close)
-    {
-        glfwSetWindowShouldClose(window, GLFW_FALSE);
-    }
-    */
 }
 
 /**
@@ -76,6 +46,7 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
         if (action == GLFW_PRESS)
         {
             g_consoleActive = !g_consoleActive;
+            printf("Console toggled to %d\n", g_consoleActive);
             Console_Reset();
             Window_ApplyMouseState(window);
         }
@@ -132,6 +103,33 @@ static void key_callback(GLFWwindow* window, int glfwKey, int scancode, int acti
         Sys_WriteInputEvent(&g_eventBuffer, keyCode, 0, 1);
         //ZKeys_WriteEvent(&g_events, key, 0);
     }
+}
+
+// TODO: App thread can cause a 'GLFW is not initialised' error here
+// by call into main thread during shutdown. Make sure App has closed before
+// closing GLFW
+static void error_callback(int error, const char* description)
+{
+    fprintf(stderr, "Error: %s\n", description);
+}
+
+static void window_close_callback(GLFWwindow* window)
+{
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
+    // TODO: Handle multithreading here for shutting down full app:
+    /*
+    if (g_app.isValid == YES)
+    {
+        g_app.AppImpl_BeginShutdown();
+    }
+    */
+    // example where a close request could be denied...
+    /*
+    if (!time_to_close)
+    {
+        glfwSetWindowShouldClose(window, GLFW_FALSE);
+    }
+    */
 }
 
 static void mouse_position_callback(GLFWwindow* window, double posX, double posY)

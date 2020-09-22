@@ -103,8 +103,9 @@ static i32 WindowImpl_IsMouseCaptured()
 
 static void WindowImpl_SetMouseCaptured(bool flag)
 {
-    g_bMouseCaptured = flag;
-    Window_ApplyMouseState(g_window);
+    // Mouse state change must be done on the window thread!
+    // record and check when polling input
+    g_bAppWantsMouseCaptured = flag;
 }
 
 static void Window_Error(const char* msg)
@@ -318,6 +319,11 @@ static void ZR_PollInput()
     // grab input buffer and poll for events. handled by callbacks
     g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
 	glfwPollEvents();
+    if (g_bAppWantsMouseCaptured != g_bMouseCaptured)
+    {
+        g_bMouseCaptured = g_bAppWantsMouseCaptured;
+        Window_ApplyMouseState(g_window);
+    }
     g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
 }
 

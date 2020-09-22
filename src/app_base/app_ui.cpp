@@ -52,13 +52,11 @@ extern "C" i32 AppUI_ProcessInput(SysInputEvent ev)
         // process open/close
         if (AppUI_IsActive())
         {
-            printf("Close menu\n");
             g_currentMenu = APP_MENU_NONE;
             return APPUI_INPUT_TOGGLED_OFF;
         }
         else
         {
-            printf("Open menu\n");
             g_currentMenu = APP_MENU_ROOT;
             return APPUI_INPUT_TOGGLED_ON;
         }

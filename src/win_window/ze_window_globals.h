@@ -37,6 +37,7 @@ internal ZEByteBuffer g_drawDataBuffer;
 internal ZEByteBuffer g_eventBuffer;
 
 internal i32 g_bMouseCaptured = YES;
+internal i32 g_bAppWantsMouseCaptured = YES;
 internal i32 g_consoleActive = NO;
 
 internal f64 g_lastMouseSampleX = 0;
