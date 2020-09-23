@@ -45,10 +45,10 @@ struct ze_window_export
 // platform module function pointers
 struct ze_platform_export
 {
-    void (*Warning)(char* msg);
-    void (*Error)(char* msg);
-    void (*Log)(char* msg);
-    void (*Print)(char* msg);
+    void (*Warning)(const char* msg);
+    void (*Error)(const char* msg);
+    void (*Log)(const char* msg);
+    void (*Print)(const char* msg);
     void (*DebugBreak)();
 
     f64 (*QueryClock)();

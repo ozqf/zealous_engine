@@ -3,6 +3,11 @@
 
 #include "zrgl_internal.h"
 
+internal void ZRGL_Fatal(const char* msg)
+{
+	g_platform.Error(msg);
+}
+
 static void ZRGL_PrintGPUInfo()
 {
     const u8* vendor = glGetString(GL_VENDOR);
@@ -55,6 +60,7 @@ static ZRGPUSpecs ZRGL_QueryGPUSpecs()
 extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
 {
     printf("==== ZRGL - init ====\n");
+    ZE_SetFatalError(ZRGL_Fatal);
     printf("Free alloc list\n");
     COM_FreeAll(&g_mallocs);
 

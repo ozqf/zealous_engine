@@ -92,6 +92,7 @@ struct ZRPerformanceStats
 ///////////////////////////////////////////////////////////
 struct ZRPlatform
 {
+    void (*Error)(const char* msg);
     double (*QueryClock)();
     // void* (*Allocate)(i32 numBytes);
     // void (*Free)(void* ptr);

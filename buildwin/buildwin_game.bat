@@ -26,7 +26,7 @@ set in5=
 set in6=
 
 @rem -- Main App input --
-set in1=../src/app_base/game_draw/game_draw.cpp ../src/ui/zui.cpp
+set in1=../src/app_base/game_draw/game_draw.cpp ../src/app_base/game_draw/game_hud.cpp ../src/ui/zui.cpp
 set in2=../src/app_base/app_module.cpp ../src/app_base/app_ui.cpp
 set in3=../src/sim/sim_module.cpp ../src/voxel_world/voxel_world.cpp
 set in4=../src/app_base/game/game_server.cpp ../src/app_base/game/game_client.cpp

@@ -265,6 +265,7 @@ static i32 WindowImpl_Init()
     ZRPlatform platform = {};
     // platform.Allocate = g_platform.Allocate;
     // platform.Free = g_platform.Free;
+    platform.Error = g_platform.Error;
     platform.QueryClock = g_platform.QueryClock;
     platform.GetAssetDB = g_platform.GetAssetDB;
     platform.DebugBreak = g_platform.DebugBreak;

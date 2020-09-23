@@ -2,6 +2,7 @@
 #define GAME_DRAW_CPP
 
 #include "game_draw.h"
+#include "game_hud.h"
 #include "../../zqf_renderer.h"
 #include "../../ui/zui.h"
 
@@ -173,6 +174,7 @@ internal void CLR_AddTestParticles(
     CLR_WriteParticles(cr, &cr->gibEmit, scene, list, data);
 }
 
+#if 0
 internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSettings cfg)
 {
     ZRSceneFrame* scene = ZRScene_InitInPlace(frame->list, ZR_PROJECTION_MODE_ORTHO_BASE, NO);
@@ -232,6 +234,7 @@ internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSet
     // finish
     scene->params.numListBytes = frame->list->cursor - (u8*)scene->params.objects;
 }
+#endif
 
 // Returns number of objects added
 internal i32 CLR_Debug_AddAABB(ZEByteBuffer* list, i32 factoryType, Vec3 pos, Vec3 scale)
@@ -486,6 +489,7 @@ extern "C" void CLR_WriteDrawFrame(
     scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
     
     // Add View Model Scene
+    #if 0
     if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
     {
         i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_CUBE)->header.index;
@@ -519,8 +523,9 @@ extern "C" void CLR_WriteDrawFrame(
         }
         scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
     }
-
-	CLR_AddHUD(cr, frame, cfg);
+    #endif
+	//CLR_AddHUD(cr, frame, cfg);
+    Hud_AddDrawObjects(cr, frame, cfg);
 }
 
 #endif // GAME_DRAW_CPP

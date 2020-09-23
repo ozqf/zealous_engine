@@ -111,7 +111,7 @@ static ZRAssetDB* g_assets = NULL;
 ////////////////////////////////////////////////////////
 // Error handling
 ////////////////////////////////////////////////////////
-static void Win_Error(char *msg)
+static void Win_Error(const char *msg)
 {
 	printf("FATAL: %s\n", msg);
     // TODO: LPCWSTR means unicode, but treated as ascii!
@@ -119,14 +119,14 @@ static void Win_Error(char *msg)
 	DebugBreak();
 }
 
-static void Win_Warning(char *msg)
+static void Win_Warning(const char *msg)
 {
 	printf("WARNING: %s\n", msg);
     // TODO: LPCWSTR means unicode, but treated as ascii!
     MessageBox(0, (LPCSTR)msg, (LPCSTR)"Warning", MB_OK | MB_ICONINFORMATION);
 }
 
-static void Win_Log(char *msg)
+static void Win_Log(const char *msg)
 {
 	if (g_logFile != NULL)
     {
@@ -134,7 +134,7 @@ static void Win_Log(char *msg)
     }
 }
 
-static void Win_Print(char *msg)
+static void Win_Print(const char *msg)
 {
 	printf(msg);
 }

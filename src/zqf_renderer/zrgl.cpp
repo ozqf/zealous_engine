@@ -64,6 +64,43 @@ extern "C" i32 ZRGL_ExecTextCommand(
 	return NO;
 }
 
+internal void ZRGL_ErrorDumpFrameData(ZEByteBuffer* drawList,
+    ZEByteBuffer* drawData,
+    ScreenInfo scrInfo)
+{
+	u8* cursor = drawList->start;
+	printf("=== Frame data ===\n");
+	if (drawList->Written() < sizeof(ZRViewFrame))
+	{
+		printf("- No space for a frame struct found\n");
+		return;
+	}
+	ZRViewFrame* header = (ZRViewFrame*)cursor;
+	if (header->sentinel != ZR_SENTINEL)
+	{
+		printf("ZRViewFrame sentinel expected %d got %d\n",
+			ZR_SENTINEL, header->sentinel);
+		return;
+	}
+	cursor += sizeof(ZRViewFrame);
+	printf("%d scenes\n", header->numScenes);
+	// iterate scenes
+    u8* scenesStart = cursor;
+	for (i32 i = 0; i < header->numScenes; ++i)
+	{
+		ZRSceneFrame* scene = (ZRSceneFrame*)cursor;
+		if (scene->sentinel != ZR_SENTINEL)
+		{
+			printf("Desync scene %d: expected scene sentinel %d got %d\n",
+				i, ZR_SENTINEL, scene->sentinel);
+			return;
+		}
+		printf("Scene %d: %d objs, %d bytes\n",
+			i, scene->params.numObjects, scene->params.numListBytes);
+    	cursor += sizeof(ZRSceneFrame) + scene->params.numListBytes;
+	}
+}
+
 extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 	ZEByteBuffer* drawList,
     ZEByteBuffer* drawData,
@@ -168,7 +205,16 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 	for (i32 i = 0; i < header->numScenes; ++i)
 	{
 		ZRSceneFrame* scene = (ZRSceneFrame*)groupsCursor;
-		ZE_ASSERT(scene->sentinel == ZR_SENTINEL, "Iterate scenes desync");
+		if (scene->sentinel != ZR_SENTINEL)
+		{
+			// fatal error - scene/object read desync
+			ZE_BUILD_STRING(errStr, 512, "%s: %d - Iterate scenes desync on scene %d\n",
+				__FILE__, __LINE__, i);
+			printf("%s\n", errStr);
+			ZRGL_ErrorDumpFrameData(drawList, drawData, scrInfo);
+			ZE_Fatal(errStr);
+		}
+		//ZE_ASSERT(scene->sentinel == ZR_SENTINEL, "Iterate scenes desync");
     	groupsCursor += sizeof(ZRSceneFrame) + scene->params.numListBytes;
 		if (scene->params.numObjects > 0 && scene->params.numListBytes <= 0)
 		{
@@ -238,6 +284,8 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
 		// Draw first scene - deferred if that is set
 		ZRSceneFrame* scene = (ZRSceneFrame*)cursor;
     	cursor += sizeof(ZRSceneFrame) + scene->params.numListBytes;
+		// ignore empty scenes
+		if (scene->params.numObjects == 0) { continue; }
 
 		if (scene->params.bDeferred)
 		{
