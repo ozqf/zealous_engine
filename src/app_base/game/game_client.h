@@ -6,7 +6,7 @@
 
 // Session
 extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc);
-extern "C" void CLG_Start();
+extern "C" void CLG_Start(SimScene* sim);
 extern "C" void CL_Stop();
 
 extern "C" void CL_ReadInputEvent(SysInputEvent* ev, frameInt frameNumber);

@@ -27,6 +27,7 @@
 #define CLR_HUD_ITEM_PLAYER_STATUS (1 << 1)
 #define CLR_HUD_ITEM_CROSSHAIR (1 << 2)
 #define CLR_HUD_ITEM_DEAD (1 << 3)
+#define CLR_HUD_ITEM_TITLE (1 << 4)
 
 struct ClientView
 {

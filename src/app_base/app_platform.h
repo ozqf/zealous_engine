@@ -166,14 +166,15 @@ internal i32  AppImpl_Init()
     index = g_platform.SndLoadFile("shield_break", "data/sound/Shield_Break.wav");
 
     // server and client areas currently acquiring their own memory
-    App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER, "test");
+    //App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER, "test");
+    App_StartTitle();
 
     return ZE_ERROR_NONE;
 }
 
 internal i32  AppImpl_Shutdown()
 {
-    APP_LOG(128, "App Shutdown\n");
+    APP_PRINT(128, "App Shutdown\n");
     // Free memory, assuming a new APP might be loaded in it's place
     return ZE_ERROR_NONE;
 }
@@ -184,9 +185,16 @@ internal i32 App_EndSession()
     return ZE_ERROR_NONE;
 }
 
+internal void App_StartTitle()
+{
+    APP_PRINT(128, "\n=== START TITLE ===\n");
+    App_EndSession();
+    Game_StartTitle();
+}
+
 internal i32 App_StartSession(const i32 sessionType, const char* mapName)
 {
-    APP_LOG(128, "\n=== START SESSION ===\n");
+    APP_PRINT(128, "\n=== START SESSION ===\n");
     switch (sessionType)
     {
         case APP_SESSION_TYPE_SINGLE_PLAYER:
@@ -357,6 +365,8 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
         printf("STAT <CLS, APP, SV or CL> - toggle disabling debug text\n");
         printf("LAG <minMS, maxMS, loss> - set fake lag conditions\n");
         printf("\t eg LAG 100 200 5 for 100-200 ms lag and 5%% packet loss\n");
+        printf("START <number> - start level\n");
+        printf("TITLE - go to title screen\n");
     }
     if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "DRAW"))
     {
@@ -386,6 +396,10 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
 	if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "START"))
 	{
 		App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER, tokens[1]);
+	}
+    if (!ZE_CompareStrings(tokens[0], "TITLE"))
+	{
+        App_StartTitle();
 	}
     return NO;
 }

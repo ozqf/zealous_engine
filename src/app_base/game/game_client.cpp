@@ -103,14 +103,21 @@ extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc)
     g_view.textFieldFlags |= CLR_HUD_ITEM_SPAWN_PROMPT;
 }
 
-extern "C" void CLG_Start()
+extern "C" void CLG_Start(SimScene* sim)
 {
     printf("CL Start\n");
     g_bIsRunning = YES;
     g_player = {};
 
     g_view = {};
-    g_view.textFieldFlags |= CLR_HUD_ITEM_SPAWN_PROMPT;
+    if (sim->gameRules == SIM_GAME_RULES_NONE)
+    {
+        g_view.textFieldFlags |= CLR_HUD_ITEM_TITLE;
+    }
+    else if (sim->gameRules == SIM_GAME_RULES_SURVIVAL)
+    {
+        g_view.textFieldFlags |= CLR_HUD_ITEM_SPAWN_PROMPT;
+    }
 }
 
 extern "C" void CL_Stop()

@@ -197,16 +197,19 @@ internal ErrorCode Sim_LoadDynamicEntities(SimScene* sim, i32 index)
     switch (index)
     {
         case 1:
-        SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 10);
-        break;
-        case 2:
         SV_AddSpawner(sim, { 10, 10, 10 }, SIM_FACTORY_TYPE_SEEKER, 10);
         SV_AddSpawner(sim, { -10, 10, -10 }, SIM_FACTORY_TYPE_SEEKER, 10);
         SV_AddSpawner(sim, { 10, 10, -10 }, SIM_FACTORY_TYPE_BOUNCER, 10);
         SV_AddSpawner(sim, { -10, 10, 10 }, SIM_FACTORY_TYPE_BOUNCER, 10);
         break;
-        default:
+        case 2:
         SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_SEEKER, 1);
+        break;
+        case 3:
+        SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 10);
+        break;
+        default:
+        APP_PRINT(128, "SIM - no dynamic entities\n");
         break;
     }
     return ZE_ERROR_NONE;

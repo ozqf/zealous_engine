@@ -306,6 +306,7 @@ struct SimScene
     i32 tickRate;
     i32 maxEnts;
     u32 flags;
+    i32 gameRules;
     // Ent Id of local player's avatar
     // required so it can be hidden during draw, and so that projectiles
     // the player fires can be hidden for a few frames

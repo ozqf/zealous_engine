@@ -9,9 +9,6 @@
 #include "game/game.h"
 #include "app_fake_socket.h"
 
-#define APP_SESSION_TYPE_NONE 0
-#define APP_SESSION_TYPE_SINGLE_PLAYER 1
-
 /////////////////////////////////////////////////////////////////
 // FAKE NETWORK QUALITY
 // Should be 0 0 0 when not debugging (obviously)
@@ -89,6 +86,7 @@ internal Vec3 g_debugStrPositions[APP_MAX_DEBUG_STRING_POSITIONS] =
 // INTERNAL FUNCTIONS
 /////////////////////////////////////////////////////////////////
 internal i32 App_StartSession(i32 sessionType, const char* mapName);
+internal void App_StartTitle();
 
 void App_FatalError(char* msg, char* heading)
 {

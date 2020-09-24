@@ -98,6 +98,23 @@ internal void Hud_AddUI(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSett
         ZR_WriteTextObj(&txtObj, frame->list, frame->data);
         scene->params.numObjects++;
     }
+    if (cfg.viewModels.textFieldFlags & CLR_HUD_ITEM_TITLE)
+    {
+        char* txt = "ZEALOUS ENGINE";
+        ZRDrawObj txtObj = {};
+        txtObj.data.SetAsText(
+            txt, -1, COLOUR_WHITE, COLOUR_EMPTY, ZR_TEXT_ALIGNMENT_CENTRE);
+        txtObj.data.text.linesPerScreen = 16;
+        // push object toward camera slightly, away from background
+        txtObj.t.pos.x = 0;
+        txtObj.t.pos.y = 0.3f;
+        // TODO: Depth currently doesn't work for text!
+        txtObj.t.pos.z -= 0.5f;
+
+        // add to draw list
+        ZR_WriteTextObj(&txtObj, frame->list, frame->data);
+        scene->params.numObjects++;
+    }
     // finish
     scene->params.numListBytes = frame->list->cursor - (u8*)scene->params.objects;
 }

@@ -21,6 +21,7 @@
 #include "sim_fly_camera.h"
 #include "sim_players.h"
 #include "sim_exec_commands.h"
+#include "sim_game_rules.h"
 #include "sim_external.h"
 
 // TODO: Uncouple me!

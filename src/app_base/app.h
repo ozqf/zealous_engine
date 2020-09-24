@@ -34,6 +34,10 @@ timeFloat App_GetPerformanceTime(i32 index);
 /////////////////////////////////////////////////////////////////
 // MACROS
 /////////////////////////////////////////////////////////////////
+
+#define APP_SESSION_TYPE_NONE 0
+#define APP_SESSION_TYPE_SINGLE_PLAYER 1
+
 #define APP_MAX_ENTITIES 4096
 
 // Debug timing indices

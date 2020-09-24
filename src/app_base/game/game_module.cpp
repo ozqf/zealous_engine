@@ -47,7 +47,10 @@ extern "C" i32 Game_Init(ZE_FatalErrorFunction fatalFunc)
 	return ZE_ERROR_NONE;
 }
 
-extern "C" i32 Game_Start(const char* mapName, const i32 appSessionMode)
+internal i32 Game_StartGameSession(
+	const char* mapName,
+	const i32 appSessionMode,
+	const i32 gameRules)
 {
 	g_gameBuf.a.Clear(NO);
 	g_gameBuf.b.Clear(NO);
@@ -55,12 +58,24 @@ extern "C" i32 Game_Start(const char* mapName, const i32 appSessionMode)
 	Sim_Reset(&g_sim);
 	g_sim.flags |= SIM_SCENE_BIT_IS_SERVER;
 	g_sim.flags |= SIM_SCENE_BIT_IS_CLIENT;
+	g_sim.gameRules = gameRules;
+	APP_PRINT(128, "GAME - start rules %d\n", gameRules);
 	Sim_LoadMapFile(&g_sim, mapName, NO);
 	// start sub-modules
-	CLG_Start();
+	CLG_Start(&g_sim);
 	GSV_Start(&g_sim);
 	CL_RegisterLocalPlayer(&g_sim, GSV_CreateLocalPlayer(&g_sim, g_gameBuf.GetWrite()));
 	return ZE_ERROR_NONE;
+}
+
+extern "C" i32 Game_Start(const char* mapName, const i32 appSessionMode)
+{
+	return Game_StartGameSession(mapName, appSessionMode, SIM_GAME_RULES_SURVIVAL);
+}
+
+extern "C" i32 Game_StartTitle()
+{
+	return Game_StartGameSession("0", APP_SESSION_TYPE_SINGLE_PLAYER, SIM_GAME_RULES_NONE);
 }
 
 extern "C" i32 Game_Stop()
