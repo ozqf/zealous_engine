@@ -208,6 +208,9 @@ internal ErrorCode Sim_LoadDynamicEntities(SimScene* sim, i32 index)
         case 3:
         SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_WANDERER, 10);
         break;
+        case 4:
+        SV_AddSpawner(sim, { 0, 10, 0 }, SIM_FACTORY_TYPE_GRUNT, 1);
+        break;
         default:
         APP_PRINT(128, "SIM - no dynamic entities\n");
         break;

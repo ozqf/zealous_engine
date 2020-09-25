@@ -331,6 +331,7 @@ void Sim_Init(
     sim->gravity = { 0, -12.f, 0 };
     SVI_InitItemDefs();
 	Sim_Reset(sim);
+    Sim_InitTickFunctions(sim);
     #ifdef SIM_USE_PHYSICS_ENGINE
     sim->world = PhysExt_Create(label, Sim_PhysicsError);
     #endif

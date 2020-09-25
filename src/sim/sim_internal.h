@@ -6,6 +6,9 @@
 #include "sim.h"
 #include <math.h>
 
+#define SIM_MAX_ENT_UPDATERS 32
+internal SimEntUpdate g_entUpdaters[SIM_MAX_ENT_UPDATERS];
+
 // Internal Sim module functions/data
 internal SimEntity* Sim_FindEntityBySerialNumber(SimScene* scene, i32 serialNumber);
 internal SimEntity* Sim_GetFreeReplicatedEntity(SimScene* scene, i32 newSerial);

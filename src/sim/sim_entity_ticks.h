@@ -3,9 +3,6 @@
 
 #include "sim.h"
 
-#define SIM_DEFINE_ENT_UPDATE(entityTypeName) internal void \
-    SVG_Update##entityTypeName##(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
-
 /////////////////////////////////////////////////////////
 // Utility functions for entity ticks
 /////////////////////////////////////////////////////////
@@ -31,19 +28,18 @@ internal SimEntity* SimEnt_UpdateTargetting(SimScene* sim, SimEntity* ent, i32 b
 /////////////////////////////////////////////////////////
 // Entity tick functions shared between client and server
 /////////////////////////////////////////////////////////
-internal i32 SimEnt_TickTimeout(
-    SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+internal void SimEnt_TickTimeout(
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
     if (sim->tick >= ent->timing.nextThink)
     {
         //Sim_RemoveEntity(sim, ent->id.serial);
         Sim_WriteRemoveEntity(sim, ent, NULL, SIM_DEATH_STYLE_TIMEOUT, {}, 0);
     }
-    return ZE_ERROR_NONE;
 }
 
-internal i32 SimEnt_TickSpawnAnimation(
-    SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+internal void SimEnt_TickSpawnAnimation(
+    SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
     Vec3* halfSize = &ent->body.baseHalfSize;
     if (sim->tick >= ent->timing.nextThink)
@@ -63,10 +59,9 @@ internal i32 SimEnt_TickSpawnAnimation(
         ent->body.t.scale.y = ZE_LerpF32(50.0f, halfSize->y * 2, time);
         ent->body.t.scale.z = ZE_LerpF32(0.001f, halfSize->z * 2, time);
     }
-    return ZE_ERROR_NONE;
 }
 
-internal void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTime)
+internal void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
 	i32 bIgnoreTimeout = NO;
 	// ground based enemies remain stunned until they fall to the ground
@@ -100,7 +95,8 @@ internal void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaT
     ent->movement.move = Vec3_Normalised(ent->movement.velocity);
 }
 
-internal void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+//internal void SimEnt_TickWanderer(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+SIM_DEFINE_ENT_UPDATE_FN(SimEnt_TickWanderer)
 {
     SimEntMovement* mover = &ent->movement;
 	if (ent->timing.nextThink <= sim->tick)
@@ -252,8 +248,46 @@ internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaT
     }
 }
 
+internal void Sim_InitTickFunctions(SimScene* sim)
+{
+    for (i32 i = 0; i < SIM_MAX_ENT_UPDATERS; ++i)
+    {
+        g_entUpdaters[i] = NULL;
+    }
+    g_entUpdaters[SIM_TICK_TYPE_NONE] = NULL;
+    g_entUpdaters[SIM_TICK_TYPE_GRUNT] = SimEnt_TickBouncer;
+    g_entUpdaters[SIM_TICK_TYPE_PROJECTILE] = SimEnt_TickProjectile;
+
+    g_entUpdaters[SIM_TICK_TYPE_EXPLOSION] = SimEnt_TickTimeout;
+	g_entUpdaters[SIM_TICK_TYPE_ACTOR] = SimEnt_TickActor;
+    //g_entUpdaters[SIM_TICK_TYPE_BOT] = SVG_UpdateBot(sim, ent, delta);
+
+    g_entUpdaters[SIM_TICK_TYPE_STUN] = SimEnt_TickStun;
+    g_entUpdaters[SIM_TICK_TYPE_SPAWNER] = SimEnt_TickSpawner;
+    g_entUpdaters[SIM_TICK_TYPE_SEEKER] = SimEnt_TickSeeker;
+    g_entUpdaters[SIM_TICK_TYPE_SEEKER_FLYING] = SimEnt_TickSeekerFlying;
+	g_entUpdaters[SIM_TICK_TYPE_WANDERER] = SimEnt_TickWanderer;
+    g_entUpdaters[SIM_TICK_TYPE_BOUNCER] = SimEnt_TickBouncer;
+    g_entUpdaters[SIM_TICK_TYPE_DART] = SimEnt_TickDart;
+    g_entUpdaters[SIM_TICK_TYPE_LINE_TRACE] = SimEnt_TickTimeout;
+    g_entUpdaters[SIM_TICK_TYPE_SPAWN] = SimEnt_TickSpawnAnimation;
+    //g_entUpdaters[SIM_TICK_TYPE_GRUNT] = SimEnt_TickGrunt;
+    g_entUpdaters[SIM_TICK_TYPE_GRUNT] = SimEnt_TickBouncer;
+}
+
+internal SimEntUpdate Sim_GetTickFunc(i32 index)
+{
+    if (index < 0 || index >= SIM_MAX_ENT_UPDATERS)
+    {
+        printf("No ent updater for index %d\n", index);
+        return NULL;
+    }
+    return g_entUpdaters[index];
+}
+
 internal void Sim_TickEntities(SimScene* sim, ZEByteBuffer* output, timeFloat delta)
 {
+    i32 bIsServer = (sim->flags & SIM_SCENE_BIT_IS_SERVER) > 0;
     for (i32 i = 0; i < sim->maxEnts; ++i)
     {
         SimEntity* ent = &sim->ents[i];
@@ -262,41 +296,11 @@ internal void Sim_TickEntities(SimScene* sim, ZEByteBuffer* output, timeFloat de
         // make sure previous positions are updated
         ent->body.previousPos = ent->body.t.pos;
 		
-        const i32 bIsServer = (sim->flags & SIM_SCENE_BIT_IS_SERVER) > 0;
-	    switch (ent->tickType)
-        {
-	    	case SIM_TICK_TYPE_PROJECTILE:
-            { SimEnt_TickProjectile(sim, ent, delta, bIsServer); } break;
-            case SIM_TICK_TYPE_EXPLOSION:
-            { SimEnt_TickTimeout(sim, ent, delta); } break;
-	    	case SIM_TICK_TYPE_ACTOR:
-            { SimEnt_TickActor(sim, ent, delta, bIsServer); } break;
-            // case SIM_TICK_TYPE_BOT:
-            // { SVG_UpdateBot(sim, ent, delta); } break;
-            case SIM_TICK_TYPE_STUN:
-            { SimEnt_TickStun(sim, ent, delta); break; }
-            case SIM_TICK_TYPE_SPAWNER:
-            { SimEnt_TickSpawner(sim, ent, delta, bIsServer); } break;
-            case SIM_TICK_TYPE_SEEKER:
-            { SimEnt_TickSeeker(sim, ent, delta, bIsServer); } break;
-            case SIM_TICK_TYPE_SEEKER_FLYING:
-	    	{ SimEnt_TickSeekerFlying(sim, ent, delta, bIsServer); } break;
-	    	case SIM_TICK_TYPE_WANDERER:
-            { SimEnt_TickWanderer(sim, ent, delta, bIsServer); break; }
-            case SIM_TICK_TYPE_BOUNCER:
-            { SimEnt_TickBouncer(sim, ent, delta, bIsServer); } break;
-            case SIM_TICK_TYPE_DART:
-            { SimEnt_TickDart(sim, ent, delta, bIsServer); } break;
-            case SIM_TICK_TYPE_LINE_TRACE:
-            { SimEnt_TickTimeout(sim, ent, delta); } break;
-            case SIM_TICK_TYPE_SPAWN:
-            { SimEnt_TickSpawnAnimation(sim, ent, delta); } break;
-            case SIM_TICK_TYPE_WORLD: { } break;
-            case SIM_TICK_TYPE_NONE: { } break;
-            default:
-            //{ ZE_ASSERT(0, "Unknown Ent Tick Type"); } break;
-            { printf("Unknown Ent Tick Type %d\n", ent->tickType); } break;
-        }
+        #if 1
+        SimEntUpdate updater = Sim_GetTickFunc(ent->tickType);
+        if (updater == NULL) { continue; }
+        updater(sim, ent, delta, bIsServer);
+        #endif
     }
     sim->tick++;
     sim->time += delta;

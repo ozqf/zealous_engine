@@ -131,6 +131,11 @@ typedef u8 simFactoryType;
 #include "sim_types.h"
 #include "sim_command_types.h"
 
+#define SIM_DEFINE_ENT_UPDATE_FN(updateFuncName) internal void \
+    updateFuncName##(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
+
+typedef void (*SimEntUpdate)(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);
+
 // Scene management
 extern "C" void     Sim_Init(ZE_FatalErrorFunction fatalFunc, char* label, SimScene* sim, SimEntity* entityMemory, i32 maxEntities);
 extern "C" void 	Sim_Reset(SimScene* sim);
