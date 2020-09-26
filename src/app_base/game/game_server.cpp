@@ -2,6 +2,7 @@
 #include "../../sim/sim.h"
 
 internal i32 g_bIsRunning = NO;
+internal SimScene* g_sim = NULL;
 
 extern "C" void GSV_Init(ZE_FatalErrorFunction fatalFunc)
 {
@@ -12,6 +13,7 @@ extern "C" void GSV_Start(SimScene* sim)
 {
 	printf("SV Start\n");
 	g_bIsRunning = YES;
+    g_sim = sim;
 }
 
 extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf)
@@ -35,10 +37,24 @@ extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf)
 	return *plyr;
 }
 
+extern "C" void SV_KillPlayer()
+{
+    printf("SV - kill players\n");
+    i32 len = g_sim->maxPlayers;
+    for (i32 i = 0; i < len; ++i)
+    {
+        if (g_sim->players[i].state != SIM_PLAYER_STATE_IN_GAME)
+        { continue; }
+        if (g_sim->players[i].avatarId == 0)
+        { continue; }
+    }
+}
+
 extern "C" void GSV_Stop()
 {
     printf("SV Stop\n");
 	g_bIsRunning = NO;
+    g_sim = NULL;
 }
 
 extern "C" void SV_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)

@@ -155,3 +155,8 @@ extern "C" void Game_ClearInputActions()
 {
 	CL_ClearActionInputs();
 }
+
+extern "C" void Game_KillPlayers()
+{
+	SV_KillPlayer();
+}

@@ -1,12 +1,38 @@
 #include "sim.h"
 
-internal void SimRules_Update(SimScene* sim, timeFloat delta)
+internal void Sim_RotateTitleCam(SimScene* sim, timeFloat delta)
+{
+    Transform* camera = &sim->observePos;
+    f32 x = cosf((f32)sim->time / 2.f) * 30;
+    f32 z = sinf((f32)sim->time / 2.f) * 30;
+    camera->pos.x = x;
+    camera->pos.y = 30;
+    camera->pos.z = z;
+    Vec3 target = sim->observeTarget;
+    Vec3 toTarget =
+    {
+        target.x + camera->pos.x,
+        target.y + camera->pos.y,
+        target.z + camera->pos.z
+    };
+    Vec3_Normalise(&toTarget);
+    Vec3 rot = Vec3_EulerAngles(toTarget);
+    Transform_SetRotation(camera, rot.x, rot.y, rot.z);
+}
+
+internal void SimRules_PostUpdate(SimScene* sim, timeFloat delta)
 {
     if ((sim->flags & SIM_SCENE_BIT_IS_SERVER) == 0) { return; }
     switch (sim->gameRules)
     {
         case SIM_GAME_RULES_SURVIVAL:
-
+        if (sim->gameState == SIM_GAME_STATE_WARMUP)
+        {
+            Sim_RotateTitleCam(sim, delta);    
+        }
+        break;
+        case SIM_GAME_RULES_NONE:
+        Sim_RotateTitleCam(sim, delta);
         break;
     }
 }

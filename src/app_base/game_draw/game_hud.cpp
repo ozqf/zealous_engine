@@ -1,5 +1,15 @@
 #include "game_hud.h"
 
+extern "C" void Hud_UpdateGameState(i32 gameRules, i32 gameState)
+{
+
+}
+
+extern "C" void Hud_UpdatePlayerStatus(i32 health)
+{
+    
+}
+
 internal void Hud_AddViewModels(
 	ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSettings cfg)
 {
@@ -90,7 +100,7 @@ internal void Hud_AddUI(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSett
         txtObj.data.text.linesPerScreen = 16;
         // push object toward camera slightly, away from background
         txtObj.t.pos.x = 0;
-        txtObj.t.pos.y = -0.3f;
+        txtObj.t.pos.y = -0.8f;
         // TODO: Depth currently doesn't work for text!
         txtObj.t.pos.z -= 0.5f;
 
@@ -104,10 +114,10 @@ internal void Hud_AddUI(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSett
         ZRDrawObj txtObj = {};
         txtObj.data.SetAsText(
             txt, -1, COLOUR_WHITE, COLOUR_EMPTY, ZR_TEXT_ALIGNMENT_CENTRE);
-        txtObj.data.text.linesPerScreen = 16;
+        txtObj.data.text.linesPerScreen = 12;
         // push object toward camera slightly, away from background
         txtObj.t.pos.x = 0;
-        txtObj.t.pos.y = 0.3f;
+        txtObj.t.pos.y = 0.5f;
         // TODO: Depth currently doesn't work for text!
         txtObj.t.pos.z -= 0.5f;
 

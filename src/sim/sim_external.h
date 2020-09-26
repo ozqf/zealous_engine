@@ -365,5 +365,6 @@ i32 Sim_Tick(
     Sim_ExecuteCommands(sim, input, delta);
     SimPlyr_Tick(sim);
     Sim_TickEntities(sim, output, delta);
+    SimRules_PostUpdate(sim, delta);
     return ZE_ERROR_NONE;
 }

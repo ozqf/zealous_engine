@@ -352,4 +352,5 @@ struct SimScene
 	SimPlayer players[SIM_MAX_PLAYERS];
 
     Transform observePos;
+    Vec3 observeTarget;
 };

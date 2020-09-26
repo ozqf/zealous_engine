@@ -401,6 +401,10 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
 	{
         App_StartTitle();
 	}
+    if (!ZE_CompareStrings(tokens[0], "KILL"))
+    {
+        Game_KillPlayers();
+    }
     return NO;
 }
 

@@ -235,12 +235,28 @@ internal void CL_CheckForSimEvents(ZEByteBuffer* buf)
         ZECommand* header = (ZECommand*)read;
         read += header->size;
         if (header->type != SIM_CMD_TYPE_RESTORE_ENTITY) { continue; }
-        SimEvent_Spawn* cmd = (SimEvent_Spawn*)header;
-        if (cmd->serial != g_player.avatarId) { continue; }
-        printf("Client saw self spawn\n");
-        g_view.textFieldFlags ^= CLR_HUD_ITEM_SPAWN_PROMPT;
-        g_view.textFieldFlags |= CLR_HUD_ITEM_PLAYER_STATUS;
-        g_view.textFieldFlags |= CLR_HUD_ITEM_CROSSHAIR;
+        switch (header->type)
+        {
+            case SIM_CMD_TYPE_RESTORE_ENTITY:
+            {
+                SimEvent_Spawn* cmd = (SimEvent_Spawn*)header;
+                if (cmd->serial != g_player.avatarId) { continue; }
+
+                printf("Client saw self spawn\n");
+                g_view.textFieldFlags ^= CLR_HUD_ITEM_SPAWN_PROMPT;
+                g_view.textFieldFlags |= CLR_HUD_ITEM_PLAYER_STATUS;
+                g_view.textFieldFlags |= CLR_HUD_ITEM_CROSSHAIR;
+            }
+            break;
+            case SIM_CMD_TYPE_REMOVE_ENTITY:
+            {
+                SimEvent_RemoveEnt* cmd = (SimEvent_RemoveEnt*)header;
+                if (cmd->entityId != g_player.avatarId) { continue; }
+                printf("Client saw avatar removal\n");
+            }
+            break;
+        }
+        
     }
 }
 

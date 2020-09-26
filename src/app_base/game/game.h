@@ -14,5 +14,6 @@ extern "C" Transform Game_GetCamera();
 extern "C" void Game_ToggleDrawFlag(const char* name);
 extern "C" void Game_ResetDrawFlags();
 extern "C" void Game_ClearInputActions();
+extern "C" void Game_KillPlayers();
 
 #endif // GAME_H
