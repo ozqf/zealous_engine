@@ -9,6 +9,7 @@
 #define SIM_CMD_TYPE_BULK_SPAWN 253
 #define SIM_CMD_TYPE_SYNC_ENTITY 252
 #define SIM_CMD_TYPE_PLAYER_INPUT 251
+#define SIM_CMD_TYPE_PARTICLES 250
 
 #if 0
 struct SimCommand
@@ -68,6 +69,13 @@ struct SimEvent_Spawn
     };
 };
 
+struct SimEvent_Particles
+{
+    ZECommand header;
+    i32 particleEventType;
+    Vec3 pos;
+};
+
 struct SimSpawnBase
 {
     i32 firstSerial;
@@ -84,6 +92,14 @@ struct SimEvent_BulkSpawn
     SimSpawnPatternDef patternDef;
     u8 factoryType;
 };
+
+internal void SimEvent_SetParticles(
+    SimEvent_Particles* ev, i32 particleEventType, Vec3 pos)
+{
+    ZCmd_Prepare(&ev->header, SIM_CMD_TYPE_PARTICLES, sizeof(SimEvent_Particles));
+    ev->particleEventType = particleEventType;
+    ev->pos = pos;
+}
 
 internal void Sim_SetBulkSpawn(
     SimEvent_BulkSpawn* ev,

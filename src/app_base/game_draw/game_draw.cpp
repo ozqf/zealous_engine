@@ -32,6 +32,7 @@ extern "C" ClientRenderer* CLR_Create(ZE_FatalErrorFunction fatalFunc, ZRAssetDB
 
     i32 quadIndex = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_QUAD)->header.index;
 
+    cr->testEmit.def.billboard = YES;
     cr->testEmit.def.duration = 0.2f;
     cr->testEmit.def.startScale = { 0.5f, 0.5f, 0.5f };
     cr->testEmit.def.materialIndex = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_PRJ)->header.index;

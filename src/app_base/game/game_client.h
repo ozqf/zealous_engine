@@ -5,7 +5,7 @@
 #include "../game_draw/game_draw.h"
 
 // Session
-extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc);
+extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* db);
 extern "C" void CLG_Start(SimScene* sim);
 extern "C" void CL_Stop();
 
@@ -16,7 +16,10 @@ extern "C" void CL_RegisterLocalPlayer(SimScene* sim, SimPlayer plyr);
 extern "C" void CL_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta);
 // If remote client - send local avatar state
 extern "C" void CL_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta);
+extern "C" void CL_WriteDrawFrame(SimScene* sim, ZRViewFrame* frame);
 
 extern "C" Transform CL_GetCamera(SimScene* sim);
 extern "C" ClientView CL_GetClientView(SimScene* sim);
 extern "C" void CL_ClearActionInputs();
+extern "C" void CL_ClearDebugFlags();
+extern "C" void CL_ToggleDrawFlag(i32 flag);

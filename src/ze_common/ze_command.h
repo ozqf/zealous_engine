@@ -43,4 +43,30 @@ internal void ZCmd_Write(ZECommand* cmd, u8** ptr)
     *ptr += ZE_COPY(cmd, *ptr, cmd->size);
 }
 
+// Utility macros for reading/writing commands
+
+// TODO: No bounds check here!
+// TODO: Assumes cmd size == struct size
+#define ZCMD_STRUCT_IN_PLACE(cmdStructType, cmdVarName, cmdType, ptrToByteBuffer) \
+cmdStructType* cmdVarName = (cmdStructType*)ptrToByteBuffer->cursor; \
+ptrToByteBuffer->cursor += sizeof(cmdStructType); \
+ZCmd_Prepare(&cmdVarName->header, cmdType, sizeof(cmdStructType));
+
+// begin stepping through a command buffer
+#define ZCMD_BEGIN_ITERATE(ptrToByteBuffer) \
+u8* read = ptrToByteBuffer->start; \
+u8* end = ptrToByteBuffer->cursor; \
+while (read < end) \
+{ \
+    ZECommand* cmdHeader = (ZECommand*)read; \
+    ErrorCode cmdError = ZCmd_Validate(cmdHeader); \
+    if (cmdError != ZE_ERROR_NONE) \
+    { \
+        ZE_ASSERT(0, "Cmd read error"); \
+    } \
+    read += cmdHeader->size;
+
+// finish stepping block
+#define ZCMD_END_ITERATE }
+
 #endif // ZE_COMMAND_H

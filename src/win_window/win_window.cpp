@@ -446,6 +446,7 @@ static i32 WindowImpl_MainLoop()
     {
         f64 time = g_platform.QueryClock();
         i32 tick = YES;
+        #if 0
         if (g_maxFPS > 0)
         {
             // TODO: janky?
@@ -456,6 +457,7 @@ static i32 WindowImpl_MainLoop()
                 tick = NO;
             }
         }
+        #endif
         if (tick == YES)
         {
             lastTickTime = time;

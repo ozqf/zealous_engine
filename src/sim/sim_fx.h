@@ -9,23 +9,21 @@ internal void SimFx_EntityDeath(SimScene* sim, SimEvent_RemoveEnt* cmd)
     {
         case SIM_DEATH_GFX_BULLET_IMPACT:
         {
+            // spawn local impact blob
             SimEvent_Spawn def = {};
             def.factoryType = SIM_FACTORY_TYPE_BULLET_IMPACT;
             def.birthTick = sim->tick;
             def.pos = ent->body.t.pos;
-            def.serial = Sim_ReserveEntitySerial(sim, 1);
+            def.serial = Sim_ReserveEntitySerial(sim, YES);
             Sim_RestoreEntity(sim, &def);
-            // Test particle spray
-            Vec3 pos = def.pos;
-            for (i32 i = 0; i < 5; ++i)
-            {
-                f32 rand = COM_STDRandf32();
-                Vec3 vel;
-                vel.x = COM_STDRandomInRange(-15, 15);
-                vel.y = COM_STDRandomInRange(-10, 15);
-                vel.z = COM_STDRandomInRange(-15, 15);
-                //CLR_SpawnTestParticle(g_rend, CLR_PARTICLE_TYPE_TEST, pos, vel);
-            }
+
+            // write particle spray
+            ZCMD_STRUCT_IN_PLACE(
+                SimEvent_Particles, ev, SIM_CMD_TYPE_PARTICLES, sim->outputBuf)
+            ev->particleEventType = SIM_DEATH_GFX_BULLET_IMPACT;
+            ev->pos = ent->body.t.pos;
+            
+            // write sound
             ZE_INIT_PTR_IN_PLACE(soundEv, ZSoundCommand, sim->soundOutputBuf);
             if (soundEv != NULL)
             {

@@ -23,6 +23,8 @@ internal SimPlayer g_player;
 internal i32 g_bIsRunning = NO;
 internal u32 g_debugFlags;
 internal ClientView g_view;
+internal ClientRenderSettings g_rendCfg;
+internal ClientRenderer* g_rend;
 
 extern "C" Transform CL_GetCamera(SimScene* sim)
 {
@@ -88,7 +90,7 @@ internal void CL_CreateActions(InputActionSet* actions)
     Input_InitAction(actions, Z_INPUT_CODE_DOWN, "Shoot Down");
 }
 
-extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc)
+extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* db)
 {
     CL_CreateActions(&g_inputActions);
 
@@ -98,6 +100,12 @@ extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc)
     Transform_SetRotation(&g_camera, -(80.0f    * DEG2RAD), 0, 0);
 	g_debugInput = {};
 	g_debugInput.degrees.x = -80;
+    
+	// scene render
+	g_rendCfg = {};
+	g_rendCfg.extraLightsMax = 16;
+	g_rendCfg.worldLightsMax = 16;
+	g_rend = CLR_Create(fatalFunc, db, 128);
 
     g_view = {};
     g_view.textFieldFlags |= CLR_HUD_ITEM_SPAWN_PROMPT;
@@ -228,15 +236,65 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 
 internal void CL_CheckForSimEvents(ZEByteBuffer* buf)
 {
+    ZCMD_BEGIN_ITERATE(buf)
+        switch (cmdHeader->type)
+        {
+            case SIM_CMD_TYPE_PARTICLES:
+            {
+                SimEvent_Particles* cmd = (SimEvent_Particles*)cmdHeader;
+                for (i32 i = 0; i < 5; ++i)
+                {
+                    f32 rand = COM_STDRandf32();
+                    Vec3 vel;
+                    vel.x = COM_STDRandomInRange(-15, 15);
+                    vel.y = COM_STDRandomInRange(-10, 15);
+                    vel.z = COM_STDRandomInRange(-15, 15);
+                    CLR_SpawnTestParticle(g_rend, CLR_PARTICLE_TYPE_TEST, cmd->pos, vel);
+                }
+            } break;
+            case SIM_CMD_TYPE_RESTORE_ENTITY:
+            {
+                SimEvent_Spawn* cmd = (SimEvent_Spawn*)cmdHeader;
+                if (cmd->serial != g_player.avatarId) { continue; }
+
+                printf("Client saw self spawn\n");
+                g_view.textFieldFlags ^= CLR_HUD_ITEM_SPAWN_PROMPT;
+                g_view.textFieldFlags |= CLR_HUD_ITEM_PLAYER_STATUS;
+                g_view.textFieldFlags |= CLR_HUD_ITEM_CROSSHAIR;
+            }
+            break;
+            case SIM_CMD_TYPE_REMOVE_ENTITY:
+            {
+                SimEvent_RemoveEnt* cmd = (SimEvent_RemoveEnt*)cmdHeader;
+                if (cmd->entityId != g_player.avatarId) { continue; }
+                printf("Client saw avatar removal\n");
+            }
+            break;
+        }
+    ZCMD_END_ITERATE
+
+    #if 0
     u8* read = buf->start;
     u8* end = buf->cursor;
     while (read < end)
     {
         ZECommand* header = (ZECommand*)read;
         read += header->size;
-        if (header->type != SIM_CMD_TYPE_RESTORE_ENTITY) { continue; }
         switch (header->type)
         {
+            case SIM_CMD_TYPE_PARTICLES:
+            {
+                SimEvent_Particles* cmd = (SimEvent_Particles*)header;
+                for (i32 i = 0; i < 5; ++i)
+                {
+                    f32 rand = COM_STDRandf32();
+                    Vec3 vel;
+                    vel.x = COM_STDRandomInRange(-15, 15);
+                    vel.y = COM_STDRandomInRange(-10, 15);
+                    vel.z = COM_STDRandomInRange(-15, 15);
+                    CLR_SpawnTestParticle(g_rend, CLR_PARTICLE_TYPE_TEST, cmd->pos, vel);
+                }
+            } break;
             case SIM_CMD_TYPE_RESTORE_ENTITY:
             {
                 SimEvent_Spawn* cmd = (SimEvent_Spawn*)header;
@@ -256,8 +314,8 @@ internal void CL_CheckForSimEvents(ZEByteBuffer* buf)
             }
             break;
         }
-        
     }
+    #endif
 }
 
 extern "C" void CL_RegisterLocalPlayer(SimScene* sim, SimPlayer plyr)
@@ -304,6 +362,23 @@ extern "C" void CL_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat de
         g_view.rightHand = 0;
         g_view.leftHand = 0;
     }
-    
-    
+    // Update particles
+    CLR_TickTestParticles(g_rend, delta);
+}
+
+extern "C" void CL_WriteDrawFrame(SimScene* sim, ZRViewFrame* frame)
+{
+    Transform cam = CL_GetCamera(sim);
+	g_rendCfg.viewModels = CL_GetClientView(sim);
+	CLR_WriteDrawFrame(g_rend, frame, sim, &cam, NULL, 0, g_rendCfg);
+}
+
+extern "C" void CL_ClearDebugFlags()
+{
+    g_rendCfg.debugFlags = 0;
+}
+
+extern "C" void CL_ToggleDrawFlag(i32 flag)
+{
+    g_rendCfg.debugFlags ^= flag;
 }

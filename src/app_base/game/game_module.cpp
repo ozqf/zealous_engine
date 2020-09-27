@@ -26,14 +26,8 @@ extern "C" i32 Game_Init(ZE_FatalErrorFunction fatalFunc)
 	ptr = COM_Malloc(&g_mallocs, pendingCmdBytes, 0, "Sim Output");
 	g_gameBuf.b = Buf_FromBytes((u8*)ptr, pendingCmdBytes);
 
-	// scene render
-	g_rendCfg = {};
-	g_rendCfg.extraLightsMax = 16;
-	g_rendCfg.worldLightsMax = 16;
-	g_rend = CLR_Create(fatalFunc, App_GetAssetDB(), 128);
-
 	// sub modules
-	CL_Init(fatalFunc);
+	CL_Init(fatalFunc, App_GetAssetDB());
 	GSV_Init(fatalFunc);
 
 	printf("--- Game Init Voxel World test ---\n");
@@ -131,9 +125,7 @@ extern "C" Transform Game_GetCamera()
 
 extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame)
 {
-	Transform cam = CL_GetCamera(&g_sim);
-	g_rendCfg.viewModels = CL_GetClientView(&g_sim);
-	CLR_WriteDrawFrame(g_rend, frame, &g_sim, &cam, NULL, 0, g_rendCfg);
+	CL_WriteDrawFrame(&g_sim, frame);
 }
 
 extern "C" void Game_ToggleDrawFlag(const char* name)
@@ -141,14 +133,14 @@ extern "C" void Game_ToggleDrawFlag(const char* name)
 	if (!ZE_CompareStrings(name, "AABB"))
 	{
 		printf("Toggle draw flag %s\n", name);
-		g_rendCfg.debugFlags ^= CL_DEBUG_FLAG_DRAW_LOCAL_SERVER;
+		CL_ToggleDrawFlag(CL_DEBUG_FLAG_DRAW_LOCAL_SERVER);
 		return;
 	}
 }
 
 extern "C" void Game_ResetDrawFlags()
 {
-	g_rendCfg.debugFlags = 0;
+	CL_ClearDebugFlags();
 }
 
 extern "C" void Game_ClearInputActions()

@@ -8,7 +8,6 @@
 
 #include "game_client.h"
 #include "game_server.h"
-//#include "game_ent_ticks.h"
 
 #define GAME_MAX_MALLOCS 1024
 #define GAME_MAX_ENTS 4096
@@ -16,15 +15,11 @@
 internal MallocItem g_mallocItems[GAME_MAX_MALLOCS];
 internal MallocList g_mallocs;
 internal SimScene g_sim;
-internal ClientRenderSettings g_rendCfg;
-internal ClientRenderer* g_rend;
 internal frameInt g_systemEventTicks = 0;
 
 internal VWChunk* g_chunk = NULL;
 
 // buffer holds pending commands given to game each tick
-// internal ZEByteBuffer g_pendingGameInput;
-// internal ZEByteBuffer g_pendingGameOutput;
 internal ZEDoubleByteBuffer g_gameBuf;
 
 #endif // GAME_INTERNAL_H
