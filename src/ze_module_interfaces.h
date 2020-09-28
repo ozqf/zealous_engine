@@ -59,6 +59,12 @@ struct ze_platform_export
     void* (*GetAssetDB)();
 	// return YES if command was handled
     i32 (*ExecTextCommand)(const char* str, const i32 len, const char** tokens, const i32 numTokens);
+    // TODO: atm window runs commands first, then platform. This prevents app from invoking
+    // a text command easily, which limits usefulness. should replace with this:
+    // and let platform handle tokenisation and then running command observers.
+    //i32 (*ExecTextCommand)(const char* str);
+
+    // mouse state - position and buttons read via EventBuffer
     i32 (*IsMouseCaptured)();
     void (*SetMouseCaptured)(bool flag);
     

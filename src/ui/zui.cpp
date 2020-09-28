@@ -20,6 +20,7 @@ extern "C" ZUIScreen* ZUI_CreateScreen()
     ZUIScreen* scr = (ZUIScreen*)malloc(sizeof(ZUIScreen));
     *scr = {};
     ZUIObject* objs = (ZUIObject*)malloc(sizeof(ZUIObject) * maxObjects);
+    scr->focusObjIndex = ZE_ERROR_BAD_INDEX;
     scr->objects = objs;
     scr->numObjects = 0;
     scr->maxObjects = maxObjects;
@@ -52,6 +53,7 @@ extern "C" ZUIObject* ZUI_AddButton(
 
 extern "C" void ZUI_UpdateMouseOverlap(ZUIScreen* scr, Vec2 pos)
 {
+    scr->focusObjIndex = ZE_ERROR_BAD_INDEX;
     for (i32 i = 0; i < scr->numObjects; ++i)
     {
         ZUIObject* obj = &scr->objects[i];
@@ -75,6 +77,7 @@ extern "C" void ZUI_UpdateMouseOverlap(ZUIScreen* scr, Vec2 pos)
         if (pos.x > minX && pos.x < maxX && pos.y > minY && pos.y < maxY)
         {
             obj->flags |= ZUI_OBJ_FLAG_HOVER;
+            scr->focusObjIndex = i;
         }
     }
 }

@@ -13,7 +13,7 @@ internal Vec2 g_mousePos = {};
 
 internal i32 g_currentMenu = APP_MENU_NONE;
 
-extern "C" void AppUI_Init()
+extern "C" void AppUI_Init(ze_platform_export platform)
 {
 	//APP_PRINT(64, "App UI Init\n");
     g_menu = ZUI_CreateScreen();
@@ -63,6 +63,17 @@ extern "C" i32 AppUI_ProcessInput(SysInputEvent ev)
             g_currentMenu = APP_MENU_ROOT;
             return APPUI_INPUT_TOGGLED_ON;
         }
+    }
+    if (ev.inputID == Z_INPUT_CODE_MOUSE_1 && ev.value != 0)
+    {
+        if (g_menu->focusObjIndex < 0) { return APPUI_INPUT_UNHANDLED; }
+        ZUIObject* obj = &g_menu->objects[g_menu->focusObjIndex];
+        if (!ZE_CompareStrings(obj->label, "QUIT"))
+        {
+            // TODO: Want to write this but can't:
+            //g_platform.ExecTextCommand("QUIT")
+        }
+        return APPUI_INPUT_HANDLED;
     }
     if (ev.inputID == Z_INPUT_CODE_MOUSE_POS_X)
     {

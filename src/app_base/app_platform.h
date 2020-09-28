@@ -154,7 +154,7 @@ internal i32  AppImpl_Init()
     g_localServerAddress.port = APP_SERVER_LOOPBACK_PORT;
     
     // initialise sub-modules
-    AppUI_Init();
+    AppUI_Init(g_platform);
     Game_Init(App_Fatal);
 
     i32 index = -1;

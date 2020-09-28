@@ -32,6 +32,7 @@ struct ZUIObject
 struct ZUIScreen
 {
 	i32 id;
+	i32 focusObjIndex;
 	ZUIObject* objects;
 	i32 numObjects;
 	i32 maxObjects;

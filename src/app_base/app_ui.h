@@ -12,8 +12,9 @@
 #include "../ze_common/ze_common.h"
 #include "../zqf_renderer.h"
 #include "../sys_events.h"
+#include "../ze_module_interfaces.h"
 
-extern "C" void AppUI_Init();
+extern "C" void AppUI_Init(ze_platform_export platform);
 extern "C" void AppUI_Update();
 extern "C" i32 AppUI_IsActive();
 extern "C" ErrorCode AppUI_WriteFrame(ZRViewFrame* frame);
