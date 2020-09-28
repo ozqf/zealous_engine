@@ -160,7 +160,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight);
 extern "C" void ZRGL_UpdateStats(f64 swapMS, f64 frameMS);
 extern "C" void ZRGL_CheckForUploads(i32 bVerbose);
 extern "C" i32 ZRGL_ExecTextCommand(
-	const char* str, const i32 len, char** tokens, const i32 numTokens);
+	const char* str, const char** tokens, const i32 numTokens);
 
 // Add a scene to draw the current command console text
 extern "C" void ZRGL_AppendConsoleScene(ZEBuffer* list, ZEBuffer* data, char* text);

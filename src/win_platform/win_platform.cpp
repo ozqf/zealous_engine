@@ -71,7 +71,8 @@ static char g_appFolderBuf[MAX_APP_FOLDER_LEN];
 static ze_windows_thread g_appThread = {};
 static volatile i32 g_bExitAppThread = NO;
 
-static ZEBuffer g_appTextCommands;
+static i32 g_debugAppCmdIterations = 0;
+static ZEDoubleBuffer g_appTextCommands;
 
 static HMODULE g_windowDLL;
 static ze_window_export g_window;
@@ -355,6 +356,10 @@ static i32 PlatformImpl_ExecTextCommand(
     {
         return YES;
     }
+    if (ZE_CompareStrings(str, "BREAK") == 0)
+    {
+        DebugBreak();
+    }
 
     // fall through
     if (ZE_CompareStrings(tokens[0], "VERSION") == 0)
@@ -365,17 +370,38 @@ static i32 PlatformImpl_ExecTextCommand(
     {
         printf("MANIFEST - list assets loaded to heap\n");
     }
+    g_window.ParseCommandString(str, tokens, numTokens);
 	return (g_app.ParseCommandString(str, tokens, numTokens) == YES);
+}
+
+static void Platform_ParseTextCommand(const char* str)
+{
+    printf(">> Platform exec \"%s\"\n", str);
+	const i32 maxTokens = 64;
+	char* tokens[maxTokens];
+	i32 len = ZE_StrLen(str);
+	const i32 bufSize = 512;
+	char buf[bufSize];
+	if (len > bufSize)
+	{
+		printf("WIN - cmd string too long: %d max %d\n", len, bufSize);
+		return;
+	}
+	i32 numTokens = ZE_ReadTokens(str, buf, tokens, maxTokens);
+    PlatformImpl_ExecTextCommand(str, len, (const char**)tokens, numTokens);
+
 }
 
 static void PlatformImpl_EnqueueTextCommand(const char* str)
 {
     // either app or window thread could be calling this
+    // lock and write
     PlatformImpl_LockMutex(ZE_MUTEX_APP_TEXT_COMMAND_QUEUE, 0);
     i32 len = ZE_StrLen(str);
-    g_appTextCommands.cursor += ZE_COPY(str, g_appTextCommands.cursor, len);
-    printf("Enqueue cmd \"%s\"\n", str);
-    printf("\t%d chars enqueued total\n", g_appTextCommands.Written());
+    ZEBuffer* buf = g_appTextCommands.GetWrite();
+    buf->cursor += ZE_COPY(str, buf->cursor, len);
+    printf("Platform Enqueue \"%s\"\n", str);
+    printf("\t%d chars enqueued total\n", buf->Written());
     PlatformImpl_UnlockMutex(ZE_MUTEX_APP_TEXT_COMMAND_QUEUE, 0);
 }
 
@@ -488,10 +514,30 @@ static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
                 g_bExitAppThread = YES;
             }
         }
-        // Check text command buffer
+        // Swap text buffer
         PlatformImpl_LockMutex(ZE_MUTEX_APP_TEXT_COMMAND_QUEUE, 0);
-        
+        g_appTextCommands.Swap();
+        g_appTextCommands.GetWrite()->Clear(NO);
         PlatformImpl_UnlockMutex(ZE_MUTEX_APP_TEXT_COMMAND_QUEUE, 0);
+        // read
+        ZEBuffer* buf = g_appTextCommands.GetRead();
+        char* read = (char*)buf->start;
+        char* end = (char*)buf->cursor;
+        if (read != end)
+        {
+            g_debugAppCmdIterations++;
+            printf("PLATFORM - exec pending cmds\n");
+        }
+        while (read < end)
+        {
+            char* cmd = read;
+            printf("PLATFORM exec from char %d\n", (i32)(read - (char*)buf->start));
+            //printf("Run cmd %s\n", cmd);
+            Platform_ParseTextCommand(cmd);
+            read = ZE_RunPastTerminator(read, end);
+        }
+        // reset buffer
+        buf->Clear(NO);
     }
 
     #if 0 // timing test
@@ -534,7 +580,9 @@ static ErrorCode AppThread_Init()
     }
 
     // allocate a buffer to store console commands
-    g_appTextCommands = Buf_FromMalloc(
+    g_appTextCommands.a = Buf_FromMalloc(
+        PlatformImpl_Allocate(1024), 1024);
+    g_appTextCommands.b = Buf_FromMalloc(
         PlatformImpl_Allocate(1024), 1024);
 
     // Start thread

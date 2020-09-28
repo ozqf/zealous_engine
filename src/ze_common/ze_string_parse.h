@@ -164,6 +164,39 @@ static char* ZE_RunToNextLine(char* start, char* bufferEnd)
     return cursor;
 }
 
+static char* ZE_RunPastTerminator(char* start, char* bufferEnd)
+{
+    char* cursor = start;
+    // find the end of the line
+    while(cursor < bufferEnd && (*cursor != '\0'))
+    {
+        cursor++;
+    }
+    // move to next char if available.
+    if (cursor < bufferEnd)
+    {
+        cursor++;
+    }
+    return cursor;
+}
+
+internal char* ZE_RunToNewLine(char* buffer)
+{
+    u8 reading = true;
+    while (reading)
+    {
+        if (*buffer == '\n' || *buffer == EOF)
+        {
+            reading = false;
+        }
+        else
+        {
+            ++buffer;
+        }
+    }
+    return buffer;
+}
+
 /**
 Send a target length of -1 to measure the string. Use a target length > 0
 allows for strings with terminators in them
@@ -195,23 +228,6 @@ internal i32 ZE_ReplaceChars(char* str, i32 strLen, char* targets, i32 numTarget
         }
     }
     return totalReplaced;
-}
-
-internal char* ZE_RunToNewLine(char* buffer)
-{
-    u8 reading = true;
-    while (reading)
-    {
-        if (*buffer == '\n' || *buffer == EOF)
-        {
-            reading = false;
-        }
-        else
-        {
-            ++buffer;
-        }
-    }
-    return buffer;
 }
 
 #if 0

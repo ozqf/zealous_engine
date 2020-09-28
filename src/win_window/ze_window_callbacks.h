@@ -59,7 +59,8 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
             char* str = Console_AddChar((char)key);
             if (str != NULL)
             {
-                Window_EnqueueTextCommand(str);
+                printf(">> Window read cmd \"%s\"\n", str);
+                //Window_EnqueueTextCommand(str);
                 g_platform.EnqueueTextCommand(str);
             }
         }

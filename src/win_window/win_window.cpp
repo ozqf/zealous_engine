@@ -34,21 +34,10 @@ static void ZR_Error(const char* msg)
     g_platform.Error((char*)msg);
 }
 
-static void Window_EnqueueTextCommand(char* str) 
+static i32 WindowImpl_ExecTextCommand(
+    const char* str, const char** tokens, const i32 numTokens)
 {
-	printf(">> Window read cmd \"%s\"\n", str);
-	const i32 maxTokens = 64;
-	char* tokens[maxTokens];
-	i32 len = ZE_StrLen(str);
-	const i32 bufSize = 512;
-	char buf[bufSize];
-	if (len > bufSize)
-	{
-		printf("WIN - cmd string too long: %d max %d\n", len, bufSize);
-		return;
-	}
-	i32 numTokens = ZE_ReadTokens(str, buf, tokens, maxTokens);
-
+    printf("WINDOW - parse str %s\n", str);
     // try and execute ourselves. If not pass off to platform
     if (numTokens == 2 && ZE_CompareStrings(tokens[0], "VID") == 0)
     {
@@ -57,23 +46,23 @@ static void Window_EnqueueTextCommand(char* str)
         if (mode >= g_numModes) { mode = g_numModes - 1; }
         g_pendingScrMode = mode;
         g_bRestart = YES;
-        return;
+        return YES;
     }
     if (numTokens == 2 && ZE_CompareStrings(tokens[0], "WINDOWED") == 0)
     {
         i32 value = ZE_AsciToInt32(tokens[1]);
-        if (value != 0 && value != 1) { return; }
-        if (g_bWindowed == value) { return; }
+        if (value != 0 && value != 1) { return YES; }
+        if (g_bWindowed == value) { return YES; }
         g_bWindowed = value;
         g_bRestart = YES;
-        return;
+        return YES;
     }
     if (ZE_CompareStrings(str, "EXIT") == 0
         || ZE_CompareStrings(str, "QUIT") == 0)
 	{
         printf("WIN - exiting\n");
         glfwSetWindowShouldClose(g_window, YES);
-		return;
+		return YES;
 	}
     // Help and version commands should fall through
     // let other modules list their commands too!
@@ -90,11 +79,29 @@ static void Window_EnqueueTextCommand(char* str)
 		printf("WINDOW Built %s: %s\n", __DATE__, __TIME__);
 	}
     
-    i32 rendererResponse = ZRGL_ExecTextCommand(str, len, tokens, numTokens);
-    if (rendererResponse == YES) { return; }
-
-    g_platform.ExecTextCommand(str, len, (const char**)tokens, numTokens);
+    return ZRGL_ExecTextCommand(str, tokens, numTokens);
 }
+
+#if 0
+static void Window_EnqueueTextCommand(char* str) 
+{
+	const i32 maxTokens = 64;
+	char* tokens[maxTokens];
+	i32 len = ZE_StrLen(str);
+	const i32 bufSize = 512;
+	char buf[bufSize];
+	if (len > bufSize)
+	{
+		printf("WIN - cmd string too long: %d max %d\n", len, bufSize);
+		return;
+	}
+	i32 numTokens = ZE_ReadTokens(str, buf, tokens, maxTokens);
+
+    //g_platform.ExecTextCommand(str, len, (const char**)tokens, numTokens);
+    // call platform to execute the command.
+    g_platform.EnqueueTextCommand(str);
+}
+#endif
 
 static i32 WindowImpl_IsMouseCaptured()
 {
@@ -126,7 +133,7 @@ static void Window_InitConsoleScreen()
     ZUIObject* obj = NULL;
     obj = &g_consoleUIObjs[g_consoleScene.numObjects++];
     *obj = {};
-    obj->radiusInChars = { 32, 2 };
+    obj->radiusInChars = { 16, 1 };
     obj->pos.x = 0;
     obj->pos.y = 0.9f;
     // label will be updated per frame anyway
@@ -494,6 +501,7 @@ ze_window_export __declspec(dllexport) ZE_LinkToWindowModule(ze_platform_export 
     result.Release_AppDrawBuffers = WindowImpl_Release_AppDrawBuffers;
     result.IsMouseCaptured = WindowImpl_IsMouseCaptured;
     result.SetMouseCaptured = WindowImpl_SetMouseCaptured;
+    result.ParseCommandString = WindowImpl_ExecTextCommand;
     result.sentinel = ZE_SENTINEL;
 	return result;
 }

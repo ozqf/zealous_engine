@@ -39,6 +39,8 @@ struct ze_window_export
     // For system events. written to by window, read by app
     void (*Acquire_EventBuffer)(ZEBuffer** buf);
     void (*Release_EventBuffer)();
+    
+    i32     (*ParseCommandString)(const char* str, const char** tokens, const i32 numTokens);
     i32 sentinel;
 };
 

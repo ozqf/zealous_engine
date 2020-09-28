@@ -8,6 +8,7 @@
 #define APP_MENU_NONE 0
 #define APP_MENU_ROOT 1
 
+internal ze_platform_export g_platform;
 internal ZUIScreen* g_menu = NULL;
 internal Vec2 g_mousePos = {};
 
@@ -16,6 +17,7 @@ internal i32 g_currentMenu = APP_MENU_NONE;
 extern "C" void AppUI_Init(ze_platform_export platform)
 {
 	//APP_PRINT(64, "App UI Init\n");
+    g_platform = platform;
     g_menu = ZUI_CreateScreen();
     g_menu->state = ZUI_SCREEN_STATE_ON;
     Colour off = COLOUR_WHITE;
@@ -71,7 +73,14 @@ extern "C" i32 AppUI_ProcessInput(SysInputEvent ev)
         if (!ZE_CompareStrings(obj->label, "QUIT"))
         {
             // TODO: Want to write this but can't:
-            //g_platform.ExecTextCommand("QUIT")
+            g_platform.EnqueueTextCommand("QUIT");
+        }
+        if (!ZE_CompareStrings(obj->label, "START"))
+        {
+            // TODO: Want to write this but can't:
+            g_platform.EnqueueTextCommand("START 1");
+            g_currentMenu = APP_MENU_NONE;
+            return APPUI_INPUT_TOGGLED_OFF;
         }
         return APPUI_INPUT_HANDLED;
     }

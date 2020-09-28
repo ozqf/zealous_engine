@@ -31,7 +31,7 @@
 #include "zrgl_init.h"
 
 extern "C" i32 ZRGL_ExecTextCommand(
-	const char* str, const i32 len, char** tokens, const i32 numTokens)
+	const char* str, const char** tokens, const i32 numTokens)
 {
 	if (ZE_CompareStrings(tokens[0], "HELP") == 0)
 	{

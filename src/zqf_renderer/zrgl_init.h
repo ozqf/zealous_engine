@@ -75,6 +75,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
 
     // v-sync - off
     // frame rate is capped manually as v-sync gives me jip.
+    printf("Swap interval - 0\n");
     glfwSwapInterval(0);
 
     // Depth buffer
