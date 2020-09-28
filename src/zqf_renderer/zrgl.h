@@ -163,13 +163,13 @@ extern "C" i32 ZRGL_ExecTextCommand(
 	const char* str, const i32 len, char** tokens, const i32 numTokens);
 
 // Add a scene to draw the current command console text
-extern "C" void ZRGL_AppendConsoleScene(ZEByteBuffer* list, ZEByteBuffer* data, char* text);
+extern "C" void ZRGL_AppendConsoleScene(ZEBuffer* list, ZEBuffer* data, char* text);
 
 extern "C" void ZRGL_Link(ZRPlatform platform);
 
 extern "C" ZRPerformanceStats ZRGL_DrawFrame(
-	ZEByteBuffer* drawList,
-    ZEByteBuffer* drawData,
+	ZEBuffer* drawList,
+    ZEBuffer* drawData,
     ScreenInfo scrInfo);
 
 #endif // ZRGL_H

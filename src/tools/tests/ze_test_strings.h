@@ -7,7 +7,7 @@
 // string stack
 /////////////////////////////////////////////
 
-static void Test_ListStringStack(ZEByteBuffer* buf)
+static void Test_ListStringStack(ZEBuffer* buf)
 {
 	printf("--- String stack ---\n");
 	u8* read = buf->start;
@@ -30,7 +30,7 @@ static void Test_StringStack()
 {
 	printf("\n--- Test String stack ---\n");
 	i32 capacity = MegaBytes(1);
-	ZEByteBuffer buf = Buf_FromMalloc(malloc(capacity), capacity);
+	ZEBuffer buf = Buf_FromMalloc(malloc(capacity), capacity);
 
 	ZEStringStackItem* item = NULL;
 	item = ZE_AddStackString(&buf, "This is\nsome\nrandom\nstring\n");

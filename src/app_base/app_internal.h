@@ -42,8 +42,8 @@ internal i32 g_apptick = 0;
 /////////////////////////////////////////////////////////////////
 // MEMORY
 
-internal ZEDoubleByteBuffer g_gameBuffers;
-internal ZEByteBuffer g_soundBuffer;
+internal ZEDoubleBuffer g_gameBuffers;
+internal ZEBuffer g_soundBuffer;
 
 #define APP_MAX_MALLOCS 1024
 internal MallocItem g_mallocItems[APP_MAX_MALLOCS];

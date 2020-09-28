@@ -8,8 +8,8 @@
 
 internal PhysErrorHandler g_errorHandler = NULL;
 //internal ZBulletWorld g_world;
-//internal ZEByteBuffer g_input;
-//internal ZEByteBuffer g_output;
+//internal ZEBuffer g_input;
+//internal ZEBuffer g_output;
 //internal PhysicsTestState g_physTest;
 
 internal Vec3 g_testPos;

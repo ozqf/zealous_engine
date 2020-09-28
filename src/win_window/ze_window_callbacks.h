@@ -60,6 +60,7 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
             if (str != NULL)
             {
                 Window_EnqueueTextCommand(str);
+                g_platform.EnqueueTextCommand(str);
             }
         }
         return YES;

@@ -285,7 +285,7 @@ internal SimEntUpdate Sim_GetTickFunc(i32 index)
     return g_entUpdaters[index];
 }
 
-internal void Sim_TickEntities(SimScene* sim, ZEByteBuffer* output, timeFloat delta)
+internal void Sim_TickEntities(SimScene* sim, ZEBuffer* output, timeFloat delta)
 {
     i32 bIsServer = (sim->flags & SIM_SCENE_BIT_IS_SERVER) > 0;
     for (i32 i = 0; i < sim->maxEnts; ++i)

@@ -5,7 +5,7 @@ static void ZEVar_List(ZEVarSet* varSet)
 	printf("=== List ZEVars in set %s ===\n", varSet->name);
 	#if 1
 	printf("--- Var data ---\n");
-	ZEByteBuffer* b = &varSet->data;
+	ZEBuffer* b = &varSet->data;
 	u8* read = b->start;
 	// name is stored at the front of the array so
 	// advance until passed it
@@ -86,7 +86,7 @@ static void Test_ZEVars_Version1()
 		> a buffer to hold the variables themselves.
 		> a buffer to hold the names of said variables.
 	*/
-	ZEByteBuffer buf = Buf_FromMalloc(malloc(MegaBytes(1)), MegaBytes(1));
+	ZEBuffer buf = Buf_FromMalloc(malloc(MegaBytes(1)), MegaBytes(1));
 	// Create lookup table at the front of the memory block.
 	// Store added variables after table.
 	i32 maxKeys = 16;

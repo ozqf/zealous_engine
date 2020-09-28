@@ -271,14 +271,14 @@ internal i32 App_StartSession(const i32 sessionType, const char* mapName)
 // Exported to platform
 //////////////////////////////////////////////////////////////
 
-internal void App_ReadSysEvents(ZEByteBuffer* events)
+internal void App_ReadSysEvents(ZEBuffer* events)
 {
     u8* read = events->start;
     u8* end = events->cursor;
     i32 diff = end - read;
     if (diff == 0) { return; }
     
-    ZEByteBuffer* gameInput = g_gameBuffers.GetWrite();
+    ZEBuffer* gameInput = g_gameBuffers.GetWrite();
     while (read < end)
     {
         SysEvent* ev = (SysEvent*)read;
@@ -321,7 +321,7 @@ internal void App_SimFrame(timeFloat interval)
         APP_LOG(64, "App Sim tick %.8f\n", interval);
     #endif
     App_UpdateLoopbackSocket(&g_loopbackSocket, interval);
-    ZEByteBuffer* events;
+    ZEBuffer* events;
     g_platform.Acquire_EventBuffer(&events);
     App_ReadSysEvents(events);
     events->Clear(NO);

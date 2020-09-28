@@ -34,10 +34,10 @@ struct ze_window_export
     i32 (*IsMouseCaptured)();
     void (*SetMouseCaptured)(bool flag);
     // Written to by app, read by renderer
-    void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
+    void (*Acquire_AppDrawBuffers)(ZEBuffer** listBuf, ZEBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();
     // For system events. written to by window, read by app
-    void (*Acquire_EventBuffer)(ZEByteBuffer** buf);
+    void (*Acquire_EventBuffer)(ZEBuffer** buf);
     void (*Release_EventBuffer)();
     i32 sentinel;
 };
@@ -62,7 +62,7 @@ struct ze_platform_export
     // TODO: atm window runs commands first, then platform. This prevents app from invoking
     // a text command easily, which limits usefulness. should replace with this:
     // and let platform handle tokenisation and then running command observers.
-    //i32 (*ExecTextCommand)(const char* str);
+    void (*EnqueueTextCommand)(const char* str);
 
     // mouse state - position and buttons read via EventBuffer
     i32 (*IsMouseCaptured)();
@@ -72,9 +72,9 @@ struct ze_platform_export
     i32 (*AppWriteDraw)(void* zrViewFrame);
 
     // Acquire is passed through to window if it is available
-    void (*Acquire_AppDrawBuffers)(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf);
+    void (*Acquire_AppDrawBuffers)(ZEBuffer** listBuf, ZEBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();
-    void (*Acquire_EventBuffer)(ZEByteBuffer** buf);
+    void (*Acquire_EventBuffer)(ZEBuffer** buf);
     void (*Release_EventBuffer)();
 
     void (*OpenSocket)(i32* socketIndex, u16* port);
@@ -87,7 +87,7 @@ struct ze_platform_export
     // sound
     i32 (*SndLoadFile)(char* name, char* filePath);
     void (*SndPlayQuick)(i32 sampleIndex, Vec3 pos);
-    void (*Snd_ExecCommands)(ZEByteBuffer* buf);
+    void (*Snd_ExecCommands)(ZEBuffer* buf);
 
     //
     i32 sentinel;
@@ -102,6 +102,8 @@ struct ze_platform_export
 
 #define ZE_MUTEX_DRAW_QUEUE 0
 #define ZE_MUTEX_WINDOW_EVENTS 1
+#define ZE_MUTEX_APP_TEXT_COMMAND_QUEUE 2
+#define ZE_MUTEX_LAST__ 2
 
 // Signature of platform <-> window linking function exported
 // from window DLL

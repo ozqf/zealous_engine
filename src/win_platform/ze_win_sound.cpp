@@ -306,7 +306,7 @@ extern "C" void Snd_PlayQuick(i32 sampleIndex, Vec3 pos)
     // );
 }
 
-extern "C" void Snd_ExecCommands(ZEByteBuffer* buf)
+extern "C" void Snd_ExecCommands(ZEBuffer* buf)
 {
     ZSoundCommand* cmds = (ZSoundCommand*)buf->start;
     i32 numCommands = buf->Written() / sizeof(ZSoundCommand);

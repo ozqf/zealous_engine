@@ -181,8 +181,8 @@ struct ZRViewFrame
     i32 frameNumber; // identifies a specific view frame from another
     timeFloat timestamp;
     // pointers to the two buffers, draw list and scratch data.
-    ZEByteBuffer* list;
-    ZEByteBuffer* data;
+    ZEBuffer* list;
+    ZEBuffer* data;
 };
 
 ///////////////////////////////////////////////////////////
@@ -190,7 +190,7 @@ struct ZRViewFrame
 ///////////////////////////////////////////////////////////
 
 static ZRSceneFrame* ZRScene_InitInPlace(
-    ZEByteBuffer* list, i32 projectionMode, i32 bDeferred)
+    ZEBuffer* list, i32 projectionMode, i32 bDeferred)
 {
     ZRSceneFrame* scene = (ZRSceneFrame*)list->cursor;
     list->cursor += sizeof(ZRSceneFrame);

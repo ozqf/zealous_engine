@@ -17,7 +17,7 @@ struct ZEStringStackItem
 	char* chars;
 };
 
-static ZEStringStackItem* ZE_AddStackString(ZEByteBuffer* buf, char* str)
+static ZEStringStackItem* ZE_AddStackString(ZEBuffer* buf, char* str)
 {
     u8* origin = buf->cursor;
     ZE_INIT_PTR_IN_PLACE(item, ZEStringStackItem, buf)

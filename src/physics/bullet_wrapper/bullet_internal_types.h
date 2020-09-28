@@ -77,8 +77,8 @@ struct ZBulletWorld
     i32 index;
     char* label;
     // Wrapper components
-    ZEByteBuffer input;
-    ZEByteBuffer output;
+    ZEBuffer input;
+    ZEBuffer output;
     PhysErrorHandler errorHandler;
 
     PhysBodyList bodies;

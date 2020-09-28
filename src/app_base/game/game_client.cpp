@@ -234,7 +234,7 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 	}
 }
 
-internal void CL_CheckForSimEvents(ZEByteBuffer* buf)
+internal void CL_CheckForSimEvents(ZEBuffer* buf)
 {
     ZCMD_BEGIN_ITERATE(buf)
         switch (cmdHeader->type)
@@ -325,7 +325,7 @@ extern "C" void CL_RegisterLocalPlayer(SimScene* sim, SimPlayer plyr)
     printf("GCL plyr Id %d avatar %d\n", g_player.id, g_player.avatarId);
 }
 
-extern "C" void CL_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
+extern "C" void CL_PreTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
 {
     if (!g_bIsRunning) { return; }
 
@@ -343,7 +343,7 @@ extern "C" void CL_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat del
     CL_CheckForSimEvents(buf->GetRead());
 }
 
-extern "C" void CL_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
+extern "C" void CL_PostTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
 {
     if (!g_bIsRunning) { return; }
     // update view and detech player state changes

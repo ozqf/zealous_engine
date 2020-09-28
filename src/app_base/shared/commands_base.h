@@ -68,7 +68,7 @@ internal i32 Cmd_IsSequenceDiffOkay(i32 diff)
     return YES;
 }
 
-/*internal inline void Cmd_WriteToByteBuffer(ZEByteBuffer* b, Command* cmd)
+/*internal inline void Cmd_WriteToByteBuffer(ZEBuffer* b, Command* cmd)
 {
     ErrorCode err = Cmd_Validate(cmd);
     ZE_ASSERT(!err, "Command failed validation")

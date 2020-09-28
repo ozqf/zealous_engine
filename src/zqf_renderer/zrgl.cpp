@@ -64,8 +64,8 @@ extern "C" i32 ZRGL_ExecTextCommand(
 	return NO;
 }
 
-internal void ZRGL_ErrorDumpFrameData(ZEByteBuffer* drawList,
-    ZEByteBuffer* drawData,
+internal void ZRGL_ErrorDumpFrameData(ZEBuffer* drawList,
+    ZEBuffer* drawData,
     ScreenInfo scrInfo)
 {
 	u8* cursor = drawList->start;
@@ -102,8 +102,8 @@ internal void ZRGL_ErrorDumpFrameData(ZEByteBuffer* drawList,
 }
 
 extern "C" ZRPerformanceStats ZRGL_DrawFrame(
-	ZEByteBuffer* drawList,
-    ZEByteBuffer* drawData,
+	ZEBuffer* drawList,
+    ZEBuffer* drawData,
     ScreenInfo scrInfo)
 {
 	g_framesRendered++;
@@ -141,7 +141,7 @@ extern "C" ZRPerformanceStats ZRGL_DrawFrame(
     // Reset frame scratch memory cursor
     g_scratch.Clear(NO);
     // allocate some space in scratch for debug string
-    ZEByteBuffer debugStr = Buf_SubBuffer(&g_scratch, KiloBytes(4));
+    ZEBuffer debugStr = Buf_SubBuffer(&g_scratch, KiloBytes(4));
     if (debugStr.capacity == 0)
     {
         printf("Failed to allocate space for debug str\n");

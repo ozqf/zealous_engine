@@ -22,7 +22,7 @@ struct ze_key_event
     i32 value;
 };
 
-internal void ZKeys_WriteEvent(ZEByteBuffer* buf, zeInputCode inputId, i32 value)
+internal void ZKeys_WriteEvent(ZEBuffer* buf, zeInputCode inputId, i32 value)
 {
     ze_key_event* ev = (ze_key_event*)buf->cursor;
     buf->cursor += sizeof(ze_key_event);

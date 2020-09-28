@@ -56,7 +56,7 @@ struct ZEVar
 	ZEVarUnion data;
 };
 
-static ZEVar* ZEVar_InitVar(ZEByteBuffer* b, char* name, i32 type)
+static ZEVar* ZEVar_InitVar(ZEBuffer* b, char* name, i32 type)
 {
 	// init var
 	ZE_INIT_PTR_IN_PLACE(zeVar, ZEVar, b)
@@ -81,7 +81,7 @@ static ZEVar* ZEVar_InitVar(ZEByteBuffer* b, char* name, i32 type)
 struct ZEVarSet
 {
 	ZELookupTable* table;
-	ZEByteBuffer data;
+	ZEBuffer data;
 	i32 nameLength;
 	char name[ZEVAR_MAX_SET_NAME_LENGTH];
 	ZEAllocator alloc;
@@ -302,7 +302,7 @@ static void ZEVar_CheckSize(ZEVarSet* varSet, i32 dataSize)
 	// TODO: Use realloc instead of malloc and free
 
 	// Create new buffers, copy, free old ones, assign new ones.
-	ZEByteBuffer oldBuf = varSet->data;
+	ZEBuffer oldBuf = varSet->data;
 	// huh? Exception thrown at 0x771635D0 (ntdll.dll) in zetools.exe: 0xC0000005 : Access violation reading location 0x0049F13A.
 	void* ptr = varSet->alloc.Allocate(capacity);
 	varSet->data = Buf_FromMalloc(ptr, capacity);

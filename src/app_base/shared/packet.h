@@ -79,7 +79,7 @@ internal i32 Packet_WriteHeader(u8* ptr, PacketHeader* h)
 }
 
 internal void Packet_StartWrite(
-	ZEByteBuffer* packet,
+	ZEBuffer* packet,
 	i32 privateId,
 	i32 packetSequence,
 	u32 ackSequence,
@@ -106,7 +106,7 @@ internal void Packet_StartWrite(
 }
 
 internal void Packet_FinishWrite(
-	ZEByteBuffer* packet,
+	ZEBuffer* packet,
 	i32 numReliableBytes,
 	i32 numUnreliableBytes)
 {

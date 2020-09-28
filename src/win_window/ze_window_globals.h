@@ -32,9 +32,9 @@ struct Win32_Thread
 #endif
 
 // Buffers
-internal ZEByteBuffer g_drawListBuffer;
-internal ZEByteBuffer g_drawDataBuffer;
-internal ZEByteBuffer g_eventBuffer;
+internal ZEBuffer g_drawListBuffer;
+internal ZEBuffer g_drawDataBuffer;
+internal ZEBuffer g_eventBuffer;
 
 internal i32 g_bMouseCaptured = YES;
 internal i32 g_bAppWantsMouseCaptured = YES;

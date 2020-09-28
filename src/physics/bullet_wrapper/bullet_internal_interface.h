@@ -68,6 +68,6 @@ internal void Phys_PreSolveCallback(btDynamicsWorld *dynamicsWorld, btScalar tim
 internal void Phys_PostSolveCallback(btDynamicsWorld *dynamicsWorld, btScalar timeStep);
 internal void Phys_ClearOverlapPairs(ZBulletWorld* world);
 internal void Phys_WriteDebugOutput(ZBulletWorld* world);
-internal void Phys_LockCommandBuffer(ZEByteBuffer* buffer);
-internal void Phys_ReadCommands(ZBulletWorld* world, ZEByteBuffer* output);
+internal void Phys_LockCommandBuffer(ZEBuffer* buffer);
+internal void Phys_ReadCommands(ZBulletWorld* world, ZEBuffer* output);
 internal void Phys_StepWorld(ZBulletWorld* world, f32 deltaTime);

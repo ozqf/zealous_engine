@@ -150,8 +150,8 @@ internal void CLR_WriteParticles(
     ClientRenderer* cr,
     ZRParticleEmitter* emitter,
     ZRSceneFrame* scene,
-    ZEByteBuffer* list,
-    ZEByteBuffer* data)
+    ZEBuffer* list,
+    ZEBuffer* data)
 {
     ZRDBMaterial* mat;
     mat = cr->db->GetMaterialByIndex(cr->db, emitter->def.materialIndex);
@@ -169,7 +169,7 @@ internal void CLR_WriteParticles(
 }
 
 internal void CLR_AddTestParticles(
-	ClientRenderer* cr, ZRSceneFrame* scene, ZEByteBuffer* list, ZEByteBuffer* data)
+	ClientRenderer* cr, ZRSceneFrame* scene, ZEBuffer* list, ZEBuffer* data)
 {
     CLR_WriteParticles(cr, &cr->testEmit, scene, list, data);
     CLR_WriteParticles(cr, &cr->gibEmit, scene, list, data);
@@ -238,7 +238,7 @@ internal void CLR_AddHUD(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSet
 #endif
 
 // Returns number of objects added
-internal i32 CLR_Debug_AddAABB(ZEByteBuffer* list, i32 factoryType, Vec3 pos, Vec3 scale)
+internal i32 CLR_Debug_AddAABB(ZEBuffer* list, i32 factoryType, Vec3 pos, Vec3 scale)
 {
     Vec3 half = scale;
     half.x *= 0.5f;
@@ -285,8 +285,8 @@ internal i32 CLR_Debug_AddAABB(ZEByteBuffer* list, i32 factoryType, Vec3 pos, Ve
 internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     ClientRenderer* cr,
     SimScene* sim,
-    ZEByteBuffer* list,
-    ZEByteBuffer* scratch)
+    ZEBuffer* list,
+    ZEBuffer* scratch)
 {
     ZRDBMesh* cube = cr->db->GetMeshByName(cr->db, ZRDB_MESH_NAME_CUBE);
     ZRDBMesh* quad = cr->db->GetMeshByName(cr->db, ZRDB_MESH_NAME_QUAD);
@@ -343,8 +343,8 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
 internal i32 CLR_AddSimObjectsToRenderScene(
 	ClientRenderer* clr,
     SimScene* sim,
-    ZEByteBuffer* list,
-    ZEByteBuffer* scratch,
+    ZEBuffer* list,
+    ZEBuffer* scratch,
     ClientRenderSettings cfg)
 {
     //ZRAssetDB* db = App_GetAssetDB();
@@ -430,8 +430,8 @@ extern "C" void CLR_WriteDrawFrame(
     
     ZRDrawObj* obj = NULL;
 
-    ZEByteBuffer* list = frame->list;
-    ZEByteBuffer* data = frame->data;
+    ZEBuffer* list = frame->list;
+    ZEBuffer* data = frame->data;
     
     if (cfg.debugFlags & CL_DEBUG_FLAG_VERBOSE_FRAME)
     {

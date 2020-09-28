@@ -127,8 +127,8 @@ static ZRScene* ZRScene_Init(ZRPlatform platform, i32 objectCapacity)
 static void ZRScene_WriteScene2Frame(
     ZRViewFrame* header,
     ZRScene* scene, // TODO: Split this function up so that scenes are written independently
-    ZEByteBuffer* objectListBuf,      // stores scenes and objects
-    ZEByteBuffer* objectDataBuf       // stores data for the objects in the list eg strings
+    ZEBuffer* objectListBuf,      // stores scenes and objects
+    ZEBuffer* objectDataBuf       // stores data for the objects in the list eg strings
     )
 {
     header->numScenes++;
@@ -184,8 +184,8 @@ static void ZRScene_WriteScene2Frame(
  * Returns bytes written
  */
 static ZRViewFrame* ZRScene_BeginViewFrame(
-    ZEByteBuffer* objectListBuf,      // stores scenes and objects
-    ZEByteBuffer* objectDataBuf       // stores data for the objects in the list eg strings
+    ZEBuffer* objectListBuf,      // stores scenes and objects
+    ZEBuffer* objectDataBuf       // stores data for the objects in the list eg strings
     )
 {
     ZE_ASSERT(Buf_IsValid(objectListBuf) == YES, "Object list buffer is invalid")

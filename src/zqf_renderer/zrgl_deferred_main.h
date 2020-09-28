@@ -134,7 +134,7 @@ static void ZR_DrawDeferredVolumeLights(ZRGBuffer* gBuf, Transform* camera, Scre
 #endif
 
 static ZRGroupingStats ZR_DrawSceneDeferred(
-    ZRSceneFrame *sceneCmd, ZEByteBuffer *scratch, ScreenInfo scrInfo)
+    ZRSceneFrame *sceneCmd, ZEBuffer *scratch, ScreenInfo scrInfo)
 {
     ZRGroupingStats stats = {};
     f64 start = g_platform.QueryClock();

@@ -5,7 +5,7 @@
 
 internal void Sim_ExecuteCommands(
 	SimScene* sim,
-    ZEByteBuffer* input,
+    ZEBuffer* input,
 	timeFloat delta)
 {
 	u8* read = input->start;

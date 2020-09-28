@@ -42,7 +42,7 @@ extern "C" i32 ZR_PixelToIndex(i32 x, i32 y, int imageWidth);
 extern "C" ZRSceneView* ZR_BuildDrawGroups(
     ZRDrawObj* objects,
     i32 numObjects,
-    ZEByteBuffer* scratch,
+    ZEBuffer* scratch,
     ZRGroupingStats* stats);
 
 extern "C" void ZR_WriteGroupsToTextureByIndex(

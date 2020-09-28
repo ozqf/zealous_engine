@@ -148,9 +148,9 @@ extern "C" frameInt Sim_CalcThinkTick(SimScene* sim, timeFloat secondsToThink);
 
 extern "C" i32      Sim_Tick(
                         SimScene* sim,
-                        ZEByteBuffer* input,
-                        ZEByteBuffer* output,
-                        ZEByteBuffer* soundOutput,
+                        ZEBuffer* input,
+                        ZEBuffer* output,
+                        ZEBuffer* soundOutput,
                         timeFloat delta);
 // Players
 extern "C" SimPlayer* SimPlyr_Create(SimScene* sim);

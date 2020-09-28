@@ -328,7 +328,7 @@ static void ZR_PollInput()
     g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
 }
 
-static void WindowImpl_Acquire_AppDrawBuffers(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf)
+static void WindowImpl_Acquire_AppDrawBuffers(ZEBuffer** listBuf, ZEBuffer** dataBuf)
 {
     g_platform.LockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
     *listBuf = &g_drawListBuffer;
@@ -340,7 +340,7 @@ static void WindowImpl_Release_AppDrawBuffers()
     g_platform.UnlockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
 }
 
-static void WindowImpl_Acquire_EventBuffer(ZEByteBuffer** buf)
+static void WindowImpl_Acquire_EventBuffer(ZEBuffer** buf)
 {
     g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
     *buf = &g_eventBuffer;
@@ -396,8 +396,8 @@ static void Window_Tick()
 {
     f64 startFrameMS = 0, endFrameMS = 0, totalMS = 0;
     startFrameMS = g_platform.QueryClock();
-    ZEByteBuffer* list;
-    ZEByteBuffer* data;
+    ZEBuffer* list;
+    ZEBuffer* data;
     g_platform.Acquire_AppDrawBuffers(&list, &data);
     list->Clear(NO);
     data->Clear(NO);

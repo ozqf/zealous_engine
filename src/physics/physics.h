@@ -44,7 +44,7 @@ extern "C" Vec3 PhysExt_DebugGetPosition();
 extern "C" WorldHandle* PhysExt_Create(char* label, PhysErrorHandler errorHandler);
 //void Phys_ReadCommands(MemoryBlock* commandBuffer);
 // Returns memory block of the event buffer assigned at init
-extern "C" ZEByteBuffer PhysExt_Step(WorldHandle* handle, timeFloat deltaTime);
+extern "C" ZEBuffer PhysExt_Step(WorldHandle* handle, timeFloat deltaTime);
 // Remove all objects from simulation, resetting it
 extern "C" void PhysExt_ClearWorld(WorldHandle* handle);
 // Shut down library. destroy all objects.

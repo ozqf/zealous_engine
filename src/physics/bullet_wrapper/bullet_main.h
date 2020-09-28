@@ -170,15 +170,15 @@ internal void PhysExec_SetState(ZBulletWorld* world, PhysCmd_State *cmd)
 ////////////////////////////////////////////////////////////////////////////////////////////
 // LOOP
 ////////////////////////////////////////////////////////////////////////////////////////////
-internal void Phys_LockCommandBuffer(ZEByteBuffer *buffer)
+internal void Phys_LockCommandBuffer(ZEBuffer *buffer)
 {
     *buffer->cursor = 0;
 }
 
-internal void Phys_ReadCommands(ZBulletWorld *world, ZEByteBuffer* output)
+internal void Phys_ReadCommands(ZBulletWorld *world, ZEBuffer* output)
 {
     //Phys_TickCallback(g_world.dynamicsWorld, 0.016f);
-    ZEByteBuffer *buffer = &world->input;
+    ZEBuffer *buffer = &world->input;
     u8 *ptrRead = buffer->start;
     u8* end = buffer->cursor;
 	i32 executed = 0;

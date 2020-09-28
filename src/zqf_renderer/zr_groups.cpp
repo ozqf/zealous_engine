@@ -159,7 +159,7 @@ extern "C" void ZR_WriteGroupsToTextureByIndex(
 }
 
 extern "C" ZRSceneView* ZR_BuildDrawGroups(
-    ZRDrawObj* objects, i32 numObjects, ZEByteBuffer* scratch, ZRGroupingStats* stats)
+    ZRDrawObj* objects, i32 numObjects, ZEBuffer* scratch, ZRGroupingStats* stats)
 {
     ZRSceneView* drawGroups = (ZRSceneView*)scratch->cursor;
     scratch->cursor += sizeof(ZRSceneView);

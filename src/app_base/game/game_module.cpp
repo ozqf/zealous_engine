@@ -80,7 +80,7 @@ extern "C" i32 Game_Stop()
 	return ZE_ERROR_NONE;
 }
 
-internal void Game_ReadSystemEvents(ZEByteBuffer* sysEvents, timeFloat delta)
+internal void Game_ReadSystemEvents(ZEBuffer* sysEvents, timeFloat delta)
 {
 	g_systemEventTicks++;
 	u8* read = sysEvents->start;
@@ -104,7 +104,7 @@ internal void Game_ReadSystemEvents(ZEByteBuffer* sysEvents, timeFloat delta)
 	}
 }
 
-extern "C" void Game_Tick(ZEByteBuffer* sysEvents, ZEByteBuffer* soundOutput, timeFloat delta)
+extern "C" void Game_Tick(ZEBuffer* sysEvents, ZEBuffer* soundOutput, timeFloat delta)
 {
 	Game_ReadSystemEvents(sysEvents, delta);
 	CL_PreTick(&g_sim, &g_gameBuf, delta);

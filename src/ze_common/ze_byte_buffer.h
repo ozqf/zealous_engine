@@ -21,7 +21,7 @@ if (ptrToByteBufferDest##->Space() >= sizeof(##structTypeName##)) \
 }
 
 // TODO: Change this to a char buffer - was dumb to not do that to begin with :/
-struct ZEByteBuffer
+struct ZEBuffer
 {
     u8* start;
     // when writing, advance cursor forward,
@@ -62,26 +62,26 @@ struct ZEByteBuffer
     }
 };
 
-internal i32 Buf_IsValid(ZEByteBuffer* b)
+internal i32 Buf_IsValid(ZEBuffer* b)
 {
     if (b == NULL) { return NO; }
     return b->IsValid();
 }
 
-internal ZEByteBuffer Buf_FromBytes(u8* ptr, i32 numBytes)
+internal ZEBuffer Buf_FromBytes(u8* ptr, i32 numBytes)
 {
     ZE_ASSERT(ptr != NULL, "Buf from bytes - ptr is null");
-    ZEByteBuffer b = {};
+    ZEBuffer b = {};
     b.start = ptr;
     b.cursor = ptr;
     b.capacity = numBytes;
     return b;
 }
 
-internal ZEByteBuffer Buf_FromMalloc(void* ptr, i32 size)
+internal ZEBuffer Buf_FromMalloc(void* ptr, i32 size)
 {
     ZE_ASSERT(ptr != NULL, "Buf from malloc - ptr is null");
-    ZEByteBuffer b = {};
+    ZEBuffer b = {};
     b.start = (u8*)ptr;
     b.cursor = b.start;
     b.capacity = size;
@@ -92,10 +92,10 @@ internal ZEByteBuffer Buf_FromMalloc(void* ptr, i32 size)
  * init another buffer from within the given buffer and return it
  * If the result has a size of 0 then alloc failed
  */
-internal ZEByteBuffer Buf_SubBuffer(ZEByteBuffer* buf, i32 subBufferSize)
+internal ZEBuffer Buf_SubBuffer(ZEBuffer* buf, i32 subBufferSize)
 {
     if (buf->Space() < subBufferSize) { return {}; }
-    ZEByteBuffer sub = {};
+    ZEBuffer sub = {};
     sub.start = buf->cursor;
     sub.cursor = sub.start;
     sub.capacity = subBufferSize;
@@ -104,18 +104,18 @@ internal ZEByteBuffer Buf_SubBuffer(ZEByteBuffer* buf, i32 subBufferSize)
     return sub;
 }
 
-struct ZEDoubleByteBuffer
+struct ZEDoubleBuffer
 {
     i32 swapped;
-    ZEByteBuffer a;
-    ZEByteBuffer b;
+    ZEBuffer a;
+    ZEBuffer b;
 
-    ZEByteBuffer* GetRead()
+    ZEBuffer* GetRead()
     {
         return this->swapped ? &this->b : &this->a;
     }
 
-    ZEByteBuffer* GetWrite()
+    ZEBuffer* GetWrite()
     {
         return this->swapped ? &this->a : &this->b;
     }

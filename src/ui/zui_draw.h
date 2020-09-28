@@ -5,7 +5,7 @@
 /**
  * returns number of draw objects added
  */
-internal i32 ZUI_WriteObjToScene(ZUIObject* uiObj, ZEByteBuffer* list, ZEByteBuffer* data)
+internal i32 ZUI_WriteObjToScene(ZUIObject* uiObj, ZEBuffer* list, ZEBuffer* data)
 {
     i32 numObjects = 0;
     ZRDrawObj* drawObj = NULL;
@@ -51,7 +51,7 @@ internal i32 ZUI_WriteObjToScene(ZUIObject* uiObj, ZEByteBuffer* list, ZEByteBuf
     return numObjects;
 }
 
-extern "C" void ZUI_WriteScreenForRender(ZRViewFrame* frame, ZUIScreen* scr, ZEByteBuffer* list, ZEByteBuffer* data)
+extern "C" void ZUI_WriteScreenForRender(ZRViewFrame* frame, ZUIScreen* scr, ZEBuffer* list, ZEBuffer* data)
 {
 	if (scr->state == 0) { return; }
     ///////////////////////////////////////////////
@@ -79,7 +79,7 @@ extern "C" void ZUI_WriteScreenForRender(ZRViewFrame* frame, ZUIScreen* scr, ZEB
 }
 
 #if 0
-extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data)
+extern "C" i32 ZUI_WriteRenderTest(ZEBuffer* list, ZEBuffer* data)
 {
     ///////////////////////////////////////////////
     // Start a new scene
@@ -108,7 +108,7 @@ extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data)
 /**
  * Return scenes written
  */
-extern "C" i32 ZUI_WriteRenderTest_2(ZEByteBuffer* list, ZEByteBuffer* data)
+extern "C" i32 ZUI_WriteRenderTest_2(ZEBuffer* list, ZEBuffer* data)
 {
     ///////////////////////////////////////////////
     // Start a new scene

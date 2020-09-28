@@ -269,8 +269,8 @@ data buffer for this frame
 */
 static void ZR_WriteTextObj(
     ZRDrawObj* source,
-    ZEByteBuffer* list,
-    ZEByteBuffer* data)
+    ZEBuffer* list,
+    ZEBuffer* data)
 {
     ZRDrawObj* drawObj = ZRDrawObj_InitInPlace(&list->cursor);
     // copy from source, then copy text to data and

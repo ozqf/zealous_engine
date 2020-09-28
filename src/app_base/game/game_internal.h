@@ -20,6 +20,6 @@ internal frameInt g_systemEventTicks = 0;
 internal VWChunk* g_chunk = NULL;
 
 // buffer holds pending commands given to game each tick
-internal ZEDoubleByteBuffer g_gameBuf;
+internal ZEDoubleBuffer g_gameBuf;
 
 #endif // GAME_INTERNAL_H

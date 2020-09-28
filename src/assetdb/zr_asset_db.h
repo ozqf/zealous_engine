@@ -52,7 +52,7 @@ struct ZRAsset
 struct ZRDBBlob
 {
     ZRAsset header;
-	ZEByteBuffer data;
+	ZEBuffer data;
 };
 
 struct ZRDBTexture

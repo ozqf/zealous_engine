@@ -355,9 +355,9 @@ i32 Sim_LoadMapFile(SimScene* sim, const char* mapName, i32 bLocalOnly)
 extern "C"
 i32 Sim_Tick(
     SimScene* sim,
-    ZEByteBuffer* input,
-    ZEByteBuffer* output,
-    ZEByteBuffer* soundOutput,
+    ZEBuffer* input,
+    ZEBuffer* output,
+    ZEBuffer* soundOutput,
     timeFloat delta)
 {
     sim->outputBuf = output;

@@ -125,7 +125,7 @@ static i32 ZRGL_LoadFBX(
     // Stage
     //////////////////////////////////////////
     if (bVerbose == YES) { printf("Loading FBX file: \"%s\"\n", path); }
-    ZEByteBuffer b;
+    ZEBuffer b;
     ErrorCode err = ZRDB_StageRawFile(path, &b);
     if (err != ZE_ERROR_NONE)
     {

@@ -62,7 +62,7 @@ static i32 Sys_ValidateEvent(SysEvent* ev)
     return ZE_ERROR_NONE;
 }
 
-static void Sys_EnqueueEvent(ZEByteBuffer* buf, SysEvent* ev)
+static void Sys_EnqueueEvent(ZEBuffer* buf, SysEvent* ev)
 {
     ErrorCode err = Sys_ValidateEvent(ev);
     ZE_ASSERT(err == ZE_ERROR_NONE, "Invalid SysEvent")
@@ -86,7 +86,7 @@ static void Sys_CreateInputEvent(SysInputEvent* ev, u32 inputID, i32 value, f32 
     ev->normalised = normalised;
 }
 
-static void Sys_WriteInputEvent(ZEByteBuffer* b, u32 inputID, i32 value, f32 normalised)
+static void Sys_WriteInputEvent(ZEBuffer* b, u32 inputID, i32 value, f32 normalised)
 {
     SysInputEvent ev = {};
     Sys_CreateInputEvent(&ev, inputID, value, normalised);
@@ -97,7 +97,7 @@ static void Sys_WriteInputEvent(ZEByteBuffer* b, u32 inputID, i32 value, f32 nor
 // Packet
 
 static void Sys_WritePacketEvent(
-	ZEByteBuffer* b, i32 socketIndex, ZNetAddress* addr, u8* data, i32 dataSize)
+	ZEBuffer* b, i32 socketIndex, ZNetAddress* addr, u8* data, i32 dataSize)
 {
     SysPacketEvent ev = {};
     i32 totalSize = sizeof(SysPacketEvent) + dataSize;

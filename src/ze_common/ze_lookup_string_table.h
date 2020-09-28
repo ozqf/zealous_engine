@@ -20,7 +20,7 @@ struct ZELookupStrTable
     ZELookupStrKey* m_keys;
     i32 m_numKeys;
     i32 m_maxKeys;
-	ZEByteBuffer data;
+	ZEBuffer data;
 
     void StepKeyIndex(i32* index)
     {

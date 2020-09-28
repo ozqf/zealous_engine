@@ -79,7 +79,7 @@ static i32 ZRDB_GetTextureHandleByIndex(ZRAssetDB* assetDB, i32 index)
 static ColourU32* ZRDB_LoadTextureToHeap(
     char* path, i32 bVerbose, int* x, int* y, i32 bFlipY)
 {
-    ZEByteBuffer b;
+    ZEBuffer b;
     ErrorCode err = ZRDB_StageRawFile(path, &b);
     if (err != ZE_ERROR_NONE)
     {
@@ -105,7 +105,7 @@ static i32 ZRDB_UploadTexture(ZRDBTexture* tex)
 static i32 ZRDB_LoadTexture(ZRAssetDB* assetDB, char* path, i32 bVerbose)
 {
 	ZRDB_CAST_TO_INTERNAL(assetDB, db)
-	ZEByteBuffer buf;
+	ZEBuffer buf;
 	if (ZRDB_StageRawFile(path, &buf) != ZE_ERROR_NONE)
 	{
 		return 0;

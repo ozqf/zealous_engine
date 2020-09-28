@@ -13,9 +13,9 @@ extern "C" void CL_ReadInputEvent(SysInputEvent* ev, frameInt frameNumber);
 extern "C" void CL_RegisterLocalPlayer(SimScene* sim, SimPlayer plyr);
 
 // If local client - write input
-extern "C" void CL_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta);
+extern "C" void CL_PreTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta);
 // If remote client - send local avatar state
-extern "C" void CL_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta);
+extern "C" void CL_PostTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta);
 extern "C" void CL_WriteDrawFrame(SimScene* sim, ZRViewFrame* frame);
 
 extern "C" Transform CL_GetCamera(SimScene* sim);

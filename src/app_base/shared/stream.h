@@ -56,11 +56,11 @@ struct NetStream
 	i32 initialised;
     // latest reliable command from remote executed here
     CmdSeq          inputSequence;
-    ZEByteBuffer      inputBuffer;
+    ZEBuffer      inputBuffer;
 
     // id of next reliable message sent to remote
     CmdSeq          outputSequence;
-    ZEByteBuffer      outputBuffer;
+    ZEBuffer      outputBuffer;
     // the most recented remotely acknowledged message Id
     u32             ackSequence;
 	
@@ -69,14 +69,14 @@ struct NetStream
     TransmissionRecord transmissions[MAX_TRANSMISSION_RECORDS];
 };
 
-internal void COM_InitStream(NetStream* stream, ZEByteBuffer input, ZEByteBuffer output)
+internal void COM_InitStream(NetStream* stream, ZEBuffer input, ZEBuffer output)
 {
     stream->inputBuffer = input;
     stream->outputBuffer = output;
     stream->inputSequence = 0;
 }
 
-internal ReliableCmdQueueStats Stream_CountCommands(ZEByteBuffer* b)
+internal ReliableCmdQueueStats Stream_CountCommands(ZEBuffer* b)
 {
     ReliableCmdQueueStats result = {};
     result.lowestSeq = CMD_SEQ_MAX;
@@ -147,7 +147,7 @@ internal Command* Stream_FindMessageBySequence(u8* ptr, i32 numBytes, i32 sequen
  * After:
  * blockStart* (rest of buffer ---- )bufferEnd*
  */
-internal void Stream_DeleteCommand(ZEByteBuffer* b, Command* cmd, i32 remainingSpace)
+internal void Stream_DeleteCommand(ZEBuffer* b, Command* cmd, i32 remainingSpace)
 {
     ErrorCode err = Cmd_Validate(cmd); 
     ZE_ASSERT(err == ZE_ERROR_NONE, "Invalid command")
@@ -166,7 +166,7 @@ internal void Stream_DeleteCommand(ZEByteBuffer* b, Command* cmd, i32 remainingS
 	b->cursor -= bytesToDelete;
 }
 
-internal void Stream_DeleteCommand_Original(ZEByteBuffer* b, Command* cmd, i32 remainingSpace)
+internal void Stream_DeleteCommand_Original(ZEBuffer* b, Command* cmd, i32 remainingSpace)
 {
     ErrorCode err = Cmd_Validate(cmd); 
     ZE_ASSERT(err == ZE_ERROR_NONE, "Invalid command")
@@ -185,7 +185,7 @@ internal void Stream_DeleteCommand_Original(ZEByteBuffer* b, Command* cmd, i32 r
 	b->cursor -= bytesToDelete;
 }
 
-internal void Stream_DeleteCommandBySequence(ZEByteBuffer* b, i32 sequence)
+internal void Stream_DeleteCommandBySequence(ZEBuffer* b, i32 sequence)
 {
 	Command* cmd = Stream_FindMessageBySequence(
         b->start, b->Written(), sequence);
@@ -200,7 +200,7 @@ internal TransmissionRecord* Stream_ClearReceivedOutput(
 {
     TransmissionRecord* rec = Stream_FindTransmissionRecord(
 		stream->transmissions, packetSequence);
-    ZEByteBuffer* b = &stream->outputBuffer;
+    ZEBuffer* b = &stream->outputBuffer;
     if (!rec)
     {
         return NULL;
@@ -238,7 +238,7 @@ internal i32 Stream_EnqueueUnreliableInput(
         printf("STREAM cmd for enqueue is invalid. Code %d\n", error);
         return 0;
     }
-    ZEByteBuffer* b = &stream->inputBuffer;
+    ZEBuffer* b = &stream->inputBuffer;
     ZE_ASSERT(b->Space() >= cmd->size, "Unreliable stream is full");
     b->cursor += ZE_COPY((u8*)cmd, b->cursor, cmd->size);
     return cmd->size;
@@ -255,7 +255,7 @@ internal i32 Stream_EnqueueReliableInput(
         printf("STREAM cmd for enqueue is invalid. Code %d\n", error);
         return 0;
     }
-    ZEByteBuffer* b = &stream->inputBuffer;
+    ZEBuffer* b = &stream->inputBuffer;
     //If the current input sequence is higher or the command is already
     //buffered, ignore
     if ((u32)cmd->sequence < stream->inputSequence)
@@ -294,7 +294,7 @@ internal void Stream_EnqueueOutput(NetStream* stream, Command* cmd)
     // Only place where sequence should be set
     cmd->sequence = stream->outputSequence++;
     
-    ZEByteBuffer* b = &stream->outputBuffer;
+    ZEBuffer* b = &stream->outputBuffer;
     ZE_ASSERT(b->Space() >= cmd->size, "Not space for output Cmd");
     // TODO: Replace direct copy with customised encoding functions when protocol is ready for it
     b->cursor += ZE_COPY((u8*)cmd, b->cursor, cmd->size);

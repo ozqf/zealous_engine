@@ -160,7 +160,7 @@ internal void Phys_PostSolveCallback(btDynamicsWorld *dynWorld, btScalar timeSte
     }
 
     // Output start/end events
-    ZEByteBuffer* buf = &w->output;
+    ZEBuffer* buf = &w->output;
     PhysEv_Header h = {};
     PhysEv_Collision ev = {};
     

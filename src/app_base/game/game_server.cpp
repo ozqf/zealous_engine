@@ -16,7 +16,7 @@ extern "C" void GSV_Start(SimScene* sim)
     g_sim = sim;
 }
 
-extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEByteBuffer* buf)
+extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEBuffer* buf)
 {
     SimPlayer* plyr = SimPlyr_Create(sim);
     // reserve the Id for this player's avatar although we're not
@@ -57,12 +57,12 @@ extern "C" void GSV_Stop()
     g_sim = NULL;
 }
 
-extern "C" void SV_PreTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
+extern "C" void SV_PreTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
 {
 	if (!g_bIsRunning) { return; }
 }
 
-extern "C" void SV_PostTick(SimScene* sim, ZEDoubleByteBuffer* buf, timeFloat delta)
+extern "C" void SV_PostTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
 {
 	if (!g_bIsRunning) { return; }
     #if 0

@@ -18,7 +18,7 @@ struct ZRAssetDBData
     ZRAssetDB header;
     //ZRAssetUploader uploader;
     
-    ZEByteBuffer strings;
+    ZEBuffer strings;
 	MallocList allocs;
 
     // unique serial number shared across all assets.
@@ -70,7 +70,7 @@ static u32 ZRDB_MeasureFile(char* path)
  * Load an entire file, unaltered, into memory.
  * Must be freed by the caller after use
  */
-static i32 ZRDB_StageRawFile(char* path, ZEByteBuffer* dest)
+static i32 ZRDB_StageRawFile(char* path, ZEBuffer* dest)
 {
     FILE* f;
     i32 err = fopen_s(&f, path, "rb");

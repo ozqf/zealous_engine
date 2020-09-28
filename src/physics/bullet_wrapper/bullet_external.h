@@ -312,7 +312,7 @@ void PhysExt_Shutdown(WorldHandle* handle)
 }
 
 extern "C"
-ZEByteBuffer PhysExt_Step(WorldHandle* handle, timeFloat deltaTime)
+ZEBuffer PhysExt_Step(WorldHandle* handle, timeFloat deltaTime)
 {
     HANDLE2WORLD
     
@@ -346,7 +346,7 @@ ZEByteBuffer PhysExt_Step(WorldHandle* handle, timeFloat deltaTime)
 
     // TODO: Should only write the debug string if is asked for!
     Phys_WriteDebugOutput(world);
-    ZEByteBuffer buf = world->output;
+    ZEBuffer buf = world->output;
     return buf;
 }
 

@@ -18,7 +18,7 @@ static void ZRGL_DrawSceneToTexture(
 // For deferred: build gbuffer.
 ///////////////////////////////////////////////////////////
 static ZRGroupingStats ZR_PrepareScene(
-    ZRSceneFrame* sceneCmd, ZEByteBuffer* scratch, ScreenInfo scrInfo)
+    ZRSceneFrame* sceneCmd, ZEBuffer* scratch, ScreenInfo scrInfo)
 {
     ZRGroupingStats stats = {};
     f64 start = g_platform.QueryClock();
@@ -153,7 +153,7 @@ static void ZRGL_DrawSceneToTexture(
 
 static void ZR_DrawScene(
     ZRSceneFrame* sceneCmd,
-    ZEByteBuffer* scratch,
+    ZEBuffer* scratch,
     ScreenInfo scrInfo,
     ZRPerformanceStats* stats)
 {

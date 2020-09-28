@@ -71,6 +71,8 @@ static char g_appFolderBuf[MAX_APP_FOLDER_LEN];
 static ze_windows_thread g_appThread = {};
 static volatile i32 g_bExitAppThread = NO;
 
+static ZEBuffer g_appTextCommands;
+
 static HMODULE g_windowDLL;
 static ze_window_export g_window;
 
@@ -88,7 +90,7 @@ static char g_buf[512];
 
 global_variable HWND consoleHandle;
 
-#define MAX_MUTEXES 2
+#define MAX_MUTEXES 16
 internal HANDLE g_mutexes[MAX_MUTEXES];
 
 // performance counts per second
@@ -157,6 +159,7 @@ static void Win_InitMutexes()
 {
     g_mutexes[ZE_MUTEX_DRAW_QUEUE] = CreateMutexA(0, 0, "DrawQueue");
     g_mutexes[ZE_MUTEX_WINDOW_EVENTS] = CreateMutexA(0, 0, "WindowEventQueue");
+    g_mutexes[ZE_MUTEX_APP_TEXT_COMMAND_QUEUE] = CreateMutexA(0, 0, "AppTextCommandQueue");
 }
 
 ////////////////////////////////////////////////////////
@@ -202,7 +205,8 @@ static ErrorCode LinkToWindowDLL(char* dllName)
     {
         return 1;
     }
-    Func_LinkToWindow* linkPtr = (Func_LinkToWindow*)GetProcAddress(g_windowDLL, ZE_WINDOW_LINK_FUNC_NAME);
+    Func_LinkToWindow* linkPtr = (Func_LinkToWindow*)GetProcAddress(
+        g_windowDLL, ZE_WINDOW_LINK_FUNC_NAME);
     if (linkPtr == NULL)
     {
         return 1;
@@ -307,7 +311,7 @@ static i32 PlatformImpl_AppWriteDraw(void* zrViewFrame)
     return g_app.WriteDraw(zrViewFrame);
 }
 
-static void PlatformImpl_GetAppDrawbuffers(ZEByteBuffer** listBuf, ZEByteBuffer** dataBuf)
+static void PlatformImpl_GetAppDrawbuffers(ZEBuffer** listBuf, ZEBuffer** dataBuf)
 {
     if (g_window.sentinel == ZE_SENTINEL)
     {
@@ -323,7 +327,7 @@ static void PlatformImpl_ReleaseAppDrawBuffers()
     }
 }
 
-static void PlatformImpl_AcquireEventBuffer(ZEByteBuffer** buf)
+static void PlatformImpl_AcquireEventBuffer(ZEBuffer** buf)
 {
     if (g_window.sentinel == ZE_SENTINEL)
     { g_window.Acquire_EventBuffer(buf); }
@@ -364,6 +368,17 @@ static i32 PlatformImpl_ExecTextCommand(
 	return (g_app.ParseCommandString(str, tokens, numTokens) == YES);
 }
 
+static void PlatformImpl_EnqueueTextCommand(const char* str)
+{
+    // either app or window thread could be calling this
+    PlatformImpl_LockMutex(ZE_MUTEX_APP_TEXT_COMMAND_QUEUE, 0);
+    i32 len = ZE_StrLen(str);
+    g_appTextCommands.cursor += ZE_COPY(str, g_appTextCommands.cursor, len);
+    printf("Enqueue cmd \"%s\"\n", str);
+    printf("\t%d chars enqueued total\n", g_appTextCommands.Written());
+    PlatformImpl_UnlockMutex(ZE_MUTEX_APP_TEXT_COMMAND_QUEUE, 0);
+}
+
 static void PlatformImpl_OpenSocket(i32* socket, u16* port)
 {
     *socket = Net_OpenSocket(*port, port);
@@ -401,6 +416,8 @@ static ze_platform_export Win_BuildExport()
 
     result.GetAssetDB = PlatformImpl_GetAssetDB;
     result.ExecTextCommand = PlatformImpl_ExecTextCommand;
+    result.EnqueueTextCommand = PlatformImpl_EnqueueTextCommand;
+
     result.IsMouseCaptured = PlatformImpl_IsMouseCaptured;
     result.SetMouseCaptured = PlatformImpl_SetMouseCaptured;
 
@@ -471,6 +488,10 @@ static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
                 g_bExitAppThread = YES;
             }
         }
+        // Check text command buffer
+        PlatformImpl_LockMutex(ZE_MUTEX_APP_TEXT_COMMAND_QUEUE, 0);
+        
+        PlatformImpl_UnlockMutex(ZE_MUTEX_APP_TEXT_COMMAND_QUEUE, 0);
     }
 
     #if 0 // timing test
@@ -511,6 +532,10 @@ static ErrorCode AppThread_Init()
         Win_Error("Error linking to App DLL");
         return err;
     }
+
+    // allocate a buffer to store console commands
+    g_appTextCommands = Buf_FromMalloc(
+        PlatformImpl_Allocate(1024), 1024);
 
     // Start thread
     g_appThread = {};
