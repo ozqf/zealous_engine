@@ -66,6 +66,9 @@ extern "C" i32 AppUI_ProcessInput(SysInputEvent ev)
             return APPUI_INPUT_TOGGLED_ON;
         }
     }
+    // if we are not on drop out now
+    if (!AppUI_IsActive()) { return APPUI_INPUT_UNHANDLED; }
+
     if (ev.inputID == Z_INPUT_CODE_MOUSE_1 && ev.value != 0)
     {
         if (g_menu->focusObjIndex < 0) { return APPUI_INPUT_UNHANDLED; }

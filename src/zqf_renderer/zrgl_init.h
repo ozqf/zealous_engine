@@ -74,9 +74,10 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
     CHECK_GL_ERR
 
     // v-sync - off
-    // frame rate is capped manually as v-sync gives me jip.
-    printf("Swap interval - 0\n");
-    glfwSwapInterval(0);
+    // want to cap frame rate manually... v-sync gives me jip.
+    const i32 swapInterval = 0;
+    printf("Swap interval - %d\n", swapInterval);
+    glfwSwapInterval(swapInterval);
 
     // Depth buffer
 	glEnable(GL_DEPTH_TEST);
