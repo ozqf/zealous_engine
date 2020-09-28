@@ -358,6 +358,8 @@ static void WindowImpl_Acquire_EventBuffer(ZEByteBuffer** buf)
         f32 normalisedMoveY = (f32)mouseMoveIntY / scrRatio.y;
         //printf("WIN normalised mouse: %f, %f\n", normalisedMoveX, normalisedMoveY);
         //printf("WIN mouse moved %d / %d\n", mouseMoveIntX, mouseMoveIntY);
+
+        // Write mouse movement
         Sys_WriteInputEvent(
             &g_eventBuffer,
             Z_INPUT_CODE_MOUSE_MOVE_X,
@@ -368,6 +370,17 @@ static void WindowImpl_Acquire_EventBuffer(ZEByteBuffer** buf)
             Z_INPUT_CODE_MOUSE_MOVE_Y,
             mouseMoveIntY,
             normalisedMoveY);
+        // Write mouse position
+        Sys_WriteInputEvent(
+            &g_eventBuffer,
+            Z_INPUT_CODE_MOUSE_POS_X,
+            (i32)g_mousePosX,
+            (f32)g_mousePosNormalisedX);
+        Sys_WriteInputEvent(
+            &g_eventBuffer,
+            Z_INPUT_CODE_MOUSE_POS_Y,
+            (i32)g_mousePosY,
+            (f32)g_mousePosNormalisedY);
         // Clear for next sample
         g_mouseAccumulatorSampleX = 0;
         g_mouseAccumulatorSampleY = 0;

@@ -40,6 +40,12 @@ internal i32 g_bMouseCaptured = YES;
 internal i32 g_bAppWantsMouseCaptured = YES;
 internal i32 g_consoleActive = NO;
 
+// recording mouse position
+internal f64 g_mousePosX = 0;
+internal f64 g_mousePosY = 0;
+internal f64 g_mousePosNormalisedX = 0;
+internal f64 g_mousePosNormalisedY = 0;
+// recording mouse movement
 internal f64 g_lastMouseSampleX = 0;
 internal f64 g_lastMouseSampleY = 0;
 internal f64 g_mouseAccumulatorSampleX = 0;
@@ -48,7 +54,7 @@ internal f64 g_mouseAccumulatorSampleY = 0;
 internal ze_platform_export g_platform = {};
 //internal ZRRenderer g_renderer = {};
 internal volatile i32 g_bExit = NO;
-// dimensions of window the current window
+// dimensions of the current window
 internal ScreenInfo g_windowSize;
 // monitor dimensions - read at load time so won't update
 // if screen moves around

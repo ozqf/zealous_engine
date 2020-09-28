@@ -14,11 +14,10 @@
 #include "../sys_events.h"
 
 extern "C" void AppUI_Init();
-extern "C" void AppUI_Update(Vec2 mouseScreenPos);
+extern "C" void AppUI_Update();
 extern "C" i32 AppUI_IsActive();
 extern "C" ErrorCode AppUI_WriteFrame(ZRViewFrame* frame);
 // return 0 == unhandled, 1 == handled, 2 == menu toggled
 extern "C" i32 AppUI_ProcessInput(SysInputEvent ev);
-extern "C" void AppUI_OpenRoot();
 
 #endif // APP_UI_H

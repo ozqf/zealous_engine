@@ -9,10 +9,13 @@
 #define ZUI_OBJ_TYPE_NONE 0
 #define ZUI_OBJ_TYPE_BUTTON 1
 
+#define ZUI_OBJ_FLAG_HOVER (1 << 0)
+
 struct ZUIObject
 {
 	i32 id;
 	i32 type;
+	i32 flags;
 	Point2 gridPos;
 	Vec2 pos;
 	// depth range is 1 (back) to -1 (front)
@@ -42,6 +45,7 @@ extern "C" ZUIScreen* ZUI_CreateScreen();
 //extern "C" i32 ZUI_WriteRenderTest(ZEByteBuffer* list, ZEByteBuffer* data);
 extern "C" void ZUI_WriteScreenForRender(
 	ZRViewFrame* frame, ZUIScreen* scr, ZEByteBuffer* list, ZEByteBuffer* data);
+extern "C" void ZUI_UpdateMouseOverlap(ZUIScreen* scr, Vec2 pos);
 
 extern "C" ZUIObject* ZUI_AddButton(
     ZUIScreen* scr, i32 gridX, i32 gridY, char* label, Colour offColour, Colour onColour);

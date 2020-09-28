@@ -134,7 +134,16 @@ static void window_close_callback(GLFWwindow* window)
 
 static void mouse_position_callback(GLFWwindow* window, double posX, double posY)
 {
+    // glfw gives pos as top left of window...
+    g_mousePosX = posX;
+    g_mousePosY = posY;
+    // ...convert to -1 to 1 range
+    g_mousePosNormalisedX = posX / g_windowSize.width;
+    g_mousePosNormalisedX = (g_mousePosNormalisedX * 2.f) - 1.f;
 
+    g_mousePosNormalisedY = posY / g_windowSize.height;
+    g_mousePosNormalisedY = (g_mousePosNormalisedY * 2.f) - 1.f;
+    g_mousePosNormalisedY *= -1.f;
 }
 
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)

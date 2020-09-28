@@ -9,6 +9,7 @@
 #define APP_MENU_ROOT 1
 
 internal ZUIScreen* g_menu = NULL;
+internal Vec2 g_mousePos = {};
 
 internal i32 g_currentMenu = APP_MENU_NONE;
 
@@ -17,15 +18,17 @@ extern "C" void AppUI_Init()
 	//APP_PRINT(64, "App UI Init\n");
     g_menu = ZUI_CreateScreen();
     g_menu->state = ZUI_SCREEN_STATE_ON;
-    ZUI_AddButton(g_menu, 0, -7, "START", COLOUR_WHITE, COLOUR_YELLOW);
-    ZUI_AddButton(g_menu, 0, -10, "OPTIONS", COLOUR_WHITE, COLOUR_YELLOW);
-    ZUI_AddButton(g_menu, 0, -13, "QUIT", COLOUR_WHITE, COLOUR_YELLOW);
+    Colour off = COLOUR_WHITE;
+    Colour on = COLOUR_BLACK; // COLOUR_YELLOW;
+    ZUI_AddButton(g_menu, 0, -7, "START", off, on);
+    ZUI_AddButton(g_menu, 0, -10, "OPTIONS", off, on);
+    ZUI_AddButton(g_menu, 0, -13, "QUIT", off, on);
 }
 
 extern "C" i32 AppUI_IsActive()
 { return (g_currentMenu > APP_MENU_NONE); }
 
-extern "C" void AppUI_Update(Vec2 mouseScreenPos)
+extern "C" void AppUI_Update()
 {
 	if (g_currentMenu < 0) { return; }
 }
@@ -47,7 +50,7 @@ extern "C" ErrorCode AppUI_WriteFrame(ZRViewFrame* frame)
 extern "C" i32 AppUI_ProcessInput(SysInputEvent ev)
 {
     if (ev.inputID == APPUI_MENU_TOGGLE_KEY
-                    && ev.value == 1)
+        && ev.value != 0)
     {
         // process open/close
         if (AppUI_IsActive())
@@ -61,18 +64,24 @@ extern "C" i32 AppUI_ProcessInput(SysInputEvent ev)
             return APPUI_INPUT_TOGGLED_ON;
         }
     }
+    if (ev.inputID == Z_INPUT_CODE_MOUSE_POS_X)
+    {
+        //printf("APPUI MPOS: %.3f\n", ev.value, ev.normalised);
+        g_mousePos.x = ev.normalised;
+        ZUI_UpdateMouseOverlap(g_menu, g_mousePos);
+    }
+    if (ev.inputID == Z_INPUT_CODE_MOUSE_POS_Y)
+    {
+        //printf("APPUI MPOS: %.3f\n", ev.value, ev.normalised);
+        g_mousePos.y = ev.normalised;
+        ZUI_UpdateMouseOverlap(g_menu, g_mousePos);
+    }
     if (AppUI_IsActive())
     {
         return APPUI_INPUT_HANDLED;
     }
     // unhandled
     return APPUI_INPUT_UNHANDLED;
-}
-
-extern "C" void AppUI_OpenRoot()
-{
-    // printf("Open menu\n");
-    // g_currentMenu = APP_MENU_ROOT;
 }
 
 #endif // APP_UI_CPP

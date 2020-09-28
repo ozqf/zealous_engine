@@ -20,18 +20,23 @@ internal i32 ZUI_WriteObjToScene(ZUIObject* uiObj, ZEByteBuffer* list, ZEByteBuf
     drawObj->t.pos.z = 0.1f;// uiObj->depth;
     drawObj->t.scale =
     {
-        (f32)uiObj->radiusInChars.x * uiObj->charSize,
-        (f32)uiObj->radiusInChars.y * uiObj->charSize,
+        ((f32)uiObj->radiusInChars.x * uiObj->charSize) * 2.f,
+        ((f32)uiObj->radiusInChars.y * uiObj->charSize) * 2.f,
         1
     };
     #endif
     // add text
     if (uiObj->label != NULL)
     {
+        Colour c = uiObj->offColour;
+        if (uiObj->flags & ZUI_OBJ_FLAG_HOVER)
+        {
+            c = uiObj->onColour;
+        }
         // create a temp text draw obj
         ZRDrawObj txtObj = {};
         txtObj.data.SetAsText(
-            uiObj->label, -1, uiObj->offColour, uiObj->bgColour, ZR_TEXT_ALIGNMENT_CENTRE);
+            uiObj->label, -1, c, uiObj->bgColour, ZR_TEXT_ALIGNMENT_CENTRE);
         // push object toward camera slightly, away from background
         txtObj.t.pos.x = uiObj->pos.x;
         txtObj.t.pos.y = uiObj->pos.y;
