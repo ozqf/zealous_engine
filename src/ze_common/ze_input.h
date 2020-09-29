@@ -5,7 +5,7 @@
 
 enum ZMouseMode { Free = 0, Captured = 1 };
 
-typedef int zeInputCode;
+typedef u32 zeInputCode;
 
 #define Z_INPUT_MOUSE_SCALAR 100000.f
 

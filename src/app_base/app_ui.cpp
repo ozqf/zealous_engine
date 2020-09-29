@@ -11,8 +11,24 @@
 internal ze_platform_export g_platform;
 internal ZUIScreen* g_menu = NULL;
 internal Vec2 g_mousePos = {};
+internal zeInputCode g_lastInputCode = Z_INPUT_CODE_NULL;
 
 internal i32 g_currentMenu = APP_MENU_NONE;
+
+// if true this key code should not be rebound
+internal i32 IsInputCodeReserved(zeInputCode code)
+{
+    if (code == Z_INPUT_CODE_NULL
+        || code == Z_INPUT_CODE_MOUSE_MOVE_X
+        || code == Z_INPUT_CODE_MOUSE_MOVE_Y
+        || code == Z_INPUT_CODE_MOUSE_POS_X
+        || code == Z_INPUT_CODE_MOUSE_POS_Y
+        || code == Z_INPUT_CODE_ESCAPE)
+    {
+        return YES;
+    }
+    return NO;
+}
 
 extern "C" void AppUI_Init(ze_platform_export platform)
 {
@@ -69,18 +85,26 @@ extern "C" i32 AppUI_ProcessInput(SysInputEvent ev)
     // if we are not on drop out now
     if (!AppUI_IsActive()) { return APPUI_INPUT_UNHANDLED; }
 
+    // test read for rebinding
+    if (IsInputCodeReserved(ev.inputID) == NO
+        && ev.inputID != g_lastInputCode)
+    {
+        printf("APPUI saw new input code %d\n", ev.inputID);
+    }
+
     if (ev.inputID == Z_INPUT_CODE_MOUSE_1 && ev.value != 0)
     {
         if (g_menu->focusObjIndex < 0) { return APPUI_INPUT_UNHANDLED; }
+
         ZUIObject* obj = &g_menu->objects[g_menu->focusObjIndex];
+        if (obj == NULL) { return APPUI_INPUT_HANDLED; }
+
         if (!ZE_CompareStrings(obj->label, "QUIT"))
         {
-            // TODO: Want to write this but can't:
             g_platform.EnqueueTextCommand("QUIT");
         }
         if (!ZE_CompareStrings(obj->label, "START"))
         {
-            // TODO: Want to write this but can't:
             g_platform.EnqueueTextCommand("START 1");
             g_currentMenu = APP_MENU_NONE;
             return APPUI_INPUT_TOGGLED_OFF;
