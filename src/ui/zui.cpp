@@ -20,6 +20,7 @@ extern "C" ZUIScreen* ZUI_CreateScreen()
     ZUIScreen* scr = (ZUIScreen*)malloc(sizeof(ZUIScreen));
     *scr = {};
     ZUIObject* objs = (ZUIObject*)malloc(sizeof(ZUIObject) * maxObjects);
+    scr->nextId = 1;
     scr->focusObjIndex = ZE_ERROR_BAD_INDEX;
     scr->objects = objs;
     scr->numObjects = 0;
@@ -31,7 +32,7 @@ extern "C" ZUIScreen* ZUI_CreateScreen()
 }
 
 extern "C" ZUIObject* ZUI_AddButton(
-    ZUIScreen* scr, i32 gridX, i32 gridY, char* label, Colour offColour, Colour onColour)
+    ZUIScreen* scr, Point2 gridPos, char* label, Colour offColour, Colour onColour)
 {
     if (scr->numObjects >= scr->maxObjects)
     {
@@ -40,9 +41,10 @@ extern "C" ZUIObject* ZUI_AddButton(
     ZUIObject* obj  = &scr->objects[scr->numObjects++];
     *obj = {};
     obj->type = ZUI_OBJ_TYPE_BUTTON;
-    obj->gridPos = { gridX, gridY };
-    obj->pos.x = gridX * scr->charSize;
-    obj->pos.y = gridY * scr->charSize;
+    obj->id = scr->nextId++;
+    obj->gridPos = gridPos;
+    obj->pos.x = gridPos.x * scr->charSize;
+    obj->pos.y = gridPos.y * scr->charSize;
     obj->charSize = scr->charSize;
     obj->radiusInChars = scr->buttonRadius;
     obj->onColour = onColour;

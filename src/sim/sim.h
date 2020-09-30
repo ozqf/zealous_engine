@@ -104,6 +104,11 @@ typedef u8 simFactoryType;
 #define SIM_TICK_TYPE_SEEKER_FLYING 16
 #define SIM_TICK_TYPE_PROJECTILE_VOLUME 17
 #define SIM_TICK_TYPE_STUN 18
+#define SIM_TICK_TYPE_PROJECTILE_ATTACK 19
+
+#define SIM_MAX_ENT_UPDATERS 32
+
+#define SIM_TICK_SUBMODE_NONE 0
 
 // Spawn pattern types.
 #define SIM_PATTERN_NONE 0

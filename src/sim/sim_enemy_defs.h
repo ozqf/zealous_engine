@@ -24,8 +24,8 @@ internal i32 Sim_InitRubble(
         SIM_DEATH_GFX_GIB);
     ent->display.data.model.billboard = 1;
     ent->deathType = SIM_DEATH_GFX_GIB;
-    ent->tickType = SIM_TICK_TYPE_SPAWN;
-    ent->coreTickType = SIM_TICK_TYPE_NONE;
+    ent->think.tickType = SIM_TICK_TYPE_SPAWN;
+    ent->think.coreTickType = SIM_TICK_TYPE_NONE;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = Sim_CalcThinkTick(scene, 1.5f);
     #ifdef SIM_USE_PHYSICS_ENGINE
@@ -52,8 +52,8 @@ internal i32 Sim_InitWanderer(
         SIM_DEATH_GFX_GIB);
     ent->movement.flags |= SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE;
     ent->deathType = SIM_DEATH_GFX_GIB;
-    ent->tickType = SIM_TICK_TYPE_SPAWN;
-    ent->coreTickType = SIM_TICK_TYPE_WANDERER;
+    ent->think.tickType = SIM_TICK_TYPE_SPAWN;
+    ent->think.coreTickType = SIM_TICK_TYPE_WANDERER;
     ent->timing.lastThink = ent->timing.birthTick; 
     ent->timing.nextThink = Sim_CalcThinkTick(scene, 1.5f);
     return ZE_ERROR_NONE;
@@ -75,8 +75,8 @@ internal i32 Sim_InitBouncer(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
-    ent->tickType = SIM_TICK_TYPE_SPAWN;
-    ent->coreTickType = SIM_TICK_TYPE_BOUNCER;
+    ent->think.tickType = SIM_TICK_TYPE_SPAWN;
+    ent->think.coreTickType = SIM_TICK_TYPE_BOUNCER;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = Sim_CalcThinkTick(scene, 1.5f);
     ent->deathType = SIM_DEATH_GFX_GIB;
@@ -99,8 +99,8 @@ internal i32 Sim_InitDart(
         "Enemy",
         SIM_DEATH_GFX_GIB);
     ent->deathType = SIM_DEATH_GFX_GIB;
-    ent->tickType = SIM_TICK_TYPE_SPAWN;
-    ent->coreTickType = SIM_TICK_TYPE_DART;
+    ent->think.tickType = SIM_TICK_TYPE_SPAWN;
+    ent->think.coreTickType = SIM_TICK_TYPE_DART;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = Sim_CalcThinkTick(scene, 1.5f);
     return ZE_ERROR_NONE;
@@ -121,8 +121,8 @@ internal i32 Sim_InitSeeker(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
-    ent->tickType = SIM_TICK_TYPE_SPAWN;
-    ent->coreTickType = SIM_TICK_TYPE_SEEKER;
+    ent->think.tickType = SIM_TICK_TYPE_SPAWN;
+    ent->think.coreTickType = SIM_TICK_TYPE_SEEKER;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = Sim_CalcThinkTick(scene, 1.5f);
     ent->deathType = SIM_DEATH_GFX_GIB;
@@ -145,8 +145,8 @@ internal i32 Sim_InitSeekerFlying(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
-    ent->tickType = SIM_TICK_TYPE_SPAWN;
-    ent->coreTickType = SIM_TICK_TYPE_SEEKER_FLYING;
+    ent->think.tickType = SIM_TICK_TYPE_SPAWN;
+    ent->think.coreTickType = SIM_TICK_TYPE_SEEKER_FLYING;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = Sim_CalcThinkTick(scene, 1.5f);
     ent->deathType = SIM_DEATH_GFX_GIB;
@@ -169,8 +169,8 @@ internal i32 Sim_InitGrunt(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
-    ent->tickType = SIM_TICK_TYPE_SPAWN;
-    ent->coreTickType = SIM_TICK_TYPE_GRUNT;
+    ent->think.tickType = SIM_TICK_TYPE_SPAWN;
+    ent->think.coreTickType = SIM_TICK_TYPE_GRUNT;
     ent->timing.lastThink = ent->timing.birthTick;
     ent->timing.nextThink = Sim_CalcThinkTick(sim, 1.5f);
     return ZE_ERROR_NONE;

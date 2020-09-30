@@ -12,8 +12,8 @@ internal void Sim_InitProjectile(
     i32 fastForwardTicks)
 {
     ent->status = SIM_ENT_STATUS_IN_USE;
-	ent->tickType = SIM_TICK_TYPE_PROJECTILE;
-	ent->coreTickType = SIM_TICK_TYPE_PROJECTILE;
+	ent->think.tickType = SIM_TICK_TYPE_PROJECTILE;
+	ent->think.coreTickType = SIM_TICK_TYPE_PROJECTILE;
     ent->flags |= SIM_ENT_FLAG_USE_OVERRIDE_SCALE;
     ent->display.scale = { 0.15f, 0.15f, 1.0f };
 	Transform_SetToIdentity(&ent->body.t);

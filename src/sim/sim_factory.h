@@ -225,8 +225,8 @@ internal i32 Sim_InitActor(
         ZRDB_MESH_NAME_CUBE,
 		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_BULLET_IMPACT);
-    ent->tickType = SIM_TICK_TYPE_ACTOR;
-    ent->coreTickType = SIM_TICK_TYPE_ACTOR;
+    ent->think.tickType = SIM_TICK_TYPE_ACTOR;
+    ent->think.coreTickType = SIM_TICK_TYPE_ACTOR;
     ent->attackTime = 0.5f;
     ent->relationships.childSpawnCount = SIM_PLAYER_SHOTGUN_PELLETS;
     return ZE_ERROR_NONE;
@@ -248,8 +248,8 @@ internal i32 Sim_InitBot(
         ZRDB_MESH_NAME_CUBE,
 		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_BULLET_IMPACT);
-    ent->tickType = SIM_TICK_TYPE_BOT;
-    ent->coreTickType = SIM_TICK_TYPE_BOT;
+    ent->think.tickType = SIM_TICK_TYPE_BOT;
+    ent->think.coreTickType = SIM_TICK_TYPE_BOT;
     //ent->flags = SIM_ENT_FLAG_POSITION_SYNC;
     return ZE_ERROR_NONE;
 }
@@ -259,8 +259,8 @@ internal i32 Sim_InitSpawner(
 {
     Sim_SetEntityBase(ent, def);
     ent->teamId = SIM_ENT_TEAM_NON_COMBATANT;
-    ent->tickType = SIM_TICK_TYPE_SPAWNER;
-    ent->coreTickType = SIM_TICK_TYPE_SPAWNER;
+    ent->think.tickType = SIM_TICK_TYPE_SPAWNER;
+    ent->think.coreTickType = SIM_TICK_TYPE_SPAWNER;
     ent->relationships.childSpawnCount = def->numChildren;
     ent->relationships.maxLiveChildren = def->numChildren;
     ent->relationships.totalChildren = def->numChildren;
@@ -277,8 +277,8 @@ internal i32 Sim_InitWorldVolume(
     Sim_SetEntityBase(ent, def);
     APP_PRINT(256, "SIM Spawning world volume at %.3f, %.3f, %.3f\n",
         def->pos.x, def->pos.y, def->pos.z);
-    ent->tickType = SIM_TICK_TYPE_WORLD;
-    ent->coreTickType = SIM_TICK_TYPE_WORLD;
+    ent->think.tickType = SIM_TICK_TYPE_WORLD;
+    ent->think.coreTickType = SIM_TICK_TYPE_WORLD;
     // this ent cannot be directly targetted!
     ent->teamId = SIM_ENT_TEAM_FREELANCE;
     ent->flags = SIM_ENT_FLAG_SHOOTABLE | SIM_ENT_FLAG_INVULNERABLE;
@@ -305,8 +305,8 @@ internal i32 Sim_InitPointLight(
     Vec3 settings = def->scale;
     def->scale = { 1, 1, 1 };
     Sim_SetEntityBase(ent, def);
-    ent->tickType = SIM_TICK_TYPE_NONE;
-    ent->coreTickType = SIM_TICK_TYPE_NONE;
+    ent->think.tickType = SIM_TICK_TYPE_NONE;
+    ent->think.coreTickType = SIM_TICK_TYPE_NONE;
     Colour colour;
     colour.r = def->pointLight.colour.x;
     colour.g = def->pointLight.colour.y;
@@ -330,8 +330,8 @@ internal i32 Sim_InitDirectLight(
     Vec3 settings = def->scale;
     def->scale = { 1, 1, 1 };
     Sim_SetEntityBase(ent, def);
-    ent->tickType = SIM_TICK_TYPE_NONE;
-    ent->coreTickType = SIM_TICK_TYPE_NONE;
+    ent->think.tickType = SIM_TICK_TYPE_NONE;
+    ent->think.coreTickType = SIM_TICK_TYPE_NONE;
     ent->teamId = SIM_ENT_TEAM_NON_COMBATANT;
     Colour colour;
     colour.r = def->pointLight.colour.x;
@@ -359,8 +359,8 @@ internal i32 Sim_InitLineTrace(
 {
 	//printf("SIM Create line trace\n");
     Sim_SetEntityBase(ent, def);
-    ent->tickType = SIM_TICK_TYPE_LINE_TRACE;
-    ent->coreTickType = SIM_TICK_TYPE_LINE_TRACE;
+    ent->think.tickType = SIM_TICK_TYPE_LINE_TRACE;
+    ent->think.coreTickType = SIM_TICK_TYPE_LINE_TRACE;
     ent->teamId = SIM_ENT_TEAM_NON_COMBATANT;
     ent->timing.nextThink = Sim_CalcThinkTick(scene, 2);
     return ZE_ERROR_NONE;
@@ -373,8 +373,8 @@ internal i32 Sim_InitExplosion(
     SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    ent->tickType = SIM_TICK_TYPE_EXPLOSION;
-    ent->coreTickType = SIM_TICK_TYPE_EXPLOSION;
+    ent->think.tickType = SIM_TICK_TYPE_EXPLOSION;
+    ent->think.coreTickType = SIM_TICK_TYPE_EXPLOSION;
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
@@ -390,8 +390,8 @@ internal i32 Sim_InitBulletImpact(
     SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    ent->tickType = SIM_TICK_TYPE_EXPLOSION;
-    ent->coreTickType = SIM_TICK_TYPE_EXPLOSION;
+    ent->think.tickType = SIM_TICK_TYPE_EXPLOSION;
+    ent->think.coreTickType = SIM_TICK_TYPE_EXPLOSION;
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
@@ -407,8 +407,8 @@ internal i32 Sim_InitTargetPoint(
     SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
-    ent->tickType = SIM_TICK_TYPE_TARGET_POINT;
-    ent->coreTickType = SIM_TICK_TYPE_TARGET_POINT;
+    ent->think.tickType = SIM_TICK_TYPE_TARGET_POINT;
+    ent->think.coreTickType = SIM_TICK_TYPE_TARGET_POINT;
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
@@ -431,8 +431,8 @@ internal i32 Sim_InitPropBillboard(
 		ZRDB_MAT_NAME_WORLD,
         SIM_DEATH_GFX_NONE);
     ent->display.data.model.billboard = 1;
-    ent->tickType = SIM_TICK_TYPE_NONE;
-    ent->coreTickType = SIM_TICK_TYPE_NONE;
+    ent->think.tickType = SIM_TICK_TYPE_NONE;
+    ent->think.coreTickType = SIM_TICK_TYPE_NONE;
     ent->timing.nextThink = 0;
     ent->body.t.scale = { 1, 1, 1 };
     return ZE_ERROR_NONE;
@@ -455,8 +455,8 @@ internal i32 Sim_InitPropMesh(
 		//ZRDB_MAT_NAME_WORLD,
         "city",
         SIM_DEATH_GFX_NONE);
-    ent->tickType = SIM_TICK_TYPE_NONE;
-    ent->coreTickType = SIM_TICK_TYPE_NONE;
+    ent->think.tickType = SIM_TICK_TYPE_NONE;
+    ent->think.coreTickType = SIM_TICK_TYPE_NONE;
     ent->timing.nextThink = 0;
     ent->body.t.scale = { 1, 1, 1 };
     return ZE_ERROR_NONE;

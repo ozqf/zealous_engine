@@ -14,6 +14,7 @@
 #include "sim_projectiles.h"
 #include "sim_items.h"
 #include "sim_ent_actor.h"
+#include "sim_enemy_ticks.h"
 #include "sim_entity_ticks.h"
 #include "sim_fx.h"
 #include "sim_factory.h"

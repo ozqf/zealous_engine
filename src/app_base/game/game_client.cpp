@@ -351,6 +351,7 @@ extern "C" void CL_PostTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
     if (ent != NULL)
     {
         g_view.camera = ent->body.t;
+        g_view.health = ent->life.health;
         //g_view.showHud = 1;
         g_view.rightHand = 1;
         g_view.leftHand = 1;
@@ -358,6 +359,7 @@ extern "C" void CL_PostTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
     else
     {
         g_view.camera = g_camera;
+        g_view.health = -999;
         //g_view.showHud = NO;
         g_view.rightHand = 0;
         g_view.leftHand = 0;

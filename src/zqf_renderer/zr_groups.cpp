@@ -187,6 +187,7 @@ extern "C" ZRSceneView* ZR_BuildDrawGroups(
             {
                 ZRDrawGroup* potentialGroup = drawGroups->groups[j];
                 // TODO: Groups have a maximum size. Can this be changed?
+                // depends on batch data scheme...
                 if (objHash == potentialGroup->hash
                     && potentialGroup->numItems < ZR_MAX_BATCH_SIZE)
                 {

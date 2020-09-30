@@ -249,7 +249,7 @@ extern "C" void ZETests_Run()
 	//testMask = ~0;
 	//testMask |= TEST_ZEVARS | TEST_STRINGS;
 	//testMask |= TEST_ZEVARS;
-	testMask |= TEST_VOXEL_WORLD;
+	testMask |= TEST_ZEVARS | TEST_VOXEL_WORLD;
 
 	// Test core common lib
 	if (testMask & TEST_STRINGS) { Test_StringFunctions(); }

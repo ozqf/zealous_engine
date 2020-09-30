@@ -6,7 +6,6 @@
 #include "sim.h"
 #include <math.h>
 
-#define SIM_MAX_ENT_UPDATERS 32
 internal SimEntUpdate g_entUpdaters[SIM_MAX_ENT_UPDATERS];
 
 // Internal Sim module functions/data

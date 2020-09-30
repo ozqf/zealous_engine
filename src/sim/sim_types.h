@@ -184,6 +184,13 @@ struct SimEntHealth
     timeFloat stunDuration;
 };
 
+struct SimEntThink
+{
+    i32 tickType; // REPLICATED
+    i32 coreTickType; // the default tick type to return to DO NOT CHANGE!
+    i32 subMode; // internal state within current ticker
+};
+
 // TODO - breakup into ECS...?
 struct SimEntity
 {
@@ -192,11 +199,9 @@ struct SimEntity
     SimEntId id;
 	i32 playerId;	// if a player owns this
     i32 teamId;
-
-    simFactoryType factoryType;
-    i32 tickType; // REPLICATED
-    i32 coreTickType;
-
+    
+    simFactoryType factoryType; // identifies 'class' of entity. DO NOT CHANGE!
+    SimEntThink think;
     //ZShapeDef shape;
 
     SimEntRelationships relationships;

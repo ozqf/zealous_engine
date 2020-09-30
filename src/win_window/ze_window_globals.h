@@ -60,6 +60,8 @@ internal ScreenInfo g_windowSize;
 // if screen moves around
 internal ScreenInfo g_monitorSize;
 
+internal i32 g_framesWritten = 0;
+
 // cap fps
 internal i32 g_maxFPS = 0;
 

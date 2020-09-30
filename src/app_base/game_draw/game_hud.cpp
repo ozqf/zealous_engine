@@ -74,9 +74,12 @@ internal void Hud_AddUI(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSett
 	
     // Test status text
     // create a temp text draw obj
-    if (cfg.viewModels.textFieldFlags & CLR_HUD_ITEM_PLAYER_STATUS)
+    if (cfg.viewModels.textFieldFlags & CLR_HUD_ITEM_PLAYER_STATUS
+        && cfg.viewModels.health > 0)
     {
-        char* txt = "HEALTH 100\nAMMO 999";
+        ZE_BUILD_STRING(txt, 256, "HEALTH %d\nAMMO 999\n",
+            cfg.viewModels.health)
+        //char* txt = "HEALTH 100\nAMMO 999";
         ZRDrawObj txtObj = {};
         txtObj.data.SetAsText(
             txt, -1, COLOUR_WHITE, COLOUR_EMPTY, ZR_TEXT_ALIGNMENT_TOP_LEFT);

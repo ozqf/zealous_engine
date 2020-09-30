@@ -45,7 +45,7 @@ internal void SimEnt_TickSpawnAnimation(
     if (sim->tick >= ent->timing.nextThink)
     {
         ent->flags &= ~SIM_ENT_FLAG_OUT_OF_PLAY;
-        ent->tickType = ent->coreTickType;
+        ent->think.tickType = ent->think.coreTickType;
         ent->body.t.scale = { halfSize->x * 2, halfSize->y * 2, halfSize->z * 2 };
     }
     else
@@ -72,7 +72,7 @@ internal void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTime
     if (!bIgnoreTimeout && sim->tick >= ent->timing.nextThink)
     {
 		// leave next tick alone so new tick type "tocks" immediataly.
-        ent->tickType = ent->coreTickType;
+        ent->think.tickType = ent->think.coreTickType;
     }
 	if (ent->movement.moveMode == SIM_ENT_MOVE_TYPE_WALK)
 	{
@@ -118,6 +118,35 @@ SIM_DEFINE_ENT_UPDATE_FN(SimEnt_TickWanderer)
     Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
 }
 
+SIM_DEFINE_ENT_UPDATE_FN(SimEnt_TickGrunt)
+{
+    SimEntity* target = SimEnt_UpdateTargetting(sim, ent, bIsServer);
+    // Have we got a target?
+    if (target == NULL)
+    {
+        ent->movement.velocity = { 0, 0, 0 };
+    }
+    else
+    {
+        if (ent->timing.nextThink <= sim->tick
+            && (ent->movement.flags & SIM_ENT_MOVE_BIT_GROUNDED) != 0)
+        {
+            ent->timing.lastThink = ent->timing.nextThink;
+
+            f32 randomWait = COM_STDRandomInRange(1, 1);
+            ent->timing.nextThink = Sim_CalcThinkTick(sim, randomWait);
+            ent->think.tickType = SIM_TICK_TYPE_PROJECTILE_ATTACK;
+            ent->think.subMode = SIM_TICK_SUBMODE_NONE;
+        }
+        else
+        {
+            ent->movement.velocity = SimEnt_CalcFlatVelocityTowardPos(
+                sim, ent, target->body.t.pos);
+        }
+    }
+    Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
+}
+
 internal void SimEnt_TickSeeker(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
@@ -129,6 +158,10 @@ internal void SimEnt_TickSeeker(
     }
     else
     {
+        ent->movement.velocity = SimEnt_CalcFlatVelocityTowardPos(
+            sim, ent, target->body.t.pos);
+        
+        #if 0
         Vec3 toTarget =
         {
             target->body.t.pos.x - ent->body.t.pos.x,
@@ -152,6 +185,7 @@ internal void SimEnt_TickSeeker(
             0,
             toTarget.z * ent->movement.speed,
         };
+        #endif
     }
     Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
 
@@ -271,8 +305,9 @@ internal void Sim_InitTickFunctions(SimScene* sim)
     g_entUpdaters[SIM_TICK_TYPE_DART] = SimEnt_TickDart;
     g_entUpdaters[SIM_TICK_TYPE_LINE_TRACE] = SimEnt_TickTimeout;
     g_entUpdaters[SIM_TICK_TYPE_SPAWN] = SimEnt_TickSpawnAnimation;
-    //g_entUpdaters[SIM_TICK_TYPE_GRUNT] = SimEnt_TickGrunt;
-    g_entUpdaters[SIM_TICK_TYPE_GRUNT] = SimEnt_TickBouncer;
+    g_entUpdaters[SIM_TICK_TYPE_GRUNT] = SimEnt_TickGrunt;
+    g_entUpdaters[SIM_TICK_TYPE_PROJECTILE_ATTACK] = SimEnt_TickProjectileAttack;
+    //g_entUpdaters[SIM_TICK_TYPE_GRUNT] = SimEnt_TickBouncer;
 }
 
 internal SimEntUpdate Sim_GetTickFunc(i32 index)
@@ -297,7 +332,7 @@ internal void Sim_TickEntities(SimScene* sim, ZEBuffer* output, timeFloat delta)
         ent->body.previousPos = ent->body.t.pos;
 		
         #if 1
-        SimEntUpdate updater = Sim_GetTickFunc(ent->tickType);
+        SimEntUpdate updater = Sim_GetTickFunc(ent->think.tickType);
         if (updater == NULL) { continue; }
         updater(sim, ent, delta, bIsServer);
         #endif

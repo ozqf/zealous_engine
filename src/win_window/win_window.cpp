@@ -27,8 +27,6 @@ static void Window_EnqueueTextCommand(char* str);
 #include "ze_window_globals.h"
 #include "ze_window_callbacks.h"
 
-i32 g_framesWritten = 0;
-
 static void ZR_Error(const char* msg)
 {
     g_platform.Error((char*)msg);
@@ -254,7 +252,7 @@ static void Window_Restart()
 
 static i32 WindowImpl_Init()
 {
-    printf("WINDOW - init\n");
+    printf("=== WINDOW - init ===\n");
     //g_platform.Warning("Hello from window DLL", "666");
     // This NEVER happens honest gov.
     ZE_SetFatalError(ZR_Error);

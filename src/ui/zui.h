@@ -32,6 +32,7 @@ struct ZUIObject
 struct ZUIScreen
 {
 	i32 id;
+	i32 nextId;
 	i32 focusObjIndex;
 	ZUIObject* objects;
 	i32 numObjects;
@@ -49,6 +50,6 @@ extern "C" void ZUI_WriteScreenForRender(
 extern "C" void ZUI_UpdateMouseOverlap(ZUIScreen* scr, Vec2 pos);
 
 extern "C" ZUIObject* ZUI_AddButton(
-    ZUIScreen* scr, i32 gridX, i32 gridY, char* label, Colour offColour, Colour onColour);
+    ZUIScreen* scr, Point2 gridPos, char* label, Colour offColour, Colour onColour);
 
 #endif // ZUI_H

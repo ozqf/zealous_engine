@@ -36,6 +36,7 @@ struct ClientView
     i32 rightHand;
     i32 leftHand;
     i32 textFieldFlags;
+    i32 health;
 };
 
 struct ClientRenderSettings
