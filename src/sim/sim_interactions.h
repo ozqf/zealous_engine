@@ -7,6 +7,27 @@ internal i32 SimEnt_CheckTeamDiffer(i32 atkTeam, i32 victimTeam)
     return atkTeam != victimTeam;
 }
 
+internal void SimEnt_ApplyStun(SimScene* sim, SimEntity* victim)
+{
+    if (victim->flags & SIM_ENT_FLAG_IGNORE_STUN) { return; }
+
+    victim->think.tickType = SIM_TICK_TYPE_STUN;
+    victim->timing.nextThink = Sim_CalcThinkTick(
+        sim, victim->life.stunDuration);
+    // Launch off the ground
+	if (victim->movement.moveMode == SIM_ENT_MOVE_TYPE_WALK)
+	{
+        Vec3 launchVel;
+        if (victim->movement.flags & SIM_ENT_MOVE_BIT_GROUNDED)
+        { launchVel = { 0, 10, 0 }; }
+        else { launchVel = { 0, 2, 0 }; }
+        if (victim->movement.velocity.y < launchVel.y)
+        {
+            victim->movement.velocity = launchVel;
+        }
+	}
+}
+
 /**
  * 0 if nothing happened, 1 if damage taken, 2 if victim killed
  */
@@ -29,27 +50,14 @@ internal i32 SimEnt_Hit(
         victim->life.health -= attacker->touchDamage;
         if (victim->life.health <= 0)
         {
-            Sim_WriteRemoveEntity(sim, victim, attacker, SIM_DEATH_STYLE_SHOT, hitDir, NO);
+            Sim_WriteRemoveEntity(
+                sim, victim, attacker, SIM_DEATH_STYLE_SHOT, hitDir, NO);
 			return 2;
         }
 		else
 		{
 			// stun?
-			victim->think.tickType = SIM_TICK_TYPE_STUN;
-            victim->timing.nextThink = Sim_CalcThinkTick(
-                sim, victim->life.stunDuration);
-            // Launch off the ground
-			if (victim->movement.moveMode == SIM_ENT_MOVE_TYPE_WALK)
-			{
-                Vec3 launchVel;
-                if (victim->movement.flags & SIM_ENT_MOVE_BIT_GROUNDED)
-                { launchVel = { 0, 10, 0 }; }
-                else { launchVel = { 0, 2, 0 }; }
-                if (victim->movement.velocity.y < launchVel.y)
-                {
-                    victim->movement.velocity = launchVel;
-                }
-			}
+            SimEnt_ApplyStun(sim, victim);
 		}
     }
 	return 1;

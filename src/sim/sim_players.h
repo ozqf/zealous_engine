@@ -22,7 +22,8 @@ internal i32 SimPlyr_InPlayCount(SimScene* sim)
 }
 #endif
 
-extern "C" SimPlayer* SimPlyr_Create(SimScene* sim)
+// if Id is 0 then assign a new Id, otherwise restore reserved
+extern "C" SimPlayer* SimPlyr_Create(SimScene* sim, i32 reservedId)
 {
 	SimPlayer* plyr = NULL;
 	for (i32 i = 0; i < sim->maxPlayers; ++i)
@@ -31,7 +32,14 @@ extern "C" SimPlayer* SimPlyr_Create(SimScene* sim)
 		{
 			plyr = &sim->players[i];
 			plyr->state = SIM_PLAYER_STATE_OBSERVING;
-			plyr->id = ++sim->nextPlayerId;
+			if (reservedId == 0)
+			{
+				plyr->id = ++sim->nextPlayerId;
+			}
+			else
+			{
+				plyr->id = reservedId;
+			}
 			break;
 		}
 	}
@@ -50,6 +58,24 @@ extern "C" SimPlayer* SimPlyr_Get(SimScene* sim, i32 playerId)
 		{ return plyr; }
 	}
 	return NULL;
+}
+
+internal void SimPlyr_UpdateState(SimScene* sim, SimEvent_PlayerState* state)
+{
+	SimPlayer* plyr = SimPlyr_Get(sim, state->playerId);
+	if (plyr == NULL)
+	{
+		printf("SIM no player %d - creating\n", state->playerId);
+		plyr = SimPlyr_Create(sim, state->playerId);
+	}
+	plyr->avatarId = state->avatarId;
+	plyr->state = state->state;
+	if (state->avatarId != SIM_ENT_NULL_SERIAL)
+	{
+		SimEntity* ent = Sim_GetEntityBySerial(sim, state->avatarId);
+		ZE_ASSERT(ent != NULL, "Player state has avatar Id but no entity!");
+		ent->playerId = state->playerId;
+	}
 }
 
 internal void SimPlyr_Tick(SimScene* sim)

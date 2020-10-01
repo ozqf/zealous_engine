@@ -65,12 +65,17 @@ internal i32 SimRules_SpawnPlayer(SimScene* sim, SimPlayer* plyr)
 	// set player as in game
 	plyr->state = SIM_PLAYER_STATE_IN_GAME;
 
+    // write player state
+    ZE_INIT_PTR_IN_PLACE(plyrState, SimEvent_PlayerState, sim->outputBuf)
+    plyrState->Set(plyr);
+
 	// Increment active players and check for game start
 	sim->numActivePlayers++;
 	if (sim->numActivePlayers == 1)
 	{
 		// first player
 		printf("SIM - Begin game\n");
+        // TODO: Broadcast this
 		sim->gameState = SIM_GAME_STATE_GAMEPLAY;
 	}
     return YES;

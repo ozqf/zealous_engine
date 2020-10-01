@@ -10,6 +10,7 @@
 #define SIM_CMD_TYPE_SYNC_ENTITY 252
 #define SIM_CMD_TYPE_PLAYER_INPUT 251
 #define SIM_CMD_TYPE_PARTICLES 250
+#define SIM_CMD_TYPE_PLAYER_STATE 249
 
 #if 0
 struct SimCommand
@@ -24,6 +25,24 @@ struct SimEvent_PlayerInput
     ZECommand header;
     i32 playerId;
     SimActorInput input;
+};
+
+struct SimEvent_PlayerState
+{
+    ZECommand header;
+    i32 playerId;
+    i32 avatarId;
+	i32 state;
+	
+	void Set(SimPlayer* plyr)
+	{
+		this->header.type = SIM_CMD_TYPE_PLAYER_STATE;
+		this->header.size = sizeof(SimEvent_PlayerState);
+		this->header.sentinel = ZCMD_SENTINEL;
+		this->playerId = plyr->id;
+		this->avatarId = plyr->avatarId;
+		this->state = plyr->state;
+	}
 };
 
 struct SimEvent_RemoveEnt

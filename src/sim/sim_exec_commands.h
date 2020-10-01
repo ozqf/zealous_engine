@@ -81,6 +81,12 @@ internal void Sim_ExecuteCommands(
 				// }
 				// ent->input = cmd->input;
 			} break;
+			
+			case SIM_CMD_TYPE_PLAYER_STATE:
+			{
+				SimEvent_PlayerState* state = (SimEvent_PlayerState*)h;
+				SimPlyr_UpdateState(sim, state);
+			} break;
 			#if 0
 			case CMD_TYPE_S2C_RESTORE_ENTITY:
 			{

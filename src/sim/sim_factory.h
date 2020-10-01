@@ -199,6 +199,20 @@ internal void Sim_WriteRemoveEntity(
     ev.style = style;
     ev.dir = dir;
     ZCmd_Write(&ev.header, &sim->outputBuf->cursor);
+    if (victim->playerId != SIM_ENT_NULL_SERIAL)
+    {
+        printf("SIM - write player died!\n");
+        SimPlayer* plyr = SimPlyr_Get(sim, victim->playerId);
+        ZE_ASSERT(plyr != NULL, "Victim had playerId but no player found");
+
+        // TODO: Setting players state directly rather than letting event be
+        // processed locally.
+        plyr->state = SIM_PLAYER_STATE_DEAD;
+        plyr->avatarId = SIM_ENT_NULL_SERIAL;
+
+        ZE_INIT_PTR_IN_PLACE(plyrState, SimEvent_PlayerState, sim->outputBuf)
+        plyrState->Set(plyr);
+    }
 
     Sim_MarkEntityAsRemoved(sim, victim->id.serial);
 }
@@ -225,6 +239,7 @@ internal i32 Sim_InitActor(
         ZRDB_MESH_NAME_CUBE,
 		ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
         SIM_DEATH_GFX_BULLET_IMPACT);
+    ent->flags |= SIM_ENT_FLAG_IGNORE_STUN;
     ent->think.tickType = SIM_TICK_TYPE_ACTOR;
     ent->think.coreTickType = SIM_TICK_TYPE_ACTOR;
     ent->attackTime = 0.5f;

@@ -131,6 +131,7 @@ typedef u8 simFactoryType;
 #define SIM_ENT_FLAG_TARGET_SEEKING (1 << 4)
 #define SIM_ENT_FLAG_USE_OVERRIDE_SCALE (1 << 5)
 #define SIM_ENT_FLAG_INVULNERABLE (1 << 6)
+#define SIM_ENT_FLAG_IGNORE_STUN (1 << 7)
 
 #define SIM_DEATH_GFX_NONE 0
 #define SIM_DEATH_GFX_BULLET_IMPACT 1
@@ -161,7 +162,7 @@ extern "C" i32      Sim_Tick(
                         ZEBuffer* soundOutput,
                         timeFloat delta);
 // Players
-extern "C" SimPlayer* SimPlyr_Create(SimScene* sim);
+extern "C" SimPlayer* SimPlyr_Create(SimScene* sim, i32 reservedId);
 extern "C" SimPlayer* SimPlyr_Get(SimScene* sim, i32 playerId);
 
 // Entity list functions

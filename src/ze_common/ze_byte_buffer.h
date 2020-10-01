@@ -10,6 +10,7 @@
 /**
  * allocate space for an instance of the given struct type in the bytebuffer.
  * if byte buffer has no space, ptr will be null
+ * ASSUMES SIZE REQUIRED == sizeof(StructType)
  */
 #define ZE_INIT_PTR_IN_PLACE(ptrVariableName, structTypeName, ptrToByteBufferDest) \
 structTypeName##* ptrVariableName = NULL; \

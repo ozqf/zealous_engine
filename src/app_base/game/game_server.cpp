@@ -18,7 +18,7 @@ extern "C" void GSV_Start(SimScene* sim)
 
 extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEBuffer* buf)
 {
-    SimPlayer* plyr = SimPlyr_Create(sim);
+    SimPlayer* plyr = SimPlyr_Create(sim, 0);
     // reserve the Id for this player's avatar although we're not
     // necessarily spawning it yet.
     plyr->avatarId = Sim_ReserveEntitySerial(sim, NO);
