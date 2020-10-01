@@ -50,6 +50,7 @@ struct SimEvent_Spawn
     simFactoryType childFactoryType;
     u8 patternType;
     u8 numChildren;
+    u8 teamId;
 
     Vec3 pos;
     Vec3 scale;
@@ -80,6 +81,7 @@ struct SimSpawnBase
 {
     i32 firstSerial;
     i32 sourceSerial;
+    u8 teamId;
     i32 tick;
     u8 seedIndex;
     Transform xForm;
@@ -108,6 +110,7 @@ internal void Sim_SetBulkSpawn(
     Transform xForm,
     i32 tick,
     u8 factoryType,
+    u8 teamId,
     u8 patternId,
     u8 numItems,
     u8 seedIndex,
@@ -119,6 +122,7 @@ internal void Sim_SetBulkSpawn(
     ev->factoryType = factoryType;
     ev->base.firstSerial = firstSerial;
     ev->base.sourceSerial = sourceSerial;
+    ev->base.teamId = teamId;
     ev->base.xForm = xForm;
     ev->base.tick = tick;
     ev->base.seedIndex = seedIndex;

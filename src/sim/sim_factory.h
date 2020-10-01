@@ -491,6 +491,7 @@ internal i32 Sim_InitProjBase(
         def->pos,
         { def->pitchDegrees, def->yawDegrees, 0 },
         def->velocity,
+        def->teamId,
         &t,
         def->fastForwardTicks);
 
@@ -522,6 +523,7 @@ internal i32 Sim_InitProjPrediction(
         def->pos,
         { def->pitchDegrees, def->yawDegrees, 0 },
         def->velocity,
+        def->teamId,
         &t,
         def->fastForwardTicks);
 
@@ -556,6 +558,7 @@ internal i32 Sim_InitPlayerProjectile(
         def->pos,
         { def->pitchDegrees, def->yawDegrees, 0 },
         def->velocity,
+        def->teamId,
         &t,
         def->fastForwardTicks);
     if (ent->relationships.parentId.serial == scene->localAvatarId)

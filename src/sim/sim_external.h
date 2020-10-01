@@ -256,6 +256,7 @@ i32 Sim_ExecuteBulkSpawn(
 		
         SimEvent_Spawn entDef = {};
         entDef.factoryType = event->factoryType;
+        entDef.teamId = event->base.teamId;
         entDef.serial = item->entSerial;
         entDef.pos = item->pos;
         Vec3 euler = Vec3_EulerAngles(item->forward);

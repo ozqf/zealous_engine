@@ -288,12 +288,12 @@ internal void SimEnt_StepActorMovement(
 internal void SimEnt_FireAttack(
 	SimScene* sim,
     SimEntity* ent,
-    Vec3* dir, // not used!
-    i32 prjType, // not used!
+    Vec3 dir, // not used!
+    u8 factoryType, // not used!
     i32 numProjectiles)
 {
 	if (numProjectiles <= 0) { numProjectiles = 1; }
-    
+
     SimEvent_BulkSpawn event = {};
     Transform t = ent->body.t;
     Sim_SetBulkSpawn(
@@ -302,7 +302,8 @@ internal void SimEnt_FireAttack(
         ent->id.serial,
         t,
         sim->tick,
-        SIM_FACTORY_TYPE_PROJ_PLAYER,
+        factoryType,
+        ent->teamId,
         SIM_PATTERN_3D_CONE,
         (u8)numProjectiles,
         COM_STDRandU8(),
@@ -361,7 +362,15 @@ internal void SimEnt_TickActorAttack(
             forward.x = -forward.x;
             forward.y = -forward.y;
             forward.z = -forward.z;
-			SimEnt_FireAttack(sim, ent, &forward, item->eventType, item->eventCount);
+            if (item->eventType == SIM_ITEM_EVENT_TYPE_PROJECTILE)
+            {
+                SimEnt_FireAttack(sim, ent, forward, item->factoryType, item->eventCount);
+            }
+			else
+            {
+                printf("Weapon has unknown event type %d\n", item->eventType);
+            }
+            
         }
 	}
 	else

@@ -37,6 +37,12 @@ SIM_DEFINE_ENT_UPDATE_FN(SimEnt_TickProjectileAttack)
 		{
 			// fire projectile
 			printf("ENT - fire %d\n", sim->tick);
+
+			u8 factoryType = SIM_FACTORY_TYPE_PROJECTILE_BASE;
+			SimEnt_FireAttack(
+				sim, ent, {}, factoryType, 1
+			);
+
 			// enter reload pause
 			ent->think.subMode = 2;
 			ent->timing.nextThink = Sim_CalcThinkTick(sim, 0.5f);

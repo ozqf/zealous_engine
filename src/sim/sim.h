@@ -110,6 +110,9 @@ typedef u8 simFactoryType;
 
 #define SIM_TICK_SUBMODE_NONE 0
 
+#define SIM_ITEM_EVENT_TYPE_NONE 0
+#define SIM_ITEM_EVENT_TYPE_PROJECTILE 1
+
 // Spawn pattern types.
 #define SIM_PATTERN_NONE 0
 #define SIM_PATTERN_FLAT_CONE 1

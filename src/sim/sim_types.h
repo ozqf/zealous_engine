@@ -63,9 +63,10 @@ struct SimAvoidInfo
 struct SimInventoryItem
 {
     char* name;
-    i32 eventType;
-    i32 eventCount;
-    f32 duration;
+    i32 eventType;      // what happens
+    u8 factoryType;    // if spawning something, what type?
+    i32 eventCount;     // eg projectile count
+    f32 duration;       // eg refire time
 };
 
 #pragma pack(push, 1)
@@ -198,7 +199,7 @@ struct SimEntity
     i32 isLocal;
     SimEntId id;
 	i32 playerId;	// if a player owns this
-    i32 teamId;
+    u8 teamId;
     
     simFactoryType factoryType; // identifies 'class' of entity. DO NOT CHANGE!
     SimEntThink think;

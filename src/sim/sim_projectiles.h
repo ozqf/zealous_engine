@@ -8,6 +8,7 @@ internal void Sim_InitProjectile(
     Vec3 pos,
     Vec3 eulerDegrees,
     Vec3 velocity,
+    u8 teamId,
     SimProjectileType* type,
     i32 fastForwardTicks)
 {
@@ -15,6 +16,7 @@ internal void Sim_InitProjectile(
 	ent->think.tickType = SIM_TICK_TYPE_PROJECTILE;
 	ent->think.coreTickType = SIM_TICK_TYPE_PROJECTILE;
     ent->flags |= SIM_ENT_FLAG_USE_OVERRIDE_SCALE;
+    ent->teamId = teamId;
     ent->display.scale = { 0.15f, 0.15f, 1.0f };
 	Transform_SetToIdentity(&ent->body.t);
     Transform_SetRotation(&ent->body.t, eulerDegrees.x * DEG2RAD, eulerDegrees.y * DEG2RAD, 0);
@@ -59,6 +61,7 @@ internal i32 Sim_StepProjectile(
     for (i32 i = 0; i < overlaps; ++i)
     {
         SimEntity* victim = results[i].ent;
+        // teams/flags are checked in hit function:
         i32 hitResponse = SimEnt_Hit(sim, ent, victim, dir);
         if (hitResponse == 0) { continue; }
         // hit something, remove self.

@@ -22,6 +22,7 @@ internal i32 Sim_InitRubble(
         "Quad",
         "Enemy",
         SIM_DEATH_GFX_GIB);
+    ent->teamId = SIM_ENT_TEAM_ENEMY;
     ent->display.data.model.billboard = 1;
     ent->deathType = SIM_DEATH_GFX_GIB;
     ent->think.tickType = SIM_TICK_TYPE_SPAWN;
@@ -50,6 +51,7 @@ internal i32 Sim_InitWanderer(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
+    ent->teamId = SIM_ENT_TEAM_ENEMY;
     ent->movement.flags |= SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE;
     ent->deathType = SIM_DEATH_GFX_GIB;
     ent->think.tickType = SIM_TICK_TYPE_SPAWN;
@@ -75,6 +77,7 @@ internal i32 Sim_InitBouncer(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
+    ent->teamId = SIM_ENT_TEAM_ENEMY;
     ent->think.tickType = SIM_TICK_TYPE_SPAWN;
     ent->think.coreTickType = SIM_TICK_TYPE_BOUNCER;
     ent->timing.lastThink = ent->timing.birthTick;
@@ -98,6 +101,7 @@ internal i32 Sim_InitDart(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
+    ent->teamId = SIM_ENT_TEAM_ENEMY;
     ent->deathType = SIM_DEATH_GFX_GIB;
     ent->think.tickType = SIM_TICK_TYPE_SPAWN;
     ent->think.coreTickType = SIM_TICK_TYPE_DART;
@@ -121,6 +125,7 @@ internal i32 Sim_InitSeeker(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
+    ent->teamId = SIM_ENT_TEAM_ENEMY;
     ent->think.tickType = SIM_TICK_TYPE_SPAWN;
     ent->think.coreTickType = SIM_TICK_TYPE_SEEKER;
     ent->timing.lastThink = ent->timing.birthTick;
@@ -145,6 +150,7 @@ internal i32 Sim_InitSeekerFlying(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
+    ent->teamId = SIM_ENT_TEAM_ENEMY;
     ent->think.tickType = SIM_TICK_TYPE_SPAWN;
     ent->think.coreTickType = SIM_TICK_TYPE_SEEKER_FLYING;
     ent->timing.lastThink = ent->timing.birthTick;
@@ -169,6 +175,7 @@ internal i32 Sim_InitGrunt(
         "Cube",
         "Enemy",
         SIM_DEATH_GFX_GIB);
+    ent->teamId = SIM_ENT_TEAM_ENEMY;
     ent->think.tickType = SIM_TICK_TYPE_SPAWN;
     ent->think.coreTickType = SIM_TICK_TYPE_GRUNT;
     ent->timing.lastThink = ent->timing.birthTick;
@@ -184,6 +191,7 @@ internal i32 Sim_InitBrute(
     Sim_SetEntLife(ent, NO, YES, 100);
     Sim_SetEntMoveType(ent, &ent->movement, 3, SIM_ENT_MOVE_TYPE_WALK, NO);
     
+    ent->teamId = SIM_ENT_TEAM_ENEMY;
     Sim_SetEntityBody(ent, { 3.0f, 2.0f, 3.0f });
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
@@ -202,7 +210,7 @@ internal i32 Sim_InitCharger(
     Sim_SetEntityBase(ent, data);
     Sim_SetEntLife(ent, NO, YES, 100);
     Sim_SetEntMoveType(ent, &ent->movement, 3, SIM_ENT_MOVE_TYPE_WALK, NO);
-    
+    ent->teamId = SIM_ENT_TEAM_ENEMY;
     Sim_SetEntityBody(ent, { 2.0f, 2.0f, 2.0f });
     Sim_SetEnemyDefaultFlags(ent);
     return ZE_ERROR_NONE;

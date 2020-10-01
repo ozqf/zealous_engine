@@ -144,6 +144,10 @@ SIM_DEFINE_ENT_UPDATE_FN(SimEnt_TickGrunt)
                 sim, ent, target->body.t.pos);
         }
     }
+    
+    Vec3 rot = Vec3_EulerAngles(Vec3_Flipped(ent->movement.velocity));
+    Transform_SetRotation(&ent->body.t, 0, rot.y, 0);
+
     Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
 }
 
@@ -272,6 +276,7 @@ internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaT
             t,
             sim->tick,
             ent->relationships.childFactoryType,
+            SIM_ENT_TEAM_ENEMY,
             ent->relationships.patternType,
             (u8)ent->relationships.childSpawnCount,
             COM_STDRandU8(),
