@@ -58,7 +58,8 @@ internal i32 Game_StartGameSession(
 	// start sub-modules
 	CLG_Start(&g_sim);
 	GSV_Start(&g_sim);
-	CL_RegisterLocalPlayer(&g_sim, GSV_CreateLocalPlayer(&g_sim, g_gameBuf.GetWrite()));
+	i32 localPlayerId = SV_CreateLocalPlayer(&g_sim, g_gameBuf.GetWrite());
+	CL_RegisterLocalPlayer(&g_sim, localPlayerId);
 	return ZE_ERROR_NONE;
 }
 

@@ -22,8 +22,14 @@ internal i32 SimPlyr_InPlayCount(SimScene* sim)
 }
 #endif
 
+extern "C" i32 SimPlyr_ReserveId(SimScene* sim)
+{
+	i32 id = sim->nextPlayerId++;
+	return id;
+}
+
 // if Id is 0 then assign a new Id, otherwise restore reserved
-extern "C" SimPlayer* SimPlyr_Create(SimScene* sim, i32 reservedId)
+internal SimPlayer* SimPlyr_Create(SimScene* sim, i32 reservedId)
 {
 	SimPlayer* plyr = NULL;
 	for (i32 i = 0; i < sim->maxPlayers; ++i)

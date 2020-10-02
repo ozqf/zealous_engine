@@ -34,14 +34,14 @@ struct SimEvent_PlayerState
     i32 avatarId;
 	i32 state;
 	
-	void Set(SimPlayer* plyr)
+	void Set(i32 newPlayerId, i32 newAvatarId, i32 newState)
 	{
 		this->header.type = SIM_CMD_TYPE_PLAYER_STATE;
 		this->header.size = sizeof(SimEvent_PlayerState);
 		this->header.sentinel = ZCMD_SENTINEL;
-		this->playerId = plyr->id;
-		this->avatarId = plyr->avatarId;
-		this->state = plyr->state;
+		this->playerId = newPlayerId;
+		this->avatarId = newAvatarId;
+		this->state = newState;
 	}
 };
 

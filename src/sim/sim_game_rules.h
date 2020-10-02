@@ -49,6 +49,7 @@ internal i32 SimRules_SpawnPlayer(SimScene* sim, SimPlayer* plyr)
         printf("SIM cannot spawn player - wrong rules\n");
         return NO;
     }
+	//--------------------
 	// spawn a player avatar. if this is the first player to spawn,
 	// enter gameplay mode
 	SimEvent_Spawn* cmd = (SimEvent_Spawn*)sim->outputBuf->cursor;
@@ -58,16 +59,18 @@ internal i32 SimRules_SpawnPlayer(SimScene* sim, SimPlayer* plyr)
     cmd->header.size = sizeof(SimEvent_Spawn);
     cmd->factoryType = SIM_TICK_TYPE_ACTOR;
     cmd->pos = sim->playerStartPos;
-    cmd->serial = plyr->avatarId;
+    cmd->serial = Sim_ReserveEntitySerial(sim, NO);
 	
     sim->outputBuf->cursor += cmd->header.size;
 
-	// set player as in game
+	// set player as in game with avatar Id
 	plyr->state = SIM_PLAYER_STATE_IN_GAME;
-
+	plyr->avatarId = cmd->serial;
+	
+	//--------------------
     // write player state
     ZE_INIT_PTR_IN_PLACE(plyrState, SimEvent_PlayerState, sim->outputBuf)
-    plyrState->Set(plyr);
+    plyrState->Set(plyr->id, plyr->avatarId, plyr->state);
 
 	// Increment active players and check for game start
 	sim->numActivePlayers++;

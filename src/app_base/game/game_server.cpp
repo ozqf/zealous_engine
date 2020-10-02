@@ -16,25 +16,25 @@ extern "C" void GSV_Start(SimScene* sim)
     g_sim = sim;
 }
 
-extern "C" SimPlayer GSV_CreateLocalPlayer(SimScene* sim, ZEBuffer* buf)
+/**
+ * Returns player Id
+ */
+extern "C" i32 SV_CreateLocalPlayer(SimScene* sim, ZEBuffer* buf)
 {
+    i32 playerId = SimPlyr_ReserveId(sim);
+    //i32 avatarId = Sim_ReserveEntitySerial(sim, NO);
+
+    ZE_INIT_PTR_IN_PLACE(plyr, SimEvent_PlayerState, buf);
+    plyr->Set(playerId, SIM_ENT_NULL_SERIAL, SIM_PLAYER_STATE_OBSERVING);
+    return playerId;
+
+    #if 0
     SimPlayer* plyr = SimPlyr_Create(sim, 0);
     // reserve the Id for this player's avatar although we're not
     // necessarily spawning it yet.
     plyr->avatarId = Sim_ReserveEntitySerial(sim, NO);
-    #if 0 // spawn avatar
-    SimEvent_Spawn* cmd = (SimEvent_Spawn*)buf->cursor;
-    *cmd = {};
-    cmd->header.type = SIM_CMD_TYPE_RESTORE_ENTITY;
-    cmd->header.sentinel = ZCMD_SENTINEL;
-    cmd->header.size = sizeof(SimEvent_Spawn);
-    cmd->factoryType = SIM_TICK_TYPE_ACTOR;
-    cmd->pos = sim->playerStartPos;
-    cmd->serial = plyr->avatarId;
-
-    buf->cursor += cmd->header.size;
+    return *plyr;
     #endif
-	return *plyr;
 }
 
 extern "C" void SV_KillPlayer()

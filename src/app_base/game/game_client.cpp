@@ -19,7 +19,11 @@ internal InputActionSet g_inputActions = {
 
 internal Transform g_camera;
 internal SimActorInput g_debugInput;
-internal SimPlayer g_player;
+//internal SimPlayer g_player;
+internal i32 g_playerId = 0;
+internal i32 g_avatarId = 0;
+internal i32 g_remoteState = 0;
+
 internal i32 g_bIsRunning = NO;
 internal u32 g_debugFlags;
 internal ClientView g_view;
@@ -28,7 +32,7 @@ internal ClientRenderer* g_rend;
 
 extern "C" Transform CL_GetCamera(SimScene* sim)
 {
-    SimEntity* ent = Sim_GetEntityBySerial(sim, g_player.avatarId);
+    SimEntity* ent = Sim_GetEntityBySerial(sim, g_avatarId);
     if (ent != NULL)
     {
         return ent->body.t;
@@ -115,7 +119,8 @@ extern "C" void CLG_Start(SimScene* sim)
 {
     printf("CL Start\n");
     g_bIsRunning = YES;
-    g_player = {};
+    g_playerId = 0;
+    g_avatarId = 0;
 
     g_view = {};
     if (sim->gameRules == SIM_GAME_RULES_NONE)
@@ -255,7 +260,7 @@ internal void CL_CheckForSimEvents(ZEBuffer* buf)
             case SIM_CMD_TYPE_RESTORE_ENTITY:
             {
                 SimEvent_Spawn* cmd = (SimEvent_Spawn*)cmdHeader;
-                if (cmd->serial != g_player.avatarId) { continue; }
+                if (cmd->serial != g_playerId) { continue; }
 
                 printf("Client saw self spawn\n");
                 g_view.textFieldFlags ^= CLR_HUD_ITEM_SPAWN_PROMPT;
@@ -266,10 +271,21 @@ internal void CL_CheckForSimEvents(ZEBuffer* buf)
             case SIM_CMD_TYPE_REMOVE_ENTITY:
             {
                 SimEvent_RemoveEnt* cmd = (SimEvent_RemoveEnt*)cmdHeader;
-                if (cmd->entityId != g_player.avatarId) { continue; }
+                if (cmd->entityId != g_avatarId) { continue; }
                 printf("Client saw avatar removal\n");
             }
             break;
+            case SIM_CMD_TYPE_PLAYER_STATE:
+            {
+                //SimEvent_PlayerState* cmd = (SimEvent_PlayerState*)
+                ZCMD_CAST_DOWN(cmd, SimEvent_PlayerState, cmdHeader)
+				if (cmd->playerId == g_playerId)
+				{
+					printf("Client saw own player state\n"); 
+					g_avatarId = cmd->avatarId;
+					g_remoteState = cmd->state;
+				}
+            } break;
         }
     ZCMD_END_ITERATE
 
@@ -318,11 +334,11 @@ internal void CL_CheckForSimEvents(ZEBuffer* buf)
     #endif
 }
 
-extern "C" void CL_RegisterLocalPlayer(SimScene* sim, SimPlayer plyr)
+extern "C" void CL_RegisterLocalPlayer(SimScene* sim, i32 playerId)
 {
-    g_player = plyr;
-    sim->localAvatarId = g_player.avatarId;
-    printf("GCL plyr Id %d avatar %d\n", g_player.id, g_player.avatarId);
+    g_playerId = playerId;
+    //sim->localAvatarId = g_player.avatarId;
+    printf("GCL plyr Id %d avatar %d\n", g_playerId, g_avatarId);
 }
 
 extern "C" void CL_PreTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
@@ -332,11 +348,12 @@ extern "C" void CL_PreTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
     CL_UpdateActorInput(&g_inputActions, &g_debugInput);
     Sim_TickDebugCamera(&g_camera, g_debugInput, 16, delta);
 
+    // Write input update to Sim
     SimEvent_PlayerInput input = {};
     input.header.sentinel = ZCMD_SENTINEL;
     input.header.size = sizeof(SimEvent_PlayerInput);
     input.header.type = SIM_CMD_TYPE_PLAYER_INPUT;
-    input.playerId = g_player.id;
+    input.playerId = g_playerId;
     input.input = g_debugInput;
 
     ZCmd_Write(&input.header, &buf->GetWrite()->cursor);
@@ -347,7 +364,11 @@ extern "C" void CL_PostTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
 {
     if (!g_bIsRunning) { return; }
     // update view and detech player state changes
-    SimEntity* ent = Sim_GetEntityBySerial(sim, g_player.avatarId);
+    SimEntity* ent = NULL;
+    if (g_avatarId != SIM_ENT_NULL_SERIAL)
+    {
+        ent = Sim_GetEntityBySerial(sim, g_avatarId);
+    }
     if (ent != NULL)
     {
         g_view.camera = ent->body.t;

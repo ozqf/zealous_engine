@@ -9,6 +9,10 @@
 #define ZCMD_SENTINEL 0xDEADBEEF
 #define ZCMD_INVALID_SIZE 0
 
+#define ZCMD_CAST_DOWN(ptrVarName, structTypeName, ptrCmdHeader) \
+structTypeName* ptrVarName = (structTypeName*)ptrCmdHeader; \
+ZE_ASSERT(ptrVarName->header.sentinel == ZCMD_SENTINEL, "Cmd down cast sentinel mismatch")
+
 struct ZECommand
 {
 	i32 type;

@@ -441,7 +441,6 @@ static ze_platform_export Win_BuildExport()
     result.DebugBreak = PlatformImpl_DebugBreak;
 
     result.GetAssetDB = PlatformImpl_GetAssetDB;
-    result.ExecTextCommand = PlatformImpl_ExecTextCommand;
     result.EnqueueTextCommand = PlatformImpl_EnqueueTextCommand;
 
     result.IsMouseCaptured = PlatformImpl_IsMouseCaptured;

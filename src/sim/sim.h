@@ -162,8 +162,8 @@ extern "C" i32      Sim_Tick(
                         ZEBuffer* soundOutput,
                         timeFloat delta);
 // Players
-extern "C" SimPlayer* SimPlyr_Create(SimScene* sim, i32 reservedId);
-extern "C" SimPlayer* SimPlyr_Get(SimScene* sim, i32 playerId);
+extern "C" i32          SimPlyr_ReserveId(SimScene* sim);
+extern "C" SimPlayer*   SimPlyr_Get(SimScene* sim, i32 playerId);
 
 // Entity list functions
 extern "C" SimEntity* Sim_GetEntityBySerial(SimScene* sim, i32 serial);
