@@ -2,6 +2,7 @@
 #define ZE_BYTE_BUFFER_H
 
 #include "ze_common.h"
+#include "ze_string_utils.h"
 
 #define BUF_COPY(ptrToByteBufferDest, ptrToSourceBytes, numOfBytesInArray) \
 {##ptrToByteBufferDest##->cursor += \
@@ -20,6 +21,11 @@ if (ptrToByteBufferDest##->Space() >= sizeof(##structTypeName##)) \
     ptrToByteBufferDest##->cursor += sizeof(##structTypeName##); \
     *##ptrVariableName = {}; \
 }
+
+
+#define ZE_CREATE_STACK_BUF(byteBufferVarName, byteBufferNumBytes) \
+u8 byteBufferVarName##Bytes[byteBufferNumBytes]; \
+ZEBuffer byteBufferVarName = Buf_FromBytes(byteBufferVarName##Bytes, byteBufferNumBytes);
 
 // TODO: Change this to a char buffer - was dumb to not do that to begin with :/
 struct ZEBuffer
@@ -60,6 +66,14 @@ struct ZEBuffer
     i32 CursorOffset()
     {
         return this->cursor - this->start;
+    }
+
+    i32 WriteString(const char* str)
+    {
+        i32 len = ZE_StrLen(str);
+        if (this->Space() < len) { return ZE_ERROR_NO_SPACE; }
+        this->cursor += ZE_COPY(str, this->cursor, len);
+        return ZE_ERROR_NONE;
     }
 };
 

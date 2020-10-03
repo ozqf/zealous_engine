@@ -4,7 +4,7 @@
 #include "ze_common.h"
 
 ////////////////////////////////////////////
-// Ultra basic tracking of memory allocations
+// Allocator 'object'
 ////////////////////////////////////////////
 struct ZEAllocator
 {
@@ -13,6 +13,16 @@ struct ZEAllocator
     void (*Free)(void* ptr);
 };
 
+struct ZEFileIO
+{
+    i32 (*OpenFile)(const char* path, i32 bRead);
+    void (*CloseFile)(i32 handle);
+    void (*WriteToFile)(i32 handle, u8* bytes, i32 numBytes);
+};
+
+////////////////////////////////////////////
+// Ultra basic tracking of memory allocations
+////////////////////////////////////////////
 struct MallocItem
 {
     void* ptr;

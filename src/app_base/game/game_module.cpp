@@ -153,3 +153,15 @@ extern "C" void Game_KillPlayers()
 {
 	SV_KillPlayer();
 }
+
+extern "C" void Game_WriteSave(const char* fileName, ZEFileIO files)
+{
+	printf("Game - write save to %s\n", fileName);
+	i32 handle = files.OpenFile(fileName, NO);
+	ZE_ASSERT(handle > 0, "Game failed to open file to write");
+	ZE_CREATE_STACK_BUF(buf, 512)
+	char* data = "this is some data";
+	buf.WriteString(data);
+	files.WriteToFile(handle, buf.start, buf.Written());
+	files.CloseFile(handle);
+}

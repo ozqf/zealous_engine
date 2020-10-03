@@ -57,6 +57,11 @@ struct ze_platform_export
     void* (*Allocate)(i32 numBytes);
     void (*Free)(void* ptr);
 
+    ZEFileIO files;
+    // i32 (*OpenFile)(char* path, i32 bRead);
+    // void (*CloseFile)(i32 handle);
+    // void (*WriteToFile)(i32 handle, u8* bytes, i32 numBytes);
+
     // Shared asset manager
     void* (*GetAssetDB)();
     void (*EnqueueTextCommand)(const char* str);

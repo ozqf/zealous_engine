@@ -40,19 +40,20 @@ extern "C"
 
 #include "ze_win_socket.h"
 #include "ze_win_sound.h"
+#include "win_platform_io.h"
 
 ////////////////////////////////////////////////////////
 // Data types
 ////////////////////////////////////////////////////////
-struct ze_thread
+struct ZEThread
 {
     i32 sentinel;
     char* label;
 };
 
-struct ze_windows_thread
+struct ZEWindowsThread
 {
-    ze_thread header;
+    ZEThread header;
     // Windows specific
     DWORD threadId;
     HANDLE handle;
@@ -68,7 +69,7 @@ static ze_platform_export Win_BuildExport();
 #define MAX_APP_FOLDER_LEN 64
 static char g_appFolderBuf[MAX_APP_FOLDER_LEN];
 
-static ze_windows_thread g_appThread = {};
+static ZEWindowsThread g_appThread = {};
 static volatile i32 g_bExitAppThread = NO;
 
 static i32 g_debugAppCmdIterations = 0;
@@ -449,6 +450,10 @@ static ze_platform_export Win_BuildExport()
     result.QueryClock = PlatformImpl_QueryClock;
     result.Allocate = PlatformImpl_Allocate;
     result.Free = PlatformImpl_Free;
+
+    result.files.OpenFile = WinIO_OpenFile;
+    result.files.CloseFile = WinIO_CloseFileHandle;
+    result.files.WriteToFile = WinIO_WriteToFile;
 
     result.LockMutex = PlatformImpl_LockMutex;
     result.UnlockMutex = PlatformImpl_UnlockMutex;

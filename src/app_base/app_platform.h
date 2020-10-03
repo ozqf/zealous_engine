@@ -405,6 +405,15 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
     {
         Game_KillPlayers();
     }
+    if (!ZE_CompareStrings(tokens[0], "SAVE"))
+    {
+        if (numTokens != 2)
+        {
+            printf("Game save requires a file name!\n");
+            return YES;
+        }
+        Game_WriteSave(tokens[1], g_platform.files);
+    }
     return NO;
 }
 
