@@ -30,7 +30,7 @@ internal void Sim_ExecuteCommands(
         	    APP_LOG(256, "CL Spawn cmd %d on SV tick %d (local sv tick diff %d)\n",
         	        cmd->factoryType,
 					cmd->base.tick,
-					cmd->base.tick - sim->tick
+					cmd->base.tick - sim->info.tick
         	    );
         	    // flip diff to specify fast forwarding
         	    i32 flags;
@@ -40,7 +40,7 @@ internal void Sim_ExecuteCommands(
 			case SIM_CMD_TYPE_REMOVE_ENTITY:
         	{
         	    SimEvent_RemoveEnt* cmd = (SimEvent_RemoveEnt*)h;
-				if (cmd->style != 0 && (sim->flags & SIM_SCENE_BIT_IS_CLIENT) != 0)
+				if (cmd->style != 0 && (sim->info.flags & SIM_SCENE_BIT_IS_CLIENT) != 0)
 				{
 					// spawn fx
 					SimFx_EntityDeath(sim, cmd);

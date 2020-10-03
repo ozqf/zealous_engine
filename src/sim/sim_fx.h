@@ -12,19 +12,19 @@ internal void SimFx_EntityDeath(SimScene* sim, SimEvent_RemoveEnt* cmd)
             // spawn local impact blob
             SimEvent_Spawn def = {};
             def.factoryType = SIM_FACTORY_TYPE_BULLET_IMPACT;
-            def.birthTick = sim->tick;
+            def.birthTick = sim->info.tick;
             def.pos = ent->body.t.pos;
             def.serial = Sim_ReserveEntitySerial(sim, YES);
             Sim_RestoreEntity(sim, &def);
 
             // write particle spray
             ZCMD_STRUCT_IN_PLACE(
-                SimEvent_Particles, ev, SIM_CMD_TYPE_PARTICLES, sim->outputBuf)
+                SimEvent_Particles, ev, SIM_CMD_TYPE_PARTICLES, sim->data.outputBuf)
             ev->particleEventType = SIM_DEATH_GFX_BULLET_IMPACT;
             ev->pos = ent->body.t.pos;
             
             // write sound
-            ZE_INIT_PTR_IN_PLACE(soundEv, ZSoundCommand, sim->soundOutputBuf);
+            ZE_INIT_PTR_IN_PLACE(soundEv, ZSoundCommand, sim->data.soundOutputBuf);
             if (soundEv != NULL)
             {
                 //printf("SIM - init sound event\n");
@@ -34,7 +34,7 @@ internal void SimFx_EntityDeath(SimScene* sim, SimEvent_RemoveEnt* cmd)
             }
             else
             {
-                printf("SIM - no space for sound event (%d bytes left)\n", sim->soundOutputBuf->Space());
+                printf("SIM - no space for sound event (%d bytes left)\n", sim->data.soundOutputBuf->Space());
             }
             
         } break;

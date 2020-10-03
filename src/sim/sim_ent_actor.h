@@ -150,14 +150,14 @@ internal void SimEnt_UpdateActorWalk(
     else
     {
         ent->movement.flags &= ~SIM_ENT_MOVE_BIT_GROUNDED;
-        move.y += sim->gravity.y * dt;
+        move.y += sim->info.gravity.y * dt;
     }
     
     Transform* t = &ent->body.t;
     // record previous position
     ent->body.previousPos = t->pos;
     // Apply
-	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+	Sim_BoundaryBounce(ent, &sim->info.boundaryMin, &sim->info.boundaryMax);
     SimEnt_MoveVsSolid(sim, ent, move);
 }
 
@@ -179,7 +179,7 @@ internal void SimEnt_UpdateActorEvade(
 	ent->body.t.pos.x += move.x;
 	ent->body.t.pos.y += move.y;
 	ent->body.t.pos.z += move.z;
-	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+	Sim_BoundaryBounce(ent, &sim->info.boundaryMin, &sim->info.boundaryMax);
 
     // timer
     if (ent->movement.moveTime <= 0)
@@ -248,7 +248,7 @@ internal void SimEnt_UpdateActorWalk_TopDown(
 	ent->body.t.pos.x += move.x;
 	ent->body.t.pos.y += move.y;
 	ent->body.t.pos.z += move.z;
-	Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+	Sim_BoundaryBounce(ent, &sim->info.boundaryMin, &sim->info.boundaryMax);
 }
 #endif
 
@@ -301,7 +301,7 @@ internal void SimEnt_FireAttack(
         Sim_ReserveEntitySerials(sim, 0, numProjectiles),
         ent->id.serial,
         t,
-        sim->tick,
+        sim->info.tick,
         factoryType,
         ent->teamId,
         SIM_PATTERN_3D_CONE,
@@ -311,7 +311,7 @@ internal void SimEnt_FireAttack(
         0.1f
     );
 
-	ZCmd_Write(&event.header, &sim->outputBuf->cursor);
+	ZCmd_Write(&event.header, &sim->data.outputBuf->cursor);
 }
 
 //////////////////////////////////////////////

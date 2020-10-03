@@ -39,7 +39,7 @@ extern "C" Transform CL_GetCamera(SimScene* sim)
         
     }
     if (IF_BIT(g_debugFlags, CL_DEBUG_FLAG_DEBUG_CAMERA)) { return g_camera; }
-    return sim->observePos;
+    return sim->info.observePos;
 }
 
 extern "C" ClientView CL_GetClientView(SimScene* sim)
@@ -123,11 +123,11 @@ extern "C" void CLG_Start(SimScene* sim)
     g_avatarId = 0;
 
     g_view = {};
-    if (sim->gameRules == SIM_GAME_RULES_NONE)
+    if (sim->info.gameRules == SIM_GAME_RULES_NONE)
     {
         g_view.textFieldFlags |= CLR_HUD_ITEM_TITLE;
     }
-    else if (sim->gameRules == SIM_GAME_RULES_SURVIVAL)
+    else if (sim->info.gameRules == SIM_GAME_RULES_SURVIVAL)
     {
         g_view.textFieldFlags |= CLR_HUD_ITEM_SPAWN_PROMPT;
     }
@@ -337,7 +337,7 @@ internal void CL_CheckForSimEvents(ZEBuffer* buf)
 extern "C" void CL_RegisterLocalPlayer(SimScene* sim, i32 playerId)
 {
     g_playerId = playerId;
-    //sim->localAvatarId = g_player.avatarId;
+    //sim->info.localAvatarId = g_player.avatarId;
     printf("GCL plyr Id %d avatar %d\n", g_playerId, g_avatarId);
 }
 

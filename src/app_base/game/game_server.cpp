@@ -40,12 +40,12 @@ extern "C" i32 SV_CreateLocalPlayer(SimScene* sim, ZEBuffer* buf)
 extern "C" void SV_KillPlayer()
 {
     printf("SV - kill players\n");
-    i32 len = g_sim->maxPlayers;
+    i32 len = g_sim->info.maxPlayers;
     for (i32 i = 0; i < len; ++i)
     {
-        if (g_sim->players[i].state != SIM_PLAYER_STATE_IN_GAME)
+        if (g_sim->data.players[i].state != SIM_PLAYER_STATE_IN_GAME)
         { continue; }
-        if (g_sim->players[i].avatarId == 0)
+        if (g_sim->data.players[i].avatarId == 0)
         { continue; }
     }
 }

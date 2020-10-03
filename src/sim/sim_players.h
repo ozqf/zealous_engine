@@ -11,9 +11,9 @@
 internal i32 SimPlyr_InPlayCount(SimScene* sim)
 {
 	i32 count = 0;
-	for (i32 i = 0; i < sim->maxPlayers; ++i)
+	for (i32 i = 0; i < sim->info.maxPlayers; ++i)
 	{
-		if (sim->players[i].state == SIM_PLAYER_STATE_IN_GAME)
+		if (sim->data.players[i].state == SIM_PLAYER_STATE_IN_GAME)
 		{
 			count++;
 		}
@@ -24,7 +24,7 @@ internal i32 SimPlyr_InPlayCount(SimScene* sim)
 
 extern "C" i32 SimPlyr_ReserveId(SimScene* sim)
 {
-	i32 id = sim->nextPlayerId++;
+	i32 id = sim->info.nextPlayerId++;
 	return id;
 }
 
@@ -32,15 +32,15 @@ extern "C" i32 SimPlyr_ReserveId(SimScene* sim)
 internal SimPlayer* SimPlyr_Create(SimScene* sim, i32 reservedId)
 {
 	SimPlayer* plyr = NULL;
-	for (i32 i = 0; i < sim->maxPlayers; ++i)
+	for (i32 i = 0; i < sim->info.maxPlayers; ++i)
 	{
-		if (sim->players[i].state == SIM_PLAYER_STATE_NONE)
+		if (sim->data.players[i].state == SIM_PLAYER_STATE_NONE)
 		{
-			plyr = &sim->players[i];
+			plyr = &sim->data.players[i];
 			plyr->state = SIM_PLAYER_STATE_OBSERVING;
 			if (reservedId == 0)
 			{
-				plyr->id = ++sim->nextPlayerId;
+				plyr->id = ++sim->info.nextPlayerId;
 			}
 			else
 			{
@@ -55,9 +55,9 @@ internal SimPlayer* SimPlyr_Create(SimScene* sim, i32 reservedId)
 extern "C" SimPlayer* SimPlyr_Get(SimScene* sim, i32 playerId)
 {
 	SimPlayer* plyr = NULL;
-	for (i32 i = 0; i < sim->maxPlayers; ++i)
+	for (i32 i = 0; i < sim->info.maxPlayers; ++i)
 	{
-		plyr = &sim->players[i];
+		plyr = &sim->data.players[i];
 		if (plyr->state == SIM_PLAYER_STATE_NONE)
 		{ continue; }
 		if (plyr->id == playerId)
@@ -87,9 +87,9 @@ internal void SimPlyr_UpdateState(SimScene* sim, SimEvent_PlayerState* state)
 internal void SimPlyr_Tick(SimScene* sim)
 {
 	SimPlayer* plyr = NULL;
-	for (i32 i = 0; i < sim->maxPlayers; ++i)
+	for (i32 i = 0; i < sim->info.maxPlayers; ++i)
 	{
-		plyr = &sim->players[i];
+		plyr = &sim->data.players[i];
 		if (plyr->state == SIM_PLAYER_STATE_NONE) { continue; }
 		SimEntity* ent = Sim_GetEntityBySerial(sim, plyr->avatarId);
 

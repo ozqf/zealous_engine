@@ -74,8 +74,8 @@ internal i32 Sim_StepProjectile(
     
     if (killed == YES)
     {
-        /*printf("PRJ real birth tick vs sim tick: %d, %d\n", (i32)ent->timing.realBirthTick, (i32)sim->tick);
-        if (ent->timing.realBirthTick == sim->tick)
+        /*printf("PRJ real birth tick vs sim tick: %d, %d\n", (i32)ent->timing.realBirthTick, (i32)sim->info.tick);
+        if (ent->timing.realBirthTick == sim->info.tick)
         {
             printf("\tPRJ died on birth tick!\n");
         }*/
@@ -84,7 +84,7 @@ internal i32 Sim_StepProjectile(
     }
     
     // Timeout
-	if (sim->tick >= ent->timing.nextThink)
+	if (sim->info.tick >= ent->timing.nextThink)
 	{
         Sim_WriteRemoveEntity(sim, ent, NULL, SIM_DEATH_STYLE_TIMEOUT, Vec3_Flipped(dir), YES);
         return 0;
@@ -110,7 +110,7 @@ internal void SimEnt_TickProjectile(
 	if (Sim_StepProjectile(sim, ent, deltaTime))
     {
         // check for age of projectile and toggle on display
-        if (sim->tick - ent->timing.birthTick > 2)
+        if (sim->info.tick - ent->timing.birthTick > 2)
         {
             ent->display.flags &= ~SIM_DISPLAY_FLAG_DISABLED;
         }

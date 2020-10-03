@@ -50,9 +50,9 @@ internal i32 Game_StartGameSession(
 	g_gameBuf.b.Clear(NO);
 	// setup sim
 	Sim_Reset(&g_sim);
-	g_sim.flags |= SIM_SCENE_BIT_IS_SERVER;
-	g_sim.flags |= SIM_SCENE_BIT_IS_CLIENT;
-	g_sim.gameRules = gameRules;
+	g_sim.info.flags |= SIM_SCENE_BIT_IS_SERVER;
+	g_sim.info.flags |= SIM_SCENE_BIT_IS_CLIENT;
+	g_sim.info.gameRules = gameRules;
 	APP_PRINT(128, "GAME - start rules %d\n", gameRules);
 	Sim_LoadMapFile(&g_sim, mapName, NO);
 	// start sub-modules

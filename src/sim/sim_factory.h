@@ -10,11 +10,11 @@
 // Entity assignment
 ////////////////////////////////////////////////////////////////////
 internal SimEntity* Sim_FindEntityBySerialNumber(
-    SimScene* scene, i32 serialNumber)
+    SimScene* sim, i32 serialNumber)
 {
-    for (i32 j = 0; j < scene->maxEnts; ++j)
+    for (i32 j = 0; j < sim->info.maxEnts; ++j)
     {
-        SimEntity* ent = &scene->ents[j];
+        SimEntity* ent = &sim->data.ents[j];
         if (ent->id.serial == serialNumber)
         {
             return ent;
@@ -23,11 +23,11 @@ internal SimEntity* Sim_FindEntityBySerialNumber(
     return NULL;
 }
 
-internal i32 Sim_FreeEntityBySerial(SimScene* scene, i32 serial)
+internal i32 Sim_FreeEntityBySerial(SimScene* sim, i32 serial)
 {
-	for (i32 i = 0; i < scene->maxEnts; ++i)
+	for (i32 i = 0; i < sim->info.maxEnts; ++i)
 	{
-		SimEntity* ent = &scene->ents[i];
+		SimEntity* ent = &sim->data.ents[i];
 		
 		if (ent->id.serial != serial) { continue; }
 		
@@ -39,14 +39,14 @@ internal i32 Sim_FreeEntityBySerial(SimScene* scene, i32 serial)
 	return ZE_ERROR_NOT_FOUND;
 }
 
-internal i32 Sim_FindFreeSlot(SimScene* scene, i32 forLocalEnt)
+internal i32 Sim_FindFreeSlot(SimScene* sim, i32 forLocalEnt)
 {
-    i32 halfMax = scene->maxEnts / 2;
+    i32 halfMax = sim->info.maxEnts / 2;
     i32 i = forLocalEnt ? halfMax : 0;
-    i32 l = forLocalEnt ? scene->maxEnts : halfMax;
+    i32 l = forLocalEnt ? sim->info.maxEnts : halfMax;
     for (; i < l; ++i)
     {
-        SimEntity* ent = &scene->ents[i];
+        SimEntity* ent = &sim->data.ents[i];
         if (ent->status != SIM_ENT_STATUS_FREE) { continue; }
         return i;
     }
@@ -54,24 +54,24 @@ internal i32 Sim_FindFreeSlot(SimScene* scene, i32 forLocalEnt)
 }
 
 internal SimEntity* Sim_GetFreeReplicatedEntity(
-    SimScene* scene, i32 newSerial)
+    SimScene* sim, i32 newSerial)
 {
     SimEntity* ent = NULL;
     i32 slotIndex = -1;
-    slotIndex = Sim_FindFreeSlot(scene, 0);
+    slotIndex = Sim_FindFreeSlot(sim, 0);
     if (slotIndex <= -1 ) { return NULL; }
 
     // config
-    ent = &scene->ents[slotIndex];
+    ent = &sim->data.ents[slotIndex];
     ent->status = SIM_ENT_STATUS_IN_USE;
     ent->id.slot.index = (u16)slotIndex;
 	ent->id.serial = newSerial;
     // For clients, keep track of the latest entity spawned.
-    if (newSerial > scene->highestAssignedSequence)
+    if (newSerial > sim->info.highestAssignedSequence)
     {
-        scene->highestAssignedSequence = newSerial;
+        sim->info.highestAssignedSequence = newSerial;
     }
-    if (scene->bVerbose)
+    if (sim->info.bVerbose)
     {
         APP_LOG(64,
             "SIM assigned replicated ent serial %d (slot %d/%d)\n",
@@ -83,19 +83,19 @@ internal SimEntity* Sim_GetFreeReplicatedEntity(
 }
 
 internal SimEntity* Sim_GetFreeLocalEntity(
-    SimScene* scene, i32 newSerial)
+    SimScene* sim, i32 newSerial)
 {
     SimEntity* ent = NULL;
     i32 slotIndex = -1;
-    slotIndex = Sim_FindFreeSlot(scene, 1);
+    slotIndex = Sim_FindFreeSlot(sim, 1);
     if (slotIndex <= -1 ) { return NULL; }
 
     // config
-    ent = &scene->ents[slotIndex];
+    ent = &sim->data.ents[slotIndex];
     ent->status = SIM_ENT_STATUS_IN_USE;
     ent->id.slot.index = (u16)slotIndex;
 	ent->id.serial = newSerial;
-    if (scene->bVerbose)
+    if (sim->info.bVerbose)
     {
         APP_LOG(64, "SIM assigned local ent serial %d (slot %d/%d)\n",
             ent->id.serial, ent->id.slot.iteration, ent->id.slot.index);
@@ -129,7 +129,7 @@ internal i32 Sim_RecycleEntity(
         // remove
         SimEntIndex slot = ent->id.slot;
         #if 0
-        if (sim->bVerbose)
+        if (sim->info.bVerbose)
         {
             APP_LOG(64, "SIM Removing ent %d (slot %d/%d)\n",
                 entitySerialNumber, slot.iteration, slot.index);
@@ -150,7 +150,7 @@ internal i32 Sim_RecycleEntity(
     }
     else
     {
-        if (sim->bVerbose)
+        if (sim->info.bVerbose)
         {
             APP_LOG(64, "SIM Found no ent %d to remove\n",
                 entitySerialNumber);
@@ -198,7 +198,7 @@ internal void Sim_WriteRemoveEntity(
     ev.entityId = victim->id.serial;
     ev.style = style;
     ev.dir = dir;
-    ZCmd_Write(&ev.header, &sim->outputBuf->cursor);
+    ZCmd_Write(&ev.header, &sim->data.outputBuf->cursor);
     if (victim->playerId != SIM_ENT_NULL_SERIAL)
     {
         printf("SIM - write player died!\n");
@@ -210,7 +210,7 @@ internal void Sim_WriteRemoveEntity(
         plyr->state = SIM_PLAYER_STATE_DEAD;
         plyr->avatarId = SIM_ENT_NULL_SERIAL;
 
-        ZE_INIT_PTR_IN_PLACE(plyrState, SimEvent_PlayerState, sim->outputBuf)
+        ZE_INIT_PTR_IN_PLACE(plyrState, SimEvent_PlayerState, sim->data.outputBuf)
         plyrState->Set(plyr->id, plyr->avatarId, plyr->state);
     }
 
@@ -221,7 +221,7 @@ internal void Sim_WriteRemoveEntity(
 // Entity initialisation
 ////////////////////////////////////////////////////////////////////
 internal i32 Sim_InitActor(
-    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     printf("SIM Create actor, scale %.3f, %.3f, %.3f\n",
         def->scale.x, def->scale.y, def->scale.z
@@ -248,7 +248,7 @@ internal i32 Sim_InitActor(
 }
 
 internal i32 Sim_InitBot(
-    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     ent->attackTick = 0;
@@ -270,7 +270,7 @@ internal i32 Sim_InitBot(
 }
 
 internal i32 Sim_InitSpawner(
-    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     ent->teamId = SIM_ENT_TEAM_NON_COMBATANT;
@@ -287,7 +287,7 @@ internal i32 Sim_InitSpawner(
 // WORLD
 ///////////////////////////////////////////////////////
 internal i32 Sim_InitWorldVolume(
-    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     Sim_SetEntityBase(ent, def);
     APP_PRINT(256, "SIM Spawning world volume at %.3f, %.3f, %.3f\n",
@@ -309,7 +309,7 @@ internal i32 Sim_InitWorldVolume(
         SIM_DEATH_GFX_NONE);
     #ifdef SIM_USE_PHYSICS_ENGINE
     ent->shape.SetAsBox(def->pos, def->scale, ZCOLLIDER_FLAG_STATIC, SIM_LAYER_WORLD, SIM_LAYER_WORLD, 0);
-    PhysCmd_CreateShape(scene->world, &ent->shape, ent->id.serial);
+    PhysCmd_CreateShape(sim->world, &ent->shape, ent->id.serial);
     #endif
     return ZE_ERROR_NONE;
 }
@@ -370,14 +370,14 @@ internal i32 Sim_InitDirectLight(
 }
 
 internal i32 Sim_InitLineTrace(
-    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
 	//printf("SIM Create line trace\n");
     Sim_SetEntityBase(ent, def);
     ent->think.tickType = SIM_TICK_TYPE_LINE_TRACE;
     ent->think.coreTickType = SIM_TICK_TYPE_LINE_TRACE;
     ent->teamId = SIM_ENT_TEAM_NON_COMBATANT;
-    ent->timing.nextThink = Sim_CalcThinkTick(scene, 2);
+    ent->timing.nextThink = Sim_CalcThinkTick(sim, 2);
     return ZE_ERROR_NONE;
 }
 
@@ -481,7 +481,7 @@ internal i32 Sim_InitPropMesh(
 // Projectiles
 ///////////////////////////////////////////////////////
 internal i32 Sim_InitProjBase(
-    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     SimProjectileType t;
     t.speed = 10.0f;
@@ -501,7 +501,7 @@ internal i32 Sim_InitProjBase(
     ent->touchDamage = 10;
 
     Sim_InitProjectile(
-        scene,
+        sim,
         ent,
         def->pos,
         { def->pitchDegrees, def->yawDegrees, 0 },
@@ -514,7 +514,7 @@ internal i32 Sim_InitProjBase(
 }
 
 internal i32 Sim_InitProjPrediction(
-    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     SimProjectileType t;
     t.speed = 45.0f;
@@ -533,7 +533,7 @@ internal i32 Sim_InitProjPrediction(
     ent->touchDamage = 10;
 
     Sim_InitProjectile(
-        scene,
+        sim,
         ent,
         def->pos,
         { def->pitchDegrees, def->yawDegrees, 0 },
@@ -546,7 +546,7 @@ internal i32 Sim_InitProjPrediction(
 }
 
 internal i32 Sim_InitPlayerProjectile(
-    SimScene* scene, SimEntity* ent, SimEvent_Spawn* def)
+    SimScene* sim, SimEntity* ent, SimEvent_Spawn* def)
 {
     SimProjectileType t;
     t.speed = SIM_PLAYER_PROJECTILE_SPEED;
@@ -568,7 +568,7 @@ internal i32 Sim_InitPlayerProjectile(
     ent->lightType = 1;
 
     Sim_InitProjectile(
-        scene,
+        sim,
         ent,
         def->pos,
         { def->pitchDegrees, def->yawDegrees, 0 },
@@ -576,7 +576,7 @@ internal i32 Sim_InitPlayerProjectile(
         def->teamId,
         &t,
         def->fastForwardTicks);
-    if (ent->relationships.parentId.serial == scene->localAvatarId)
+    if (ent->relationships.parentId.serial == sim->info.localAvatarId)
     {
         ent->display.flags |= SIM_DISPLAY_FLAG_DISABLED;
     }
@@ -607,7 +607,7 @@ internal SimEntity* Sim_SpawnEntity(
     // Record factory type so we know how this entity was initialised
     ent->factoryType = def->factoryType;
     // record real birth tick, as the def's birth tick may be in the past.
-    ent->timing.realBirthTick = sim->tick;
+    ent->timing.realBirthTick = sim->info.tick;
 
     ErrorCode err;
 

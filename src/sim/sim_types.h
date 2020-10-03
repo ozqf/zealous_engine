@@ -306,10 +306,31 @@ struct SimPlayer
 #define SIM_SCENE_BIT_IS_SERVER (1 << 0)
 #define SIM_SCENE_BIT_IS_CLIENT (1 << 1)
 
-struct SimScene
+/**
+ * Data external to the sim instance
+ */
+struct SimSceneData
 {
-    SimEntity* ents;
+    SimEntity* ents;    
+    SimPlayer players[SIM_MAX_PLAYERS];
+	// physics
+    WorldHandle* world;
+    ZRAssetDB* db;
+    
+    // pointer to buffer for game logic commands from the current tick
+    ZEBuffer* outputBuf;
+    ZEBuffer* soundOutputBuf;
+};
+
+/**
+ * Data internal to the sim instance
+ * All data in this struct should be within the struct
+ * No pointers!
+ */
+struct SimSceneInfo
+{
     i32 tickRate;
+    
     i32 maxEnts;
     u32 flags;
     i32 gameRules;
@@ -321,10 +342,7 @@ struct SimScene
     i32 gameState;
     // count of players actually in-game
     i32 numActivePlayers;
-
-	// physics
-    WorldHandle* world;
-
+    
     // sequential, unrelated to blocks
     i32 remoteEntitySequence;
     i32 localEntitySequence;
@@ -344,19 +362,20 @@ struct SimScene
     Vec3 boundaryMin;
     Vec3 boundaryMax;
 
-    QuantiseSet quantise;
-	ZRAssetDB* db;
-	i32 bVerbose;
-
-    // pointer to buffer for game logic commands from the current tick
-    ZEBuffer* outputBuf;
-    ZEBuffer* soundOutputBuf;
-
 	i32 nextPlayerId;
 	i32 maxPlayers;
     Vec3 playerStartPos;
-	SimPlayer players[SIM_MAX_PLAYERS];
-
+	
     Transform observePos;
     Vec3 observeTarget;
+
+    QuantiseSet quantise;
+
+    i32 bVerbose;
+};
+
+struct SimScene
+{
+    SimSceneData data;
+    SimSceneInfo info;
 };

@@ -17,7 +17,7 @@ extern "C" SimInventoryItem* SVI_GetItem(i32 index)
 
 extern "C" timeFloat Sim_GetFrameInterval(SimScene* sim)
 {
-    return (timeFloat)(1.0f / (f32)sim->tickRate);
+    return (timeFloat)(1.0f / (f32)sim->info.tickRate);
 }
 
 /**
@@ -27,7 +27,7 @@ extern "C" frameInt Sim_CalcThinkTick(SimScene* sim, timeFloat secondsToThink)
 {
     timeFloat result = secondsToThink / Sim_GetFrameInterval(sim);
     // round
-    return sim->tick + (frameInt)(result + 0.5);
+    return sim->info.tick + (frameInt)(result + 0.5);
 }
 
 extern "C" void Sim_PrepareSpawnData(
@@ -47,7 +47,7 @@ i32 Sim_CalcEntityArrayBytes(i32 capacity)
 { return (sizeof(SimEntity) * capacity); }
 
 extern "C"
-i32 Sim_GetFrameNumber(SimScene* sim){ return sim->tick; }
+i32 Sim_GetFrameNumber(SimScene* sim){ return sim->info.tick; }
 
 ////////////////////////////////////////////////////////////
 // Targetting and validation
@@ -79,9 +79,9 @@ inline i32 Sim_IsEntTargetable(SimEntity* ent)
 extern "C"
 SimEntity* Sim_FindTargetForEnt(SimScene* sim, SimEntity* subject)
 {
-    for (i32 i = 0; i < sim->maxEnts; ++i)
+    for (i32 i = 0; i < sim->info.maxEnts; ++i)
     {
-        SimEntity* ent = &sim->ents[i];
+        SimEntity* ent = &sim->data.ents[i];
         // only target players at the moment
         if (ent->factoryType != SIM_FACTORY_TYPE_ACTOR)
         { continue; }
@@ -114,9 +114,9 @@ i32 Sim_ScanForSerialRange(SimScene* sim, i32 firstSerial, i32 numSerials)
     if (numSerials == 0) { return 0; }
     i32 count = 0;
     i32 lastSerial = firstSerial + (numSerials - 1);
-    for (i32 i = 0; i < sim->maxEnts; ++i)
+    for (i32 i = 0; i < sim->info.maxEnts; ++i)
     {
-        SimEntity* ent = &sim->ents[i];
+        SimEntity* ent = &sim->data.ents[i];
         if (ent->status == SIM_ENT_STATUS_FREE) { continue; }
         if (ent->id.serial >= firstSerial && ent->id.serial <= lastSerial)
         {
@@ -130,9 +130,9 @@ extern "C"
 SimEntity* Sim_GetEntityBySerial(SimScene* sim, i32 serial)
 {
     if (serial == SIM_ENT_NULL_SERIAL) { return NULL; }
-    for (i32 i = 0; i < sim->maxEnts; ++i)
+    for (i32 i = 0; i < sim->info.maxEnts; ++i)
     {
-        SimEntity* ent = &sim->ents[i];
+        SimEntity* ent = &sim->data.ents[i];
         if (ent->status == SIM_ENT_STATUS_FREE) { continue; }
         if (ent->id.serial == serial) { return ent; }
     }
@@ -142,7 +142,7 @@ SimEntity* Sim_GetEntityBySerial(SimScene* sim, i32 serial)
 extern "C"
 SimEntity* Sim_GetEntityByIndex(SimScene* sim, SimEntIndex index)
 {
-    SimEntity* ent = &sim->ents[index.index];
+    SimEntity* ent = &sim->data.ents[index.index];
     if (ent->id.slot.iteration == index.iteration
         && ent->id.serial != 0)
     {
@@ -154,10 +154,10 @@ SimEntity* Sim_GetEntityByIndex(SimScene* sim, SimEntIndex index)
 extern "C"
 i32 Sim_ReserveEntitySerial(SimScene* scene, i32 isLocal)
 {
-    if (isLocal) { return scene->localEntitySequence--; }
+    if (isLocal) { return scene->info.localEntitySequence--; }
     else
     {
-        return scene->remoteEntitySequence++;
+        return scene->info.remoteEntitySequence++;
     }
 }
 
@@ -169,10 +169,10 @@ i32 Sim_ReserveEntitySerials(
     i32 last;
     if (isLocal)
     {
-        first = scene->localEntitySequence;
+        first = scene->info.localEntitySequence;
         last = first - count;
-        scene->localEntitySequence = last;
-        if (scene->bVerbose)
+        scene->info.localEntitySequence = last;
+        if (scene->info.bVerbose)
         {
             APP_LOG(128,
                 "SIM Reserving %d local entity serials (%d to %d)\n",
@@ -182,10 +182,10 @@ i32 Sim_ReserveEntitySerials(
     }
     else
     {
-        first = scene->remoteEntitySequence;
+        first = scene->info.remoteEntitySequence;
         last = first + count;
-        scene->remoteEntitySequence = last;
-        if (scene->bVerbose)
+        scene->info.remoteEntitySequence = last;
+        if (scene->info.bVerbose)
         {
             APP_LOG(128,
                 "SIM Reserving %d replicated entity serials (%d to %d)\n",
@@ -263,7 +263,7 @@ i32 Sim_ExecuteBulkSpawn(
         entDef.pitchDegrees = euler.x * RAD2DEG;
         entDef.yawDegrees = euler.y * RAD2DEG;
         entDef.scale = { 1, 1, 1 };
-        entDef.birthTick = sim->tick - fastForwardTicks;
+        entDef.birthTick = sim->info.tick - fastForwardTicks;
         entDef.fastForwardTicks = fastForwardTicks;
         entDef.parentSerial = event->base.sourceSerial;
         SimEntity* ent = Sim_RestoreEntity(sim, &entDef);
@@ -292,17 +292,17 @@ i32 Sim_ExecuteBulkSpawn(
 extern "C"
 void Sim_Reset(SimScene* sim)
 {
-	i32 arraySize = Sim_CalcEntityArrayBytes(sim->maxEnts);
-	i32 numBytes = sim->maxEnts * sizeof(SimEntity);
-    ZE_SET_ZERO(sim->ents, arraySize)
+	i32 arraySize = Sim_CalcEntityArrayBytes(sim->info.maxEnts);
+	i32 numBytes = sim->info.maxEnts * sizeof(SimEntity);
+    ZE_SET_ZERO(sim->data.ents, arraySize)
 	//sim->cmdSequence = 0;
-	sim->tick = 0;
+	sim->info.tick = 0;
 	// 0 == an invalid serial for error handling.
-	sim->remoteEntitySequence = 1;
-	sim->localEntitySequence = -1;
-    sim->numActivePlayers = 0;
-    sim->nextPlayerId = 1;
-    ZE_SET_ZERO(sim->players, sizeof(SimPlayer) * sim->maxPlayers)
+	sim->info.remoteEntitySequence = 1;
+	sim->info.localEntitySequence = -1;
+    sim->info.numActivePlayers = 0;
+    sim->info.nextPlayerId = 1;
+    ZE_SET_ZERO(sim->data.players, sizeof(SimPlayer) * sim->info.maxPlayers)
 }
 
 internal void Sim_PhysicsError(char* msg)
@@ -322,14 +322,14 @@ void Sim_Init(
 
     *sim = {};
     
-    sim->ents = entityMemory;
-    sim->maxEnts = maxEntities;
-	sim->maxPlayers = SIM_MAX_PLAYERS;
-    sim->bVerbose = NO;
-    sim->tickRate = 60;
-    sim->groundOrigin = { };
-    sim->groundNormal = { 0, 1, 0 };
-    sim->gravity = { 0, -12.f, 0 };
+    sim->data.ents = entityMemory;
+    sim->info.maxEnts = maxEntities;
+	sim->info.maxPlayers = SIM_MAX_PLAYERS;
+    sim->info.bVerbose = NO;
+    sim->info.tickRate = 60;
+    sim->info.groundOrigin = { };
+    sim->info.groundNormal = { 0, 1, 0 };
+    sim->info.gravity = { 0, -12.f, 0 };
     SVI_InitItemDefs();
 	Sim_Reset(sim);
     Sim_InitTickFunctions(sim);
@@ -361,8 +361,8 @@ i32 Sim_Tick(
     ZEBuffer* soundOutput,
     timeFloat delta)
 {
-    sim->outputBuf = output;
-    sim->soundOutputBuf = soundOutput;
+    sim->data.outputBuf = output;
+    sim->data.soundOutputBuf = soundOutput;
     Sim_ExecuteCommands(sim, input, delta);
     SimPlyr_Tick(sim);
     Sim_TickEntities(sim, output, delta);

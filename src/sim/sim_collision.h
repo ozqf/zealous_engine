@@ -24,12 +24,12 @@ inline i32 Sim_FindByAABB(
 	
 	// Cut down search range - should not try to avoid local entities
 	// as the client cannot recreate this.
-	i32 len = replicatedOnly == NO ? sim->maxEnts : len = (sim->maxEnts / 2);
+	i32 len = replicatedOnly == NO ? sim->info.maxEnts : len = (sim->info.maxEnts / 2);
 	
 	// TODO: This is super inefficient. Need a proper spatial partition
     for (i32 i = 0; i < len; ++i)
     {
-        SimEntity* ent = &sim->ents[i];
+        SimEntity* ent = &sim->data.ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE
             || ent->id.serial == ignoreSerial)
         { continue; }
@@ -74,7 +74,7 @@ inline i32 Sim_FindByAABB(
         }
     }
 	timeFloat end = App_SampleClock();
-	sim->timeInAABBSearch += (end - start);
+	sim->info.timeInAABBSearch += (end - start);
     return count;
 }
 
@@ -112,9 +112,9 @@ i32 Sim_FindByRaycast(
     )
 {
     i32 count = 0;
-    for (i32 i = 0; i < sim->maxEnts; ++i)
+    for (i32 i = 0; i < sim->info.maxEnts; ++i)
     {
-        SimEntity* ent = &sim->ents[i];
+        SimEntity* ent = &sim->data.ents[i];
         if (Sim_IsEntTargetable(ent) == NO) { continue; }
         if (ent->id.serial == ignoreSerial) { continue; }
         // create aabb for ent and line test
@@ -299,7 +299,7 @@ extern "C"
 i32 Sim_GroundCheck(SimScene* sim, SimEntity* ent)
 {
     f32 entMinY = ent->body.t.pos.y - ent->body.baseHalfSize.y;
-    if (entMinY <= sim->groundOrigin.y)
+    if (entMinY <= sim->info.groundOrigin.y)
     {
         ent->movement.flags |= SIM_ENT_MOVE_BIT_GROUNDED;
         // snap to exactly on ground
@@ -327,7 +327,7 @@ internal void Sim_MoveThrown(
 	}
 	else
 	{
-		vel->y += sim->gravity.y * (f32)delta;
+		vel->y += sim->info.gravity.y * (f32)delta;
 	}
 	// calc frame step
 	Vec3 step =
@@ -346,11 +346,11 @@ internal void Sim_MoveThrown(
     {
         if (IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE))
         {
-            Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+            Sim_BoundaryBounce(ent, &sim->info.boundaryMin, &sim->info.boundaryMax);
         }
         else
         {
-            Sim_BoundaryStop(ent, &sim->boundaryMin, &sim->boundaryMax);
+            Sim_BoundaryStop(ent, &sim->info.boundaryMin, &sim->info.boundaryMax);
         }
     }
 }
@@ -380,17 +380,17 @@ internal void Sim_MoveMobGround(
     }
     else
     {
-        vel->y += sim->gravity.y * dt;
+        vel->y += sim->info.gravity.y * dt;
     }
     if (!IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_IGNORE_BOUNDARY))
     {
         if (IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE))
         {
-            Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+            Sim_BoundaryBounce(ent, &sim->info.boundaryMin, &sim->info.boundaryMax);
         }
         else
         {
-            Sim_BoundaryStop(ent, &sim->boundaryMin, &sim->boundaryMax);
+            Sim_BoundaryStop(ent, &sim->info.boundaryMin, &sim->info.boundaryMax);
         }
     }
     #endif
@@ -422,7 +422,7 @@ void Sim_SimpleMove(SimScene* sim, SimEntity* ent, SimEntMovement* mover, timeFl
     }
     else
     {
-        move.y += sim->gravity.y * (f32)delta;
+        move.y += sim->info.gravity.y * (f32)delta;
     }
     
     ent->body.t.pos.x += move.x;
@@ -432,11 +432,11 @@ void Sim_SimpleMove(SimScene* sim, SimEntity* ent, SimEntMovement* mover, timeFl
     {
         if (IF_BIT(mover->flags, SIM_ENT_MOVE_BIT_BOUNDARY_BOUNCE))
         {
-            Sim_BoundaryBounce(ent, &sim->boundaryMin, &sim->boundaryMax);
+            Sim_BoundaryBounce(ent, &sim->info.boundaryMin, &sim->info.boundaryMax);
         }
         else
         {
-            Sim_BoundaryStop(ent, &sim->boundaryMin, &sim->boundaryMax);
+            Sim_BoundaryStop(ent, &sim->info.boundaryMin, &sim->info.boundaryMax);
         }
     }
 }

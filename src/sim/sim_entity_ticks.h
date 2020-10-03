@@ -31,7 +31,7 @@ internal SimEntity* SimEnt_UpdateTargetting(SimScene* sim, SimEntity* ent, i32 b
 internal void SimEnt_TickTimeout(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
-    if (sim->tick >= ent->timing.nextThink)
+    if (sim->info.tick >= ent->timing.nextThink)
     {
         //Sim_RemoveEntity(sim, ent->id.serial);
         Sim_WriteRemoveEntity(sim, ent, NULL, SIM_DEATH_STYLE_TIMEOUT, {}, 0);
@@ -42,7 +42,7 @@ internal void SimEnt_TickSpawnAnimation(
     SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)
 {
     Vec3* halfSize = &ent->body.baseHalfSize;
-    if (sim->tick >= ent->timing.nextThink)
+    if (sim->info.tick >= ent->timing.nextThink)
     {
         ent->flags &= ~SIM_ENT_FLAG_OUT_OF_PLAY;
         ent->think.tickType = ent->think.coreTickType;
@@ -52,7 +52,7 @@ internal void SimEnt_TickSpawnAnimation(
     {
         ent->flags |= SIM_ENT_FLAG_OUT_OF_PLAY;
         frameInt totalWait = ent->timing.nextThink - ent->timing.lastThink;
-        frameInt progress = sim->tick - ent->timing.lastThink;
+        frameInt progress = sim->info.tick - ent->timing.lastThink;
         
         f32 time = (f32)progress / (f32)totalWait;
         ent->body.t.scale.x = ZE_LerpF32(0.001f, halfSize->x * 2, time);
@@ -69,7 +69,7 @@ internal void SimEnt_TickStun(SimScene* sim, SimEntity* ent, timeFloat deltaTime
 		&& !IF_BIT(ent->movement.flags, SIM_ENT_MOVE_BIT_GROUNDED))
 	{ bIgnoreTimeout = YES; }
 
-    if (!bIgnoreTimeout && sim->tick >= ent->timing.nextThink)
+    if (!bIgnoreTimeout && sim->info.tick >= ent->timing.nextThink)
     {
 		// leave next tick alone so new tick type "tocks" immediataly.
         ent->think.tickType = ent->think.coreTickType;
@@ -99,7 +99,7 @@ internal void SimEnt_TickBouncer(SimScene* sim, SimEntity* ent, timeFloat deltaT
 SIM_DEFINE_ENT_UPDATE_FN(SimEnt_TickWanderer)
 {
     SimEntMovement* mover = &ent->movement;
-	if (ent->timing.nextThink <= sim->tick)
+	if (ent->timing.nextThink <= sim->info.tick)
     {
         ent->timing.lastThink = ent->timing.nextThink;
         
@@ -128,7 +128,7 @@ SIM_DEFINE_ENT_UPDATE_FN(SimEnt_TickGrunt)
     }
     else
     {
-        if (ent->timing.nextThink <= sim->tick
+        if (ent->timing.nextThink <= sim->info.tick
             && (ent->movement.flags & SIM_ENT_MOVE_BIT_GROUNDED) != 0)
         {
             ent->timing.lastThink = ent->timing.nextThink;
@@ -239,7 +239,7 @@ internal void SimEnt_TickDart(SimScene* sim, SimEntity* ent, timeFloat deltaTime
 {
 	Vec3 previousPos = ent->body.t.pos;
     Sim_SimpleMove(sim, ent, &ent->movement, deltaTime);
-    if (!Sim_InBounds(ent, &sim->boundaryMin, &sim->boundaryMax))
+    if (!Sim_InBounds(ent, &sim->info.boundaryMin, &sim->info.boundaryMax))
     {
         ent->movement.velocity.x *= -1;
         ent->movement.velocity.y *= -1;
@@ -256,7 +256,7 @@ internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaT
     if (spawnSpaces < ent->relationships.childSpawnCount)
     { return; }
 
-    if (sim->tick >= ent->timing.nextThink)
+    if (sim->info.tick >= ent->timing.nextThink)
     {
         ent->timing.lastThink = ent->timing.nextThink;
         ent->timing.nextThink = Sim_CalcThinkTick(sim, 2);
@@ -274,7 +274,7 @@ internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaT
             Sim_ReserveEntitySerials(sim, 0, ent->relationships.childSpawnCount),
             ent->id.serial,
             t,
-            sim->tick,
+            sim->info.tick,
             ent->relationships.childFactoryType,
             SIM_ENT_TEAM_ENEMY,
             ent->relationships.patternType,
@@ -283,7 +283,7 @@ internal void SimEnt_TickSpawner(SimScene* sim, SimEntity* ent, timeFloat deltaT
             10.0f,
             0
         );
-        ZCmd_Write(&event.header, &sim->outputBuf->cursor);
+        ZCmd_Write(&event.header, &sim->data.outputBuf->cursor);
     }
 }
 
@@ -327,10 +327,10 @@ internal SimEntUpdate Sim_GetTickFunc(i32 index)
 
 internal void Sim_TickEntities(SimScene* sim, ZEBuffer* output, timeFloat delta)
 {
-    i32 bIsServer = (sim->flags & SIM_SCENE_BIT_IS_SERVER) > 0;
-    for (i32 i = 0; i < sim->maxEnts; ++i)
+    i32 bIsServer = (sim->info.flags & SIM_SCENE_BIT_IS_SERVER) > 0;
+    for (i32 i = 0; i < sim->info.maxEnts; ++i)
     {
-        SimEntity* ent = &sim->ents[i];
+        SimEntity* ent = &sim->data.ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
         
         // make sure previous positions are updated
@@ -342,8 +342,8 @@ internal void Sim_TickEntities(SimScene* sim, ZEBuffer* output, timeFloat delta)
         updater(sim, ent, delta, bIsServer);
         #endif
     }
-    sim->tick++;
-    sim->time += delta;
+    sim->info.tick++;
+    sim->info.time += delta;
 }
 
 #endif // SIM_ENTITY_TICKS_H

@@ -299,9 +299,9 @@ internal i32 CLR_Debug_AddSimObjectsToRenderScene(
     i32 materialIndex = defaultMaterialIndex;
 
     i32 objCount = 0;
-    for (i32 i = 0; i < sim->maxEnts; ++i)
+    for (i32 i = 0; i < sim->info.maxEnts; ++i)
     {
-        SimEntity* ent = &sim->ents[i];
+        SimEntity* ent = &sim->data.ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
         materialIndex = defaultMaterialIndex;
         if (ent->flags & SIM_ENT_FLAG_SHOOTABLE)
@@ -357,13 +357,13 @@ internal i32 CLR_AddSimObjectsToRenderScene(
     i32 extraLights = cfg.extraLightsMax;
     
     i32 objCount = 0;
-    for (i32 i = 0; i < sim->maxEnts; ++i)
+    for (i32 i = 0; i < sim->info.maxEnts; ++i)
     {
-        SimEntity* ent = &sim->ents[i];
+        SimEntity* ent = &sim->data.ents[i];
         if (ent->status != SIM_ENT_STATUS_IN_USE) { continue; }
         if (ent->display.data.type == ZR_DRAWOBJ_TYPE_NONE) { continue; }
         if (ent->display.flags & SIM_DISPLAY_FLAG_DISABLED) { continue; }
-        if (ent->id.serial == sim->localAvatarId) { continue; }
+        if (ent->id.serial == sim->info.localAvatarId) { continue; }
         i32 rendObjectsAdded = 0;
         
         switch (ent->display.data.type)
@@ -424,9 +424,9 @@ extern "C" void CLR_WriteDrawFrame(
     ClientRenderSettings cfg)
 {
     i32 objCount = 0;
-    i32 requiredCapacity = sizeof(ZRViewFrame) + (sizeof(ZRDrawObj) * sim->maxEnts);
+    i32 requiredCapacity = sizeof(ZRViewFrame) + (sizeof(ZRDrawObj) * sim->info.maxEnts);
     ZRSceneFrame* scene = NULL;
-    frame->timestamp = sim->time;
+    frame->timestamp = sim->info.time;
     
     ZRDrawObj* obj = NULL;
 

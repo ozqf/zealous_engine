@@ -33,10 +33,10 @@ SIM_DEFINE_ENT_UPDATE_FN(SimEnt_TickProjectileAttack)
 	switch (ent->think.subMode)
 	{
 		case 1:
-		if (ent->timing.nextThink <= sim->tick)
+		if (ent->timing.nextThink <= sim->info.tick)
 		{
 			// fire projectile
-			printf("ENT - fire %d\n", sim->tick);
+			printf("ENT - fire %d\n", sim->info.tick);
 
 			u8 factoryType = SIM_FACTORY_TYPE_PROJECTILE_BASE;
 			SimEnt_FireAttack(
@@ -49,9 +49,9 @@ SIM_DEFINE_ENT_UPDATE_FN(SimEnt_TickProjectileAttack)
 		}
 		break;
 		case 2:
-		if (ent->timing.nextThink <= sim->tick)
+		if (ent->timing.nextThink <= sim->info.tick)
 		{
-			printf("ENT - finish attack %d\n", sim->tick);
+			printf("ENT - finish attack %d\n", sim->info.tick);
 			ent->think.tickType = ent->think.coreTickType;
 			ent->think.subMode = SIM_TICK_SUBMODE_NONE;
 			ent->timing.nextThink = Sim_CalcThinkTick(sim, 0.5f);
@@ -60,7 +60,7 @@ SIM_DEFINE_ENT_UPDATE_FN(SimEnt_TickProjectileAttack)
 		default:
 		// just entered this state, select think time
 		ent->think.subMode = 1;
-		printf("ENT - prefire wait %d\n", sim->tick);
+		printf("ENT - prefire wait %d\n", sim->info.tick);
 		// pre-attack wait
 		ent->timing.nextThink = Sim_CalcThinkTick(sim, 0.5f);
 		break;

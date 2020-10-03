@@ -152,24 +152,24 @@ internal ErrorCode Sim_LoadStaticScene(SimScene* sim, i32 index)
     halfY -= 1;
     halfZ -= 1;
 
-    sim->boundaryMin = { -halfX, -halfY, -halfZ };
-    sim->boundaryMax = { halfX, halfY, halfZ };
+    sim->info.boundaryMin = { -halfX, -halfY, -halfZ };
+    sim->info.boundaryMax = { halfX, halfY, halfZ };
 
     // Configure quantisation tables based on arena size
     // TODO: largest axis must be passed in here, auto detect this instead!
-    COM_QuantiseInit(&sim->quantise.pos, largestHalfAxis, 16);
-    COM_QuantiseInit(&sim->quantise.vel, SIM_MAX_AXIS_SPEED, 16);
+    COM_QuantiseInit(&sim->info.quantise.pos, largestHalfAxis, 16);
+    COM_QuantiseInit(&sim->info.quantise.vel, SIM_MAX_AXIS_SPEED, 16);
     // TODO: Configure this more precisely for radians
-    COM_QuantiseInit(&sim->quantise.rot, 7, 16);
+    COM_QuantiseInit(&sim->info.quantise.rot, 7, 16);
 
     // Setup player spawn position
-    sim->playerStartPos = { -6, 15, 6 };
+    sim->info.playerStartPos = { -6, 15, 6 };
 
     // Setup default camera position
-    Transform_SetToIdentity(&sim->observePos);
-    sim->observePos.pos.z = 10;
-    sim->observePos.pos.y += 34;
-    Transform_SetRotation(&sim->observePos, -(80.0f    * DEG2RAD), 0, 0);
+    Transform_SetToIdentity(&sim->info.observePos);
+    sim->info.observePos.pos.z = 10;
+    sim->info.observePos.pos.y += 34;
+    Transform_SetRotation(&sim->info.observePos, -(80.0f    * DEG2RAD), 0, 0);
     
 
     return ZE_ERROR_NONE;
