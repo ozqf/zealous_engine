@@ -157,11 +157,15 @@ extern "C" void Game_KillPlayers()
 extern "C" void Game_WriteSave(const char* fileName, ZEFileIO files)
 {
 	printf("Game - write save to %s\n", fileName);
+	printf("\t%d ents, %d players\n", g_sim.info.maxEnts, g_sim.info.maxPlayers);
 	i32 handle = files.OpenFile(fileName, NO);
 	ZE_ASSERT(handle > 0, "Game failed to open file to write");
-	ZE_CREATE_STACK_BUF(buf, 512)
-	char* data = "this is some data";
-	buf.WriteString(data);
-	files.WriteToFile(handle, buf.start, buf.Written());
+
+	ZE_CREATE_STACK_BUF(temp, 512)
+	temp.WriteString("SIM_SAVE");
+	// ignore null terminator
+	files.WriteToFile(handle, temp.start, temp.Written() - 1);
+	files.WriteToFile(handle, (u8*)&g_sim, sizeof(SimScene));
+
 	files.CloseFile(handle);
 }

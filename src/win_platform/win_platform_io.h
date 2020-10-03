@@ -97,7 +97,28 @@ internal void WinIO_WriteToFile(i32 handle, u8* bytes, i32 numBytes)
     printf("WIN no file handle %d to write to\n", handle);
 }
 
-internal void WinIO_StageFile(char* path)
+internal i32 WinIO_StageFile(const char* path, ZEBuffer* result)
 {
-
+    #if 0
+    printf("WIN - stage file %s\n", path);
+    for (i32 i = 0; i < WIN_MAX_FILE_IO_HANDLES; ++i)
+    {
+        if (g_fileHandles[i].id != WIN_NULL_FILE_IO_HANDLE)
+        { continue; }
+        ZEFileIOHandle* h = &g_fileHandles[i];
+        FILE* f = NULL;
+        errno_t err;
+        err = fopen_s(&f, path, "rb");
+        ZE_ASSERT(f != NULL, "WIN failed to open file %s\n for staging", path);
+        h->id = g_nextFileIOHandle++;
+        h->f = f;
+        h->bReadMode = YES;
+        fseek(f, 0, SEEK_END);
+        h->numBytes = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        return h->id;
+    }
+    printf("WIN no file handle to stage %d\n", path);
+    #endif
+    return WIN_NULL_FILE_IO_HANDLE;
 }

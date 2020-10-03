@@ -352,6 +352,18 @@ internal i32 AppImpl_RendererReloaded()
     return ZE_ERROR_NONE;
 }
 
+internal void App_SaveStringTest(const char* fileName, const char* str, ZEFileIO files)
+{
+    printf("APP - str write test to %s\n", fileName);
+	i32 handle = files.OpenFile(fileName, NO);
+	ZE_ASSERT(handle > 0, "Game failed to open file to write");
+	ZE_CREATE_STACK_BUF(buf, 512)
+	//char* data = "this is some data";
+	buf.WriteString(str);
+	files.WriteToFile(handle, buf.start, buf.Written());
+	files.CloseFile(handle);
+}
+
 internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
     // fall through
@@ -413,6 +425,17 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
             return YES;
         }
         Game_WriteSave(tokens[1], g_platform.files);
+    }
+    if (!ZE_CompareStrings(tokens[0], "SAVETEST"))
+    {
+        if (numTokens != 3)
+        {
+            printf("Save test requires file name and string:\n");
+            printf("\tSAVETEST FOO.TXT HELLO_WORLD");
+            return YES;
+        }
+        App_SaveStringTest(tokens[1], tokens[2], g_platform.files);
+        return YES;
     }
     return NO;
 }
