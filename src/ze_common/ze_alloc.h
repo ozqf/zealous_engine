@@ -18,6 +18,8 @@ struct ZEFileIO
     i32 (*OpenFile)(const char* path, i32 bRead);
     void (*CloseFile)(i32 handle);
     void (*WriteToFile)(i32 handle, u8* bytes, i32 numBytes);
+    // load an entire file onto heap
+    i32 (*StageFile)(const char* path, ZEBuffer* result);
 };
 
 ////////////////////////////////////////////

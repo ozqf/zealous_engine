@@ -154,18 +154,92 @@ extern "C" void Game_KillPlayers()
 	SV_KillPlayer();
 }
 
+extern "C" void Game_DumpSessionInfo()
+{
+	SimScene* sim = &g_sim;
+	printf("=== GAME INFO ===\n");
+	printf("--- Ents (%d max)\n", sim->info.maxEnts);
+	i32 activeEnts = 0;
+	for (i32 i = 0; i < sim->info.maxEnts; ++i)
+	{
+		if (sim->data.ents[i].status != SIM_ENT_STATUS_FREE)
+		{
+			activeEnts++;
+		}
+	}
+	printf("\t%d active ents\n", activeEnts);
+
+	printf("%d max Players\n", sim->info.maxPlayers);
+}
+
+extern "C" void Game_ScanSaveFile(const char* fileName, ZEFileIO files)
+{
+	ZEBuffer b;
+	i32 file = 0;
+	file = files.StageFile(fileName, &b);
+	if (file == 0) { return; }
+	printf("GAME saw %d bytes in file handle %d (%s)\n", b.Written(), file, fileName);
+	// check magic number
+	u8* read = b.GetAtOffset(7);
+	if (*read != NULL)
+	{
+		printf("Bad magic string terminator %d\n", *read);
+		files.CloseFile(file);
+		return;
+	}
+	if (ZE_CompareStrings((char*)b.start, SIM_SAVE_MAGIC_STRING) != 0)
+	{
+		printf("Bad magic string %s in save\n", (char*)b.start);
+		files.CloseFile(file);
+		return;
+	}
+	SimSceneInfo* info = (SimSceneInfo*)b.GetAtOffset(8);
+	i32* sentinel = (i32*)b.GetAtOffset(8 + sizeof(SimSceneInfo));
+	printf("Sentinel: 0X%X\n", *sentinel);
+
+	i32 numEnts = *((i32*)b.GetAtOffsetReversed(4));
+	printf("%d Ents\n", numEnts);
+
+	files.CloseFile(file);
+}
+
 extern "C" void Game_WriteSave(const char* fileName, ZEFileIO files)
 {
+	SimScene* sim = &g_sim;
+	i32 sentinel = SIM_SAVE_SENTINEL;
 	printf("Game - write save to %s\n", fileName);
-	printf("\t%d ents, %d players\n", g_sim.info.maxEnts, g_sim.info.maxPlayers);
+	printf("\t%d ents, %d players\n", sim->info.maxEnts, sim->info.maxPlayers);
 	i32 handle = files.OpenFile(fileName, NO);
 	ZE_ASSERT(handle > 0, "Game failed to open file to write");
 
 	ZE_CREATE_STACK_BUF(temp, 512)
-	temp.WriteString("SIM_SAVE");
-	// ignore null terminator
-	files.WriteToFile(handle, temp.start, temp.Written() - 1);
-	files.WriteToFile(handle, (u8*)&g_sim, sizeof(SimScene));
+	temp.WriteString(SIM_SAVE_MAGIC_STRING);
+	// magic number - ignore null terminator
+	files.WriteToFile(handle, temp.start, temp.Written());
+
+	// Sim info
+	files.WriteToFile(handle, (u8*)&sim->info, sizeof(SimSceneInfo));
+	// sentinel
+	files.WriteToFile(handle, (u8*)&sentinel, sizeof(i32));
+	
+	// Sim data1
+	i32 entsWritten = 0;
+	for (i32 i = 0; i < sim->info.maxEnts; ++i)
+	{
+		SimEntity* ent = &sim->data.ents[i];
+		if (ent->status == SIM_ENT_STATUS_FREE) { continue; }
+		files.WriteToFile(handle, (u8*)ent, sizeof(SimEntity));
+		entsWritten++;
+	}
+	files.WriteToFile(handle, (u8*)&entsWritten, sizeof(i32));
+	printf("Wrote %d entities\n", entsWritten);
+
+	ZEBuffer* cmdRead = g_gameBuf.GetRead();
+	ZEBuffer* cmdWrite = g_gameBuf.GetWrite();
+	printf("%d bytes in cmd read\n%d bytes in cmd write\n",
+		cmdRead->Written(), cmdWrite->Written());
+	Sim_DumpCommandBuffer(sim, cmdRead);
+	Sim_DumpCommandBuffer(sim, cmdWrite);
 
 	files.CloseFile(handle);
 }

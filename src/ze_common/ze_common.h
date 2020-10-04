@@ -105,7 +105,7 @@ internal f32 ZAbsf(f32 value)
 
 // used for serialise/deserialise validation
 #define ZE_SENTINEL 0xDEADBEEF
-//#define ZE_SENTINEL_B 0xF0BAF0BA
+#define ZE_SENTINEL_B 0xEFBEADDE
 
 #define ZE_DEBUG_PORT 59594
 #define ZE_MONITOR_PORT 59595

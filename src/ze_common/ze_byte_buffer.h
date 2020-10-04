@@ -68,6 +68,21 @@ struct ZEBuffer
         return this->cursor - this->start;
     }
 
+    u8* GetAtOffset(i32 offset)
+    {
+        u8* addr = this->start + offset;
+        ZE_ASSERT(addr < this->cursor, "ZEBuffer GetAtOffset out of bounds");
+        return addr;
+    }
+
+    u8* GetAtOffsetReversed(i32 offsetFromEnd)
+    {
+        i32 offset = this->Written() - offsetFromEnd;
+        u8* addr = this->start + offset;
+        ZE_ASSERT(addr < this->cursor, "ZEBuffer GetAtOffset out of bounds");
+        return addr;
+    }
+
     i32 WriteString(const char* str)
     {
         i32 len = ZE_StrLen(str);

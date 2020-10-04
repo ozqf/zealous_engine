@@ -30,6 +30,14 @@ extern "C" frameInt Sim_CalcThinkTick(SimScene* sim, timeFloat secondsToThink)
     return sim->info.tick + (frameInt)(result + 0.5);
 }
 
+extern "C" void Sim_DumpCommandBuffer(SimScene* sim, ZEBuffer* buf)
+{
+    printf("=== Sim Scan commands (%d bytes) ===\n", buf->Written());
+    ZCMD_BEGIN_ITERATE(buf)
+        printf("Type %d (%d bytes)\n", cmdHeader->type, cmdHeader->size);
+    ZCMD_END_ITERATE
+}
+
 extern "C" void Sim_PrepareSpawnData(
     SimScene* sim, SimEvent_Spawn* data,
     i32 bIsLocal, u8 factoryType,

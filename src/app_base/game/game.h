@@ -14,7 +14,11 @@ extern "C" Transform Game_GetCamera();
 extern "C" void Game_ToggleDrawFlag(const char* name);
 extern "C" void Game_ResetDrawFlags();
 extern "C" void Game_ClearInputActions();
-extern "C" void Game_KillPlayers();
 extern "C" void Game_WriteSave(const char* fileName, ZEFileIO files);
+
+// debug related
+extern "C" void Game_KillPlayers();
+extern "C" void Game_DumpSessionInfo();
+extern "C" void Game_ScanSaveFile(const char* fileName, ZEFileIO files);
 
 #endif // GAME_H

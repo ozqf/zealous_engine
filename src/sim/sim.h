@@ -9,6 +9,10 @@
 
 //#define SIM_USE_PHYSICS_ENGINE
 
+
+#define SIM_SAVE_MAGIC_STRING "SIM_SAV"
+#define SIM_SAVE_SENTINEL ZE_SENTINEL_B
+
 #define SIM_GAME_STATE_WARMUP 0
 #define SIM_GAME_STATE_GAMEPLAY 1
 #define SIM_GAME_STATE_GAME_OVER 2
@@ -154,6 +158,7 @@ extern "C" i32      Sim_CalcEntityArrayBytes(i32 capacity);
 extern "C" i32		Sim_GetFrameNumber(SimScene* sim);
 extern "C" timeFloat Sim_GetFrameInterval(SimScene* sim);
 extern "C" frameInt Sim_CalcThinkTick(SimScene* sim, timeFloat secondsToThink);
+extern "C" void     Sim_DumpCommandBuffer(SimScene* sim, ZEBuffer* buf);
 
 extern "C" i32      Sim_Tick(
                         SimScene* sim,

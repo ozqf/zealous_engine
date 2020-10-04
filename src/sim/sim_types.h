@@ -50,6 +50,19 @@ struct SimActorInput
     }
 };
 
+struct SimSaveFileInfo
+{
+    i32 infoOffset;
+    i32 entsOffset;
+    i32 numEnts;
+    i32 players;
+    i32 numPlayers;
+    i32 read;
+    i32 numReadBytes;
+    i32 write;
+    i32 numWriteBytes;
+};
+
 struct SimScene;
 struct SimEntity;
 typedef void (*SimEnt_Tick)(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer);

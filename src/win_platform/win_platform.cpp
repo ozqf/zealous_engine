@@ -371,6 +371,10 @@ static i32 PlatformImpl_ExecTextCommand(
     {
         printf("MANIFEST - list assets loaded to heap\n");
     }
+    if (ZE_CompareStrings(str, "FILES") == 0)
+    {
+        WinIO_DumpHandles();
+    }
     g_window.ParseCommandString(str, tokens, numTokens);
 	return (g_app.ParseCommandString(str, tokens, numTokens) == YES);
 }
@@ -454,6 +458,7 @@ static ze_platform_export Win_BuildExport()
     result.files.OpenFile = WinIO_OpenFile;
     result.files.CloseFile = WinIO_CloseFileHandle;
     result.files.WriteToFile = WinIO_WriteToFile;
+    result.files.StageFile = WinIO_StageFile;
 
     result.LockMutex = PlatformImpl_LockMutex;
     result.UnlockMutex = PlatformImpl_UnlockMutex;

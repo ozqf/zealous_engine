@@ -408,14 +408,17 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
 	if (numTokens == 2 && !ZE_CompareStrings(tokens[0], "START"))
 	{
 		App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER, tokens[1]);
+        return YES;
 	}
     if (!ZE_CompareStrings(tokens[0], "TITLE"))
 	{
         App_StartTitle();
+        return YES;
 	}
     if (!ZE_CompareStrings(tokens[0], "KILL"))
     {
         Game_KillPlayers();
+        return YES;
     }
     if (!ZE_CompareStrings(tokens[0], "SAVE"))
     {
@@ -425,6 +428,17 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
             return YES;
         }
         Game_WriteSave(tokens[1], g_platform.files);
+        return YES;
+    }
+    if (!ZE_CompareStrings(tokens[0], "QUICKSAVE"))
+    {
+        Game_WriteSave(APP_QUICKSAVE_FILE_NAME, g_platform.files);
+        return YES;
+    }
+    if (!ZE_CompareStrings(tokens[0], "QUICKSCAN"))
+    {
+        Game_ScanSaveFile(APP_QUICKSAVE_FILE_NAME, g_platform.files);
+        return YES;
     }
     if (!ZE_CompareStrings(tokens[0], "SAVETEST"))
     {
@@ -435,6 +449,11 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
             return YES;
         }
         App_SaveStringTest(tokens[1], tokens[2], g_platform.files);
+        return YES;
+    }
+    if (!ZE_CompareStrings(tokens[0], "GAMEINFO"))
+    {
+        Game_DumpSessionInfo();
         return YES;
     }
     return NO;

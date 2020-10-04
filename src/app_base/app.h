@@ -35,6 +35,8 @@ timeFloat App_GetPerformanceTime(i32 index);
 // MACROS
 /////////////////////////////////////////////////////////////////
 
+#define APP_QUICKSAVE_FILE_NAME "QUICK.SAV"
+
 #define APP_SESSION_TYPE_NONE 0
 #define APP_SESSION_TYPE_SINGLE_PLAYER 1
 
