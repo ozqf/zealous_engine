@@ -17,9 +17,13 @@ struct ZEFileIO
 {
     i32 (*OpenFile)(const char* path, i32 bRead);
     void (*CloseFile)(i32 handle);
-    void (*WriteToFile)(i32 handle, u8* bytes, i32 numBytes);
-    // load an entire file onto heap
+    i32 (*FilePosition)(i32 handle);
+    // reading - load an entire file onto heap
     i32 (*StageFile)(const char* path, ZEBuffer* result);
+    // Writing
+    void (*WriteToFile)(i32 handle, u8* bytes, i32 numBytes);
+    void (*WritePadding)(i32 handle, i32 numBytes, u8 value);
+    void (*WriteToFileAtOffset)(i32 handle, u8* bytes, i32 numBytes, i32 offset);
 };
 
 ////////////////////////////////////////////

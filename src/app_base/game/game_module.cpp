@@ -193,12 +193,23 @@ extern "C" void Game_ScanSaveFile(const char* fileName, ZEFileIO files)
 		files.CloseFile(file);
 		return;
 	}
-	SimSceneInfo* info = (SimSceneInfo*)b.GetAtOffset(8);
-	i32* sentinel = (i32*)b.GetAtOffset(8 + sizeof(SimSceneInfo));
-	printf("Sentinel: 0X%X\n", *sentinel);
+	read++;
+	//SimSceneInfo* info = (SimSceneInfo*)b.GetAtOffset(8);
+	//i32* sentinel = (i32*)b.GetAtOffset(8 + sizeof(SimSceneInfo));
+	
 
-	i32 numEnts = *((i32*)b.GetAtOffsetReversed(4));
-	printf("%d Ents\n", numEnts);
+	SimSaveFileInfo* fi = (SimSaveFileInfo*)read;
+	read += sizeof(SimSaveFileInfo);
+	// i32 sentinel = *((i32*)read);
+	// read += sizeof(i32);
+	
+	printf("Sentinel: 0X%X\n", fi->sentinel);
+	printf("info at %d, %d ents at %d. Read (%dB) at %d. Write (%dB) at %d\n",
+		fi->infoOffset, fi->numEnts, fi->entsOffset,
+		fi->numReadBytes, fi->read, fi->numWriteBytes, fi->write);
+
+	// i32 numEnts = *((i32*)b.GetAtOffsetReversed(4));
+	// printf("%d Ents\n", numEnts);
 
 	files.CloseFile(file);
 }
@@ -217,29 +228,57 @@ extern "C" void Game_WriteSave(const char* fileName, ZEFileIO files)
 	// magic number - ignore null terminator
 	files.WriteToFile(handle, temp.start, temp.Written());
 
+	// file header after magic number
+	SimSaveFileInfo fileInfo = {};
+	fileInfo.sentinel = SIM_SAVE_SENTINEL;
+	// record position for save info
+	i32 offsetTablePos = files.FilePosition(handle);
+	// pad space for save info
+	files.WritePadding(handle, sizeof(SimSaveFileInfo), 0xFF);
 	// Sim info
+	fileInfo.infoOffset = files.FilePosition(handle);
 	files.WriteToFile(handle, (u8*)&sim->info, sizeof(SimSceneInfo));
+
 	// sentinel
 	files.WriteToFile(handle, (u8*)&sentinel, sizeof(i32));
 	
 	// Sim data1
-	i32 entsWritten = 0;
+	fileInfo.entsOffset = files.FilePosition(handle);
 	for (i32 i = 0; i < sim->info.maxEnts; ++i)
 	{
 		SimEntity* ent = &sim->data.ents[i];
 		if (ent->status == SIM_ENT_STATUS_FREE) { continue; }
 		files.WriteToFile(handle, (u8*)ent, sizeof(SimEntity));
-		entsWritten++;
+		fileInfo.numEnts++;
 	}
-	files.WriteToFile(handle, (u8*)&entsWritten, sizeof(i32));
-	printf("Wrote %d entities\n", entsWritten);
+	//files.WriteToFile(handle, (u8*)&entsWritten, sizeof(i32));
+	printf("Wrote %d entities\n", fileInfo.numEnts);
+
+	// sentinel
+	files.WriteToFile(handle, (u8*)&sentinel, sizeof(i32));
+	
 
 	ZEBuffer* cmdRead = g_gameBuf.GetRead();
+	if (cmdRead->Written() > 0)
+	{
+		fileInfo.read = files.FilePosition(handle);
+		fileInfo.numReadBytes = cmdRead->Written();
+		files.WriteToFile(handle, cmdRead->start, cmdRead->Written());
+	}
 	ZEBuffer* cmdWrite = g_gameBuf.GetWrite();
-	printf("%d bytes in cmd read\n%d bytes in cmd write\n",
-		cmdRead->Written(), cmdWrite->Written());
-	Sim_DumpCommandBuffer(sim, cmdRead);
-	Sim_DumpCommandBuffer(sim, cmdWrite);
+	if (cmdWrite->Written() > 0)
+	{
+		fileInfo.write = files.FilePosition(handle);
+		fileInfo.numWriteBytes = cmdWrite->Written();
+		files.WriteToFile(handle, cmdWrite->start, cmdWrite->Written());
+	}
+
+	// patch in header
+	files.WriteToFileAtOffset(handle, (u8*)&fileInfo, sizeof(SimSaveFileInfo), offsetTablePos);
+	// printf("%d bytes in cmd read\n%d bytes in cmd write\n",
+	// 	cmdRead->Written(), cmdWrite->Written());
+	// Sim_DumpCommandBuffer(sim, cmdRead);
+	// Sim_DumpCommandBuffer(sim, cmdWrite);
 
 	files.CloseFile(handle);
 }

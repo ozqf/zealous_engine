@@ -96,6 +96,20 @@ internal void WinIO_CloseFileHandle(i32 handle)
     printf("WIN no file handle %d to close\n", handle);
 }
 
+internal i32 WinIO_FilePosition(i32 handle)
+{
+    if (handle <= WIN_NULL_FILE_IO_HANDLE) { -1; }
+    for (i32 i = 0; i < WIN_MAX_FILE_IO_HANDLES; ++i)
+    {
+        if (g_fileHandles[i].id == handle)
+        {
+            ZE_ASSERT(g_fileHandles[i].f != NULL, "FilePosition - null file ptr");
+            return ftell(g_fileHandles[i].f);
+        }
+    }
+    return -1;
+}
+
 internal void WinIO_WriteToFile(i32 handle, u8* bytes, i32 numBytes)
 {
     if (handle <= WIN_NULL_FILE_IO_HANDLE) { return; }
@@ -106,13 +120,58 @@ internal void WinIO_WriteToFile(i32 handle, u8* bytes, i32 numBytes)
         if (g_fileHandles[i].id == handle)
         {
             ZE_ASSERT(g_fileHandles[i].bReadMode == NO,
-                "Cannot write to file in read mode")
+                "WriteToFile - Cannot write to file in read mode")
+            ZE_ASSERT(g_fileHandles[i].f != NULL, "WriteToFile - null file ptr");
             fwrite(bytes, numBytes, 1, g_fileHandles[i].f);
             g_fileHandles[i].numBytes += numBytes;
             return;
         }
     }
     printf("WIN no file handle %d to write to\n", handle);
+}
+
+internal void WinIO_WritePadding(i32 handle, i32 numBytes, u8 value)
+{
+    if (handle <= WIN_NULL_FILE_IO_HANDLE) { return; }
+    if (numBytes <= 0) { return; }
+    for (i32 i = 0; i < WIN_MAX_FILE_IO_HANDLES; ++i)
+    {
+        ZEFileIOHandle* h = &g_fileHandles[i];
+        if (h->id == handle)
+        {
+            ZE_ASSERT(h->f != NULL, "WritePadding file ptr is null")
+            ZE_ASSERT(h->bReadMode == NO, "WritePadding file is not in write mode")
+            fwrite(&value, 1, numBytes, h->f);
+            h->numBytes += numBytes;
+        }
+    }
+}
+
+internal void WinIO_WriteToFileAtOffset(i32 handle, u8* bytes, i32 numBytes, i32 offset)
+{
+    if (handle <= WIN_NULL_FILE_IO_HANDLE) { return; }
+    if (numBytes <= 0) { return; }
+    if (offset < 0) { return; }
+    for (i32 i = 0; i < WIN_MAX_FILE_IO_HANDLES; ++i)
+    {
+        ZEFileIOHandle* h = &g_fileHandles[i];
+        if (h->id == handle)
+        {
+            ZE_ASSERT(offset < h->numBytes, "WriteToFileAtOffset out of bounds")
+            ZE_ASSERT(h->f != NULL, "WriteToFileAtOffset file ptr is null")
+            ZE_ASSERT(h->bReadMode == NO, "WriteToFileAtOffset file is not in write mode")
+            i32 current = ftell(h->f);
+            fseek(h->f, offset, SEEK_SET);
+            printf("WIN writing %d bytes at pos %d into handle %d\n",
+                numBytes, offset, h->id);
+            fwrite(bytes, numBytes, 1, h->f);
+            // update size, incase the wrote pass the previous end of file
+            fseek(h->f, 0, SEEK_END);
+            h->numBytes = ftell(h->f);
+            // reset write position
+            fseek(h->f, current, SEEK_SET);
+        }
+    }
 }
 
 internal i32 WinIO_StageFile(const char* path, ZEBuffer* result)

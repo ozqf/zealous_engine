@@ -61,6 +61,7 @@ struct SimSaveFileInfo
     i32 numReadBytes;
     i32 write;
     i32 numWriteBytes;
+    i32 sentinel;
 };
 
 struct SimScene;
