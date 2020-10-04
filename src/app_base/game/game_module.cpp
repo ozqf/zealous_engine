@@ -56,11 +56,16 @@ internal i32 Game_StartGameSession(
 	APP_PRINT(128, "GAME - start rules %d\n", gameRules);
 	Sim_LoadMapFile(&g_sim, mapName, NO);
 	// start sub-modules
-	CLG_Start(&g_sim);
+	CL_Start(&g_sim);
 	GSV_Start(&g_sim);
 	i32 localPlayerId = SV_CreateLocalPlayer(&g_sim, g_gameBuf.GetWrite());
 	CL_RegisterLocalPlayer(&g_sim, localPlayerId);
 	return ZE_ERROR_NONE;
+}
+
+internal i32 Game_ResumeSession(ZEBuffer* saveData, SimSaveFileInfo* saveInfo)
+{
+
 }
 
 extern "C" i32 Game_Start(const char* mapName, const i32 appSessionMode)
@@ -172,46 +177,79 @@ extern "C" void Game_DumpSessionInfo()
 	printf("%d max Players\n", sim->info.maxPlayers);
 }
 
-extern "C" void Game_ScanSaveFile(const char* fileName, ZEFileIO files)
+internal i32 Game_StageSaveFile(
+	const char* fileName, ZEFileIO files, i32* handle, ZEBuffer* b, SimSaveFileInfo* fi)
 {
-	ZEBuffer b;
-	i32 file = 0;
-	file = files.StageFile(fileName, &b);
-	if (file == 0) { return; }
-	printf("GAME saw %d bytes in file handle %d (%s)\n", b.Written(), file, fileName);
+	*handle = 0;
+	*handle = files.StageFile(fileName, b);
+	if (*handle == 0) { return ZE_ERROR_NONE; }
 	// check magic number
-	u8* read = b.GetAtOffset(7);
+	u8* read = b->GetAtOffset(7);
 	if (*read != NULL)
 	{
 		printf("Bad magic string terminator %d\n", *read);
-		files.CloseFile(file);
-		return;
+		files.CloseFile(*handle);
+		return ZE_ERROR_DESERIALISE_FAILED;
 	}
-	if (ZE_CompareStrings((char*)b.start, SIM_SAVE_MAGIC_STRING) != 0)
+	if (ZE_CompareStrings((char*)b->start, SIM_SAVE_MAGIC_STRING) != 0)
 	{
-		printf("Bad magic string %s in save\n", (char*)b.start);
-		files.CloseFile(file);
-		return;
+		printf("Bad magic string %s in save\n", (char*)b->start);
+		files.CloseFile(*handle);
+		return ZE_ERROR_DESERIALISE_FAILED;
 	}
 	read++;
-	//SimSceneInfo* info = (SimSceneInfo*)b.GetAtOffset(8);
-	//i32* sentinel = (i32*)b.GetAtOffset(8 + sizeof(SimSceneInfo));
-	
+	*fi = *((SimSaveFileInfo*)read);
+	if (fi->sentinel != SIM_SAVE_SENTINEL)
+	{
+		printf("Bad sentinel in SimSaveFileInfo\n");
+		files.CloseFile(*handle);
+		return ZE_ERROR_DESERIALISE_FAILED;
+	}
 
-	SimSaveFileInfo* fi = (SimSaveFileInfo*)read;
-	read += sizeof(SimSaveFileInfo);
-	// i32 sentinel = *((i32*)read);
-	// read += sizeof(i32);
-	
-	printf("Sentinel: 0X%X\n", fi->sentinel);
-	printf("info at %d, %d ents at %d. Read (%dB) at %d. Write (%dB) at %d\n",
-		fi->infoOffset, fi->numEnts, fi->entsOffset,
-		fi->numReadBytes, fi->read, fi->numWriteBytes, fi->write);
+	return ZE_ERROR_NONE;
+}
 
-	// i32 numEnts = *((i32*)b.GetAtOffsetReversed(4));
-	// printf("%d Ents\n", numEnts);
+extern "C" void Game_ScanSaveFile(const char* fileName, ZEFileIO files)
+{
+	ZEBuffer b;
+	SimSaveFileInfo fi = {};
+	i32 file = 0;
+	
+	ErrorCode err = Game_StageSaveFile(fileName, files, &file, &b, &fi);
+	if (err != ZE_ERROR_NONE)
+	{
+		printf("Error %d staging save file %s\n", err, fileName);
+		return;
+	}
+
+	printf("Sentinel: 0X%X\n", fi.sentinel);
+	printf("info at %d, %d ents at %d. %d players at %d. Read (%dB) at %d. Write (%dB) at %d\n",
+		fi.infoOffset,
+		fi.numEnts, fi.entsOffset,
+		fi.numPlayers, fi.players,
+		fi.numReadBytes, fi.read,
+		fi.numWriteBytes, fi.write);
+	SimSceneInfo* info = (SimSceneInfo*)b.GetAtOffset(fi.infoOffset);
+	printf("SV %d bytes at %d\n", fi.numServerBytes, fi.server);
+	printf("CL %d bytes at %d\n", fi.numClientBytes, fi.client);
+	printf("Gravity: %.3f, %.3f, %.3f\n", info->gravity.x, info->gravity.y, info->gravity.z);
 
 	files.CloseFile(file);
+}
+
+extern "C" void Game_LoadSave(const char* fileName, ZEFileIO files)
+{
+	ZEBuffer b;
+	SimSaveFileInfo fi = {};
+	i32 file = 0;
+	
+	ErrorCode err = Game_StageSaveFile(fileName, files, &file, &b, &fi);
+	if (err != ZE_ERROR_NONE)
+	{
+		printf("Error %d staging save file %s\n", err, fileName);
+		return;
+	}
+
 }
 
 extern "C" void Game_WriteSave(const char* fileName, ZEFileIO files)
@@ -241,8 +279,8 @@ extern "C" void Game_WriteSave(const char* fileName, ZEFileIO files)
 
 	// sentinel
 	files.WriteToFile(handle, (u8*)&sentinel, sizeof(i32));
-	
-	// Sim data1
+	////////////////////////////////////////////////////////
+	// Ents
 	fileInfo.entsOffset = files.FilePosition(handle);
 	for (i32 i = 0; i < sim->info.maxEnts; ++i)
 	{
@@ -251,13 +289,26 @@ extern "C" void Game_WriteSave(const char* fileName, ZEFileIO files)
 		files.WriteToFile(handle, (u8*)ent, sizeof(SimEntity));
 		fileInfo.numEnts++;
 	}
-	//files.WriteToFile(handle, (u8*)&entsWritten, sizeof(i32));
-	printf("Wrote %d entities\n", fileInfo.numEnts);
 
 	// sentinel
 	files.WriteToFile(handle, (u8*)&sentinel, sizeof(i32));
+	////////////////////////////////////////////////////////
+	// Players
+	fileInfo.players = files.FilePosition(handle);
+	for (i32 i = 0; i < sim->info.maxPlayers; ++i)
+	{
+		SimPlayer* plyr = &sim->data.players[i];
+		
+		if (plyr->state == SIM_PLAYER_STATE_NONE) { continue; }
+		files.WriteToFile(handle, (u8*)plyr, sizeof(SimPlayer));
+		fileInfo.numPlayers++;
+	}
 	
-
+	////////////////////////////////////////////////////////
+	// Event buffers
+	
+	// sentinel
+	files.WriteToFile(handle, (u8*)&sentinel, sizeof(i32));
 	ZEBuffer* cmdRead = g_gameBuf.GetRead();
 	if (cmdRead->Written() > 0)
 	{
@@ -265,6 +316,9 @@ extern "C" void Game_WriteSave(const char* fileName, ZEFileIO files)
 		fileInfo.numReadBytes = cmdRead->Written();
 		files.WriteToFile(handle, cmdRead->start, cmdRead->Written());
 	}
+	
+	// sentinel
+	files.WriteToFile(handle, (u8*)&sentinel, sizeof(i32));
 	ZEBuffer* cmdWrite = g_gameBuf.GetWrite();
 	if (cmdWrite->Written() > 0)
 	{
@@ -272,6 +326,14 @@ extern "C" void Game_WriteSave(const char* fileName, ZEFileIO files)
 		fileInfo.numWriteBytes = cmdWrite->Written();
 		files.WriteToFile(handle, cmdWrite->start, cmdWrite->Written());
 	}
+	
+	////////////////////////////////////////////////////////
+	// Local Server
+	SV_Save(sim, &fileInfo, handle, files);
+	
+	////////////////////////////////////////////////////////
+	// Local Client
+	CL_Save(sim, &fileInfo, handle, files);
 
 	// patch in header
 	files.WriteToFileAtOffset(handle, (u8*)&fileInfo, sizeof(SimSaveFileInfo), offsetTablePos);

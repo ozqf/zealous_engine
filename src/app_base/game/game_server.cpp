@@ -57,6 +57,18 @@ extern "C" void GSV_Stop()
     g_sim = NULL;
 }
 
+extern "C" void SV_Save(SimScene* sim, SimSaveFileInfo* saveInfo, i32 file, ZEFileIO files)
+{
+    saveInfo->server = files.FilePosition(file);
+    saveInfo->numServerBytes = sizeof(i32);
+    files.WriteToFile(file, (u8*)&g_bIsRunning, sizeof(i32));
+}
+
+extern "C" void SV_Resume(SimScene* sim, SimSaveFileInfo* saveInfo, ZEBuffer* saveData)
+{
+
+}
+
 extern "C" void SV_PreTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
 {
 	if (!g_bIsRunning) { return; }

@@ -50,19 +50,33 @@ struct SimActorInput
     }
 };
 
+#pragma pack(push, 1)
 struct SimSaveFileInfo
 {
     i32 infoOffset;
+
     i32 entsOffset;
     i32 numEnts;
+
     i32 players;
     i32 numPlayers;
+
     i32 read;
     i32 numReadBytes;
+
     i32 write;
     i32 numWriteBytes;
+
+    // data not related to the Sim itself:
+    i32 server;
+    i32 numServerBytes;
+
+    i32 client;
+    i32 numClientBytes;
+
     i32 sentinel;
 };
+#pragma pack(pop)
 
 struct SimScene;
 struct SimEntity;

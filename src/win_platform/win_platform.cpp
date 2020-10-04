@@ -538,12 +538,12 @@ static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
         if (read != end)
         {
             g_debugAppCmdIterations++;
-            printf("PLATFORM - exec pending cmds\n");
+            //printf("PLATFORM - exec pending cmds\n");
         }
         while (read < end)
         {
             char* cmd = read;
-            printf("PLATFORM exec from char %d\n", (i32)(read - (char*)buf->start));
+            //printf("PLATFORM exec from char %d\n", (i32)(read - (char*)buf->start));
             //printf("Run cmd %s\n", cmd);
             Platform_ParseTextCommand(cmd);
             read = ZE_RunPastTerminator(read, end);

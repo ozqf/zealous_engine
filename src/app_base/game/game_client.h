@@ -6,8 +6,10 @@
 
 // Session
 extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* db);
-extern "C" void CLG_Start(SimScene* sim);
+extern "C" void CL_Start(SimScene* sim);
 extern "C" void CL_Stop();
+extern "C" void CL_Save(SimScene* sim, SimSaveFileInfo* saveInfo, i32 file, ZEFileIO files);
+extern "C" void CL_Resume(SimScene* sim, SimSaveFileInfo* saveInfo, ZEBuffer* saveData);
 
 extern "C" void CL_ReadInputEvent(SysInputEvent* ev, frameInt frameNumber);
 extern "C" void CL_RegisterLocalPlayer(SimScene* sim, i32 playerId);

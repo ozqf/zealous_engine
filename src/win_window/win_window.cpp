@@ -35,7 +35,7 @@ static void ZR_Error(const char* msg)
 static i32 WindowImpl_ExecTextCommand(
     const char* str, const char** tokens, const i32 numTokens)
 {
-    printf("WINDOW - parse str %s\n", str);
+    //printf("WINDOW - parse str %s\n", str);
     // try and execute ourselves. If not pass off to platform
     if (numTokens == 2 && ZE_CompareStrings(tokens[0], "VID") == 0)
     {
