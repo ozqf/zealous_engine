@@ -107,7 +107,6 @@ internal void App_Fatal(const char* msg)
 /***************************************
 * Define functions accessible to platform
 ***************************************/
-internal i32  g_isValid = 0;
 
 internal i32  AppImpl_Init()
 {
@@ -489,6 +488,7 @@ extern "C"
 ze_app_export __declspec(dllexport) ZE_LinkToGameModule(ze_platform_export platform)
 {
     printf("APP linking to platform\n");
+    ZE_ASSERT(platform.sentinel == ZE_SENTINEL, "APP Platform export bad sentinel")
     g_platform = platform;
     ze_app_export appExport = {};
     appExport.Init = AppImpl_Init;

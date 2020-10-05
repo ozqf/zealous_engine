@@ -4,12 +4,12 @@
 internal i32 g_bIsRunning = NO;
 internal SimScene* g_sim = NULL;
 
-extern "C" void GSV_Init(ZE_FatalErrorFunction fatalFunc)
+extern "C" void SV_Init(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* db)
 {
 	
 }
 
-extern "C" void GSV_Start(SimScene* sim)
+extern "C" void SV_Start(SimScene* sim)
 {
 	printf("SV Start\n");
 	g_bIsRunning = YES;
@@ -66,7 +66,13 @@ extern "C" void SV_Save(SimScene* sim, SimSaveFileInfo* saveInfo, i32 file, ZEFi
 
 extern "C" void SV_Resume(SimScene* sim, SimSaveFileInfo* saveInfo, ZEBuffer* saveData)
 {
-
+    if (saveInfo->numServerBytes != sizeof(i32))
+    {
+        printf("SV read incorrect size in save file\n");
+        return;
+    }
+    u8* read = saveData->GetAtOffset(saveInfo->server);
+    g_bIsRunning = *((i32*)read);
 }
 
 extern "C" void SV_PreTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)

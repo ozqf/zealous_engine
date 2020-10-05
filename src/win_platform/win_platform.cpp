@@ -405,8 +405,8 @@ static void PlatformImpl_EnqueueTextCommand(const char* str)
     i32 len = ZE_StrLen(str);
     ZEBuffer* buf = g_appTextCommands.GetWrite();
     buf->cursor += ZE_COPY(str, buf->cursor, len);
-    printf("Platform Enqueue \"%s\"\n", str);
-    printf("\t%d chars enqueued total\n", buf->Written());
+    // printf("Platform Enqueue \"%s\"\n", str);
+    // printf("\t%d chars enqueued total\n", buf->Written());
     PlatformImpl_UnlockMutex(ZE_MUTEX_APP_TEXT_COMMAND_QUEUE, 0);
 }
 

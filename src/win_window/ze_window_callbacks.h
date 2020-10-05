@@ -120,7 +120,7 @@ static void window_close_callback(GLFWwindow* window)
     glfwSetWindowShouldClose(window, GLFW_TRUE);
     // TODO: Handle multithreading here for shutting down full app:
     /*
-    if (g_app.isValid == YES)
+    if (g_app.sentinel == ZE_SENTINEL)
     {
         g_app.AppImpl_BeginShutdown();
     }

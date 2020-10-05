@@ -15,15 +15,15 @@ struct app_frame_info
 // app (game) module function pointers
 struct ze_app_export
 {
-    i32     isValid;
     i32     (*Init)();
     i32     (*Shutdown)();
     i32     (*Tick)(app_frame_info info);
     i32     (*WriteDraw)(void* zrViewFrame);
     i32     (*RendererReloaded)();
-    i32     sentinel;
 	// return YES if command was handled
     i32     (*ParseCommandString)(const char* str, const char** tokens, const i32 numTokens);
+
+    i32     sentinel;
 };
 
 // window (renderer) module function pointers
@@ -58,9 +58,6 @@ struct ze_platform_export
     void (*Free)(void* ptr);
 
     ZEFileIO files;
-    // i32 (*OpenFile)(char* path, i32 bRead);
-    // void (*CloseFile)(i32 handle);
-    // void (*WriteToFile)(i32 handle, u8* bytes, i32 numBytes);
 
     // Shared asset manager
     void* (*GetAssetDB)();
@@ -91,7 +88,7 @@ struct ze_platform_export
     void (*SndPlayQuick)(i32 sampleIndex, Vec3 pos);
     void (*Snd_ExecCommands)(ZEBuffer* buf);
 
-    //
+
     i32 sentinel;
 };
 

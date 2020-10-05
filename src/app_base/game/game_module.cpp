@@ -28,7 +28,7 @@ extern "C" i32 Game_Init(ZE_FatalErrorFunction fatalFunc)
 
 	// sub modules
 	CL_Init(fatalFunc, App_GetAssetDB());
-	GSV_Init(fatalFunc);
+	SV_Init(fatalFunc, App_GetAssetDB());
 
 	printf("--- Game Init Voxel World test ---\n");
 	VW_Test();
@@ -57,7 +57,7 @@ internal i32 Game_StartGameSession(
 	Sim_LoadMapFile(&g_sim, mapName, NO);
 	// start sub-modules
 	CL_Start(&g_sim);
-	GSV_Start(&g_sim);
+	SV_Start(&g_sim);
 	i32 localPlayerId = SV_CreateLocalPlayer(&g_sim, g_gameBuf.GetWrite());
 	CL_RegisterLocalPlayer(&g_sim, localPlayerId);
 	return ZE_ERROR_NONE;

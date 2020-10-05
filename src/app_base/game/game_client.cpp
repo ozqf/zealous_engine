@@ -151,7 +151,13 @@ extern "C" void CL_Save(SimScene* sim, SimSaveFileInfo* saveInfo, i32 file, ZEFi
 
 extern "C" void CL_Resume(SimScene* sim, SimSaveFileInfo* saveInfo, ZEBuffer* saveData)
 {
-
+    if (saveInfo->numClientBytes != sizeof(GameClient))
+    {
+        printf("CL read incorrect size in save file\n");
+        return;
+    }
+    u8* read = saveData->GetAtOffset(saveInfo->client);
+    g_cl = *((GameClient*)read);
 }
 
 extern "C" void CL_InputCheckButton(
