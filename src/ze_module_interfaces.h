@@ -62,6 +62,7 @@ struct ze_platform_export
     // Shared asset manager
     void* (*GetAssetDB)();
     void (*EnqueueTextCommand)(const char* str);
+    void (*GetCmdLine)(i32* argc, char*** argv);
 
     // mouse state - position and buttons read via EventBuffer
     i32 (*IsMouseCaptured)();

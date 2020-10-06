@@ -87,8 +87,11 @@ static i32 g_appFrameNumber = 0;
 static FILE* g_logFile = NULL;
 static i32 g_bConsoleInit = NO;
 
-static char* g_tokens[32];
-static char g_buf[512];
+#define WIN_MAX_COMMAND_LINE_TOKENS 128
+#define WIN_MAX_COMMAND_LINE_LENGTH 2024
+static char* g_tokens[WIN_MAX_COMMAND_LINE_TOKENS];
+static char g_cmdLinebuf[WIN_MAX_COMMAND_LINE_LENGTH];
+static i32 g_numCmdTokens = 0;
 
 global_variable HWND consoleHandle;
 
@@ -436,6 +439,12 @@ static i32 PlatformImpl_Send(i32 socketIndex, ZNetAddress addr, u8* data, i32 da
     return result;
 }
 
+static void PlatformImpl_GetCommandLine(i32* argc, char*** argv)
+{
+    *argc = g_numCmdTokens;
+    *argv = (char**)g_tokens;
+}
+
 static ze_platform_export Win_BuildExport()
 {
     ze_platform_export result = {};
@@ -447,6 +456,7 @@ static ze_platform_export Win_BuildExport()
 
     result.GetAssetDB = PlatformImpl_GetAssetDB;
     result.EnqueueTextCommand = PlatformImpl_EnqueueTextCommand;
+    result.GetCmdLine = PlatformImpl_GetCommandLine;
 
     result.IsMouseCaptured = PlatformImpl_IsMouseCaptured;
     result.SetMouseCaptured = PlatformImpl_SetMouseCaptured;
@@ -666,10 +676,12 @@ static void ReadCommandLine(LPSTR lpCmdLine)
 {
 
     //////////////////////////////////////////////////////
-    
-    i32 numTokens = ZE_ReadTokens(lpCmdLine, g_buf, g_tokens, 32);
-    printf("%d cmd line tokens\n", numTokens);
-    for (i32 i = 0; i < numTokens; ++i)
+    i32 len = ZE_StrLen(lpCmdLine);
+    ZE_ASSERT(len < WIN_MAX_COMMAND_LINE_LENGTH, "Command line too long")
+
+    g_numCmdTokens = ZE_ReadTokens(lpCmdLine, g_cmdLinebuf, g_tokens, WIN_MAX_COMMAND_LINE_TOKENS);
+    printf("%d cmd line tokens\n", g_numCmdTokens);
+    for (i32 i = 0; i < g_numCmdTokens; ++i)
     {
         printf("> %s\n", g_tokens[i]);
     }
@@ -677,15 +689,15 @@ static void ReadCommandLine(LPSTR lpCmdLine)
     // Read options
     i32 tokenIndex;
     // console
-    tokenIndex = ZE_FindParamIndex(g_tokens, numTokens, "-c", 0);
+    tokenIndex = ZE_FindParamIndex(g_tokens, g_numCmdTokens, "-c", 0);
     if (tokenIndex >= 0)
     {
         InitConsole();
     }
 
     // game dll directory
-    tokenIndex = ZE_FindParamIndex(g_tokens, numTokens, "-g", 1);
-    if (tokenIndex >= 0 && tokenIndex < (numTokens -1))
+    tokenIndex = ZE_FindParamIndex(g_tokens, g_numCmdTokens, "-g", 1);
+    if (tokenIndex >= 0 && tokenIndex < (g_numCmdTokens -1))
     {
         char* dir = g_tokens[tokenIndex + 1];
         printf("Base dir: %s\n", dir);
@@ -697,7 +709,7 @@ static void ReadCommandLine(LPSTR lpCmdLine)
     }
 
     // log file
-    tokenIndex = ZE_FindParamIndex(g_tokens, numTokens, "-l", 0);
+    tokenIndex = ZE_FindParamIndex(g_tokens, g_numCmdTokens, "-l", 0);
     if (tokenIndex >= 0)
     {
         InitLogFile();

@@ -104,6 +104,19 @@ internal void App_Fatal(const char* msg)
 	g_platform.Error((char*)msg);
 }
 
+internal void App_ReadCommandLine()
+{
+    i32 argc = 0;
+    char** c = NULL;
+    g_platform.GetCmdLine(&argc, &tokens);
+
+    for (i32 i = 0; i < argc; ++i)
+    {
+        printf("%s\n", tokens[i]);
+    }
+
+}
+
 /***************************************
 * Define functions accessible to platform
 ***************************************/
@@ -112,6 +125,8 @@ internal i32  AppImpl_Init()
 {
     APP_LOG(128, "App initialising. Build data %s - %s\n", __DATE__, __TIME__);
     //App_Log("Test Log\n");
+    //g_platform.DebugBreak();
+    App_ReadCommandLine(numTokens, tokens);
     
     // Open debug port
     g_debugPort = ZE_DEBUG_PORT;
