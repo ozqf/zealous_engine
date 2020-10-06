@@ -1,5 +1,21 @@
 #ifndef ZE_VARS_H
 #define ZE_VARS_H
+
+/////////////////////////////////
+// Second iteration - hopefully less crap
+/////////////////////////////////
+
+struct ZEIntern
+{
+   i32 hash;
+   i32 len;
+   char* chars;
+};
+
+/////////////////////////////////
+// First iteration - crap
+/////////////////////////////////
+
 /*
 TODO: This whole implementation is kinda shit isn't it.
 Plan to refactor to intern strings for idenfier names and values into

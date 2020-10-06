@@ -180,6 +180,25 @@ static char* ZE_RunPastTerminator(char* start, char* bufferEnd)
     return cursor;
 }
 
+static char* ZE_ReadToChar(char* start, char c)
+{
+    while (*start++ != c) { };
+    return start;
+}
+
+static i32 ZE_FindFirstCharMatch(char* start, char match)
+{
+    i32 i = 0;
+    for(;;)
+    {
+        char c = start[i];
+        if (c == match) { return i; }
+        if (c == '\0') { break; }
+        i++;
+    }
+    return -1;
+}
+
 internal char* ZE_RunToNewLine(char* buffer)
 {
     u8 reading = true;

@@ -124,11 +124,6 @@ internal i32 ZE_AsciToInt32(const char *str)
     return val * sign;
 }
 
-static char* ZE_ReadToNullChar(char* start)
-{
-    while (*start++ != '\0') { };
-    return start;
-}
 /////////////////////////////////////////////
 // string stack
 /////////////////////////////////////////////

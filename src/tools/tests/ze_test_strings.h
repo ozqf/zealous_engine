@@ -84,12 +84,8 @@ static void Test_StringMeasure()
 	printf("Measured \"%s\" as %d chars\n", str, lineLen);
 }
 
-static void Test_StringFunctions()
+static void Test_ReadTokens()
 {
-	printf("\n=== TEST STRING LIB ===\n");
-	
-	Test_StringMeasure();
-	
 	const i32 bufSize = 512;
 	char buf[bufSize];
 	/////////////////////////////////////////////
@@ -97,7 +93,7 @@ static void Test_StringFunctions()
 	char* testCommand = "foo.exe -option 42 - bar --skegness seventh eighth";
 	const i32 maxTokens = 7;
 	char* tokens[maxTokens];
-
+	printf("--- Tokenise ---\n");
 	printf("Tokenising \"%s\" (max tokens %d)\n", testCommand, maxTokens);
 	i32 numTokens = ZE_ReadTokens(testCommand, buf, tokens, maxTokens);
 	printf("Result:\n");
@@ -105,9 +101,130 @@ static void Test_StringFunctions()
 	{
 		printf("%d: %s\n", i, tokens[i]);
 	}
+}
 
+static void Test_PrintCharCodes(char* str)
+{
+	while (*str)
+	{
+		printf("%d, ", *str);
+		str++;
+	}
+	printf("\n");
+}
+
+static i32 Test_IsCharLetter(char c)
+{
+	if (c >= 65 && c <= 90) { return YES; }
+	if (c >= 97 && c <= 122) { return YES; }
+	return NO;
+}
+
+static void Test_ReadMapFormat()
+{
+	const i32 bufSize = 512;
+	char buf[bufSize];
+	// read line by line in text mode
+	FILE* f = NULL;
+	const char* path = "map_format_example_128x128x32_cube.map";
+	printf("--- Test read map %s ---\n", path);
+	printf("//r char code is %d\n", '\r');
+	printf("//n char code is %d\n", '\n');
+	fopen_s(&f, path, "r");
+	if (f == NULL)
+	{
+		printf("Failed to open ini test %s\n", path);
+		return;
+	}
+	i32 line = 1;
+	i32 i = -1;
+	while(fgets(buf, bufSize, f))
+	{
+		// patch out '\n'
+		i = ZE_FindFirstCharMatch(buf, '\n');
+		if (i != -1)
+		{
+			buf[i] = '\0';
+		}
+		printf("%d: %s", i, buf);
+	}
+}
+
+static void Test_ReadIni()
+{
+	const i32 bufSize = 512;
+	char buf[bufSize];
+	// read line by line in text mode
+	FILE* f = NULL;
+	//const char* path = "map_format_example_128x128x32_cube.map";
+	const char* path = "config.ini";
+	printf("--- Test read ini %s ---\n", path);
+	printf("//r char code is %d\n", '\r');
+	printf("//n char code is %d\n", '\n');
+	fopen_s(&f, path, "r");
+	if (f == NULL)
+	{
+		printf("Failed to open ini test %s\n", path);
+		return;
+	}
+	i32 line = 1;
+	i32 i = -1;
+	while(fgets(buf, bufSize, f))
+	{
+		// patch out '\n'
+		i = ZE_FindFirstCharMatch(buf, '\n');
+		if (i != -1)
+		{
+			buf[i] = '\0';
+		}
+		i32 len = ZE_StrLen(buf);
+		//if (buf[len - 2] == '\r') { printf("line-feed!\n"); }
+		//printf("%d: (%d chars) %s\n", line, len, buf);
+		//Test_PrintCharCodes(buf);
+		char c = buf[0];
+		if (Test_IsCharLetter(c))
+		{
+			// Line is a variable
+			// find '=' key=value splitter
+			// patch to line end
+			// key=value
+			i = ZE_FindFirstCharMatch(buf, '=');
+			if (i >= 0)
+			{
+				buf[i] = '\0';
+				char* varBuf = &buf[i + 1];
+				i32 varLabelLen = ZE_StrLen(varBuf);
+				if (varLabelLen > 0)
+				{
+					printf("Key %s, Value %s\n", buf, varBuf);
+				}
+			}
+		}
+		if (c == '[')
+		{
+			i = ZE_FindFirstCharMatch(buf, ']');
+			if (i > 1)
+			{
+				buf[i] = '\0';
+				char* setName = &buf[1];
+				printf("Set %s\n", setName);
+			}
+		}
+		line++;
+	}
+	fclose(f);
+}
+
+static void Test_StringFunctions()
+{
+	printf("\n=== TEST STRING LIB ===\n");
+	
+	Test_StringMeasure();
+	Test_ReadTokens();
 	Test_FileTokenise();
 	Test_StringStack();
+	Test_ReadIni();
+	Test_ReadMapFormat();
 	printf("\tDone\n");
 }
 

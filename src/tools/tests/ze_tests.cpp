@@ -247,10 +247,8 @@ extern "C" void ZETests_Run()
 	i32 testMask = 0;
 	// test everything:
 	//testMask = ~0;
-	//testMask |= TEST_ZEVARS | TEST_STRINGS;
-	//testMask |= TEST_ZEVARS;
-	testMask |= TEST_ZEVARS | TEST_VOXEL_WORLD;
-
+	testMask = TEST_STRINGS;
+	
 	// Test core common lib
 	if (testMask & TEST_STRINGS) { Test_StringFunctions(); }
 	if (testMask & TEST_BLOB_STORE) { TestBlobStore(); }
