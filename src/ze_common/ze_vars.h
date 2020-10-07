@@ -9,7 +9,7 @@ struct ZEIntern
 {
    i32 hash;
    i32 len;
-   char* chars;
+   i32 charsOffset;
 };
 
 /////////////////////////////////

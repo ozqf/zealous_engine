@@ -18,5 +18,6 @@
 #include "ze_sound_types.h"
 #include "ze_command.h"
 #include "ze_parse_parameters.h"
+#include "ze_vars.h"
 
 #endif // ZE_COMMON_FULL_H

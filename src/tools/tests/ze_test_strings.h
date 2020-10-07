@@ -120,7 +120,17 @@ static i32 Test_IsCharLetter(char c)
 	return NO;
 }
 
-static void Test_ReadMapFormat()
+static void Test_ParseFace(const char* line, i32 lineLen)
+{
+	printf("Face: %s\n", line);
+}
+
+static void Test_ParseSetting(const char* line, i32 lineLen)
+{
+	printf("Setting: %s\n", line);
+}
+
+static ErrorCode Test_ReadMapFormat()
 {
 	const i32 bufSize = 512;
 	char buf[bufSize];
@@ -128,13 +138,11 @@ static void Test_ReadMapFormat()
 	FILE* f = NULL;
 	const char* path = "map_format_example_128x128x32_cube.map";
 	printf("--- Test read map %s ---\n", path);
-	printf("//r char code is %d\n", '\r');
-	printf("//n char code is %d\n", '\n');
 	fopen_s(&f, path, "r");
 	if (f == NULL)
 	{
 		printf("Failed to open ini test %s\n", path);
-		return;
+		return ZE_ERROR_MISSING_FILE;
 	}
 	i32 line = 1;
 	i32 i = -1;
@@ -146,8 +154,36 @@ static void Test_ReadMapFormat()
 		{
 			buf[i] = '\0';
 		}
-		printf("%d: %s", i, buf);
+		// eat whitespace
+		char* lineStart = ZE_EatWhiteSpace(buf);
+		// detect comments
+		i32 len = ZE_StrLen(buf);
+		if (len >= 2 && lineStart[0] == '/' && lineStart[1] == '/' ) { line++; continue; }
+		//printf("%d: %s\n", line, buf);
+		switch (lineStart[0])
+		{
+			case '{':
+			break;
+			case '}':
+			break;
+			case '(':
+			Test_ParseFace(lineStart, len);
+			break;
+			case '"':
+			Test_ParseSetting(lineStart, len);
+			break;
+			default:
+			// FAIL PARSE
+			printf("Unexpected first char %c on line %d\n",
+				lineStart[0], line);
+			fclose(f);
+			return ZE_ERROR_DESERIALISE_FAILED;
+			break;
+		}
+		line++;
 	}
+	fclose(f);
+	return ZE_ERROR_NONE;
 }
 
 static void Test_ReadIni()
@@ -167,6 +203,14 @@ static void Test_ReadIni()
 		printf("Failed to open ini test %s\n", path);
 		return;
 	}
+
+	fseek(f, 0, SEEK_END);
+	i32 fileLen = ftell(f);
+	printf("File length: %d\n", fileLen);
+	fseek(f, 0, SEEK_SET);
+	ZEBuffer varsBuffer = Buf_FromMalloc(malloc(fileLen * 4), fileLen * 4);
+	ZEBuffer* vars = &varsBuffer;
+
 	i32 line = 1;
 	i32 i = -1;
 	while(fgets(buf, bufSize, f))
@@ -178,8 +222,7 @@ static void Test_ReadIni()
 			buf[i] = '\0';
 		}
 		i32 len = ZE_StrLen(buf);
-		//if (buf[len - 2] == '\r') { printf("line-feed!\n"); }
-		//printf("%d: (%d chars) %s\n", line, len, buf);
+		printf("%d: (%d chars) %s\n", line, len, buf);
 		//Test_PrintCharCodes(buf);
 		char c = buf[0];
 		if (Test_IsCharLetter(c))
@@ -192,11 +235,26 @@ static void Test_ReadIni()
 			if (i >= 0)
 			{
 				buf[i] = '\0';
-				char* varBuf = &buf[i + 1];
-				i32 varLabelLen = ZE_StrLen(varBuf);
+				char* valueBuf = &buf[i + 1];
+				i32 varLabelLen = ZE_StrLen(valueBuf);
+				printf("Var label len %d\n", varLabelLen);
 				if (varLabelLen > 0)
 				{
-					printf("Key %s, Value %s\n", buf, varBuf);
+					printf("Key %s, Value %s\n", buf, valueBuf);
+					ZE_INIT_PTR_IN_PLACE(key, ZEIntern, vars)
+					key->hash = ZE_Hash_djb2((u8*)buf);
+					// recalc length since we adjusted it
+					key->len = ZE_StrLen(buf);
+					key->charsOffset = varsBuffer.CursorOffset();
+					strcpy_s((char*)vars->cursor, len, buf);
+					vars->cursor += key->len;
+
+					ZE_INIT_PTR_IN_PLACE(val, ZEIntern, vars)
+					val->hash = ZE_Hash_djb2((u8*)valueBuf);
+					val->len = ZE_StrLen(valueBuf);
+					val->charsOffset = varsBuffer.CursorOffset();
+					strcpy_s((char*)vars->cursor, len, valueBuf);
+					vars->cursor += val->len;
 				}
 			}
 		}
@@ -212,17 +270,33 @@ static void Test_ReadIni()
 		}
 		line++;
 	}
+
+	// check loaded buffer
+	printf("Bytes written: %d\n", varsBuffer.Written());
+	u8* read = varsBuffer.start;
+	u8* end = varsBuffer.cursor;
+	while (read < end)
+	{
+		i32 offset = read - varsBuffer.start;
+		ZEIntern* intern = (ZEIntern*)read;
+		printf("Intern at %d hash %d len %d str: %s\n",
+			offset, intern->hash, intern->len, (char*)varsBuffer.GetAtOffset(intern->charsOffset));
+		read += sizeof(ZEIntern) + intern->len;
+	}
+	free(varsBuffer.start);
+	printf("\tini test done\n\n");
 	fclose(f);
 }
 
 static void Test_StringFunctions()
 {
 	printf("\n=== TEST STRING LIB ===\n");
-	
+	#if 0
 	Test_StringMeasure();
 	Test_ReadTokens();
 	Test_FileTokenise();
 	Test_StringStack();
+	#endif
 	Test_ReadIni();
 	Test_ReadMapFormat();
 	printf("\tDone\n");

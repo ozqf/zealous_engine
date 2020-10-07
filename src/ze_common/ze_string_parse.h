@@ -216,6 +216,16 @@ internal char* ZE_RunToNewLine(char* buffer)
     return buffer;
 }
 
+internal char* ZE_EatWhiteSpace(char* start)
+{
+    char* result = start;
+    while (*result != NULL && (*result == ' ' || *result == '\t'))
+    {
+        result++;
+    }
+    return result;
+}
+
 /**
 Send a target length of -1 to measure the string. Use a target length > 0
 allows for strings with terminators in them
