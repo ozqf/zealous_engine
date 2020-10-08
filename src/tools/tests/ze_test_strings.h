@@ -180,7 +180,29 @@ static void Test_ParseFace(const char* line, i32 lineLen)
 
 static void Test_ParseSetting(const char* line, i32 lineLen)
 {
+	// "classname" "info_player_start"
+	// minimal valid length would be "a" "b" or 8 chars
+	// TODO: No handling of " quotes within a string
+	if (lineLen < 8)
+	{
+		printf("Line %s is too short\n", line);
+		return;
+	}
+	i32 quotes = ZE_CountSpecificChar(line, '"');
+	if (quotes != 4)
+	{
+		printf("Counted %d quotes in setting line. Expected %d\n",
+			quotes, 4);
+		return;
+	}
 	printf("Setting: %s\n", line);
+	char* keyStart = ZE_ReadToChar((char*)line, '"');
+	char* keyEnd = ZE_ReadToChar((char*)keyStart, '"');
+	char* valueStart = ZE_ReadToChar((char*)keyEnd, '"');
+	char* valueEnd = ZE_ReadToChar((char*)valueStart, '"');
+	*(keyEnd - 1) = '\0';
+	*(valueEnd - 1) = '\0';
+	printf("Key: %s value: %s\n", keyStart, valueStart);
 }
 
 static ErrorCode Test_ReadMapFormat()

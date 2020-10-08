@@ -22,6 +22,21 @@ internal void ZE_PrintChars(u8* buf, i32 size, i32 bytesPerLine)
 	printf("\n");
 }
 
+internal i32 ZE_CountSpecificChar(const char* str, char c)
+{
+    if (!str) { return 0; }
+    i32 i = 0;
+    i32 count = 0;
+    do
+    {
+        if (str[i] == c)
+        {
+            count++;
+        }
+    } while (str[i++] != '\0');
+    return count;
+}
+
 /**
  * Find string tokens:
  * > Copies source into dest, placing '\0' at the end of every token
@@ -185,7 +200,18 @@ static char* ZE_ReadToChar(char* start, char c)
     while (*start++ != c) { };
     return start;
 }
-
+#if 0
+static char* ZE_ReadToChars(char* start, char* match)
+{
+    i32 strLen = ZE_StrLen(start);
+    i32 matchLen = ZE_StrLen(match);
+    if (strLen < matchLen) { return NULL; }
+    i32 remaining = strLen;
+    i32 i = 
+    while (*start++ != c) { };
+    return start;
+}
+#endif
 static i32 ZE_FindFirstCharMatch(char* start, char match)
 {
     i32 i = 0;
