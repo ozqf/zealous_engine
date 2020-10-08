@@ -122,7 +122,60 @@ static i32 Test_IsCharLetter(char c)
 
 static void Test_ParseFace(const char* line, i32 lineLen)
 {
-	printf("Face: %s\n", line);
+	//printf("Face: %s\n", line);
+	// expect 21 tokens, eg:
+	// ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) metal1_3 0 0 0 1 1
+	const i32 bufLen = 512;
+	const i32 maxTokens = 32;
+	if (lineLen > bufLen)
+	{
+		printf("Line length of %d exceeds limit %d\n",
+			lineLen, bufLen); 
+		return;
+	}
+	char buf[bufLen];
+	char* tokens[maxTokens];
+	const i32 expectedTokens = 21;
+	i32 numTokens = ZE_ReadTokens(line, buf, tokens, maxTokens);
+	if (numTokens != expectedTokens)
+	{
+		printf("Bad face - expected %d tokens, got %d\n", expectedTokens, numTokens);
+		return;
+	}
+	if (*tokens[0] != '('
+		|| *tokens[4] != ')'
+		|| *tokens[5] != '('
+		|| *tokens[9] != ')'
+		|| *tokens[10] != '('
+		|| *tokens[14] != ')'
+		)
+	{
+		printf("\nBad token in line - Skipped\n");
+		return;
+	}
+	#if 0
+	printf("Face : ");
+	for (i32 i = 0; i < numTokens; ++i)
+	{
+		printf("%s, ", tokens[i]);
+	}
+	printf("\n");
+	#endif
+	Vec3 a;
+	a.x = (f32)atof(tokens[1]);
+	a.y = (f32)atof(tokens[2]);
+	a.z = (f32)atof(tokens[3]);
+	Vec3 b;
+	b.x = (f32)atof(tokens[6]);
+	b.y = (f32)atof(tokens[7]);
+	b.z = (f32)atof(tokens[8]);
+	Vec3 c;
+	c.x = (f32)atof(tokens[11]);
+	c.y = (f32)atof(tokens[12]);
+	c.z = (f32)atof(tokens[13]);
+	printf("%s: ( %.3f, %.3f, %3f )", tokens[15], a.x, a.y, a.z);
+	printf("( %.3f, %.3f, %3f ) ", b.x, b.y, b.z);
+	printf("( %.3f, %.3f, %3f )\n", c.x, c.y, c.z);
 }
 
 static void Test_ParseSetting(const char* line, i32 lineLen)
