@@ -4,7 +4,7 @@
 #include "ze_common.h"
 
 // source http://www.cse.yorku.ca/~oz/hash.html
-#if 1
+
 static unsigned long ZE_Hash_djb2(unsigned char *str)
 {
     unsigned long hash = 5381;
@@ -16,7 +16,23 @@ static unsigned long ZE_Hash_djb2(unsigned char *str)
     }
     return hash;
 }
-#endif
+
+static unsigned long ZE_Hash_djb2_pair(unsigned char *str, unsigned char *strB)
+{
+    unsigned long hash = 5381;
+    int c;
+
+    while ((c = *str++) != '\0') // this line gives compiler warning
+    {
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    }
+    while ((c = *strB++) != '\0') // this line gives compiler warning
+    {
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    }
+    return hash;
+}
+
 static u32 ZE_Hash_djb2_Fixed(unsigned char *str, i32 numChars)
 {
     u32 hash = 5381;

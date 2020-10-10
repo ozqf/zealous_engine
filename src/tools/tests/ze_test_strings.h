@@ -195,14 +195,14 @@ static void Test_ParseSetting(const char* line, i32 lineLen)
 			quotes, 4);
 		return;
 	}
-	printf("Setting: %s\n", line);
+	//printf("Setting: %s\n", line);
 	char* keyStart = ZE_ReadToChar((char*)line, '"');
 	char* keyEnd = ZE_ReadToChar((char*)keyStart, '"');
 	char* valueStart = ZE_ReadToChar((char*)keyEnd, '"');
 	char* valueEnd = ZE_ReadToChar((char*)valueStart, '"');
 	*(keyEnd - 1) = '\0';
 	*(valueEnd - 1) = '\0';
-	printf("Key: %s value: %s\n", keyStart, valueStart);
+	printf("Field Key: %s value: %s\n", keyStart, valueStart);
 }
 
 static ErrorCode Test_ReadMapFormat()
@@ -261,8 +261,28 @@ static ErrorCode Test_ReadMapFormat()
 	return ZE_ERROR_NONE;
 }
 
+static char* Test_FindIniVar(ZELookupTable* table, ZEBuffer* data, const char* name)
+{
+	i32 hash = ZE_Hash_djb2((u8*)name);
+	i32 offset = table->FindData(hash);
+	if (offset == table->m_invalidDataValue) { return NULL; }
+	ZEIntern* intern = (ZEIntern*)data->GetAtOffset(offset);
+	return (char*)data->GetAtOffset(intern->charsOffset);
+}
+
 static void Test_ReadIni()
 {
+	/*
+	Ideas for loading:
+	all ini files and their sections are loaded into the same pool.
+	> Data: Linear buffer of interned strings.
+	> Table: hash table where key is section name + field name, and value is
+	the offset to the field's value string in the data buffer.
+	
+	if done this way, no way to go from the data to the section/field names
+	to save the file back out again!
+	need to save the offsets to the section and field names for each.
+	*/
 	const i32 bufSize = 512;
 	char buf[bufSize];
 	// read line by line in text mode
@@ -286,15 +306,17 @@ static void Test_ReadIni()
 	ZEBuffer varsBuffer = Buf_FromMalloc(malloc(fileLen * 4), fileLen * 4);
 	ZEBuffer* vars = &varsBuffer;
 
+	ZELookupTable* table = ZE_LT_Create(128, -1, NULL);
+
 	i32 line = 1;
-	i32 i = -1;
+	i32 readIndex = -1;
 	while(fgets(buf, bufSize, f))
 	{
 		// patch out '\n'
-		i = ZE_FindFirstCharMatch(buf, '\n');
-		if (i != -1)
+		readIndex = ZE_FindFirstCharMatch(buf, '\n');
+		if (readIndex != -1)
 		{
-			buf[i] = '\0';
+			buf[readIndex] = '\0';
 		}
 		i32 len = ZE_StrLen(buf);
 		printf("%d: (%d chars) %s\n", line, len, buf);
@@ -306,16 +328,18 @@ static void Test_ReadIni()
 			// find '=' key=value splitter
 			// patch to line end
 			// key=value
-			i = ZE_FindFirstCharMatch(buf, '=');
-			if (i >= 0)
+			readIndex = ZE_FindFirstCharMatch(buf, '=');
+			if (readIndex >= 0)
 			{
-				buf[i] = '\0';
-				char* valueBuf = &buf[i + 1];
+				buf[readIndex] = '\0';
+				char* valueBuf = &buf[readIndex + 1];
 				i32 varLabelLen = ZE_StrLen(valueBuf);
 				printf("Var label len %d\n", varLabelLen);
 				if (varLabelLen > 0)
 				{
 					printf("Key %s, Value %s\n", buf, valueBuf);
+					//////////////////////////
+					// intern key
 					ZE_INIT_PTR_IN_PLACE(key, ZEIntern, vars)
 					key->hash = ZE_Hash_djb2((u8*)buf);
 					// recalc length since we adjusted it
@@ -323,7 +347,12 @@ static void Test_ReadIni()
 					key->charsOffset = varsBuffer.CursorOffset();
 					strcpy_s((char*)vars->cursor, len, buf);
 					vars->cursor += key->len;
-
+					//////////////////////////
+					// intern value
+					// Record current cursor offset for lookup table
+					i32 valueStructOffset = varsBuffer.CursorOffset();
+					table->Insert(key->hash, valueStructOffset);
+					// create value entry
 					ZE_INIT_PTR_IN_PLACE(val, ZEIntern, vars)
 					val->hash = ZE_Hash_djb2((u8*)valueBuf);
 					val->len = ZE_StrLen(valueBuf);
@@ -335,10 +364,10 @@ static void Test_ReadIni()
 		}
 		if (c == '[')
 		{
-			i = ZE_FindFirstCharMatch(buf, ']');
-			if (i > 1)
+			readIndex = ZE_FindFirstCharMatch(buf, ']');
+			if (readIndex > 1)
 			{
-				buf[i] = '\0';
+				buf[readIndex] = '\0';
 				char* setName = &buf[1];
 				printf("Set %s\n", setName);
 			}
@@ -346,7 +375,8 @@ static void Test_ReadIni()
 		line++;
 	}
 
-	// check loaded buffer
+	/////////////////////////////
+	// Iterate buffer and check
 	printf("Bytes written: %d\n", varsBuffer.Written());
 	u8* read = varsBuffer.start;
 	u8* end = varsBuffer.cursor;
@@ -358,6 +388,30 @@ static void Test_ReadIni()
 			offset, intern->hash, intern->len, (char*)varsBuffer.GetAtOffset(intern->charsOffset));
 		read += sizeof(ZEIntern) + intern->len;
 	}
+	/////////////////////////////
+	// Iterate lookup table and check
+	printf("-- Field lookup table --\n");
+	for (i32 i = 0; i < table->m_maxKeys; ++i)
+	{
+		ZELookupKey* key = &table->m_keys[i];
+		if (key->id == 0) { continue; }
+		ZEIntern* intern = (ZEIntern*)varsBuffer.GetAtOffset(key->data);
+		printf("Value for id hash %d: %s\n",
+			key->id, (char*)varsBuffer.GetAtOffset(intern->charsOffset));
+	}
+
+	char* testKey = "ddddd";
+	char* foo = Test_FindIniVar(table, &varsBuffer, testKey);
+	if (foo != NULL)
+	{
+		printf("Lookup test - %s: %s\n", testKey, foo);
+	}
+	else
+	{
+		printf("ERROR - look test found no result for field %s\n", testKey);
+	}
+	
+
 	free(varsBuffer.start);
 	printf("\tini test done\n\n");
 	fclose(f);
