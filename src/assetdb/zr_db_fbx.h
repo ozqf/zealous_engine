@@ -110,7 +110,7 @@ static void ZRGL_ExamineFBXFile(ofbx::IScene* fbx)
     fclose(f);
     #endif
 }
-
+#if 0
 static i32 ZRGL_LoadFBX(
     char* path, i32* vertexCount, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)
 {
@@ -218,5 +218,5 @@ static i32 ZRGL_LoadFBX(
 	// ZRDB_LoadMesh(db...)
     return 0;
 }
-
+#endif
 #endif // ZR_DB_FBX_H

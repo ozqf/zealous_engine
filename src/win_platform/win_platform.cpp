@@ -736,7 +736,7 @@ int CALLBACK WinMain(
     Net_Init();
 
     // alloc asset db
-    g_assets = ZRDB_Create();
+    g_assets = ZRDB_Create(Win_Error);
 
     // init sound
     i32 sndErr = Snd_Init();

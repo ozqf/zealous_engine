@@ -71,7 +71,7 @@ log_message( foo == 7, "x %d", x)
 #define AssertAlways(expression) if(!(expression)) { *(int *)0 = 0; }
 */
 
-#define ILLEGAL_CODE_PATH if (true) { *(int *)0 = 0; }
+#define ZE_FORCE_SEG_FAULT if (true) { *(int *)0 = 0; }
 
 #define KiloBytes(bytes) ((bytes) * 1024LL)
 #define MegaBytes(bytes) (KiloBytes(bytes) * 1024LL)
@@ -196,6 +196,10 @@ static ZE_FatalErrorFunction ze_fatalErrorFunc = NULL;
 
 static void ZE_SetFatalError(ZE_FatalErrorFunction func)
 {
+    if (ze_fatalErrorFunc != NULL) { return; }
+    {
+        printf("ZE Error handler already set\n");
+    }
     printf("ZE Set error handler\n");
     ze_fatalErrorFunc = func;
 }
@@ -205,7 +209,7 @@ static void ZE_Fatal(char* msg)
 	if (ze_fatalErrorFunc == NULL)
     {
         printf("FATAL - %s\n", msg);
-        ILLEGAL_CODE_PATH;
+        ZE_FORCE_SEG_FAULT;
     }
 	ze_fatalErrorFunc(msg);
 }
@@ -217,6 +221,12 @@ static void ZE_Fatal(char* msg)
     snprintf(assertBuf, 512, "%s, %d: %s\n", __FILE__, __LINE__, msg); \
 	ZE_Fatal(assertBuf); \
 }
+
+
+#define ILLEGAL_CODE_PATH \
+ZE_ASSERT(NO, "Illegal Code Path")
+
+
 
 struct DateTime
 {

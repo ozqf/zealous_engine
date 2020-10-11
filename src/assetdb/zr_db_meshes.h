@@ -134,6 +134,8 @@ static ZRDBMesh* ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, const MeshData da
 
 static i32 ZRDB_LoadMeshFromFBX(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)
 {
+    ILLEGAL_CODE_PATH
+    // TODO resurrect old FBX load code in zr_db_fbx.h
     return 0;
 }
 

@@ -20,9 +20,7 @@ static ZRDBMaterial* ZRDB_GetMaterialByName(ZRAssetDB* assetDB, char* name)
             return &db->materials[i];
         }
     }
-	// TODO: Assuming mat 0 is default:
-	// No returning NULL!
-	return &db->materials[0];
+	return &db->materials[ZRDB_DEFAULT_MAT_INDEX];
 }
 
 static ZRDBMaterial* ZRDB_GetMaterialByIndex(ZRAssetDB* assetDB, i32 index)

@@ -81,8 +81,9 @@ internal void ZRDB_VidRestart(ZRAssetDB* assetDb)
 // Create
 ///////////////////////////////////////////////////////////////////////////
 
-extern "C" ZRAssetDB* ZRDB_Create()
+extern "C" ZRAssetDB* ZRDB_Create(ZE_FatalErrorFunction errorHandler)
 {
+	ZE_SetFatalError(errorHandler);
 	const i32 maxTrackedAllocs = 1024;
 	i32 spaceForStruct = sizeof(ZRAssetDBData);
 	i32 spaceForAllocList = sizeof(MallocItem) * maxTrackedAllocs;

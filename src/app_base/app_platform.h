@@ -167,6 +167,10 @@ internal i32  AppImpl_Init()
     g_localServerAddress = {};
     g_localServerAddress.port = APP_SERVER_LOOPBACK_PORT;
     
+    // FBX loading currently not working!
+    // i32 meshHandle = App_GetAssetDB()->LoadMeshFromFBX(
+    //     App_GetAssetDB(), "data\\Pillar.fbx", { 1, 1, 1 }, YES, YES);
+
     // initialise sub-modules
     AppUI_Init(g_platform);
     Game_Init(App_Fatal);
