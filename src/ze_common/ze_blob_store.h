@@ -18,7 +18,6 @@ struct ZEBlobStore
     u8* GetById(i32 id)
     {
         i32 index = m_lookup->FindData(id);
-        printf("Get by Id %d index is %d\n", id, index);
         if (index == ZE_LT_INVALID_INDEX) { return NULL; }
         return m_array->GetByIndex(index);
     }

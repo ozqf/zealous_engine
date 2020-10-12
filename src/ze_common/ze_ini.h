@@ -40,13 +40,11 @@ struct ZEIniFile
 		i32 curOffset = strTable->FindData(hash);
 		if (curOffset != strTable->m_invalidDataValue)
 		{
-			printf("INI - str %s already interned\n", sectionName);
 			return hash;
 		}
 		ZEIntern* header = ZEInternString(strTable, &this->strData, sectionName);
 		i32 headerOffset = (u8*)header - this->strData.start;
 		strTable->Insert(header->hash, header->headerOffset);
-		printf("\tNew section %s hash %d\n", sectionName, header->hash);
 		return header->hash;
 	}
 
@@ -83,8 +81,6 @@ struct ZEIniFile
 	i32 RegisterField(i32 sectionHash, const char* fieldName, const char* fieldValue)
 	{
 		if (sectionHash == 0) { sectionHash = this->defaultSectionHash; }
-		printf("Register in section %d field %s value %s\n",
-			sectionHash, fieldName, fieldValue);
 		ZEIniSection* section = GetSection(sectionHash);
 		if (section == NULL)
 		{
@@ -115,16 +111,35 @@ struct ZEIniFile
 		return (const char*)this->strData.GetAtOffset(intern->charsOffset);
 	}
 
-	const char* GetValue(const char* sectionName, const char* fieldName)
+	ZEIniField* GetField(const char* sectionName, const char* fieldName)
 	{
 		i32 sectionHash = ZE_Hash_djb2((u8*)sectionName);
 		ZEIniSection* section = this->GetSection(sectionHash);
 		if (section == NULL) { return NULL; }
 
 		i32 fieldHash = ZE_Hash_djb2((u8*)fieldName);
-		ZEIniField* field = (ZEIniField*)section->store.GetById(fieldHash);
+		return (ZEIniField*)section->store.GetById(fieldHash);
+	}
+
+	const char* GetFieldStr(const char* sectionName, const char* fieldName)
+	{
+		ZEIniField* field = GetField(sectionName, fieldName);
 		if (field == NULL) { return NULL; }
 		return GetString(field->charHash);
+	}
+
+	i32 GetFieldi(const char* sectionName, const char* fieldName)
+	{
+		ZEIniField* field = GetField(sectionName, fieldName);
+		if (field == NULL) { return 0; }
+		return field->i;
+	}
+
+	f32 GetFieldf(const char* sectionName, const char* fieldName)
+	{
+		ZEIniField* field = GetField(sectionName, fieldName);
+		if (field == NULL) { return 0; }
+		return field->f;
 	}
 
 	void PrintStrings()
@@ -154,16 +169,32 @@ static void ZEIni_Destroy(ZEIniFile* file)
 	free(file);
 }
 
-// static char* ZEIni_GetValue(
-// 	ZELookupTable* table, ZEBuffer* data,
-// 	const char* section, const char* field)
-// {
-// 	i32 hash = ZE_Hash_djb2_pair((u8*)section, (u8*)field);
-// 	i32 offset = table->FindData(hash);
-// 	if (offset == table->m_invalidDataValue)
-// 	{ return NULL; }
-// 	ZEIntern* intern = (ZEIntern*)data->GetAtOffset(offset);
-// 	return (char*)data->GetAtOffset(intern->charsOffset);
-// }
+static void ZEIni_Write(ZEIniFile* file, const char* path)
+{
+	FILE* f = NULL;
+	fopen_s(&f, path, "w");
+	if (f == NULL)
+	{
+		printf("Failed to open %s for writing\n", path);
+		return;
+	}
+	for (i32 i = 0; i < file->numSections; ++i)
+	{
+		ZEIniSection* sec = &file->sections[i];
+		fprintf(f, "[%s]\n", file->GetString(sec->hash));
+		ZEBlobArray* arr = sec->store.m_array;
+		for (i32 j = 0; j < arr->m_numBlobs; ++j)
+		{
+			ZEIniField* field = (ZEIniField*)arr->GetByIndex(j);
+			fprintf(f, "%s=%s\n",
+				file->GetString(field->nameHash),
+				file->GetString(field->charHash)
+			);
+		}
+		fprintf(f, "\n");
+	}
+
+	fclose(f);
+}
 
 #endif // ZE_INI_H

@@ -57,44 +57,44 @@ extern "C" void CL_ClearActionInputs()
 
 internal void CL_CreateActions(InputActionSet* actions)
 {
-    Input_InitAction(actions, Z_INPUT_CODE_V, "Debug Forward");
-    Input_InitAction(actions, Z_INPUT_CODE_C, "Debug Backward");
-	Input_InitAction(actions, Z_INPUT_CODE_X, "Debug Camera");
-    Input_InitAction(actions, Z_INPUT_CODE_R, "Reset");
-    Input_InitAction(actions, Z_INPUT_CODE_ESCAPE, "Menu");
+    Input_InitAction(actions, Z_INPUT_CODE_V, "debug_forward");
+    Input_InitAction(actions, Z_INPUT_CODE_C, "debug_backward");
+	Input_InitAction(actions, Z_INPUT_CODE_X, "debug_camera");
+    Input_InitAction(actions, Z_INPUT_CODE_R, "reset");
+    Input_InitAction(actions, Z_INPUT_CODE_ESCAPE, "menu");
 
-    Input_InitAction(actions, Z_INPUT_CODE_A, "Move Left");
-    Input_InitAction(actions, Z_INPUT_CODE_D, "Move Right");
-    Input_InitAction(actions, Z_INPUT_CODE_W, "Move Forward");
-    Input_InitAction(actions, Z_INPUT_CODE_S, "Move Backward");
-    Input_InitAction(actions, Z_INPUT_CODE_SPACE, "Move Up");
-    Input_InitAction(actions, Z_INPUT_CODE_LEFT_CONTROL, "Move Down");
-    Input_InitAction(actions, Z_INPUT_CODE_LEFT_SHIFT, "MoveSpecial1");
-    Input_InitAction(actions, Z_INPUT_CODE_Q, "Roll Left");
-    Input_InitAction(actions, Z_INPUT_CODE_E, "Roll Right");
+    Input_InitAction(actions, Z_INPUT_CODE_A, "move_left");
+    Input_InitAction(actions, Z_INPUT_CODE_D, "move_right");
+    Input_InitAction(actions, Z_INPUT_CODE_W, "move_forward");
+    Input_InitAction(actions, Z_INPUT_CODE_S, "move_backward");
+    Input_InitAction(actions, Z_INPUT_CODE_SPACE, "move_up");
+    Input_InitAction(actions, Z_INPUT_CODE_LEFT_CONTROL, "move_down");
+    Input_InitAction(actions, Z_INPUT_CODE_LEFT_SHIFT, "move_special_1");
+    Input_InitAction(actions, Z_INPUT_CODE_Q, "roll_left");
+    Input_InitAction(actions, Z_INPUT_CODE_E, "roll_right");
 
-    Input_InitAction(actions, Z_INPUT_CODE_G, "Spawn Test");
-    Input_InitAction(actions, Z_INPUT_CODE_H, "Spawn Test 2");
-    Input_InitAction(actions, Z_INPUT_CODE_J, "Spawn Test 3");
-    Input_InitAction(actions, Z_INPUT_CODE_P, "Pause");
+    Input_InitAction(actions, Z_INPUT_CODE_G, "spawn_test");
+    Input_InitAction(actions, Z_INPUT_CODE_H, "spawn_test_2");
+    Input_InitAction(actions, Z_INPUT_CODE_J, "spawn_test_3");
+    Input_InitAction(actions, Z_INPUT_CODE_P, "pause");
 
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_POS_X, "Mouse Pos X");
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_POS_Y, "Mouse Pos Y");
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_MOVE_X, "Mouse Move X");
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_MOVE_Y, "Mouse Move Y");
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_1, "Attack1");
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_2, "Attack2");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_POS_X, "mouse_pos_x");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_POS_Y, "mouse_pos_y");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_MOVE_X, "mouse_move_x");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_MOVE_Y, "mouse_move_y");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_1, "attack_1");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_2, "attack_2");
 
-    Input_InitAction(actions, Z_INPUT_CODE_1, "Slot1");
-    Input_InitAction(actions, Z_INPUT_CODE_2, "Slot2");
-    Input_InitAction(actions, Z_INPUT_CODE_3, "Slot3");
-    Input_InitAction(actions, Z_INPUT_CODE_4, "Slot4");
+    Input_InitAction(actions, Z_INPUT_CODE_1, "slot_1");
+    Input_InitAction(actions, Z_INPUT_CODE_2, "slot_2");
+    Input_InitAction(actions, Z_INPUT_CODE_3, "slot_3");
+    Input_InitAction(actions, Z_INPUT_CODE_4, "slot_4");
 
     // Robotron style shooting
-    Input_InitAction(actions, Z_INPUT_CODE_LEFT, "Shoot Left");
-    Input_InitAction(actions, Z_INPUT_CODE_RIGHT, "Shoot Right");
-    Input_InitAction(actions, Z_INPUT_CODE_UP, "Shoot Up");
-    Input_InitAction(actions, Z_INPUT_CODE_DOWN, "Shoot Down");
+    Input_InitAction(actions, Z_INPUT_CODE_LEFT, "shoot_left");
+    Input_InitAction(actions, Z_INPUT_CODE_RIGHT, "shoot_right");
+    Input_InitAction(actions, Z_INPUT_CODE_UP, "shoot_up");
+    Input_InitAction(actions, Z_INPUT_CODE_DOWN, "shoot_down");
 }
 
 extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* db)
@@ -153,7 +153,7 @@ extern "C" void CL_Resume(SimScene* sim, SimSaveFileInfo* saveInfo, ZEBuffer* sa
 {
     if (saveInfo->numClientBytes != sizeof(GameClient))
     {
-        printf("CL read incorrect size in save file\n");
+        printf("Cl_Read incorrect size in save file\n");
         return;
     }
     u8* read = saveData->GetAtOffset(saveInfo->client);
@@ -180,7 +180,7 @@ extern "C" void CL_ReadInputEvent(SysInputEvent* ev, frameInt frameNumber)
 
 internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
 {
-	// record last frame
+	// record_Last frame
 	input->prevButtons = input->buttons;
     // Clear buttons and rebuild. Keep mouse position values
     u32 flags = 0;
@@ -190,41 +190,41 @@ internal void CL_UpdateActorInput(InputActionSet* actions, SimActorInput* input)
     const f32 KEY_TURN_RATE = 4.f;
 
 	// Read
-    CL_InputCheckButton(actions, "Move Forward", &flags, ACTOR_INPUT_MOVE_FORWARD);
-    CL_InputCheckButton(actions, "Move Backward", &flags, ACTOR_INPUT_MOVE_BACKWARD);
-    CL_InputCheckButton(actions, "Move Left", &flags, ACTOR_INPUT_MOVE_LEFT);
-    CL_InputCheckButton(actions, "Move Right", &flags, ACTOR_INPUT_MOVE_RIGHT);
+    CL_InputCheckButton(actions, "move_forward", &flags, ACTOR_INPUT_MOVE_FORWARD);
+    CL_InputCheckButton(actions, "move_backward", &flags, ACTOR_INPUT_MOVE_BACKWARD);
+    CL_InputCheckButton(actions, "move_left", &flags, ACTOR_INPUT_MOVE_LEFT);
+    CL_InputCheckButton(actions, "move_right", &flags, ACTOR_INPUT_MOVE_RIGHT);
 
-    CL_InputCheckButton(actions, "Move Up", &flags, ACTOR_INPUT_MOVE_UP);
-    CL_InputCheckButton(actions, "Move Down", &flags, ACTOR_INPUT_MOVE_DOWN);
+    CL_InputCheckButton(actions, "move_up", &flags, ACTOR_INPUT_MOVE_UP);
+    CL_InputCheckButton(actions, "move_down", &flags, ACTOR_INPUT_MOVE_DOWN);
 
-    CL_InputCheckButton(actions, "MoveSpecial1", &flags, ACTOR_INPUT_MOVE_SPECIAL1);
+    CL_InputCheckButton(actions, "move_special_1", &flags, ACTOR_INPUT_MOVE_SPECIAL1);
 
-    CL_InputCheckButton(actions, "Shoot Up", &flags, ACTOR_INPUT_SHOOT_UP);
-    CL_InputCheckButton(actions, "Shoot Down", &flags, ACTOR_INPUT_SHOOT_DOWN);
-    CL_InputCheckButton(actions, "Shoot Left", &flags, ACTOR_INPUT_SHOOT_LEFT);
-    CL_InputCheckButton(actions, "Shoot Right", &flags, ACTOR_INPUT_SHOOT_RIGHT);
+    CL_InputCheckButton(actions, "shoot_up", &flags, ACTOR_INPUT_SHOOT_UP);
+    CL_InputCheckButton(actions, "shoot_down", &flags, ACTOR_INPUT_SHOOT_DOWN);
+    CL_InputCheckButton(actions, "shoot_left", &flags, ACTOR_INPUT_SHOOT_LEFT);
+    CL_InputCheckButton(actions, "shoot_right", &flags, ACTOR_INPUT_SHOOT_RIGHT);
 
-    CL_InputCheckButton(actions, "Attack1", &flags, ACTOR_INPUT_ATTACK);
-    CL_InputCheckButton(actions, "Attack2", &flags, ACTOR_INPUT_ATTACK2);
+    CL_InputCheckButton(actions, "attack_1", &flags, ACTOR_INPUT_ATTACK);
+    CL_InputCheckButton(actions, "attack_2", &flags, ACTOR_INPUT_ATTACK2);
 
-    CL_InputCheckButton(actions, "Slot1", &flags, ACTOR_INPUT_SLOT_1);
-    CL_InputCheckButton(actions, "Slot2", &flags, ACTOR_INPUT_SLOT_2);
-    CL_InputCheckButton(actions, "Slot3", &flags, ACTOR_INPUT_SLOT_3);
-    CL_InputCheckButton(actions, "Slot4", &flags, ACTOR_INPUT_SLOT_4);
+    CL_InputCheckButton(actions, "slot_1", &flags, ACTOR_INPUT_SLOT_1);
+    CL_InputCheckButton(actions, "slot_2", &flags, ACTOR_INPUT_SLOT_2);
+    CL_InputCheckButton(actions, "slot_3", &flags, ACTOR_INPUT_SLOT_3);
+    CL_InputCheckButton(actions, "slot_4", &flags, ACTOR_INPUT_SLOT_4);
 
     #if 0 // old mouse input reads movement in pixels directly - resolution dependent!
-    f32 mouseX = ((f32)Input_GetActionValue(actions, "Mouse Move X") / (f32)Z_INPUT_MOUSE_SCALAR);
-    f32 mouseY = ((f32)Input_GetActionValue(actions, "Mouse Move Y") / (f32)Z_INPUT_MOUSE_SCALAR);
+    f32 mouseX = ((f32)Input_GetActionValue(actions, "mouse_move_x") / (f32)Z_INPUT_MOUSE_SCALAR);
+    f32 mouseY = ((f32)Input_GetActionValue(actions, "mouse_move_y") / (f32)Z_INPUT_MOUSE_SCALAR);
     printf("CL Mouse move X/Y %f, %f\n", mouseX, mouseY);
     printf("CL normalised mouse move: %f, %f\n",
-        Input_GetActionValueNormalised(actions, "Mouse Move X") / (f32)1000,
-        Input_GetActionValueNormalised(actions, "Mouse Move Y") / (f32)1000
+        Input_GetActionValueNormalised(actions, "mouse_move_x") / (f32)1000,
+        Input_GetActionValueNormalised(actions, "mouse_move_y") / (f32)1000
         );
     #endif
 
-    f32 mouseX = Input_GetActionValueNormalised(actions, "Mouse Move X") / Z_INPUT_MOUSE_SCALAR;
-    f32 mouseY = Input_GetActionValueNormalised(actions, "Mouse Move Y") / Z_INPUT_MOUSE_SCALAR;
+    f32 mouseX = Input_GetActionValueNormalised(actions, "mouse_move_x") / Z_INPUT_MOUSE_SCALAR;
+    f32 mouseY = Input_GetActionValueNormalised(actions, "mouse_move_y") / Z_INPUT_MOUSE_SCALAR;
     const f32 sensitivity = 2.f;
     mouseX *= sensitivity;
     mouseY *= sensitivity;

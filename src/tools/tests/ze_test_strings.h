@@ -422,8 +422,12 @@ static void Test_ReadIni_3_0()
 
 static void Test_PrintIniField(ZEIniFile* file, const char* section, const char* field)
 {
-	printf("Ini section %s field %s: %s\n",
-		section, field, file->GetValue(section, field));
+	printf("Ini section %s field %s: i %d, f %.5f, str: %s\n",
+		section,
+		field,
+		file->GetFieldi(section, field),
+		file->GetFieldf(section, field),
+		file->GetFieldStr(section, field));
 }
 
 static void Test_ReadIni()
@@ -544,6 +548,7 @@ static void Test_ReadIni()
 		printf("%d: %s\n", i, file->GetString(section->hash));
 	}
 
+	Test_PrintIniField(file, "section_a", "sensitivity");
 	Test_PrintIniField(file, "section_a", "player_name");
 	Test_PrintIniField(file, "section_b", "player_name");
 	
@@ -561,6 +566,9 @@ static void Test_ReadIni()
 			offset, intern->hash, intern->len, (char*)file->strData.GetAtOffset(intern->charsOffset));
 		read += sizeof(ZEIntern) + intern->len;
 	}
+	const char* outputPath = "config_copy.ini";
+	printf("Write test to path %s\n", outputPath);
+	ZEIni_Write(file, outputPath);
 	#if 0
 	/////////////////////////////
 	// Iterate lookup table and check
