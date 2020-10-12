@@ -84,6 +84,7 @@ struct ZEBlobArray
 
     u8* GetByIndex(i32 index)
     {
+        //if (m_numBlobs == 0) { return NULL; }
         ZE_ASSERT((index >= 0 && index < m_numBlobs), "Blob array out of bounds");
         i32 offset = m_totalBlobSize * index;
         ZEBlobHeader* h = GetHeaderByIndexUnchecked(index);
@@ -214,6 +215,11 @@ static ErrorCode ZE_CreateBlobArray(
     }
     *result = arr;
     return ZE_ERROR_NONE;
+}
+
+static void ZE_DeleteBlobArray(ZEBlobArray* arr)
+{
+    ZE_BA_FREE(arr);
 }
 
 #endif // ZE_BLOB_ARRAY_H

@@ -18,6 +18,7 @@ struct ZEBlobStore
     u8* GetById(i32 id)
     {
         i32 index = m_lookup->FindData(id);
+        printf("Get by Id %d index is %d\n", id, index);
         if (index == ZE_LT_INVALID_INDEX) { return NULL; }
         return m_array->GetByIndex(index);
     }
@@ -150,7 +151,7 @@ static ErrorCode ZE_InitBlobStore(ZEBlobStore* store, i32 capacity, i32 sizePerO
     *store = {};
     i32 err = ZE_CreateBlobArray(&store->m_array, capacity, sizePerObject, invalidId);
     if (err != ZE_ERROR_NONE) { return err; }
-    store->m_lookup = ZE_LT_Create(capacity * 2, invalidId, NULL);
+    store->m_lookup = ZE_LT_Create(capacity * 2, ZE_BA_INVALID_INDEX, NULL);
     return err;
 }
 

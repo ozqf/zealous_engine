@@ -234,4 +234,9 @@ static ZELookupTable* ZE_LT_Create(
     return table;
 }
 
+static void ZE_LT_Delete(ZELookupTable* table)
+{
+    ZE_LT_FREE(table);
+}
+
 #endif // ZE_LOOKUP_TABLE_H

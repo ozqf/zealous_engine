@@ -1,6 +1,11 @@
 #ifndef ZE_VARS_H
 #define ZE_VARS_H
 
+#include "ze_common.h"
+#include "ze_lookup_table.h"
+#include "ze_byte_buffer.h"
+#include "ze_hash.h"
+
 /////////////////////////////////
 // Second iteration - hopefully less crap
 /////////////////////////////////
@@ -9,8 +14,35 @@ struct ZEIntern
 {
    i32 hash;
    i32 len;
+   i32 headerOffset;
    i32 charsOffset;
 };
+
+static ZEIntern* ZEInternString(ZELookupTable* table, ZEBuffer* buf, const char* str)
+{
+	i32 len = ZE_StrLen(str);
+	ZE_ASSERT(len + sizeof(ZEIntern) <= (u32)buf->Space(), "No space for string intern")
+
+	i32 hash = ZE_Hash_djb2((u8*)str);
+	i32 curOffset = table->FindData(hash);
+	if (curOffset != table->m_invalidDataValue)
+	{
+		printf("String %s already interned!\n", str);
+		ZEIntern* current = (ZEIntern*)buf->GetAtOffset(curOffset);
+		return current;
+	}
+
+	i32 offset = buf->CursorOffset();
+	ZE_INIT_PTR_IN_PLACE(header, ZEIntern, buf);
+	header->hash = hash;
+	header->len = len;
+	header->headerOffset = offset;
+	header->charsOffset = buf->CursorOffset();
+
+	strcpy_s((char*)buf->cursor, len, str);
+	buf->cursor += header->len;
+	return header;
+}
 
 /////////////////////////////////
 // First iteration - crap

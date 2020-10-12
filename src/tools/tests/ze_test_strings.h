@@ -2,6 +2,7 @@
 #define ZE_TEST_STRINGS_H
 
 #include "../../ze_common/ze_common_full.h"
+#include "../../ze_common/ze_ini.h"
 
 /////////////////////////////////////////////
 // string stack
@@ -270,6 +271,161 @@ static char* Test_FindIniVar(ZELookupTable* table, ZEBuffer* data, const char* n
 	return (char*)data->GetAtOffset(intern->charsOffset);
 }
 
+static void Test_ReadIni_3_0()
+{
+	/*
+	Ideas for loading:
+	all ini files and their sections are loaded into the same pool.
+	> Data: Linear buffer of interned strings.
+	> Table: hash table where key is section name + field name, and value is
+	the offset to the field's value string in the data buffer.
+	
+	if done this way, no way to go from the data to the section/field names
+	to save the file back out again!
+	need to save the offsets to the section and field names for each.
+	*/
+	const i32 bufSize = 512;
+	char buf[bufSize];
+	// read line by line in text mode
+	FILE* f = NULL;
+	//const char* path = "map_format_example_128x128x32_cube.map";
+	const char* path = "config.ini";
+	printf("--- Test read ini %s ---\n", path);
+	printf("//r char code is %d\n", '\r');
+	printf("//n char code is %d\n", '\n');
+	fopen_s(&f, path, "r");
+	if (f == NULL)
+	{
+		printf("Failed to open ini test %s\n", path);
+		return;
+	}
+
+	fseek(f, 0, SEEK_END);
+	i32 fileLen = ftell(f);
+	printf("File length: %d\n", fileLen);
+	fseek(f, 0, SEEK_SET);
+	ZEBuffer stringsBuf = Buf_FromMalloc(malloc(fileLen * 4), fileLen * 4);
+	ZEBuffer* strings = &stringsBuf;
+
+	ZELookupTable* table = ZE_LT_Create(128, -1, NULL);
+
+	i32 line = 1;
+	i32 readIndex = -1;
+	while(fgets(buf, bufSize, f))
+	{
+		// patch out '\n'
+		readIndex = ZE_FindFirstCharMatch(buf, '\n');
+		if (readIndex != -1)
+		{
+			buf[readIndex] = '\0';
+		}
+		i32 len = ZE_StrLen(buf);
+		printf("%d: (%d chars) %s\n", line, len, buf);
+		//Test_PrintCharCodes(buf);
+		char c = buf[0];
+		if (Test_IsCharLetter(c))
+		{
+			#if 0
+			// Line is a variable
+			// find '=' key=value splitter
+			// patch to line end
+			// key=value
+			readIndex = ZE_FindFirstCharMatch(buf, '=');
+			if (readIndex >= 0)
+			{
+				buf[readIndex] = '\0';
+				char* valueBuf = &buf[readIndex + 1];
+				i32 varLabelLen = ZE_StrLen(valueBuf);
+				printf("Var label len %d\n", varLabelLen);
+				if (varLabelLen > 0)
+				{
+					printf("Key %s, Value %s\n", buf, valueBuf);
+					//////////////////////////
+					// intern key
+					ZE_INIT_PTR_IN_PLACE(key, ZEIntern, strings)
+					key->hash = ZE_Hash_djb2((u8*)buf);
+					// recalc length since we adjusted it
+					key->len = ZE_StrLen(buf);
+					key->charsOffset = stringsBuf.CursorOffset();
+					strcpy_s((char*)strings->cursor, len, buf);
+					strings->cursor += key->len;
+					//////////////////////////
+					// intern value
+					// Record current cursor offset for lookup table
+					i32 valueStructOffset = stringsBuf.CursorOffset();
+					table->Insert(key->hash, valueStructOffset);
+					// create value entry
+					ZE_INIT_PTR_IN_PLACE(val, ZEIntern, strings)
+					val->hash = ZE_Hash_djb2((u8*)valueBuf);
+					val->len = ZE_StrLen(valueBuf);
+					val->charsOffset = stringsBuf.CursorOffset();
+					strcpy_s((char*)strings->cursor, len, valueBuf);
+					strings->cursor += val->len;
+				}
+			}
+			#endif
+		}
+		if (c == '[')
+		{
+			readIndex = ZE_FindFirstCharMatch(buf, ']');
+			if (readIndex > 1)
+			{
+				buf[readIndex] = '\0';
+				char* setName = &buf[1];
+				printf("Set %s\n", setName);
+			}
+		}
+		line++;
+	}
+	#if 0
+	/////////////////////////////
+	// Iterate buffer and check
+	printf("Bytes written: %d\n", stringsBuf.Written());
+	u8* read = stringsBuf.start;
+	u8* end = stringsBuf.cursor;
+	while (read < end)
+	{
+		i32 offset = read - stringsBuf.start;
+		ZEIntern* intern = (ZEIntern*)read;
+		printf("Intern at %d hash %d len %d str: %s\n",
+			offset, intern->hash, intern->len, (char*)stringsBuf.GetAtOffset(intern->charsOffset));
+		read += sizeof(ZEIntern) + intern->len;
+	}
+	/////////////////////////////
+	// Iterate lookup table and check
+	printf("-- Field lookup table --\n");
+	for (i32 i = 0; i < table->m_maxKeys; ++i)
+	{
+		ZELookupKey* key = &table->m_keys[i];
+		if (key->id == 0) { continue; }
+		ZEIntern* intern = (ZEIntern*)stringsBuf.GetAtOffset(key->data);
+		printf("Value for id hash %d: %s\n",
+			key->id, (char*)stringsBuf.GetAtOffset(intern->charsOffset));
+	}
+
+	char* testKey = "ddddd";
+	char* foo = Test_FindIniVar(table, &stringsBuf, testKey);
+	if (foo != NULL)
+	{
+		printf("Lookup test - %s: %s\n", testKey, foo);
+	}
+	else
+	{
+		printf("ERROR - look test found no result for field %s\n", testKey);
+	}
+	#endif
+
+	free(stringsBuf.start);
+	printf("\tini test done\n\n");
+	fclose(f);
+}
+
+static void Test_PrintIniField(ZEIniFile* file, const char* section, const char* field)
+{
+	printf("Ini section %s field %s: %s\n",
+		section, field, file->GetValue(section, field));
+}
+
 static void Test_ReadIni()
 {
 	/*
@@ -303,11 +459,14 @@ static void Test_ReadIni()
 	i32 fileLen = ftell(f);
 	printf("File length: %d\n", fileLen);
 	fseek(f, 0, SEEK_SET);
-	ZEBuffer varsBuffer = Buf_FromMalloc(malloc(fileLen * 4), fileLen * 4);
-	ZEBuffer* vars = &varsBuffer;
+	// ZEBuffer stringsBuf = Buf_FromMalloc(malloc(fileLen * 4), fileLen * 4);
+	// ZEBuffer* strings = &stringsBuf;
 
-	ZELookupTable* table = ZE_LT_Create(128, -1, NULL);
+	// ZELookupTable* table = ZE_LT_Create(128, -1, NULL);
 
+	ZEIniFile* file = ZEIni_Create();
+	i32 sectionHash = file->RegisterSection("global");
+	sectionHash = file->RegisterSection("global");
 	i32 line = 1;
 	i32 readIndex = -1;
 	while(fgets(buf, bufSize, f))
@@ -319,11 +478,12 @@ static void Test_ReadIni()
 			buf[readIndex] = '\0';
 		}
 		i32 len = ZE_StrLen(buf);
-		printf("%d: (%d chars) %s\n", line, len, buf);
+		//printf("%d: (%d chars) %s\n", line, len, buf);
 		//Test_PrintCharCodes(buf);
 		char c = buf[0];
 		if (Test_IsCharLetter(c))
 		{
+			#if 1
 			// Line is a variable
 			// find '=' key=value splitter
 			// patch to line end
@@ -334,33 +494,35 @@ static void Test_ReadIni()
 				buf[readIndex] = '\0';
 				char* valueBuf = &buf[readIndex + 1];
 				i32 varLabelLen = ZE_StrLen(valueBuf);
-				printf("Var label len %d\n", varLabelLen);
+				//printf("Var label len %d\n", varLabelLen);
 				if (varLabelLen > 0)
 				{
+					file->RegisterField(sectionHash, buf, valueBuf);
+					#if 0
 					printf("Key %s, Value %s\n", buf, valueBuf);
 					//////////////////////////
 					// intern key
-					ZE_INIT_PTR_IN_PLACE(key, ZEIntern, vars)
+					ZE_INIT_PTR_IN_PLACE(key, ZEIntern, strings)
 					key->hash = ZE_Hash_djb2((u8*)buf);
 					// recalc length since we adjusted it
 					key->len = ZE_StrLen(buf);
-					key->charsOffset = varsBuffer.CursorOffset();
-					strcpy_s((char*)vars->cursor, len, buf);
-					vars->cursor += key->len;
+					key->charsOffset = stringsBuf.CursorOffset();
+					strcpy_s((char*)strings->cursor, len, buf);
+					strings->cursor += key->len;
 					//////////////////////////
 					// intern value
 					// Record current cursor offset for lookup table
-					i32 valueStructOffset = varsBuffer.CursorOffset();
+					i32 valueStructOffset = stringsBuf.CursorOffset();
 					table->Insert(key->hash, valueStructOffset);
 					// create value entry
-					ZE_INIT_PTR_IN_PLACE(val, ZEIntern, vars)
+					ZE_INIT_PTR_IN_PLACE(val, ZEIntern, strings)
 					val->hash = ZE_Hash_djb2((u8*)valueBuf);
 					val->len = ZE_StrLen(valueBuf);
-					val->charsOffset = varsBuffer.CursorOffset();
-					strcpy_s((char*)vars->cursor, len, valueBuf);
-					vars->cursor += val->len;
+					val->charsOffset = stringsBuf.CursorOffset();
+					#endif
 				}
 			}
+			#endif
 		}
 		if (c == '[')
 		{
@@ -369,25 +531,37 @@ static void Test_ReadIni()
 			{
 				buf[readIndex] = '\0';
 				char* setName = &buf[1];
-				printf("Set %s\n", setName);
+				sectionHash = file->RegisterSection(setName);
+				//printf("Set %s\n", setName);
 			}
 		}
 		line++;
 	}
+	printf("--- SECTIONS (%d)---\n", file->numSections);
+	for (i32 i = 0; i < file->numSections; ++i)
+	{
+		ZEIniSection* section = &file->sections[i];
+		printf("%d: %s\n", i, file->GetString(section->hash));
+	}
 
+	Test_PrintIniField(file, "section_a", "player_name");
+	Test_PrintIniField(file, "section_b", "player_name");
+	
 	/////////////////////////////
 	// Iterate buffer and check
-	printf("Bytes written: %d\n", varsBuffer.Written());
-	u8* read = varsBuffer.start;
-	u8* end = varsBuffer.cursor;
+	printf("Bytes written: %d of %d\n",
+		file->strData.Written(), file->strData.capacity);
+	u8* read = file->strData.start;
+	u8* end = file->strData.cursor;
 	while (read < end)
 	{
-		i32 offset = read - varsBuffer.start;
+		i32 offset = read - file->strData.start;
 		ZEIntern* intern = (ZEIntern*)read;
 		printf("Intern at %d hash %d len %d str: %s\n",
-			offset, intern->hash, intern->len, (char*)varsBuffer.GetAtOffset(intern->charsOffset));
+			offset, intern->hash, intern->len, (char*)file->strData.GetAtOffset(intern->charsOffset));
 		read += sizeof(ZEIntern) + intern->len;
 	}
+	#if 0
 	/////////////////////////////
 	// Iterate lookup table and check
 	printf("-- Field lookup table --\n");
@@ -395,13 +569,13 @@ static void Test_ReadIni()
 	{
 		ZELookupKey* key = &table->m_keys[i];
 		if (key->id == 0) { continue; }
-		ZEIntern* intern = (ZEIntern*)varsBuffer.GetAtOffset(key->data);
+		ZEIntern* intern = (ZEIntern*)stringsBuf.GetAtOffset(key->data);
 		printf("Value for id hash %d: %s\n",
-			key->id, (char*)varsBuffer.GetAtOffset(intern->charsOffset));
+			key->id, (char*)stringsBuf.GetAtOffset(intern->charsOffset));
 	}
 
 	char* testKey = "ddddd";
-	char* foo = Test_FindIniVar(table, &varsBuffer, testKey);
+	char* foo = Test_FindIniVar(table, &stringsBuf, testKey);
 	if (foo != NULL)
 	{
 		printf("Lookup test - %s: %s\n", testKey, foo);
@@ -410,9 +584,10 @@ static void Test_ReadIni()
 	{
 		printf("ERROR - look test found no result for field %s\n", testKey);
 	}
-	
+	#endif
 
-	free(varsBuffer.start);
+	//free(stringsBuf.start);
+	ZEIni_Destroy(file);
 	printf("\tini test done\n\n");
 	fclose(f);
 }
@@ -426,8 +601,8 @@ static void Test_StringFunctions()
 	Test_FileTokenise();
 	Test_StringStack();
 	#endif
-	Test_ReadIni();
 	Test_ReadMapFormat();
+	Test_ReadIni();
 	printf("\tDone\n");
 }
 
