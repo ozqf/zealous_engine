@@ -169,6 +169,83 @@ static void ZEIni_Destroy(ZEIniFile* file)
 	free(file);
 }
 
+static i32 ZEIni_IsCharLetter(char c)
+{
+	if (c >= 65 && c <= 90) { return YES; }
+	if (c >= 97 && c <= 122) { return YES; }
+	return NO;
+}
+
+static i32 ZEIni_ReadLine(ZEIniFile* file, i32 sectionHash, char* buf)
+{
+	i32 readIndex = -1;
+	// patch out '\n'
+	readIndex = ZE_FindFirstCharMatch(buf, '\n');
+	if (readIndex != -1)
+	{
+		buf[readIndex] = '\0';
+	}
+	i32 len = ZE_StrLen(buf);
+	//printf("%d: (%d chars) %s\n", line, len, buf);
+	//Test_PrintCharCodes(buf);
+	char c = buf[0];
+	if (ZEIni_IsCharLetter(c))
+	{
+		#if 1
+		// Line is a variable
+		// find '=' key=value splitter
+		// patch to line end
+		// key=value
+		readIndex = ZE_FindFirstCharMatch(buf, '=');
+		if (readIndex >= 0)
+		{
+			buf[readIndex] = '\0';
+			char* valueBuf = &buf[readIndex + 1];
+			i32 varLabelLen = ZE_StrLen(valueBuf);
+			//printf("Var label len %d\n", varLabelLen);
+			if (varLabelLen > 0)
+			{
+				file->RegisterField(sectionHash, buf, valueBuf);
+				#if 0
+				printf("Key %s, Value %s\n", buf, valueBuf);
+				//////////////////////////
+				// intern key
+				ZE_INIT_PTR_IN_PLACE(key, ZEIntern, strings)
+				key->hash = ZE_Hash_djb2((u8*)buf);
+				// recalc length since we adjusted it
+				key->len = ZE_StrLen(buf);
+				key->charsOffset = stringsBuf.CursorOffset();
+				strcpy_s((char*)strings->cursor, len, buf);
+				strings->cursor += key->len;
+				//////////////////////////
+				// intern value
+				// Record current cursor offset for lookup table
+				i32 valueStructOffset = stringsBuf.CursorOffset();
+				table->Insert(key->hash, valueStructOffset);
+				// create value entry
+				ZE_INIT_PTR_IN_PLACE(val, ZEIntern, strings)
+				val->hash = ZE_Hash_djb2((u8*)valueBuf);
+				val->len = ZE_StrLen(valueBuf);
+				val->charsOffset = stringsBuf.CursorOffset();
+				#endif
+			}
+		}
+		#endif
+	}
+	if (c == '[')
+	{
+		readIndex = ZE_FindFirstCharMatch(buf, ']');
+		if (readIndex > 1)
+		{
+			buf[readIndex] = '\0';
+			char* setName = &buf[1];
+			sectionHash = file->RegisterSection(setName);
+			//printf("Set %s\n", setName);
+		}
+	}
+	return sectionHash;
+}
+
 static void ZEIni_Write(ZEIniFile* file, const char* path)
 {
 	FILE* f = NULL;

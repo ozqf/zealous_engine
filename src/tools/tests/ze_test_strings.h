@@ -475,6 +475,8 @@ static void Test_ReadIni()
 	i32 readIndex = -1;
 	while(fgets(buf, bufSize, f))
 	{
+		sectionHash = ZEIni_ReadLine(file, sectionHash, buf);
+		#if 0
 		// patch out '\n'
 		readIndex = ZE_FindFirstCharMatch(buf, '\n');
 		if (readIndex != -1)
@@ -539,6 +541,7 @@ static void Test_ReadIni()
 				//printf("Set %s\n", setName);
 			}
 		}
+		#endif
 		line++;
 	}
 	printf("--- SECTIONS (%d)---\n", file->numSections);
@@ -547,10 +550,11 @@ static void Test_ReadIni()
 		ZEIniSection* section = &file->sections[i];
 		printf("%d: %s\n", i, file->GetString(section->hash));
 	}
-
-	Test_PrintIniField(file, "section_a", "sensitivity");
+	
 	Test_PrintIniField(file, "section_a", "player_name");
 	Test_PrintIniField(file, "section_b", "player_name");
+	Test_PrintIniField(file, "controls", "sensitivity");
+	Test_PrintIniField(file, "keys", "move_forward");
 	
 	/////////////////////////////
 	// Iterate buffer and check
