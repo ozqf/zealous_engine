@@ -22,6 +22,13 @@ internal void ZE_PrintChars(u8* buf, i32 size, i32 bytesPerLine)
 	printf("\n");
 }
 
+static i32 ZE_IsCharLetter(char c)
+{
+	if (c >= 65 && c <= 90) { return YES; }
+	if (c >= 97 && c <= 122) { return YES; }
+	return NO;
+}
+
 internal i32 ZE_CountSpecificChar(const char* str, char c)
 {
     if (!str) { return 0; }
