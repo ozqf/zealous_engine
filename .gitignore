@@ -17,7 +17,7 @@
 !/bin/glfw3.dll
 !/bin/fmod.dll
 !/bin/fmodstudio.dll
-!/bin/config.ini
+!/bin/base/config.ini
 
 # test data files
 /bin_tools/*
