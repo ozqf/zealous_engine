@@ -36,6 +36,7 @@ extern "C"
 #include "../ze_module_interfaces.h"
 #include "../ze_common/ze_common.h"
 #include "../ze_common/ze_byte_buffer.h"
+#include "../ze_common/ze_ini.h"
 #include "../assetdb/zr_asset_db.h"
 
 #include "ze_win_socket.h"
@@ -83,6 +84,8 @@ static ze_app_export g_app;
 static i32 g_appFrameRate = 60;
 static f64 g_lastAppTime = 0;
 static i32 g_appFrameNumber = 0;
+
+static ZEIniFile* g_config;
 
 static FILE* g_logFile = NULL;
 static i32 g_bConsoleInit = NO;
@@ -716,6 +719,36 @@ static void ReadCommandLine(LPSTR lpCmdLine)
     }
 }
 
+internal void WriteConfigFile(const char* dir)
+{
+	
+}
+
+internal void ReadConfigFile(ZEIniFile* ini, const char* dir)
+{
+	char path[256];
+	sprintf_s(path, 256, "%s/config.ini", dir);
+	FILE* f = NULL;
+	fopen_s(&f, path, "r");
+	if (f == NULL)
+	{
+		printf("Failed to open config at %s\n", path);
+		return;
+	}
+	printf("Reading ini file from %s\n", path);
+
+	const i32 bufSize = 256;
+	char buf[bufSize];
+	while(fgets(buf, bufSize, f))
+	{
+		ZEIni_ReadLine(ini, buf);
+	}
+	f32 sensitivity = ini->GetFieldf("controls", "sensitivity");
+	printf("Read sensitivity: %.3f\n", sensitivity);
+
+	fclose(f);
+}
+
 ////////////////////////////////////////////////////////
 // Entry point
 ////////////////////////////////////////////////////////
@@ -724,8 +757,16 @@ int CALLBACK WinMain(
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
     int nCmdShow)
-{    
+{
+	// Read config from game directory... but to know game
+	// directory we need to scan command line.
+	// ...but we might also use the command line to set
+	// config vars..?
     ReadCommandLine(lpCmdLine);
+
+	g_config = ZEIni_Create();
+	ReadConfigFile(g_config, g_appFolderBuf);
+
 
 	Win_InitTimer();
 
