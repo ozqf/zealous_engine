@@ -76,13 +76,21 @@ internal i32 ZE_CompareStringsNocase(
     char bLower = 0;
     for(;;)
     {
-        if (*a == '\0' || *b == '\0') { return 0; }
+        if (*a == '\0')
+		{
+			if (*b == '\0') { return 0; }
+			else { return 1; }
+		}
+		else if (*b == '\0') { return -1; }
+		
         aLower = ZE_CharToLower(*a);
         bLower = ZE_CharToLower(*b);
         if (aLower != bLower)
         {
             break;
         }
+		a++;
+		b++;
     }
     return ((aLower < bLower) ? -1 : 1);
 }

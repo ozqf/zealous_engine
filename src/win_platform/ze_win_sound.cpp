@@ -348,22 +348,21 @@ internal f32 Snd_ParseVolume(const char* asci)
 ////////////////////////////////////////////////////////
 extern "C" ErrorCode Snd_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
-    if (ZE_CompareStrings(tokens[0], "HELP") == 0)
+    if (ZE_CompareStringsNocase(tokens[0], "HELP") == 0)
     {
         printf("SND TEST <index> - play test sound\n");
         printf("SND FX <0 to 100> - set FX volume\n");
         printf("SND BGM <0 to 100> - set music volume\n");
         return 0;
     }
-    if (ZE_CompareStrings(tokens[0], "VERSION") == 0)
+    if (ZE_CompareStringsNocase(tokens[0], "VERSION") == 0)
 	{
 		printf("SOUND Built %s: %s\n", __DATE__, __TIME__);
 		return 0;
 	}
-
-    if (ZE_CompareStrings(tokens[0], "SND") == 0)
+    if (ZE_CompareStringsNocase(tokens[0], "SND") == 0)
     {
-        if (numTokens == 3 && ZE_CompareStrings(tokens[1],"TEST") == 0)
+        if (numTokens == 3 && ZE_CompareStringsNocase(tokens[1],"TEST") == 0)
         {
             i32 index = ZE_AsciToInt32(tokens[2]);
             printf("SND - test play index %d\n", index);
@@ -374,13 +373,13 @@ extern "C" ErrorCode Snd_ParseCommandString(const char* str, const char** tokens
             Snd_PlayQuick(index, soundPos);
             return 1;
         }
-        if (numTokens == 3 && ZE_CompareStrings(tokens[1],"FX") == 0)
+        if (numTokens == 3 && ZE_CompareStringsNocase(tokens[1],"FX") == 0)
         {
             g_fxVolume = Snd_ParseVolume(tokens[2]);
             printf("SND set FX vol %.3f\n", g_fxVolume);
             return 1;
         }
-        if (numTokens == 3 && ZE_CompareStrings(tokens[1], "BGM") == 0)
+        if (numTokens == 3 && ZE_CompareStringsNocase(tokens[1], "BGM") == 0)
         {
             g_bgmVolume = Snd_ParseVolume(tokens[2]);
             printf("SND set BGM vol %.3f\n", g_bgmVolume);

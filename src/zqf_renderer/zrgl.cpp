@@ -33,14 +33,14 @@
 extern "C" i32 ZRGL_ExecTextCommand(
 	const char* str, const char** tokens, const i32 numTokens)
 {
-	if (ZE_CompareStrings(tokens[0], "HELP") == 0)
+	if (ZE_CompareStringsNocase(tokens[0], "HELP") == 0)
 	{
 		printf("RSTATS - toggle display render info\n");
 		printf("LIGHTMODE modeInt - set 3D scene lighting mode\n");
 		printf("GBUFFER - toggle gbuffer mode\n");
 		return NO;
 	}
-	if (ZE_CompareStrings(tokens[0], "LIGHTMODE") == 0)
+	if (ZE_CompareStringsNocase(tokens[0], "LIGHTMODE") == 0)
 	{
 		printf("ZR - change light mode\n");
 		if (numTokens == 2)
@@ -51,12 +51,12 @@ extern "C" i32 ZRGL_ExecTextCommand(
 		}
 		return YES;
 	}
-	if (ZE_CompareStrings(tokens[0], "GBUFFER") == 0)
+	if (ZE_CompareStringsNocase(tokens[0], "GBUFFER") == 0)
 	{
 		g_debugFlags ^= ZRGL_DEBUG_BIT_SHOWGBUFFER;
 		return YES;
 	}
-	if (ZE_CompareStrings(tokens[0], "RSTATS") == 0)
+	if (ZE_CompareStringsNocase(tokens[0], "RSTATS") == 0)
 	{
 		g_debugFlags ^= ZRGL_DEBUG_BIT_SHOWSTATS;
 		return YES;

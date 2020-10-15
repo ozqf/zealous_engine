@@ -354,7 +354,7 @@ static i32 PlatformImpl_ExecTextCommand(
     // call all loaded modules to attempt to run the given command
     // a result of true from any module means the command was
     // handled
-    if (ZE_CompareStrings(str, "MANIFEST") == 0)
+    if (ZE_CompareStringsNocase(str, "MANIFEST") == 0)
 	{
 		ZRDB_PrintManifest(g_assets);
 		return YES;
@@ -363,25 +363,25 @@ static i32 PlatformImpl_ExecTextCommand(
     {
         return YES;
     }
-    if (ZE_CompareStrings(str, "BREAK") == 0)
+    if (ZE_CompareStringsNocase(str, "BREAK") == 0)
     {
         DebugBreak();
     }
 
     // fall through
-    if (ZE_CompareStrings(tokens[0], "VERSION") == 0)
+    if (ZE_CompareStringsNocase(tokens[0], "VERSION") == 0)
 	{
 		printf("PLATFORM Built %s: %s\n", __DATE__, __TIME__);
 	}
-    if (ZE_CompareStrings(str, "HELP") == 0)
+    if (ZE_CompareStringsNocase(str, "HELP") == 0)
     {
         printf("MANIFEST - list assets loaded to heap\n");
     }
-    if (ZE_CompareStrings(str, "FILES") == 0)
+    if (ZE_CompareStringsNocase(str, "FILES") == 0)
     {
         WinIO_DumpHandles();
     }
-    if (ZE_CompareStrings(tokens[0], "CFG") == 0)
+    if (ZE_CompareStringsNocase(tokens[0], "CFG") == 0)
     {
         if (numTokens == 1)
         {
@@ -392,7 +392,7 @@ static i32 PlatformImpl_ExecTextCommand(
         }
         else if (numTokens == 2)
         {
-            if (ZE_CompareStrings(tokens[1], "SAVE") == 0)
+            if (ZE_CompareStringsNocase(tokens[1], "SAVE") == 0)
             {
                 char path[256];
 	            sprintf_s(path, 256, "%s/config.ini", g_appFolderBuf);
@@ -402,7 +402,7 @@ static i32 PlatformImpl_ExecTextCommand(
         }
         else if (numTokens == 4)
         {
-            if (ZE_CompareStrings(tokens[1], "SHOW") == 0)
+            if (ZE_CompareStringsNocase(tokens[1], "SHOW") == 0)
             {
                 const char* result = g_config->GetFieldStr(tokens[2], tokens[3]);
                 if (result == NULL)

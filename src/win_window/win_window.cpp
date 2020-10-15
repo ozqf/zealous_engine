@@ -37,7 +37,7 @@ static i32 WindowImpl_ExecTextCommand(
 {
     //printf("WINDOW - parse str %s\n", str);
     // try and execute ourselves. If not pass off to platform
-    if (numTokens == 2 && ZE_CompareStrings(tokens[0], "VID") == 0)
+    if (numTokens == 2 && ZE_CompareStringsNocase(tokens[0], "VID") == 0)
     {
         i32 mode = ZE_AsciToInt32(tokens[1]);
         if (mode < 0) { mode = 0; }
@@ -46,7 +46,7 @@ static i32 WindowImpl_ExecTextCommand(
         g_bRestart = YES;
         return YES;
     }
-    if (numTokens == 2 && ZE_CompareStrings(tokens[0], "WINDOWED") == 0)
+    if (numTokens == 2 && ZE_CompareStringsNocase(tokens[0], "WINDOWED") == 0)
     {
         i32 value = ZE_AsciToInt32(tokens[1]);
         if (value != 0 && value != 1) { return YES; }
@@ -64,7 +64,7 @@ static i32 WindowImpl_ExecTextCommand(
 	}
     // Help and version commands should fall through
     // let other modules list their commands too!
-    if (ZE_CompareStrings(str, "HELP") == 0)
+    if (ZE_CompareStringsNocase(str, "HELP") == 0)
 	{
         printf("=== command list ===\n");
         printf("EXIT / QUIT - shutdown game, surprisingly enough\n");
@@ -72,7 +72,7 @@ static i32 WindowImpl_ExecTextCommand(
         printf("WINDOWED <0 or 1> - if 0, activate borderless fullscreen\n");
         printf("VERSION - list module build dates\n");
 	}
-    if (ZE_CompareStrings(tokens[0], "VERSION") == 0)
+    if (ZE_CompareStringsNocase(tokens[0], "VERSION") == 0)
 	{
 		printf("WINDOW Built %s: %s\n", __DATE__, __TIME__);
 	}

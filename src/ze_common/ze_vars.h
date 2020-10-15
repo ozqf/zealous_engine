@@ -541,7 +541,7 @@ static i32 ZEVar_ReadFromText(
 		}
 
 		// parse tokens
-		if (ZE_CompareStrings(tokens[0], "map") == 0)
+		if (ZE_CompareStringsNocase(tokens[0], "map") == 0)
 		{
 			// Create set... previous in progress set is now 'closed'
 			if (*numSets >= maxSets)
@@ -563,7 +563,7 @@ static i32 ZEVar_ReadFromText(
 			// we're not currently creating a set so ignore anything else!
 			continue;
 		}
-		else if (ZE_CompareStrings(tokens[0], "i") == 0)
+		else if (ZE_CompareStringsNocase(tokens[0], "i") == 0)
 		{
 			// create int
 			if (numTokens < 3)
@@ -572,7 +572,7 @@ static i32 ZEVar_ReadFromText(
 			i32 i = ZE_AsciToInt32(tokens[2]);
 			v = set->AddInt(varName, i);
 		}
-		else if (ZE_CompareStrings(tokens[0], "f") == 0)
+		else if (ZE_CompareStringsNocase(tokens[0], "f") == 0)
 		{
 			// create float
 			if (numTokens < 3)
@@ -583,8 +583,8 @@ static i32 ZEVar_ReadFromText(
 			set->AddFloat(varName, f);
 		}
 		else if (
-			ZE_CompareStrings(tokens[0], "t") == 0
-			|| ZE_CompareStrings(tokens[0], "s") == 0)
+			ZE_CompareStringsNocase(tokens[0], "t") == 0
+			|| ZE_CompareStringsNocase(tokens[0], "s") == 0)
 		{
 			// create string
 			if (numTokens < 3)
@@ -594,7 +594,7 @@ static i32 ZEVar_ReadFromText(
 			v = set->AddString(tokens[1], tokens[2]);
 			printf("Created Str %s: \"%s\"\n", set->GetVarName(v), set->GetStringFromVar(v));
 		}
-		else if (ZE_CompareStrings(tokens[0], "v") == 0)
+		else if (ZE_CompareStringsNocase(tokens[0], "v") == 0)
 		{
 			// create vector
 			if (numTokens < 3)
