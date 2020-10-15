@@ -39,6 +39,17 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
         }
         return YES;
     }
+    i32 bConsoleIgnore = NO;
+    if (key == GLFW_KEY_LEFT_SHIFT)
+    {
+        g_bLeftShiftOn = (action == GLFW_PRESS);
+        bConsoleIgnore = YES;
+    }
+    if (key == GLFW_KEY_RIGHT_SHIFT)
+    {
+        g_bRightShiftOn = (action == GLFW_PRESS);
+        bConsoleIgnore = YES;
+    }
     // (not) tilde key console toggle:
     // escape belongs to the App
     if (key == GLFW_KEY_GRAVE_ACCENT) // || key == GLFW_KEY_ESCAPE)
@@ -54,9 +65,9 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
     }
     if (g_consoleActive == YES)
     {
-        if (action == GLFW_PRESS)
+        if (action == GLFW_PRESS && bConsoleIgnore == NO)
         {
-            char* str = Console_AddChar((char)key);
+            char* str = Console_AddChar((char)key, (g_bLeftShiftOn || g_bRightShiftOn));
             if (str != NULL)
             {
                 printf(">> Window read cmd \"%s\"\n", str);

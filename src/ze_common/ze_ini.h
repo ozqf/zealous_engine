@@ -48,6 +48,11 @@ struct ZEIniFile
 		strTable->Insert(header->hash, header->headerOffset);
 		return header->hash;
 	}
+	
+	i32 HashString(const char* str)
+	{
+		return ZE_Hash_djb2((u8*)str);
+	}
 
 	ZEIniSection* GetSection(i32 hash)
 	{
@@ -79,7 +84,14 @@ struct ZEIniFile
 		return strHash;
 	}
 
-	i32 RegisterField(i32 sectionHash, const char* fieldName, const char* fieldValue)
+	/*
+	If field does not exist, it will be added, otherwise it will be patched
+	*/
+	i32 RegisterField(
+		i32 sectionHash,
+		const char* fieldName,
+		const char* fieldValue,
+		i32 bPatchCurrent)
 	{
 		if (sectionHash == 0) { sectionHash = this->defaultSectionHash; }
 		ZEIniSection* section = GetSection(sectionHash);
@@ -94,6 +106,11 @@ struct ZEIniFile
 		if (field == NULL)
 		{
 			field = (ZEIniField*)section->store.GetFreeSlot(fieldNameHash);
+		}
+		else if (bPatchCurrent == NO)
+		{
+			// already exists, don't update!
+			return field->nameHash;
 		}
 		field->nameHash = fieldNameHash;
 		field->charHash = valueHash;
@@ -198,7 +215,7 @@ static void ZEIni_ReadLine(ZEIniFile* file, char* buf)
 			i32 varLabelLen = ZE_StrLen(valueBuf);
 			if (varLabelLen > 0)
 			{
-				file->RegisterField(file->loadSectionHash, buf, valueBuf);
+				file->RegisterField(file->loadSectionHash, buf, valueBuf, YES);
 			}
 		}
 		#endif

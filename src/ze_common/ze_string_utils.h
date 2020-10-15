@@ -2,6 +2,7 @@
 #define ZE_STRING_UTILS_H
 
 #include "ze_common.h"
+#include <ctype.h>
 
 /////////////////////////////////////////////
 // general parsing/formatting utils
@@ -20,6 +21,24 @@ static i32 ZE_StrLen(const char* str)
     while (str[count]) { ++count; }
     // include terminator
     return count + 1;
+}
+
+static char ZE_CharToLower(char c)
+{
+    if (c >= 65 && c <= 90)
+    {
+        return c + 32;
+    }
+    return c;
+}
+
+static void ZE_StrToLower(char* str)
+{
+    while (*str != '\0')
+    {
+        *str = (char)tolower(*str);
+        str++;
+    }
 }
 
 /**
@@ -41,6 +60,31 @@ internal i32 ZE_CompareStrings(const char *a, const char *b)
         ++b;
     }
     return ((*a < *b) ? -1 : 1);
+}
+
+/**
+ * if strings are equal, return 0
+ * if a is first alphabetically, return -1
+ * if b is first alphabetically, return 1
+ */
+
+internal i32 ZE_CompareStringsNocase(
+    const char *a, const char *b)
+{
+    i32 i = 0;
+    char aLower = 0;
+    char bLower = 0;
+    for(;;)
+    {
+        if (*a == '\0' || *b == '\0') { return 0; }
+        aLower = ZE_CharToLower(*a);
+        bLower = ZE_CharToLower(*b);
+        if (aLower != bLower)
+        {
+            break;
+        }
+    }
+    return ((aLower < bLower) ? -1 : 1);
 }
 
 /**

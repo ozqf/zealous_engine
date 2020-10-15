@@ -58,6 +58,8 @@ struct ze_platform_export
     void (*Free)(void* ptr);
 
     ZEFileIO files;
+	
+	ZEIniFile* (*GetConfig)();
 
     // Shared asset manager
     void* (*GetAssetDB)();

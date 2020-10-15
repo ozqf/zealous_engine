@@ -55,8 +55,8 @@ static i32 WindowImpl_ExecTextCommand(
         g_bRestart = YES;
         return YES;
     }
-    if (ZE_CompareStrings(str, "EXIT") == 0
-        || ZE_CompareStrings(str, "QUIT") == 0)
+    if (ZE_CompareStringsNocase(str, "EXIT") == 0
+        || ZE_CompareStringsNocase(str, "QUIT") == 0)
 	{
         printf("WIN - exiting\n");
         glfwSetWindowShouldClose(g_window, YES);
@@ -275,6 +275,12 @@ static i32 WindowImpl_Init()
     platform.GetAssetDB = g_platform.GetAssetDB;
     platform.DebugBreak = g_platform.DebugBreak;
     ZRGL_Link(platform);
+	
+	// Setup config
+	ZEIniFile* cfg = g_platform.GetConfig();
+    i32 hash = cfg->RegisterSection("window");
+    cfg->RegisterField(hash, "windowed", "0", NO);
+	cfg->RegisterField(hash, "res_mode", "3", NO);
 
     return Window_SpawnWindow();
 }

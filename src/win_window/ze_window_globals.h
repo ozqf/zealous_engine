@@ -40,6 +40,9 @@ internal i32 g_bMouseCaptured = YES;
 internal i32 g_bAppWantsMouseCaptured = YES;
 internal i32 g_consoleActive = NO;
 
+internal i32 g_bLeftShiftOn = NO;
+internal i32 g_bRightShiftOn = NO;
+
 // recording mouse position
 internal f64 g_mousePosX = 0;
 internal f64 g_mousePosY = 0;

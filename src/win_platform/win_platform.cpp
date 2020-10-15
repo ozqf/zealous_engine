@@ -381,6 +381,43 @@ static i32 PlatformImpl_ExecTextCommand(
     {
         WinIO_DumpHandles();
     }
+    if (ZE_CompareStrings(tokens[0], "CFG") == 0)
+    {
+        if (numTokens == 1)
+        {
+            printf("CFG LOAD/SAVE\n");
+            printf("\tCFG SET SECTIONNAME FIELDNAME VALUE\n");
+            printf("\tCFG SHOW SECTIONNAME FIELDNAME\n");
+            return YES;
+        }
+        else if (numTokens == 2)
+        {
+            if (ZE_CompareStrings(tokens[1], "SAVE") == 0)
+            {
+                char path[256];
+	            sprintf_s(path, 256, "%s/config.ini", g_appFolderBuf);
+                printf("Saving cfg to %s\n", path);
+                ZEIni_Write(g_config, path);
+            }
+        }
+        else if (numTokens == 4)
+        {
+            if (ZE_CompareStrings(tokens[1], "SHOW") == 0)
+            {
+                const char* result = g_config->GetFieldStr(tokens[2], tokens[3]);
+                if (result == NULL)
+                {
+                    printf("\tNo cfg var %s: %s\n", tokens[2], tokens[3]);
+                }
+                else
+                {
+                    printf("%s - %s: %s\n", tokens[2], tokens[3], result);
+                }
+            }
+        }
+        
+        return YES;
+    }
     g_window.ParseCommandString(str, tokens, numTokens);
 	return (g_app.ParseCommandString(str, tokens, numTokens) == YES);
 }
@@ -448,6 +485,11 @@ static void PlatformImpl_GetCommandLine(i32* argc, char*** argv)
     *argv = (char**)g_tokens;
 }
 
+static ZEIniFile* PlatformImpl_GetConfig()
+{
+	return g_config;
+}
+
 static ze_platform_export Win_BuildExport()
 {
     ze_platform_export result = {};
@@ -460,6 +502,8 @@ static ze_platform_export Win_BuildExport()
     result.GetAssetDB = PlatformImpl_GetAssetDB;
     result.EnqueueTextCommand = PlatformImpl_EnqueueTextCommand;
     result.GetCmdLine = PlatformImpl_GetCommandLine;
+	
+	result.GetConfig = PlatformImpl_GetConfig;
 
     result.IsMouseCaptured = PlatformImpl_IsMouseCaptured;
     result.SetMouseCaptured = PlatformImpl_SetMouseCaptured;

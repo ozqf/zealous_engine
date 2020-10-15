@@ -19,5 +19,6 @@
 #include "ze_command.h"
 #include "ze_parse_parameters.h"
 #include "ze_vars.h"
+#include "ze_ini.h"
 
 #endif // ZE_COMMON_FULL_H

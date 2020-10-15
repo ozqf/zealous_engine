@@ -196,9 +196,10 @@ static ZE_FatalErrorFunction ze_fatalErrorFunc = NULL;
 
 static void ZE_SetFatalError(ZE_FatalErrorFunction func)
 {
-    if (ze_fatalErrorFunc != NULL) { return; }
+    if (ze_fatalErrorFunc != NULL)
     {
         printf("ZE Error handler already set\n");
+        return;
     }
     printf("ZE Set error handler\n");
     ze_fatalErrorFunc = func;
