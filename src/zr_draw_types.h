@@ -208,7 +208,7 @@ struct ZRDrawObjData
 	{
 		this->type = ZR_DRAWOBJ_TYPE_TEXT;
 		this->text.text = chars;
-		this->text.length = ZE_StrLenNoTerminator(chars) + 1;
+		this->text.length = ZStr_LenNoTerminator(chars) + 1;
 		if (texIndex < 0)
 		{
 			this->text.charTextureIndex = -1;
@@ -278,7 +278,7 @@ static void ZR_WriteTextObj(
     *drawObj = *source;
 
     char* strCursor = (char*)data->cursor;
-    i32 len = ZE_StrLen(source->data.text.text);
+    i32 len = ZStr_Len(source->data.text.text);
     data->cursor += ZE_COPY(source->data.text.text, data->cursor, len);
     drawObj->data.text.text = strCursor;
     //return len;

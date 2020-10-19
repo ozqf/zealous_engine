@@ -13,11 +13,11 @@ void main(int argc, char** argv)
 	}
 	printf("\n");
 
-	if (argc < 2 || ZE_CompareStrings("test", argv[1]) == 0)
+	if (argc < 2 || ZStr_Compare("test", argv[1]) == 0)
 	{
 		ZETests_Run();
 	}
-	else if (ZE_CompareStrings("monitor", argv[1]) == 0)
+	else if (ZStr_Compare("monitor", argv[1]) == 0)
 	{
 		ZT_MonitorStart();
 	}

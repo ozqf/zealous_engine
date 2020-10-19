@@ -136,7 +136,7 @@ extern "C" void Game_WriteDrawFrame(ZRViewFrame* frame)
 
 extern "C" void Game_ToggleDrawFlag(const char* name)
 {
-	if (!ZE_CompareStrings(name, "AABB"))
+	if (!ZStr_Compare(name, "AABB"))
 	{
 		printf("Toggle draw flag %s\n", name);
 		CL_ToggleDrawFlag(CL_DEBUG_FLAG_DRAW_LOCAL_SERVER);
@@ -191,7 +191,7 @@ internal i32 Game_StageSaveFile(
 		files.CloseFile(*handle);
 		return ZE_ERROR_DESERIALISE_FAILED;
 	}
-	if (ZE_CompareStrings((char*)b->start, SIM_SAVE_MAGIC_STRING) != 0)
+	if (ZStr_Compare((char*)b->start, SIM_SAVE_MAGIC_STRING) != 0)
 	{
 		printf("Bad magic string %s in save\n", (char*)b->start);
 		files.CloseFile(*handle);

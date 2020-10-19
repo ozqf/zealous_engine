@@ -29,7 +29,7 @@ set compIn3=../src/win_platform/ze_win_sound.cpp
 @rem === LINK SETTINGS === (disable if running win32 console application test)
 set linkStr=/link
 set linkInputA=user32.lib opengl32.lib Gdi32.lib Ws2_32.lib
-set linkInputB=../lib/fmod/fmod_vc.lib ../lib/fmod/fmodstudio_vc.lib
+set linkInputB=../lib/fmod/fmod_vc.lib ../lib/fmod/fmodstudio_vc.lib ../buildwin_platform_libs/platlibs.lib
 @echo on
 @cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% %compIn3% %linkStr% %linkInputA%  %linkInputB%
 @echo off

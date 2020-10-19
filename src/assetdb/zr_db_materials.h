@@ -15,7 +15,7 @@ static ZRDBMaterial* ZRDB_GetMaterialByName(ZRAssetDB* assetDB, char* name)
     i32 index = 0;
     for (i32 i = 0; i < db->numMaterials; ++i)
     {
-        if (ZE_CompareStrings(name, db->materials[i].header.fileName) == 0)
+        if (ZStr_Compare(name, db->materials[i].header.fileName) == 0)
         {
             return &db->materials[i];
         }

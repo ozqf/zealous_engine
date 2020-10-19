@@ -175,7 +175,7 @@ internal i32 Test_ReadTestTypeDelta(EncodeTable* table, u8* itemBytes, u8* buffe
 {
 	for (i32 i = 0; i < numTables; ++i)
 	{
-		if (ZE_CompareStrings(tables[i].label, name))
+		if (ZStr_Compare(tables[i].label, name))
 		{
 			return &tables[i];
 		}

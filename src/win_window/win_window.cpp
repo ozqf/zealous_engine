@@ -37,26 +37,26 @@ static i32 WindowImpl_ExecTextCommand(
 {
     //printf("WINDOW - parse str %s\n", str);
     // try and execute ourselves. If not pass off to platform
-    if (numTokens == 2 && ZE_CompareStringsNocase(tokens[0], "VID") == 0)
+    if (numTokens == 2 && ZStr_CompareNocase(tokens[0], "VID") == 0)
     {
-        i32 mode = ZE_AsciToInt32(tokens[1]);
+        i32 mode = ZStr_AsciToInt32(tokens[1]);
         if (mode < 0) { mode = 0; }
         if (mode >= g_numModes) { mode = g_numModes - 1; }
         g_pendingScrMode = mode;
         g_bRestart = YES;
         return YES;
     }
-    if (numTokens == 2 && ZE_CompareStringsNocase(tokens[0], "WINDOWED") == 0)
+    if (numTokens == 2 && ZStr_CompareNocase(tokens[0], "WINDOWED") == 0)
     {
-        i32 value = ZE_AsciToInt32(tokens[1]);
+        i32 value = ZStr_AsciToInt32(tokens[1]);
         if (value != 0 && value != 1) { return YES; }
         if (g_bWindowed == value) { return YES; }
         g_bWindowed = value;
         g_bRestart = YES;
         return YES;
     }
-    if (ZE_CompareStringsNocase(str, "EXIT") == 0
-        || ZE_CompareStringsNocase(str, "QUIT") == 0)
+    if (ZStr_CompareNocase(str, "EXIT") == 0
+        || ZStr_CompareNocase(str, "QUIT") == 0)
 	{
         printf("WIN - exiting\n");
         glfwSetWindowShouldClose(g_window, YES);
@@ -64,7 +64,7 @@ static i32 WindowImpl_ExecTextCommand(
 	}
     // Help and version commands should fall through
     // let other modules list their commands too!
-    if (ZE_CompareStringsNocase(str, "HELP") == 0)
+    if (ZStr_CompareNocase(str, "HELP") == 0)
 	{
         printf("=== command list ===\n");
         printf("EXIT / QUIT - shutdown game, surprisingly enough\n");
@@ -72,7 +72,7 @@ static i32 WindowImpl_ExecTextCommand(
         printf("WINDOWED <0 or 1> - if 0, activate borderless fullscreen\n");
         printf("VERSION - list module build dates\n");
 	}
-    if (ZE_CompareStringsNocase(tokens[0], "VERSION") == 0)
+    if (ZStr_CompareNocase(tokens[0], "VERSION") == 0)
 	{
 		printf("WINDOW Built %s: %s\n", __DATE__, __TIME__);
 	}
@@ -85,7 +85,7 @@ static void Window_EnqueueTextCommand(char* str)
 {
 	const i32 maxTokens = 64;
 	char* tokens[maxTokens];
-	i32 len = ZE_StrLen(str);
+	i32 len = ZStr_Len(str);
 	const i32 bufSize = 512;
 	char buf[bufSize];
 	if (len > bufSize)
@@ -93,7 +93,7 @@ static void Window_EnqueueTextCommand(char* str)
 		printf("WIN - cmd string too long: %d max %d\n", len, bufSize);
 		return;
 	}
-	i32 numTokens = ZE_ReadTokens(str, buf, tokens, maxTokens);
+	i32 numTokens = ZStr_Tokenise(str, buf, tokens, maxTokens);
 
     //g_platform.ExecTextCommand(str, len, (const char**)tokens, numTokens);
     // call platform to execute the command.

@@ -67,7 +67,7 @@ struct ZELookupStrTable
 
 	ErrorCode Insert(char* newKey, i32 newData)
 	{
-		//i32 len = ZE_StrLen(newKey);
+		//i32 len = ZStr_Len(newKey);
 		u32 newKeyHash = ZE_Hash_djb2((u8*)newKey);
 		i32 keyIndex = newKeyHash % m_maxKeys;
 		i32 escape = 0;
@@ -78,7 +78,7 @@ struct ZELookupStrTable
 			if (key->keyHash == 0)
 			{
 				// insert
-				ZE_CopyStringLimited(newKey, key->key, ZE_MAX_KEY_LENGTH);
+				ZStr_CopyLimited(newKey, key->key, ZE_MAX_KEY_LENGTH);
 				key->keyHash = newKeyHash;
 				key->data = newData;
 				m_numKeys++;

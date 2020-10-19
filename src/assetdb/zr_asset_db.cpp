@@ -7,10 +7,10 @@
 // Implementations
 ///////////////////////////////////////////////////////////////////////////
 
+#include "zr_db_fbx.h"
 #include "zr_db_textures.h"
 #include "zr_db_meshes.h"
 #include "zr_db_materials.h"
-#include "zr_db_fbx.h"
 #include "zrdb_gen.h"
 
 ///////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ extern "C" ZRAssetDB* ZRDB_Create(ZE_FatalErrorFunction errorHandler)
 	db->strings = Buf_FromBytes(ptr + spaceForStruct + spaceForAllocList, spaceForStrings);
 
 	char* strPtr = (char*)db->strings.cursor;
-	db->strings.cursor += ZE_CopyStringLimited("ZRDB", strPtr, db->strings.Space());
+	db->strings.cursor += ZStr_CopyLimited("ZRDB", strPtr, db->strings.Space());
 	COM_SetAlloc(&db->allocs, ptr, total, strPtr);
 
 	printf("ZRDB - %d alloc items %dKB for strings\n", db->allocs.max, db->strings.capacity / 1024);

@@ -33,7 +33,7 @@ static char Console_ReplaceShiftCodes(char c, i32 bShiftOn)
     // }
     if (!bShiftOn)
     {
-        c = ZE_CharToLower(c);
+        c = ZStr_CharToLower(c);
     }
     if (bShiftOn)
     {

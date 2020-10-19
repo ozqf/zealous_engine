@@ -8,14 +8,14 @@
 // general parsing/formatting utils
 /////////////////////////////////////////////
 
-static i32 ZE_StrLenNoTerminator(const char* str)
+static i32 ZStr_LenNoTerminator(const char* str)
 {
     i32 count = 0;
     while (str[count]) { ++count; }
     return count;
 }
 
-static i32 ZE_StrLen(const char* str)
+static i32 ZStr_Len(const char* str)
 {
     i32 count = 0;
     while (str[count]) { ++count; }
@@ -23,7 +23,7 @@ static i32 ZE_StrLen(const char* str)
     return count + 1;
 }
 
-static char ZE_CharToLower(char c)
+static char ZStr_CharToLower(char c)
 {
     if (c >= 65 && c <= 90)
     {
@@ -32,7 +32,7 @@ static char ZE_CharToLower(char c)
     return c;
 }
 
-static void ZE_StrToLower(char* str)
+static void ZStr_ToLower(char* str)
 {
     while (*str != '\0')
     {
@@ -47,7 +47,7 @@ static void ZE_StrToLower(char* str)
  * if b is first alphabetically, return 1
  */
 
-internal i32 ZE_CompareStrings(const char *a, const char *b)
+internal i32 ZStr_Compare(const char *a, const char *b)
 {
     while (*a == *b)
     {
@@ -68,7 +68,7 @@ internal i32 ZE_CompareStrings(const char *a, const char *b)
  * if b is first alphabetically, return 1
  */
 
-internal i32 ZE_CompareStringsNocase(
+internal i32 ZStr_CompareNocase(
     const char *a, const char *b)
 {
     i32 i = 0;
@@ -83,8 +83,8 @@ internal i32 ZE_CompareStringsNocase(
 		}
 		else if (*b == '\0') { return -1; }
 		
-        aLower = ZE_CharToLower(*a);
-        bLower = ZE_CharToLower(*b);
+        aLower = ZStr_CharToLower(*a);
+        bLower = ZStr_CharToLower(*b);
         if (aLower != bLower)
         {
             break;
@@ -100,7 +100,7 @@ internal i32 ZE_CompareStringsNocase(
  * Copy a string without exceeding the specified limit
  * Will always patch a NULL terminator at the final position
  */
-internal i32 ZE_CopyStringLimited(const char *source, char *target, i32 limit)
+internal i32 ZStr_CopyLimited(const char *source, char *target, i32 limit)
 {
     if (limit < 1) { return 0; }
     i32 written = 0;
@@ -118,7 +118,7 @@ internal i32 ZE_CopyStringLimited(const char *source, char *target, i32 limit)
 // decimal or hexadecimal
 // negative and positive
 // "-54" "12" "0x432146fd" "-0X4AbdC"
-internal i32 ZE_AsciToInt32(const char *str)
+internal i32 ZStr_AsciToInt32(const char *str)
 {
     i32 sign = 1;
     i32 val = 0;

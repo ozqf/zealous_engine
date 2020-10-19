@@ -20,7 +20,7 @@ struct ZEIntern
 
 static ZEIntern* ZEInternString(ZELookupTable* table, ZEBuffer* buf, const char* str)
 {
-	i32 len = ZE_StrLen(str);
+	i32 len = ZStr_Len(str);
 	ZE_ASSERT(len + sizeof(ZEIntern) <= (u32)buf->Space(), "No space for string intern")
 
 	i32 hash = ZE_Hash_djb2((u8*)str);
@@ -111,9 +111,9 @@ static ZEVar* ZEVar_InitVar(ZEBuffer* b, char* name, i32 type)
 	if (zeVar == NULL) { return 0; }
 
 	// copy name string
-	i32 len = ZE_StrLen(name);
+	i32 len = ZStr_Len(name);
 	i32 nameOffset = b->CursorOffset();
-	b->cursor += ZE_CopyStringLimited(name, (char*)b->cursor, len);
+	b->cursor += ZStr_CopyLimited(name, (char*)b->cursor, len);
 	
 	// setup var
 	zeVar->sentinel = ZE_SENTINEL;
@@ -139,7 +139,7 @@ struct ZEVarSet
 	//////////////////////////////////////////
 	ZEVar* AddInt(char* varName, i32 i)
 	{
-		i32 size = sizeof(ZEVar) + ZE_StrLen(varName);
+		i32 size = sizeof(ZEVar) + ZStr_Len(varName);
 		ZEVar_CheckSize(this, size);
 
 		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_INT);
@@ -154,7 +154,7 @@ struct ZEVarSet
 
 	ZEVar* AddFloat(char* varName, f32 f)
 	{
-		i32 size = sizeof(ZEVar) + ZE_StrLen(varName);
+		i32 size = sizeof(ZEVar) + ZStr_Len(varName);
 		ZEVar_CheckSize(this, size);
 		
 		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_FLOAT);
@@ -168,7 +168,7 @@ struct ZEVarSet
 
 	ZEVar* AddSetPointer(char* varName, ZEVarSet* set)
 	{
-		i32 size = sizeof(ZEVar) + ZE_StrLen(varName);
+		i32 size = sizeof(ZEVar) + ZStr_Len(varName);
 		ZEVar_CheckSize(this, size);
 		
 		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_SET_PTR);
@@ -182,7 +182,7 @@ struct ZEVarSet
 
 	ZEVar* AddVec4(char* varName, Vec4 v4)
 	{
-		i32 size = sizeof(ZEVar) + ZE_StrLen(varName);
+		i32 size = sizeof(ZEVar) + ZStr_Len(varName);
 		ZEVar_CheckSize(this, size);
 		
 		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_VEC_4);
@@ -197,14 +197,14 @@ struct ZEVarSet
 	ZEVar* AddString(char* varName, char* str)
 	{
 		// TODO: calculating string length multiple times here
-		i32 strLen = ZE_StrLen(str);
-		i32 size = sizeof(ZEVar) + strLen +  + ZE_StrLen(varName);
+		i32 strLen = ZStr_Len(str);
+		i32 size = sizeof(ZEVar) + strLen +  + ZStr_Len(varName);
 		ZEVar_CheckSize(this, size);
 		
 		ZEVar* v = ZEVar_InitVar(&data, varName, ZEVAR_TYPE_STR);
 		v->data.txt.offset = data.CursorOffset();
 		v->data.txt.len = strLen;
-		data.cursor += ZE_CopyStringLimited(
+		data.cursor += ZStr_CopyLimited(
 			str, (char*)data.cursor, strLen);
 		v->size = size;
 
@@ -375,7 +375,7 @@ static i32 ZEVar_CreateSet(
 	i32 numKeys,
 	i32 dataBytes)
 {
-	i32 nameLen = ZE_StrLen(setName);
+	i32 nameLen = ZStr_Len(setName);
 	if (nameLen > ZEVAR_MAX_SET_NAME_LENGTH)
 	{
 		return ZE_ERROR_STRING_TOO_LONG;
@@ -399,7 +399,7 @@ static i32 ZEVar_CreateSet(
 	}
 	ZEVarSet* s = *result;
 	s->alloc = allocator;
-	ZE_CopyStringLimited(setName, s->name, nameLen);
+	ZStr_CopyLimited(setName, s->name, nameLen);
 	s->nameLength = nameLen;
 	// Create lookup table
 	i32 tableBytes = ZE_LT_CalcBytesForTable(numKeys);
@@ -508,8 +508,8 @@ static i32 ZEVar_ReadFromText(
 		// tokenise per line... kinda irritating to isolate lines thanks to \r\n
 		#if 1
 		char* lineStart = cursor;
-		char* lineEnd = ZE_FindNewLineOrEnd(cursor, end);
-		cursor = ZE_RunToNextLine(cursor, end);
+		char* lineEnd = ZStr_FindNewLineOrEnd(cursor, end);
+		cursor = ZStr_RunToNextLine(cursor, end);
 		lineCount++;
 		i32 lineLen = (lineEnd - lineStart);
 
@@ -527,7 +527,7 @@ static i32 ZEVar_ReadFromText(
 		lineBuf[lineLen] = '\0';
 		char* tokens[32];
 
-		i32 numTokens = ZE_ReadTokens(lineBuf, lineBuf, tokens, 32);
+		i32 numTokens = ZStr_Tokenise(lineBuf, lineBuf, tokens, 32);
 		// find comment tokens and reduce count.
 		for (i32 i = 0; i < numTokens; ++i)
 		{
@@ -541,7 +541,7 @@ static i32 ZEVar_ReadFromText(
 		}
 
 		// parse tokens
-		if (ZE_CompareStringsNocase(tokens[0], "map") == 0)
+		if (ZStr_CompareNocase(tokens[0], "map") == 0)
 		{
 			// Create set... previous in progress set is now 'closed'
 			if (*numSets >= maxSets)
@@ -563,16 +563,16 @@ static i32 ZEVar_ReadFromText(
 			// we're not currently creating a set so ignore anything else!
 			continue;
 		}
-		else if (ZE_CompareStringsNocase(tokens[0], "i") == 0)
+		else if (ZStr_CompareNocase(tokens[0], "i") == 0)
 		{
 			// create int
 			if (numTokens < 3)
 			{ printf("Line %d Not enough tokens to declare int", lineCount); continue; }
 			char* varName = tokens[1];
-			i32 i = ZE_AsciToInt32(tokens[2]);
+			i32 i = ZStr_AsciToInt32(tokens[2]);
 			v = set->AddInt(varName, i);
 		}
-		else if (ZE_CompareStringsNocase(tokens[0], "f") == 0)
+		else if (ZStr_CompareNocase(tokens[0], "f") == 0)
 		{
 			// create float
 			if (numTokens < 3)
@@ -583,8 +583,8 @@ static i32 ZEVar_ReadFromText(
 			set->AddFloat(varName, f);
 		}
 		else if (
-			ZE_CompareStringsNocase(tokens[0], "t") == 0
-			|| ZE_CompareStringsNocase(tokens[0], "s") == 0)
+			ZStr_CompareNocase(tokens[0], "t") == 0
+			|| ZStr_CompareNocase(tokens[0], "s") == 0)
 		{
 			// create string
 			if (numTokens < 3)
@@ -594,7 +594,7 @@ static i32 ZEVar_ReadFromText(
 			v = set->AddString(tokens[1], tokens[2]);
 			printf("Created Str %s: \"%s\"\n", set->GetVarName(v), set->GetStringFromVar(v));
 		}
-		else if (ZE_CompareStringsNocase(tokens[0], "v") == 0)
+		else if (ZStr_CompareNocase(tokens[0], "v") == 0)
 		{
 			// create vector
 			if (numTokens < 3)

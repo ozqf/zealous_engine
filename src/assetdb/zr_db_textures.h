@@ -47,7 +47,7 @@ static i32 ZRDB_GetTextureIndexByName(ZRAssetDB* assetDB, char* name)
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
     for (i32 i = 0; i < db->numTextures; ++i)
     {
-        if (ZE_CompareStrings(name, db->textures[i].header.fileName) == 0)
+        if (ZStr_Compare(name, db->textures[i].header.fileName) == 0)
         {
             return i;
         }

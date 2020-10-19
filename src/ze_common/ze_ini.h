@@ -116,7 +116,7 @@ struct ZEIniFile
 		field->charHash = valueHash;
 		field->sectionHash = sectionHash;
 		field->f = (f32)atof(fieldValue);
-		field->i = ZE_AsciToInt32(fieldValue);
+		field->i = ZStr_AsciToInt32(fieldValue);
 		return field->nameHash;
 	}
 
@@ -192,27 +192,27 @@ static void ZEIni_ReadLine(ZEIniFile* file, char* buf)
 {
 	i32 readIndex = -1;
 	// patch out unwanted trailing chars
-	readIndex = ZE_FindFirstCharMatch(buf, '\n');
+	readIndex = ZStr_FindFirstCharMatch(buf, '\n');
 	if (readIndex != -1)
 	{
 		buf[readIndex] = '\0';
 	}
-	i32 len = ZE_StrLen(buf);
+	i32 len = ZStr_Len(buf);
 	// assuming no white space before line
 	char c = buf[0];
-	if (ZE_IsCharLetter(c))
+	if (ZStr_IsCharLetter(c))
 	{
 		#if 1
 		// Line is a variable
 		// find '=' key=value splitter
 		// patch to line end
 		// key=value
-		readIndex = ZE_FindFirstCharMatch(buf, '=');
+		readIndex = ZStr_FindFirstCharMatch(buf, '=');
 		if (readIndex >= 0)
 		{
 			buf[readIndex] = '\0';
 			char* valueBuf = &buf[readIndex + 1];
-			i32 varLabelLen = ZE_StrLen(valueBuf);
+			i32 varLabelLen = ZStr_Len(valueBuf);
 			if (varLabelLen > 0)
 			{
 				file->RegisterField(file->loadSectionHash, buf, valueBuf, YES);
@@ -222,7 +222,7 @@ static void ZEIni_ReadLine(ZEIniFile* file, char* buf)
 	}
 	if (c == '[')
 	{
-		readIndex = ZE_FindFirstCharMatch(buf, ']');
+		readIndex = ZStr_FindFirstCharMatch(buf, ']');
 		if (readIndex > 1)
 		{
 			buf[readIndex] = '\0';

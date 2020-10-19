@@ -159,22 +159,22 @@ extern "C" i32 AppUI_ProcessInput(SysInputEvent ev)
         ZUIObject* obj = &g_menu->objects[g_menu->focusObjIndex];
         if (obj == NULL) { return APPUI_INPUT_HANDLED; }
 
-        if (!ZE_CompareStrings(obj->label, "QUIT"))
+        if (!ZStr_Compare(obj->label, "QUIT"))
         {
             g_platform.EnqueueTextCommand("QUIT");
         }
-        if (!ZE_CompareStrings(obj->label, ROOT_START))
+        if (!ZStr_Compare(obj->label, ROOT_START))
         {
             return AppUI_StartGame("START 1");
             // g_platform.EnqueueTextCommand("START 1");
             // g_currentMenu = APP_MENU_NONE;
             // return APPUI_INPUT_TOGGLED_OFF;
         }
-        if (!ZE_CompareStrings(obj->label, ROOT_START_1))
+        if (!ZStr_Compare(obj->label, ROOT_START_1))
         {
             return AppUI_StartGame("START 1");
         }
-        if (!ZE_CompareStrings(obj->label, ROOT_START_2))
+        if (!ZStr_Compare(obj->label, ROOT_START_2))
         {
             return AppUI_StartGame("START 1");
         }

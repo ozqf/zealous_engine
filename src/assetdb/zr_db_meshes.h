@@ -30,7 +30,7 @@ static i32 ZRDB_GetMeshIndexByName(ZRAssetDB* assetDB, char* name)
     i32 index = 0;
     for (i32 i = 0; i < db->numMeshes; ++i)
     {
-        if (ZE_CompareStrings(name, db->meshes[i].header.fileName) == 0)
+        if (ZStr_Compare(name, db->meshes[i].header.fileName) == 0)
         {
             index = i;
             break;
@@ -136,22 +136,27 @@ static ZRDBMesh* ZRDB_LoadMeshFromData(
 static i32 ZRDB_LoadMeshFromFile(
     ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)
 {
-    i32 pathLen = ZE_StrLen(path);
-    if (ZE_StrCheckExtension(path, pathLen, ".obj"))
+    i32 pathLen = ZStr_Len(path);
+    if (ZStr_CheckExtension(path, pathLen, ".obj"))
     {
         
     }
-    else if (ZE_StrCheckExtension(path, pathLen, ".fbx"))
+    else if (ZStr_CheckExtension(path, pathLen, ".fbx"))
     {
-        
+        ILLEGAL_CODE_PATH
+        // TODO resurrect old FBX load code in zr_db_fbx.h
+        MeshData data;
+		i32 err = ZRGL_LoadFBX(path, reScale, bSwapYZ, YES, &data);
+		if (err == ZE_ERROR_NONE)
+		{
+			ZRDB_AddMesh(assetDB, path, data, NO);
+		}
     }
     else
     {
         ZE_ASSERT(0, "Unknown model file extension");
     }
 
-    ILLEGAL_CODE_PATH
-    // TODO resurrect old FBX load code in zr_db_fbx.h
     return 0;
 }
 

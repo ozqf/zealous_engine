@@ -23,9 +23,9 @@ static ZEStringStackItem* ZE_AddStackString(ZEBuffer* buf, char* str)
     ZE_INIT_PTR_IN_PLACE(item, ZEStringStackItem, buf)
     item->sentinel = ZE_SENTINEL;
     item->offset = buf->cursor - origin;
-    item->len = ZE_StrLen(str);
+    item->len = ZStr_Len(str);
 	item->chars = (char*)buf->cursor;
-	buf->cursor += ZE_CopyStringLimited(str, item->chars, item->len);
+	buf->cursor += ZStr_CopyLimited(str, item->chars, item->len);
     item->hash = ZE_Hash_djb2_Fixed((u8*)str, item->len);
     return item;
 }

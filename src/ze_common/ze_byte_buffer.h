@@ -85,7 +85,7 @@ struct ZEBuffer
 
     i32 WriteString(const char* str)
     {
-        i32 len = ZE_StrLen(str);
+        i32 len = ZStr_Len(str);
         if (this->Space() < len) { return ZE_ERROR_NO_SPACE; }
         this->cursor += ZE_COPY(str, this->cursor, len);
         return ZE_ERROR_NONE;

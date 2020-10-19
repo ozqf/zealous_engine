@@ -385,11 +385,11 @@ internal void App_SaveStringTest(const char* fileName, const char* str, ZEFileIO
 internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, const i32 numTokens)
 {
     // fall through
-    if (ZE_CompareStringsNocase(tokens[0], "VERSION") == 0)
+    if (ZStr_CompareNocase(tokens[0], "VERSION") == 0)
 	{
 		printf("APP Built %s: %s\n", __DATE__, __TIME__);
 	}
-	if (!ZE_CompareStringsNocase(tokens[0], "HELP"))
+	if (!ZStr_CompareNocase(tokens[0], "HELP"))
     {
         printf("DRAW SV - toggle drawing local server ontop of client scene\n");
         printf("STAT <CLS, APP, SV or CL> - toggle disabling debug text\n");
@@ -398,47 +398,47 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
         printf("START <number> - start level\n");
         printf("TITLE - go to title screen\n");
     }
-    if (numTokens == 2 && !ZE_CompareStringsNocase(tokens[0], "DRAW"))
+    if (numTokens == 2 && !ZStr_CompareNocase(tokens[0], "DRAW"))
     {
         Game_ToggleDrawFlag(tokens[1]);
         return YES;
     }
-    if (numTokens == 2 && !ZE_CompareStringsNocase(tokens[0], "STAT"))
+    if (numTokens == 2 && !ZStr_CompareNocase(tokens[0], "STAT"))
     {
-        if (!ZE_CompareStrings(tokens[1], "CLS"))
+        if (!ZStr_Compare(tokens[1], "CLS"))
         { g_debugPrintFlags = 0; }
-        if (!ZE_CompareStrings(tokens[1], "APP"))
+        if (!ZStr_Compare(tokens[1], "APP"))
         { g_debugPrintFlags ^= APP_PRINT_FLAG_SPEEDS; }
-        if (!ZE_CompareStrings(tokens[1], "SV"))
+        if (!ZStr_Compare(tokens[1], "SV"))
         { g_debugPrintFlags ^= APP_PRINT_FLAG_SERVER; }
-        if (!ZE_CompareStrings(tokens[1], "CL"))
+        if (!ZStr_Compare(tokens[1], "CL"))
         { g_debugPrintFlags ^= APP_PRINT_FLAG_CLIENT; }
         return YES;
     }
-    if (numTokens == 4 && !ZE_CompareStringsNocase(tokens[0], "LAG"))
+    if (numTokens == 4 && !ZStr_CompareNocase(tokens[0], "LAG"))
     {
-        i32 minMS = ZE_AsciToInt32(tokens[1]);
-        i32 maxMS = ZE_AsciToInt32(tokens[2]);
-        f32 loss = (f32)ZE_AsciToInt32(tokens[3]) / 100.0f;
+        i32 minMS = ZStr_AsciToInt32(tokens[1]);
+        i32 maxMS = ZStr_AsciToInt32(tokens[2]);
+        f32 loss = (f32)ZStr_AsciToInt32(tokens[3]) / 100.0f;
         g_loopbackSocket.SetLagStats(minMS, maxMS, loss);
         return YES;
     }
-	if (numTokens == 2 && !ZE_CompareStringsNocase(tokens[0], "START"))
+	if (numTokens == 2 && !ZStr_CompareNocase(tokens[0], "START"))
 	{
 		App_StartSession(APP_SESSION_TYPE_SINGLE_PLAYER, tokens[1]);
         return YES;
 	}
-    if (!ZE_CompareStringsNocase(tokens[0], "TITLE"))
+    if (!ZStr_CompareNocase(tokens[0], "TITLE"))
 	{
         App_StartTitle();
         return YES;
 	}
-    if (!ZE_CompareStringsNocase(tokens[0], "KILL"))
+    if (!ZStr_CompareNocase(tokens[0], "KILL"))
     {
         Game_KillPlayers();
         return YES;
     }
-    if (!ZE_CompareStringsNocase(tokens[0], "SAVE"))
+    if (!ZStr_CompareNocase(tokens[0], "SAVE"))
     {
         if (numTokens != 2)
         {
@@ -448,17 +448,17 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
         Game_WriteSave(tokens[1], g_platform.files);
         return YES;
     }
-    if (!ZE_CompareStringsNocase(tokens[0], "QUICKSAVE"))
+    if (!ZStr_CompareNocase(tokens[0], "QUICKSAVE"))
     {
         Game_WriteSave(APP_QUICKSAVE_FILE_NAME, g_platform.files);
         return YES;
     }
-    if (!ZE_CompareStringsNocase(tokens[0], "QUICKSCAN"))
+    if (!ZStr_CompareNocase(tokens[0], "QUICKSCAN"))
     {
         Game_ScanSaveFile(APP_QUICKSAVE_FILE_NAME, g_platform.files);
         return YES;
     }
-    if (!ZE_CompareStringsNocase(tokens[0], "SAVETEST"))
+    if (!ZStr_CompareNocase(tokens[0], "SAVETEST"))
     {
         if (numTokens != 3)
         {
@@ -469,7 +469,7 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
         App_SaveStringTest(tokens[1], tokens[2], g_platform.files);
         return YES;
     }
-    if (!ZE_CompareStringsNocase(tokens[0], "GAMEINFO"))
+    if (!ZStr_CompareNocase(tokens[0], "GAMEINFO"))
     {
         Game_DumpSessionInfo();
         return YES;

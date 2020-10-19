@@ -129,7 +129,7 @@ extern "C" i32 ZUI_WriteRenderTest_2(ZEBuffer* list, ZEBuffer* data)
 	//char* str = "The quick\nbrown fox jumped over\nthe lazy\ndogs.";
 	char* str = "The quick brown fox.";
     // measure
-    i32 len = ZE_StrLen(str);
+    i32 len = ZStr_Len(str);
     ZRDrawObj* uiObj;
 
     uiObj = ZRDrawObj_InitInPlace(&list->cursor);

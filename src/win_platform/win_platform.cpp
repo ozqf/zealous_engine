@@ -354,7 +354,7 @@ static i32 PlatformImpl_ExecTextCommand(
     // call all loaded modules to attempt to run the given command
     // a result of true from any module means the command was
     // handled
-    if (ZE_CompareStringsNocase(str, "MANIFEST") == 0)
+    if (ZStr_CompareNocase(str, "MANIFEST") == 0)
 	{
 		ZRDB_PrintManifest(g_assets);
 		return YES;
@@ -363,25 +363,25 @@ static i32 PlatformImpl_ExecTextCommand(
     {
         return YES;
     }
-    if (ZE_CompareStringsNocase(str, "BREAK") == 0)
+    if (ZStr_CompareNocase(str, "BREAK") == 0)
     {
         DebugBreak();
     }
 
     // fall through
-    if (ZE_CompareStringsNocase(tokens[0], "VERSION") == 0)
+    if (ZStr_CompareNocase(tokens[0], "VERSION") == 0)
 	{
 		printf("PLATFORM Built %s: %s\n", __DATE__, __TIME__);
 	}
-    if (ZE_CompareStringsNocase(str, "HELP") == 0)
+    if (ZStr_CompareNocase(str, "HELP") == 0)
     {
         printf("MANIFEST - list assets loaded to heap\n");
     }
-    if (ZE_CompareStringsNocase(str, "FILES") == 0)
+    if (ZStr_CompareNocase(str, "FILES") == 0)
     {
         WinIO_DumpHandles();
     }
-    if (ZE_CompareStringsNocase(tokens[0], "CFG") == 0)
+    if (ZStr_CompareNocase(tokens[0], "CFG") == 0)
     {
         if (numTokens == 1)
         {
@@ -392,7 +392,7 @@ static i32 PlatformImpl_ExecTextCommand(
         }
         else if (numTokens == 2)
         {
-            if (ZE_CompareStringsNocase(tokens[1], "SAVE") == 0)
+            if (ZStr_CompareNocase(tokens[1], "SAVE") == 0)
             {
                 char path[256];
 	            sprintf_s(path, 256, "%s/config.ini", g_appFolderBuf);
@@ -402,7 +402,7 @@ static i32 PlatformImpl_ExecTextCommand(
         }
         else if (numTokens == 4)
         {
-            if (ZE_CompareStringsNocase(tokens[1], "SHOW") == 0)
+            if (ZStr_CompareNocase(tokens[1], "SHOW") == 0)
             {
                 const char* result = g_config->GetFieldStr(tokens[2], tokens[3]);
                 if (result == NULL)
@@ -427,7 +427,7 @@ static void Platform_ParseTextCommand(const char* str)
     printf(">> Platform exec \"%s\"\n", str);
 	const i32 maxTokens = 64;
 	char* tokens[maxTokens];
-	i32 len = ZE_StrLen(str);
+	i32 len = ZStr_Len(str);
 	const i32 bufSize = 512;
 	char buf[bufSize];
 	if (len > bufSize)
@@ -435,7 +435,7 @@ static void Platform_ParseTextCommand(const char* str)
 		printf("WIN - cmd string too long: %d max %d\n", len, bufSize);
 		return;
 	}
-	i32 numTokens = ZE_ReadTokens(str, buf, tokens, maxTokens);
+	i32 numTokens = ZStr_Tokenise(str, buf, tokens, maxTokens);
     PlatformImpl_ExecTextCommand(str, len, (const char**)tokens, numTokens);
 
 }
@@ -445,7 +445,7 @@ static void PlatformImpl_EnqueueTextCommand(const char* str)
     // either app or window thread could be calling this
     // lock and write
     PlatformImpl_LockMutex(ZE_MUTEX_APP_TEXT_COMMAND_QUEUE, 0);
-    i32 len = ZE_StrLen(str);
+    i32 len = ZStr_Len(str);
     ZEBuffer* buf = g_appTextCommands.GetWrite();
     buf->cursor += ZE_COPY(str, buf->cursor, len);
     // printf("Platform Enqueue \"%s\"\n", str);
@@ -603,7 +603,7 @@ static DWORD __stdcall AppThreadStartup(LPVOID lpThreadParameter)
             //printf("PLATFORM exec from char %d\n", (i32)(read - (char*)buf->start));
             //printf("Run cmd %s\n", cmd);
             Platform_ParseTextCommand(cmd);
-            read = ZE_RunPastTerminator(read, end);
+            read = ZStr_RunPastTerminator(read, end);
         }
         // reset buffer
         buf->Clear(NO);
@@ -634,7 +634,7 @@ static ErrorCode AppThread_Init()
     // link to app dll
     //char* appFolder = ZE_DEFAULT_APP_DIR;
     //char* appFolder = "stub";
-    // i32 len = ZE_StrLen(appFolder);
+    // i32 len = ZStr_Len(appFolder);
     // if (len > MAX_APP_FOLDER_LEN)
     // {
     //     Win_Error("App folder name is too long\n");
@@ -723,10 +723,10 @@ static void ReadCommandLine(LPSTR lpCmdLine)
 {
 
     //////////////////////////////////////////////////////
-    i32 len = ZE_StrLen(lpCmdLine);
+    i32 len = ZStr_Len(lpCmdLine);
     ZE_ASSERT(len < WIN_MAX_COMMAND_LINE_LENGTH, "Command line too long")
 
-    g_numCmdTokens = ZE_ReadTokens(lpCmdLine, g_cmdLinebuf, g_tokens, WIN_MAX_COMMAND_LINE_TOKENS);
+    g_numCmdTokens = ZStr_Tokenise(lpCmdLine, g_cmdLinebuf, g_tokens, WIN_MAX_COMMAND_LINE_TOKENS);
     printf("%d cmd line tokens\n", g_numCmdTokens);
     for (i32 i = 0; i < g_numCmdTokens; ++i)
     {
@@ -748,11 +748,11 @@ static void ReadCommandLine(LPSTR lpCmdLine)
     {
         char* dir = g_tokens[tokenIndex + 1];
         printf("Base dir: %s\n", dir);
-        ZE_CopyStringLimited(dir, g_appFolderBuf, MAX_APP_FOLDER_LEN);
+        ZStr_CopyLimited(dir, g_appFolderBuf, MAX_APP_FOLDER_LEN);
     }
     else
     {
-        ZE_CopyStringLimited(ZE_DEFAULT_APP_DIR, g_appFolderBuf, MAX_APP_FOLDER_LEN);
+        ZStr_CopyLimited(ZE_DEFAULT_APP_DIR, g_appFolderBuf, MAX_APP_FOLDER_LEN);
     }
 
     // log file

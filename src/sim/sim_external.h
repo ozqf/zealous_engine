@@ -356,7 +356,7 @@ just static/geometry
 extern "C"
 i32 Sim_LoadMapFile(SimScene* sim, const char* mapName, i32 bLocalOnly)
 {
-	i32 index = ZE_AsciToInt32(mapName);
+	i32 index = ZStr_AsciToInt32(mapName);
     
     return Sim_LoadEmbeddedScene(sim, index, bLocalOnly);
 }

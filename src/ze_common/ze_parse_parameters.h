@@ -43,7 +43,7 @@ internal i32 ZE_FindParamIndex(
     for (i32 i = 0; i < numTokens; ++i)
     {
         const char* txt = params[i];
-        if (!ZE_CompareStrings(txt, query))
+        if (!ZStr_Compare(txt, query))
         {
             if (trailingTokens <= 0) { return i; }
             i32 remainingTokens = (numTokens) - (i = 1);

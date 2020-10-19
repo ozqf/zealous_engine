@@ -127,7 +127,7 @@ internal void Input_InitAction(InputActionSet* actions, u32 keyCode1, char* labe
             label);
         return;
     }
-    ZE_CopyStringLimited(label, actions->actions[index].label, 16);
+    ZStr_CopyLimited(label, actions->actions[index].label, 16);
 }
 
 internal void Input_ClearValues(InputActionSet* actions)
@@ -145,7 +145,7 @@ internal InputAction* Input_FindAction(InputAction* actions, i32 numActions, cha
     for (i32 i = 0; i < numActions; ++i)
     {
         InputAction* action = &actions[i];
-        if (!ZE_CompareStrings(action->label, name))
+        if (!ZStr_Compare(action->label, name))
         {
             return action;
         }

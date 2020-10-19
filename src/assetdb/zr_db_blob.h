@@ -6,7 +6,7 @@ static i32 ZRDB_GetBlobIndexName(ZRAssetDB* handle, char* name)
 	i32 index = 0;
 	for (i32 i = 0; i < db->numBlobs; ++i)
 	{
-		if (ZE_CompareStrings(name, db->blobs[i].header.fileName) == 0)
+		if (ZStr_Compare(name, db->blobs[i].header.fileName) == 0)
 		{
 			return i;
 		}

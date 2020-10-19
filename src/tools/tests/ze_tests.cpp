@@ -11,6 +11,7 @@
 #include "test_delta_introspection.h"
 #include "ze_test_strings.h"
 #include "ze_test_zevars.h"
+#include "ze_test_files.h"
 
 struct TestBlobObj
 {
@@ -127,7 +128,7 @@ internal i32 Test_PacketReadWrite()
 	{
 		ZNDataPacket dataP = descriptor.data.dataPacket;
 		memcpy(dataResultBuf, dataP.dataPtr, dataP.dataSize);
-		if (ZE_CompareStrings((const char*)data, (const char*)dataResultBuf) != 0)
+		if (ZStr_Compare((const char*)data, (const char*)dataResultBuf) != 0)
 		{
 			printf("\nFAIL: Data payload mismatch!\n\n");
 			printf("\"%s\" expected\n", data);
@@ -240,6 +241,7 @@ internal void Test_VoxelWorld()
 #define TEST_ZEVARS (1 << 4)
 #define TEST_STRING_HASH_TABLE (1 << 5)
 #define TEST_VOXEL_WORLD (1 << 6)
+#define TEST_FILES (1 << 7)
 
 extern "C" void ZETests_Run()
 {
@@ -247,7 +249,8 @@ extern "C" void ZETests_Run()
 	i32 testMask = 0;
 	// test everything:
 	//testMask = ~0;
-	testMask = TEST_STRINGS;
+	//testMask = TEST_STRINGS;
+	testMask = TEST_FILES;
 	
 	// Test core common lib
 	if (testMask & TEST_STRINGS) { Test_StringFunctions(); }
@@ -258,6 +261,6 @@ extern "C" void ZETests_Run()
 	// Test more specialised modules
 	if (testMask & TEST_NETWORK_PACKETS) { NetworkUnitTests(); }
 	if (testMask & TEST_INTROSPECTION) { Test_Introspection(); }
-
 	if (testMask & TEST_VOXEL_WORLD) { Test_VoxelWorld(); }
+	if (testMask & TEST_FILES) { Test_FileLoading(); }
 }

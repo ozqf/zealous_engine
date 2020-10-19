@@ -210,7 +210,7 @@ static void Test_ZEVars_Version2()
 	for (i32 i = 0; i < numSets; ++i)
 	{
 		ZEVar_List(sets[i]);
-		//ZE_PrintChars(sets[i]->data.start, sets[i]->data.Written(), 16);
+		//ZStr_PrintChars(sets[i]->data.start, sets[i]->data.Written(), 16);
 	}
 	alloc.Free(mem);
 

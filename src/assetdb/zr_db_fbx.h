@@ -112,9 +112,10 @@ static void ZRGL_ExamineFBXFile(ofbx::IScene* fbx)
 }
 #if 1
 static i32 ZRGL_LoadFBX(
-    char* path, i32* vertexCount, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)
+    char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose,
+	MeshData* meshData)
 {
-    ZE_ASSERT(vertexCount != NULL, "No pointer to pass out vertex count provided")
+    ZE_ASSERT(meshData != NULL, "No meshData result provided")
     if (reScale.x == 0 || reScale.y == 0 || reScale.z == 0)
     {
         reScale.x = 1;
@@ -144,7 +145,6 @@ static i32 ZRGL_LoadFBX(
     const i32 meshIndex = 0;
     const ofbx::Mesh* mesh = s->getMesh(meshIndex);
     i32 numVerts = mesh->getGeometry()->getVertexCount();
-    *vertexCount = numVerts;
 
     //////////////////////////////////////////
     // Extract data
@@ -206,11 +206,11 @@ static i32 ZRGL_LoadFBX(
     // ZRMeshHandles handles = ZRGL_CreateVAOf(
     //     numVerts, (Vec3*)verts, (Vec2*)uvs, (Vec3*)normals, 0, bVerbose
     // );
-    MeshData meshData;
-    meshData.numVerts = numVerts;
-    meshData.verts = (f32*)verts;
-    meshData.uvs = (f32*)uvs;
-    meshData.normals = (f32*)normals;
+    *meshData = {};
+    meshData->numVerts = numVerts;
+    meshData->verts = (f32*)verts;
+    meshData->uvs = (f32*)uvs;
+    meshData->normals = (f32*)normals;
     // Register with asset db
     // ZRDB_RegisterMesh(path, handles, meshData);
 
