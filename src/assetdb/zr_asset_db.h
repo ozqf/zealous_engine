@@ -186,7 +186,7 @@ struct ZRAssetDB
     i32 (*GetNumMaterials)(ZRAssetDB* assetDB);
 
     i32 (*LoadTexture)(ZRAssetDB* assetDB, char* path, i32 bVerbose);
-    i32 (*LoadMeshFromFBX)(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose);
+    i32 (*LoadMeshFromFile)(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose);
     ZRDBMesh* (*LoadMesh)(ZRAssetDB* assetDB, char* name, const MeshData data, i32 bVerbose);
 	ZRDBMesh* (*CreateEmptyMesh)(ZRAssetDB* assetDB, char* name, i32 maxVerts);
 

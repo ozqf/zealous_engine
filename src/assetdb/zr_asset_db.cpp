@@ -138,8 +138,8 @@ extern "C" ZRAssetDB* ZRDB_Create(ZE_FatalErrorFunction errorHandler)
     db->header.CreateMaterial = ZRDB_CreateMaterial;
 
     // Load
-    db->header.LoadMesh = ZRDB_LoadMesh;
-    db->header.LoadMeshFromFBX = ZRDB_LoadMeshFromFBX;
+    db->header.LoadMesh = ZRDB_LoadMeshFromData;
+    db->header.LoadMeshFromFile = ZRDB_LoadMeshFromFile;
     db->header.LoadTexture = ZRDB_LoadTexture;
 	db->header.CreateEmptyMesh = ZRDB_CreateEmptyMesh;
 

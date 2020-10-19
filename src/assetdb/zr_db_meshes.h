@@ -125,15 +125,31 @@ static ZRDBMesh* ZRDB_CreateEmptyMesh(ZRAssetDB* assetDB, char* name, i32 maxVer
  * Takes mesh data, clones it and creates a new mesh entry
  * for when mesh data comes from an external source like a file
  */
-static ZRDBMesh* ZRDB_LoadMesh(ZRAssetDB* assetDB, char* name, const MeshData data, i32 bVerbose)
+static ZRDBMesh* ZRDB_LoadMeshFromData(
+    ZRAssetDB* assetDB, char* name, const MeshData data, i32 bVerbose)
 {
 	const MeshData clone = ZRDB_CopyMeshData(data);
 	ZRDBMesh* mesh = ZRDB_AddMesh(assetDB, name, clone, bVerbose);
 	return mesh;
 }
 
-static i32 ZRDB_LoadMeshFromFBX(ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)
+static i32 ZRDB_LoadMeshFromFile(
+    ZRAssetDB* assetDB, char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose)
 {
+    i32 pathLen = ZE_StrLen(path);
+    if (ZE_StrCheckExtension(path, pathLen, ".obj"))
+    {
+        
+    }
+    else if (ZE_StrCheckExtension(path, pathLen, ".fbx"))
+    {
+        
+    }
+    else
+    {
+        ZE_ASSERT(0, "Unknown model file extension");
+    }
+
     ILLEGAL_CODE_PATH
     // TODO resurrect old FBX load code in zr_db_fbx.h
     return 0;
