@@ -44,6 +44,30 @@ internal i32 ZE_CountSpecificChar(const char* str, char c)
     return count;
 }
 
+internal i32 ZE_StrCheckExtension(
+    const char* str, const i32 strLen, const char* extension)
+{
+    if (str == NULL) { return NO; }
+    if (extension == NULL) { return NO; }
+    if (strLen <= 0) { return NO; }
+    i32 i = strLen - 1;
+    char c;
+    for (;;)
+    {
+        c = str[i];
+        if (c == '.')
+        {
+            const char* start = str + (i);
+            // printf("Compare extensions: %s vs ext %s\n",
+            //     start, extension);
+            return (ZE_CompareStringsNocase(start, extension) == 0);
+        }
+        else if (i < 0) { break; }
+        i--;
+    }
+    return NO;
+}
+
 /**
  * Find string tokens:
  * > Copies source into dest, placing '\0' at the end of every token

@@ -85,6 +85,39 @@ static void Test_StringMeasure()
 	printf("Measured \"%s\" as %d chars\n", str, lineLen);
 }
 
+static void Test_CompareExtensions(
+	const char* testStr, const char* testExt, i32 bExpected, i32* numTests, i32* passes)
+{
+	*numTests += 1;
+	i32 bResult = ZE_StrCheckExtension(testStr, ZE_StrLen(testStr), testExt);
+	if (bResult != bExpected)
+	{
+		printf("TEST FAILED - expected %d got %d\n\tStr: %s, test extension %s\n",
+			bExpected, bResult, testStr, testExt);
+	}
+	else
+	{
+		*passes += 1;
+	}
+}
+
+static i32 Test_CheckExtension()
+{
+	printf("\n--- Test Check Extension ---\n");
+	i32 numTests = 0;
+	i32 passes = 0;
+	Test_CompareExtensions("file.txt", ".txt", 1, &numTests, &passes);
+	Test_CompareExtensions("file.tXT", ".Txt", 1, &numTests, &passes);
+	Test_CompareExtensions("file.obj", ".Txt", 0, &numTests, &passes);
+	Test_CompareExtensions("file.long_extension", ".long_extension", 1, &numTests, &passes);
+	Test_CompareExtensions("some.file.txt", ".txt", 1, &numTests, &passes);
+	Test_CompareExtensions("no_extension", ".txt", 0, &numTests, &passes);
+	Test_CompareExtensions(".only_ext", ".only_ext", 1, &numTests, &passes);
+	Test_CompareExtensions("blank_extension", "", 0, &numTests, &passes);
+	printf("%d of %d passed\n", passes, numTests);
+	return 0;
+}
+
 static void Test_ReadTokens()
 {
 	const i32 bufSize = 512;
@@ -359,8 +392,11 @@ static void Test_StringFunctions()
 	Test_FileTokenise();
 	Test_StringStack();
 	#endif
+	Test_CheckExtension();
+	#if 0
 	Test_ReadMapFormat();
 	Test_ReadIni();
+	#endif
 	printf("\tDone\n");
 }
 
