@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "tests/ze_tests.h"
 #include "zt_monitor.h"
+#include "zt_packer.h"
 
 #include "../ze_common/ze_common_full.h"
 
@@ -16,6 +17,7 @@ void main(int argc, char** argv)
 	if (argc < 2 || ZStr_Compare("test", argv[1]) == 0)
 	{
 		ZETests_Run();
+		ZPack_Test();
 	}
 	else if (ZStr_Compare("monitor", argv[1]) == 0)
 	{

@@ -254,7 +254,7 @@ static void Test_ReadIni()
 
 static void Test_ReadObjFace(const char* a, const char* b, const char* c)
 {
-    printf("Read face %s, %s, %s\n", a, b, c);
+    //printf("Read face %s, %s, %s\n", a, b, c);
 }
 
 static void Test_ReadObjectModelFile()
