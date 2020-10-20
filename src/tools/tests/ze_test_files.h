@@ -252,6 +252,11 @@ static void Test_ReadIni()
 // Read .obj model file
 ////////////////////////////////////////////////////////
 
+static void Test_ReadObjFace(const char* a, const char* b, const char* c)
+{
+    printf("Read face %s, %s, %s\n", a, b, c);
+}
+
 static void Test_ReadObjectModelFile()
 {
     const i32 bufSize = 512;
@@ -297,6 +302,8 @@ static void Test_ReadObjectModelFile()
         }
         else if (ZStr_Compare(tokens[0], "v") == 0)
         {
+            // eg
+            // v 2.070267 -0.157868 0.392587
             numVerts++;
             if (numTokens != 4)
             { printf("Bad token count on line %d\n", lineCount); continue; }
@@ -307,12 +314,17 @@ static void Test_ReadObjectModelFile()
         }
         else if (ZStr_Compare(tokens[0], "f") == 0)
         {
+            // eg
+            // f 7/15/11 14/25/11 8/16/11
             numFaces++;
             if (numTokens != 4)
             { printf("Bad token count on line %d\n", lineCount); continue; }
+            Test_ReadObjFace(tokens[1], tokens[2], tokens[3]);
         }
         else if (ZStr_Compare(tokens[0], "vt") == 0)
         {
+            // eg
+            // vt 0.625000 0.750000
             numUVs++;
             if (numTokens != 3)
             { printf("Bad token count on line %d\n", lineCount); continue; }
@@ -322,6 +334,8 @@ static void Test_ReadObjectModelFile()
         }
         else if (ZStr_Compare(tokens[0], "vn") == 0)
         {
+            // eg
+            // vn -0.7985 0.6019 0.0000
             numNormals++;
             if (numTokens != 4)
             { printf("Bad token count on line %d\n", lineCount); continue; }
