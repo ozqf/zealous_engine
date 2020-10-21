@@ -46,7 +46,7 @@ internal i32 ZE_FindParamIndex(
         if (!ZStr_Compare(txt, query))
         {
             if (trailingTokens <= 0) { return i; }
-            i32 remainingTokens = (numTokens) - (i = 1);
+            i32 remainingTokens = (numTokens) - i;
             if (remainingTokens >= trailingTokens)
             {
                 return i;

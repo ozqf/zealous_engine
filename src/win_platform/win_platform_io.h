@@ -81,6 +81,10 @@ internal void WinIO_GatherDataFiles(const char *dir)
                 if (WinIO_OpenDataFile(dataFilePath, handle))
                 {
                     g_nextDataFile++;
+                    if (g_nextDataFile >= WIN_MAX_FILE_IO_HANDLES)
+                    {
+                        break;
+                    }
                 }
             }
         }

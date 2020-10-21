@@ -14,9 +14,13 @@ static void ZPack_PrintStrings(ZEBuffer* strings)
 	}
 }
 
-static void ZPack_WriteDataFile(const char* sourceDir, ZEBuffer* paths, i32 numPaths)
+static void ZPack_WriteDataFile(
+	const char* sourceDir,
+	const char* outputName,
+	ZEBuffer* paths,
+	i32 numPaths)
 {
-	ZE_BUILD_STRING(fileName, Z_MAX_PATH, "%s.dat", sourceDir);
+	ZE_BUILD_STRING(fileName, Z_MAX_PATH, "%s.dat", outputName);
 	
 	DataFileItem* items = (DataFileItem*)malloc(numPaths * sizeof(DataFileItem));
 	FILE* f;
@@ -195,6 +199,38 @@ static void ZPack_ScanDataFile(const char* path)
 	fclose(f);
 }
 
+internal void ZPack_Pack(const char* dirName, const char* outputName)
+{
+	printf("Packing %s into %s.dat\n", dirName, outputName);
+	const i32 capacity = MegaBytes(2);
+	ZEBuffer buf = Buf_FromMalloc(malloc(capacity), capacity);
+	i32 numFiles = ZPack_FindAllFilesInDir(dirName, &buf);
+	printf("Found %d files in %s\n", numFiles, dirName);
+	printf("%d path bytes interned\n", buf.Written());
+	ZPack_WriteDataFile(dirName, outputName, &buf, numFiles);
+	ZPack_ScanDataFile("base.dat");
+}
+
+extern "C" void ZPack_Run(i32 argc, char** argv)
+{
+	printf("=== ZEALOUS PACKER ===\n");
+	i32 tokenIndex;
+	tokenIndex = ZE_FindParamIndex((char**)argv, argc, "-scan", 1);
+	if (tokenIndex >= 0)
+	{
+		printf("Scan token at %d\n", tokenIndex);
+		ZPack_ScanDataFile(argv[tokenIndex + 1]);
+		return;
+	}
+	tokenIndex = ZE_FindParamIndex((char**)argv, argc, "-pack", 2);
+	if (tokenIndex >= 0)
+	{
+		ZPack_Pack(argv[tokenIndex + 1], argv[tokenIndex + 2]);
+		return;
+	}
+	printf("Packer found no action to perform...\n");
+}
+
 extern "C" void ZPack_Test()
 {
 	printf("=== TEST ZEALOUS PACKER ===\n");
@@ -204,6 +240,6 @@ extern "C" void ZPack_Test()
 	i32 numFiles = ZPack_FindAllFilesInDir(dirName, &buf);
 	printf("Found %d files in %s\n", numFiles, dirName);
 	printf("%d path bytes interned\n", buf.Written());
-	ZPack_WriteDataFile(dirName, &buf, numFiles);
+	ZPack_WriteDataFile(dirName, dirName, &buf, numFiles);
 	ZPack_ScanDataFile("base.dat");
 }

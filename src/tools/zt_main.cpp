@@ -7,10 +7,10 @@
 
 void main(int argc, char** argv)
 {
-	printf("Hello, World!\nArgs (%d): ", argc);
+	printf("Zealous Tools\nArgs (%d): ", argc);
 	for (i32 i = 0; i < argc; ++i)
 	{
-		printf("%s, ", argv[i]);
+		printf("%d: %s, ", i, argv[i]);
 	}
 	printf("\n");
 
@@ -22,6 +22,10 @@ void main(int argc, char** argv)
 	else if (ZStr_Compare("monitor", argv[1]) == 0)
 	{
 		ZT_MonitorStart();
+	}
+	else if (ZStr_Compare("packer", argv[1]) == 0)
+	{
+		ZPack_Run(argc, argv);
 	}
 	else
 	{
