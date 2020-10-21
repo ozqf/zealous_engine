@@ -808,10 +808,11 @@ int CALLBACK WinMain(
 	// config vars..?
     ReadCommandLine(lpCmdLine);
 
+    WinIO_Init(ZE_DEFAULT_APP_DIR, g_appFolderBuf);
+
 	g_config = ZEIni_Create();
 	ReadConfigFile(g_config, g_appFolderBuf);
-
-
+    
 	Win_InitTimer();
 
     // Create Mutexes

@@ -26,6 +26,39 @@ struct ZEFileIO
     void (*WriteToFileAtOffset)(i32 handle, u8* bytes, i32 numBytes, i32 offset);
 };
 
+#define Z_MAX_PATH 260
+/*
+-- Header --
+PACK
+50 (offset to file list)
+3 (num files)
+
+-- Strings --
+
+-- Files --
+
+-- File List --
+
+*/
+
+struct DataFileHeader
+{
+	char magic[4];
+	i32 version;
+	i32 stringsOffset;
+	i32 stringBytes;
+	i32 itemsOffset;
+	i32 numItems;
+};
+
+struct DataFileItem
+{
+	i32 pathHash;
+	i32 pathOffset;
+	i32 fileOffset;
+	i32 fileSize;
+};
+
 ////////////////////////////////////////////
 // Ultra basic tracking of memory allocations
 ////////////////////////////////////////////

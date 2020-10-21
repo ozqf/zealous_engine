@@ -44,6 +44,9 @@ internal i32 ZStr_CountSpecificChar(const char* str, char c)
     return count;
 }
 
+/*
+eg .png .dat .obj etc
+*/
 internal i32 ZStr_CheckExtension(
     const char* str, const i32 strLen, const char* extension)
 {
