@@ -44,8 +44,9 @@ struct ZEIniFile
 			return hash;
 		}
 		ZEIntern* header = ZEInternString(strTable, &this->strData, sectionName);
-		i32 headerOffset = (u8*)header - this->strData.start;
-		strTable->Insert(header->hash, header->headerOffset);
+		//i32 headerOffset = (u8*)header - this->strData.start;
+		// TODO: Do table insert in ZEInternString
+		//strTable->Insert(header->hash, header->headerOffset);
 		return header->hash;
 	}
 	

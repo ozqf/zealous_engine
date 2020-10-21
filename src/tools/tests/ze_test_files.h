@@ -360,9 +360,9 @@ static void Test_ReadObjectModelFile()
 static void Test_FileLoading()
 {
     printf("\n=== TEST FILE LOADING ===\n");
-    #if 0
+    #if 1
 	Test_ReadMapFormat();
 	Test_ReadIni();
+	Test_ReadObjectModelFile();
 	#endif
-    Test_ReadObjectModelFile();
 }
