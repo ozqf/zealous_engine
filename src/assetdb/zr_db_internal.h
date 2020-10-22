@@ -19,6 +19,8 @@ struct ZRAssetDBData
     // public head contains function pointers
     ZRAssetDB header;
     //ZRAssetUploader uploader;
+    // external links
+    ZEFileIO files;
     
     ZEBuffer strings;
 	MallocList allocs;

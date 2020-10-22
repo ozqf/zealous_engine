@@ -81,7 +81,9 @@ internal void ZRDB_VidRestart(ZRAssetDB* assetDb)
 // Create
 ///////////////////////////////////////////////////////////////////////////
 
-extern "C" ZRAssetDB* ZRDB_Create(ZE_FatalErrorFunction errorHandler)
+extern "C" ZRAssetDB* ZRDB_Create(
+	ZE_FatalErrorFunction errorHandler,
+	ZEFileIO files)
 {
 	ZE_SetFatalError(errorHandler);
 	const i32 maxTrackedAllocs = 1024;
@@ -93,6 +95,7 @@ extern "C" ZRAssetDB* ZRDB_Create(ZE_FatalErrorFunction errorHandler)
 	ZE_SET_ZERO(ptr, total)
 	ZRAssetDBData* db = (ZRAssetDBData*)ptr;
 	*db = {};
+	db->files = files;
 
 	void* mallocItems = ptr + spaceForStruct;
 	db->allocs = COM_InitMallocList((MallocItem*)mallocItems, maxTrackedAllocs);

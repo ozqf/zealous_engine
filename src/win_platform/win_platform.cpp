@@ -78,6 +78,7 @@ static ZEDoubleBuffer g_appTextCommands;
 
 static HMODULE g_windowDLL;
 static ze_window_export g_window;
+static ZEFileIO g_files;
 
 static HMODULE g_appDLL;
 static ze_app_export g_app;
@@ -512,13 +513,7 @@ static ze_platform_export Win_BuildExport()
     result.Allocate = PlatformImpl_Allocate;
     result.Free = PlatformImpl_Free;
 
-    result.files.OpenFile = WinIO_OpenFile;
-    result.files.CloseFile = WinIO_CloseFileHandle;
-    result.files.FilePosition = WinIO_FilePosition;
-    result.files.WriteToFile = WinIO_WriteToFile;
-    result.files.StageFile = WinIO_StageFile;
-    result.files.WritePadding = WinIO_WritePadding;
-    result.files.WriteToFileAtOffset = WinIO_WriteToFileAtOffset;
+    result.files = g_files;
 
     result.LockMutex = PlatformImpl_LockMutex;
     result.UnlockMutex = PlatformImpl_UnlockMutex;
@@ -808,11 +803,11 @@ int CALLBACK WinMain(
 	// config vars..?
     ReadCommandLine(lpCmdLine);
 
-    WinIO_Init(ZE_DEFAULT_APP_DIR, g_appFolderBuf);
+    g_files = WinIO_Init(ZE_DEFAULT_APP_DIR, g_appFolderBuf);
 
 	g_config = ZEIni_Create();
 	ReadConfigFile(g_config, g_appFolderBuf);
-    
+
 	Win_InitTimer();
 
     // Create Mutexes
@@ -822,7 +817,7 @@ int CALLBACK WinMain(
     Net_Init();
 
     // alloc asset db
-    g_assets = ZRDB_Create(Win_Error);
+    g_assets = ZRDB_Create(Win_Error, g_files);
 
     // init sound
     i32 sndErr = Snd_Init();

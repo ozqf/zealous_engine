@@ -92,19 +92,6 @@ internal void WinIO_GatherDataFiles(const char *dir)
     FindClose(hFind);
 }
 
-internal void WinIO_Init(const char *baseDir, const char *appDir)
-{
-    ZE_SET_ZERO(g_fileHandles, sizeof(ZEFileIOHandle) * WIN_MAX_FILE_IO_HANDLES);
-
-    if (ZStr_Compare(baseDir, appDir) == 0)
-    {
-        appDir = NULL;
-    }
-
-    WinIO_GatherDataFiles(baseDir);
-    printf("Opened %d data files\n", g_nextDataFile);
-}
-
 /**
  * Returns IO handle id
  */
@@ -279,7 +266,7 @@ internal void WinIO_WriteToFileAtOffset(i32 handle, u8 *bytes, i32 numBytes, i32
     }
 }
 
-internal i32 WinIO_StageFile(const char *path, ZEBuffer *result)
+internal i32 WinIO_StageFile(const char *path, i32 bOnlyPacks, ZEBuffer *result)
 {
     if (path == NULL)
     {
@@ -342,4 +329,27 @@ internal void WinIO_DumpHandles()
         printf("%d: id %d rmode %d, fileptr %d, mem %d bytes at %d\n",
                i, h->id, h->bReadMode, (i32)h->f, h->numBytes, (i32)h->readAlloc);
     }
+}
+
+internal ZEFileIO WinIO_Init(const char *baseDir, const char *appDir)
+{
+    ZE_SET_ZERO(g_fileHandles, sizeof(ZEFileIOHandle) * WIN_MAX_FILE_IO_HANDLES);
+
+    if (ZStr_Compare(baseDir, appDir) == 0)
+    {
+        appDir = NULL;
+    }
+
+    WinIO_GatherDataFiles(baseDir);
+    printf("Opened %d data files\n", g_nextDataFile);
+
+    ZEFileIO files = {};
+    files.OpenFile = WinIO_OpenFile;
+    files.CloseFile = WinIO_CloseFileHandle;
+    files.FilePosition = WinIO_FilePosition;
+    files.WriteToFile = WinIO_WriteToFile;
+    files.StageFile = WinIO_StageFile;
+    files.WritePadding = WinIO_WritePadding;
+    files.WriteToFileAtOffset = WinIO_WriteToFileAtOffset;
+    return files;
 }

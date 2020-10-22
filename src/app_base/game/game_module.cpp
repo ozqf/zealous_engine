@@ -181,7 +181,7 @@ internal i32 Game_StageSaveFile(
 	const char* fileName, ZEFileIO files, i32* handle, ZEBuffer* b, SimSaveFileInfo* fi)
 {
 	*handle = 0;
-	*handle = files.StageFile(fileName, b);
+	*handle = files.StageFile(fileName, NO, b);
 	if (*handle == 0) { return ZE_ERROR_NONE; }
 	// check magic number
 	u8* read = b->GetAtOffset(7);

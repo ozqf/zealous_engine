@@ -208,7 +208,6 @@ internal void ZPack_Pack(const char* dirName, const char* outputName)
 	printf("Found %d files in %s\n", numFiles, dirName);
 	printf("%d path bytes interned\n", buf.Written());
 	ZPack_WriteDataFile(dirName, outputName, &buf, numFiles);
-	ZPack_ScanDataFile("base.dat");
 }
 
 extern "C" void ZPack_Run(i32 argc, char** argv)
@@ -229,6 +228,10 @@ extern "C" void ZPack_Run(i32 argc, char** argv)
 		return;
 	}
 	printf("Packer found no action to perform...\n");
+	printf("Examples: Pack contents of /base/ into file pak01.dat\n");
+	printf("\tzetools packer -pack base pak01\n");
+	printf("Examples: Scan contents of pak01.dat\n");
+	printf("\tzetools packer -scan pak01.dat\n");
 }
 
 extern "C" void ZPack_Test()

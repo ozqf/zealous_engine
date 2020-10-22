@@ -17,7 +17,6 @@ void main(int argc, char** argv)
 	if (argc < 2 || ZStr_Compare("test", argv[1]) == 0)
 	{
 		ZETests_Run();
-		ZPack_Test();
 	}
 	else if (ZStr_Compare("monitor", argv[1]) == 0)
 	{
@@ -30,6 +29,7 @@ void main(int argc, char** argv)
 	else
 	{
 		printf("Unknown mode %s\n", argv[1]);
+		printf("Try zetools test/monitor/packer\n");
 	}
 	printf("ZT - done\n");
 }
