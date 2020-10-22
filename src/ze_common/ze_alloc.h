@@ -20,6 +20,7 @@ struct ZEFileIO
     i32 (*FilePosition)(i32 handle);
     // reading - load an entire file onto heap
     i32 (*StageFile)(const char* path, i32 bOnlyPacks, ZEBuffer* result);
+    void (*FreeStagedFile)(void* ptr);
     // Writing
     void (*WriteToFile)(i32 handle, u8* bytes, i32 numBytes);
     void (*WritePadding)(i32 handle, i32 numBytes, u8 value);

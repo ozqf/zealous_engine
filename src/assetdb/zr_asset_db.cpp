@@ -83,6 +83,7 @@ internal void ZRDB_VidRestart(ZRAssetDB* assetDb)
 
 extern "C" ZRAssetDB* ZRDB_Create(
 	ZE_FatalErrorFunction errorHandler,
+	ZEAllocator alloc,
 	ZEFileIO files)
 {
 	ZE_SetFatalError(errorHandler);
@@ -96,6 +97,9 @@ extern "C" ZRAssetDB* ZRDB_Create(
 	ZRAssetDBData* db = (ZRAssetDBData*)ptr;
 	*db = {};
 	db->files = files;
+	
+	g_files = files;
+	g_alloc = alloc;
 
 	void* mallocItems = ptr + spaceForStruct;
 	db->allocs = COM_InitMallocList((MallocItem*)mallocItems, maxTrackedAllocs);

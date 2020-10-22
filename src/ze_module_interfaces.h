@@ -54,11 +54,9 @@ struct ze_platform_export
     void (*DebugBreak)();
 
     f64 (*QueryClock)();
-    void* (*Allocate)(i32 numBytes);
-    void (*Free)(void* ptr);
 
     ZEFileIO files;
-	
+	ZEAllocator alloc;
 	ZEIniFile* (*GetConfig)();
 
     // Shared asset manager

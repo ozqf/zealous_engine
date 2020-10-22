@@ -78,7 +78,9 @@ static ZEDoubleBuffer g_appTextCommands;
 
 static HMODULE g_windowDLL;
 static ze_window_export g_window;
+
 static ZEFileIO g_files;
+static ZEAllocator g_alloc;
 
 static HMODULE g_appDLL;
 static ze_app_export g_app;
@@ -304,7 +306,7 @@ static void PlatformImpl_UnlockMutex(i32 index, i32 tag)
 	}
 }
 
-static void* PlatformImpl_Allocate(i32 numBytes)
+static void* PlatformImpl_Allocate(size_t numBytes)
 {
     // TODO: Track allocations!
     return malloc(numBytes);
@@ -313,6 +315,11 @@ static void* PlatformImpl_Allocate(i32 numBytes)
 static void PlatformImpl_Free(void* ptr)
 {
     free(ptr);
+}
+
+static void* PlatformImpl_Realloc(void* ptr, size_t size)
+{
+    return realloc(ptr, size);
 }
 
 static i32 PlatformImpl_AppWriteDraw(void* zrViewFrame)
@@ -510,10 +517,9 @@ static ze_platform_export Win_BuildExport()
     result.SetMouseCaptured = PlatformImpl_SetMouseCaptured;
 
     result.QueryClock = PlatformImpl_QueryClock;
-    result.Allocate = PlatformImpl_Allocate;
-    result.Free = PlatformImpl_Free;
 
     result.files = g_files;
+    result.alloc = g_alloc;
 
     result.LockMutex = PlatformImpl_LockMutex;
     result.UnlockMutex = PlatformImpl_UnlockMutex;
@@ -803,6 +809,11 @@ int CALLBACK WinMain(
 	// config vars..?
     ReadCommandLine(lpCmdLine);
 
+    // init allocator, will be passed to everything else
+    g_alloc.Allocate = PlatformImpl_Allocate;
+    g_alloc.Realloc = PlatformImpl_Realloc;
+    g_alloc.Free = PlatformImpl_Free;
+    
     g_files = WinIO_Init(ZE_DEFAULT_APP_DIR, g_appFolderBuf);
 
 	g_config = ZEIni_Create();
@@ -816,8 +827,7 @@ int CALLBACK WinMain(
     // init network incase it is needed
     Net_Init();
 
-    // alloc asset db
-    g_assets = ZRDB_Create(Win_Error, g_files);
+    g_assets = ZRDB_Create(Win_Error, g_alloc, g_files);
 
     // init sound
     i32 sndErr = Snd_Init();

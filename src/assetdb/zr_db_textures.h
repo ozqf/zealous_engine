@@ -3,6 +3,11 @@
 
 // Asset libraries:
 #define STB_IMAGE_IMPLEMENTATION
+
+#define STBI_MALLOC(sz) g_alloc.Allocate(sz)
+#define STBI_REALLOC(p, sz) g_alloc.Realloc(p, sz)
+#define STBI_FREE(p) g_alloc.Free(p)
+
 #include "../../lib/stb_image.h"
 #include "../../lib/openfbx/ofbx.h"
 
@@ -26,8 +31,8 @@ static i32 ZRDB_RegisterTexture(
     ZRDB_CAST_TO_INTERNAL(assetDB, db)
     
     i32 index = db->numTextures++;
-    printf("ZRDB - registered texture %d: %s, handle %d\n",
-        index, fileName, apiHandle);
+    printf("ZRDB - registered texture %d: %s, %d/%d, handle %d\n",
+        index, fileName, width, height, apiHandle);
     ZRDBTexture* handle = &db->textures[index];
     *handle = {};
     handle->header.id = db->nextId;
@@ -77,23 +82,24 @@ static i32 ZRDB_GetTextureHandleByIndex(ZRAssetDB* assetDB, i32 index)
 }
 
 static ColourU32* ZRDB_LoadTextureToHeap(
-    char* path, i32 bVerbose, int* x, int* y, i32 bFlipY)
+    ZEFileIO* files,
+    char* path,
+    i32 bVerbose,
+    int* x,
+    int* y,
+    i32 bFlipY)
 {
     ZEBuffer b;
-    ErrorCode err = ZRDB_StageRawFile(path, &b);
-    if (err != ZE_ERROR_NONE)
+    if (files->StageFile(path, NO, &b) == 0)
     {
         return NULL;
     }
-    
     // Load to heap:
     i32 comp;
     stbi_set_flip_vertically_on_load(bFlipY);
     u8* tex = stbi_load_from_memory(
         b.start, b.capacity, x, y, &comp, STBI_rgb_alpha);
-    if (bVerbose == YES)
-    { printf("Loaded img res %d, %d - comp %d\n", *x, *y, comp); }
-    free(b.start);
+    files->FreeStagedFile(b.start);
     return (ColourU32*)tex;
 }
 
@@ -104,18 +110,20 @@ static i32 ZRDB_UploadTexture(ZRDBTexture* tex)
 
 static i32 ZRDB_LoadTexture(ZRAssetDB* assetDB, char* path, i32 bVerbose)
 {
+    printf("ZRDB load texture %s verbose: %d\n", path, bVerbose);
 	ZRDB_CAST_TO_INTERNAL(assetDB, db)
-	ZEBuffer buf;
-	if (ZRDB_StageRawFile(path, &buf) != ZE_ERROR_NONE)
-	{
-		return 0;
-	}
 	ColourU32* pixels;
 	i32 x, y;
 	u32 handle = 0;
-    pixels = ZRDB_LoadTextureToHeap(path, bVerbose, &x, &y, YES);
+    pixels = ZRDB_LoadTextureToHeap(&db->files, path, bVerbose, &x, &y, YES);
+    if (pixels == NULL)
+    {
+        printf("\tTex load failed!\n");
+        return 0;
+    }
 	//db->uploader.UploadTexture(pixels, x, y, &handle);
-	ZRDB_RegisterTexture(assetDB, path, pixels, buf.capacity, x, y, handle);
+    i32 dataSize = sizeof(ColourU32) * (x * y);
+	ZRDB_RegisterTexture(assetDB, path, pixels, dataSize, x, y, handle);
     return 0;
 }
 

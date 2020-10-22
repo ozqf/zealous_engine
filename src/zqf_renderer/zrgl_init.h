@@ -314,6 +314,7 @@ extern "C" void ZRGL_UpdateStats(f64 swapMS, f64 frameMS)
 static void ZR_UploadDBTex(ZRDBTexture* tex)
 {
     u32 handle = 0;
+    printf("Uploading tex %s\n", tex->header.fileName);
     ZRGL_UploadTexture((u8*)tex->data, tex->width, tex->height, &handle);
     tex->apiHandle = handle;
     tex->header.bIsUploaded = YES;

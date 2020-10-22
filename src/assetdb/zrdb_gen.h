@@ -147,7 +147,7 @@ static void ZRDB_GenerateExperiements(ZRAssetDB* db)
  */
 static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 {
-    i32 bVerbose = NO;
+    i32 bVerbose = YES;
 	MeshData* d;
 
 	d = ZR_Embed_Cube();

@@ -139,14 +139,15 @@ static i32 ZRDB_LoadMeshFromFile(
     i32 pathLen = ZStr_Len(path);
     if (ZStr_CheckExtension(path, pathLen, ".obj"))
     {
-        
+        ILLEGAL_CODE_PATH
     }
     else if (ZStr_CheckExtension(path, pathLen, ".fbx"))
     {
-        ILLEGAL_CODE_PATH
+        ZRDB_CAST_TO_INTERNAL(assetDB, db)
         // TODO resurrect old FBX load code in zr_db_fbx.h
         MeshData data;
-		i32 err = ZRGL_LoadFBX(path, reScale, bSwapYZ, YES, &data);
+		i32 err = ZRGL_LoadFBX(
+            &db->files, path, reScale, bSwapYZ, YES, &data);
 		if (err == ZE_ERROR_NONE)
 		{
 			ZRDB_AddMesh(assetDB, path, data, NO);
@@ -156,7 +157,7 @@ static i32 ZRDB_LoadMeshFromFile(
     {
         ZE_ASSERT(0, "Unknown model file extension");
     }
-
+    //ILLEGAL_CODE_PATH
     return 0;
 }
 

@@ -128,7 +128,8 @@ static void error_callback(int error, const char* description)
 
 static void window_close_callback(GLFWwindow* window)
 {
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
+    g_platform.EnqueueTextCommand("EXIT");
+    //glfwSetWindowShouldClose(window, GLFW_TRUE);
     // TODO: Handle multithreading here for shutting down full app:
     /*
     if (g_app.sentinel == ZE_SENTINEL)

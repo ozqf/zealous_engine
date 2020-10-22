@@ -49,7 +49,9 @@ static i32 ZRDB_RegisterTexture(
     ZRAssetDB* assetDB, char* fileName, void* data, i32 dataSize, i32 width, i32 height, i32 apiHandle);
 static ZRDBTexture* ZRDB_GenBlankTexture(ZRAssetDB* handle, char* name, i32 w, i32 h, ColourU32 fill);
 
-
+// Global for using it in stbi malloc/free etc
+static ZEFileIO g_files;
+static ZEAllocator g_alloc;
 
 ///////////////////////////////////////////////////////////////////////////
 // Shared utility functions
@@ -74,28 +76,9 @@ static u32 ZRDB_MeasureFile(char* path)
  * Load an entire file, unaltered, into memory.
  * Must be freed by the caller after use
  */
-static i32 ZRDB_StageRawFile(char* path, ZEBuffer* dest)
+static i32 ZRDB_StageRawFile(ZEFileIO* files, char* path, ZEBuffer* dest)
 {
-    FILE* f;
-    i32 err = fopen_s(&f, path, "rb");
-    if (err != 0)
-    {
-        printf("FAILED: Could not open file \"%s\" for reading\n", path);
-        return ZE_ERROR_NOT_FOUND;
-    }
-    fseek(f, 0, SEEK_END);
-    i32 size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    void* mem = malloc(size);
-    if (mem == NULL)
-    {
-        return ZE_ERROR_ALLOCATION_FAILED;
-    }
-    *dest = Buf_FromMalloc(mem, size);
-    fread((void*)dest->start, dest->capacity, 1, f);
-    fclose(f);
-    //printf("  staged \"%s\" (%d KB)\n", size / 1024);
-    return ZE_ERROR_NONE;
+    return files->StageFile(path, NO, dest);
 }
 
 #define ZRDB_CAST_TO_INTERNAL(assetDBHeader, newVarName) \

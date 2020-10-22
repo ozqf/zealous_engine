@@ -112,7 +112,11 @@ static void ZRGL_ExamineFBXFile(ofbx::IScene* fbx)
 }
 #if 1
 static i32 ZRGL_LoadFBX(
-    char* path, Vec3 reScale, i32 bSwapYZ, i32 bVerbose,
+    ZEFileIO* files,
+    char* path,
+    Vec3 reScale,
+    i32 bSwapYZ,
+    i32 bVerbose,
 	MeshData* meshData)
 {
     ZE_ASSERT(meshData != NULL, "No meshData result provided")
@@ -127,7 +131,7 @@ static i32 ZRGL_LoadFBX(
     //////////////////////////////////////////
     if (bVerbose == YES) { printf("Loading FBX file: \"%s\"\n", path); }
     ZEBuffer b;
-    ErrorCode err = ZRDB_StageRawFile(path, &b);
+    ErrorCode err = ZRDB_StageRawFile(files, path, &b);
     if (err != ZE_ERROR_NONE)
     {
         printf("  Error %d reading \"%s\"\n", err, path);
@@ -201,21 +205,11 @@ static i32 ZRGL_LoadFBX(
         ZRGL_ExamineFBXFile(s);
     }
     s->destroy();
-
-    // Upload
-    // ZRMeshHandles handles = ZRGL_CreateVAOf(
-    //     numVerts, (Vec3*)verts, (Vec2*)uvs, (Vec3*)normals, 0, bVerbose
-    // );
     *meshData = {};
     meshData->numVerts = numVerts;
     meshData->verts = (f32*)verts;
     meshData->uvs = (f32*)uvs;
     meshData->normals = (f32*)normals;
-    // Register with asset db
-    // ZRDB_RegisterMesh(path, handles, meshData);
-
-	// TODO: Function does not have a reference to a current asset db yet
-	// ZRDB_LoadMesh(db...)
     return 0;
 }
 #endif

@@ -266,6 +266,12 @@ internal void WinIO_WriteToFileAtOffset(i32 handle, u8 *bytes, i32 numBytes, i32
     }
 }
 
+internal void WinIO_FreeStagedFile(void* ptr)
+{
+    // TODO record staged files and check release here
+    free(ptr);
+}
+
 internal i32 WinIO_StageFile(const char *path, i32 bOnlyPacks, ZEBuffer *result)
 {
     if (path == NULL)
@@ -277,7 +283,6 @@ internal i32 WinIO_StageFile(const char *path, i32 bOnlyPacks, ZEBuffer *result)
         return WIN_NULL_FILE_IO_HANDLE;
     }
 #if 1
-    printf("WIN - stage file %s\n", path);
     for (i32 i = 0; i < WIN_MAX_FILE_IO_HANDLES; ++i)
     {
         if (g_fileHandles[i].id != WIN_NULL_FILE_IO_HANDLE)
@@ -309,6 +314,7 @@ internal i32 WinIO_StageFile(const char *path, i32 bOnlyPacks, ZEBuffer *result)
         result->cursor = result->start + h->numBytes;
         fclose(f);
         h->f = NULL;
+        printf("WIN - staged file %s (%d bytes)\n", path, result->Written());
         return h->id;
     }
     printf("WIN no file handle to stage %s\n", path);
@@ -349,6 +355,7 @@ internal ZEFileIO WinIO_Init(const char *baseDir, const char *appDir)
     files.FilePosition = WinIO_FilePosition;
     files.WriteToFile = WinIO_WriteToFile;
     files.StageFile = WinIO_StageFile;
+    files.FreeStagedFile = WinIO_FreeStagedFile;
     files.WritePadding = WinIO_WritePadding;
     files.WriteToFileAtOffset = WinIO_WriteToFileAtOffset;
     return files;

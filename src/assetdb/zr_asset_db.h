@@ -205,7 +205,8 @@ assetDbPtr->GetMaterialByName(##assetDbPtr##, ##matNameChars##)
 #define ZRDB_GET_MESH_BY_NAME(assetDbPtr, matNameChars) \
 assetDbPtr->GetMeshByName(##assetDbPtr##, ##matNameChars##)
 
-extern "C" ZRAssetDB* ZRDB_Create(ZE_FatalErrorFunction errorHandler, ZEFileIO files);
+extern "C" ZRAssetDB* ZRDB_Create(
+	ZE_FatalErrorFunction errorHandler, ZEAllocator alloc, ZEFileIO files);
 //extern "C" void ZRDB_AttachUploader(ZRAssetDB* assetDB, ZRAssetUploader uploader);
 extern "C" void ZRDB_PrintManifest(ZRAssetDB* assetDB);
 #endif // ZR_ASSET_DB_H
