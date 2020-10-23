@@ -9,7 +9,6 @@
 
 //#define SIM_USE_PHYSICS_ENGINE
 
-
 #define SIM_SAVE_MAGIC_STRING "SIM_SAV"
 #define SIM_SAVE_SENTINEL ZE_SENTINEL_B
 
@@ -143,6 +142,7 @@ typedef u8 simFactoryType;
 
 #include "sim_types.h"
 #include "sim_command_types.h"
+#include "sim_assets.h"
 
 #define SIM_DEFINE_ENT_UPDATE_FN(updateFuncName) internal void \
     updateFuncName##(SimScene* sim, SimEntity* ent, timeFloat deltaTime, i32 bIsServer)

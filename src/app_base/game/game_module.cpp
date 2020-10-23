@@ -11,6 +11,10 @@ extern "C" i32 Game_Init(ZE_FatalErrorFunction fatalFunc)
 	// prepare alloc track
 	g_mallocs = COM_InitMallocList(g_mallocItems, GAME_MAX_MALLOCS);
 
+	// setup assets
+	ZRAssetDB* db = App_GetAssetDB();
+	
+
 	// allocate sim
 	i32 entBytes = Sim_CalcEntityArrayBytes(GAME_MAX_ENTS);
 	SimEntity* ents = (SimEntity*)COM_Malloc(&g_mallocs, entBytes, 0, "Sim Ents");
@@ -27,8 +31,8 @@ extern "C" i32 Game_Init(ZE_FatalErrorFunction fatalFunc)
 	g_gameBuf.b = Buf_FromBytes((u8*)ptr, pendingCmdBytes);
 
 	// sub modules
-	CL_Init(fatalFunc, App_GetAssetDB());
-	SV_Init(fatalFunc, App_GetAssetDB());
+	CL_Init(fatalFunc, db);
+	SV_Init(fatalFunc, db);
 
 	printf("--- Game Init Voxel World test ---\n");
 	VW_Test();

@@ -1,7 +1,8 @@
 #ifndef ZE_MODULE_INTERFACES_H
 #define ZE_MODULE_INTERFACES_H
 
-#include "../ze_common/ze_common_full.h"
+#include "ze_common/ze_common_full.h"
+#include "assetdb/zr_asset_db.h"
 
 // timing information given to app each tick
 struct app_frame_info
@@ -60,7 +61,7 @@ struct ze_platform_export
 	ZEIniFile* (*GetConfig)();
 
     // Shared asset manager
-    void* (*GetAssetDB)();
+    ZRAssetDB* (*GetAssetDB)();
     void (*EnqueueTextCommand)(const char* str);
     void (*GetCmdLine)(i32* argc, char*** argv);
 

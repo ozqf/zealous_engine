@@ -319,7 +319,7 @@ static void ZRGL_ClearColourDefault()
 
 static ZRAssetDB* AssetDb()
 {
-    return (ZRAssetDB*)g_platform.GetAssetDB();
+    return g_platform.GetAssetDB();
 }
 
 ///////////////////////////////////////////////////////////

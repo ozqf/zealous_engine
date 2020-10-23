@@ -300,7 +300,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
     uploader.UploadTexture = ZRGL_UploadTexture;
     uploader.UploadMesh = ZRGL_UploadMesh;
 
-    ZRDB_AttachUploader((ZRAssetDB*)g_platform.GetAssetDB(), uploader);
+    ZRDB_AttachUploader(g_platform.GetAssetDB(), uploader);
     #endif
     return ZE_ERROR_NONE;
 }

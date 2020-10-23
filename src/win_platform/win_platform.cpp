@@ -265,7 +265,7 @@ static void PlatformImpl_DebugBreak()
     DebugBreak();
 }
 
-static void* PlatformImpl_GetAssetDB()
+static ZRAssetDB* PlatformImpl_GetAssetDB()
 {
     return g_assets;
 }

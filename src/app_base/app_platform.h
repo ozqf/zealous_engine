@@ -47,7 +47,7 @@ ScreenInfo App_GetScreenInfo()
 extern "C"
 ZRAssetDB* App_GetAssetDB()
 {
-    ZRAssetDB* db = (ZRAssetDB*)g_platform.GetAssetDB();
+    ZRAssetDB* db = g_platform.GetAssetDB();
     // TODO: Handle this better.
     ZE_ASSERT(db != NULL, "Asset DB is null");
     return db;
@@ -136,7 +136,7 @@ internal i32  AppImpl_Init()
     //App_Win32_AttachErrorHandlers();
 	ZE_SetFatalError(App_Fatal);
 
-    ZRAssetDB* assets = (ZRAssetDB*)g_platform.GetAssetDB();
+    ZRAssetDB* assets = g_platform.GetAssetDB();
     if (assets != NULL)
     {
         printf("APP - Got asset DB\n");

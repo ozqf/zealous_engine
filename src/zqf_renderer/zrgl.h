@@ -96,7 +96,7 @@ struct ZRPlatform
     double (*QueryClock)();
     // void* (*Allocate)(i32 numBytes);
     // void (*Free)(void* ptr);
-    void* (*GetAssetDB)();
+    ZRAssetDB* (*GetAssetDB)();
     void (*DebugBreak)();
 };
 

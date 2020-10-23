@@ -122,7 +122,7 @@ static void Window_Error(const char* msg)
 // Create debug console display screen
 static void Window_InitConsoleScreen()
 {
-    ZUI_Init(Window_Error, (ZRAssetDB*)g_platform.GetAssetDB());
+    ZUI_Init(Window_Error, g_platform.GetAssetDB());
     g_consoleScene = {};
 	g_consoleScene.objects = g_consoleUIObjs;
 	g_consoleScene.maxObjects = 2;
@@ -245,7 +245,7 @@ static void Window_Restart()
     glfwDestroyWindow(g_window);
     g_window = NULL;
     // Inform the asset db to clear all handles
-    ZRAssetDB* db = (ZRAssetDB*)g_platform.GetAssetDB();
+    ZRAssetDB* db = g_platform.GetAssetDB();
     db->VidRestart(db);
     Window_SpawnWindow();
 }
