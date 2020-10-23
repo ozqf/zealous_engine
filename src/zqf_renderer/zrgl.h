@@ -117,6 +117,7 @@ struct ZRDrawCmd_Text
     f32 aspectRatio;
     i32 offsetToString;
     i32 alignmentMode;
+    i32 charsetTextureId;
     Colour fontColour;
     Colour bgColour;
 };

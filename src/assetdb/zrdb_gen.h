@@ -108,7 +108,7 @@ static ZRDBTexture* ZRDB_GenSolidTexture(ZRAssetDB* handle, char* name, ColourU3
 	return &db->textures[i];
 }
 
-static ZRDBTexture* ZRDB_GenBlankTexture(ZRAssetDB* handle, char* name, i32 w, i32 h, ColourU32 fill)
+static ZRDBTexture* ZRDB_CreateBlankTexture(ZRAssetDB* handle, char* name, i32 w, i32 h, ColourU32 fill)
 {
 	if (w < 1) { w = 4; }
 	if (h < 1) { h = 4; }
@@ -123,13 +123,13 @@ static ZRDBTexture* ZRDB_GenBlankTexture(ZRAssetDB* handle, char* name, i32 w, i
 static void ZRDB_GenerateExperiements(ZRAssetDB* db)
 {
 	ZRDBTexture* base,* emit;
-	base = ZRDB_GenBlankTexture(db, "grid", 32, 32, { 155, 155, 155, 255 });
+	base = ZRDB_CreateBlankTexture(db, "grid", 32, 32, { 155, 155, 155, 255 });
 	TexGen_FillRect((ColourU32*)base->data, 32, 32, { 0, 0 }, { 16, 16 },
 		{ 225, 225, 225, 255 });
 	TexGen_FillRect((ColourU32*)base->data, 32, 32, { 16, 16 }, { 16, 16 },
 		{ 225, 225, 225, 255 });
 	
-	emit = ZRDB_GenBlankTexture(db, "grid_emit", 32, 32, { 0, 0, 0, 0 });
+	emit = ZRDB_CreateBlankTexture(db, "grid_emit", 32, 32, { 0, 0, 0, 0 });
 	TexGen_FillRect((ColourU32*)emit->data, 32, 32, { 0, 0 }, { 4, 32 },
 		{ 225, 225, 0, 255 });
 	TexGen_FillRect((ColourU32*)emit->data, 32, 32, { 28, 0 }, { 4, 32 },
@@ -185,7 +185,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	ZRDB_GenSolidTexture(db, "cyan", { 0, 255, 255, 255 });
 	ZRDB_GenSolidTexture(db, "dark_red", { 127, 0, 0, 255 });
 
-	ZRDBTexture* tex = ZRDB_GenBlankTexture(db, "test", 32, 32, { 25, 25, 25, 255 });
+	ZRDBTexture* tex = ZRDB_CreateBlankTexture(db, "test", 32, 32, { 25, 25, 25, 255 });
 	TexGen_FillRect(
 		(ColourU32*)tex->data, 32, 32,
 		{ 4, 4 },
@@ -198,13 +198,13 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 		{ 127, 127, 127, 255 });
 	
 	i32 texSize = 32;
-	tex = ZRDB_GenBlankTexture(db, ZRDB_TEX_NAME_CROSSHAIR, texSize, texSize, { 0, 0, 0, 0 });
+	tex = ZRDB_CreateBlankTexture(db, ZRDB_TEX_NAME_CROSSHAIR, texSize, texSize, { 0, 0, 0, 0 });
 	// make a square in the middle
 	
 	TexGen_FillRect(tex->data, texSize, texSize, { 0, 14 }, { 32, 4 }, COLOUR_U32_GREEN);
 	TexGen_FillRect(tex->data, texSize, texSize, { 14, 0 }, { 4, 32 }, COLOUR_U32_GREEN);
 
-	tex = ZRDB_GenBlankTexture(db, ZRDB_TEX_NAME_SHEET_TEST, texSize, texSize, { 0, 0, 0, 0 });
+	tex = ZRDB_CreateBlankTexture(db, ZRDB_TEX_NAME_SHEET_TEST, texSize, texSize, { 0, 0, 0, 0 });
 	TexGen_FillRect(tex->data, texSize, texSize, { 0, 0 }, { 16, 16 }, COLOUR_U32_GREY);
 	TexGen_FillRect(tex->data, texSize, texSize, { 16, 0 }, { 16, 16 }, COLOUR_U32_GREY_DARK);
 	TexGen_FillRect(tex->data, texSize, texSize, { 0, 16 }, { 16, 16 }, COLOUR_U32_WHITE);

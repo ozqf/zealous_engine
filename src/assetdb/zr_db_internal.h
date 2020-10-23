@@ -47,7 +47,7 @@ struct ZRAssetDBData
 
 static i32 ZRDB_RegisterTexture(
     ZRAssetDB* assetDB, char* fileName, void* data, i32 dataSize, i32 width, i32 height, i32 apiHandle);
-static ZRDBTexture* ZRDB_GenBlankTexture(ZRAssetDB* handle, char* name, i32 w, i32 h, ColourU32 fill);
+static ZRDBTexture* ZRDB_CreateBlankTexture(ZRAssetDB* handle, char* name, i32 w, i32 h, ColourU32 fill);
 
 // Global for using it in stbi malloc/free etc
 static ZEFileIO g_files;

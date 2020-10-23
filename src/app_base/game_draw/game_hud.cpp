@@ -113,10 +113,12 @@ internal void Hud_AddUI(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSett
     }
     if (cfg.viewModels.textFieldFlags & CLR_HUD_ITEM_TITLE)
     {
+        //i32 textureIndex = -1;
+        i32 textureIndex = ZRDB_GET_TEX_BY_NAME(cr->db, SIM_TEX_CHARSET)->header.index;
         char* txt = "ZEALOUS ENGINE";
         ZRDrawObj txtObj = {};
         txtObj.data.SetAsText(
-            txt, -1, COLOUR_WHITE, COLOUR_EMPTY, ZR_TEXT_ALIGNMENT_CENTRE);
+            txt, textureIndex, COLOUR_WHITE, COLOUR_EMPTY, ZR_TEXT_ALIGNMENT_CENTRE);
         txtObj.data.text.linesPerScreen = 12;
         // push object toward camera slightly, away from background
         txtObj.t.pos.x = 0;

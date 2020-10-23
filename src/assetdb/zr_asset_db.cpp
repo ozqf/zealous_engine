@@ -129,7 +129,7 @@ extern "C" ZRAssetDB* ZRDB_Create(
     db->header.GetTextureHandleByIndex = ZRDB_GetTextureHandleByIndex;
     db->header.GetNumTextures = ZRDB_GetNumTextures;
     db->header.GetTextureByIndex = ZRDB_GetTextureByIndex;
-	db->header.GenBlankTexture = ZRDB_GenBlankTexture;
+	db->header.CreateBlankTexture = ZRDB_CreateBlankTexture;
 
 	// Materials
     db->header.GetMaterialByName = ZRDB_GetMaterialByName;

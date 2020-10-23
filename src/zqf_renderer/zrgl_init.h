@@ -305,29 +305,6 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
     return ZE_ERROR_NONE;
 }
 
-extern "C" void ZRGL_UpdateStats(f64 swapMS, f64 frameMS)
-{
-    g_platformSwapMS = swapMS;
-    g_platformFrameMS = frameMS;
-}
-
-static void ZR_UploadDBTex(ZRDBTexture* tex)
-{
-    u32 handle = 0;
-    printf("Uploading tex %s\n", tex->header.fileName);
-    ZRGL_UploadTexture((u8*)tex->data, tex->width, tex->height, &handle);
-    tex->apiHandle = handle;
-    tex->header.bIsUploaded = YES;
-    //printf("Tex %s uploaded to handle %d\n", tex->header.fileName, tex->apiHandle);
-}
-
-static void ZR_UploadDBMesh(ZRDBMesh* mesh)
-{
-    ZRGL_UploadMesh(&mesh->data, &mesh->handles, 0);
-    mesh->header.bIsUploaded = YES;
-    //printf("Mesh %s uploaded to vao handle %d\n", mesh->header.fileName, mesh->handles.vao);
-}
-
 /**
  * Check over the asset database and upload anything
  * that is not uploaded yet

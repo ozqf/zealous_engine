@@ -167,7 +167,7 @@ struct ZRDrawObjData
             char* text;
             i32 length;
             i32 linesPerScreen;
-			i32 charTextureIndex;
+			i32 charTextureId;
 			Colour colour;
             Colour bgColour;
 			i32 alignment;
@@ -204,15 +204,13 @@ struct ZRDrawObjData
         this->directLight.range = radius;
     }
 
-	void SetAsText(char* chars, i32 texIndex, Colour colour, Colour bgColour, i32 alignment)
+	void SetAsText(char* chars, i32 texId, Colour colour, Colour bgColour, i32 alignment)
 	{
 		this->type = ZR_DRAWOBJ_TYPE_TEXT;
 		this->text.text = chars;
 		this->text.length = ZStr_LenNoTerminator(chars) + 1;
-		if (texIndex < 0)
-		{
-			this->text.charTextureIndex = -1;
-		}
+		if (texId >= 0) { this->text.charTextureId = texId; }
+        else { this->text.charTextureId = -1; }
 		this->text.colour = colour;
         this->text.bgColour = bgColour;
 		this->text.alignment = alignment;

@@ -152,6 +152,7 @@ static void ZR_DrawTextGroup(
         text.alignmentMode = item->data.text.alignment;
         text.fontColour = item->data.text.colour;
         text.bgColour = item->data.text.bgColour;
+        text.charsetTextureId = item->data.text.charTextureId;
 
         ZR_ExecuteTextDraw(&text, projection, item->data.text.text, stats);
 	}

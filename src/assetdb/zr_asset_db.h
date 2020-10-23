@@ -179,7 +179,7 @@ struct ZRAssetDB
     ZRDBTexture* (*GetTextureByIndex)(ZRAssetDB* assetDB, i32 index);
     i32 (*GetTextureHandleByIndex)(ZRAssetDB* assetDB, i32 index);
     i32 (*GetNumTextures)(ZRAssetDB* assetDB);
-	ZRDBTexture* (*GenBlankTexture)(ZRAssetDB* handle, char* name, i32 w, i32 h, ColourU32 fill);
+	ZRDBTexture* (*CreateBlankTexture)(ZRAssetDB* handle, char* name, i32 w, i32 h, ColourU32 fill);
 
     ZRDBMaterial* (*CreateMaterial)(ZRAssetDB* assetDB, char* name, char* diffuseTexName, char* emissiveTexName);
     ZRDBMaterial* (*GetMaterialByName)(ZRAssetDB* assetDB, char* name);
@@ -205,6 +205,9 @@ assetDbPtr->GetMaterialByName(##assetDbPtr##, ##matNameChars##)
 
 #define ZRDB_GET_MESH_BY_NAME(assetDbPtr, matNameChars) \
 assetDbPtr->GetMeshByName(##assetDbPtr##, ##matNameChars##)
+
+#define ZRDB_GET_TEX_BY_NAME(assetDbPtr, texNameChars) \
+assetDbPtr->GetTextureByName(##assetDbPtr##, ##texNameChars##)
 
 extern "C" ZRAssetDB* ZRDB_Create(
 	ZE_FatalErrorFunction errorHandler, ZEAllocator alloc, ZEFileIO files);

@@ -4,6 +4,8 @@
  * Header for internal components of renderer
  */
 
+#define ZRGL_BAD_HANDLE_ID 0
+
 #define ZRGL_ALLOC_TAG_DATA_TEXTURE 1
 
 #define ZRGL_DEBUG_BIT_SHOWGBUFFER (1 << 0)
@@ -312,6 +314,9 @@ static void ZR_DrawMeshGroupFallback(
 static void ZRGL_DrawDebugQuad(
     Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax, i32 texHandle, f32 aspectRatio, i32 bTransparent);
 
+static void ZRGL_UploadTexture(u8* pixels, i32 width, i32 height, u32* handle);
+static void ZRGL_UploadMesh(MeshData* data, ZRMeshHandles* result, u32 flags);
+
 static void ZRGL_ClearColourDefault()
 {
     glClearColor(0, 0, 0, 1);
@@ -336,6 +341,13 @@ static void ZRGL_ClearBoundGeometry()
 ///////////////////////////////////////////////////////////
 // Upload/Data for draw calls
 ///////////////////////////////////////////////////////////
+
+extern "C" void ZRGL_UpdateStats(f64 swapMS, f64 frameMS)
+{
+    g_platformSwapMS = swapMS;
+    g_platformFrameMS = frameMS;
+}
+
 static void ZR_UploadDataTexture()
 {
     ZRDataTexture* dataTex2D = &g_dataTex2D;
@@ -349,6 +361,23 @@ static void ZR_UploadDataTexture()
 	CHECK_GL_ERR
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w, h, GL_RGBA, GL_FLOAT, dataTex2D->mem);
     CHECK_GL_ERR
+}
+
+static void ZR_UploadDBTex(ZRDBTexture* tex)
+{
+    u32 handle = 0;
+    printf("Uploading tex %s\n", tex->header.fileName);
+    ZRGL_UploadTexture((u8*)tex->data, tex->width, tex->height, &handle);
+    tex->apiHandle = handle;
+    tex->header.bIsUploaded = YES;
+    //printf("Tex %s uploaded to handle %d\n", tex->header.fileName, tex->apiHandle);
+}
+
+static void ZR_UploadDBMesh(ZRDBMesh* mesh)
+{
+    ZRGL_UploadMesh(&mesh->data, &mesh->handles, 0);
+    mesh->header.bIsUploaded = YES;
+    //printf("Mesh %s uploaded to vao handle %d\n", mesh->header.fileName, mesh->handles.vao);
 }
 
 static void ZRGL_SetupProjection(M4x4* target, i32 mode, f32 aspectRatio)

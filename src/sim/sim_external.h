@@ -328,6 +328,8 @@ void Sim_Init(
 {
     ZE_SetFatalError(fatalFunc);
 
+    Sim_BuildAssets(App_GetAssetDB());
+
     *sim = {};
     
     sim->data.ents = entityMemory;

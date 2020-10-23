@@ -42,7 +42,24 @@ static void ZR_ExecuteTextDraw(
     // Get character quad prefab and use to stamp out characters.
     ZRDBMesh* mesh = AssetDb()->GetMeshByName(AssetDb(), ZRDB_MESH_NAME_DYNAMIC_QUAD);
     if (mesh == NULL) { return; }
-    ZRDBTexture* tex = AssetDb()->GetTextureByName(AssetDb(), ZRDB_DEFAULT_CHARSET_NAME);
+
+    ZRDBTexture* tex = NULL;
+    if (cmd->charsetTextureId > 0)
+    {
+        tex = AssetDb()->GetTextureByIndex(AssetDb(), cmd->charsetTextureId);
+        if (tex->apiHandle == ZRGL_BAD_HANDLE_ID)
+        {
+            ZR_UploadDBTex(tex);
+            printf("ZRGL Uploaded charset %s to handle %d\n",
+                tex->header.fileName, tex->apiHandle);
+            //tex = NULL;
+        }
+        printf("Binding to tex %d\n", tex->apiHandle);
+    }
+    if (tex == NULL)
+    {
+        tex = AssetDb()->GetTextureByName(AssetDb(), ZRDB_DEFAULT_CHARSET_NAME);
+    }
     if (tex == NULL) { return; }
     M4x4_CREATE(modelView)
     // Setup shader
