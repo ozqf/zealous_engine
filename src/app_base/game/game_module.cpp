@@ -180,21 +180,29 @@ extern "C" void Game_DumpSessionInfo()
 internal i32 Game_StageSaveFile(
 	const char* fileName, ZEFileIO files, i32* handle, ZEBuffer* b, SimSaveFileInfo* fi)
 {
-	*handle = 0;
-	*handle = files.StageFile(fileName, NO, b);
-	if (*handle == 0) { return ZE_ERROR_NONE; }
+	// *handle = 0;
+	// *handle = files.StageFile(fileName, NO, b);
+	ErrorCode err = files.StageFile(fileName, NO, b);
+	if (err != ZE_ERROR_NONE)
+	{
+		printf("Failed to find save file %s\n", fileName);
+		return ZE_ERROR_NOT_FOUND;
+	}
+	//if (*handle == 0) { return ZE_ERROR_NONE; }
 	// check magic number
 	u8* read = b->GetAtOffset(7);
 	if (*read != NULL)
 	{
 		printf("Bad magic string terminator %d\n", *read);
-		files.CloseFile(*handle);
+		files.FreeStagedFile(b->start);
+		//files.CloseFile(*handle);
 		return ZE_ERROR_DESERIALISE_FAILED;
 	}
 	if (ZStr_Compare((char*)b->start, SIM_SAVE_MAGIC_STRING) != 0)
 	{
 		printf("Bad magic string %s in save\n", (char*)b->start);
-		files.CloseFile(*handle);
+		files.FreeStagedFile(b->start);
+		//files.CloseFile(*handle);
 		return ZE_ERROR_DESERIALISE_FAILED;
 	}
 	read++;
@@ -202,7 +210,8 @@ internal i32 Game_StageSaveFile(
 	if (fi->sentinel != SIM_SAVE_SENTINEL)
 	{
 		printf("Bad sentinel in SimSaveFileInfo\n");
-		files.CloseFile(*handle);
+		files.FreeStagedFile(b->start);
+		//files.CloseFile(*handle);
 		return ZE_ERROR_DESERIALISE_FAILED;
 	}
 

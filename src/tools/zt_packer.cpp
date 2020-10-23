@@ -143,11 +143,11 @@ static i32 ZPack_FindAllFilesInDir(const char* searchPath, ZEBuffer* strings)
 			{
 				ZE_BUILD_STRING(fullPath, Z_MAX_PATH, "%s/%s",
 					ZStr_ReadToChar((char*)searchPath, '/'), FindFileData.cFileName);
-				ZEInternString(NULL, strings, fullPath);
+				ZStr_Intern(NULL, strings, fullPath);
 			}
 			else
 			{
-				ZEInternString(NULL, strings, FindFileData.cFileName);
+				ZStr_Intern(NULL, strings, FindFileData.cFileName);
 			}
 		}
 	} while (FindNextFileA(hFind, &FindFileData) != 0);

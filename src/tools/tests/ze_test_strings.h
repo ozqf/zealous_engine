@@ -5,41 +5,6 @@
 #include "../../ze_common/ze_ini.h"
 
 /////////////////////////////////////////////
-// string stack
-/////////////////////////////////////////////
-
-static void Test_ListStringStack(ZEBuffer* buf)
-{
-	printf("--- String stack ---\n");
-	u8* read = buf->start;
-	u8* end = buf->cursor;
-	while (read < end)
-	{
-		ZEStringStackItem* item = (ZEStringStackItem*)read;
-		if (item->sentinel != ZE_SENTINEL)
-		{
-			printf("Desync\n");
-			return;
-		}
-		read += sizeof(ZEStringStackItem) + item->len;
-		printf("-- Str (%d chars, hash %d) --\n%s\n",
-			item->len, item->hash, item->chars);
-	}
-}
-
-static void Test_StringStack()
-{
-	printf("\n--- Test String stack ---\n");
-	i32 capacity = MegaBytes(1);
-	ZEBuffer buf = Buf_FromMalloc(malloc(capacity), capacity);
-
-	ZEStringStackItem* item = NULL;
-	item = ZE_AddStackString(&buf, "This is\nsome\nrandom\nstring\n");
-	item = ZE_AddStackString(&buf, "This is another random string\n");
-	Test_ListStringStack(&buf);
-}
-
-/////////////////////////////////////////////
 // Tokenise
 /////////////////////////////////////////////
 static const char* g_testIniTextFile =
@@ -143,7 +108,6 @@ static void Test_StringFunctions()
 	Test_StringMeasure();
 	Test_ReadTokens();
 	Test_FileTokenise();
-	Test_StringStack();
 	Test_CheckExtension();
 	printf("\tString tests done\n");
 }

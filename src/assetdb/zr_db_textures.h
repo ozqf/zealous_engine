@@ -90,7 +90,7 @@ static ColourU32* ZRDB_LoadTextureToHeap(
     i32 bFlipY)
 {
     ZEBuffer b;
-    if (files->StageFile(path, NO, &b) == 0)
+    if (files->StageFile(path, NO, &b) != ZE_ERROR_NONE)
     {
         return NULL;
     }

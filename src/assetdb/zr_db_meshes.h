@@ -68,7 +68,7 @@ static MeshData ZRDB_AllocateMeshData(i32 maxVerts)
 	i32 numVertBytes = (sizeof(f32) * 3) * maxVerts;
 	i32 numUVBytes = (sizeof(f32) * 2) * maxVerts;
 	i32 totalBytes = numVertBytes + numUVBytes + numVertBytes;
-	u8* bytes = (u8*)malloc(totalBytes);
+	u8* bytes = (u8*)g_alloc.Allocate(totalBytes);
     ZE_SET_ZERO(bytes, totalBytes)
 	clone.verts = (f32*)bytes;
 	clone.uvs = (f32*)(bytes + numVertBytes);
@@ -84,7 +84,7 @@ static MeshData ZRDB_CopyMeshData(const MeshData original)
 	i32 numUVBytes = (sizeof(f32) * 2) * original.numVerts;
 	i32 totalBytes = numVertBytes + numUVBytes + numVertBytes;
 
-	u8* bytes = (u8*)malloc(totalBytes);
+	u8* bytes = (u8*)g_alloc.Allocate(totalBytes);
     ZE_SET_ZERO(bytes, totalBytes)
 	// copy verts
 	clone.verts = (f32*)bytes;

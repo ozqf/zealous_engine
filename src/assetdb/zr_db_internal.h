@@ -72,15 +72,6 @@ static u32 ZRDB_MeasureFile(char* path)
     return size;
 }
 
-/**
- * Load an entire file, unaltered, into memory.
- * Must be freed by the caller after use
- */
-static i32 ZRDB_StageRawFile(ZEFileIO* files, char* path, ZEBuffer* dest)
-{
-    return files->StageFile(path, NO, dest);
-}
-
 #define ZRDB_CAST_TO_INTERNAL(assetDBHeader, newVarName) \
 ZRAssetDBData*##newVarName##=##(ZRAssetDBData*)##assetDBHeader##;
 

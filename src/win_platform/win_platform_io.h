@@ -29,12 +29,40 @@ struct DataFileHandle
     DataFileHeader header;
 };
 
-internal i32 g_nextFileIOHandle = 1;
+struct DataFileItemLocation
+{
+    i32 fileIndex;
+    DataFileItem item;
+};
 
 internal ZEFileIOHandle g_fileHandles[WIN_MAX_FILE_IO_HANDLES];
-
+internal i32 g_nextFileIOHandle = 1;
 internal DataFileHandle g_dataFiles[WIN_MAX_DATA_FILES];
 internal i32 g_nextDataFile = 0;
+
+internal i32 WinIO_FindInDataFiles(const char* path, DataFileItemLocation* result)
+{
+    i32 hash = ZE_Hash_djb2((u8*)path);
+    // data files read in alphabetically, so read order backwards
+    for (i32 i = g_nextDataFile - 1; i >= 0; --i)
+    {
+        DataFileHandle* h = &g_dataFiles[i];
+        // ZEIntern* intern = ZStr_FindInternLinear(&h->strings, path);
+        fseek(h->f, h->header.itemsOffset, SEEK_SET);
+        for (i32 j = 0; j < h->header.numItems; ++j)
+        {
+            DataFileItem item;
+            fread_s(&item, sizeof(DataFileItem), sizeof(DataFileItem), 1, h->f);
+            if (item.pathHash == hash)
+            {
+                result->fileIndex = i;
+                result->item = item;
+                return YES;
+            }
+        }
+    }
+    return NO;
+}
 
 internal i32 WinIO_OpenDataFile(const char *path, DataFileHandle *result)
 {
@@ -272,7 +300,7 @@ internal void WinIO_FreeStagedFile(void* ptr)
     free(ptr);
 }
 
-internal i32 WinIO_StageFile(const char *path, i32 bOnlyPacks, ZEBuffer *result)
+internal ErrorCode WinIO_StageFile(const char *path, i32 bOnlyPacks, ZEBuffer *result)
 {
     if (path == NULL)
     {
@@ -282,7 +310,40 @@ internal i32 WinIO_StageFile(const char *path, i32 bOnlyPacks, ZEBuffer *result)
     {
         return WIN_NULL_FILE_IO_HANDLE;
     }
-#if 1
+    DataFileItemLocation itemLoc;
+    if (WinIO_FindInDataFiles(path, &itemLoc))
+    {
+        printf("Found %s at %d in data file %d\n",
+            path, itemLoc.item.fileOffset, itemLoc.fileIndex);
+        FILE* f = g_dataFiles->f;
+        fseek(f, itemLoc.item.fileOffset, SEEK_SET);
+        i32 size = itemLoc.item.fileSize;
+        *result = Buf_FromMalloc(malloc(size), size);
+        fread_s(result->start, size, size, 1, f);
+        result->cursor = result->start + size;
+        return ZE_ERROR_NONE;
+    }
+    else
+    {
+        printf("File not found in data files, looking at disk\n");
+        FILE* f;
+        errno_t err;
+        err = fopen_s(&f, path, "rb");
+        if (f == NULL)
+        {
+            printf("WIN err %d staging file %s from disk\n", err, path);
+            return ZE_ERROR_NOT_FOUND;
+        }
+        fseek(f, 0, SEEK_END);
+        size_t numBytes = ftell(f);
+        fseek(f, 0, SEEK_SET);
+        *result = Buf_FromMalloc(malloc(numBytes), numBytes);
+        fread_s(result->start, numBytes, numBytes, 1, f);
+        result->cursor = result->start + numBytes;
+        fclose(f);
+        return ZE_ERROR_NONE;
+    }
+#if 0
     for (i32 i = 0; i < WIN_MAX_FILE_IO_HANDLES; ++i)
     {
         if (g_fileHandles[i].id != WIN_NULL_FILE_IO_HANDLE)
@@ -305,7 +366,7 @@ internal i32 WinIO_StageFile(const char *path, i32 bOnlyPacks, ZEBuffer *result)
         if (h->numBytes == 0)
         {
             printf("WIN no bytes in file %s\n", path);
-            return WIN_NULL_FILE_IO_HANDLE;
+            return ZE_ERROR_BAD_SIZE;
         }
         fseek(f, 0, SEEK_SET);
         h->readAlloc = (u8 *)malloc(h->numBytes);
@@ -318,8 +379,8 @@ internal i32 WinIO_StageFile(const char *path, i32 bOnlyPacks, ZEBuffer *result)
         return h->id;
     }
     printf("WIN no file handle to stage %s\n", path);
-#endif
     return WIN_NULL_FILE_IO_HANDLE;
+#endif
 }
 
 internal void WinIO_DumpHandles()

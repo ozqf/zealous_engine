@@ -60,12 +60,12 @@ static void ZRDB_GenBWTexture(ZRAssetDB* db, ZRDBTexture* tex)
 	i32 bytes = TexGen_BytesForBWImage(w, h);
 	printf("\t%d bytes\n", bytes);
 
-	u8* bwPixels = (u8*)malloc(bytes);
+	u8* bwPixels = (u8*)g_alloc.Allocate(bytes);
 	i32 err = TexGen_EncodeBW(bwPixels, bytes, (ColourU32*)tex->data, w, h);
 	if (err != ZE_ERROR_NONE)
 	{
 		printf("\tError generating BW img\n");
-		free(bwPixels);
+		g_alloc.Free(bwPixels);
 		return;
 	}
 
@@ -77,7 +77,7 @@ static void ZRDB_GenBWTexture(ZRAssetDB* db, ZRDBTexture* tex)
 	ColourU32 black = { 0, 0, 0, 255 };
 	ColourU32 green = { 0, 255, 0, 255 };
 	i32 resultBytes = TexGen_BytesFor32BitImage(w, h);
-	ColourU32* pixels = (ColourU32*)malloc(resultBytes);
+	ColourU32* pixels = (ColourU32*)g_alloc.Allocate(resultBytes);
 	TexGen_DecodeBW(bwPixels, bytes, pixels, w, h, green, black);
 
 	ZRDB_RegisterTexture(db, "test", pixels, resultBytes, w, h, 0);
@@ -89,7 +89,7 @@ static ZRDBTexture* ZRDB_LoadBWImage(ZRAssetDB* handle, BWImage img)
 	ColourU32 black = { 0, 0, 0, 255 };
 	ColourU32 green = { 0, 255, 0, 255 };
 	i32 resultBytes = TexGen_BytesFor32BitImage(img.w, img.h);
-	ColourU32* pixels = (ColourU32*)malloc(resultBytes);
+	ColourU32* pixels = (ColourU32*)g_alloc.Allocate(resultBytes);
 	TexGen_DecodeBW(img.bytes, img.numBytes, pixels, img.w, img.h, white, black);
 
 	i32 i = ZRDB_RegisterTexture(handle, img.name, pixels, resultBytes, img.w, img.h, 0);
@@ -101,7 +101,7 @@ static ZRDBTexture* ZRDB_GenSolidTexture(ZRAssetDB* handle, char* name, ColourU3
 {
 	const i32 w = 2, h = 2;
 	i32 bytes = TexGen_BytesFor32BitImage(w, h);
-	ColourU32* pixels = (ColourU32*)malloc(bytes);
+	ColourU32* pixels = (ColourU32*)g_alloc.Allocate(bytes);
 	TexGen_SetRGBA(pixels, w, h, colour);
 	i32 i = ZRDB_RegisterTexture(handle, name, pixels, bytes, w, h, 0);
 	ZRDB_CAST_TO_INTERNAL(handle, db)
@@ -113,7 +113,7 @@ static ZRDBTexture* ZRDB_GenBlankTexture(ZRAssetDB* handle, char* name, i32 w, i
 	if (w < 1) { w = 4; }
 	if (h < 1) { h = 4; }
 	i32 bytes = TexGen_BytesFor32BitImage(w, h);
-	ColourU32* pixels = (ColourU32*)malloc(bytes);
+	ColourU32* pixels = (ColourU32*)g_alloc.Allocate(bytes);
 	TexGen_SetRGBA(pixels, w, h, fill);
 	i32 i = ZRDB_RegisterTexture(handle, name, pixels, bytes, w, h, 0);
 	ZRDB_CAST_TO_INTERNAL(handle, db)
@@ -213,7 +213,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	///////////////////////////////////////////
 	// Load texture manifest
     char* textures[] = {
-        "data/W33_5.bmp"
+        ZQF_R_DEFAULT_DIFFUSE_TEX
         ,"data/charset.bmp"
     };
     i32 numTextures = sizeof(textures) / sizeof(char*);
@@ -237,7 +237,6 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	mat = db->CreateMaterial(
         db,
         ZRDB_DEFAULT_DIFFUSE_MAT_NAME,
-        //"data/W33_5.bmp",
         "magenta",
         "magenta");
 	
@@ -251,7 +250,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
         db,
         ZRDB_MAT_NAME_WORLD,
         // "test",
-        "data/W33_5.bmp",
+        ZQF_R_DEFAULT_DIFFUSE_TEX,
         //"cyan",
         ZR_TRANSPARENT_TEX_NAME
     );
@@ -287,7 +286,7 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
 	db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_ENEMY,
-        "data/W33_5.bmp",
+        ZQF_R_DEFAULT_DIFFUSE_TEX,
         ZR_TRANSPARENT_TEX_NAME
     );
 
@@ -301,8 +300,8 @@ static void ZRDB_LoadEmbedded(ZRAssetDB* db)
     db->CreateMaterial(
         db,
         ZRDB_MAT_NAME_WORLD_DEBUG,
-        "data/W33_5.bmp",
-        "data/W33_5.bmp"
+        ZQF_R_DEFAULT_DIFFUSE_TEX,
+        ZQF_R_DEFAULT_DIFFUSE_TEX
     );
 	
     db->CreateMaterial(

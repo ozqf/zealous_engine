@@ -19,7 +19,7 @@ struct ZEFileIO
     void (*CloseFile)(i32 handle);
     i32 (*FilePosition)(i32 handle);
     // reading - load an entire file onto heap
-    i32 (*StageFile)(const char* path, i32 bOnlyPacks, ZEBuffer* result);
+    ErrorCode (*StageFile)(const char* path, i32 bOnlyPacks, ZEBuffer* result);
     void (*FreeStagedFile)(void* ptr);
     // Writing
     void (*WriteToFile)(i32 handle, u8* bytes, i32 numBytes);

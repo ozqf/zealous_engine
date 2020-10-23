@@ -2,6 +2,7 @@
 #define ZE_COMMON_FULL_H
 
 #include "ze_common.h"
+#include "ze_hash.h"
 #include "ze_byte_buffer.h"
 #include "ze_string_utils.h"
 #include "ze_string_parse.h"
@@ -9,7 +10,8 @@
 #include "ze_math_types.h"
 #include "ze_net_types.h"
 #include "ze_buf_block.h"
-#include "ze_string_stack.h"
+#include "ze_lookup_table.h"
+#include "ze_string_intern.h"
 #include "ze_char_buffer.h"
 #include "ze_transform.h"
 #include "ze_input.h"

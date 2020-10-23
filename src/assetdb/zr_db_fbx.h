@@ -131,7 +131,7 @@ static i32 ZRGL_LoadFBX(
     //////////////////////////////////////////
     if (bVerbose == YES) { printf("Loading FBX file: \"%s\"\n", path); }
     ZEBuffer b;
-    ErrorCode err = ZRDB_StageRawFile(files, path, &b);
+    ErrorCode err = g_files.StageFile(path, NO, &b);
     if (err != ZE_ERROR_NONE)
     {
         printf("  Error %d reading \"%s\"\n", err, path);
@@ -143,8 +143,8 @@ static i32 ZRGL_LoadFBX(
     printf("FBX file %s up axis is %d\n", path, s->getGlobalSettings()->UpAxis);
 
     // unstage raw file
-    free(b.start);
-
+    g_files.FreeStagedFile(b.start);
+    
     // Extract mesh
     const i32 meshIndex = 0;
     const ofbx::Mesh* mesh = s->getMesh(meshIndex);
@@ -160,9 +160,9 @@ static i32 ZRGL_LoadFBX(
     const ofbx::Vec3* normals64 = geometry->getNormals();
 
     // TODO: These pointers are lost after this load!
-    Vec3* verts = (Vec3*)malloc(sizeof(Vec3) * numVerts);
-    Vec2* uvs = (Vec2*)malloc(sizeof(Vec2) * numVerts);
-    Vec3* normals = (Vec3*)malloc(sizeof(Vec3) * numVerts);
+    Vec3* verts = (Vec3*)g_alloc.Allocate(sizeof(Vec3) * numVerts);
+    Vec2* uvs = (Vec2*)g_alloc.Allocate(sizeof(Vec2) * numVerts);
+    Vec3* normals = (Vec3*)g_alloc.Allocate(sizeof(Vec3) * numVerts);
 
     // Copy out 64 bit vecs to 32 bit vecs
     Vec3* vertCursor = verts;

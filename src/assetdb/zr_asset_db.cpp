@@ -87,20 +87,21 @@ extern "C" ZRAssetDB* ZRDB_Create(
 	ZEFileIO files)
 {
 	ZE_SetFatalError(errorHandler);
+	
+	g_files = files;
+	g_alloc = alloc;
+
 	const i32 maxTrackedAllocs = 1024;
 	i32 spaceForStruct = sizeof(ZRAssetDBData);
 	i32 spaceForAllocList = sizeof(MallocItem) * maxTrackedAllocs;
 	i32 spaceForStrings = MegaBytes(1);
 	i32 total = spaceForStruct + spaceForAllocList + spaceForStrings;
-	u8* ptr = (u8*)malloc(total);
+	u8* ptr = (u8*)g_alloc.Allocate(total);
 	ZE_SET_ZERO(ptr, total)
 	ZRAssetDBData* db = (ZRAssetDBData*)ptr;
 	*db = {};
 	db->files = files;
 	
-	g_files = files;
-	g_alloc = alloc;
-
 	void* mallocItems = ptr + spaceForStruct;
 	db->allocs = COM_InitMallocList((MallocItem*)mallocItems, maxTrackedAllocs);
 
@@ -112,15 +113,7 @@ extern "C" ZRAssetDB* ZRDB_Create(
 	COM_SetAlloc(&db->allocs, ptr, total, strPtr);
 
 	printf("ZRDB - %d alloc items %dKB for strings\n", db->allocs.max, db->strings.capacity / 1024);
-
-	// Allocate struct
-    //ZRAssetDBData* db = (ZRAssetDBData*)malloc(sizeof(ZRAssetDBData));
-    //*db = {};
-	// init malloc list
-
-	// allocate space to store strings
-
-
+	
     /////////////////////////////////////////////////////
     // functions
     db->nextId = ZR_ASSET_DB_FIRST_ID;
@@ -153,11 +146,11 @@ extern "C" ZRAssetDB* ZRDB_Create(
 	db->header.VidRestart = ZRDB_VidRestart;
 
     // store handles to asset data
-    db->textures = (ZRDBTexture*)malloc(sizeof(ZRDBTexture) * ZR_ASSET_DB_MAX_HANDLES);
+    db->textures = (ZRDBTexture*)g_alloc.Allocate(sizeof(ZRDBTexture) * ZR_ASSET_DB_MAX_HANDLES);
     db->maxTextures = ZR_ASSET_DB_MAX_HANDLES;
-    db->meshes = (ZRDBMesh*)malloc(sizeof(ZRDBMesh) * ZR_ASSET_DB_MAX_HANDLES);
+    db->meshes = (ZRDBMesh*)g_alloc.Allocate(sizeof(ZRDBMesh) * ZR_ASSET_DB_MAX_HANDLES);
     db->maxMeshes = ZR_ASSET_DB_MAX_HANDLES;
-    db->materials = (ZRDBMaterial*)malloc(sizeof(ZRDBMaterial) * ZR_ASSET_DB_MAX_HANDLES);
+    db->materials = (ZRDBMaterial*)g_alloc.Allocate(sizeof(ZRDBMaterial) * ZR_ASSET_DB_MAX_HANDLES);
     db->maxMaterials = ZR_ASSET_DB_MAX_HANDLES;
 
 	ZRDB_LoadEmbedded(&db->header);

@@ -14,7 +14,8 @@
 #define ZRDB_MESH_NAME_DYNAMIC_QUAD "DynamicQuad"
 #define ZRDB_MESH_NAME_SPIKE "Spike"
 
-#define ZQF_R_DEFAULT_DIFFUSE_TEX "data/W33_5.bmp"
+#define ZQF_R_DEFAULT_DIFFUSE_TEX "textures/W33_5.bmp"
+//#define ZQF_R_DEFAULT_DIFFUSE_TEX "data/W33_5.bmp"
 #define ZR_TRANSPARENT_TEX_NAME "transparent"
 #define ZRDB_TEX_NAME_CROSSHAIR "crosshair"
 #define ZRDB_TEX_NAME_SHEET_TEST "sheet_test"
