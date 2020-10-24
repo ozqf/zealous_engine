@@ -21,6 +21,6 @@ internal void Sim_BuildAssets(ZRAssetDB* db)
     db->CreateMaterial(db,
         SIM_MAT_CHARSET,
         SIM_TEX_CHARSET,
-        ZR_TRANSPARENT_TEX_NAME
+        "red"
     );
 }

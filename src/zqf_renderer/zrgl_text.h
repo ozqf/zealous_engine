@@ -54,7 +54,6 @@ static void ZR_ExecuteTextDraw(
                 tex->header.fileName, tex->apiHandle);
             //tex = NULL;
         }
-        printf("Binding to tex %d\n", tex->apiHandle);
     }
     if (tex == NULL)
     {
