@@ -122,7 +122,7 @@ internal i32 Sim_InitSeeker(
     Sim_SetEntityDisplay_Mesh(ent,
         { 0, 0.7f, 0.7f, 1 },
         { 0, 0.7f, 0.7f, 1 },
-        "Cube",
+        SIM_MESH_SEEKER,
         "Enemy",
         SIM_DEATH_GFX_GIB);
     ent->teamId = SIM_ENT_TEAM_ENEMY;

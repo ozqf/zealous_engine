@@ -48,6 +48,7 @@ static void ZRGL_UploadTexture(u8* pixels, i32 width, i32 height, u32* handle)
 // Type should be either GL_FLOAT or GL_DOUBLE!
 static void ZRGL_UploadMesh(MeshData* data, ZRMeshHandles* result, u32 flags)
 {
+    ZE_ASSERT(data->numVerts <= data->maxVerts, "Bad upload - num verts > max verts\n");
     u32 vaoHandle, vboHandle;
     //////////////////////////////////////////
     // Get handles

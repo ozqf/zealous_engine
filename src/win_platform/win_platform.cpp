@@ -738,7 +738,7 @@ static void ReadCommandLine(LPSTR lpCmdLine)
     i32 tokenIndex;
     // console
     tokenIndex = ZE_FindParamIndex(g_tokens, g_numCmdTokens, "-c", 0);
-    if (tokenIndex >= 0)
+    if (tokenIndex >= 0 || YES)
     {
         InitConsole();
     }

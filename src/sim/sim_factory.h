@@ -463,17 +463,21 @@ internal i32 Sim_InitPropMesh(
     Sim_SetEntityDisplay_Mesh(ent,
         { 1, 1, 0, 1 },
         { 1, 1, 0, 1 },
+        // mesh
         //ZRDB_MESH_NAME_CUBE,
         //ZRDB_MESH_NAME_SPIKE,
         //ZRDB_MESH_NAME_INVERSE_CUBE,
-        "quad_gen",
-		//ZRDB_MAT_NAME_WORLD,
-        "city",
+        //"quad_gen",
+        SIM_MESH_SEEKER,
+        // material
+		ZRDB_MAT_NAME_WORLD,
+        //"city",
+        
         SIM_DEATH_GFX_NONE);
     ent->think.tickType = SIM_TICK_TYPE_NONE;
     ent->think.coreTickType = SIM_TICK_TYPE_NONE;
     ent->timing.nextThink = 0;
-    ent->body.t.scale = { 1, 1, 1 };
+    ent->body.t.scale = { 2.5f, 2.5f, 2.5f };
     return ZE_ERROR_NONE;
 }
 

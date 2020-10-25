@@ -80,6 +80,7 @@ static MeshData ZRDB_CopyMeshData(const MeshData original)
 {
 	MeshData clone = {};
 	clone.numVerts = original.numVerts;
+    clone.maxVerts = original.maxVerts;
 	i32 numVertBytes = (sizeof(f32) * 3) * original.numVerts;
 	i32 numUVBytes = (sizeof(f32) * 2) * original.numVerts;
 	i32 totalBytes = numVertBytes + numUVBytes + numVertBytes;

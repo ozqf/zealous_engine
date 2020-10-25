@@ -135,7 +135,7 @@ static i32 ZRGL_LoadFBX(
     if (err != ZE_ERROR_NONE)
     {
         printf("  Error %d reading \"%s\"\n", err, path);
-        return {};
+        return ZE_ERROR_NOT_FOUND;
     }
     // Extract FBX
     ofbx::IScene* s = ofbx::load(b.start, b.capacity);
