@@ -207,6 +207,7 @@ static i32 ZRGL_LoadFBX(
     s->destroy();
     *meshData = {};
     meshData->numVerts = numVerts;
+    meshData->maxVerts = numVerts;
     meshData->verts = (f32*)verts;
     meshData->uvs = (f32*)uvs;
     meshData->normals = (f32*)normals;
