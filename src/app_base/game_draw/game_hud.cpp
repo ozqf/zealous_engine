@@ -1,8 +1,10 @@
 #include "game_hud.h"
 
+
+
 extern "C" void Hud_UpdateGameState(i32 gameRules, i32 gameState)
 {
-
+    
 }
 
 extern "C" void Hud_UpdatePlayerStatus(i32 health)
@@ -20,30 +22,38 @@ internal void Hud_AddViewModels(
     // Add View Model Scene
     if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
     {
-        i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_CUBE)->header.index;
-        i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD)->header.index;
-        if (cfg.viewModels.rightHand > 0)
+        //Vec3 placeholderScale = { 0.25f, 0.25f, 1 };
+        Vec3 placeholderScale = { 1, 1, 1 };
+        //i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, ZRDB_MESH_NAME_CUBE)->header.index;
+        //i32 wallMesh = ZRDB_GET_MESH_BY_NAME(cr->db, SIM_MODEL_GATLING_BARRELS)->header.index;
+        //i32 wallMesh = cfg.viewModels.rightHandModelIndex;
+        //i32 wallMat = ZRDB_GET_MAT_BY_NAME(cr->db, ZRDB_MAT_NAME_WORLD)->header.index;
+        //i32 wallMat = cfg.viewModels.rightHandmatIndex;
+
+        if (cfg.viewModels.rightHandModelIndex > 0)
         {
             #if 1 // right hand
             Transform_SetToIdentity(&scene->params.camera);
             obj = ZRDrawObj_InitInPlace(&frame->list->cursor);
-            obj->data.SetAsMesh(wallMesh, wallMat);
+            obj->data.SetAsMesh(cfg.viewModels.rightHandModelIndex,
+                cfg.viewModels.rightHandmatIndex);
             obj->t.pos.x = 0.5f;
             obj->t.pos.y = -0.5f;
             obj->t.pos.z = -1;
-            obj->t.scale = { 0.25f, 0.25f, 1 };
+            obj->t.scale = placeholderScale;
             scene->params.numObjects++;
             #endif
         }
-        if (cfg.viewModels.leftHand > 0)
+        if (cfg.viewModels.leftHandModelIndex > 0)
         {
             #if 1 // left hand
             obj = ZRDrawObj_InitInPlace(&frame->list->cursor);
-            obj->data.SetAsMesh(wallMesh, wallMat);
+            obj->data.SetAsMesh(cfg.viewModels.leftHandModelIndex,
+                cfg.viewModels.leftHandmatIndex);
             obj->t.pos.x = -0.5f;
             obj->t.pos.y = -0.5f;
             obj->t.pos.z = -1;
-            obj->t.scale = { 0.25f, 0.25f, 1 };
+            obj->t.scale = placeholderScale;
             scene->params.numObjects++;
             #endif
         }

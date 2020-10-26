@@ -32,6 +32,8 @@ struct GameClient
 
 internal GameClient g_cl = {};
 internal ClientRenderer* g_rend;
+internal SimScene* g_sim;
+internal ZRAssetDB *g_db;
 
 extern "C" Transform CL_GetCamera(SimScene* sim)
 {
@@ -53,6 +55,34 @@ extern "C" ClientView CL_GetClientView(SimScene* sim)
 extern "C" void CL_ClearActionInputs()
 {
     Input_ClearValues(&g_inputActions);
+}
+
+internal void CL_RefreshHUDState(i32 gameRules, i32 playerState)
+{
+    g_cl.view.textFieldFlags = 0;
+    if (gameRules == SIM_GAME_RULES_NONE)
+    {
+        g_cl.view.textFieldFlags |= CLR_HUD_ITEM_TITLE;
+        return;
+    }
+    switch (playerState)
+    {
+        case SIM_PLAYER_STATE_IN_GAME:
+        //g_cl.view.textFieldFlags ^= CLR_HUD_ITEM_SPAWN_PROMPT;
+        g_cl.view.textFieldFlags |= CLR_HUD_ITEM_PLAYER_STATUS;
+        g_cl.view.textFieldFlags |= CLR_HUD_ITEM_CROSSHAIR;
+        g_cl.view.textFieldFlags |= CLR_HUD_ITEM_CROSSHAIR;
+        break;
+        case SIM_PLAYER_STATE_DEAD:
+        g_cl.view.textFieldFlags |= CLR_HUD_ITEM_DEAD;
+        break;
+        case SIM_PLAYER_STATE_OBSERVING:
+        g_cl.view.textFieldFlags |= CLR_HUD_ITEM_SPAWN_PROMPT;
+        break;
+        case SIM_PLAYER_STATE_NONE:
+        g_cl.view.textFieldFlags |= CLR_HUD_ITEM_TITLE;
+        break;
+    }
 }
 
 internal void CL_CreateActions(InputActionSet* actions)
@@ -99,6 +129,8 @@ internal void CL_CreateActions(InputActionSet* actions)
 
 extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* db)
 {
+    g_db = db;
+
     CL_CreateActions(&g_inputActions);
 
     Transform_SetToIdentity(&g_cl.camera);
@@ -124,16 +156,12 @@ extern "C" void CL_Start(SimScene* sim)
     g_cl.bIsRunning = YES;
     g_cl.playerId = 0;
     g_cl.avatarId = 0;
+    g_sim = sim;
 
     g_cl.view = {};
-    if (sim->info.gameRules == SIM_GAME_RULES_NONE)
-    {
-        g_cl.view.textFieldFlags |= CLR_HUD_ITEM_TITLE;
-    }
-    else if (sim->info.gameRules == SIM_GAME_RULES_SURVIVAL)
-    {
-        g_cl.view.textFieldFlags |= CLR_HUD_ITEM_SPAWN_PROMPT;
-    }
+    g_cl.view.rightHandmatIndex = g_db->GetMaterialByName(g_db, SIM_MAT_WORLD)->header.index;
+    g_cl.view.leftHandmatIndex = g_cl.view.rightHandmatIndex;
+    CL_RefreshHUDState(sim->info.gameRules, SIM_PLAYER_STATE_NONE);
 }
 
 extern "C" void CL_Stop()
@@ -305,6 +333,7 @@ internal void CL_CheckForSimEvents(ZEBuffer* buf)
 					printf("Client saw own player state\n"); 
 					g_cl.avatarId = cmd->avatarId;
 					g_cl.remoteState = cmd->state;
+                    CL_RefreshHUDState(g_sim->info.gameRules, g_cl.remoteState);
 				}
             } break;
         }
@@ -395,16 +424,17 @@ extern "C" void CL_PostTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
         g_cl.view.camera = ent->body.t;
         g_cl.view.health = ent->life.health;
         //g_cl.view.showHud = 1;
-        g_cl.view.rightHand = 1;
-        g_cl.view.leftHand = 1;
+        SimInventoryItem* item = SVI_GetItem(ent->inventory.index);
+        g_cl.view.rightHandModelIndex = g_db->GetMeshByName(g_db, item->model)->header.index;
+        //g_cl.view.leftHand = 1;
     }
     else
     {
         g_cl.view.camera = g_cl.camera;
         g_cl.view.health = -999;
         //g_cl.view.showHud = NO;
-        g_cl.view.rightHand = 0;
-        g_cl.view.leftHand = 0;
+        g_cl.view.rightHandModelIndex = 0;
+        g_cl.view.leftHandModelIndex = 0;
     }
     // Update particles
     CLR_TickTestParticles(g_rend, delta);

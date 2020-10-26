@@ -91,6 +91,8 @@ struct SimAvoidInfo
 struct SimInventoryItem
 {
     char* name;
+    char* model;
+    char* skin;
     i32 eventType;      // what happens
     u8 factoryType;    // if spawning something, what type?
     i32 eventCount;     // eg projectile count

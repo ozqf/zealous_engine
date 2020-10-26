@@ -122,6 +122,7 @@ static i32 ZRGL_LoadFBX(
     ZE_ASSERT(meshData != NULL, "No meshData result provided")
     if (reScale.x == 0 || reScale.y == 0 || reScale.z == 0)
     {
+        printf("Clearing FBX rescale\n");
         reScale.x = 1;
         reScale.y = 1;
         reScale.z = 1;

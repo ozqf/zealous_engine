@@ -4,6 +4,8 @@
 
 #define SIM_MODEL_SEEKER "models/i_wing.fbx"
 #define SIM_MODEL_GRUNT "models/wedge_tank.fbx"
+#define SIM_MODEL_GATLING_BARRELS "models/quad_gatling_barrels.fbx"
+#define SIM_MODEL_CANNON_BARREL "models/cannon_barrel.fbx"
 
 #define SIM_TEX_CHARSET "textures/charset.bmp"
 #define SIM_MAT_CHARSET "game_charset"
@@ -24,6 +26,8 @@ internal void Sim_BuildAssets(ZRAssetDB* db)
     db->CreateMaterial(db, SIM_MAT_CHARSET, SIM_TEX_CHARSET, "red" );
     db->LoadMeshFromFile(db, SIM_MODEL_SEEKER, { 0.5f, 0.5f, 0.5f }, YES, YES);
     db->LoadMeshFromFile(db, SIM_MODEL_GRUNT, { 0.5f, 0.5f, 0.5f }, YES, YES);
+    db->LoadMeshFromFile(db, SIM_MODEL_GATLING_BARRELS, { 0.25f, 0.25f, 0.25f }, YES, YES);
+    db->LoadMeshFromFile(db, SIM_MODEL_CANNON_BARREL, { 0.25f, 0.25f, 0.25f }, YES, YES);
 
     db->bDirty = YES;
 }
