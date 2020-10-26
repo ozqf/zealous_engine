@@ -2,7 +2,8 @@
 #define SIM_MESH_CUBE "Cube"
 #define SIM_MESH_QUAD "Quad"
 
-#define SIM_MESH_SEEKER "models/i_wing.fbx"
+#define SIM_MODEL_SEEKER "models/i_wing.fbx"
+#define SIM_MODEL_GRUNT "models/wedge_tank.fbx"
 
 #define SIM_TEX_CHARSET "textures/charset.bmp"
 #define SIM_MAT_CHARSET "game_charset"
@@ -20,12 +21,9 @@ internal void Sim_BuildAssets(ZRAssetDB* db)
     printf("SIM - building assets\n");
     
     db->LoadTexture(db, SIM_TEX_CHARSET, YES);
-    db->CreateMaterial(db,
-        SIM_MAT_CHARSET,
-        SIM_TEX_CHARSET,
-        "red"
-    );
+    db->CreateMaterial(db, SIM_MAT_CHARSET, SIM_TEX_CHARSET, "red" );
+    db->LoadMeshFromFile(db, SIM_MODEL_SEEKER, { 0.5f, 0.5f, 0.5f }, YES, YES);
+    db->LoadMeshFromFile(db, SIM_MODEL_GRUNT, { 0.5f, 0.5f, 0.5f }, YES, YES);
 
-    db->LoadMeshFromFile(db, SIM_MESH_SEEKER, { 0.2f, 0.2f, 0.2f }, YES, YES);
     db->bDirty = YES;
 }

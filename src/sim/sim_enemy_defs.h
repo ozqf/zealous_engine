@@ -117,12 +117,13 @@ internal i32 Sim_InitSeeker(
     Sim_SetEntLife(ent, NO, YES, 60);
     Sim_SetEntMoveType(ent, &ent->movement, 4, SIM_ENT_MOVE_TYPE_WALK, NO);
     
-    Sim_SetEntityBody(ent, { 1, 2, 1});
+    // Sim_SetEntityBody(ent, { 1, 2, 1});
+    Sim_SetEntityBody(ent, { 1, 1, 1});
     Sim_SetEnemyDefaultFlags(ent);
     Sim_SetEntityDisplay_Mesh(ent,
         { 0, 0.7f, 0.7f, 1 },
         { 0, 0.7f, 0.7f, 1 },
-        SIM_MESH_SEEKER,
+        SIM_MODEL_SEEKER,
         "Enemy",
         SIM_DEATH_GFX_GIB);
     ent->teamId = SIM_ENT_TEAM_ENEMY;

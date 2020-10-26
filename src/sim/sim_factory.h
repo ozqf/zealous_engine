@@ -468,7 +468,7 @@ internal i32 Sim_InitPropMesh(
         //ZRDB_MESH_NAME_SPIKE,
         //ZRDB_MESH_NAME_INVERSE_CUBE,
         //"quad_gen",
-        SIM_MESH_SEEKER,
+        SIM_MODEL_SEEKER,
         // material
 		ZRDB_MAT_NAME_WORLD,
         //"city",
