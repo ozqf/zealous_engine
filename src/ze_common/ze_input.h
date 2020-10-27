@@ -100,7 +100,7 @@ typedef u32 zeInputCode;
 struct InputAction
 {
     u32 keyCode1;
-    // u32 keyCode2; // Alt key. needs better checking logic though
+    u32 keyCode2;
     i32 value;
     // value in a range between 0 and 1 (eg resolution independent mouse movement)
     f32 normalised;
@@ -114,10 +114,12 @@ struct InputActionSet
     i32 count;
 };
 
-internal void Input_InitAction(InputActionSet* actions, u32 keyCode1, char* label)
+internal void Input_InitAction(
+	InputActionSet* actions, u32 keyCode1, u32 keyCode2, char* label)
 {
     i32 index = actions->count++;
     actions->actions[index].keyCode1 = keyCode1;
+	actions->actions[index].keyCode2 = keyCode2;
     actions->actions[index].value = 0;
     actions->actions[index].lastFrame = 0;
     i32 len = strlen(label);
@@ -198,7 +200,7 @@ internal InputAction* Input_TestForAction(
     {
         InputAction* action = &actions->actions[i];
         if (
-            (action->keyCode1 == inputKeyCode)
+            (action->keyCode1 == inputKeyCode || action->keyCode2 == inputKeyCode)
             && action->value != inputValue)
         {
             action->value = inputValue;

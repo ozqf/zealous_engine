@@ -87,44 +87,44 @@ internal void CL_RefreshHUDState(i32 gameRules, i32 playerState)
 
 internal void CL_CreateActions(InputActionSet* actions)
 {
-    Input_InitAction(actions, Z_INPUT_CODE_V, "debug_forward");
-    Input_InitAction(actions, Z_INPUT_CODE_C, "debug_backward");
-	Input_InitAction(actions, Z_INPUT_CODE_X, "debug_camera");
-    Input_InitAction(actions, Z_INPUT_CODE_R, "reset");
-    Input_InitAction(actions, Z_INPUT_CODE_ESCAPE, "menu");
+    Input_InitAction(actions, Z_INPUT_CODE_V, Z_INPUT_CODE_NULL, "debug_forward");
+    Input_InitAction(actions, Z_INPUT_CODE_C, Z_INPUT_CODE_NULL, "debug_backward");
+	Input_InitAction(actions, Z_INPUT_CODE_X, Z_INPUT_CODE_NULL, "debug_camera");
+    Input_InitAction(actions, Z_INPUT_CODE_R, Z_INPUT_CODE_NULL, "reset");
+    Input_InitAction(actions, Z_INPUT_CODE_ESCAPE, Z_INPUT_CODE_NULL, "menu");
 
-    Input_InitAction(actions, Z_INPUT_CODE_A, "move_left");
-    Input_InitAction(actions, Z_INPUT_CODE_D, "move_right");
-    Input_InitAction(actions, Z_INPUT_CODE_W, "move_forward");
-    Input_InitAction(actions, Z_INPUT_CODE_S, "move_backward");
-    Input_InitAction(actions, Z_INPUT_CODE_SPACE, "move_up");
-    Input_InitAction(actions, Z_INPUT_CODE_LEFT_CONTROL, "move_down");
-    Input_InitAction(actions, Z_INPUT_CODE_LEFT_SHIFT, "move_special_1");
-    Input_InitAction(actions, Z_INPUT_CODE_Q, "roll_left");
-    Input_InitAction(actions, Z_INPUT_CODE_E, "roll_right");
+    Input_InitAction(actions, Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, "move_left");
+    Input_InitAction(actions, Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, "move_right");
+    Input_InitAction(actions, Z_INPUT_CODE_W, Z_INPUT_CODE_NULL, "move_forward");
+    Input_InitAction(actions, Z_INPUT_CODE_S, Z_INPUT_CODE_NULL, "move_backward");
+    Input_InitAction(actions, Z_INPUT_CODE_SPACE, Z_INPUT_CODE_NULL, "move_up");
+    Input_InitAction(actions, Z_INPUT_CODE_LEFT_CONTROL, Z_INPUT_CODE_NULL, "move_down");
+    Input_InitAction(actions, Z_INPUT_CODE_LEFT_SHIFT, Z_INPUT_CODE_NULL, "move_special_1");
+    Input_InitAction(actions, Z_INPUT_CODE_Q, Z_INPUT_CODE_NULL, "roll_left");
+    Input_InitAction(actions, Z_INPUT_CODE_E, Z_INPUT_CODE_NULL, "roll_right");
 
-    Input_InitAction(actions, Z_INPUT_CODE_G, "spawn_test");
-    Input_InitAction(actions, Z_INPUT_CODE_H, "spawn_test_2");
-    Input_InitAction(actions, Z_INPUT_CODE_J, "spawn_test_3");
-    Input_InitAction(actions, Z_INPUT_CODE_P, "pause");
+    Input_InitAction(actions, Z_INPUT_CODE_G, Z_INPUT_CODE_NULL, "spawn_test");
+    Input_InitAction(actions, Z_INPUT_CODE_H, Z_INPUT_CODE_NULL, "spawn_test_2");
+    Input_InitAction(actions, Z_INPUT_CODE_J, Z_INPUT_CODE_NULL, "spawn_test_3");
+    Input_InitAction(actions, Z_INPUT_CODE_P, Z_INPUT_CODE_NULL, "pause");
 
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_POS_X, "mouse_pos_x");
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_POS_Y, "mouse_pos_y");
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_MOVE_X, "mouse_move_x");
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_MOVE_Y, "mouse_move_y");
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_1, "attack_1");
-    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_2, "attack_2");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_POS_X, Z_INPUT_CODE_NULL, "mouse_pos_x");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_POS_Y, Z_INPUT_CODE_NULL, "mouse_pos_y");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_MOVE_X, Z_INPUT_CODE_NULL, "mouse_move_x");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_MOVE_Y, Z_INPUT_CODE_NULL, "mouse_move_y");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_1, Z_INPUT_CODE_0, "attack_1");
+    Input_InitAction(actions, Z_INPUT_CODE_MOUSE_2, Z_INPUT_CODE_NULL, "attack_2");
 
-    Input_InitAction(actions, Z_INPUT_CODE_1, "slot_1");
-    Input_InitAction(actions, Z_INPUT_CODE_2, "slot_2");
-    Input_InitAction(actions, Z_INPUT_CODE_3, "slot_3");
-    Input_InitAction(actions, Z_INPUT_CODE_4, "slot_4");
+    Input_InitAction(actions, Z_INPUT_CODE_1, Z_INPUT_CODE_NULL, "slot_1");
+    Input_InitAction(actions, Z_INPUT_CODE_2, Z_INPUT_CODE_NULL, "slot_2");
+    Input_InitAction(actions, Z_INPUT_CODE_3, Z_INPUT_CODE_NULL, "slot_3");
+    Input_InitAction(actions, Z_INPUT_CODE_4, Z_INPUT_CODE_NULL, "slot_4");
 
     // Robotron style shooting
-    Input_InitAction(actions, Z_INPUT_CODE_LEFT, "shoot_left");
-    Input_InitAction(actions, Z_INPUT_CODE_RIGHT, "shoot_right");
-    Input_InitAction(actions, Z_INPUT_CODE_UP, "shoot_up");
-    Input_InitAction(actions, Z_INPUT_CODE_DOWN, "shoot_down");
+    Input_InitAction(actions, Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, "shoot_left");
+    Input_InitAction(actions, Z_INPUT_CODE_RIGHT, Z_INPUT_CODE_NULL, "shoot_right");
+    Input_InitAction(actions, Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, "shoot_up");
+    Input_InitAction(actions, Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, "shoot_down");
 }
 
 extern "C" void CL_Init(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* db)
