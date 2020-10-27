@@ -439,7 +439,8 @@ extern "C" void CLR_WriteDrawFrame(
         cfg.debugFlags &= ~CL_DEBUG_FLAG_VERBOSE_FRAME;
     }
 
-    scene = ZRScene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, YES);
+    i32 bDeferred = YES;
+    scene = ZRScene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, bDeferred);
     scene->params.camera = *camera;
     frame->numScenes++;
     objCount = 0;
@@ -487,6 +488,9 @@ extern "C" void CLR_WriteDrawFrame(
 
     // Add test particles
     CLR_AddTestParticles(cr, scene, list, data);
+
+    Hud_AddViewModels(cr, frame, scene, cfg);
+
     scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
     
     // Add View Model Scene

@@ -680,7 +680,22 @@ internal Vec3 M3x3_GetEulerAnglesRadians(f32* m)
 
 internal Vec3 M3x3_GetEulerAnglesDegrees(f32* m);
 internal void M3x3_SetEulerAnglesByRadians(f32* m, f32 roll, f32 pitch, f32 yaw);
-internal void M3x3_CopyFromM4x4(f32* m3x3, f32* m4x4);
+
+internal void M3x3_CopyFromM4x4(f32* m3x3, f32* m4x4)
+{
+    m3x3[M3x3_X0] = m4x4[M4x4_X0];
+    m3x3[M3x3_X1] = m4x4[M4x4_X1];
+    m3x3[M3x3_X2] = m4x4[M4x4_X2];
+
+    m3x3[M3x3_Y0] = m4x4[M4x4_Y0];
+    m3x3[M3x3_Y1] = m4x4[M4x4_Y1];
+    m3x3[M3x3_Y2] = m4x4[M4x4_Y2];
+
+    m3x3[M3x3_Z0] = m4x4[M4x4_Z0];
+    m3x3[M3x3_Z1] = m4x4[M4x4_Z1];
+    m3x3[M3x3_Z2] = m4x4[M4x4_Z2];
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // M4x4 OPERATIONS

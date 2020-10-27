@@ -12,12 +12,12 @@ extern "C" void Hud_UpdatePlayerStatus(i32 health)
     
 }
 
-internal void Hud_AddViewModels(
-	ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSettings cfg)
+extern "C" void Hud_AddViewModels(
+	ClientRenderer* cr,
+    ZRViewFrame* frame,
+    ZRSceneFrame* scene,
+    ClientRenderSettings cfg)
 {
-	ZRSceneFrame* scene = ZRScene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, NO);
-	frame->numScenes++;
-	
 	ZRDrawObj* obj = NULL;
     // Add View Model Scene
     if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
@@ -33,15 +33,20 @@ internal void Hud_AddViewModels(
         if (cfg.viewModels.rightHandModelIndex > 0)
         {
             #if 1 // right hand
-            Transform_SetToIdentity(&scene->params.camera);
             obj = ZRDrawObj_InitInPlace(&frame->list->cursor);
             obj->data.SetAsMesh(cfg.viewModels.rightHandModelIndex,
                 cfg.viewModels.rightHandmatIndex);
+            obj->t.scale = placeholderScale;
+            scene->params.numObjects++;
+
+            Vec3 posOffset = { 0.5f, -0.5f, -1.f };
             obj->t.pos.x = 0.5f;
             obj->t.pos.y = -0.5f;
             obj->t.pos.z = -1;
-            obj->t.scale = placeholderScale;
-            scene->params.numObjects++;
+            Transform* links[2];
+            links[0] = &scene->params.camera;
+            links[1] = &obj->t;
+            Transform_ApplyChain(&obj->t, links, 2);
             #endif
         }
         if (cfg.viewModels.leftHandModelIndex > 0)
@@ -58,7 +63,6 @@ internal void Hud_AddViewModels(
             #endif
         }
     }
-	scene->params.numListBytes = frame->list->cursor - (u8*)scene->params.objects;
 }
 
 internal void Hud_AddUI(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSettings cfg)
@@ -147,6 +151,13 @@ internal void Hud_AddUI(ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSett
 extern "C" void Hud_AddDrawObjects(
 	ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSettings cfg)
 {
-	Hud_AddViewModels(cr, frame, cfg);
+    #if 0
+    ZRSceneFrame* scene = ZRScene_InitInPlace(frame->list, ZR_PROJECTION_MODE_3D, YES);
+    Transform_SetToIdentity(&scene->params.camera);
+	frame->numScenes++;
+	Hud_AddViewModels(cr, frame, scene, cfg);
+    scene->params.numListBytes = frame->list->cursor - (u8*)scene->params.objects;
+    #endif
+
 	Hud_AddUI(cr, frame, cfg);
 }

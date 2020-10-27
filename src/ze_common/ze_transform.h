@@ -68,6 +68,14 @@ internal void Transform_ToM4x4NoScale(Transform* t, M4x4* result)
     result->w3 = 1;
 }
 
+internal void Transform_FromM4x4NoScale(Transform* t, f32* m4x4)
+{
+    t->pos.x = m4x4[M4x4_W0];
+    t->pos.y = m4x4[M4x4_W1];
+    t->pos.z = m4x4[M4x4_W2];
+    M3x3_CopyFromM4x4(t->rotation.cells, m4x4);
+}
+
 /////////////////////////////////////////////////////////////////////
 // Scale
 /////////////////////////////////////////////////////////////////////
@@ -108,6 +116,26 @@ internal void Transform_SetRotation(Transform* t, f32 radiansX, f32 radiansY, f3
     M3x3_RotateZ(t->rotation.cells, radiansZ);
     M3x3_RotateY(t->rotation.cells, radiansY);
 	M3x3_RotateX(t->rotation.cells, radiansX);
+}
+
+internal void Transform_ApplyChain(Transform* target, Transform** links, i32 numLinks)
+{
+    ZE_ASSERT(target != NULL, "Target transform is null")
+    ZE_ASSERT(links != NULL, "Transform links array is null")
+    ZE_ASSERT(numLinks > 0, "Cannot chain 0 transforms")
+    if (numLinks == 1)
+    {
+        *target = *links[0];
+        return;
+    }
+    M4x4_CREATE(result)
+    M4x4_CREATE(other)
+    for (i32 i = 0; i < numLinks; ++i)
+    {
+        Transform_ToM4x4NoScale(links[i], &other);
+        M4x4_Multiply(result.cells, other.cells, result.cells);
+    }
+    Transform_FromM4x4NoScale(target, result.cells);
 }
 
 static void Transform_Printf(Transform* t)

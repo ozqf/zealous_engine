@@ -5,6 +5,12 @@
 #include "../../zqf_renderer.h"
 #include "game_draw.h"
 
+extern "C" void Hud_AddViewModels(
+	ClientRenderer* cr,
+    ZRViewFrame* frame,
+    ZRSceneFrame* scene,
+    ClientRenderSettings cfg);
+
 extern "C" void Hud_AddDrawObjects(
 	ClientRenderer* cr, ZRViewFrame* frame, ClientRenderSettings cfg);
 
