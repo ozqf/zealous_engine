@@ -25,7 +25,8 @@ extern "C" i32 SV_CreateLocalPlayer(SimScene* sim, ZEBuffer* buf)
     //i32 avatarId = Sim_ReserveEntitySerial(sim, NO);
 
     ZE_INIT_PTR_IN_PLACE(plyr, SimEvent_PlayerState, buf);
-    plyr->Set(playerId, SIM_ENT_NULL_SERIAL, SIM_PLAYER_STATE_OBSERVING);
+    plyr->Set(
+        playerId, SIM_ENT_NULL_SERIAL, SIM_PLAYER_STATE_OBSERVING, sim->info.tick);
     return playerId;
 
     #if 0
@@ -57,14 +58,16 @@ extern "C" void GSV_Stop()
     g_sim = NULL;
 }
 
-extern "C" void SV_Save(SimScene* sim, SimSaveFileInfo* saveInfo, i32 file, ZEFileIO files)
+extern "C" void SV_Save(
+    SimScene* sim, SimSaveFileInfo* saveInfo, i32 file, ZEFileIO files)
 {
     saveInfo->server = files.FilePosition(file);
     saveInfo->numServerBytes = sizeof(i32);
     files.WriteToFile(file, (u8*)&g_bIsRunning, sizeof(i32));
 }
 
-extern "C" void SV_Resume(SimScene* sim, SimSaveFileInfo* saveInfo, ZEBuffer* saveData)
+extern "C" void SV_Resume(
+    SimScene* sim, SimSaveFileInfo* saveInfo, ZEBuffer* saveData)
 {
     if (saveInfo->numServerBytes != sizeof(i32))
     {

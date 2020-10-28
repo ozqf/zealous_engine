@@ -38,6 +38,7 @@ internal SimPlayer* SimPlyr_Create(SimScene* sim, i32 reservedId)
 		{
 			plyr = &sim->data.players[i];
 			plyr->state = SIM_PLAYER_STATE_OBSERVING;
+			plyr->lastStateChangeTick = sim->info.tick;
 			if (reservedId == 0)
 			{
 				plyr->id = ++sim->info.nextPlayerId;
@@ -76,12 +77,20 @@ internal void SimPlyr_UpdateState(SimScene* sim, SimEvent_PlayerState* state)
 	}
 	plyr->avatarId = state->avatarId;
 	plyr->state = state->state;
+	plyr->lastStateChangeTick = sim->info.tick;
 	if (state->avatarId != SIM_ENT_NULL_SERIAL)
 	{
 		SimEntity* ent = Sim_GetEntityBySerial(sim, state->avatarId);
 		ZE_ASSERT(ent != NULL, "Player state has avatar Id but no entity!");
 		ent->playerId = state->playerId;
 	}
+}
+
+internal void SimPlyr_SetDead(SimScene* sim, SimPlayer* plyr)
+{
+	plyr->state = SIM_PLAYER_STATE_DEAD;
+	plyr->lastStateChangeTick = sim->info.tick;
+    plyr->avatarId = SIM_ENT_NULL_SERIAL;
 }
 
 internal void SimPlyr_Tick(SimScene* sim)
@@ -110,6 +119,10 @@ internal void SimPlyr_Tick(SimScene* sim)
 		{
 			ZE_ASSERT(ent != NULL, "Player has no avatar");
 			ent->input = plyr->input;
+		}
+		else if (plyr->state == SIM_PLAYER_STATE_DEAD)
+		{
+			
 		}
 		else
 		{

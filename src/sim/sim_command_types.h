@@ -33,8 +33,9 @@ struct SimEvent_PlayerState
     i32 playerId;
     i32 avatarId;
 	i32 state;
+    i32 lastStateChange;
 	
-	void Set(i32 newPlayerId, i32 newAvatarId, i32 newState)
+	void Set(i32 newPlayerId, i32 newAvatarId, i32 newState, i32 changeTick)
 	{
 		this->header.type = SIM_CMD_TYPE_PLAYER_STATE;
 		this->header.size = sizeof(SimEvent_PlayerState);
@@ -42,6 +43,7 @@ struct SimEvent_PlayerState
 		this->playerId = newPlayerId;
 		this->avatarId = newAvatarId;
 		this->state = newState;
+        this->lastStateChange = changeTick;
 	}
 };
 

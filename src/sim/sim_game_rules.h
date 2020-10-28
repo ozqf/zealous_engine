@@ -65,12 +65,13 @@ internal i32 SimRules_SpawnPlayer(SimScene* sim, SimPlayer* plyr)
 
 	// set player as in game with avatar Id
 	plyr->state = SIM_PLAYER_STATE_IN_GAME;
+    plyr->lastStateChangeTick = sim->info.tick;
 	plyr->avatarId = cmd->serial;
 	
 	//--------------------
     // write player state
     ZE_INIT_PTR_IN_PLACE(plyrState, SimEvent_PlayerState, sim->data.outputBuf)
-    plyrState->Set(plyr->id, plyr->avatarId, plyr->state);
+    plyrState->Set(plyr->id, plyr->avatarId, plyr->state, sim->info.tick);
 
 	// Increment active players and check for game start
 	sim->info.numActivePlayers++;

@@ -39,6 +39,15 @@ internal i32 g_nextFileIOHandle = 1;
 internal DataFileHandle g_dataFiles[WIN_MAX_DATA_FILES];
 internal i32 g_nextDataFile = 0;
 
+internal char* WinIO_GetWorkingDir()
+{
+    if (g_appDir[0] == '\0')
+    {
+        return g_baseDir;
+    }
+    return g_appDir;
+}
+
 internal i32 WinIO_FindInDataFiles(const char* path, DataFileItemLocation* result)
 {
     i32 hash = ZE_Hash_djb2((u8*)path);
@@ -123,8 +132,10 @@ internal void WinIO_GatherDataFiles(const char *dir)
 /**
  * Returns IO handle id
  */
-internal i32 WinIO_OpenFile(const char *path, i32 bRead)
+internal i32 WinIO_OpenFile(const char *filePath, i32 bRead)
 {
+    char* baseDir = WinIO_GetWorkingDir();
+    ZE_BUILD_STRING(path, Z_MAX_PATH, "%s/%s", baseDir, filePath);
     i32 id = WIN_NULL_FILE_IO_HANDLE;
     for (i32 i = 0; i < WIN_MAX_FILE_IO_HANDLES; ++i)
     {

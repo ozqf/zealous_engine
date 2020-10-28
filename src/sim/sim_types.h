@@ -329,6 +329,7 @@ struct SimPlayer
 {
 	i32 id;
 	i32 state;
+    i32 lastStateChangeTick;
 	i32 avatarId;
     SimActorInput input;
 };
@@ -402,6 +403,8 @@ struct SimSceneInfo
     QuantiseSet quantise;
 
     i32 bVerbose;
+
+    char mapName[Z_MAX_PATH];
 };
 
 struct SimScene

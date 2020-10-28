@@ -211,7 +211,8 @@ internal void Sim_WriteRemoveEntity(
         plyr->avatarId = SIM_ENT_NULL_SERIAL;
 
         ZE_INIT_PTR_IN_PLACE(plyrState, SimEvent_PlayerState, sim->data.outputBuf)
-        plyrState->Set(plyr->id, plyr->avatarId, plyr->state);
+        plyrState->Set(
+            plyr->id, plyr->avatarId, plyr->state, sim->info.tick);
     }
 
     Sim_MarkEntityAsRemoved(sim, victim->id.serial);

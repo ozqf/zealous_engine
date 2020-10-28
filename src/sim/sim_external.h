@@ -359,7 +359,7 @@ extern "C"
 i32 Sim_LoadMapFile(SimScene* sim, const char* mapName, i32 bLocalOnly)
 {
 	i32 index = ZStr_AsciToInt32(mapName);
-    
+    ZStr_CopyLimited(mapName, sim->info.mapName, Z_MAX_PATH);
     return Sim_LoadEmbeddedScene(sim, index, bLocalOnly);
 }
 

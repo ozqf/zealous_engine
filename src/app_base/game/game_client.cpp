@@ -73,7 +73,6 @@ internal void CL_RefreshHUDState(i32 gameRules, i32 playerState)
         //g_cl.view.textFieldFlags ^= CLR_HUD_ITEM_SPAWN_PROMPT;
         g_cl.view.textFieldFlags |= CLR_HUD_ITEM_PLAYER_STATUS;
         g_cl.view.textFieldFlags |= CLR_HUD_ITEM_CROSSHAIR;
-        g_cl.view.textFieldFlags |= CLR_HUD_ITEM_CROSSHAIR;
         break;
         case SIM_PLAYER_STATE_DEAD:
         g_cl.view.textFieldFlags |= CLR_HUD_ITEM_DEAD;
