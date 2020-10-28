@@ -161,6 +161,22 @@ i32 Sim_FindByRaycast(
     return count;
 }
 
+extern "C" i32 Sim_FindFirstByRay(
+    SimScene* sim,
+    Vec3 origin,
+    Vec3 dest,
+    SimRaycastResult* result,
+    i32 ignoreSerial)
+{
+    const i32 max_overlaps = 16;
+    SimRaycastResult results[max_overlaps];
+    i32 overlaps = Sim_FindByRaycast(
+        sim, origin, dest, {}, ignoreSerial, results, max_overlaps);
+    if (overlaps == 0) { return NO; }
+    *result = results[0];
+    return YES;
+}
+
 static void SimEnt_MoveVsSolid(SimScene* sim, SimEntity* ent, Vec3 move)
 {
     Vec3 origin = ent->body.t.pos;

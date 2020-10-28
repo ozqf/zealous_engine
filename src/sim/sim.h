@@ -217,6 +217,13 @@ extern "C" i32      Sim_FindByRaycast(
                         SimRaycastResult* results,
                         i32 maxResults);
 
+extern "C" i32 Sim_FindFirstByRay(
+                        SimScene* sim,
+                        Vec3 origin,
+                        Vec3 dest,
+                        SimRaycastResult* result,
+                        i32 ignoreSerial);
+
 extern "C" i32      Sim_FindByAABB(
                         SimScene* sim,
                         Vec3 boundsMin,

@@ -40,7 +40,9 @@ extern "C" Transform CL_GetCamera(SimScene* sim)
     SimEntity* ent = Sim_GetEntityBySerial(sim, g_cl.avatarId);
     if (ent != NULL)
     {
-        return ent->body.t;
+        Transform t = ent->body.t;
+        t.pos.y += 0.5f;
+        return t;
         
     }
     if (IF_BIT(g_cl.debugFlags, CL_DEBUG_FLAG_DEBUG_CAMERA)) { return g_cl.camera; }
@@ -410,6 +412,17 @@ extern "C" void CL_PreTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
     CL_CheckForSimEvents(buf->GetRead());
 }
 
+internal Transform CL_CalcHandWorldPos(SimScene* sim, Transform* camera, Vec3 handOffset)
+{
+    TRANSFORM_CREATE(base)
+    base.pos = handOffset;
+    Transform* links[2];
+    links[0] = camera;
+    links[1] = &base;
+    Transform_ApplyChain(&base, links, 2);
+    return base;
+}
+
 extern "C" void CL_PostTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
 {
     if (!g_cl.bIsRunning) { return; }
@@ -422,11 +435,21 @@ extern "C" void CL_PostTick(SimScene* sim, ZEDoubleBuffer* buf, timeFloat delta)
     if (ent != NULL)
     {
         g_cl.view.camera = ent->body.t;
+        // offset camera up a bit
+        //g_cl.view.camera.pos.y += 0.5f;
         g_cl.view.health = ent->life.health;
         //g_cl.view.showHud = 1;
         SimInventoryItem* item = SVI_GetItem(ent->inventory.index);
         g_cl.view.rightHandModelIndex = g_db->GetMeshByName(g_db, item->model)->header.index;
         //g_cl.view.leftHand = 1;
+
+        // TODO: Setting position of hand here causes jitter
+        // as this update rate does not match frame rate
+
+        // Calculate position of right hand
+        g_cl.view.rightHand = CL_CalcHandWorldPos(sim, &g_cl.view.camera, { 0.5f, -0.5f, -1.f});
+        // Vec3 pos = g_cl.view.rightHand.pos;
+        // printf("CL Set right hand pos %.3f, %.3f, %.3f\n", pos.x, pos.y, pos.z);
     }
     else
     {

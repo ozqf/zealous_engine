@@ -19,6 +19,7 @@ extern "C" void Hud_AddViewModels(
     ClientRenderSettings cfg)
 {
 	ZRDrawObj* obj = NULL;
+    
     // Add View Model Scene
     if ((cfg.debugFlags & CL_DEBUG_FLAG_DEBUG_CAMERA) == 0)
     {
@@ -32,13 +33,17 @@ extern "C" void Hud_AddViewModels(
 
         if (cfg.viewModels.rightHandModelIndex > 0)
         {
-            #if 1 // right hand
             obj = ZRDrawObj_InitInPlace(&frame->list->cursor);
             obj->data.SetAsMesh(cfg.viewModels.rightHandModelIndex,
                 cfg.viewModels.rightHandmatIndex);
-            obj->t.scale = placeholderScale;
             scene->params.numObjects++;
 
+            // Vec3 pos = obj->t.pos;
+            // printf("Draw right hand pos %.3f, %.3f, %.3f\n", pos.x, pos.y, pos.z);
+            #if 0
+            obj->t = cfg.viewModels.rightHand;
+            #endif
+            #if 1
             Vec3 posOffset = { 0.5f, -0.5f, -1.f };
             obj->t.pos.x = 0.5f;
             obj->t.pos.y = -0.5f;
@@ -48,6 +53,9 @@ extern "C" void Hud_AddViewModels(
             links[1] = &obj->t;
             Transform_ApplyChain(&obj->t, links, 2);
             #endif
+
+            obj->prevPos = obj->t.pos;
+            obj->t.scale = placeholderScale;
         }
         if (cfg.viewModels.leftHandModelIndex > 0)
         {

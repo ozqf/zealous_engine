@@ -32,6 +32,7 @@
 struct ClientView
 {
     Transform camera;
+    Transform rightHand;
     //i32 showHud;
     i32 rightHandModelIndex;
     i32 rightHandmatIndex;
