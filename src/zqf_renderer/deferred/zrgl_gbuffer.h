@@ -1,7 +1,7 @@
 #ifndef ZRGL_GBUFFER_H
 #define ZRGL_GBUFFER_H
 
-#include "zrgl_internal.h"
+#include "zrgl_deferred_internal.h"
 
 static void ZRGL_GetQuadHandles(i32* vao, i32* vertCount)
 {
@@ -127,7 +127,8 @@ static void ZRGL_GeometryPass_Mesh(
 			  "Non mesh group passed to mesh draw");
 	
 	// prog
-	GLint prog = g_programs[ZR_SHADER_TYPE_BUILD_GBUFFER].handle;
+	GLint prog = g_shdrBuildGBuffer.handle;
+    
 	glUseProgram(prog);
 	CHECK_GL_ERR
 
@@ -141,10 +142,10 @@ static void ZRGL_GeometryPass_Mesh(
 	
 	// textures
 	ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE0, 0, "u_colourTex", h.diffuseHandle, g_samplerDataTex2D);
+        prog, GL_TEXTURE0, 0, "u_colourTex", h.diffuseHandle, g_gBufTextureSampler);
 	CHECK_GL_ERR
 	ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE1, 1, "u_emissionTex", h.emissiveHandle, g_samplerDataTex2D);
+        prog, GL_TEXTURE1, 1, "u_emissionTex", h.emissiveHandle, g_gBufTextureSampler);
 	CHECK_GL_ERR
 	
 	ZR_SetProgM4x4(prog, "u_projection", projection->cells);
@@ -153,6 +154,7 @@ static void ZRGL_GeometryPass_Mesh(
 	M4x4_CREATE(model)
 	M4x4_CREATE(modelView)
 	
+    f32 interpolate = ZRGL_GetInterpolate();
 	for (i32 i = 0; i < group->numItems; ++i)
 	{
 		i32 objIndex = group->indices[i];
@@ -163,7 +165,7 @@ static void ZRGL_GeometryPass_Mesh(
         if (!Vec3_IsZero(&obj->prevPos))
         {
             //Vec3 a = obj->prevPos;
-            Vec3 pos = Vec3_Lerp(obj->prevPos, Vec3_FromVec4(model.wAxis), g_interpolate);
+            Vec3 pos = Vec3_Lerp(obj->prevPos, Vec3_FromVec4(model.wAxis), interpolate);
             model.wAxis = Vec4_FromVec3(pos, 1);
         }
 		M4x4_SetToIdentity(modelView.cells);
@@ -206,7 +208,7 @@ static void ZRGL_FillGBuffer(
     glClear(GL_DEPTH_BUFFER_BIT);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    GLint prog = g_programs[ZR_SHADER_TYPE_BUILD_GBUFFER].handle;
+    GLint prog = g_shdrBuildGBuffer.handle;
     glUseProgram(prog);
     CHECK_GL_ERR
     glCullFace(GL_BACK);
@@ -253,7 +255,7 @@ static void ZRGL_DrawDebugGBufferCombine(ZRGBuffer* gBuf)
     glDisable(GL_CULL_FACE);
     glDepthMask(GL_FALSE);
 
-    GLint prog = g_programs[ZR_SHADER_TYPE_COMBINE_GBUFFER].handle;
+    GLint prog = g_shdrCombineGBuffer.handle;
     glUseProgram(prog);
 
     M4x4_CREATE(projection)
@@ -265,11 +267,11 @@ static void ZRGL_DrawDebugGBufferCombine(ZRGBuffer* gBuf)
     ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
 
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE0, 0, "u_colourTex", gBuf->colourTex, g_samplerDataTex2D);
+        prog, GL_TEXTURE0, 0, "u_colourTex", gBuf->colourTex, g_gBufTextureSampler);
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE1, 1, "u_normalTex", gBuf->normalTex, g_samplerDataTex2D);
+        prog, GL_TEXTURE1, 1, "u_normalTex", gBuf->normalTex, g_gBufTextureSampler);
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE2, 2, "u_positionTex", gBuf->positionTex, g_samplerDataTex2D);
+        prog, GL_TEXTURE2, 2, "u_positionTex", gBuf->positionTex, g_gBufTextureSampler);
     
     i32 vao;
 	i32 vertCount;
@@ -303,7 +305,7 @@ static void ZRGL_GBufferDrawDirectLight(
     ZRGBuffer* gBuf, Vec3 lightWorldPos, Vec3 lightWorldDir, Vec3 lightColour,
     f32 lightMultiplier, f32 lightRange)
 {
-    GLint prog = g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_DIRECT].handle;
+    GLint prog = g_shdrGBufferDirectLight.handle;
     glUseProgram(prog);
 
     M4x4_CREATE(projection)
@@ -315,11 +317,11 @@ static void ZRGL_GBufferDrawDirectLight(
     ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
 
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE0, 0, "u_positionTex", gBuf->positionTex, g_samplerDataTex2D);
+        prog, GL_TEXTURE0, 0, "u_positionTex", gBuf->positionTex, g_gBufTextureSampler);
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE1, 1, "u_normalTex", gBuf->normalTex, g_samplerDataTex2D);
+        prog, GL_TEXTURE1, 1, "u_normalTex", gBuf->normalTex, g_gBufTextureSampler);
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE2, 2, "u_colourTex", gBuf->colourTex, g_samplerDataTex2D);
+        prog, GL_TEXTURE2, 2, "u_colourTex", gBuf->colourTex, g_gBufTextureSampler);
     
     //printf("GBuf light at %.3f, %.3f, %.3f - range %.3f\n",
     //    lightWorldPos.x, lightWorldPos.y, lightWorldPos.z, 10.f
@@ -348,9 +350,8 @@ static void ZRGL_GBufferDrawPointLight(
     ZRGBuffer* gBuf, Vec3 lightWorldPos, Vec3 lightWorldDir, Vec3 lightColour,
     f32 lightMultiplier, f32 lightRange)
 {
-    GLint prog = g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_POINT].handle;
+    GLint prog = g_shdrGBufferPointLight.handle;
     glUseProgram(prog);
-
     M4x4_CREATE(projection)
     ZR_SetProgM4x4(prog, "u_projection", projection.cells);
     M4x4_CREATE(modelView)
@@ -359,13 +360,13 @@ static void ZRGL_GBufferDrawPointLight(
     ZR_SetProgM4x4(prog, "u_modelView", modelView.cells);
 
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE0, 0, "u_positionTex", gBuf->positionTex, g_samplerDataTex2D);
+        prog, GL_TEXTURE0, 0, "u_positionTex", gBuf->positionTex, g_gBufTextureSampler);
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE1, 1, "u_normalTex", gBuf->normalTex, g_samplerDataTex2D);
+        prog, GL_TEXTURE1, 1, "u_normalTex", gBuf->normalTex, g_gBufTextureSampler);
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE2, 2, "u_colourTex", gBuf->colourTex, g_samplerDataTex2D);
+        prog, GL_TEXTURE2, 2, "u_colourTex", gBuf->colourTex, g_gBufTextureSampler);
     ZR_PrepareTextureUnit2D(
-        prog, GL_TEXTURE3, 3, "u_emissionTex", gBuf->emissionTex, g_samplerDataTex2D);
+        prog, GL_TEXTURE3, 3, "u_emissionTex", gBuf->emissionTex, g_gBufTextureSampler);
     
     ZR_SetProgVec3f(prog, "u_lightWorldPos", lightWorldPos);
     // point light, dir not used
@@ -398,7 +399,7 @@ static void ZRGL_DrawEmission(f32 aspectRatio)
 /**
  * Draw gbuffer components for debug
  */
-static void ZRGL_DrawGBufferDebugQuads(f32 aspectRatio)
+extern "C" void ZRGL_DrawGBufferDebugQuads(f32 aspectRatio)
 {
     f32 debugQuadSize = 0.5f;
     f32 debugQuadPosOuter = 0.75f;

@@ -11,10 +11,12 @@
 #include "../../lib/glfw3_vc2015/glfw3.h"
 
 #include "zrgl_internal.h"
+#include "zrgl_globals.h"
+
+#include "zrgl_shaders.h"
 
 // opengl specific implementations
 #include "zrgl_buffers.h"
-#include "zrgl_shaders.h"
 #include "zrgl_prefabs.h"
 #include "zrgl_shadows.h"
 #include "zrgl_upload.h"
@@ -25,8 +27,9 @@
 #include "zrgl_forward_main.h"
 // deferred
 //#include "zrgl_deferred_draw.h"
-#include "zrgl_gbuffer.h"
-#include "zrgl_deferred_main.h"
+// #include "zrgl_gbuffer.h"
+// #include "zrgl_deferred_main.h"
+#include "zrgl_deferred.h"
 
 #include "zrgl_init.h"
 

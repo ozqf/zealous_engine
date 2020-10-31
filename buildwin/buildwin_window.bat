@@ -27,7 +27,7 @@ set linkInputA=../lib/glfw3_vc2015/glfw3dll.lib
 set linkInputB=../buildwin_platform_libs/platlibs.lib
 set compInA=../src/win_window/win_window.cpp ../src/ui/zui.cpp
 set compInB=../src/zqf_renderer/zr_groups.cpp ../src/zqf_renderer/zrgl.cpp
-set compInC=
+set compInC=../src/zqf_renderer/deferred/zrgl_deferred.cpp
 set outputDLL=/Fe../bin/wingl.dll
 @echo on
 @cl %compilerFlags% %compilerDefines% %compInA% %compInB% %compInC% %outputDLL% %linkInputA% %linkInputB%

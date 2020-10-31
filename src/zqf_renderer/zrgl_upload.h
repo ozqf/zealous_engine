@@ -3,7 +3,7 @@
 
 #include "zrgl_internal.h"
 
-static void ZRGL_UploadTexture(u8* pixels, i32 width, i32 height, u32* handle)
+extern "C" void ZRGL_UploadTexture(u8* pixels, i32 width, i32 height, u32* handle)
 {
     if (pixels == NULL) { printf("ERROR UploadTex - pixels are null\n"); return; }
     if (width <= 0) { printf("ERROR UploadTex - widht <= 0\n"); return; }
@@ -46,7 +46,7 @@ static void ZRGL_UploadTexture(u8* pixels, i32 width, i32 height, u32* handle)
 //////////////////////////////////////////////////////
 // TODO: glDataType is ignored! Always assuming FLOAT
 // Type should be either GL_FLOAT or GL_DOUBLE!
-static void ZRGL_UploadMesh(MeshData* data, ZRMeshHandles* result, u32 flags)
+extern "C" void ZRGL_UploadMesh(MeshData* data, ZRMeshHandles* result, u32 flags)
 {
     ZE_ASSERT(data->numVerts <= data->maxVerts, "Bad upload - num verts > max verts\n");
     u32 vaoHandle, vboHandle;

@@ -75,7 +75,7 @@ struct ScreenInfo
 #define ZR_PROJECTION_MODE_IDENTITY 1
 #define ZR_PROJECTION_MODE_ORTHO_BASE 2
 
-#define ZR_MAX_BATCH_SIZE 12
+#define ZR_MAX_BATCH_SIZE 256
 //#define ZR_MAX_BATCH_SIZE 100
 
 #include "zr_draw_types.h"

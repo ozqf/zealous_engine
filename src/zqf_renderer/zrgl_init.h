@@ -153,7 +153,8 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
     // Shadow maps/frame buffers
     /////////////////////////////////////////
 
-    g_gBuffer = ZRGL_CreateGBuffer(scrWidth, scrHeight);
+    //g_gBuffer = ZRGL_CreateGBuffer(scrWidth, scrHeight);
+    ZRGL_InitDeferred(scrWidth, scrHeight);
     
     g_shadowMapFB = ZRGL_CreateShadowMapBuffers(
         ZR_SHADOW_MAP_WIDTH,
@@ -241,7 +242,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         &g_programs[ZR_SHADER_TYPE_SHADOW_MAP_DEBUG]);
     if (err != ZE_ERROR_NONE) { return err; }
 
-    
+    #if 0
     err = ZRGL_CreateProgram(
         gbuffer_create_vert_text,
         gbuffer_create_frag_text,
@@ -286,7 +287,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
         NO,
         &g_programs[ZR_SHADER_TYPE_GBUFFER_LIGHT_VOLUME]);
     if (err != ZE_ERROR_NONE) { return err; }
-
+    #endif
     /////////////////////////////////////////
     // Assets
     /////////////////////////////////////////

@@ -8,7 +8,7 @@
 // Draw a crude quad directly into screen space.
 ////////////////////////////////////////////////////////////
 // Note for debugging shadow maps: This guy works okay!
-static void ZRGL_DrawDebugQuad(
+extern "C" void ZRGL_DrawDebugQuad(
     Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax, i32 texHandle, f32 aspectRatio, i32 bTransparent)
 {
     glDisable(GL_DEPTH_TEST);
@@ -263,7 +263,7 @@ static void ZR_DrawMeshGroupFallback(
 ///////////////////////////////////////////////////////////
 // Draw with test shadow map
 ///////////////////////////////////////////////////////////
-static void ZR_DrawMeshGroupTest(
+extern "C" void ZR_DrawMeshGroupTest(
     Transform* camera,
     ZRDrawGroup* group,
     ZRDrawObj* objects,

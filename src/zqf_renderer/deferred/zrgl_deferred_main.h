@@ -1,14 +1,73 @@
 #ifndef ZRGL_MAIN_DEFERRED_H
 #define ZRGL_MAIN_DEFERRED_H
 
-#include "zrgl_internal.h"
+#include "../zrgl_internal.h"
 
-struct ZR_DeferredStats
+extern "C" ErrorCode ZRGL_InitDeferred(i32 scrWidth, i32 scrHeight)
 {
-    f32 geometryMS;
-    f32 lightingMS;
-    i32 numLights;
-};
+    g_gBuffer = ZRGL_CreateGBuffer(scrWidth, scrHeight);
+    
+    /////////////////////////////////////////
+    // Programs
+    /////////////////////////////////////////
+    
+    ErrorCode err;
+
+    
+    err = ZRGL_CreateProgram(
+        gbuffer_create_vert_text,
+        gbuffer_create_frag_text,
+        "BuildGBuffer",
+        ZR_DRAWOBJ_TYPE_MESH,
+        NO,
+        &g_shdrBuildGBuffer);
+    if (err != ZE_ERROR_NONE) { return err; }
+    
+    err = ZRGL_CreateProgram(
+        gbuffer_combine_vert_text,
+        gbuffer_combine_frag_text,
+        "CombineGBuffer",
+        ZR_DRAWOBJ_TYPE_MESH,
+        NO,
+        &g_shdrCombineGBuffer);
+    if (err != ZE_ERROR_NONE) { return err; }
+
+    err = ZRGL_CreateProgram(
+        gbuffer_light_direct_vert_text,
+        gbuffer_light_point_frag_text,
+        "GBufferLightPoint",
+        ZR_DRAWOBJ_TYPE_MESH,
+        NO,
+        &g_shdrGBufferPointLight);
+    if (err != ZE_ERROR_NONE) { return err; }
+    
+    err = ZRGL_CreateProgram(
+        gbuffer_light_direct_vert_text,
+        gbuffer_light_direct_frag_text,
+        "GBufferLightDirect",
+        ZR_DRAWOBJ_TYPE_MESH,
+        NO,
+        &g_shdrGBufferDirectLight);
+    if (err != ZE_ERROR_NONE) { return err; }
+    
+    err = ZRGL_CreateProgram(
+        gbuffer_light_volume_vert_text,
+        gbuffer_light_volume_frag_text,
+        "GBufferLightVolume",
+        ZR_DRAWOBJ_TYPE_MESH,
+        NO,
+        &g_shdrGBufferVolumeLight);
+    if (err != ZE_ERROR_NONE) { return err; }
+
+    glGenSamplers(1, &g_gBufTextureSampler);
+    CHECK_GL_ERR
+    glSamplerParameteri(g_gBufTextureSampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    CHECK_GL_ERR
+    glSamplerParameteri(g_gBufTextureSampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    CHECK_GL_ERR
+    
+    return ZE_ERROR_NONE;
+}
 
 #if 0
 static void ZR_DrawDeferredLight(
@@ -133,11 +192,11 @@ static void ZR_DrawDeferredVolumeLights(ZRGBuffer* gBuf, Transform* camera, Scre
 }
 #endif
 
-static ZRGroupingStats ZR_DrawSceneDeferred(
+extern "C" ZRGroupingStats ZR_DrawSceneDeferred(
     ZRSceneFrame *sceneCmd, ZEBuffer *scratch, ScreenInfo scrInfo)
 {
     ZRGroupingStats stats = {};
-    f64 start = g_platform.QueryClock();
+    f64 start = ZRGL_QueryClock();
 
     M4x4 *projection = &sceneCmd->drawTime.projection;
     // Setup
@@ -168,7 +227,7 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
 
     ///////////////////////////////////////////////////////////
     // Deferred Geometry pass
-    f64 gBufStart = g_platform.QueryClock();
+    f64 gBufStart = ZRGL_QueryClock();
     ZRGL_FillGBuffer(
         &g_gBuffer,
         &sceneCmd->params.camera,
@@ -178,20 +237,21 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
         objects,
         sceneCmd->params.numObjects,
         &stats);
-    stats.gBufferFillMS = (g_platform.QueryClock() - gBufStart) * 1000;
+    stats.gBufferFillMS = (ZRGL_QueryClock() - gBufStart) * 1000;
 
     ///////////////////////////////////////////////////////////
     // draw lights
     ///////////////////////////////////////////////////////////
     stats.numLights = view->numLights;
-    f64 gBufLightStart = g_platform.QueryClock();
+    f64 gBufLightStart = ZRGL_QueryClock();
 
     // lighting modes 1 and 2 are currently either is SUPER slow or broken
     
     ///////////////////////////////////////////////////////////
     // individual lights mode
     // big quad per light - terrible performance.
-    if (g_lightingMode == 1)
+    i32 lightMode = ZRGL_GetLightMode();
+    if (lightMode == 1)
     {
         // disable depth testing
         glDisable(GL_DEPTH_TEST);
@@ -244,9 +304,9 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
         glEnable(GL_CULL_FACE);
         glDepthMask(GL_TRUE);
 
-        stats.gBufferLightMS = (g_platform.QueryClock() - gBufLightStart) * 1000;
+        stats.gBufferLightMS = (ZRGL_QueryClock() - gBufLightStart) * 1000;
     }
-    else if (g_lightingMode == 2)
+    else if (lightMode == 2)
     {
         ///////////////////////////////////////////////////////////
         // NOT WORKING! batched lights mode
@@ -276,7 +336,7 @@ static ZRGroupingStats ZR_DrawSceneDeferred(
     // Draw emission map
     ZRGL_DrawEmission(scrInfo.aspectRatio);
 
-    f64 end = g_platform.QueryClock();
+    f64 end = ZRGL_QueryClock();
     stats.time = end - start;
     return stats;
 }
