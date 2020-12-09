@@ -5,6 +5,7 @@
 ///////////////////////////////////////////////////////
 // Introspection data
 ///////////////////////////////////////////////////////
+#define ZSERIALISE
 
 #define INTROSPECTION_TYPE_NULL 0
 #define INTROSPECTION_TYPE_BYTES 1
@@ -169,8 +170,8 @@ internal i32 Test_ReadTestTypeDelta(EncodeTable* table, u8* itemBytes, u8* buffe
 	}
 	return (cursor - buffer);
 }
-
-/*internal*/ EncodeTable* Test_GetEncodeTable(
+/*
+internal EncodeTable* Test_GetEncodeTable(
 	EncodeTable* tables, i32 numTables, char* name)
 {
 	for (i32 i = 0; i < numTables; ++i)
@@ -182,25 +183,25 @@ internal i32 Test_ReadTestTypeDelta(EncodeTable* table, u8* itemBytes, u8* buffe
 	}
 	return NULL;
 }
-
+*/
 ///////////////////////////////////////////////////////
 // Test structs
 ///////////////////////////////////////////////////////
 
 struct TestType
 {
-	i32 a;
-	i32 b;
-	i32 c;
+	ZSERIALISE i32 a;
+	ZSERIALISE i32 b;
+	ZSERIALISE i32 c;
 
-	f32 x;
-	f32 y;
-	f32 z;
+	ZSERIALISE f32 x;
+	ZSERIALISE f32 y;
+	ZSERIALISE f32 z;
 	
-	i32 state;
+	ZSERIALISE i32 state;
 };
 
-internal EncodeTable g_encodeTables[13];
+//internal EncodeTable g_encodeTables[13];
 internal EncodeTable TestType_Table;
 
 #define ADD_FIELD(ptrTable, varIndex, ptrStruct, varType, varName, sizeInBytes) \
@@ -220,8 +221,8 @@ internal void Test_BuildTestTypeIntrospectionTable(EncodeTable* t)
 	
 	u8* structPtr = (u8*)ptrItem;
 	u8* structMemberPtr = (u8*)&ptrItem->a;
-	printf("Struct ptr %d member ptr: %d\n", (i32)structPtr, (i32)structMemberPtr);
-
+	printf("Build introspection table for test type\n");
+	
 	// Via macro
 	ADD_FIELD(t, 0, (&item), INTROSPECTION_TYPE_BYTES, a, sizeof(i32))
 	ADD_FIELD(t, 1, (&item), INTROSPECTION_TYPE_BYTES, b, sizeof(i32))
@@ -231,6 +232,7 @@ internal void Test_BuildTestTypeIntrospectionTable(EncodeTable* t)
 	ADD_FIELD(t, 5, (&item), INTROSPECTION_TYPE_BYTES, z, sizeof(i32))
 	ADD_FIELD(t, 6, (&item), INTROSPECTION_TYPE_BYTES, state, sizeof(i32))
 	t->maxSize = Test_GetIntrospectionTableSize(t);
+	printf("\tTotal bytes of data: %d\n", t->maxSize);
 }
 
 ///////////////////////////////////////////////////////
@@ -257,12 +259,25 @@ internal void Test_PrintTestType(TestType* t)
 	);
 }
 
-void COM_PrintBits(i32 val, u8 printNewLine)
+void COM_PrintBits32(i32 val, u8 printNewLine)
 {
     for (i32 i = 31; i >= 0; --i)
     {
         i32 result = 1 & (val >> i);
         printf("%d", result);
+    }
+    if (printNewLine)
+    {
+        printf("\n");
+    }
+}
+
+void COM_PrintBits64(i64 val, u8 printNewLine)
+{
+    for (i64 i = 63; i >= 0; --i)
+    {
+        i64 result = 1 & (val >> i);
+        printf("%llu", result);
     }
     if (printNewLine)
     {
@@ -297,7 +312,7 @@ internal void Test_Introspection()
 	printf("\n === Test delta introspection ===\n\n");
 	TestType previousState = {};
 
-	printf("Number of encoding tables: %d\n", (sizeof(g_encodeTables) / sizeof(*g_encodeTables)));
+	//printf("Number of encoding tables: %d\n", (sizeof(g_encodeTables) / sizeof(*g_encodeTables)));
 
 	TestType_Table.label = "TestType";
 	EncodeVar* vars = TestType_Table.vars;
@@ -318,15 +333,16 @@ internal void Test_Introspection()
 	currentState.y = 2458.038f;
 	currentState.state = 43;
 	
-	printf("Items:\n");
+	printf("Previous state\n");
 	Test_PrintTestType(&previousState);
+	printf("Current state\n");
 	Test_PrintTestType(&currentState);
 	#if 1
 	// Force a full state write by sending a full diff mask:
 	//i32 diffBits = 0xffffffff;
 	i32 diffBits = Test_CalcDiff(t, (u8*)&previousState, (u8*)&currentState);
 	printf("Diff bits (%d):\n", diffBits);
-	COM_PrintBits(diffBits, 1);
+	COM_PrintBits32(diffBits, 1);
 	u8 buffer[512];
 	u8* cursor = buffer;
 	

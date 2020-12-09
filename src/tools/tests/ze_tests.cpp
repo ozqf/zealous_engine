@@ -250,7 +250,8 @@ extern "C" void ZETests_Run()
 	// test everything:
 	//testMask = ~0;
 	//testMask = TEST_STRINGS;
-	testMask = TEST_FILES;
+	//testMask = TEST_FILES;
+	testMask = TEST_INTROSPECTION;
 	
 	// Test core common lib
 	if (testMask & TEST_STRINGS) { Test_StringFunctions(); }
