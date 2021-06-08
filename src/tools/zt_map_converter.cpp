@@ -1,0 +1,219 @@
+#ifndef ZT_MAP_CONVERTER_CPP
+#define ZT_MAP_CONVERTER_CPP
+
+#include "zt_map_converter.h"
+
+#include "../ze_common/ze_common_full.h"
+
+struct ZTMapFace
+{
+	Vec3 origin;
+	Vec3 normal;
+	Vec2 texOrigin;
+	f32 texRotation;
+	char* texture;
+};
+
+struct ZTMapBrush
+{
+	i32 firstFaceIndex;
+	i32 numFaces;
+};
+
+
+static ErrorCode ParseFace(const char* line, i32 lineLen, ZTMapFace* result)
+{
+	//printf("Face: %s\n", line);
+	// expect 21 tokens, eg:
+	// ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) metal1_3 0 0 0 1 1
+	const i32 bufLen = 512;
+	const i32 maxTokens = 32;
+	if (lineLen > bufLen)
+	{
+		printf("Line length of %d exceeds limit %d\n",
+			lineLen, bufLen); 
+		return 1;
+	}
+	char buf[bufLen];
+	char* tokens[maxTokens];
+	const i32 expectedTokens = 21;
+	i32 numTokens = ZStr_Tokenise(line, buf, tokens, maxTokens);
+	if (numTokens != expectedTokens)
+	{
+		printf("Bad face - expected %d tokens, got %d\n", expectedTokens, numTokens);
+		return 1;
+	}
+	if (*tokens[0] != '('
+		|| *tokens[4] != ')'
+		|| *tokens[5] != '('
+		|| *tokens[9] != ')'
+		|| *tokens[10] != '('
+		|| *tokens[14] != ')'
+		)
+	{
+		printf("\nBad token in line - Skipped\n");
+		return 1;
+	}
+	#if 0
+	printf("Face : ");
+	for (i32 i = 0; i < numTokens; ++i)
+	{
+		printf("%s, ", tokens[i]);
+	}
+	printf("\n");
+	#endif
+	Vec3 a;
+	a.x = (f32)atof(tokens[1]);
+	a.y = (f32)atof(tokens[2]);
+	a.z = (f32)atof(tokens[3]);
+	Vec3 b;
+	b.x = (f32)atof(tokens[6]);
+	b.y = (f32)atof(tokens[7]);
+	b.z = (f32)atof(tokens[8]);
+	Vec3 c;
+	c.x = (f32)atof(tokens[11]);
+	c.y = (f32)atof(tokens[12]);
+	c.z = (f32)atof(tokens[13]);
+	printf("%s: ( %.1f, %.1f, %.1f )", tokens[15], a.x, a.y, a.z);
+	printf("( %.1f, %.1f, %.1f ) ", b.x, b.y, b.z);
+	printf("( %.1f, %.1f, %.1f )\n", c.x, c.y, c.z);
+	return 0;
+}
+
+static void ParseSetting(const char* line, i32 lineLen)
+{
+	// "classname" "info_player_start"
+	// minimal valid length would be "a" "b" or 8 chars
+	// TODO: No handling of " quotes within a string
+	if (lineLen < 8)
+	{
+		printf("Line %s is too short\n", line);
+		return;
+	}
+	i32 quotes = ZStr_CountSpecificChar(line, '"');
+	if (quotes != 4)
+	{
+		printf("Counted %d quotes in setting line. Expected %d\n",
+			quotes, 4);
+		return;
+	}
+	//printf("Setting: %s\n", line);
+	char* keyStart = ZStr_ReadToChar((char*)line, '"');
+	char* keyEnd = ZStr_ReadToChar((char*)keyStart, '"');
+	char* valueStart = ZStr_ReadToChar((char*)keyEnd, '"');
+	char* valueEnd = ZStr_ReadToChar((char*)valueStart, '"');
+	*(keyEnd - 1) = '\0';
+	*(valueEnd - 1) = '\0';
+	printf("Field Key: %s value: %s\n", keyStart, valueStart);
+}
+
+static ErrorCode ParseMapFile()
+{
+	const i32 bufSize = 512;
+	char buf[bufSize];
+	// read line by line in text mode
+	FILE* f = NULL;
+	const char* path = "map_format_example_128x128x32_cube.map";
+	printf("--- Test read map %s ---\n", path);
+	fopen_s(&f, path, "r");
+	if (f == NULL)
+	{
+		printf("Failed to open ini test %s\n", path);
+		return ZE_ERROR_MISSING_FILE;
+	}
+	i32 line = 1;
+	i32 i = -1;
+	
+	ZTMapBrush* brush = NULL;
+	
+	// array of faces to assign
+	const i32 maxFaces = 64;
+	ZTMapFace* faces = (ZTMapFace*)malloc(sizeof(ZTMapFace) * maxFaces);
+	i32 nextFaceIndex = 0;
+	
+	// array of brushes to assign
+	const i32 maxBrushes = 64;
+	ZTMapBrush* brushes = (ZTMapBrush*)malloc(sizeof(ZTMapBrush) * maxBrushes);
+	i32 nextBrushIndex = 0;
+		
+	
+	while(fgets(buf, bufSize, f))
+	{
+		// patch out '\n'
+		i = ZStr_FindFirstCharMatch(buf, '\n');
+		if (i != -1)
+		{
+			buf[i] = '\0';
+		}
+		// eat whitespace
+		char* lineStart = ZStr_EatWhiteSpace(buf);
+		// detect comments
+		i32 len = ZStr_Len(buf);
+		if (len >= 2 && lineStart[0] == '/' && lineStart[1] == '/' ) { line++; continue; }
+		
+		i32 bWroteFace = NO;
+		//printf("%d: %s\n", line, buf);
+		switch (lineStart[0])
+		{
+			case '{':
+			break;
+			case '}':
+			break;
+			case '(':
+			{
+				if (brush == NULL)
+				{
+					printf("Starting brush %d\n", nextBrushIndex);
+					brush = &brushes[nextBrushIndex++];
+					*brush = {};
+				}
+				
+				printf("Assign face %d\n", nextFaceIndex);
+				ZTMapFace* face = &faces[nextFaceIndex++];
+				*face = {};
+				
+				ErrorCode brushErr = ParseFace(lineStart, len, face);
+				if (brushErr != 0)
+				{
+					printf("Error code %d reading face\n", brushErr);
+					return 1;
+				}
+				brush->numFaces++;
+				bWroteFace = YES;
+			} break;
+			case '"':
+			ParseSetting(lineStart, len);
+			break;
+			default:
+			// FAIL PARSE
+			printf("Unexpected first char %c on line %d\n",
+				lineStart[0], line);
+			fclose(f);
+			return ZE_ERROR_DESERIALISE_FAILED;
+			break;
+		}
+		
+		// if writing brush and didn't add a face, finish this brush
+		if (brush != NULL && bWroteFace == NO)
+		{
+			printf("Finished brush with %d faces\n", brush->numFaces);
+			brush = NULL;
+		}
+		
+		line++;
+	}
+	fclose(f);
+	return ZE_ERROR_NONE;
+}
+
+/////////////////////////////////////////////////////
+// Public
+/////////////////////////////////////////////////////
+extern "C" ErrorCode ZT_MapConvert(const char* filePath)
+{
+	printf("Convert Map\n");
+	ParseMapFile();
+	return 0;
+}
+
+#endif // ZT_MAP_CONVERTER_CPP

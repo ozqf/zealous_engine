@@ -2,6 +2,7 @@
 #include "tests/ze_tests.h"
 #include "zt_monitor.h"
 #include "zt_packer.h"
+#include "zt_map_converter.h"
 
 #include "../ze_common/ze_common_full.h"
 
@@ -25,6 +26,10 @@ void main(int argc, char** argv)
 	else if (ZStr_Compare("packer", argv[1]) == 0)
 	{
 		ZPack_Run(argc, argv);
+	}
+	else if (ZStr_Compare("converter", argv[1]) == 0)
+	{
+		ZT_MapConvert("");
 	}
 	else
 	{

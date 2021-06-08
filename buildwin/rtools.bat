@@ -1,7 +1,7 @@
 @echo off
 cd..
 cd bin_tools
-zetools.exe
+zetools.exe converter
 @rem zetools.exe packer -pack base pak01
 @rem zetools.exe packer -scan base.dat
 cd..

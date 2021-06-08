@@ -109,9 +109,9 @@ static void ZE_FindNextToken(char* readStart, char* readEnd, char** tokenStart, 
     }
 }
 #endif
-static char* ZStr_FindNewLineOrEnd(char* start, char* bufferEnd)
+static char* ZStr_FindNewLineOrEnd(const char* start, const char* bufferEnd)
 {
-    char* cursor = start;
+    char* cursor = (char*)start;
     while(cursor < bufferEnd && (*cursor != '\n' && *cursor != '\r'))
     {
         cursor++;

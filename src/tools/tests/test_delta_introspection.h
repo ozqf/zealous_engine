@@ -6,6 +6,7 @@
 // Introspection data
 ///////////////////////////////////////////////////////
 #define ZSERIALISE
+#define ZSERIALISE_LABEL "ZSERIALISE"
 
 #define INTROSPECTION_TYPE_NULL 0
 #define INTROSPECTION_TYPE_BYTES 1
@@ -31,6 +32,7 @@ struct EncodeTable
 {
 	// size of all members tallied up
 	i32 maxSize;
+	i32 nameHash;
 	char* label;
 	// 32 max for bitmasking
 	EncodeVar vars[32];
@@ -188,7 +190,7 @@ internal EncodeTable* Test_GetEncodeTable(
 // Test structs
 ///////////////////////////////////////////////////////
 
-struct TestType
+ZSERIALISE struct TestType
 {
 	ZSERIALISE i32 a;
 	ZSERIALISE i32 b;
@@ -200,6 +202,21 @@ struct TestType
 	
 	ZSERIALISE i32 state;
 };
+
+static const char* test_source_file_text =
+"ZSERIALISE struct TestType\n"
+"{\n"
+"	ZSERIALISE i32 a;\n"
+"	ZSERIALISE i32 b;\n"
+"	ZSERIALISE i32 c;\n"
+"\n"
+"	ZSERIALISE f32 x;\n"
+"	ZSERIALISE f32 y;\n"
+"	ZSERIALISE f32 z;\n"
+"	\n"
+"	ZSERIALISE i32 state;\n"
+"};\n"
+;
 
 //internal EncodeTable g_encodeTables[13];
 internal EncodeTable TestType_Table;
@@ -306,6 +323,70 @@ void COM_PrintBytes(u8* bytes, i32 numBytes, i32 bytesPerRow)
     printf("\n");
 }
 
+internal void Test_ParseSerialiseLine(const char* line, const char* textEnd, EncodeTable** table)
+{
+	const i32 bufSize = 512;
+	char buf[bufSize];
+	char tokenBuf[bufSize];
+
+	char* end = ZStr_FindNewLineOrEnd(line, textEnd);
+	i32 charCount = end - line;
+	ZStr_CopyLimited(line, buf, charCount);
+	buf[charCount] = '\0';
+	//printf("%d chars in line \"%s\"\n", charCount, buf);
+
+	char* tokens[8];
+	i32 numTokens = ZStr_Tokenise(buf, tokenBuf, tokens, 8);
+	if (numTokens < 3)
+	{
+		printf("\t%d tokens, need %d minimum\n", numTokens, 3);
+		return;
+	}
+	//printf("Type: %s - name: %s\n", tokens[1], tokens[2]);
+	char* type = tokens[1];
+	char* key = tokens[2];
+	if (ZStr_Compare(type, "struct") == 0)
+	{
+		*table = (EncodeTable*)malloc(sizeof(EncodeTable));
+		(*table)->nameHash = ZE_Hash_djb2((u8*)key);
+		printf("Create table for %s (%d)\n", key, (*table)->nameHash);
+		return;
+	}
+	if (*table == NULL)
+	{
+		printf("Attempting to create a var but no struct being built\n");
+		return;
+	}
+	if (ZStr_Compare(type, "i32") == 0)
+	{
+		printf("Add i32 %s to table %d\n", key, (*table)->nameHash);
+	}
+	else
+	{
+		printf("Unknown type %s for serialisation!\n", type);
+	}
+}
+
+internal void Test_ParseStructText(const char* source)
+{
+	printf("--- Test parse struct ---\n");
+	EncodeTable* t = NULL;
+	i32 len = ZStr_Len(source);
+	char* cursor = (char*)source;
+	char* end = cursor + len;
+	while (cursor < end)
+	{
+		char* next = (char*)strstr(cursor, ZSERIALISE_LABEL);
+		if (next == NULL)
+		{
+			break;
+		}
+		Test_ParseSerialiseLine(next, end, &t);
+		// step to next read point
+		cursor = next + 1;
+	}
+	//printf("%s", test_source_file_text);
+}
 
 internal void Test_Introspection()
 {
@@ -357,5 +438,6 @@ internal void Test_Introspection()
 	cursor += Test_ReadTestTypeDelta(t, (u8*)&result, cursor);
 	Test_PrintTestType(&result);
 
+	Test_ParseStructText(test_source_file_text);
 	#endif
 }

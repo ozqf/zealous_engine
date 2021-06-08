@@ -23,6 +23,7 @@
 /bin_tools/*
 !/bin_tools/stats.txt
 !/bin_tools/config.ini
+!/bin_tools/map_format_example_16x16x8_cube.map
 !/bin_tools/map_format_example_128x128x32_cube.map
 
 # Shaders file is auto-generated
