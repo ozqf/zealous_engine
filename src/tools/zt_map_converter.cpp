@@ -7,8 +7,7 @@
 
 struct ZTMapFace
 {
-	Vec3 origin;
-	Vec3 normal;
+	Vec3 a, b, c;
 	Vec2 texOrigin;
 	f32 texRotation;
 	char* texture;
@@ -20,9 +19,34 @@ struct ZTMapBrush
 	i32 numFaces;
 };
 
-
-static ErrorCode ParseFace(const char* line, i32 lineLen, ZTMapFace* result)
+static void DebugPrintFileData(ZTMapBrush* brushes, i32 numBrushes, ZTMapFace* faces, i32 numFaces)
 {
+	printf("=== Print %d brushes ===\n", numBrushes);
+	for (i32 i = 0; i < numBrushes; ++i)
+	{
+		ZTMapBrush* brush = &brushes[i];
+		printf("Brush %d - %d faces\n", i, brush->numFaces);
+		
+		i32 firstIndex = brush->firstFaceIndex;
+		i32 endIndex = firstIndex + brush->numFaces;
+		for (i32 j = firstIndex; j < endIndex; ++j)
+		{
+			ZTMapFace* face = &faces[j];
+			printf("%d -\t%.1f,\t%.1f,\t%.1f -\t%.1f,\t%.1f,\t%.1f -\t%.1f,\t%.1f,\t%.1f\n",
+				j,
+				face->a.x, face->a.y, face->a.z,
+				face->b.x, face->b.y, face->b.z,
+				face->c.x, face->c.y, face->c.z);
+		}
+	}
+}
+
+static ErrorCode ParseFace(const char* line, i32 lineLen, ZTMapFace* r)
+{
+	if (r == NULL)
+	{
+		return 1;
+	}
 	//printf("Face: %s\n", line);
 	// expect 21 tokens, eg:
 	// ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) metal1_3 0 0 0 1 1
@@ -43,6 +67,7 @@ static ErrorCode ParseFace(const char* line, i32 lineLen, ZTMapFace* result)
 		printf("Bad face - expected %d tokens, got %d\n", expectedTokens, numTokens);
 		return 1;
 	}
+	
 	if (*tokens[0] != '('
 		|| *tokens[4] != ')'
 		|| *tokens[5] != '('
@@ -62,21 +87,21 @@ static ErrorCode ParseFace(const char* line, i32 lineLen, ZTMapFace* result)
 	}
 	printf("\n");
 	#endif
-	Vec3 a;
-	a.x = (f32)atof(tokens[1]);
-	a.y = (f32)atof(tokens[2]);
-	a.z = (f32)atof(tokens[3]);
-	Vec3 b;
-	b.x = (f32)atof(tokens[6]);
-	b.y = (f32)atof(tokens[7]);
-	b.z = (f32)atof(tokens[8]);
-	Vec3 c;
-	c.x = (f32)atof(tokens[11]);
-	c.y = (f32)atof(tokens[12]);
-	c.z = (f32)atof(tokens[13]);
-	printf("%s: ( %.1f, %.1f, %.1f )", tokens[15], a.x, a.y, a.z);
-	printf("( %.1f, %.1f, %.1f ) ", b.x, b.y, b.z);
-	printf("( %.1f, %.1f, %.1f )\n", c.x, c.y, c.z);
+	r->a.x = (f32)atof(tokens[1]);
+	r->a.y = (f32)atof(tokens[2]);
+	r->a.z = (f32)atof(tokens[3]);
+	
+	r->b.x = (f32)atof(tokens[6]);
+	r->b.y = (f32)atof(tokens[7]);
+	r->b.z = (f32)atof(tokens[8]);
+	
+	r->c.x = (f32)atof(tokens[11]);
+	r->c.y = (f32)atof(tokens[12]);
+	r->c.z = (f32)atof(tokens[13]);
+	
+	// printf("%s: ( %.1f, %.1f, %.1f )", tokens[15], r->a.x, r->a.y, r->a.z);
+	// printf("( %.1f, %.1f, %.1f ) ", r->b.x, r->b.y, r->b.z);
+	// printf("( %.1f, %.1f, %.1f )\n", r->c.x, r->c.y, r->c.z);
 	return 0;
 }
 
@@ -203,6 +228,9 @@ static ErrorCode ParseMapFile()
 		line++;
 	}
 	fclose(f);
+	
+	DebugPrintFileData(brushes, nextBrushIndex, faces, nextFaceIndex);
+	
 	return ZE_ERROR_NONE;
 }
 
