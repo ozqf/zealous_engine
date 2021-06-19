@@ -4,7 +4,7 @@
 @rem @call vsvars2015
 
 @echo --------------------------------------------------------
-@echo Build Zealous Engine Game dll
+@echo Build Zealous Engine Stub Game dll
 
 cd..
 if not exist bin mkdir bin
