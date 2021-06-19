@@ -20,13 +20,14 @@ internal i32 AppImpl_WriteDraw(void* zrViewFrame)
 ***************************************/
 internal i32  AppImpl_Init()
 {
-	printf("App stub Init\n");
+	printf("App 2d Init\n");
+	g_platform.SetMouseCaptured(NO);
 	return ZE_ERROR_NONE;
 }
 
 internal i32  AppImpl_Shutdown()
 {
-    printf("App stub Shutdown\n");
+    printf("App 2d Shutdown\n");
     // Free memory, assuming a new APP might be loaded in it's place
     return ZE_ERROR_NONE;
 }
@@ -56,7 +57,7 @@ internal i32 AppImpl_Tick(app_frame_info info)
 extern "C"
 ze_app_export __declspec(dllexport) ZE_LinkToGameModule(ze_platform_export platform)
 {
-    printf("APP linking to platform\n");
+    printf("APP 2d linking to platform\n");
     g_platform = platform;
     ze_app_export appExport = {};
     appExport.Init = AppImpl_Init;

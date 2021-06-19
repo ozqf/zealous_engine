@@ -21,6 +21,7 @@ internal i32 AppImpl_WriteDraw(void* zrViewFrame)
 internal i32  AppImpl_Init()
 {
 	printf("App stub Init\n");
+	g_platform.SetMouseCaptured(NO);
 	return ZE_ERROR_NONE;
 }
 

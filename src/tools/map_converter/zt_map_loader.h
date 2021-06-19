@@ -1,23 +1,13 @@
-#ifndef ZT_MAP_CONVERTER_CPP
-#define ZT_MAP_CONVERTER_CPP
 
-#include "zt_map_converter.h"
+#include "zt_map_converter_internal.h"
 
-#include "../ze_common/ze_common_full.h"
-
-struct ZTMapFace
+static void DebugPrintFace(ZTMapFace* face)
 {
-	Vec3 a, b, c;
-	Vec2 texOrigin;
-	f32 texRotation;
-	char* texture;
-};
-
-struct ZTMapBrush
-{
-	i32 firstFaceIndex;
-	i32 numFaces;
-};
+	printf("%.1f,\t%.1f,\t%.1f -\t%.1f,\t%.1f,\t%.1f -\t%.1f,\t%.1f,\t%.1f\n",
+		face->a.x, face->a.y, face->a.z,
+		face->b.x, face->b.y, face->b.z,
+		face->c.x, face->c.y, face->c.z);
+}
 
 static void DebugPrintFileData(ZTMapBrush* brushes, i32 numBrushes, ZTMapFace* faces, i32 numFaces)
 {
@@ -132,7 +122,7 @@ static void ParseSetting(const char* line, i32 lineLen)
 	printf("Field Key: %s value: %s\n", keyStart, valueStart);
 }
 
-static ErrorCode ParseMapFile()
+static ErrorCode ParseMapFile(ZTMapFile* result)
 {
 	const i32 bufSize = 512;
 	char buf[bufSize];
@@ -160,7 +150,12 @@ static ErrorCode ParseMapFile()
 	const i32 maxBrushes = 64;
 	ZTMapBrush* brushes = (ZTMapBrush*)malloc(sizeof(ZTMapBrush) * maxBrushes);
 	i32 nextBrushIndex = 0;
-		
+	
+	*result = {};
+	result->brushes = brushes;
+	result->maxBrushes = maxBrushes;
+	result->faces = faces;
+	result->maxFaces = maxFaces;
 	
 	while(fgets(buf, bufSize, f))
 	{
@@ -174,7 +169,8 @@ static ErrorCode ParseMapFile()
 		char* lineStart = ZStr_EatWhiteSpace(buf);
 		// detect comments
 		i32 len = ZStr_Len(buf);
-		if (len >= 2 && lineStart[0] == '/' && lineStart[1] == '/' ) { line++; continue; }
+		if (len >= 2 && lineStart[0] == '/' && lineStart[1] == '/' )
+		{ line++; continue; }
 		
 		i32 bWroteFace = NO;
 		//printf("%d: %s\n", line, buf);
@@ -218,7 +214,8 @@ static ErrorCode ParseMapFile()
 			break;
 		}
 		
-		// if writing brush and didn't add a face, finish this brush
+		// if writing brush and didn't add a face this iteration,
+		// finish this brush
 		if (brush != NULL && bWroteFace == NO)
 		{
 			printf("Finished brush with %d faces\n", brush->numFaces);
@@ -229,19 +226,8 @@ static ErrorCode ParseMapFile()
 	}
 	fclose(f);
 	
-	DebugPrintFileData(brushes, nextBrushIndex, faces, nextFaceIndex);
+	result->numBrushes = nextBrushIndex;
+	result->numFaces = nextFaceIndex;
 	
 	return ZE_ERROR_NONE;
 }
-
-/////////////////////////////////////////////////////
-// Public
-/////////////////////////////////////////////////////
-extern "C" ErrorCode ZT_MapConvert(const char* filePath)
-{
-	printf("Convert Map\n");
-	ParseMapFile();
-	return 0;
-}
-
-#endif // ZT_MAP_CONVERTER_CPP
