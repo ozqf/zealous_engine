@@ -6,12 +6,40 @@ App Stub - smallest possible app DLL implementation
 #include "../ze_module_interfaces.h"
 #include "../sys_events.h"
 
+struct Transform2D
+{
+	Vec3 pos;
+	Vec2 scale;
+	f32 radians;
+};
+
 internal ze_platform_export g_platform = {};
 
 internal Vec3 g_pos = { 0.f, 0.f, 0.1f };
+internal i32 g_buttons = 0;
+
+internal Transform2D g_positions[256];
+internal i32 g_numPositions = 0;
+internal i32 g_maxPositions = 256;
+
+internal void AddSprite(Vec3 pos, Vec2 scale, f32 radians)
+{
+	g_positions[g_numPositions] = {};
+	g_positions[g_numPositions].pos = pos;
+	g_positions[g_numPositions].scale = scale;
+	g_positions[g_numPositions].radians = radians;
+	g_numPositions++;
+}
 
 internal i32 AppImpl_WriteDraw(void* zrViewFrame)
 {
+	// reset objects
+	g_numPositions = 0;
+	AddSprite(g_pos, { 0.25f, 0.25f }, 0);
+	AddSprite({ 0.5f, 0.5f, 0.1f }, { 0.25f, 0.5f }, 0);
+	AddSprite({ -0.5f, -0.5f, 0.1f }, { 0.5f, 0.25f }, 0);
+	
+	
     ZRViewFrame* frame = (ZRViewFrame*)zrViewFrame;
 	ZEBuffer* list = frame->list;
     // Add draw scenes and objects here...
@@ -31,20 +59,18 @@ internal i32 AppImpl_WriteDraw(void* zrViewFrame)
     ///////////////////////////////////////////////
     // ...add objects...
 	
-	// alloc in object list buffer
-	ZRDrawObj* drawObj = NULL;
-	drawObj = ZRDrawObj_InitInPlace(&list->cursor);
-	scene->params.numObjects += 1;
-	
-	// configure
-	drawObj->data.SetAsMesh(1, 0);
-    drawObj->t.pos = g_pos;
-    drawObj->t.scale =
-    {
-        1,
-		1,
-		1
-    };
+	for (i32 i = 0; i < g_numPositions; ++i)
+	{
+		// alloc in object list buffer
+		ZRDrawObj* drawObj = ZRDrawObj_InitInPlace(&list->cursor);
+		scene->params.numObjects += 1;
+		
+		// configure
+		Transform2D* t2d = &g_positions[i];
+		drawObj->data.SetAsMesh(1, 0);
+		drawObj->t.pos = t2d->pos;
+		drawObj->t.scale = { t2d->scale.x, t2d->scale.y, 1 };
+	}
 	
 	///////////////////////////////////////////////
 	// ...Finish scene
@@ -83,6 +109,16 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
 internal i32 AppImpl_Tick(app_frame_info info)
 {
     // -- do game logic --
+	if (g_buttons & (1 << 0))
+	{
+		g_pos.x -= 1 * info.interval;
+	}
+	if (g_buttons & (1 << 1))
+	{
+		g_pos.x += 1 * info.interval;
+	}
+	ZE_ClampF32(&g_pos.x, -1, 1);
+	ZE_ClampF32(&g_pos.y, -1, 1);
 	
 	// acquire and read platform events buffer
 	ZEBuffer* events;
@@ -109,11 +145,13 @@ internal i32 AppImpl_Tick(app_frame_info info)
 			SysInputEvent* input = (SysInputEvent*)ev;
 			if (input->inputID == Z_INPUT_CODE_LEFT)
 			{
-				g_pos.x -= 1 * info.interval;
+				if (input->value != 0) { g_buttons |= (1 << 0); }
+				else { g_buttons &= ~(1 << 0); }
 			}
 			if (input->inputID == Z_INPUT_CODE_RIGHT)
 			{
-				g_pos.x += 1 * info.interval;
+				if (input->value != 0) { g_buttons |= (1 << 1); }
+				else { g_buttons &= ~(1 << 1); }
 			}
 		}
 	}

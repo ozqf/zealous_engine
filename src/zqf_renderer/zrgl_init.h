@@ -75,7 +75,7 @@ extern "C" ErrorCode ZRGL_Init(i32 scrWidth, i32 scrHeight)
 
     // v-sync - off
     // want to cap frame rate manually... v-sync gives me jip.
-    const i32 swapInterval = 0;
+    const i32 swapInterval = 1;
     printf("Swap interval - %d\n", swapInterval);
     glfwSwapInterval(swapInterval);
 
