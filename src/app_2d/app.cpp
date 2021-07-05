@@ -15,6 +15,7 @@ struct Transform2D
 
 internal ze_platform_export g_platform = {};
 
+internal Vec2 g_mousePos = {};
 internal Vec3 g_pos = { 0.f, 0.f, 0.1f };
 internal i32 g_buttons = 0;
 
@@ -59,19 +60,41 @@ internal i32 AppImpl_WriteDraw(void* zrViewFrame)
     ///////////////////////////////////////////////
     // ...add objects...
 	
+	ZRDrawObj* drawObj;
+	Transform2D* t2d;
 	for (i32 i = 0; i < g_numPositions; ++i)
 	{
 		// alloc in object list buffer
-		ZRDrawObj* drawObj = ZRDrawObj_InitInPlace(&list->cursor);
+		drawObj = ZRDrawObj_InitInPlace(&list->cursor);
 		scene->params.numObjects += 1;
 		
 		// configure
-		Transform2D* t2d = &g_positions[i];
+		t2d = &g_positions[i];
 		drawObj->data.SetAsMesh(1, 0);
 		drawObj->t.pos = t2d->pos;
 		drawObj->t.scale = { t2d->scale.x, t2d->scale.y, 1 };
 	}
+
+	// Cursor - event position
+	// alloc in object list buffer
+	drawObj = ZRDrawObj_InitInPlace(&list->cursor);
+	scene->params.numObjects += 1;
 	
+	Vec2 mPos = g_platform.GetNormalisedMousePos();
+	// configure
+	drawObj->data.SetAsMesh(1, 2);
+	drawObj->t.pos = { mPos.x, mPos.y, 0 };
+	drawObj->t.scale = { 0.1f, 0.1f, 0.1f };
+
+	// cursor - immediately position lookup
+	drawObj = ZRDrawObj_InitInPlace(&list->cursor);
+	scene->params.numObjects += 1;
+
+	// configure
+	drawObj->data.SetAsMesh(1, 3);
+	drawObj->t.pos = {g_mousePos.x, g_mousePos.y, 0};
+	drawObj->t.scale = {0.1f, 0.1f, 0.1f};
+
 	///////////////////////////////////////////////
 	// ...Finish scene
     scene->params.numListBytes = list->cursor - (u8*)scene->params.objects;
@@ -108,19 +131,7 @@ internal i32 AppImpl_ParseCommandString(const char* str, const char** tokens, co
 
 internal i32 AppImpl_Tick(app_frame_info info)
 {
-    // -- do game logic --
-	if (g_buttons & (1 << 0))
-	{
-		g_pos.x -= 1 * info.interval;
-	}
-	if (g_buttons & (1 << 1))
-	{
-		g_pos.x += 1 * info.interval;
-	}
-	ZE_ClampF32(&g_pos.x, -1, 1);
-	ZE_ClampF32(&g_pos.y, -1, 1);
-	
-	// acquire and read platform events buffer
+    // acquire and read platform events buffer
 	ZEBuffer* events;
     g_platform.Acquire_EventBuffer(&events);
 	
@@ -143,22 +154,43 @@ internal i32 AppImpl_Tick(app_frame_info info)
 		{
 			// read input event
 			SysInputEvent* input = (SysInputEvent*)ev;
-			if (input->inputID == Z_INPUT_CODE_LEFT)
+			i32 id = input->inputID;
+			if (id == Z_INPUT_CODE_LEFT)
 			{
 				if (input->value != 0) { g_buttons |= (1 << 0); }
 				else { g_buttons &= ~(1 << 0); }
 			}
-			if (input->inputID == Z_INPUT_CODE_RIGHT)
+			if (id == Z_INPUT_CODE_RIGHT)
 			{
 				if (input->value != 0) { g_buttons |= (1 << 1); }
 				else { g_buttons &= ~(1 << 1); }
+			}
+			if (id == Z_INPUT_CODE_MOUSE_POS_X)
+			{
+				g_mousePos.x = input->normalised;
+			}
+			if (id == Z_INPUT_CODE_MOUSE_POS_Y)
+			{
+				g_mousePos.y = input->normalised;
 			}
 		}
 	}
 	
     events->Clear(NO);
     g_platform.Release_EventBuffer();
-
+	
+	// -- do game logic --
+	if (g_buttons & (1 << 0))
+	{
+		g_pos.x -= 1 * info.interval;
+	}
+	if (g_buttons & (1 << 1))
+	{
+		g_pos.x += 1 * info.interval;
+	}
+	ZE_ClampF32(&g_pos.x, -1, 1);
+	ZE_ClampF32(&g_pos.y, -1, 1);
+	
 	return ZE_ERROR_NONE;
 }
 

@@ -356,6 +356,15 @@ static void PlatformImpl_ReleaseEventBuffer()
     { g_window.Release_EventBuffer(); }
 }
 
+static Vec2 PlatformImp_GetNormalisedMousePos()
+{
+	if (g_window.sentinel == ZE_SENTINEL)
+	{
+		return g_window.GetNormalisedMousePos();
+	}
+	return {};
+}
+
 static i32 PlatformImpl_ExecTextCommand(
     const char* str, const i32 len, const char** tokens, const i32 numTokens)
 {
@@ -529,6 +538,8 @@ static ze_platform_export Win_BuildExport()
     result.Release_AppDrawBuffers = PlatformImpl_ReleaseAppDrawBuffers;
     result.Acquire_EventBuffer = PlatformImpl_AcquireEventBuffer;
     result.Release_EventBuffer = PlatformImpl_ReleaseEventBuffer;
+	
+	result.GetNormalisedMousePos = PlatformImp_GetNormalisedMousePos;
 
     result.OpenSocket = PlatformImpl_OpenSocket;
     result.CloseSocket = PlatformImpl_CloseSocket;

@@ -212,4 +212,19 @@ internal InputAction* Input_TestForAction(
     return NULL;
 }
 
+/*
+Convert a screen pixel position to opengl screen coords (-1 to +1)
+*/
+static Vec2 Input_NormaliseScreenPos(f32 scrPosX, f32 scrPosY, i32 scrWidth, i32 scrHeight)
+{
+	Vec2 p = {};
+	p.x = scrPosX / scrWidth;
+	p.x = (p.x * 2.f) - 1.f;
+	
+	p.y = scrPosY / scrHeight;
+	p.y = (p.y * 2.f) - 1.f;
+	p.y *= -1.f;
+	return p;
+}
+
 #endif // ZE_INPUT_H

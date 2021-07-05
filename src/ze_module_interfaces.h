@@ -34,6 +34,7 @@ struct ze_window_export
     i32 (*MainLoop)();
     i32 (*IsMouseCaptured)();
     void (*SetMouseCaptured)(bool flag);
+	Vec2 (*GetNormalisedMousePos)();
     // Written to by app, read by renderer
     void (*Acquire_AppDrawBuffers)(ZEBuffer** listBuf, ZEBuffer** dataBuf);
     void (*Release_AppDrawBuffers)();
@@ -68,6 +69,7 @@ struct ze_platform_export
     // mouse state - position and buttons read via EventBuffer
     i32 (*IsMouseCaptured)();
     void (*SetMouseCaptured)(bool flag);
+	Vec2 (*GetNormalisedMousePos)();
     
     // platform will pass to app for writing
     i32 (*AppWriteDraw)(void* zrViewFrame);

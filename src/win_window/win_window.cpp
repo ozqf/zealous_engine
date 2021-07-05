@@ -339,6 +339,18 @@ static void ZR_PollInput()
     g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
 }
 
+static Vec2 WindowImpl_GetNormalisedMousePos()
+{
+	f64 posX, posY;
+    if (g_window == NULL)
+    {
+        return {};
+    }
+    glfwGetCursorPos(g_window, &posX, &posY);
+	Vec2 r = Input_NormaliseScreenPos((f32)posX, (f32)posY, g_windowSize.width, g_windowSize.height);
+	return r;
+}
+
 static void WindowImpl_Acquire_AppDrawBuffers(ZEBuffer** listBuf, ZEBuffer** dataBuf)
 {
     g_platform.LockMutex(ZE_MUTEX_DRAW_QUEUE, 0);
@@ -505,7 +517,8 @@ ze_window_export __declspec(dllexport) ZE_LinkToWindowModule(ze_platform_export 
     result.Release_AppDrawBuffers = WindowImpl_Release_AppDrawBuffers;
     result.IsMouseCaptured = WindowImpl_IsMouseCaptured;
     result.SetMouseCaptured = WindowImpl_SetMouseCaptured;
-    result.ParseCommandString = WindowImpl_ExecTextCommand;
+    result.GetNormalisedMousePos = WindowImpl_GetNormalisedMousePos;
+	result.ParseCommandString = WindowImpl_ExecTextCommand;
     result.sentinel = ZE_SENTINEL;
 	return result;
 }
