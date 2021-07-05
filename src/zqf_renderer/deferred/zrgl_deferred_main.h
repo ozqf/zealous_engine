@@ -204,6 +204,10 @@ extern "C" ZRGroupingStats ZR_DrawSceneDeferred(
     {
         M4x4_SetToIdentity(projection->cells);
     }
+    else if (sceneCmd->params.projectionMode == ZR_PROJECTION_MODE_ORTHO_BASE)
+    {
+        COM_SetupOrthoProjection(projection->cells, 16, 16.f / 9.f);
+    }
     else
     {
         COM_SetupDefault3DProjection(projection->cells,
