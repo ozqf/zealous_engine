@@ -59,7 +59,7 @@
 #include <stdio.h>
 
 #include "../../lib/glad/glad.h"
-#include "../ze_common/ze_common_full.h"
+#include "../../headers/common/ze_common_full.h"
 #include "../../lib/shaders.h"
 
 // External interface
@@ -71,7 +71,7 @@
 //#include "zr_asset_db.h"
 
 #include "opengl_utils.h"
-#include "../ze_common/ze_buf_block.h"
+#include "../../headers/common/ze_buf_block.h"
 
 ///////////////////////////////////////////////////////
 // Internal datatypes

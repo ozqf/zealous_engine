@@ -3,7 +3,7 @@
 
 //#include "../ze_platform_events.h"
 #include "../sys_events.h"
-#include "../ze_common/ze_input.h"
+#include "../../headers/common/ze_input.h"
 #include "win_map_glfw_input.h"
 #include "win_console.h"
 

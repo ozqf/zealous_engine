@@ -2,7 +2,7 @@
 #define ZR_GROUPS_H
 
 #include "zrgl.h"
-#include "../ze_common/ze_byte_buffer.h"
+#include "../../headers/common/ze_byte_buffer.h"
 
 /*
 Scenes are broken down to groups, combo of mesh, proj, material + list of transforms:

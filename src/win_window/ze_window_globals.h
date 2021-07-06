@@ -5,8 +5,8 @@
 //#include "win32_header.h"
 //#include "app/app.h"
 
-#include "../ze_common/ze_common.h"
-#include "../ze_common/ze_byte_buffer.h"
+#include "../../headers/common/ze_common.h"
+#include "../../headers/common/ze_byte_buffer.h"
 
 #include "../ui/zui.h"
 

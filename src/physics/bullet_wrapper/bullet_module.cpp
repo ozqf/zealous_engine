@@ -2,7 +2,7 @@
 #define ZPHYSICS_MODULE_CPP
 
 #include <stdio.h>
-#include "../../ze_common/ze_common_full.h"
+#include "../../../headers/common/ze_common_full.h"
 // header, contains data structures and function definitions
 #include "../physics.h"
 /**

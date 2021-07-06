@@ -5,9 +5,9 @@
 Defines event queue from platform resources
 (input, packets, OS messages etc) to App modules
 */
-#include "ze_common/ze_common.h"
-#include "ze_common/ze_net_types.h"
-#include "ze_common/ze_byte_buffer.h"
+#include "../headers/common/ze_common.h"
+#include "../headers/common/ze_net_types.h"
+#include "../headers/common/ze_byte_buffer.h"
 
 #define SYS_EVENT_SENTINEL 0xDEADBEEF
 #define SYS_EVENT_NULL 0

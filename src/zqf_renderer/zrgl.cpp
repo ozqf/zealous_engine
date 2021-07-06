@@ -1,7 +1,7 @@
 #ifndef ZRGL_CPP
 #define ZRGL_CPP
 
-#include "../ze_common/ze_common.h"
+#include "../../headers/common/ze_common.h"
 
 // Performs non-opengl related logic
 #include "zr_groups.h"

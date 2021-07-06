@@ -12,8 +12,8 @@ ZQF UDP Network module.
 
 //#pragma message("ZQF_NETWORK_H")
 
-#include "../ze_common/ze_common.h"
-#include "../ze_common/ze_net_types.h"
+#include "../../headers/common/ze_common.h"
+#include "../../headers/common/ze_net_types.h"
 
 /////////////////////////////////////////
 // Flags

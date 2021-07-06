@@ -1,7 +1,7 @@
 #ifndef GAME_INTERNAL_H
 #define GAME_INTERNAL_H
 
-#include "../../ze_common/ze_common_full.h"
+#include "../../../headers/common/ze_common_full.h"
 #include "../../sim/sim.h"
 #include "../app.h"
 #include "../game_draw/game_draw.h"

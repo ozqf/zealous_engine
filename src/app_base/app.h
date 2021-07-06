@@ -1,7 +1,7 @@
 #ifndef APP_H
 #define APP_H
 
-#include "../ze_common/ze_common_full.h"
+#include "../../headers/common/ze_common_full.h"
 #include "../zqf_renderer.h"
 
 /////////////////////////////////////////////////////////////////

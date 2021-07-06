@@ -1,5 +1,5 @@
 
-#include "../ze_common/ze_common.h"
+#include "../../headers/common/ze_common.h"
 
 #define SPIKE_SIZE 1.0f
 

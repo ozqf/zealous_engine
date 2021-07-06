@@ -15,8 +15,8 @@ Zealous Engine Windows renderer
 #include "../../lib/glfw3_vc2015/glfw3.h"
 
 #include "../ze_module_interfaces.h"
-#include "../ze_common/ze_common.h"
-#include "../ze_common/ze_string_parse.h"
+#include "../../headers/common/ze_common.h"
+#include "../../headers/common/ze_string_parse.h"
 
 #include "../zqf_renderer/zrgl.h"
 

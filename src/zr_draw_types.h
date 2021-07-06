@@ -1,10 +1,10 @@
 #ifndef ZR_DRAW_TYPES_H
 #define ZR_DRAW_TYPES_H
 
-#include "ze_common/ze_common.h"
-#include "ze_common/ze_hash.h"
-#include "ze_common/ze_string_utils.h"
-#include "ze_common/ze_transform.h"
+#include "../headers/common/ze_common.h"
+#include "../headers/common/ze_hash.h"
+#include "../headers/common/ze_string_utils.h"
+#include "../headers/common/ze_transform.h"
 
 ///////////////////////////////////////////////////////////
 // Render scene data types

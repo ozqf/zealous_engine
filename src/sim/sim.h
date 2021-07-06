@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../ze_common/ze_common.h"
-#include "../ze_common/ze_math_types.h"
+#include "../../headers/common/ze_common.h"
+#include "../../headers/common/ze_math_types.h"
 
 #include "../assetdb/zr_asset_db.h"
 #include "../voxel_world/voxel_world.h"

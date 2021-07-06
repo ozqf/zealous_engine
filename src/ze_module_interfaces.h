@@ -1,7 +1,7 @@
 #ifndef ZE_MODULE_INTERFACES_H
 #define ZE_MODULE_INTERFACES_H
 
-#include "ze_common/ze_common_full.h"
+#include "../headers/common/ze_common_full.h"
 #include "assetdb/zr_asset_db.h"
 
 // timing information given to app each tick

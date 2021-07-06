@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 
-#include "../ze_common/ze_common.h"
+#include "../../headers/common/ze_common.h"
 
 #include "ze_win_socket.h"
 

@@ -34,9 +34,9 @@ extern "C"
 #endif // FORCE_OPTIMUS
 
 #include "../ze_module_interfaces.h"
-#include "../ze_common/ze_common.h"
-#include "../ze_common/ze_byte_buffer.h"
-#include "../ze_common/ze_ini.h"
+#include "../../headers/common/ze_common.h"
+#include "../../headers/common/ze_byte_buffer.h"
+#include "../../headers/common/ze_ini.h"
 #include "../assetdb/zr_asset_db.h"
 
 #include "ze_win_socket.h"

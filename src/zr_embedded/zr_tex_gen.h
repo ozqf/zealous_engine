@@ -1,7 +1,7 @@
 #ifndef ZR_TEX_GEN_H
 #define ZR_TEX_GEN_H
 
-#include "../ze_common/ze_common.h"
+#include "../../headers/common/ze_common.h"
 
 extern "C" i32 TexGen_BytesFor32BitImage(i32 width, i32 height)
 {

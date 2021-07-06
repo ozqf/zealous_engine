@@ -1,7 +1,7 @@
 /*
 App Stub - smallest possible app DLL implementation
 */
-#include "../ze_common/ze_common.h"
+#include "../../headers/common/ze_common.h"
 #include "../zqf_renderer.h"
 #include "../ze_module_interfaces.h"
 

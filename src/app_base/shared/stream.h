@@ -4,7 +4,7 @@
 // Does not do anything related to packets or compression
 // other than store transmission records.
 ///////////////////////////////////////////////////////////
-#include "../../ze_common/ze_common_full.h"
+#include "../../../headers/common/ze_common_full.h"
 #include "commands_base.h"
 #include "net_reliability.h"
 

@@ -4,7 +4,7 @@
 #include "zt_packer.h"
 #include "zt_map_converter.h"
 
-#include "../ze_common/ze_common_full.h"
+#include "../../headers/common/ze_common_full.h"
 
 void main(int argc, char** argv)
 {

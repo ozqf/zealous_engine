@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../ze_common/ze_common.h"
-#include "../ze_common/ze_bitpack.h"
+#include "../../headers/common/ze_common.h"
+#include "../../headers/common/ze_bitpack.h"
 #include "../zr_draw_types.h"
 #include "../physics/physics.h"
 

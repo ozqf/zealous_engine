@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-#include "../../ze_common/ze_common_full.h"
-#include "../../ze_common/ze_blob_store.h"
-#include "../../ze_common/ze_lookup_string_table.h"
-#include "../../ze_common/ze_random_table.h"
+#include "../../../headers/common/ze_common_full.h"
+#include "../../../headers/common/ze_blob_store.h"
+#include "../../../headers/common/ze_lookup_string_table.h"
+#include "../../../headers/common/ze_random_table.h"
 
 #include "../../network/zqf_network.h"
 #include "../../voxel_world/voxel_world.h"

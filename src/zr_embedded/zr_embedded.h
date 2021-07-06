@@ -1,7 +1,7 @@
 #ifndef ZR_EMBEDDED_H
 #define ZR_EMBEDDED_H
 
-#include "../ze_common/ze_common.h"
+#include "../../headers/common/ze_common.h"
 #include "../zqf_renderer.h"
 
 #define MESH_GEN_VERTS_PER_QUAD 6

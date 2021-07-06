@@ -1,8 +1,8 @@
 #ifndef ZE_TEST_STRINGS_H
 #define ZE_TEST_STRINGS_H
 
-#include "../../ze_common/ze_common_full.h"
-#include "../../ze_common/ze_ini.h"
+#include "../../../headers/common/ze_common_full.h"
+#include "../../../headers/common/ze_ini.h"
 
 /////////////////////////////////////////////
 // Tokenise

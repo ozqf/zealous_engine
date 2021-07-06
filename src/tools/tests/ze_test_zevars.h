@@ -1,4 +1,4 @@
-#include "../../ze_common/ze_vars.h"
+#include "../../../headers/common/ze_vars.h"
 
 static void ZEVar_List(ZEVarSet* varSet)
 {

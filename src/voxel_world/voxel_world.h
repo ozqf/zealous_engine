@@ -1,7 +1,7 @@
 #ifndef VOXEL_WORLD_H
 #define VOXEL_WORLD_H
 
-#include "../ze_common/ze_common_full.h"
+#include "../../headers/common/ze_common_full.h"
 
 #define VW_ERROR_NONE 0
 #define VW_ERROR_UNKNOWN 1

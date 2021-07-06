@@ -2,7 +2,7 @@
 #define ZQF_DRAW_SCENE_H
 
 #include "zqf_renderer.h"
-#include "../ze_common/ze_transform.h"
+#include "../../headers/common/ze_transform.h"
 
 #if 0
 

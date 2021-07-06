@@ -1,8 +1,8 @@
 #pragma once
 
 #include "commands.h"
-#include "../../ze_common/ze_bitpack.h"
-#include "../../ze_common/ze_memory_utils.h"
+#include "../../../headers/common/ze_bitpack.h"
+#include "../../../headers/common/ze_memory_utils.h"
 
 // returns bytes read
 internal i32 Cmd_Deserialise(

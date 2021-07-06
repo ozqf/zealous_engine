@@ -1,7 +1,7 @@
 #ifndef ZE_WIN_SOUND_H
 #define ZE_WIN_SOUND_H
 
-#include "../ze_common/ze_common_full.h"
+#include "../../headers/common/ze_common_full.h"
 
 extern "C" ErrorCode Snd_Init();
 extern "C" ErrorCode Snd_Shutdown();

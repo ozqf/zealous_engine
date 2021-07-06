@@ -10,9 +10,9 @@
  * Phys_Bullet
  * 
  */
-#include "../ze_common/ze_common.h"
-#include "../ze_common/ze_byte_buffer.h"
-#include "../ze_common/ze_math_types.h"
+#include "../../headers/common/ze_common.h"
+#include "../../headers/common/ze_byte_buffer.h"
+#include "../../headers/common/ze_math_types.h"
 
 #include "physics_types.h"
 

@@ -2,7 +2,7 @@
 #define WIN_MAP_GLFW_INPUT_H
 
 #include "../../lib/glfw3_vc2015/glfw3.h"
-#include "../ze_common/ze_input.h"
+#include "../../headers/common/ze_input.h"
 
 static zeInputCode Win_GlfwToZEKey(i32 glfwKeyCode)
 {

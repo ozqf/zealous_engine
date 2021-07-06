@@ -9,7 +9,7 @@ TODO: Rationalise naming of functions and data structures!
 TODO: This renderer is using some data types and functions from the common module
 These shouldn't be in common! Move them into this module
  */
-#include "ze_common/ze_common_full.h"
+#include "../headers/common/ze_common_full.h"
 
 #define ZR_SENTINEL 0xDEADBEEF
 

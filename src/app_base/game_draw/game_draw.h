@@ -6,7 +6,7 @@
  * > Initialises ZRViewFrame for draw lists
  * > Adds objects in the given Sim to the render list.
  */
-#include "../../ze_common/ze_common.h"
+#include "../../../headers/common/ze_common.h"
 //#include "../client/client.h"
 #include "../../sim/sim.h"
 #include "../../assetdb/zr_asset_db.h"

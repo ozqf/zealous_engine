@@ -1,5 +1,5 @@
 
-#include "../ze_common/ze_common.h"
+#include "../../headers/common/ze_common.h"
 
 internal f32 g_prim_quadVerts[] =
 {

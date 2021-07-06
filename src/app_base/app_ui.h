@@ -9,7 +9,7 @@
 #define APPUI_INPUT_TOGGLED_OFF 3
 
 //#include "../ui/zui.h"
-#include "../ze_common/ze_common.h"
+#include "../../headers/common/ze_common.h"
 #include "../zqf_renderer.h"
 #include "../sys_events.h"
 #include "../ze_module_interfaces.h"

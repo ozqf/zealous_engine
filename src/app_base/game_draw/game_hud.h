@@ -1,7 +1,7 @@
 #ifndef GAME_HUD_H
 #define GAME_HUD_H
 
-#include "../../ze_common/ze_common.h"
+#include "../../../headers/common/ze_common.h"
 #include "../../zqf_renderer.h"
 #include "game_draw.h"
 

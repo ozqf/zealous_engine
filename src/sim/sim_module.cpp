@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ze_common/ze_common.h"
+#include "../../headers/common/ze_common.h"
 
 // internal types/function defs
 #include "sim_internal.h"

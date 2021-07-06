@@ -3,7 +3,7 @@
 #include "../../lib/fmod/fmod.hpp"
 
 #include "ze_win_sound.h"
-#include "../ze_common/ze_common_full.h"
+#include "../../headers/common/ze_common_full.h"
 
 #define SND_MAX_SOUND_HANDLES 256
 #define SND_MAX_CHANNELS 32

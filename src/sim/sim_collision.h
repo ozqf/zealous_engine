@@ -2,7 +2,7 @@
 #define SIM_COLLISION_H
 
 #include "sim_internal.h"
-#include "../ze_common/ze_collision.h"
+#include "../../headers/common/ze_collision.h"
 
 /**
  * Returns number of overlapping entities

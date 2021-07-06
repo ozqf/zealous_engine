@@ -1,7 +1,7 @@
 #ifndef ZUI_H
 #define ZUI_H
 
-#include "../ze_common/ze_common_full.h"
+#include "../../headers/common/ze_common_full.h"
 
 #define ZUI_SCREEN_STATE_OFF 0
 #define ZUI_SCREEN_STATE_ON 1

@@ -1,8 +1,8 @@
 #ifndef ZE_WIN_SOCKET_H
 #define ZE_WIN_SOCKET_H
 
-#include "../ze_common/ze_common.h"
-#include "../ze_common/ze_net_types.h"
+#include "../../headers/common/ze_common.h"
+#include "../../headers/common/ze_net_types.h"
 
 ///////////////////////////////////////
 // Functions

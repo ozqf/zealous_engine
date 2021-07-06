@@ -1,7 +1,7 @@
 #ifndef WIN_CONSOLE_H
 #define WIN_CONSOLE_H
 
-#include "../ze_common/ze_common.h"
+#include "../../headers/common/ze_common.h"
 
 #define ZE_CONSOLE_BUFFER_SIZE 256
 

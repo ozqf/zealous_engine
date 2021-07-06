@@ -2,8 +2,8 @@
 #define COMMAND_REGISTER_H
 
 #include "zqf_network.h"
-#include "../ze_common/ze_common_full.h"
-#include "../ze_common/ze_hash.h"
+#include "../../headers/common/ze_common_full.h"
+#include "../../headers/common/ze_hash.h"
 
 #include "zn_connection.h"
 #include "zn_pending.h"

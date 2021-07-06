@@ -1,5 +1,5 @@
 
-#include "../ze_common/ze_common_full.h"
+#include "../../headers/common/ze_common_full.h"
 #include "windows.h"
 
 static void ZPack_PrintStrings(ZEBuffer* strings)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "sim_internal.h"
-#include "../ze_common/ze_random_table.h"
+#include "../../headers/common/ze_random_table.h"
 
 internal i32 Sim_CreateFlatRadialPattern(
 	SimSpawnBase* event,
