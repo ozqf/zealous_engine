@@ -4,7 +4,7 @@
 #include "../../headers/common/ze_math_types.h"
 
 #include "../../headers/zr_asset_db.h"
-#include "../voxel_world/voxel_world.h"
+#include "../../headers/voxel_world.h"
 //#include "../physics/physics.h"
 
 //#define SIM_USE_PHYSICS_ENGINE

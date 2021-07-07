@@ -1,4 +1,4 @@
-#include "voxel_world.h"
+#include "../../headers/voxel_world.h"
 
 #include <stdlib.h>
 

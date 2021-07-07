@@ -23,6 +23,10 @@ internal Transform2D g_positions[256];
 internal i32 g_numPositions = 0;
 internal i32 g_maxPositions = 256;
 
+internal i32 g_newId = 1;
+internal ZEBlobStore g_objects = {};
+internal i32 g_playerObjectId = 0;
+
 internal void AddSprite(Vec3 pos, Vec2 scale, f32 radians)
 {
 	g_positions[g_numPositions] = {};
@@ -30,6 +34,23 @@ internal void AddSprite(Vec3 pos, Vec2 scale, f32 radians)
 	g_positions[g_numPositions].scale = scale;
 	g_positions[g_numPositions].radians = radians;
 	g_numPositions++;
+}
+
+internal ZRDrawObj* AddSpriteB(Vec3 pos, Vec2 scale, f32 radians)
+{
+	i32 newId = g_newId++;
+	u8 *mem = g_objects.GetFreeSlot(newId);
+	if (mem == NULL)
+	{
+		printf("No free object slot\n");
+		return NULL;
+	}
+	ZRDrawObj *drawObj = ZRDrawObj_InitInPlace(&mem);
+	drawObj->userTag = newId;
+	drawObj->data.SetAsMesh(1, 0);
+	drawObj->t.pos = pos;
+	drawObj->t.scale = {scale.x, scale.y, 1};
+	return drawObj;
 }
 
 internal i32 AppImpl_WriteDraw(void *zrViewFrame)
@@ -58,6 +79,17 @@ internal i32 AppImpl_WriteDraw(void *zrViewFrame)
 	// ...add objects...
 
 	ZRDrawObj *drawObj;
+	i32 count = g_objects.Count();
+	for (i32 i = 0; i < count; ++i)
+	{
+		drawObj = (ZRDrawObj*)g_objects.GetByIndex(i);
+		ZRDrawObj *target = (ZRDrawObj *)list->cursor;
+		*target = *drawObj;
+		// advance cursor and count
+		list->cursor += sizeof(ZRDrawObj);
+		scene->params.numObjects += 1;
+	}
+	#if 0
 	Transform2D *t2d;
 	for (i32 i = 0; i < g_numPositions; ++i)
 	{
@@ -71,6 +103,14 @@ internal i32 AppImpl_WriteDraw(void *zrViewFrame)
 		drawObj->t.pos = t2d->pos;
 		drawObj->t.scale = {t2d->scale.x, t2d->scale.y, 1};
 	}
+	#endif
+
+	if (g_playerObjectId != 0)
+	{
+		ZRDrawObj *plyr = (ZRDrawObj *)g_objects.GetById(g_playerObjectId);
+		plyr->t.pos = g_pos;
+	}
+	
 
 	// Cursor - event position
 	// alloc in object list buffer
@@ -110,6 +150,16 @@ internal i32 AppImpl_Init()
 {
 	printf("App 2d Init\n");
 	g_platform.SetMouseCaptured(NO);
+	ZE_InitBlobStore(&g_objects, 1024, sizeof(ZRDrawObj), 0);
+	AddSpriteB({0.5f, 0.5f, 0.1f}, {0.5f, 0.5f}, 0);
+	AddSpriteB({-0.5f, -0.5f, 0.1f}, {0.5f, 0.5f}, 0);
+
+	ZRDrawObj *plyr = AddSpriteB({0.f, 0.f, 0.1f}, {0.25f, 0.25f}, 0);
+	if (plyr != NULL)
+	{
+		g_playerObjectId = plyr->userTag;
+	}
+
 	return ZE_ERROR_NONE;
 }
 
@@ -128,6 +178,11 @@ internal i32 AppImpl_RendererReloaded()
 internal i32 AppImpl_ParseCommandString(const char *str, const char **tokens, const i32 numTokens)
 {
 	return NO;
+}
+
+internal void TickObjects(f32 delta)
+{
+	
 }
 
 internal i32 AppImpl_Tick(app_frame_info info)
@@ -189,6 +244,10 @@ internal i32 AppImpl_Tick(app_frame_info info)
 			{
 				g_mousePos.y = input->normalised;
 			}
+			if (id == Z_INPUT_CODE_MOUSE_1)
+			{
+				printf("Shoot\n");
+			}
 		}
 	}
 
@@ -206,6 +265,8 @@ internal i32 AppImpl_Tick(app_frame_info info)
 	}
 	ZE_ClampF32(&g_pos.x, -1, 1);
 	ZE_ClampF32(&g_pos.y, -1, 1);
+
+	g_objects.Truncate();
 
 	return ZE_ERROR_NONE;
 }

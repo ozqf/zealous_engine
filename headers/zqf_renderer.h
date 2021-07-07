@@ -24,11 +24,6 @@ These shouldn't be in common! Move them into this module
 // per light.
 #define ZR_DATA_PIXELS_PER_LIGHT 3
 
-// struct ZRSceneView;
-// struct ZRShader;
-// struct ZRMaterial;
-// struct ZRPlatform;
-
 struct ScreenInfo
 {
     i32 width;
@@ -37,29 +32,7 @@ struct ScreenInfo
 };
 
 #define ZR_MAX_PREFABS 64
-/*
-// Indices to render pre-configured objects
-#define ZR_PREFAB_TYPE_CUBE 0
-#define ZR_PREFAB_TYPE_INVERSE_CUBE 1
-#define ZR_PREFAB_TYPE_WALL 2
-#define ZR_PREFAB_TYPE_GUN 3
-#define ZR_PREFAB_TYPE_ORIENTATION_TEST 4
-#define ZR_PREFAB_TYPE_PILLAR 5
-#define ZR_PREFAB_TYPE_BLOCK_COLOURED 6
-#define ZR_PREFAB_TYPE_QUAD 7
-#define ZR_PREFAB_TYPE_QUAD_DYNAMIC 8
-#define ZR_PREFAB_TYPE_MAGE_TEST 9
-#define ZR_PREFAB_TYPE_SPIKE 10
-#define ZR_PREFAB_TYPE_DEBUG_PLAYER 11
-#define ZR_PREFAB_TYPE_DEBUG_WALL 12
-#define ZR_PREFAB_TYPE_DEBUG_ENEMY 13
-#define ZR_PREFAB_TYPE_DEBUG_ENEMY_PROJECTILE 14
-#define ZR_PREFAB_TYPE_DEBUG_PLAYER_PROJECTILE 15
-#define ZR_PREFAB_TYPE_DEBUG_ITEM 16
-#define ZR_PREFAB_TYPE_DEBUG_EXPLOSION 17
-#define ZR_PREFAB_TYPE_DEBUG_BOUNDING_BOX 18
-#define ZR_PREFAB_TYPE_SPHERE 19
-*/
+
 #define ZR_CUBEMAP_LOAD_INDEX_RIGHT 0
 #define ZR_CUBEMAP_LOAD_INDEX_LEFT 1
 

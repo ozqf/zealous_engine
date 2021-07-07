@@ -222,8 +222,8 @@ struct ZRDrawObj
     Transform t;
     // For interpolation
     Vec3 prevPos;
-    // quick tag for finding objects for debugging
-    i32 debugTag;
+    // a user Id to tag the object. not used in rasterisation
+    i32 userTag;
     // hash of data union, used to identify objects which are
     // similar and could be batched
     u32 hash;

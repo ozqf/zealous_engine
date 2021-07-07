@@ -6,7 +6,7 @@
 #include "../../../headers/common/ze_random_table.h"
 
 #include "../../network/zqf_network.h"
-#include "../../voxel_world/voxel_world.h"
+#include "../../../headers/voxel_world.h"
 
 #include "test_delta_introspection.h"
 #include "ze_test_strings.h"
