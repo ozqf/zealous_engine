@@ -1,7 +1,7 @@
 #ifndef ZR_DB_MATERIALS_H
 #define ZR_DB_MATERIALS_H
 
-#include "zr_asset_db.h"
+#include "../../headers/zr_asset_db.h"
 
 static i32 ZRDB_GetNumMaterials(ZRAssetDB* handle)
 {

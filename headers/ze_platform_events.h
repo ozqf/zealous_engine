@@ -1,3 +1,4 @@
+#if 0
 #ifndef ZE_PLATFORM_EVENTS_H
 #define ZE_PLATFORM_EVENTS_H
 
@@ -43,3 +44,4 @@ internal void ZKeys_WriteEvent(ZEBuffer* buf, zeInputCode inputId, i32 value)
 
 
 #endif // ZE_PLATFORM_EVENTS_H
+#endif

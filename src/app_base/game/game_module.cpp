@@ -1,5 +1,5 @@
 #include "game_internal.h"
-#include "../../sys_events.h"
+#include "../../../headers/sys_events.h"
 
 extern "C" i32 Game_Init(ZE_FatalErrorFunction fatalFunc)
 {

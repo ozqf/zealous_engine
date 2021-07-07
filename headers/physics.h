@@ -14,7 +14,7 @@
 #include "../../headers/common/ze_byte_buffer.h"
 #include "../../headers/common/ze_math_types.h"
 
-#include "physics_types.h"
+#include "physics/physics_types.h"
 
 //////////////////////////////////////////////////////////////////
 // Queued commands

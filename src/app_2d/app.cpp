@@ -2,9 +2,9 @@
 App 2d - simple 2d game with orthographic sprites
 */
 #include "../../headers/common/ze_common.h"
-#include "../zqf_renderer.h"
-#include "../ze_module_interfaces.h"
-#include "../sys_events.h"
+#include "../../headers/zqf_renderer.h"
+#include "../../headers/ze_module_interfaces.h"
+#include "../../headers/sys_events.h"
 
 struct Transform2D
 {

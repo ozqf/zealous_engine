@@ -1,7 +1,7 @@
 #ifndef ZR_DB_MESHES_H
 #define ZR_DB_MESHES_H
 
-#include "zr_asset_db.h"
+#include "../../headers/zr_asset_db.h"
 
 static i32 ZRDB_GetNumMeshes(ZRAssetDB* assetDB)
 {

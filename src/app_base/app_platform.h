@@ -1,8 +1,8 @@
 #pragma once
 
 #include "stdlib.h"
-#include "../sys_events.h"
-#include "../ze_module_interfaces.h"
+#include "../../headers/sys_events.h"
+#include "../../headers/ze_module_interfaces.h"
 #include "app_ui.h"
 #include "app_internal.h"
 

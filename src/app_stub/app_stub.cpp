@@ -2,8 +2,8 @@
 App Stub - smallest possible app DLL implementation
 */
 #include "../../headers/common/ze_common.h"
-#include "../zqf_renderer.h"
-#include "../ze_module_interfaces.h"
+#include "../../headers/zqf_renderer.h"
+#include "../../headers/ze_module_interfaces.h"
 
 internal ze_platform_export g_platform = {};
 

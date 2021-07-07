@@ -1,7 +1,7 @@
 #ifndef ZRGL_H
 #define ZRGL_H
 
-#include "../zqf_renderer.h"
+#include "../../headers/zqf_renderer.h"
 
 /////////////////////////////////////////////////////////////
 // Renderer module shared data types

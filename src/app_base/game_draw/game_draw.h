@@ -9,7 +9,7 @@
 #include "../../../headers/common/ze_common.h"
 //#include "../client/client.h"
 #include "../../sim/sim.h"
-#include "../../assetdb/zr_asset_db.h"
+#include "../../../headers/zr_asset_db.h"
 
 #define CL_DEBUG_FLAG_DRAW_LOCAL_SERVER (1 << 0)
 #define CL_DEBUG_FLAG_NO_ENEMY_TICK (1 << 1)

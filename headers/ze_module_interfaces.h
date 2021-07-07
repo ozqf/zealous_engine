@@ -2,7 +2,7 @@
 #define ZE_MODULE_INTERFACES_H
 
 #include "../headers/common/ze_common_full.h"
-#include "assetdb/zr_asset_db.h"
+#include "../headers/zr_asset_db.h"
 
 // timing information given to app each tick
 struct app_frame_info

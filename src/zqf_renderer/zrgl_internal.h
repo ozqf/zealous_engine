@@ -63,7 +63,7 @@
 #include "../../lib/shaders.h"
 
 // External interface
-#include "../zqf_renderer.h"
+#include "../../headers/zqf_renderer.h"
 
 // embedded assets
 #include "../zr_embedded/zr_embedded.h"

@@ -3,7 +3,7 @@
 
 #include "game_draw.h"
 #include "game_hud.h"
-#include "../../zqf_renderer.h"
+#include "../../../headers/zqf_renderer.h"
 #include "../../ui/zui.h"
 
 extern "C" ClientRenderer* CLR_Create(ZE_FatalErrorFunction fatalFunc, ZRAssetDB* assetDb, i32 particlesPerPool)

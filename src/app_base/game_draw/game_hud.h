@@ -2,7 +2,7 @@
 #define GAME_HUD_H
 
 #include "../../../headers/common/ze_common.h"
-#include "../../zqf_renderer.h"
+#include "../../../headers/zqf_renderer.h"
 #include "game_draw.h"
 
 extern "C" void Hud_AddViewModels(

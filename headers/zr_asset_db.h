@@ -1,7 +1,7 @@
 #ifndef ZR_ASSET_DB_H
 #define ZR_ASSET_DB_H
 
-#include "../zqf_renderer.h"
+#include "zqf_renderer.h"
 
 #define ZRDB_ASSET_TYPE_NONE 0
 #define ZRDB_ASSET_TYPE_TEXTURE 1

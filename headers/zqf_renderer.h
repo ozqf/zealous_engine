@@ -202,6 +202,6 @@ static ZRSceneFrame* ZRScene_InitInPlace(
     return scene;
 }
 
-#include "assetdb/zr_asset_db.h"
+#include "zr_asset_db.h"
 
 #endif // _ZQF_RENDERER_H

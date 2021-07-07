@@ -33,11 +33,11 @@ extern "C"
 }
 #endif // FORCE_OPTIMUS
 
-#include "../ze_module_interfaces.h"
+#include "../../headers/ze_module_interfaces.h"
 #include "../../headers/common/ze_common.h"
 #include "../../headers/common/ze_byte_buffer.h"
 #include "../../headers/common/ze_ini.h"
-#include "../assetdb/zr_asset_db.h"
+#include "../../headers/zr_asset_db.h"
 
 #include "ze_win_socket.h"
 #include "ze_win_sound.h"

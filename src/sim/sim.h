@@ -3,7 +3,7 @@
 #include "../../headers/common/ze_common.h"
 #include "../../headers/common/ze_math_types.h"
 
-#include "../assetdb/zr_asset_db.h"
+#include "../../headers/zr_asset_db.h"
 #include "../voxel_world/voxel_world.h"
 //#include "../physics/physics.h"
 

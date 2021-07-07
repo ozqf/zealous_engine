@@ -11,7 +11,7 @@
 #include "../../lib/stb_image.h"
 #include "../../lib/openfbx/ofbx.h"
 
-#include "zr_asset_db.h"
+#include "../../headers/zr_asset_db.h"
 
 static i32 ZRDB_GetNumTextures(ZRAssetDB* assetDB)
 {

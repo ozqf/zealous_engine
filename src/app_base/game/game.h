@@ -2,7 +2,7 @@
 #define GAME_H
 
 #include "../../../headers/common/ze_common_full.h"
-#include "../../zqf_renderer.h"
+#include "../../../headers/zqf_renderer.h"
 
 extern "C" i32 Game_Init(ZE_FatalErrorFunction fatalFunc);
 extern "C" i32 Game_Start(const char* mapName, const i32 appSessionMode);

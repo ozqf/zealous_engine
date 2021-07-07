@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../sys_events.h"
-#include "../ze_module_interfaces.h"
+#include "../../headers/sys_events.h"
+#include "../../headers/ze_module_interfaces.h"
 
 #include "app.h"
 // #include "server/server.h"

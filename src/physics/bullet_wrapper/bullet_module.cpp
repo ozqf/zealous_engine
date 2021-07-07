@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "../../../headers/common/ze_common_full.h"
 // header, contains data structures and function definitions
-#include "../physics.h"
+#include "../../../headers/physics.h"
 /**
  * !NO BULLET PHYSICS LIBRARY ABOVE THIS POINT!
  * 

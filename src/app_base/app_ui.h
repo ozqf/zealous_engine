@@ -10,9 +10,9 @@
 
 //#include "../ui/zui.h"
 #include "../../headers/common/ze_common.h"
-#include "../zqf_renderer.h"
-#include "../sys_events.h"
-#include "../ze_module_interfaces.h"
+#include "../../headers/zqf_renderer.h"
+#include "../../headers/sys_events.h"
+#include "../../headers/ze_module_interfaces.h"
 
 extern "C" void AppUI_Init(ze_platform_export platform);
 extern "C" void AppUI_Update();

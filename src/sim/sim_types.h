@@ -2,8 +2,8 @@
 
 #include "../../headers/common/ze_common.h"
 #include "../../headers/common/ze_bitpack.h"
-#include "../zr_draw_types.h"
-#include "../physics/physics.h"
+#include "../../headers/zr_draw_types.h"
+#include "../../headers/physics.h"
 
 #define ACTOR_BASE_SPEED 12.f
 #define ACTOR_MOVE_PUSH_SPEED 120.f

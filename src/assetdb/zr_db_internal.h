@@ -1,7 +1,7 @@
 #ifndef ZR_DB_INTERNAL_H
 #define ZR_DB_INTERNAL_H
 
-#include "zr_asset_db.h"
+#include "../../headers/zr_asset_db.h"
 #include "../../headers/common/ze_common_full.h"
 
 #define ZR_ASSET_DB_MAX_HANDLES 512
