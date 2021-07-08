@@ -27,11 +27,9 @@ set in6=
 
 @rem -- Main App input --
 set in1=../src/app_2d/app.cpp
+set in2=../src/app_2d/game2d.cpp
 
-@rem -- Stub App input --
-@rem set in2=../src/app_stub/app_stub.cpp
-
-set compIn=%in1%
+set compIn=%in1% %in2%
 @rem set compIn=../src/sim/sim_module.cpp
 
 set compOut=/Fe../bin/base2d/game.dll

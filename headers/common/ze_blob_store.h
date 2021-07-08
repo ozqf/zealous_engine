@@ -1,6 +1,15 @@
 #ifndef ZE_BLOB_STORE_H
 #define ZE_BLOB_STORE_H
+/*
+Blob store - combines a tight array of blobs of user specified size (for quick iteration)
+with a hashmap of object id to object index (for quick lookup).
 
+Deletion is not immediate. items are marked for deletion, then
+'Truncate' must be called. this will compact the array, filling in deleted spaces.
+
+If truncate is only done once per frame, iteration should check for the status of the blob
+(if header status != ZE_BA_STATUS_OCCUPIED then it is an inactive item)
+*/
 #include "ze_common.h"
 #include "ze_lookup_table.h"
 #include "ze_blob_array.h"

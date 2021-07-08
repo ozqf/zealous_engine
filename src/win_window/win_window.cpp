@@ -142,6 +142,23 @@ static void Window_InitConsoleScreen()
     obj->bgColour = COLOUR_BLACK;
 }
 
+static GLFWmonitor* SelectMonitor()
+{
+	int count;
+	GLFWmonitor** monitors = glfwGetMonitors(&count);
+	int index = 0;
+	printf("Found %d monitors, using %d\n", count, index);
+	for (i32 i = 0; i < count; ++i)
+	{
+		i32 monitorX, monitorY;
+		glfwGetMonitorPos(monitors[i], &monitorX, &monitorY);
+		printf("Monitor pos: %d, %d\n", monitorX, monitorY);
+	}
+	return monitors[index];
+	
+	// return glfwGetPrimaryMonitor();
+}
+
 //////////////////////////////////////////////////////////////////
 // Create Window, gl context and renderer
 //////////////////////////////////////////////////////////////////
@@ -162,9 +179,12 @@ static ErrorCode Window_SpawnWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, MAJOR_VERSION_REQ);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, MINOR_VERSION_REQ);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
+	
     // grab current monitor res
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	
+	
+    // GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    GLFWmonitor* monitor = SelectMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
     i32 scrWidth = mode->width;
     i32 scrHeight = mode->height;
@@ -195,8 +215,15 @@ static ErrorCode Window_SpawnWindow()
     g_windowSize.aspectRatio = (f32)scrWidth / (f32)scrHeight;
     printf("Aspect ratio %.3f\n", g_windowSize.aspectRatio);
     // Create!
+	// Note: Passing any monitor here will enter dodgy horrible res-changing fullscreen mode
+	// so just NULL NULL please.
     g_window = glfwCreateWindow(scrWidth, scrHeight, "Zealous Engine", NULL, NULL);
-    
+	
+	i32 monitorX, monitorY;
+	glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+	i32 x = monitorX + 100;
+	i32 y = monitorY + 100;
+    glfwSetWindowPos(g_window, x, y);
 
     if (!g_window)
     {
@@ -329,14 +356,18 @@ static void ZR_PollMouseForApp()
 static void ZR_PollInput()
 {
     // grab input buffer and poll for events. handled by callbacks
-    g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
-	glfwPollEvents();
+    // g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+    ZEBuffer* buf;
+    g_platform.Acquire_EventBuffer(&buf);
+    glfwPollEvents();
     if (g_bAppWantsMouseCaptured != g_bMouseCaptured)
     {
         g_bMouseCaptured = g_bAppWantsMouseCaptured;
         Window_ApplyMouseState(g_window);
     }
-    g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+    g_platform.Release_EventBuffer();
+    // g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
+    
 }
 
 static Vec2 WindowImpl_GetNormalisedMousePos()

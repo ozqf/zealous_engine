@@ -52,6 +52,28 @@ internal u8 AABBVsAABB(
     return 0;
 }
 
+internal void ZE_SimpleBoundaryBounce1D(f32* pos, f32* vel, f32 min, f32 max)
+{
+	if (*pos > max)
+	{
+		*pos = max;
+		if (*vel > 0)
+		{ *vel *= -1; }
+	}
+	else if (*pos < min)
+	{
+		*pos = min;
+		if (*vel < 0)
+		{ *vel *= -1; }
+	}
+}
+
+internal void ZE_SimpleBoundaryBounce2D(Vec2* pos, Vec2* velocity, Vec2 boundaryMin, Vec2 boundaryMax)
+{
+	ZE_SimpleBoundaryBounce1D(&pos->x, &velocity->x, boundaryMin.x, boundaryMax.x);
+	ZE_SimpleBoundaryBounce1D(&pos->y, &velocity->y, boundaryMin.y, boundaryMax.y);
+}
+
 internal u8 LineSegmentVsAABB_2D(
     f32 lineOriginX, f32 lineOriginY,
     f32 lineEndX, f32 lineEndY,

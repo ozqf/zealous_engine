@@ -8,6 +8,7 @@
 #include "ze_string_parse.h"
 #include "ze_memory_utils.h"
 #include "ze_math_types.h"
+#include "ze_collision.h"
 #include "ze_net_types.h"
 #include "ze_buf_block.h"
 #include "ze_lookup_table.h"

@@ -285,7 +285,7 @@ static void PlatformImpl_LockMutex(i32 index, i32 tag)
 {
     ZE_ASSERT(index >= 0 && index < MAX_MUTEXES,
         "out of bounds mutex index\n");
-    DWORD result = WaitForSingleObject(g_mutexes[index], INFINITE);
+    DWORD result = WaitForSingleObject(g_mutexes[index], 2000);
 	if (result != WAIT_OBJECT_0)
 	{
 		DWORD err = GetLastError();

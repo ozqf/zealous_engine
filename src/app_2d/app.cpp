@@ -5,6 +5,8 @@ App 2d - simple 2d game with orthographic sprites
 #include "../../headers/zqf_renderer.h"
 #include "../../headers/ze_module_interfaces.h"
 #include "../../headers/sys_events.h"
+	
+#include "game2d.h"	
 
 struct Transform2D
 {
@@ -55,6 +57,13 @@ internal ZRDrawObj* AddSpriteB(Vec3 pos, Vec2 scale, f32 radians)
 
 internal i32 AppImpl_WriteDraw(void *zrViewFrame)
 {
+	ZRViewFrame *frame = (ZRViewFrame *)zrViewFrame;
+	G2d_Draw(frame);
+	return ZE_ERROR_NONE;
+}
+
+internal i32 AppImpl_WriteDraw_defunct(void *zrViewFrame)
+{
 	// reset objects
 	g_numPositions = 0;
 	g_pos.z = -0.1f;
@@ -63,6 +72,7 @@ internal i32 AppImpl_WriteDraw(void *zrViewFrame)
 	AddSprite({-0.5f, -0.5f, 0.1f}, {0.5f, 0.5f}, 0);
 
 	ZRViewFrame *frame = (ZRViewFrame *)zrViewFrame;
+	G2d_Draw(frame);
 	ZEBuffer *list = frame->list;
 	// Add draw scenes and objects here...
 
@@ -150,6 +160,7 @@ internal i32 AppImpl_Init()
 {
 	printf("App 2d Init\n");
 	g_platform.SetMouseCaptured(NO);
+	G2d_Init();
 	ZE_InitBlobStore(&g_objects, 1024, sizeof(ZRDrawObj), 0);
 	AddSpriteB({0.5f, 0.5f, 0.1f}, {0.5f, 0.5f}, 0);
 	AddSpriteB({-0.5f, -0.5f, 0.1f}, {0.5f, 0.5f}, 0);
@@ -166,7 +177,7 @@ internal i32 AppImpl_Init()
 internal i32 AppImpl_Shutdown()
 {
 	printf("App 2d Shutdown\n");
-	// Free memory, assuming a new APP might be loaded in it's place
+	G2d_Shutdown();
 	return ZE_ERROR_NONE;
 }
 
@@ -180,13 +191,9 @@ internal i32 AppImpl_ParseCommandString(const char *str, const char **tokens, co
 	return NO;
 }
 
-internal void TickObjects(f32 delta)
-{
-	
-}
-
 internal i32 AppImpl_Tick(app_frame_info info)
 {
+	printf("App tick - %d\n", info.frameNumber);
 	// acquire and read platform events buffer
 	ZEBuffer *events;
 	g_platform.Acquire_EventBuffer(&events);
@@ -255,6 +262,8 @@ internal i32 AppImpl_Tick(app_frame_info info)
 	g_platform.Release_EventBuffer();
 
 	// -- do game logic --
+	G2d_Tick(info.interval);
+	
 	if (g_buttons & (1 << 0))
 	{
 		g_pos.x -= 1 * info.interval;
