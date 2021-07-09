@@ -2,10 +2,13 @@
 Simple 2D game implementation
 */
 #include "game2d.h"
+#include "../../headers/zr_scene.h"
 
 internal i32 g_newId = 1;
 internal ZEBlobStore g_objects = {};
 internal i32 g_playerObjectId = 0;
+internal ze_platform_export g_platform;
+internal ZRSceneId g_gameSceneId;
 
 internal Ent* AddEnt(Vec3 pos, Vec2 scale, f32 radians)
 {
@@ -32,8 +35,20 @@ internal Ent* AddEnt(Vec3 pos, Vec2 scale, f32 radians)
 // External
 ////////////////////////////////////////
 
-extern "C" void G2d_Init()
+extern "C" void G2d_Init(ze_platform_export platform)
 {
+	g_platform = platform;
+	g_gameSceneId = g_platform.GetSceneManager()->CreateScene(0, 2048);
+	printf("Game Scene Id: %d\n", g_gameSceneId);
+
+	ZRDrawObj* obj = g_platform.GetSceneManager()->AddObject(g_gameSceneId);
+	if (obj != NULL)
+	{
+		printf("Game init obj\n");
+		obj->data.SetAsMesh(1, 0);
+	}
+
+
 	ZE_InitBlobStore(&g_objects, 1024, sizeof(Ent), 0);
 	Ent* ent;
 	

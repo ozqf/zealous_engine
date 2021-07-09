@@ -3,7 +3,22 @@
 
 #include "zqf_renderer.h"
 
-#define ZRS_EXTERNAL extern "C"
+#define ZRS_EXTERNAL \
+extern "C"
+
+typedef int ZRSceneId;
+
+#define ZRS_INVALID_SID 0
+
+struct ZRSceneManager
+{
+    ZRSceneId (*CreateScene)(i32 order, i32 capacity);
+    ZRDrawObj* (*AddObject)(ZRSceneId sceneId);
+    void (*WriteForDraw)(ZRViewFrame* frame);
+};
+
+ZRS_EXTERNAL void ZRS_Init();
+ZRS_EXTERNAL ZRSceneManager *ZRS_GetSingleton();
 
 #if 0
 struct ZRScene

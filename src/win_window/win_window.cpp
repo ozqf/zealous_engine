@@ -472,7 +472,8 @@ static void Window_Tick()
     frame->list = list;
     frame->data = data;
 
-    g_platform.AppWriteDraw(frame);
+    g_platform.GetSceneManager()->WriteForDraw(frame);
+    // g_platform.AppWriteDraw(frame);
 
 #if 1
     if (g_consoleActive == YES)

@@ -3,6 +3,7 @@
 
 #include "../headers/common/ze_common_full.h"
 #include "../headers/zr_asset_db.h"
+#include "../headers/zr_scene.h"
 
 // timing information given to app each tick
 struct app_frame_info
@@ -60,6 +61,7 @@ struct ze_platform_export
     ZEFileIO files;
 	ZEAllocator alloc;
 	ZEIniFile* (*GetConfig)();
+    ZRSceneManager* (*GetSceneManager)();
 
     // Shared asset manager
     ZRAssetDB* (*GetAssetDB)();

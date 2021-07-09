@@ -38,6 +38,7 @@ extern "C"
 #include "../../headers/common/ze_byte_buffer.h"
 #include "../../headers/common/ze_ini.h"
 #include "../../headers/zr_asset_db.h"
+#include "../../headers/zr_scene.h"
 
 #include "ze_win_socket.h"
 #include "ze_win_sound.h"
@@ -529,6 +530,7 @@ static ze_platform_export Win_BuildExport()
     result.DebugBreak = PlatformImpl_DebugBreak;
 
     result.GetAssetDB = PlatformImpl_GetAssetDB;
+    result.GetSceneManager = ZRS_GetSingleton;
     result.EnqueueTextCommand = PlatformImpl_EnqueueTextCommand;
     result.GetCmdLine = PlatformImpl_GetCommandLine;
 	
@@ -854,6 +856,8 @@ int CALLBACK WinMain(
     Net_Init();
 
     g_assets = ZRDB_Create(Win_Error, g_alloc, g_files);
+
+    ZRS_Init();
 
     // init sound
     i32 sndErr = Snd_Init();

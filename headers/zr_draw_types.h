@@ -252,12 +252,19 @@ struct ZRSceneObj
 	i32 parentId;
 };
 
-static ZRDrawObj* ZRDrawObj_InitInPlace(u8** ptr)
+static void ZRDrawObj_Init(ZRDrawObj* obj)
+{
+    *obj = {};
+    Transform_SetToIdentity(&obj->t);
+}
+
+static ZRDrawObj *ZRDrawObj_InitInPlace(u8 **ptr)
 {
     ZRDrawObj* obj = (ZRDrawObj*)*ptr;
     *ptr += sizeof(ZRDrawObj);
-    *obj = {};
-    Transform_SetToIdentity(&obj->t);
+    // *obj = {};
+    // Transform_SetToIdentity(&obj->t);
+    ZRDrawObj_Init(obj);
     return obj;
 }
 

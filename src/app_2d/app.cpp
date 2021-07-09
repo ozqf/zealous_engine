@@ -160,10 +160,12 @@ internal i32 AppImpl_Init()
 {
 	printf("App 2d Init\n");
 	g_platform.SetMouseCaptured(NO);
-	G2d_Init();
+	G2d_Init(g_platform);
 	ZE_InitBlobStore(&g_objects, 1024, sizeof(ZRDrawObj), 0);
 	AddSpriteB({0.5f, 0.5f, 0.1f}, {0.5f, 0.5f}, 0);
 	AddSpriteB({-0.5f, -0.5f, 0.1f}, {0.5f, 0.5f}, 0);
+
+	printf("Got scene manager: 0x%X\n", (u32)g_platform.GetSceneManager());
 
 	ZRDrawObj *plyr = AddSpriteB({0.f, 0.f, 0.1f}, {0.25f, 0.25f}, 0);
 	if (plyr != NULL)

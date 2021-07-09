@@ -24,6 +24,11 @@ struct ZEBlobStore
         return m_array->m_numBlobs;
     }
 
+    i32 Capacity()
+    {
+        return m_array->m_maxBlobs;
+    }
+
     u8* GetById(i32 id)
     {
         i32 index = m_lookup->FindData(id);
