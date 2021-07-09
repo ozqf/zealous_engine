@@ -14,6 +14,7 @@ struct ZRSceneManager
 {
     ZRSceneId (*CreateScene)(i32 order, i32 capacity);
     ZRDrawObj* (*AddObject)(ZRSceneId sceneId);
+    void (*MoveObject)(ZRSceneId sceneId, ZRDrawObjId id, Vec3 pos);
     void (*WriteForDraw)(ZRViewFrame* frame);
 };
 

@@ -5,21 +5,6 @@ Simple 2D game implementation
 #include "../../headers/zqf_renderer.h"
 #include "../../headers/ze_module_interfaces.h"
 
-struct Ent
-{
-	i32 id;
-	i32 type;
-	// transform
-	Vec3 pos;
-	Vec2 scale;
-	f32 radians;
-	// movement
-	Vec2 velocity;
-	// display
-	i32 meshId;
-	i32 texId;
-};
-
 extern "C" void G2d_Init(ze_platform_export platform);
 extern "C" void G2d_Tick(f32 delta);
 extern "C" void G2d_Draw(ZRViewFrame *frame);

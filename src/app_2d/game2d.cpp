@@ -10,6 +10,22 @@ internal i32 g_playerObjectId = 0;
 internal ze_platform_export g_platform;
 internal ZRSceneId g_gameSceneId;
 
+struct Ent
+{
+	i32 id;
+	i32 type;
+	// transform
+	Vec3 pos;
+	Vec2 scale;
+	f32 radians;
+	// movement
+	Vec2 velocity;
+	// display
+	i32 rendObjId;
+	i32 meshId;
+	i32 texId;
+};
+
 internal Ent* AddEnt(Vec3 pos, Vec2 scale, f32 radians)
 {
 	i32 newId = g_newId++;
@@ -28,6 +44,16 @@ internal Ent* AddEnt(Vec3 pos, Vec2 scale, f32 radians)
 	ent->pos = pos;
 	ent->scale = scale;
 	ent->radians = radians;
+
+	ZRDrawObj *obj = g_platform.GetSceneManager()->AddObject(g_gameSceneId);
+	if (obj != NULL)
+	{
+		obj->data.SetAsMesh(1, 0);
+		ent->rendObjId = obj->id;
+		obj->t.scale = {ent->scale.x, ent->scale.y, 1.f};
+		printf("Game init obj, rendObjId: %d\n", ent->rendObjId);
+	}
+
 	return ent;
 }
 
@@ -41,12 +67,12 @@ extern "C" void G2d_Init(ze_platform_export platform)
 	g_gameSceneId = g_platform.GetSceneManager()->CreateScene(0, 2048);
 	printf("Game Scene Id: %d\n", g_gameSceneId);
 
-	ZRDrawObj* obj = g_platform.GetSceneManager()->AddObject(g_gameSceneId);
-	if (obj != NULL)
-	{
-		printf("Game init obj\n");
-		obj->data.SetAsMesh(1, 0);
-	}
+	// ZRDrawObj* obj = g_platform.GetSceneManager()->AddObject(g_gameSceneId);
+	// if (obj != NULL)
+	// {
+	// 	printf("Game init obj\n");
+	// 	obj->data.SetAsMesh(1, 0);
+	// }
 
 
 	ZE_InitBlobStore(&g_objects, 1024, sizeof(Ent), 0);
@@ -76,6 +102,8 @@ extern "C" void G2d_Tick(f32 delta)
 		ent->pos.y += ent->velocity.y * delta;
 		ZE_SimpleBoundaryBounce1D(&ent->pos.x, &ent->velocity.x, -1, 1);
 		ZE_SimpleBoundaryBounce1D(&ent->pos.y, &ent->velocity.y, -1, 1);
+
+		g_platform.GetSceneManager()->MoveObject(g_gameSceneId, ent->rendObjId, ent->pos);
 	}
 }
 

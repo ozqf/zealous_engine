@@ -217,11 +217,15 @@ struct ZRDrawObjData
 	}
 };
 
+typedef int ZRDrawObjId;
+
 struct ZRDrawObj
 {
     Transform t;
     // For interpolation
     Vec3 prevPos;
+    // id
+    ZRDrawObjId id;
     // a user Id to tag the object. not used in rasterisation
     i32 userTag;
     // hash of data union, used to identify objects which are
