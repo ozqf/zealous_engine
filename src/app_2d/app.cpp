@@ -193,7 +193,8 @@ internal i32 AppImpl_ParseCommandString(const char *str, const char **tokens, co
 
 internal i32 AppImpl_Tick(app_frame_info info)
 {
-	printf("App tick - %d\n", info.frameNumber);
+	// i32 bNoDraw = g_platform.GetVar(0);
+	// printf("App - draw: %d tick: %d\n", bNoDraw, info.frameNumber);
 	// acquire and read platform events buffer
 	ZEBuffer *events;
 	g_platform.Acquire_EventBuffer(&events);

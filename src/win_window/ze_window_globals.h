@@ -34,7 +34,8 @@ struct Win32_Thread
 // Buffers
 internal ZEBuffer g_drawListBuffer;
 internal ZEBuffer g_drawDataBuffer;
-internal ZEBuffer g_eventBuffer;
+internal ZEBuffer g_eventBufferShared;
+internal ZEBuffer g_eventBufferLocal;
 
 internal i32 g_bMouseCaptured = YES;
 internal i32 g_bAppWantsMouseCaptured = YES;
@@ -70,7 +71,7 @@ internal i32 g_maxFPS = 0;
 
 internal i32 g_bWindowed = YES;
 // Current res mode
-internal i32 g_pendingScrMode = 0;
+internal i32 g_pendingScrMode = 2;
 internal i32 g_resolutionsX[ZW_NUM_16X9_RESOLUTIONS] =
 { 1024, 1280, 1366, 1600, 1920 };
 internal i32 g_resolutionsY[ZW_NUM_16X9_RESOLUTIONS] =

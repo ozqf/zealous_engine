@@ -134,6 +134,19 @@ internal ZEBuffer Buf_SubBuffer(ZEBuffer* buf, i32 subBufferSize)
     return sub;
 }
 
+internal void Buf_CopyAll(ZEBuffer* source, ZEBuffer* target)
+{
+    if (source == NULL) { return; }
+    if (target == NULL) { return; }
+    i32 written = source->Written();
+    if (target->capacity < written)
+    {
+        return;
+    }
+    ZE_COPY(source->start, target->start, written)
+    target->cursor = target->start + written;
+}
+
 struct ZEDoubleBuffer
 {
     i32 swapped;

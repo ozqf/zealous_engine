@@ -288,7 +288,8 @@ static i32 WindowImpl_Init()
     i32 bytes = MegaBytes(1);
     g_drawListBuffer = Buf_FromMalloc(malloc(bytes), bytes);
     g_drawDataBuffer = Buf_FromMalloc(malloc(bytes), bytes);
-    g_eventBuffer = Buf_FromMalloc(malloc(bytes), bytes);
+    g_eventBufferShared = Buf_FromMalloc(malloc(bytes), bytes);
+    g_eventBufferLocal = Buf_FromMalloc(malloc(bytes), bytes);
 
     Window_InitConsoleScreen();
 
@@ -357,14 +358,20 @@ static void ZR_PollInput()
 {
     // grab input buffer and poll for events. handled by callbacks
     // g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
-    ZEBuffer* buf;
-    g_platform.Acquire_EventBuffer(&buf);
+    
+    // Blocking!
     glfwPollEvents();
     if (g_bAppWantsMouseCaptured != g_bMouseCaptured)
     {
         g_bMouseCaptured = g_bAppWantsMouseCaptured;
         Window_ApplyMouseState(g_window);
     }
+
+    // grab shared buffer, copy events and release
+    ZEBuffer *buf;
+    g_platform.Acquire_EventBuffer(&buf);
+    Buf_CopyAll(&g_eventBufferLocal, &g_eventBufferShared);
+    g_eventBufferLocal.Clear(NO);
     g_platform.Release_EventBuffer();
     // g_platform.UnlockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
     
@@ -397,7 +404,7 @@ static void WindowImpl_Release_AppDrawBuffers()
 static void WindowImpl_Acquire_EventBuffer(ZEBuffer** buf)
 {
     g_platform.LockMutex(ZE_MUTEX_WINDOW_EVENTS, 0);
-    *buf = &g_eventBuffer;
+    *buf = &g_eventBufferShared;
     // Write current mouse state for app to read
     if (g_window != NULL)
     {
@@ -415,23 +422,23 @@ static void WindowImpl_Acquire_EventBuffer(ZEBuffer** buf)
 
         // Write mouse movement
         Sys_WriteInputEvent(
-            &g_eventBuffer,
+            &g_eventBufferShared,
             Z_INPUT_CODE_MOUSE_MOVE_X,
             mouseMoveIntX,
             normalisedMoveX);
         Sys_WriteInputEvent(
-            &g_eventBuffer,
+            &g_eventBufferShared,
             Z_INPUT_CODE_MOUSE_MOVE_Y,
             mouseMoveIntY,
             normalisedMoveY);
         // Write mouse position
         Sys_WriteInputEvent(
-            &g_eventBuffer,
+            &g_eventBufferShared,
             Z_INPUT_CODE_MOUSE_POS_X,
             (i32)g_mousePosX,
             (f32)g_mousePosNormalisedX);
         Sys_WriteInputEvent(
-            &g_eventBuffer,
+            &g_eventBufferShared,
             Z_INPUT_CODE_MOUSE_POS_Y,
             (i32)g_mousePosY,
             (f32)g_mousePosNormalisedY);
@@ -496,7 +503,9 @@ static void Window_Tick()
         swapEnd - swapStart,
         totalMS
         );
+    g_platform.SetVar(0, YES);
     ZR_PollInput();
+    g_platform.SetVar(0, NO);
     endFrameMS = g_platform.QueryClock();
     totalMS = endFrameMS - startFrameMS;
     if (g_bRestart == YES)

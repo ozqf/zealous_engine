@@ -106,14 +106,14 @@ static void key_callback(GLFWwindow* window, int glfwKey, int scancode, int acti
     {
         //ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")
         //printf("WINDOW Writing key %d pressed\n", key);
-        Sys_WriteInputEvent(&g_eventBuffer, keyCode, 1, 1);
+        Sys_WriteInputEvent(&g_eventBufferLocal, keyCode, 1, 1);
         //ZKeys_WriteEvent(&g_events, key, 1);
     }
     else if (action == GLFW_RELEASE)
     {
         //ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")
         //printf("WINDOW Writing key %d released\n", key);
-        Sys_WriteInputEvent(&g_eventBuffer, keyCode, 0, 1);
+        Sys_WriteInputEvent(&g_eventBufferLocal, keyCode, 0, 1);
         //ZKeys_WriteEvent(&g_events, key, 0);
     }
 }
@@ -172,11 +172,11 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     if (keyCode == Z_INPUT_CODE_NULL) { return; }
     if (action == GLFW_PRESS)
     {
-        Sys_WriteInputEvent(&g_eventBuffer, keyCode, 1, 1);
+        Sys_WriteInputEvent(&g_eventBufferLocal, keyCode, 1, 1);
     }
     else if (action == GLFW_RELEASE)
     {
-        Sys_WriteInputEvent(&g_eventBuffer, keyCode, 0, 0);
+        Sys_WriteInputEvent(&g_eventBufferLocal, keyCode, 0, 0);
     }
 }
 

@@ -2,10 +2,10 @@
 #define ZQF_DRAW_SCENE_H
 
 #include "zqf_renderer.h"
-#include "../../headers/common/ze_transform.h"
+
+#define ZRS_EXTERNAL extern "C"
 
 #if 0
-
 struct ZRScene
 {
     //ZRPlatform platform;
@@ -22,7 +22,6 @@ struct ZRScene
     i32 projectionMode;
     Transform camera;
 };
-
 /**
  * TODO: REPLACE THIS IMPLEMENTATION
  * This scene graph is a placeholder implementation

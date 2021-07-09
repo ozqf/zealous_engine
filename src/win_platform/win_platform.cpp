@@ -117,6 +117,8 @@ static u16 g_diagnosticTransPort = ZE_TEST_TRANSMIT_PORT;
 static u16 g_diagnosticDestPort = ZE_TEST_DEST_PORT;
 static i32 g_diagnosticSocket;
 
+volatile static i32 g_bNoDraw = NO;
+
 // Asset db is held by the platform and renderer must attach
 // uploader to it. DB must exist for all time that modules are loaded.
 static ZRAssetDB* g_assets = NULL;
@@ -502,6 +504,16 @@ static void PlatformImpl_GetCommandLine(i32* argc, char*** argv)
     *argv = (char**)g_tokens;
 }
 
+static i32 PlatformImpl_GetVar(i32 id)
+{
+    return g_bNoDraw;
+}
+
+static void PlatformImpl_SetVar(i32 id, i32 value)
+{
+    g_bNoDraw = value;
+}
+
 static ZEIniFile* PlatformImpl_GetConfig()
 {
 	return g_config;
@@ -532,6 +544,9 @@ static ze_platform_export Win_BuildExport()
 
     result.LockMutex = PlatformImpl_LockMutex;
     result.UnlockMutex = PlatformImpl_UnlockMutex;
+
+    result.GetVar = PlatformImpl_GetVar;
+    result.SetVar = PlatformImpl_SetVar;
 
     result.AppWriteDraw = PlatformImpl_AppWriteDraw;
     result.Acquire_AppDrawBuffers = PlatformImpl_GetAppDrawbuffers;
