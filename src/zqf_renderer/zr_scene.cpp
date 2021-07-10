@@ -37,9 +37,11 @@ internal ZRDrawObj *ZRS_AddObject(ZRSceneId id)
 	return obj;
 }
 
-internal void ZRS_RemoveObject(ZRScene *s)
+internal void ZRS_RemoveObject(ZRSceneId sceneId, ZRDrawObjId id)
 {
-
+	ZRScene *s = (ZRScene *)g_scenes.GetById(sceneId);
+	s->objects.MarkForRemoval(id);
+	s->objects.Truncate();
 }
 
 internal void ZRS_MoveObject(ZRSceneId sceneId, ZRDrawObjId objId, Vec3 pos)
@@ -100,6 +102,11 @@ internal ZRSceneId ZRS_CreateScene(i32 order, i32 capacity)
 	return id;
 }
 
+internal void ZRS_Tick(timeFloat delta)
+{
+
+}
+
 ZRS_EXTERNAL ZRSceneManager* ZRS_GetSingleton()
 {
 	return &g_instance;
@@ -111,6 +118,7 @@ ZRS_EXTERNAL void ZRS_Init()
 	ZE_InitBlobStore(&g_scenes, 16, sizeof(ZRScene), ZRS_INVALID_SID);
 	g_instance.CreateScene = ZRS_CreateScene;
 	g_instance.AddObject = ZRS_AddObject;
+	g_instance.RemoveObject = ZRS_RemoveObject;
 	g_instance.MoveObject = ZRS_MoveObject;
 	g_instance.WriteForDraw = ZRS_WriteScenesForDraw;
 }

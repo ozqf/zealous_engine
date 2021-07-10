@@ -3,12 +3,14 @@ Simple 2D game implementation
 */
 #include "game2d.h"
 #include "../../headers/zr_scene.h"
+#include "../../headers/sys_events.h"
 
 internal i32 g_newId = 1;
 internal ZEBlobStore g_objects = {};
 internal i32 g_playerObjectId = 0;
 internal ze_platform_export g_platform;
 internal ZRSceneId g_gameSceneId;
+internal Vec2 g_mousePos = {};
 
 struct Ent
 {
@@ -18,6 +20,7 @@ struct Ent
 	Vec3 pos;
 	Vec2 scale;
 	f32 radians;
+	f32 lifetime = 0;
 	// movement
 	Vec2 velocity;
 	// display
@@ -52,6 +55,7 @@ internal Ent* AddEnt(Vec3 pos, Vec2 scale, f32 radians)
 		ent->rendObjId = obj->id;
 		obj->t.scale = {ent->scale.x, ent->scale.y, 1.f};
 		printf("Game init obj, rendObjId: %d\n", ent->rendObjId);
+
 	}
 
 	return ent;
@@ -76,9 +80,10 @@ extern "C" void G2d_Init(ze_platform_export platform)
 
 
 	ZE_InitBlobStore(&g_objects, 1024, sizeof(Ent), 0);
+	#if 1
 	Ent* ent;
 	
-	for (i32 i = 0; i < 10; ++i)
+	for (i32 i = 0; i < 2; ++i)
 	{
 		Vec3 p =
 		{
@@ -88,7 +93,27 @@ extern "C" void G2d_Init(ze_platform_export platform)
 		};
 		ent = AddEnt(p, {0.25f, 0.25f}, 0);
 		ent->velocity = { COM_STDRandomInRange(-2, 2), COM_STDRandomInRange(-2, 2) };
-	}	
+	}
+	#endif
+}
+
+extern "C" void G2d_InputEvent(SysInputEvent *input)
+{
+	switch (input->inputID)
+	{
+		case Z_INPUT_CODE_MOUSE_POS_X:
+			g_mousePos.x = input->normalised;
+			break;
+		case Z_INPUT_CODE_MOUSE_POS_Y:
+			g_mousePos.y = input->normalised;
+			break;
+		case Z_INPUT_CODE_MOUSE_1:
+			if (input->value == 0)
+			return;
+			Ent* ent = AddEnt(Vec3_FromVec2(g_mousePos, 0), { 0.25f, 0.25f}, 0);
+			ent->velocity = {COM_STDRandomInRange(-2, 2), COM_STDRandomInRange(-2, 2)};
+			break;
+	}
 }
 
 extern "C" void G2d_Tick(f32 delta)
@@ -97,7 +122,14 @@ extern "C" void G2d_Tick(f32 delta)
 	for (i32 i = 0; i < count; ++i)
 	{
 		Ent* ent = (Ent*)g_objects.GetByIndex(i);
-		
+		ent->lifetime += delta;
+		if (ent->lifetime > 1)
+		{
+			g_objects.MarkForRemoval(ent->id);
+			g_platform.GetSceneManager()->RemoveObject(g_gameSceneId, ent->rendObjId);
+			continue;
+		}
+
 		ent->pos.x += ent->velocity.x * delta;
 		ent->pos.y += ent->velocity.y * delta;
 		ZE_SimpleBoundaryBounce1D(&ent->pos.x, &ent->velocity.x, -1, 1);
@@ -105,6 +137,7 @@ extern "C" void G2d_Tick(f32 delta)
 
 		g_platform.GetSceneManager()->MoveObject(g_gameSceneId, ent->rendObjId, ent->pos);
 	}
+	g_objects.Truncate();
 }
 
 extern "C" void G2d_Draw(ZRViewFrame *frame)

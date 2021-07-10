@@ -65,7 +65,7 @@ struct ZEBlobStore
 	
 	i32 ClearEntireStore()
 	{
-		printf("Clear entire store\n");
+		// printf("Clear entire store\n");
 		for (i32 i = 0; i < m_array->m_numBlobs; ++i)
 		{
 			ZEBlobHeader* h = m_array->GetHeaderByIndex(i);
@@ -73,6 +73,10 @@ struct ZEBlobStore
 			m_array->ClearHeader(h);
 		}
 		i32 numDeletes = m_array->m_numBlobs;
+        if (numDeletes > 0)
+        {
+            printf("Clear entire store deleted %d blobs\n", numDeletes);
+        }
 		m_array->m_numBlobs = 0;
 		return numDeletes;
 	}
@@ -91,8 +95,12 @@ struct ZEBlobStore
         i32 swapIndex = m_array->FindLastOccupiedSlot(ZE_BA_INVALID_INDEX);
         if (swapIndex == ZE_BA_INVALID_INDEX)
         {
-            // No slots in the array are in use. Clear everything
+            // No slots in the array are in use. Clear everything?
             return ClearEntireStore();
+
+            // or just do nothing because everything has been cleaned up
+            // already?
+            // return ZE_ERROR_NONE;
         }
         i32 escape = 0;
 

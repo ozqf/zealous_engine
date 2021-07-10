@@ -223,6 +223,8 @@ internal i32 AppImpl_Tick(app_frame_info info)
 		{
 			// read input event
 			SysInputEvent *input = (SysInputEvent *)ev;
+			G2d_InputEvent(input);
+			#if 0
 			i32 id = input->inputID;
 			if (id == Z_INPUT_CODE_LEFT)
 			{
@@ -258,6 +260,7 @@ internal i32 AppImpl_Tick(app_frame_info info)
 			{
 				printf("Shoot\n");
 			}
+			#endif
 		}
 	}
 
