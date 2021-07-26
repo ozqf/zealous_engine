@@ -1,0 +1,41 @@
+# IDEs/Debuggers
+/.vs/
+/.vscode/
+
+# Temp directories for compile
+/buildwin_platform/
+/buildwin_platform_libs/
+/buildwin_window/
+/buildwin_renderer/
+/buildwin_game/
+/buildwin_game2d/
+/buildwin_tools/
+
+/release/
+
+# For 3rd party DLLs
+/bin/*
+!/bin/glfw3.dll
+!/bin/fmod.dll
+!/bin/fmodstudio.dll
+!/bin/base/config.ini
+
+# test data files
+/bin_tools/*
+!/bin_tools/stats.txt
+!/bin_tools/config.ini
+!/bin_tools/map_format_example_16x16x8_cube.map
+!/bin_tools/map_format_example_128x128x32_cube.map
+
+# Shaders file is auto-generated
+/lib/shaders.h
+
+# IDEs
+*.db
+/xercise.VC.VC.opendb
+*.i
+*.sln
+*.vcxproj*
+
+# Compiles
+*.out
