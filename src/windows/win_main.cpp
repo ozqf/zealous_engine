@@ -1,12 +1,4 @@
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
-
-#include <windows.h>
-#include <shellapi.h> // for parsing command line tokens
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "../../headers/zengine.h"
+#include "ze_windows.h"
 
 internal int g_bConsoleInit = FALSE;
 
@@ -50,7 +42,12 @@ int CALLBACK WinMain(
 	{
 		printf("Init log file...\n");
 	}
+
+	ZWindow_Init();
+	ZE_StartLoop();
 	printf("Done!\n");
-	Sleep(2000);
+	// Sleep(3000);
+	// printf("Stopping!\n");
+	// Sleep(200);
 	return 0;
 }

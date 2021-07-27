@@ -18,7 +18,7 @@ set compilerDefines=/DPARANOID=1
 @rem /DVERBOSE=1
 
 @rem === Compile Win32 Window application
-set compIn1=../src/windows/win_main.cpp
+set compIn1=../src/windows/win_main.cpp ../src/windows/win_window.cpp
 set compIn2=../src/engine/zengine.cpp
 set compIn3=../src/engine/config/config.cpp
 
@@ -30,7 +30,7 @@ set compIn3=../src/engine/config/config.cpp
 set linkStr=/link
 set linkInputA=user32.lib opengl32.lib Gdi32.lib Ws2_32.lib
 set linkInputB=../lib/fmod/fmod_vc.lib ../lib/fmod/fmodstudio_vc.lib ../buildwin_platform_libs/platlibs.lib
-set linkInputC=
+set linkInputC=../lib/glfw3_vc2015/glfw3dll.lib
 @echo on
 @cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% %compIn3% %linkStr% %linkInputA%  %linkInputB% %linkInputC%
 @echo off
