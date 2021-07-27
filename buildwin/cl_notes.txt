@@ -1,0 +1,22 @@
+
+@rem Project defines
+@rem /DPARANOID=1 -> enable all asserts
+
+@rem === COMPILER FLAGS ===
+@rem -WX -> warnings as errors
+@rem -W4 -> Max warning level that's sane
+@rem -Oi -> enable compiler 'intrinsics'
+@rem -GR -> turn off runtime type information (C++ feature)
+@rem -EHa -> turn off exception handling
+@rem -nologo -> disable compile command line header
+@rem -wd4100 -> disable warning
+@rem -wd4201 -> disable warning
+@rem -wd4189 -> disable warning
+@rem /Zi -> generate debug information
+@rem /Fe -> specify file name and path
+@rem -subsystem:windows,5.1 creates xp compatible windows program
+@rem -MT package standard library into exe (increase compatibility)
+@rem -Gm switch off minimal rebuild stuff (not using any of it)
+@rem -Fm Create map file (contains addresses of all variables/functions)
+@rem -opt:ref -> make compiler aggressive in removal of unused code
+@rem /LD -> compile to DLL
