@@ -7,6 +7,16 @@ internal HWND consoleHandle;
 extern int __argc;
 extern char** __argv;
 
+ze_external void *Platform_Alloc(size_t size)
+{
+	return malloc(size);
+}
+
+ze_external void Platform_Free(void *ptr)
+{
+	free(ptr);
+}
+
 static void InitConsole()
 {
 	if (g_bConsoleInit)

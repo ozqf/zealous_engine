@@ -228,6 +228,7 @@ ze_external zErrorCode ZWindow_Init()
     g_bWindowed = (index != ZE_ERROR_BAD_INDEX) ? YES : NO;
     printf("Windowed: %d\n", g_bWindowed);
     SpawnWindow();
+    ZR_Init();
     return 0;
 }
 
@@ -238,7 +239,7 @@ ze_external void Platform_PollEvents()
 
 ze_external void Platform_Draw()
 {
-
+    ZR_Draw();
 }
 
 ze_external zErrorCode ZWindow_Tick()
