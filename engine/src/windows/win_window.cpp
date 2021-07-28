@@ -2,8 +2,8 @@
 #include "ze_windows.h"
 
 // glfw must come AFTER windows to avoid macro redefinition error
-#include "../../lib/glad/glad.h"
-#include "../../lib/glfw3_vc2015/glfw3.h"
+#include "../../../lib/glad/glad.h"
+#include "../../../lib/glfw3_vc2015/glfw3.h"
 
 // Version of Opengl that will be requested
 const i32 MAJOR_VERSION_REQ = 3;

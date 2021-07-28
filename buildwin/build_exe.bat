@@ -18,9 +18,9 @@ set compilerDefines=/DPARANOID=1
 @rem /DVERBOSE=1
 
 @rem === Compile Win32 Window application
-set compIn1=../src/windows/win_main.cpp ../src/windows/win_window.cpp
-set compIn2=../src/engine/zengine.cpp
-set compIn3=../src/engine/config/config.cpp
+set compIn1=../engine/src/windows/win_main.cpp ../engine/src/windows/win_window.cpp
+set compIn2=../engine/src/zengine.cpp
+set compIn3=../engine/src/config/config.cpp
 
 @rem === Compile Testing Win32 Console application
 @rem set compilerInput=../src/Platform/win32_consoleApp.cpp

@@ -1,5 +1,5 @@
 #include "../../headers/zengine.h"
-#include "../../headers/ze_platform.h"
+#include "../internal_headers/zengine_internal.h"
 
 internal i32 g_running = YES;
 
