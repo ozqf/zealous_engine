@@ -1,17 +1,13 @@
 #include "../../../../lib/glad/glad.h"
 
-#ifndef local_persist
-#define local_persist static
-#endif
-
 //////////////////////////////////////////////////
 // Draw a red quad to screenspace
 //////////////////////////////////////////////////
-ze_external void ZRGL_Debug_DrawCubeTest()
+extern "C" void OpenglTest_DrawScreenSpaceQuad()
 {
     //////////////////////////////////////////////////
     // data
-    local_persist const char *pass_vert_text =
+    static const char *pass_vert_text =
         "#version 330\n"
         "layout (location = 0) in vec3 i_position;\n"
         "void main()\n"
@@ -19,7 +15,7 @@ ze_external void ZRGL_Debug_DrawCubeTest()
         "   gl_Position = vec4(i_position, 1);\n"
         "}\n";
 
-    local_persist const char *debug_frag_text =
+    static const char *debug_frag_text =
         "#version 330\n"
         "out vec4 outputColour;\n"
         "void main()\n"
@@ -40,16 +36,16 @@ ze_external void ZRGL_Debug_DrawCubeTest()
     };
     //////////////////////////////////////////////////
     // vars
-    local_persist int initialised = NO;
-    local_persist unsigned int shaderHandle;
-    local_persist unsigned int vaoHandle;
-    local_persist unsigned int vboHandle;
+    static int bInitialised = NO;
+    static unsigned int shaderHandle;
+    static unsigned int vaoHandle;
+    static unsigned int vboHandle;
 
     //////////////////////////////////////////////////
     // setup
-    if (!initialised)
+    if (!bInitialised)
     {
-        initialised = YES;
+        bInitialised = YES;
 
         // gen and bind slots handles for vao/vbo
         glGenVertexArrays(1, &vaoHandle);
@@ -60,7 +56,7 @@ ze_external void ZRGL_Debug_DrawCubeTest()
         // calculate size
         int numVertBytes = 18 * sizeof(float);
 
-        // Allocate buffer for all three arrays verts-normals-uvs
+        // Allocate buffer for mesh data - only vertices here, would also include UVs/Normals
         // send null ptr for data, we're not uploading yet
         // vbo usage could be GL_DYNAMIC_DRAW if we want to update geometry)
         glBufferData(GL_ARRAY_BUFFER, numVertBytes, NULL, GL_STATIC_DRAW);
