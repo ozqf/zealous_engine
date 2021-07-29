@@ -74,36 +74,43 @@ ze_external void ZRGL_Debug_DrawCubeTest()
     local_persist u32 g_quadVAO;
     local_persist u32 g_quadVBO;
 
+    local_persist f32 modelMatrix[16];
+    local_persist f32 viewMatrix[16];
+    local_persist f32 prjMatrix[16];
+
     // 2 tris == 6 verts * 3 components each == 18
     const f32 g_quadVerts[18] =
-        {
-            -0.5, -0.5, 0,
-            0.5, -0.5, 0,
-            0.5, 0.5, 0,
+    {
+        -0.5, -0.5, 0,
+        0.5, -0.5, 0,
+        0.5, 0.5, 0,
 
-            -0.5, -0.5, 0,
-            0.5, 0.5, 0,
-            -0.5, 0.5, 0};
+        -0.5, -0.5, 0,
+        0.5, 0.5, 0,
+        -0.5, 0.5, 0
+    };
 
     const f32 g_prim_quadUVs[] =
-        {
-            0, 0,
-            1, 0,
-            1, 1,
+    {
+        0, 0,
+        1, 0,
+        1, 1,
 
-            0, 0,
-            1, 1,
-            0, 1};
+        0, 0,
+        1, 1,
+        0, 1
+    };
 
     const f32 g_prim_quadNormals[] =
-        {
-            0, 0, -1,
-            0, 0, -1,
-            0, 0, -1,
+    {
+        0, 0, -1,
+        0, 0, -1,
+        0, 0, -1,
 
-            0, 0, -1,
-            0, 0, -1,
-            0, 0, -1};
+        0, 0, -1,
+        0, 0, -1,
+        0, 0, -1
+    };
 
     if (!initialised)
     {
