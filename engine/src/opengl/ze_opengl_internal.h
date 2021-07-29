@@ -31,6 +31,10 @@
         }                                                                                                      \
     }
 
+#define ZRGL_DATA_ATTRIB_VERTICES 0
+#define ZRGL_DATA_ATTRIB_UVS 1
+#define ZRGL_DATA_ATTRIB_NORMALS 2
+
 ///////////////////////////////////////////////////////
 // Internal datatypes
 ///////////////////////////////////////////////////////
