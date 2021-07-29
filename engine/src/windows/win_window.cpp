@@ -240,6 +240,7 @@ ze_external void Platform_PollEvents()
 ze_external void Platform_Draw()
 {
     ZR_Draw();
+    glfwSwapBuffers(g_window);
 }
 
 ze_external zErrorCode ZWindow_Tick()

@@ -88,16 +88,20 @@ ze_external zErrorCode ZR_Init()
     glEnable(GL_CULL_FACE);
     CHECK_GL_ERR
 
+    ZRGL_Debug_Init();
+
     // Init shaders
+    /*
     ZRShader shader;
     zErrorCode err = ZRGL_CreateProgram(
         fallback_vert_text, fallback_frag_text, "fallback", 0, NO, &shader);
-
+    */
 
     return ZE_ERROR_NONE;
 }
 
 ze_external zErrorCode ZR_Draw()
 {
+    ZRGL_Debug_DrawCubeTest();
     return ZE_ERROR_NONE;
 }
