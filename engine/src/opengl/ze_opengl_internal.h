@@ -61,6 +61,32 @@ struct ZRMeshDrawHandles
 ///////////////////////////////////////////////////////
 // Internal functions
 ///////////////////////////////////////////////////////
+ze_external void ZR_SetProg1i(GLuint prog, char *uniform, GLint value);
+ze_external void ZR_SetProg1f(GLuint prog, char *uniform, GLfloat value);
+ze_external void ZR_SetProgVec3f(GLuint prog, char *uniform, Vec3 vec);
+ze_external void ZR_SetProgVec4f(GLuint prog, char *uniform, Vec4 vec);
+ze_external void ZR_SetProgM4x4(GLuint prog, char *uniform, f32 *matrix);
+ze_external void ZR_PrepareTextureUnit1D(
+    GLint programId,
+    GLint glTextureUnit,
+    i32 textureUnit,
+    char *uniformName,
+    GLint texture,
+    GLint sampler);
+ze_external void ZR_PrepareTextureUnit2D(
+    GLint programId,
+    GLint glTextureUnit,
+    i32 textureUnit,
+    char *uniformName,
+    GLint texture,
+    GLint sampler);
+ze_external void ZR_PrepareTextureUnitCubeMap(
+    GLint programId,
+    GLint glTextureUnit,
+    i32 textureUnit,
+    char *uniformName,
+    GLint texture,
+    GLint sampler);
 ze_external ErrorCode ZRGL_CreateProgram(
     const char *vertexShader,
     const char *fragmentShader,
@@ -68,10 +94,10 @@ ze_external ErrorCode ZRGL_CreateProgram(
     const i32 drawObjType,
     const i32 bIsBatchable,
     ZRShader *result);
-
 ze_external void ZRGL_PrintShaderCompileLog(GLuint shaderId);
 
 ze_external void ZRGL_Debug_Init();
 ze_external void OpenglTest_DrawScreenSpaceQuad();
+ze_external void ZRGL_Debug_DrawCubeTest();
 
 #endif // ZE_OPENGL_INTERNAL_H

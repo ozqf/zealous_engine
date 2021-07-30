@@ -24,6 +24,8 @@ extern "C" void OpenglTest_DrawScreenSpaceQuad()
         "}\n";
 
     // 2 tris == 6 verts * 3 components each == 18
+	// no model/view transformation, so coords are screen coords here.
+	// screen space is -1 to 1 on x and y.
     const float quadVerts[18] =
     {
         -0.5, -0.5, 0,

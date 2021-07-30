@@ -8,5 +8,6 @@
 #include "common/ze_string_utils.h"
 #include "common/ze_parse_parameters.h"
 
+#include "common/ze_math_types.h"
 
 #endif // ZE_COMMON_H

@@ -102,6 +102,7 @@ ze_external zErrorCode ZR_Init()
 
 ze_external zErrorCode ZR_Draw()
 {
-    OpenglTest_DrawScreenSpaceQuad();
+    ZRGL_Debug_DrawCubeTest();
+    // OpenglTest_DrawScreenSpaceQuad();
     return ZE_ERROR_NONE;
 }

@@ -4,7 +4,7 @@
 // Shader configuration
 ///////////////////////////////////////////////////////////
 
-extern "C" void ZR_SetProg1i(GLuint prog, char *uniform, GLint value)
+ze_external void ZR_SetProg1i(GLuint prog, char *uniform, GLint value)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
     CHECK_GL_ERR
@@ -17,7 +17,7 @@ extern "C" void ZR_SetProg1i(GLuint prog, char *uniform, GLint value)
     CHECK_GL_ERR
 }
 
-extern "C" void ZR_SetProg1f(GLuint prog, char *uniform, GLfloat value)
+ze_external void ZR_SetProg1f(GLuint prog, char *uniform, GLfloat value)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
     CHECK_GL_ERR
@@ -29,8 +29,8 @@ extern "C" void ZR_SetProg1f(GLuint prog, char *uniform, GLfloat value)
     glUniform1f(loc, value);
     CHECK_GL_ERR
 }
-#if 0
-extern "C" void ZR_SetProgVec3f(GLuint prog, char *uniform, Vec3 vec)
+#if 1
+ze_external void ZR_SetProgVec3f(GLuint prog, char *uniform, Vec3 vec)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
     CHECK_GL_ERR
@@ -43,7 +43,7 @@ extern "C" void ZR_SetProgVec3f(GLuint prog, char *uniform, Vec3 vec)
     CHECK_GL_ERR
 }
 
-extern "C" void ZR_SetProgVec4f(GLuint prog, char *uniform, Vec4 vec)
+ze_external void ZR_SetProgVec4f(GLuint prog, char *uniform, Vec4 vec)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
     CHECK_GL_ERR
@@ -56,7 +56,7 @@ extern "C" void ZR_SetProgVec4f(GLuint prog, char *uniform, Vec4 vec)
     CHECK_GL_ERR
 }
 #endif
-extern "C" void ZR_SetProgM4x4(GLuint prog, char *uniform, f32 *matrix)
+ze_external void ZR_SetProgM4x4(GLuint prog, char *uniform, f32 *matrix)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
     CHECK_GL_ERR
@@ -69,7 +69,7 @@ extern "C" void ZR_SetProgM4x4(GLuint prog, char *uniform, f32 *matrix)
     CHECK_GL_ERR
 }
 
-extern "C" void ZR_PrepareTextureUnit1D(
+ze_external void ZR_PrepareTextureUnit1D(
     GLint programId,
     GLint glTextureUnit,
     i32 textureUnit,
@@ -94,7 +94,7 @@ extern "C" void ZR_PrepareTextureUnit1D(
     CHECK_GL_ERR
 }
 
-extern "C" void ZR_PrepareTextureUnit2D(
+ze_external void ZR_PrepareTextureUnit2D(
     GLint programId,
     GLint glTextureUnit,
     i32 textureUnit,
@@ -113,7 +113,7 @@ extern "C" void ZR_PrepareTextureUnit2D(
     CHECK_GL_ERR
 }
 
-extern "C" void ZR_PrepareTextureUnitCubeMap(
+ze_external void ZR_PrepareTextureUnitCubeMap(
     GLint programId,
     GLint glTextureUnit,
     i32 textureUnit,
@@ -161,7 +161,7 @@ ze_internal ErrorCode ZRGL_LinkProgram(GLuint programId)
     return ZE_ERROR_NONE;
 }
 
-extern "C" void ZRGL_PrintShaderCompileLog(GLuint shaderId)
+ze_external void ZRGL_PrintShaderCompileLog(GLuint shaderId)
 {
     GLint maxLength = 0;
     glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &maxLength);
@@ -172,7 +172,7 @@ extern "C" void ZRGL_PrintShaderCompileLog(GLuint shaderId)
     Platform_Free((void *)buf);
 }
 
-extern "C" ErrorCode ZRGL_CreateProgram(
+ze_external ErrorCode ZRGL_CreateProgram(
     const char *vertexShader,
     const char *fragmentShader,
     char *shaderName,
@@ -243,7 +243,7 @@ extern "C" ErrorCode ZRGL_CreateProgram(
 ////////////////////////////////////////////////////
 // Setup Text Shader
 ////////////////////////////////////////////////////
-extern "C" void ZRGL_SetupProg_Text(
+ze_external void ZRGL_SetupProg_Text(
     M4x4 *projection,
     M4x4 *modelView,
     i32 diffuseTexHandle,

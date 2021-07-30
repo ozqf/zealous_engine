@@ -10,8 +10,19 @@ const i32 MAJOR_VERSION_REQ = 3;
 const i32 MINOR_VERSION_REQ = 3;
 
 internal GLFWwindow *g_window;
-internal i32 g_pendingWidth = 1600;
-internal i32 g_pendingHeight = 900;
+/*
+// Current res mode
+internal i32 g_pendingScrMode = 2;
+// 16/9 res modes:
+internal i32 g_resolutionsX[ZW_NUM_16X9_RESOLUTIONS] =
+{ 1024, 1280, 1366, 1600, 1920 };
+internal i32 g_resolutionsY[ZW_NUM_16X9_RESOLUTIONS] =
+{ 576, 720, 768, 900, 1080 };
+internal const i32 g_numModes = 5;
+*/
+internal i32 g_pendingWidth = 1024;
+internal i32 g_pendingHeight = 576;
+
 internal i32 g_bWindowed = FALSE;
 
 internal i32 g_monitorSize[2];
