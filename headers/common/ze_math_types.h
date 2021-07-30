@@ -125,7 +125,7 @@ struct Vec4
 	// f32 &operator[](int index) { return ((&x)[index]); }
 };
 
-inline Vec4 COM_Vec3ToVec4(Vec3 v3, f32 w)
+inline Vec4 ZE_Vec3ToVec4(Vec3 v3, f32 w)
 {
 	return {v3.x, v3.y, v3.z, w};
 }
@@ -258,10 +258,10 @@ struct Transform
 //internal i32 g_z_nan = 0x7F800001;
 f32 ZNaN();
 
-internal i32 COM_STDRandI32();
-internal u8 COM_STDRandU8();
-internal f32 COM_STDRandf32();
-internal f32 COM_STDRandomInRange(f32 min, f32 max);
+internal i32 ZE_STDRandI32();
+internal u8 ZE_STDRandU8();
+internal f32 ZE_STDRandf32();
+internal f32 ZE_STDRandomInRange(f32 min, f32 max);
 
 internal void ZE_ClampF32(f32 *val, f32 min, f32 max)
 {
@@ -293,12 +293,12 @@ internal f32 ZE_LerpF32(f32 start, f32 end, f32 lerp)
 	return start + ((end - start) * lerp);
 }
 
-internal float COM_LinearEase(
+internal float ZE_LinearEase(
 	f32 currentIteration,
 	f32 startValue,
 	f32 changeInValue,
 	f32 totalIterations);
-internal f32 COM_CapAngleDegrees(f32 angle);
+internal f32 ZE_CapAngleDegrees(f32 angle);
 
 /////////////////////////////////////////////////////////////////////////////
 // VECTOR 2 OPERATIONS
@@ -868,12 +868,14 @@ inline void M4x4_BuildRotateByAxis(f32 *m, f32 radians, f32 x, f32 y, f32 z)
 	m[14] = 0;
 	m[15] = 1;
 }
+
 inline void M4x4_RotateByAxis(f32 *m, f32 radians, f32 x, f32 y, f32 z)
 {
 	f32 temp[16];
 	M4x4_BuildRotateByAxis(temp, radians, x, y, z);
 	M4x4_Multiply(m, temp, m);
 }
+
 inline void M4x4_BuildTranslation(f32 *m, f32 x, f32 y, f32 z)
 {
 	m[0] = 1;
@@ -1067,7 +1069,7 @@ internal void M4x4_SetOrthoProjection(f32 *m, f32 left, f32 right, f32 top, f32 
 #endif
 }
 
-inline void COM_SetupOrthoProjection(f32 *m, f32 size, f32 aspectRatio)
+inline void ZE_SetupOrthoProjection(f32 *m, f32 size, f32 aspectRatio)
 {
 	//M4x4_SetOrthoProjection(m, -1, 1, 1, -1, 0.1f, 20.f);
 	//float size = 40;
@@ -1079,7 +1081,7 @@ inline void COM_SetupOrthoProjection(f32 *m, f32 size, f32 aspectRatio)
 							0.1f, 60.f);
 }
 
-inline void COM_Setup3DProjection(
+inline void ZE_Setup3DProjection(
 	f32 *m4x4,
 	i32 fov,
 	f32 prjScaleFactor,
@@ -1102,11 +1104,11 @@ inline void COM_Setup3DProjection(
 		m4x4, prjNear, prjFar, prjLeft, prjRight, prjTop, prjBottom);
 }
 
-inline void COM_SetupDefault3DProjection(
+inline void ZE_SetupDefault3DProjection(
 	f32 *m4x4, f32 aspectRatio)
 {
-	//COM_Setup3DProjection(m4x4, 90, 0.5f, 1.0f, 1000.0f, aspectRatio);
-	COM_Setup3DProjection(m4x4, 90, 0.07f, 0.1f, 1000.0f, aspectRatio);
+	//ZE_Setup3DProjection(m4x4, 90, 0.5f, 1.0f, 1000.0f, aspectRatio);
+	ZE_Setup3DProjection(m4x4, 90, 0.07f, 0.1f, 1000.0f, aspectRatio);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -1203,7 +1205,7 @@ if (angle < 0)
 but modulo only works for ints :(
 modf uses floats though
 */
-internal f32 COM_CapAngleDegrees(f32 angle)
+internal f32 ZE_CapAngleDegrees(f32 angle)
 {
 	u32 loopCount = 0; // everytime I think I don't need to do this...
 	while (angle > 360)

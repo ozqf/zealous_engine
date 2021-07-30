@@ -99,5 +99,6 @@ ze_external void ZRGL_PrintShaderCompileLog(GLuint shaderId);
 ze_external void ZRGL_Debug_Init();
 ze_external void OpenglTest_DrawScreenSpaceQuad();
 ze_external void ZRGL_Debug_DrawCubeTest();
+ze_external void ZRGL_Debug_DrawWorldCubeTest();
 
 #endif // ZE_OPENGL_INTERNAL_H
