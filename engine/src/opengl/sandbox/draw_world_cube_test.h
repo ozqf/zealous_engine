@@ -46,8 +46,9 @@ static const char *world_cube_frag_text =
     "void main()\n"
     "{\n"
     "   // Output colour * depth - not using UVs or normals yet\n"
-    "   float depthValue = gl_FragCoord.z;\n"
-    "   outputColor = vec4(u_colour.x * depthValue, u_colour.y * depthValue, u_colour.z * depthValue, 1);\n"
+    "   vec4 diffuse = texture2D(u_diffuseTex, m_texCoord) * u_colour;\n"
+    "   if (diffuse.w < 0.5) { discard; }\n"
+    "   outputColor = diffuse;\n"
     "}\n";
 
 //////////////////////////////////////////////////
@@ -70,7 +71,7 @@ ze_external void ZRGL_Debug_DrawWorldCubeTest()
 
     local_persist M4x4 modelView;
 
-    const Vec4 colour = { 1, 0, 0, 1 };
+    const Vec4 colour = { 1, 1, 1, 1 };
 
     const i32 numTris = 12;
     const i32 numVerts = 36;
@@ -278,6 +279,11 @@ ze_external void ZRGL_Debug_DrawWorldCubeTest()
         // upload a texture
         ZRTexture *tex = ZAssets_AllocTex(64, 64);
         ZGen_FillTexture(tex->data, tex->width, tex->height, COLOUR_U32_CYAN);
+        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 0, 0);
+        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 0, 63);
+        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 63, 0);
+        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 63, 63);
+
         ZRGL_UploadTexture((u8*)tex->data, 64, 64, &g_diffuseTex);
     }
     /////////////////////////////////////////////////////////////
@@ -300,6 +306,8 @@ ze_external void ZRGL_Debug_DrawWorldCubeTest()
     M4x4_RotateY(modelView.cells, (90.f * DEG2RAD) * delta);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", prjMatrix.cells);
     ZR_SetProgM4x4(g_shader.handle, "u_modelView", modelView.cells);
+
+    ZR_PrepareTextureUnit2D(g_shader.handle, GL_TEXTURE0, 0, "u_diffuseTex", g_diffuseTex, 0);
 
     // set frag output colour
     ZR_SetProgVec4f(g_shader.handle, "u_colour", colour);

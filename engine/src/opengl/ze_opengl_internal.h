@@ -86,7 +86,7 @@ ze_external void ZR_PrepareTextureUnitCubeMap(
     i32 textureUnit,
     char *uniformName,
     GLint texture,
-    GLint sampler);
+    i32 samplerType);
 ze_external ErrorCode ZRGL_CreateProgram(
     const char *vertexShader,
     const char *fragmentShader,

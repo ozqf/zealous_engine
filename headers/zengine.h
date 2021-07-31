@@ -49,6 +49,8 @@ union ColourF32
 #define COLOUR_U32_GREY { 155, 155, 155, 155 }
 #define COLOUR_U32_GREY_DARK { 200, 200, 200, 200 }
 
+#define ZR_TEX_SAMPLER_DEFAULT 0
+
 union ColourU32
 {
     u8 array[4];

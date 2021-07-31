@@ -113,6 +113,10 @@ internal f32 ZAbsf(f32 value)
 	return value >= 0 ? value : -value;
 }
 
+// convert a 2d position to an index in a linear buffer
+#define ZE_2D_INDEX(positionX, positionY, gridWidth) \
+	positionX + (positionY * gridWidth)
+
 #define ze_external extern "C"
 
 // used for serialise/deserialise validation

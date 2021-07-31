@@ -102,7 +102,7 @@ ze_external void ZR_PrepareTextureUnit2D(
     i32 textureUnit,
     char *uniformName,
     GLint texture,
-    GLint sampler)
+    i32 samplerType)
 {
     GLint loc = glGetUniformLocation(programId, uniformName);
     glUniform1i(loc, textureUnit);
@@ -111,6 +111,15 @@ ze_external void ZR_PrepareTextureUnit2D(
     CHECK_GL_ERR
     glBindTexture(GL_TEXTURE_2D, texture);
     CHECK_GL_ERR
+    GLint sampler;
+    // would check sampler here
+    switch (samplerType)
+    {
+        case ZR_TEX_SAMPLER_DEFAULT:
+        default:
+            sampler = g_samplerDefault2d;
+            break;
+    }
     glBindSampler(textureUnit, sampler);
     CHECK_GL_ERR
 }
