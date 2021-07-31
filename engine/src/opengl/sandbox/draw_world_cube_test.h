@@ -278,11 +278,13 @@ ze_external void ZRGL_Debug_DrawWorldCubeTest()
         
         // upload a texture
         ZRTexture *tex = ZAssets_AllocTex(64, 64);
-        ZGen_FillTexture(tex->data, tex->width, tex->height, COLOUR_U32_CYAN);
-        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 0, 0);
-        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 0, 63);
-        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 63, 0);
-        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 63, 63);
+        ZGen_FillTexture(tex->data, tex->width, tex->height, { 50, 50, 50, 255 });
+        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 1, 1);
+        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 1, 62);
+        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 62, 1);
+        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 62, 62);
+
+        ZGen_FillTextureRect(tex->data, tex->width, tex->height, COLOUR_U32_GREEN, { 16, 16}, { 32, 32 });
 
         ZRGL_UploadTexture((u8*)tex->data, 64, 64, &g_diffuseTex);
     }

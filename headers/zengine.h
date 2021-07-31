@@ -107,6 +107,48 @@ struct ZRMeshData
 
     Vec3 *GetVert(i32 i) { return (Vec3 *)(verts + (i * 3)); }
 
+    void AddTri(
+        Vec3 v0, Vec3 v1, Vec3 v2,
+        Vec2 uv0, Vec2 uv1, Vec2 uv2,
+        Vec3 n0, Vec3 n1, Vec3 n2)
+    {
+        i32 i = this->numVerts;
+        this->numVerts += 1;
+        // step to 
+        i32 vertStride = sizeof(f32) * 3 * i;
+        i32 uvStride = sizeof(f32) * 2 * i;
+        Vec3* vert = (Vec3*)((u8*)verts + vertStride);
+        Vec2* uv = (Vec2*)((u8*)uvs + uvStride);
+        Vec3* normal = (Vec3*)((u8*)normals + vertStride);
+        vert[0] = v0;
+        vert[1] = v1;
+        vert[2] = v2;
+        uv[0] = uv0;
+        uv[1] = uv1;
+        uv[2] = uv2;
+        normal[0] = n0;
+        normal[1] = n1;
+        normal[2] = n2;
+    }
+
+    void AddVert(
+        Vec3 vert,
+        Vec2 uv,
+        Vec3 normal)
+    {
+        i32 i = this->numVerts;
+        this->numVerts += 1;
+        // step to
+        i32 vertStride = sizeof(Vec3) * i;
+        i32 uvStride = sizeof(Vec2) * i;
+        Vec3 *vertPtr = (Vec3 *)((u8 *)verts + vertStride);
+        Vec2 *uvPtr = (Vec2 *)((u8 *)uvs + uvStride);
+        Vec3 *normalPtr = (Vec3 *)((u8 *)normals + vertStride);
+        vertPtr[0] = vert;
+        uvPtr[0] = uv;
+        normalPtr[0] = normal;
+    }
+
     i32 MeasureBytes()
     {
         i32 bytes = 0;
