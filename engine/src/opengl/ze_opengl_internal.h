@@ -96,9 +96,15 @@ ze_external ErrorCode ZRGL_CreateProgram(
     ZRShader *result);
 ze_external void ZRGL_PrintShaderCompileLog(GLuint shaderId);
 
+internal void ZRGL_UploadTexture(u8 *pixels, i32 width, i32 height, u32 *handle);
+internal void ZRGL_UploadMesh(ZRMeshData *data, ZRMeshHandles *result, u32 flags);
+ze_external zErrorCode ZRGL_InitShaders();
+
 ze_external void ZRGL_Debug_Init();
 ze_external void OpenglTest_DrawScreenSpaceQuad();
 ze_external void ZRGL_Debug_DrawCubeTest();
 ze_external void ZRGL_Debug_DrawWorldCubeTest();
+
+#include "zrgl_upload.h"
 
 #endif // ZE_OPENGL_INTERNAL_H

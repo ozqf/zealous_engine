@@ -5,7 +5,13 @@ internal i32 g_running = YES;
 
 ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, const i32 argc)
 {
-	ZCFG_Init(cmdLine, argv, argc);
+	return ZCFG_Init(cmdLine, argv, argc);
+}
+
+ze_external zErrorCode ZE_Init()
+{
+	ZAssets_Init();
+	ZGen_Init();
 	return ZE_ERROR_NONE;
 }
 

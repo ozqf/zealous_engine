@@ -20,7 +20,7 @@ set compilerDefines=/DPARANOID=1
 @rem === Compile Win32 Window application
 set compIn1=../engine/src/windows/win_main.cpp ../engine/src/windows/win_window.cpp
 set compIn2=../engine/src/opengl/ze_opengl.cpp ../engine/src/opengl/ze_opengl_shaders.cpp ../engine/src/opengl/sandbox/zrgl_sandbox.cpp
-set compIn3=../engine/src/zengine.cpp ../engine/src/config/config.cpp
+set compIn3=../engine/src/zengine.cpp ../engine/src/config/config.cpp ../engine/src/assetdb/ze_asset_db.cpp ../engine/src/asset_gen/ze_asset_gen.cpp
 
 @rem === Compile Testing Win32 Console application
 @rem set compilerInput=../src/Platform/win32_consoleApp.cpp

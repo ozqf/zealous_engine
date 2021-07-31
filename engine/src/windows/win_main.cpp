@@ -17,6 +17,26 @@ ze_external void Platform_Free(void *ptr)
 	free(ptr);
 }
 
+ze_external ZEBuffer Platform_StageFile(char* path)
+{
+	FILE* f;
+	errno_t err = fopen_s(&f, path, "rb");
+	if (err != 0)
+	{
+		printf("!Couldn't open file at %s\n", path);
+		return {};
+	}
+	fseek(f, 0, SEEK_END);
+	i32 size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	ZEBuffer buf = Buf_FromMalloc(Platform_Alloc(size), size);
+	fread_s(&buf.start, size, 1, size, f);
+	buf.cursor = buf.start + size;
+	fclose(f);
+	printf("Read %.3fKB from %s\n", (f32)size / 1024.f, path);
+	return buf;
+}
+
 static void InitConsole()
 {
 	if (g_bConsoleInit)
@@ -41,7 +61,11 @@ int CALLBACK WinMain(
     LPSTR lpCmdLine,
     int nCmdShow)
 {
-	ZE_InitConfig(lpCmdLine, (const char **)__argv, __argc);
+	zErrorCode err;
+	//////////////////////////////////////////
+	// "pre-init" - setup config and read command line
+	err = ZE_InitConfig(lpCmdLine, (const char **)__argv, __argc);
+	ZE_ASSERT(err == ZE_ERROR_NONE, "Error initialising config")
 	i32 tokenIndex = ZCFG_FindParamIndex("-c", "--console", 0);
 	if (tokenIndex != ZE_ERROR_BAD_INDEX)
 	{
@@ -53,6 +77,8 @@ int CALLBACK WinMain(
 		printf("Init log file...\n");
 	}
 
+	// init proper
+	ZE_Init();
 	ZWindow_Init();
 	ZE_StartLoop();
 	printf("Done!\n");

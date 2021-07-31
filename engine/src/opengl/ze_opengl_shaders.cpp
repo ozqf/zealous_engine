@@ -4,6 +4,8 @@
 // Shader configuration
 ///////////////////////////////////////////////////////////
 
+internal GLuint g_samplerDefault2d;
+
 ze_external void ZR_SetProg1i(GLuint prog, char *uniform, GLint value)
 {
     i32 loc = glGetUniformLocation(prog, uniform);
@@ -291,3 +293,9 @@ ze_external void ZRGL_SetupProg_Text(
     CHECK_GL_ERR
 }
 #endif
+
+ze_external zErrorCode ZRGL_InitShaders()
+{
+    glGenSamplers(1, &g_samplerDefault2d);
+    return ZE_ERROR_NONE;
+}

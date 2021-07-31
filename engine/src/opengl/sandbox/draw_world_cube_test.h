@@ -49,6 +49,7 @@ static const char *world_cube_frag_text =
     "   float depthValue = gl_FragCoord.z;\n"
     "   outputColor = vec4(u_colour.x * depthValue, u_colour.y * depthValue, u_colour.z * depthValue, 1);\n"
     "}\n";
+
 //////////////////////////////////////////////////
 // external functions
 //////////////////////////////////////////////////
@@ -61,6 +62,7 @@ ze_external void ZRGL_Debug_DrawWorldCubeTest()
 
     local_persist u32 g_quadVAO;
     local_persist u32 g_quadVBO;
+    local_persist u32 g_diffuseTex;
 
     local_persist M4x4 modelMatrix;
     local_persist M4x4 viewMatrix;
@@ -272,6 +274,11 @@ ze_external void ZRGL_Debug_DrawWorldCubeTest()
 
         ZRGL_CreateProgram(
             world_cube_vert_text, world_cube_frag_text, "fallback", 0, NO, &g_shader);
+        
+        // upload a texture
+        ZRTexture *tex = ZAssets_AllocTex(64, 64);
+        ZGen_FillTexture(tex->data, tex->width, tex->height, COLOUR_U32_CYAN);
+        ZRGL_UploadTexture((u8*)tex->data, 64, 64, &g_diffuseTex);
     }
     /////////////////////////////////////////////////////////////
     // Clear
