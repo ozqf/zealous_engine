@@ -12,6 +12,7 @@ ze_external zErrorCode ZE_Init()
 {
 	ZAssets_Init();
 	ZGen_Init();
+	ZScene_Init();
 	return ZE_ERROR_NONE;
 }
 

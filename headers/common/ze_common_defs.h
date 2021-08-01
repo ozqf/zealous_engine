@@ -30,6 +30,7 @@
 typedef i64 frameInt;
 typedef f64 timeFloat;
 typedef i32 zErrorCode;
+typedef i32 zeHandle;
 
 static_assert(sizeof(char) == 1, "Code requires char size == 1");
 static_assert(sizeof(i8) == 1, "Code requires i8 size == 1");
@@ -208,6 +209,8 @@ typedef int ErrorCode;
 #define ZE_ERROR_STRING_TOO_LONG 20
 
 typedef void (*ZE_FatalErrorFunction)(const char *message);
+typedef void* (*ZE_mallocFunction)(const size_t numBytes);
+typedef void (*ZE_freeFunction)(const void * memory);
 
 static ZE_FatalErrorFunction ze_fatalErrorFunc = NULL;
 

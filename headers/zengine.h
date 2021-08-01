@@ -6,9 +6,6 @@ Zealous Engine public header
 
 #include "ze_common.h"
 
-////////////////////////////////////////////////
-// draw types
-////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////
 // Colours
@@ -67,6 +64,10 @@ union ColourU32
         u32 value;
     };
 };
+
+///////////////////////////////////////////////////////////
+// Asset data types
+///////////////////////////////////////////////////////////
 
 struct ZRAsset
 {
@@ -194,6 +195,130 @@ struct ZRMeshData
             printf("%d: %.3f, %.3f, %.3f\n", i, cursor[0], cursor[1], cursor[2]);
             cursor += 3;
         }
+    }
+};
+
+///////////////////////////////////////////////////////////
+// Render scene data types
+///////////////////////////////////////////////////////////
+
+#define ZR_DRAWOBJ_TYPE_NONE 0
+#define ZR_DRAWOBJ_TYPE_MESH 1
+#define ZR_DRAWOBJ_TYPE_POINT_LIGHT 2
+#define ZR_DRAWOBJ_TYPE_DIRECT_LIGHT 3
+#define ZR_DRAWOBJ_TYPE_TEXT 4
+#define ZR_DRAWOBJ_TYPE_BILLBOARD 5
+#define ZR_DRAWOBJ_TYPE_PARTICLES 6
+#define ZR_DRAWOBJ_TYPE_SPRITE 7
+
+#define ZR_DRAWOBJ_STATUS_FREE 0
+#define ZR_DRAWOBJ_STATUS_ASSIGNED 1
+#define ZR_DRAWOBJ_STATUS_DELETED 2
+
+struct ZRDrawObjData
+{
+    i32 type;
+    union
+    {
+        struct
+        {
+            i32 meshIndex;
+            i32 materialIndex;
+            i32 billboard;
+        } model;
+        struct
+        {
+            u32 frameId;
+        } sprite;
+        struct
+        {
+            i32 bCastShadows;
+            ColourU32 colour;
+            f32 multiplier;
+            f32 range;
+        } pointLight;
+        struct
+        {
+            i32 bCastShadows;
+            ColourU32 colour;
+            f32 multiplier;
+            f32 range;
+        } directLight;
+        struct
+        {
+            char *text;
+            i32 length;
+            i32 linesPerScreen;
+            i32 charTextureId;
+            ColourU32 colour;
+            ColourU32 bgColour;
+            i32 alignment;
+        } text;
+    };
+
+    void SetAsMesh(i32 meshIndex, i32 materialIndex)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_MESH;
+        this->model.meshIndex = meshIndex;
+        this->model.materialIndex = materialIndex;
+    }
+
+    void SetAsSprite(u32 spriteFrameId)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_SPRITE;
+        this->sprite.frameId = spriteFrameId;
+    }
+
+    void SetAsPointLight(ColourU32 colour, f32 multiplier, f32 radius)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_POINT_LIGHT;
+        this->pointLight.colour = colour;
+        this->pointLight.multiplier = multiplier;
+        this->pointLight.range = radius;
+    }
+
+    void SetAsDirectLight(ColourU32 colour, f32 multiplier, f32 radius)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_DIRECT_LIGHT;
+        this->directLight.colour = colour;
+        this->directLight.multiplier = multiplier;
+        this->directLight.range = radius;
+    }
+
+    void SetAsText(char *chars, i32 texId, ColourU32 colour, ColourU32 bgColour, i32 alignment)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_TEXT;
+        this->text.text = chars;
+        this->text.length = ZStr_LenNoTerminator(chars) + 1;
+        if (texId >= 0)
+        {
+            this->text.charTextureId = texId;
+        }
+        else
+        {
+            this->text.charTextureId = -1;
+        }
+        this->text.colour = colour;
+        this->text.bgColour = bgColour;
+        this->text.alignment = alignment;
+    }
+};
+
+struct ZRDrawObj
+{
+    Transform t;
+    // For interpolation
+    Vec3 prevPos;
+    // a user Id to tag the object. not used in rasterisation
+    i32 userTag;
+    // hash of data union, used to identify objects which are
+    // similar and could be batched
+    u32 hash;
+    ZRDrawObjData data;
+    u32 CalcHash()
+    {
+        hash = ZE_Hash_djb2_Fixed((u8 *)&this->data, sizeof(ZRDrawObjData));
+        return hash;
     }
 };
 

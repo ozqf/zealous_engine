@@ -44,6 +44,9 @@ ze_external zErrorCode ZAssets_Init();
 ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height);
 ze_external ZRMeshData* ZAssets_AllocMesh(i32 maxVerts);
 
+// scene manager
+ze_external void ZScene_Init();
+
 ze_external void ZGen_Init();
 ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour);
 ze_external void ZGen_SetPixel(

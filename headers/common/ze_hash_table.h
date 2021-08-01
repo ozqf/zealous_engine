@@ -8,16 +8,6 @@
 #define ZE_LT_INVALID_INDEX -1
 #define ZE_LT_INVALID_ID 0
 
-#ifndef ZE_LT_MALLOC
-#define ZE_LT_MALLOC(numBytesToAlloc) \
-    (u8 *)malloc(##numBytesToAlloc##)
-#endif
-
-#ifndef ZE_LT_FREE
-#define ZE_LT_FREE(ptrToFree) \
-    free(##ptrToFree##)
-#endif
-
 #ifndef ZE_LT_SET_ZERO
 #define ZE_LT_SET_ZERO(ptrToSet, numBytesToZero) \
     memset(##ptrToSet##, 0, numBytesToZero##)
@@ -50,7 +40,7 @@ static u32 ZE_LT_HashUint(u32 a)
 }
 #endif
 
-union ZEBlobHashData
+union ZEHashTableData
 {
     f32 f;
     i32 i;
@@ -61,21 +51,23 @@ union ZEBlobHashData
     void* ptr;
 };
 
-struct ZEBlobHashKey
+struct ZEHashTableKey
 {
     i32 id;
     u32 idHash;
     i32 collisionsOnInsert;
-    i32 data;
+    ZEHashTableData data;
 };
 
-struct ZEBlobHashTable
+struct ZEHashTable
 {
-    ZEBlobHashKey *m_keys;
+    ZEHashTableKey *m_keys;
     i32 m_numKeys;
     i32 m_maxKeys;
-    i32 m_invalidDataValue;
 
+    //////////////////////////////////////////////////
+    // insert/find/remove keys
+    //////////////////////////////////////////////////
     void StepKeyIndex(i32 *index)
     {
         *index += 1;
@@ -85,7 +77,7 @@ struct ZEBlobHashTable
         }
     }
 
-    void ClearKey(ZEBlobHashKey *key)
+    void ClearKey(ZEHashTableKey *key)
     {
         *key = {};
         key->id = ZE_LT_INVALID_ID;
@@ -106,7 +98,7 @@ struct ZEBlobHashTable
         i32 escape = 0;
         do
         {
-            ZEBlobHashKey *key = &m_keys[keyIndex];
+            ZEHashTableKey *key = &m_keys[keyIndex];
             if (key->id == id)
             {
                 return keyIndex;
@@ -124,28 +116,7 @@ struct ZEBlobHashTable
         return ZE_LT_INVALID_INDEX;
     }
 
-    i32 FindData(i32 id)
-    {
-        i32 keyIndex = FindKeyIndex(id);
-        if (keyIndex == ZE_LT_INVALID_INDEX)
-        {
-            return m_invalidDataValue;
-        }
-        return m_keys[keyIndex].data;
-    }
-
-    i32 SetData(i32 id, i32 data)
-    {
-        i32 keyIndex = FindKeyIndex(id);
-        if (keyIndex == ZE_LT_INVALID_INDEX)
-        {
-            return ZE_ERROR_NOT_FOUND;
-        }
-        m_keys[keyIndex].data = data;
-        return ZE_ERROR_NONE;
-    }
-
-    i32 Insert(i32 id, i32 data)
+    i32 Insert(i32 id, ZEHashTableData data)
     {
         u32 idHash = ZE_LT_HashUint(id);
         i32 keyIndex = idHash % m_maxKeys;
@@ -153,7 +124,7 @@ struct ZEBlobHashTable
         u32 numCollisions = 0;
         do
         {
-            ZEBlobHashKey *key = &m_keys[keyIndex];
+            ZEHashTableKey *key = &m_keys[keyIndex];
             if (key->id == ZE_LT_INVALID_ID)
             {
                 // insert
@@ -198,7 +169,7 @@ struct ZEBlobHashTable
         i32 escape = 0;
         do
         {
-            ZEBlobHashKey *key = &m_keys[keyIndex];
+            ZEHashTableKey *key = &m_keys[keyIndex];
             if (key->id == ZE_LT_INVALID_ID)
             {
                 // empty key. Done
@@ -208,7 +179,7 @@ struct ZEBlobHashTable
             if (correctIndex != keyIndex)
             {
                 // reinsert key
-                ZEBlobHashKey copy = *key;
+                ZEHashTableKey copy = *key;
                 ClearKey(key);
                 m_numKeys--; // decrement count as insert will increment it again
                 Insert(copy.id, copy.data);
@@ -218,12 +189,63 @@ struct ZEBlobHashTable
 
         return ZE_ERROR_FUNC_RAN_AWAY;
     }
+
+    //////////////////////////////////////////////////
+    // Get/Set utility functions
+    //////////////////////////////////////////////////
+    ZEHashTableData *FindData(i32 id)
+    {
+        i32 keyIndex = FindKeyIndex(id);
+        if (keyIndex == ZE_LT_INVALID_INDEX)
+        {
+            return NULL;
+        }
+        return &m_keys[keyIndex].data;
+    }
+
+    void *FindPointer(i32 id)
+    {
+        ZEHashTableData *data = FindData(id);
+        if (data == NULL)
+        {
+            return NULL;
+        }
+    }
+
+    i32 FindI32(i32 id, i32 invalidResult)
+    {
+        ZEHashTableData *data = FindData(id);
+        if (data == NULL)
+        {
+            return invalidResult;
+        }
+        return data->i;
+    }
+
+    i32 SetData(i32 id, ZEHashTableData data)
+    {
+        i32 keyIndex = FindKeyIndex(id);
+        if (keyIndex == ZE_LT_INVALID_INDEX)
+        {
+            return ZE_ERROR_NOT_FOUND;
+        }
+        m_keys[keyIndex].data = data;
+        return ZE_ERROR_NONE;
+    }
+
+    i32 SetI32(i32 id, i32 value)
+    {
+        ZEHashTableData* d = FindData(id);
+        if (d == NULL) { return ZE_ERROR_NOT_FOUND; }
+        d->i = value;
+        return ZE_ERROR_NONE;
+    }
 };
 
-static i32 ZE_LT_CalcBytesForTable(i32 numKeys)
+static i32 ZE_HashTable_CalcBytesForTable(i32 numKeys)
 {
-    i32 bytesForKeys = sizeof(ZEBlobHashKey) * numKeys;
-    i32 bytesTotal = sizeof(ZEBlobHashTable) + bytesForKeys;
+    i32 bytesForKeys = sizeof(ZEHashTableKey) * numKeys;
+    i32 bytesTotal = sizeof(ZEHashTable) + bytesForKeys;
     return bytesTotal;
 }
 
@@ -237,26 +259,26 @@ static i32 ZE_LT_CalcBytesForTable(i32 numKeys)
  * 	eg 32 item array should have a lookup keys set of
  * 		 64 to avoid key collisions
  */
-static ZEBlobHashTable *ZE_LT_Create(
-    i32 capacity, i32 invalidDataValue, u8 *mem)
+static ZEHashTable *ZE_HashTable_Create(
+    ZE_mallocFunction mallocFn,
+    i32 capacity, u8 *mem)
 {
     if (mem == NULL)
     {
-        i32 numBytes = ZE_LT_CalcBytesForTable(capacity);
-        mem = (u8 *)ZE_LT_MALLOC(numBytes);
+        i32 numBytes = ZE_HashTable_CalcBytesForTable(capacity);
+        mem = (u8 *)mallocFn(numBytes);
     }
-    ZEBlobHashTable *table = (ZEBlobHashTable *)mem;
+    ZEHashTable *table = (ZEHashTable *)mem;
     *table = {};
     table->m_maxKeys = capacity;
-    table->m_invalidDataValue = invalidDataValue;
-    table->m_keys = (ZEBlobHashKey *)(mem + sizeof(ZEBlobHashTable));
+    table->m_keys = (ZEHashTableKey *)(mem + sizeof(ZEHashTable));
     table->Clear();
     return table;
 }
 
-static void ZE_LT_Delete(ZEBlobHashTable *table)
+static void ZE_HashTable_Delete(ZEHashTable *table, ZE_freeFunction freeFn)
 {
-    ZE_LT_FREE(table);
+    freeFn(table);
 }
 
 #endif // ZE_BLOB_HASH_TABLE_H
