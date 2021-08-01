@@ -14,7 +14,7 @@
  * if byte buffer has no space, ptr will be null
  * ASSUMES SIZE REQUIRED == sizeof(StructType)
  */
-#define ZE_INIT_PTR_IN_PLACE(ptrVariableName, structTypeName, ptrToByteBufferDest) \
+#define ZE_BUF_INIT_PTR_IN_PLACE(ptrVariableName, structTypeName, ptrToByteBufferDest) \
     structTypeName##*ptrVariableName = NULL;                                       \
     if (ptrToByteBufferDest##->Space() >= sizeof(##structTypeName##))              \
     {                                                                              \

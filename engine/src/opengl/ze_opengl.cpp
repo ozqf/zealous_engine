@@ -111,6 +111,25 @@ ze_external void ZR_ClearFrame(ColourF32 colour)
     CHECK_GL_ERR
 }
 
+ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
+{
+    TRANSFORM_CREATE(camera);
+    M4x4_CREATE(projection)
+    BUF_BLOCK_BEGIN_READ(commandBuffer, header)
+        switch (header->type)
+        {
+            case ZR_DRAW_CMD_SET_CAMERA:
+            camera = ((ZRDrawCmdSetCamera*)header)->camera;
+            projection = ((ZRDrawCmdSetCamera *)header)->projection;
+            break;
+            case ZR_DRAW_CMD_SPRITE_BATCH:
+            ZE_CREATE_CAST_PTR(header, ZRDrawCmdSpriteBatch, batch);
+            ZRDraw_SpriteBatch(batch, &camera, &projection);
+            break;
+        }
+    BUF_BLOCK_END_READ
+}
+
 ze_external zErrorCode ZR_DrawTest()
 {
     // ZRGL_Debug_DrawCubeTest();

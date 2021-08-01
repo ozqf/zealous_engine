@@ -39,22 +39,28 @@ ze_external void ZScene_RemoveScene(zeHandle handle)
 
 ze_external void ZScene_Draw()
 {
-    #if 0 // proper draw commands submission
+    #if 1 // proper draw commands submission
+    ZR_ClearFrame({ 0.1f, 0.1f, 0.1f, 1});
     ZEBuffer* buf = &g_drawCommands;
-    // ZRDrawCmdSetCamera* setCamera = (ZRDrawCmdSetCamera*)BufBlock_Begin(
-    //     buf, sizeof(ZRDrawCmdSetCamera), ZR_DRAW_CMD_SET_CAMERA);
-
+    buf->Clear(NO);
     BUF_BLOCK_BEGIN_STRUCT(setCamera, ZRDrawCmdSetCamera, buf, ZR_DRAW_CMD_SET_CAMERA);
     Transform_SetToIdentity(&setCamera->camera);
     Transform_SetRotationDegrees(&setCamera->camera, 45.f, 0, 0);
-    // setCamera->camera = 
-    // ZRDrawObj* obj;
-    // ZR_DrawTest();
-    ZR_ClearFrame({ 1, 0, 1, 1});
+
+    ZE_SetupDefault3DProjection(setCamera->projection.cells, 16.f / 9.f);
+
+    BUF_BLOCK_BEGIN_STRUCT(spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
+    spriteBatch->items = (ZRSpriteBatchItem*)buf->cursor;
+    spriteBatch->AddItem({ -0.5, -0.5 }, { 0.25, 0.25 }, { 0.25, 0.25 }, { 0.25, 0.25 });
+    spriteBatch->AddItem({ 0.5, -0.5 }, { 0.25, 0.25 }, { 0.25, 0.75 }, { 0.25, 0.75 });
+    spriteBatch->AddItem({ -0.5, 0.5 }, { 0.25, 0.25 }, { 0.75, 0.25 }, { 0.75, 0.25 });
+    spriteBatch->AddItem({ 0.5, 0.5 }, { 0.25, 0.25 }, { 0.75, 0.75 }, { 0.75, 0.75 });
+    spriteBatch->Finish(buf);
+    ZR_ExecuteCommands(buf);
     Platform_SubmitFrame();
     #endif
     
-    #if 1 // screen test
+    #if 0 // screen test
     ZR_DrawTest();
     Platform_SubmitFrame();
     #endif

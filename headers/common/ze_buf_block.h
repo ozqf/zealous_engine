@@ -16,16 +16,17 @@ struct BufferBlock
 };
 
 #ifndef BUF_BLOCK_BEGIN_READ
-#define BUF_BLOCK_BEGIN_READ(ptrToBuffer) \
+#define BUF_BLOCK_BEGIN_READ(ptrToBuffer, headerPtrName) \
 i8* read = ptrToBuffer->start; \
 i8 *end = ptrToBuffer->cursor; \
 zErrorCode bufBlockHeaderError = ZE_ERROR_NONE; \
 while (read < end) \
 { \
-    BufferBlock* header = (BufferBlock*)read; \
-    bufBlockHeaderError = BufBlock_Validate(h); \
+    BufferBlock* headerPtrName = (BufferBlock*)read; \
+    bufBlockHeaderError = BufBlock_Validate(headerPtrName); \
     if (bufBlockHeaderError != ZE_ERROR_NONE) \
-    { break; }
+    { break; } \
+    read += headerPtrName->size;
 #endif
 
 #ifndef BUF_BLOCK_END_READ
@@ -35,7 +36,7 @@ while (read < end) \
 
 #ifndef BUF_BLOCK_BEGIN_STRUCT
 #define BUF_BLOCK_BEGIN_STRUCT(ptrToCreate, structType, ptrToBuffer, bufBlockType) \
-ZE_INIT_PTR_IN_PLACE(ptrToCreate, structType, ptrToBuffer) \
+ZE_BUF_INIT_PTR_IN_PLACE(ptrToCreate, structType, ptrToBuffer) \
 BufBlock_PrepareHeader(&ptrToCreate->header, sizeof(structType), bufBlockType);
 #endif
 
@@ -57,7 +58,7 @@ internal BufferBlock *BufBlock_Begin(ZEBuffer *buf, i32 size, i32 type)
     {
         return NULL;
     }
-    ZE_INIT_PTR_IN_PLACE(block, BufferBlock, buf)
+    ZE_BUF_INIT_PTR_IN_PLACE(block, BufferBlock, buf)
 #ifdef MEMORY_BLOCKS_PARANOID
     block->sentinel = ZE_SENTINEL;
 #endif

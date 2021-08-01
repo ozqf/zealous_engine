@@ -21,8 +21,11 @@ internal void ZRGL_UploadTexture(u8 *pixels, i32 width, i32 height, u32 *handle)
         return;
     }
     // Upload to GPU
-    glGenTextures(1, handle);
-    CHECK_GL_ERR
+    if (*handle == 0)
+    {
+        glGenTextures(1, handle);
+        CHECK_GL_ERR
+    }
 
     GLuint texID = *handle;
     glBindTexture(GL_TEXTURE_2D, texID);

@@ -265,7 +265,7 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
 
     // upload
     ZRGL_UploadMesh(g_meshData, &g_meshHandles, 0);
-
+    
     /////////////////////////////////////////////////////////////
     // Clear
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -291,7 +291,6 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
     // set frag output colour
     ZR_SetProgVec4f(g_shader.handle, "u_colour", colour);
 
-    
     glBindVertexArray(g_meshHandles.vao);
     glDrawArrays(GL_TRIANGLES, 0, g_meshHandles.vertexCount);
 }

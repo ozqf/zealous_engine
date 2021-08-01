@@ -34,13 +34,39 @@ struct ZRDrawCmdSetCamera
 {
     BufferBlock header;
     Transform camera;
+    M4x4 projection;
+};
+
+struct ZRSpriteBatchItem
+{
+    Vec3 pos;
+    Vec2 size;
+    Vec2 uvMin;
+    Vec2 uvMax;
 };
 
 struct ZRDrawCmdSpriteBatch
 {
     BufferBlock header;
-    i32 sprite;
-    i32 numTransforms;
+    i32 textureId;
+    i32 numItems;
+    ZRSpriteBatchItem* items;
+
+    void AddItem(Vec3 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax)
+    {
+        items[numItems].pos = pos;
+        items[numItems].size = size;
+        items[numItems].uvMin = uvMin;
+        items[numItems].uvMax = uvMax;
+        numItems++;
+    }
+
+    i32 Finish(ZEBuffer* buf)
+    {
+        this->header.size = sizeof(ZRDrawCmdSpriteBatch) + (sizeof(ZRSpriteBatchItem) * numItems);
+        buf->cursor = (i8*)this + this->header.size;
+        return this->header.size;
+    }
 };
 
 ze_external void Platform_PollEvents();
@@ -84,7 +110,7 @@ ze_external void ZE_Shutdown();
 
 ze_external zErrorCode ZR_Init();
 ze_external void ZR_ClearFrame(ColourF32 colour);
-ze_external void ZR_DrawObj(ZRDrawObj* obj);
+ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer);
 ze_external zErrorCode ZR_DrawTest();
 
 #endif // ZENGINE_INTERNAL_H

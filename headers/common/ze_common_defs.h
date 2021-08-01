@@ -151,6 +151,11 @@ inline u32 ZE_Copy(void *dest, void *source, u32 numBytes)
 	return numBytes;
 }
 
+#ifndef ZE_CREATE_CAST_PTR
+#define ZE_CREATE_CAST_PTR(ptr, newPtrStructType, newPtrName) \
+newPtrStructType* newPtrName = (newPtrStructType*)ptr;
+#endif
+
 // I hate writing casts all the time okay?
 // returns amount of bytes copied. so you can do
 // readPosition += ZE_COPY(readPosition, writePosition, sizeof(SomeStruct));
@@ -179,10 +184,10 @@ inline u32 ZE_Copy(void *dest, void *source, u32 numBytes)
 	memset(##ptrToMemory, 0, numberOfBytesToZero##);
 #endif
 
-///////////////////////////////////////////////////////////////////////
-// Error handling
-///////////////////////////////////////////////////////////////////////
-typedef int ErrorCode;
+	///////////////////////////////////////////////////////////////////////
+	// Error handling
+	///////////////////////////////////////////////////////////////////////
+	typedef int ErrorCode;
 
 #define ZE_ERROR_NONE 0
 

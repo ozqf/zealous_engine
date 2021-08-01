@@ -59,7 +59,7 @@ struct ZRMeshDrawHandles
 };
 
 ///////////////////////////////////////////////////////
-// Internal functions
+// Shader setup
 ///////////////////////////////////////////////////////
 ze_external void ZR_SetProg1i(GLuint prog, char *uniform, GLint value);
 ze_external void ZR_SetProg1f(GLuint prog, char *uniform, GLfloat value);
@@ -96,10 +96,22 @@ ze_external ErrorCode ZRGL_CreateProgram(
     ZRShader *result);
 ze_external void ZRGL_PrintShaderCompileLog(GLuint shaderId);
 
+///////////////////////////////////////////////////////
+// Uploading
+///////////////////////////////////////////////////////
 internal void ZRGL_UploadTexture(u8 *pixels, i32 width, i32 height, u32 *handle);
 internal void ZRGL_UploadMesh(ZRMeshData *data, ZRMeshHandles *result, u32 flags);
 ze_external zErrorCode ZRGL_InitShaders();
 
+///////////////////////////////////////////////////////
+// Drawing
+///////////////////////////////////////////////////////
+ze_external void ZRDraw_SpriteBatch(
+    ZRDrawCmdSpriteBatch* batch, Transform* cam, M4x4* projection);
+
+///////////////////////////////////////////////////////
+// Debug
+///////////////////////////////////////////////////////
 ze_external void ZRGL_Debug_Init();
 ze_external void OpenglTest_DrawScreenSpaceQuad();
 ze_external void ZRGL_Debug_DrawCubeTest();
