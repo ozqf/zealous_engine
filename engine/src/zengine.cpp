@@ -26,7 +26,7 @@ ze_external i32 ZE_StartLoop()
 	while (g_running)
 	{
 		Platform_PollEvents();
-		Platform_Draw();
+		ZScene_Draw();
 	}
 	return 0;
 }

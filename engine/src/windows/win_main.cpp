@@ -29,7 +29,7 @@ ze_external ZEBuffer Platform_StageFile(char* path)
 	fseek(f, 0, SEEK_END);
 	i32 size = ftell(f);
 	fseek(f, 0, SEEK_SET);
-	ZEBuffer buf = Buf_FromMalloc(Platform_Alloc(size), size);
+	ZEBuffer buf = Buf_FromMalloc(Platform_Alloc, size);
 	fread_s(&buf.start, size, 1, size, f);
 	buf.cursor = buf.start + size;
 	fclose(f);

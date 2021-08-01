@@ -222,8 +222,8 @@ struct ZRDrawObjData
     {
         struct
         {
-            i32 meshIndex;
-            i32 materialIndex;
+            i32 meshId;
+            i32 materialId;
             i32 billboard;
         } model;
         struct
@@ -256,11 +256,11 @@ struct ZRDrawObjData
         } text;
     };
 
-    void SetAsMesh(i32 meshIndex, i32 materialIndex)
+    void SetAsMesh(i32 meshId, i32 materialId)
     {
         this->type = ZR_DRAWOBJ_TYPE_MESH;
-        this->model.meshIndex = meshIndex;
-        this->model.materialIndex = materialIndex;
+        this->model.meshId = meshId;
+        this->model.materialId = materialId;
     }
 
     void SetAsSprite(u32 spriteFrameId)

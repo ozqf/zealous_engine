@@ -248,9 +248,18 @@ ze_external void Platform_PollEvents()
     glfwPollEvents();
 }
 
-ze_external void Platform_Draw()
+ze_external void Platform_SubmitFrame()
 {
-    ZR_Draw();
+    glfwSwapBuffers(g_window);
+}
+
+ze_external void Platform_BeginDrawFrame()
+{
+
+}
+
+ze_external void Platform_EndDrawFrame()
+{
     glfwSwapBuffers(g_window);
 }
 

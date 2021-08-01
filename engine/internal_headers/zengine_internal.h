@@ -24,10 +24,32 @@ struct ZRMeshHandles
     i32 maxInstances;
 };
 
+/////////////////////////////////////////
+// Render commands
+/////////////////////////////////////////
+#define ZR_DRAW_CMD_NONE 0
+#define ZR_DRAW_CMD_SET_CAMERA 1
+#define ZR_DRAW_CMD_SPRITE_BATCH 2
+struct ZRDrawCmdSetCamera
+{
+    BufferBlock header;
+    Transform camera;
+};
+
+struct ZRDrawCmdSpriteBatch
+{
+    BufferBlock header;
+    i32 sprite;
+    i32 numTransforms;
+};
+
 ze_external void Platform_PollEvents();
-ze_external void Platform_Draw();
+ze_external void Platform_SubmitFrame();
 ze_external void *Platform_Alloc(size_t size);
 ze_external void Platform_Free(void* ptr);
+
+// ze_external void Platform_BeginDrawFrame();
+// ze_external void Platform_EndDrawFrame();
 
 ze_external ZEBuffer Platform_StageFile(char* path);
 
@@ -46,6 +68,7 @@ ze_external ZRMeshData* ZAssets_AllocMesh(i32 maxVerts);
 
 // scene manager
 ze_external void ZScene_Init();
+ze_external void ZScene_Draw();
 
 ze_external void ZGen_Init();
 ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour);
@@ -60,6 +83,8 @@ ze_external i32 ZE_StartLoop();
 ze_external void ZE_Shutdown();
 
 ze_external zErrorCode ZR_Init();
-ze_external zErrorCode ZR_Draw();
+ze_external void ZR_ClearFrame(ColourF32 colour);
+ze_external void ZR_DrawObj(ZRDrawObj* obj);
+ze_external zErrorCode ZR_DrawTest();
 
 #endif // ZENGINE_INTERNAL_H

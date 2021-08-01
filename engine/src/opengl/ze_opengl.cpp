@@ -100,7 +100,18 @@ ze_external zErrorCode ZR_Init()
     return ZE_ERROR_NONE;
 }
 
-ze_external zErrorCode ZR_Draw()
+ze_external void ZR_ClearFrame(ColourF32 colour)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    CHECK_GL_ERR
+    glClearColor(colour.r, colour.g, colour.b, 1);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    CHECK_GL_ERR
+    glClear(GL_COLOR_BUFFER_BIT);
+    CHECK_GL_ERR
+}
+
+ze_external zErrorCode ZR_DrawTest()
 {
     // ZRGL_Debug_DrawCubeTest();
     // OpenglTest_DrawScreenSpaceQuad();

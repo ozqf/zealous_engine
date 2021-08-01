@@ -11,6 +11,7 @@
 
 #include "common/ze_math_types.h"
 
+#include "common/ze_buf_block.h"
 #include "common/ze_hash_table.h"
 #include "common/ze_blob_array.h"
 #include "common/ze_blob_store.h"
