@@ -104,6 +104,7 @@ ze_external zErrorCode ZR_Draw()
 {
     // ZRGL_Debug_DrawCubeTest();
     // OpenglTest_DrawScreenSpaceQuad();
-    ZRGL_Debug_DrawWorldCubeTest();
+    // ZRGL_Debug_DrawWorldCubeTest();
+    ZRGL_Debug_DrawWorldSprites();
     return ZE_ERROR_NONE;
 }

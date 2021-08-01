@@ -104,6 +104,7 @@ ze_external void ZRGL_Debug_Init();
 ze_external void OpenglTest_DrawScreenSpaceQuad();
 ze_external void ZRGL_Debug_DrawCubeTest();
 ze_external void ZRGL_Debug_DrawWorldCubeTest();
+ze_external void ZRGL_Debug_DrawWorldSprites();
 
 #include "zrgl_upload.h"
 
