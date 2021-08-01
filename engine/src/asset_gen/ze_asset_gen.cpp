@@ -5,26 +5,54 @@ ze_external void ZGen_Init()
 
 }
 
-ze_external void ZGen_SetPixel(
-    ColourU32 *pixels, i32 w, i32 h, ColourU32 colour, i32 x, i32 y)
+//////////////////////////////////////////////////////
+// geometry
+//////////////////////////////////////////////////////
+ze_external void ZGen_AddSriteGeoXY(
+    ZRMeshData* meshData, Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax)
 {
+    meshData->AddVert({pos.x + -size.x, pos.y + -size.y, 0}, {uvMin.x, uvMin.y}, {0, 0, -1});
+    meshData->AddVert({pos.x + size.x, pos.y + -size.y, 0}, {uvMax.x, uvMin.y}, {0, 0, -1});
+    meshData->AddVert({pos.x + size.x, pos.y + size.y, 0}, {uvMax.x, uvMax.y}, {0, 0, -1});
+
+    meshData->AddVert({pos.x + -size.x, pos.y + -size.y, 0}, {uvMin.x, uvMin.y}, {0, 0, -1});
+    meshData->AddVert({pos.x + size.x, pos.y + size.y, 0}, {uvMax.x, uvMax.y}, {0, 0, -1});
+    meshData->AddVert({pos.x + -size.x, pos.y + size.y, 0}, {uvMin.x, uvMax.y}, {0, 0, -1});
+}
+
+//////////////////////////////////////////////////////
+// textures
+//////////////////////////////////////////////////////
+ze_external void ZGen_SetPixel(
+    ZRTexture* tex, ColourU32 colour, i32 x, i32 y)
+{
+    if (tex == NULL) { return; }
+    ColourU32* pixels = tex->data;
+    i32 w = tex->width;
+    i32 h = tex->height;
     if (pixels == NULL) { return; }
     if (x < 0 || x >= w) { return; }
     if (y < 0 || y >= h) { return; }
     i32 i = ZE_2D_INDEX(x, y, w);
-    printf("Set pixel at %d\n", i);
     pixels[i] = colour;
 }
 
 ze_external void ZGen_DrawLine(
-    ColourU32 *pixels, i32 w, i32 h, ColourU32 colour, Point2 a, Point2 b)
+    ZRTexture *tex, ColourU32 colour, Point2 a, Point2 b)
 {
-
+    if (tex == NULL) { return; }
+    ColourU32 *pixels = tex->data;
+    i32 w = tex->width;
+    i32 h = tex->height;
 }
 
 ze_external void ZGen_FillTextureRect(
-    ColourU32 *pixels, i32 w, i32 h, ColourU32 colour, Point2 topLeft, Point2 size)
+    ZRTexture *tex, ColourU32 colour, Point2 topLeft, Point2 size)
 {
+    if (tex == NULL) { return; }
+    ColourU32 *pixels = tex->data;
+    i32 w = tex->width;
+    i32 h = tex->height;
     if (pixels == NULL) { return; }
 
     Point2 min = topLeft;
@@ -47,8 +75,12 @@ ze_external void ZGen_FillTextureRect(
     }
 }
 
-ze_external void ZGen_FillTexture(ColourU32 *pixels, i32 w, i32 h, ColourU32 colour)
+ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour)
 {
+    if (tex == NULL) { return; }
+    ColourU32 *pixels = tex->data;
+    i32 w = tex->width;
+    i32 h = tex->height;
     if (pixels == NULL) { return; }
     i32 numPixels = w * h;
     for (i32 i = 0; i < numPixels; ++i)

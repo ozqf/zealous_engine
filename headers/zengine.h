@@ -107,6 +107,11 @@ struct ZRMeshData
 
     Vec3 *GetVert(i32 i) { return (Vec3 *)(verts + (i * 3)); }
 
+    void Clear()
+    {
+        this->numVerts = 0;
+    }
+
     void AddTri(
         Vec3 v0, Vec3 v1, Vec3 v2,
         Vec2 uv0, Vec2 uv1, Vec2 uv2,
@@ -136,6 +141,7 @@ struct ZRMeshData
         Vec2 uv,
         Vec3 normal)
     {
+        if (this->numVerts >= this->maxVerts) { return; }
         i32 i = this->numVerts;
         this->numVerts += 1;
         // step to

@@ -199,7 +199,7 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
 
     local_persist ZRShader g_shader = {};
     local_persist ZRMeshHandles g_meshHandles = {};
-    local_persist ZRMeshData g_meshData;
+    local_persist ZRMeshData* g_meshData;
     local_persist u32 g_meshId = 0;
 
     // local_persist u32 g_quadVAO;
@@ -211,6 +211,7 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
     local_persist M4x4 prjMatrix;
 
     local_persist M4x4 modelView;
+    local_persist f32 time;
 
     const Vec4 colour = {1, 1, 1, 1};
 
@@ -227,20 +228,9 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
 
         ZE_SetupDefault3DProjection(prjMatrix.cells, 16.f / 9.f);
 
-        // allocate memory for mesh
-        ZRMeshData *meshData = ZAssets_AllocMesh(1024 * 3);
-        // set mesh data
-        meshData->AddVert({ -0.5, -0.5, 0 }, { 0, 0 }, { 0, 0, -1 });
-        meshData->AddVert({ 0.5, -0.5, 0 }, { 1, 0 }, { 0, 0, -1 });
-        meshData->AddVert({ 0.5, 0.5, 0 }, { 1, 1 }, { 0, 0, -1 });
-
-        meshData->AddVert({ -0.5, -0.5, 0 }, { 0, 0 }, { 0, 0, -1 });
-        meshData->AddVert({ 0.5, 0.5, 0 }, { 1, 1 }, { 0, 0, -1 });
-        meshData->AddVert({ -0.5, 0.5, 0 }, { 0, 1 }, { 0, 0, -1 });
-
-        // upload
-        ZRGL_UploadMesh(meshData, &g_meshHandles, 0);
-
+        // allocate memory for mesh - we will build it at draw time
+        g_meshData = ZAssets_AllocMesh(1024 * 3);
+        
         // shader
         ZRGL_CreateProgram(
             world_sprite_vert_text, world_sprite_frag_text, "world_sprite_test", 0, NO, &g_shader);
@@ -248,15 +238,34 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
         // allocate a texture
         ZRTexture *tex = ZAssets_AllocTex(64, 64);
         // paint onto the texture
-        ZGen_FillTexture(tex->data, tex->width, tex->height, {50, 50, 50, 255});
-        ZGen_FillTextureRect(tex->data, tex->width, tex->height, COLOUR_U32_GREEN, {16, 16}, {32, 32});
-        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 1, 1);
-        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 1, 62);
-        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 62, 1);
-        ZGen_SetPixel(tex->data, tex->width, tex->height, COLOUR_U32_RED, 62, 62);
+        ZGen_FillTexture(tex, {50, 50, 50, 255});
+        ZGen_FillTextureRect(tex, COLOUR_U32_GREEN, {0, 0}, {32, 32});
+        ZGen_FillTextureRect(tex, COLOUR_U32_RED, {32, 0}, {32, 32});
+        ZGen_FillTextureRect(tex, COLOUR_U32_BLUE, {0, 32}, {32, 32});
+        ZGen_FillTextureRect(tex, COLOUR_U32_YELLOW, {32, 32}, {32, 32});
         // upload the texture
         ZRGL_UploadTexture((u8 *)tex->data, 64, 64, &g_diffuseTex);
     }
+    float delta = 1.f / 60.f;
+    time += delta;
+    f32 lerp = sinf(time);
+    g_meshData->Clear();
+
+    // set mesh data
+    g_meshData->AddVert({-0.5, -0.5, 0}, {0, 0}, {0, 0, -1});
+    g_meshData->AddVert({0.5, -0.5, 0}, {1, 0}, {0, 0, -1});
+    g_meshData->AddVert({0.5, 0.5, 0}, {1, 1}, {0, 0, -1});
+
+    g_meshData->AddVert({-0.5, -0.5, 0}, {0, 0}, {0, 0, -1});
+    g_meshData->AddVert({0.5, 0.5, 0}, {1, 1}, {0, 0, -1});
+    g_meshData->AddVert({-0.5, 0.5, 0}, {0, 1}, {0, 0, -1});
+
+    ZGen_AddSriteGeoXY(g_meshData, {-1, lerp}, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
+    ZGen_AddSriteGeoXY(g_meshData, {1, lerp}, {0.25, 0.25}, {0.75, 0.75}, {0.75, 0.75});
+
+    // upload
+    ZRGL_UploadMesh(g_meshData, &g_meshHandles, 0);
+
     /////////////////////////////////////////////////////////////
     // Clear
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -270,11 +279,10 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
     glUseProgram(g_shader.handle);
 
     // set vert matrices
-    float delta = 1.f / 60.f;
     // move away from camera otherwise we'll draw IN the cube
     modelView.posZ = -2.f;
 
-    M4x4_RotateY(modelView.cells, (90.f * DEG2RAD) * delta);
+    // M4x4_RotateY(modelView.cells, (90.f * DEG2RAD) * delta);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", prjMatrix.cells);
     ZR_SetProgM4x4(g_shader.handle, "u_modelView", modelView.cells);
 

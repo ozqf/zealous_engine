@@ -45,11 +45,13 @@ ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height);
 ze_external ZRMeshData* ZAssets_AllocMesh(i32 maxVerts);
 
 ze_external void ZGen_Init();
-ze_external void ZGen_FillTexture(ColourU32 *pixels, i32 w, i32 h, ColourU32 colour);
+ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour);
 ze_external void ZGen_SetPixel(
-    ColourU32 *pixels, i32 w, i32 h, ColourU32 colour, i32 x, i32 y);
+    ZRTexture *tex, ColourU32 colour, i32 x, i32 y);
 ze_external void ZGen_FillTextureRect(
-    ColourU32 *pixels, i32 w, i32 h, ColourU32 colour, Point2 topLeft, Point2 size);
+    ZRTexture *tex, ColourU32 colour, Point2 topLeft, Point2 size);
+ze_external void ZGen_AddSriteGeoXY(
+    ZRMeshData* meshData, Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax);
 
 ze_external i32 ZE_StartLoop();
 ze_external void ZE_Shutdown();
