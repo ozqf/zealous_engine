@@ -1,7 +1,6 @@
 #include "ze_windows.h"
 
 internal int g_bConsoleInit = FALSE;
-
 internal HWND consoleHandle;
 
 extern int __argc;

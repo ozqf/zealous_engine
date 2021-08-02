@@ -86,6 +86,8 @@ ze_external void *Platform_Alloc(size_t size);
 ze_external void Platform_Free(void* ptr);
 ze_external void Platform_DebugBreak();
 
+ze_external ZGame ZGame_StubLinkup(ZEngine engine);
+
 // ze_external void Platform_BeginDrawFrame();
 // ze_external void Platform_EndDrawFrame();
 
@@ -123,6 +125,8 @@ ze_external void ZGen_AddSriteGeoXY(
 // scene manager
 ze_external void ZScene_Init();
 ze_external void ZScene_Draw();
+ze_external zeHandle ZScene_AddScene(i32 order, i32 capacity);
+ze_external ZRDrawObj *ZScene_AddObject(zeHandle sceneHandle);
 
 ze_external i32 ZE_StartLoop();
 ze_external void ZE_Shutdown();

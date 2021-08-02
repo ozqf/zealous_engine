@@ -339,4 +339,24 @@ struct ZRDrawObj
     }
 };
 
+// game functions provided to engine
+struct ZGame
+{
+    void (*Init)();
+    void (*Shutdown)();
+    void (*Tick)();
+    i32 sentinel;
+};
+
+// engine functions provided to game
+struct ZEngine
+{
+    struct
+    {
+        zeHandle (*AddScene)(i32 order, i32 capacity);
+        ZRDrawObj* (*AddObject)(zeHandle scene);
+    } scenes;
+    i32 sentinel;
+};
+
 #endif // ZENGINE_H

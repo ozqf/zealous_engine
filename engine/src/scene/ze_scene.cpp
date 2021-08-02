@@ -63,7 +63,7 @@ ze_external void ZScene_RemoveScene(zeHandle handle)
 
 internal void WriteSceneDrawCommands(ZEBuffer* buf, ZRScene* scene)
 {
-
+    
 }
 
 ze_external void ZScene_Draw()
@@ -78,6 +78,14 @@ ze_external void ZScene_Draw()
 
     ZE_SetupDefault3DProjection(setCamera->projection.cells, 16.f / 9.f);
     
+    i32 len = g_scenes->m_maxKeys;
+    for (i32 i = 0; i < len; ++i)
+    {
+        ZEHashTableKey* key = &g_scenes->m_keys[i];
+        if (key->id == 0) { continue; }
+        ZRScene* scene = (ZRScene*)key->data.ptr;
+        WriteSceneDrawCommands(buf, scene);
+    }
     #if 1 // proper draw commands submission
     BUF_BLOCK_BEGIN_STRUCT(spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
     spriteBatch->textureId = ZAssets_GetTexByName("fallback_texture")->header.id;
