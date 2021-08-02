@@ -37,7 +37,7 @@ internal ZRScene* GetSceneByHandle(zeHandle handle)
     return (ZRScene*)g_scenes->FindPointer(handle);
 }
 
-ze_external zeHandle ZScene_AddScene(i32 order, i32 capacity)
+ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity)
 {
     zeHandle result = g_nextHandle;
     g_nextHandle += 1;
@@ -60,6 +60,17 @@ ze_external zeHandle ZScene_AddScene(i32 order, i32 capacity)
 ze_external void ZScene_RemoveScene(zeHandle handle)
 {
 
+}
+
+ze_external Transform ZScene_GetCamera(zeHandle sceneHandle)
+{
+    ZRScene *scene = GetSceneByHandle(sceneHandle);
+    if (scene == NULL)
+    {
+        TRANSFORM_CREATE(identityTransform)
+        return identityTransform;
+    }
+    return scene->camera;
 }
 
 ze_external void ZScene_SetCamera(zeHandle sceneHandle, Transform t)
@@ -110,15 +121,20 @@ internal void WriteSceneDrawCommands(ZEBuffer* buf, ZRScene* scene)
 
     // start a batch
     BUF_BLOCK_BEGIN_STRUCT(spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
-    spriteBatch->textureId = ZAssets_GetTexByName("fallback_texture")->header.id;
+    spriteBatch->textureId = ZAssets_GetTexByName(FALLBACK_TEXTURE_NAME)->header.id;
+    spriteBatch->textureId = ZAssets_GetTexByName(FALLBACK_CHARSET_TEXTURE_NAME)->header.id;
     spriteBatch->items = (ZRSpriteBatchItem *)buf->cursor;
 
+    char chars[] = { 'A', 'B', 'C' };
     // iterate objects and add to batch
     for (i32 i = 0; i < len; ++i)
     {
         ZRDrawObj* obj = (ZRDrawObj*)scene->objects.GetByIndex(i);
         Vec3 p = obj->t.pos;
-        spriteBatch->AddItem(p, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
+        // spriteBatch->AddItem(p, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
+        Vec2 uvMin, uvMax;
+        ZEAsciToCharsheetUVs(chars[i % 3], &uvMin, &uvMax);
+        spriteBatch->AddItem(p, {0.25, 0.25}, uvMin, uvMax);
     }
 
     // complete batch command
@@ -185,7 +201,7 @@ ze_external void ZScene_Init()
     ZRDrawObj* obj;
 
     #if 1
-    scene = ZScene_AddScene(0, 64);
+    scene = ZScene_CreateScene(0, 64);
     obj = ZScene_AddObject(scene);
     obj->t.pos = { -0.5f, -0.5f, 0 };
     obj->t.scale = { 0.25f, 0.25f, 0.25f };
@@ -193,9 +209,13 @@ ze_external void ZScene_Init()
     obj = ZScene_AddObject(scene);
     obj->t.pos = {-0.5f, 0.5f, 0};
     obj->t.scale = {0.25f, 0.25f, 0.25f};
-#endif
+    #endif
     #if 1
-    scene = ZScene_AddScene(0, 64);
+    scene = ZScene_CreateScene(0, 64);
+    Transform cam = ZScene_GetCamera(scene);
+    Transform_SetRotationDegrees(&cam, -45, 0, 0);
+    ZScene_SetCamera(scene, cam);
+    
     obj = ZScene_AddObject(scene);
     obj->t.pos = {0.5f, 0.5f, 0};
     obj->t.scale = {0.25f, 0.25f, 0.25f};

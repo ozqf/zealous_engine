@@ -4,9 +4,32 @@ programmatically
 */
 #include "../../internal_headers/zengine_internal.h"
 
-ze_external void ZGen_Init()
+ze_external i32 TexGen_DecodeBW(
+    u8 *source,
+    const i32 sourceSize,
+    ColourU32 *target,
+    const i32 w,
+    const i32 h,
+    ColourU32 solid,
+    ColourU32 empty)
 {
-
+    for (i32 i = 0; i < sourceSize; ++i)
+    {
+        u8 block = source[i];
+        for (i32 bit = 0; bit < 8; ++bit)
+        {
+            ColourU32 *colour = &target[(i * 8) + bit];
+            if (block & (1 << bit))
+            {
+                *colour = solid;
+            }
+            else
+            {
+                *colour = empty;
+            }
+        }
+    }
+    return ZE_ERROR_NONE;
 }
 
 //////////////////////////////////////////////////////
@@ -91,4 +114,9 @@ ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour)
     {
         pixels[i] = colour;
     }
+}
+
+ze_external void ZGen_Init()
+{
+
 }

@@ -6,6 +6,11 @@ Zealous Engine public header
 
 #include "ze_common.h"
 
+///////////////////////////////////////////////////////////
+// Embedded assets
+///////////////////////////////////////////////////////////
+#define FALLBACK_TEXTURE_NAME "fallback_texture"
+#define FALLBACK_CHARSET_TEXTURE_NAME "fallback_charset"
 
 ///////////////////////////////////////////////////////////
 // Colours
@@ -42,9 +47,11 @@ union ColourF32
 #define COLOUR_U32_YELLOW { 255, 255, 0, 255 }
 #define COLOUR_U32_CYAN { 0, 255, 255, 255 }
 #define COLOUR_U32_PURPLE { 255, 0, 255, 255 }
+#define COLOUR_U32_GREY { 155, 155, 155, 255 }
+#define COLOUR_U32_GREY_DARK { 200, 200, 200, 255 }
 
-#define COLOUR_U32_GREY { 155, 155, 155, 155 }
-#define COLOUR_U32_GREY_DARK { 200, 200, 200, 200 }
+#define COLOUR_U32_SEMI_GREY { 155, 155, 155, 155 }
+#define COLOUR_U32_SEMI_GREY_DARK { 200, 200, 200, 200 }
 
 #define ZR_TEX_SAMPLER_DEFAULT 0
 

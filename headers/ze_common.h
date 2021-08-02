@@ -16,6 +16,8 @@
 #include "common/ze_blob_array.h"
 #include "common/ze_blob_store.h"
 
+#include "common/ze_drawing_utils.h"
+
 // storage types
 
 #endif // ZE_COMMON_H

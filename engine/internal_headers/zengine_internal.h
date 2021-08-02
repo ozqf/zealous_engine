@@ -85,29 +85,28 @@ struct ZRDrawCmdSpriteBatch
     }
 };
 
+//////////////////////////////////
+// platform
 ze_external void Platform_PollEvents();
 ze_external void Platform_SubmitFrame();
 ze_external void *Platform_Alloc(size_t size);
 ze_external void Platform_Free(void* ptr);
 ze_external void Platform_DebugBreak();
+ze_external ZEBuffer Platform_StageFile(char *path);
 
+//////////////////////////////////
+// game module linkup
 ze_external ZGame ZGame_StubLinkup(ZEngine engine);
-
-// ze_external void Platform_BeginDrawFrame();
-// ze_external void Platform_EndDrawFrame();
-
-ze_external ZEBuffer Platform_StageFile(char* path);
-
 ze_external zErrorCode ZE_Init();
 
+//////////////////////////////////
 // config
 ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, const i32 argc);
-
 ze_external i32 ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc);
 ze_external i32 ZCFG_FindParamIndex(const char* shortQuery, const char* longQuery, i32 extraTokens);
 
+//////////////////////////////////
 // asset db
-// ze_external ZRAsset *ZAssets_FindAssetById(i32 id);
 ze_external ZRTexture *ZAssets_GetTexByName(char *name);
 ze_external ZRTexture *ZAssets_GetTexById(i32 id);
 
@@ -118,6 +117,8 @@ ze_external ZRMeshData *ZAssets_AllocMesh(i32 maxVerts);
 
 ze_external zErrorCode ZEmbedded_Init();
 
+//////////////////////////////////
+// asset creation
 ze_external void ZGen_Init();
 ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour);
 ze_external void ZGen_SetPixel(
@@ -126,11 +127,20 @@ ze_external void ZGen_FillTextureRect(
     ZRTexture *tex, ColourU32 colour, Point2 topLeft, Point2 size);
 ze_external void ZGen_AddSriteGeoXY(
     ZRMeshData* meshData, Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax);
+ze_external i32 TexGen_DecodeBW(
+    u8 *source,
+    const i32 sourceSize,
+    ColourU32 *target,
+    const i32 w,
+    const i32 h,
+    ColourU32 solid,
+    ColourU32 empty);
 
+//////////////////////////////////
 // scene manager
 ze_external void ZScene_Init();
 ze_external void ZScene_Draw();
-ze_external zeHandle ZScene_AddScene(i32 order, i32 capacity);
+ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity);
 ze_external ZRDrawObj *ZScene_AddObject(zeHandle sceneHandle);
 
 ze_external i32 ZE_StartLoop();

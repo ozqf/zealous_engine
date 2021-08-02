@@ -13,7 +13,7 @@ internal ZEngine ZE_BuildPlatformExport()
 {
 	ZEngine engine = {};
 	engine.sentinel = ZE_SENTINEL;
-	engine.scenes.AddScene = ZScene_AddScene;
+	engine.scenes.AddScene = ZScene_CreateScene;
 	engine.scenes.AddObject = ZScene_AddObject;
 	return engine;
 }
