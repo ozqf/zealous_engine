@@ -1,5 +1,14 @@
 #include "../../internal_headers/zengine_internal.h"
 
+/*
+Visual Scene manager
+Scene structs are stored in a hash table
+scene structs have a blob store of the objects within them.
+
+scenes draw in order, lowest to highest, as isolated passes
+
+*/
+
 struct ZRScene
 {
     zeHandle id;
@@ -24,12 +33,27 @@ ze_external zeHandle ZScene_AddScene(i32 order, i32 capacity)
 {
     zeHandle result = g_nextHandle;
     g_nextHandle += 1;
+    ZRScene* scene = (ZRScene*)Platform_Alloc(sizeof(ZRScene));
+    *scene = {};
+    scene-> nextId = 1;
+
+    ZE_InitBlobStore(Platform_Alloc, &scene->objects, capacity, sizeof(ZRScene), 0);
+    ZEHashTableData d;
+    d.ptr = scene;
+    g_scenes->Insert(result, d);
     return result;
 }
 
-ze_external ZRDrawObj* ZScene_AddObject(zeHandle scene)
+ze_external ZRDrawObj* ZScene_AddObject(zeHandle sceneHandle)
 {
-    return NULL;
+    ZRScene* scene = (ZRScene*)g_scenes->FindPointer(sceneHandle);
+    if (scene == NULL) { return NULL; }
+    ZRDrawObj* obj = (ZRDrawObj*)scene->objects.GetFreeSlot(scene->nextId);
+    if (obj == NULL) { return NULL; }
+    *obj = {};
+    obj->userTag = scene->nextId;
+    scene->nextId += 1;
+    return obj;
 }
 
 ze_external void ZScene_RemoveScene(zeHandle handle)
@@ -37,9 +61,14 @@ ze_external void ZScene_RemoveScene(zeHandle handle)
 
 }
 
+internal void WriteSceneDrawCommands(ZEBuffer* buf, ZRScene* scene)
+{
+
+}
+
 ze_external void ZScene_Draw()
 {
-    #if 1 // proper draw commands submission
+    
     ZR_ClearFrame({ 0.1f, 0.1f, 0.1f, 1});
     ZEBuffer* buf = &g_drawCommands;
     buf->Clear(NO);
@@ -48,7 +77,8 @@ ze_external void ZScene_Draw()
     Transform_SetRotationDegrees(&setCamera->camera, 45.f, 0, 0);
 
     ZE_SetupDefault3DProjection(setCamera->projection.cells, 16.f / 9.f);
-
+    
+    #if 1 // proper draw commands submission
     BUF_BLOCK_BEGIN_STRUCT(spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
     spriteBatch->items = (ZRSpriteBatchItem*)buf->cursor;
     spriteBatch->AddItem({ -0.5, -0.5 }, { 0.25, 0.25 }, { 0.25, 0.25 }, { 0.25, 0.25 });
@@ -72,4 +102,9 @@ ze_external void ZScene_Init()
     i32 bufSize = KiloBytes(64);
     g_drawCommands = Buf_FromMalloc(Platform_Alloc, bufSize);
     g_drawCommands.Clear(YES);
+
+    zeHandle scene = ZScene_AddScene(0, 1024);
+    ZRDrawObj* obj = ZScene_AddObject(scene);
+    obj->t.pos = { 0.5f, 0.5f, 0 };
+    obj->t.scale = { 0.25f, 0.25f, 0.25f };
 }

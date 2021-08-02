@@ -210,6 +210,7 @@ struct ZEHashTable
         {
             return NULL;
         }
+        return data->ptr;
     }
 
     i32 FindI32(i32 id, i32 invalidResult)
