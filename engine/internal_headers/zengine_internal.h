@@ -8,6 +8,11 @@ Zealous Engine internal header
 
 #define ZR_MAX_BATCH_SIZE 256
 
+#ifndef ZE_PRINTF
+// #define ZE_PRINTF(fmt, ...) printf(fmt, ##__VA_ARGS__##)
+#define ZE_PRINTF(fmt, ...)
+#endif
+
 // internal types
 /**
  * Asset handles required to execute a draw call

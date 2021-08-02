@@ -103,6 +103,7 @@ ze_external zErrorCode ZR_Init()
 
 ze_external void ZR_ClearFrame(ColourF32 colour)
 {
+    ZE_PRINTF("Clear screen\n");
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     CHECK_GL_ERR
     glClearColor(colour.r, colour.g, colour.b, 1);
@@ -125,7 +126,9 @@ ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
             break;
             case ZR_DRAW_CMD_SPRITE_BATCH:
             ZE_CREATE_CAST_PTR(header, ZRDrawCmdSpriteBatch, batch);
-            ZRDraw_SpriteBatch(batch, &camera, &projection);
+            M4x4 view;
+            Transform_ToM4x4(&camera, &view);
+            ZRDraw_SpriteBatch(batch, &view, &projection);
             break;
         }
     BUF_BLOCK_END_READ

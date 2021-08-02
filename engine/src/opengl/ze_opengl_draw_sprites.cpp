@@ -83,12 +83,13 @@ internal void SpriteBatchInit()
 // Create sprite mesh and submit for drawing
 ///////////////////////////////////////////////////////////
 ze_external void ZRDraw_SpriteBatch(
-    ZRDrawCmdSpriteBatch* batch, Transform* cam, M4x4* projection)
+    ZRDrawCmdSpriteBatch* batch, M4x4* view, M4x4* projection)
 {
     if (!g_initialised)
     {
         SpriteBatchInit();
     }
+    ZE_PRINTF("Draw sprite batch - %d objects\n", batch->numItems);
     g_meshData->Clear();
     f32 lerp = 0;
     for (i32 i = 0; i < batch->numItems; ++i)
@@ -107,10 +108,15 @@ ze_external void ZRDraw_SpriteBatch(
     // printf("Draw %d sprites\n", batch->numItems);
 
     M4x4_CREATE(modelView)
-    modelView.posZ = -2.f;
+    M4x4_CREATE(model)
+
+    // modelView.posZ = -2.f;
     // M4x4_RotateY(modelView.cells, (90.f * DEG2RAD) * delta);
-    ZR_SetProgM4x4(g_shader.handle, "u_projection", projection->cells);
+    M4x4_Multiply(modelView.cells, view->cells, modelView.cells);
+    M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
+    
     ZR_SetProgM4x4(g_shader.handle, "u_modelView", modelView.cells);
+    ZR_SetProgM4x4(g_shader.handle, "u_projection", projection->cells);
 
     u32 texHandle = ZRGL_GetTextureHandle(batch->textureId);
 
