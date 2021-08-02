@@ -24,6 +24,17 @@ struct ZRMeshHandles
     i32 maxInstances;
 };
 
+struct ZRGLHandles
+{
+    i32 assetId;
+    i32 assetType;
+    union
+    {
+        ZRMeshHandles meshHandles;
+        u32 textureHandle;
+    } data;
+};
+
 /////////////////////////////////////////
 // Render commands
 /////////////////////////////////////////
@@ -73,6 +84,7 @@ ze_external void Platform_PollEvents();
 ze_external void Platform_SubmitFrame();
 ze_external void *Platform_Alloc(size_t size);
 ze_external void Platform_Free(void* ptr);
+ze_external void Platform_DebugBreak();
 
 // ze_external void Platform_BeginDrawFrame();
 // ze_external void Platform_EndDrawFrame();
@@ -88,13 +100,16 @@ ze_external i32 ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc
 ze_external i32 ZCFG_FindParamIndex(const char* shortQuery, const char* longQuery, i32 extraTokens);
 
 // asset db
-ze_external zErrorCode ZAssets_Init();
-ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height);
-ze_external ZRMeshData* ZAssets_AllocMesh(i32 maxVerts);
+// ze_external ZRAsset *ZAssets_FindAssetById(i32 id);
+ze_external ZRTexture *ZAssets_GetTexByName(char *name);
+ze_external ZRTexture *ZAssets_GetTexById(i32 id);
 
-// scene manager
-ze_external void ZScene_Init();
-ze_external void ZScene_Draw();
+ze_external zErrorCode ZAssets_Init();
+ze_external void ZAssets_PrintAll();
+ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char *name);
+ze_external ZRMeshData *ZAssets_AllocMesh(i32 maxVerts);
+
+ze_external zErrorCode ZEmbedded_Init();
 
 ze_external void ZGen_Init();
 ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour);
@@ -105,6 +120,10 @@ ze_external void ZGen_FillTextureRect(
 ze_external void ZGen_AddSriteGeoXY(
     ZRMeshData* meshData, Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax);
 
+// scene manager
+ze_external void ZScene_Init();
+ze_external void ZScene_Draw();
+
 ze_external i32 ZE_StartLoop();
 ze_external void ZE_Shutdown();
 
@@ -112,5 +131,6 @@ ze_external zErrorCode ZR_Init();
 ze_external void ZR_ClearFrame(ColourF32 colour);
 ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer);
 ze_external zErrorCode ZR_DrawTest();
+ze_external void ZRGL_PrintHandles();
 
 #endif // ZENGINE_INTERNAL_H

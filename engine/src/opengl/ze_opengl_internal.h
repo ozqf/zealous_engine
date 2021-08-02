@@ -99,8 +99,10 @@ ze_external void ZRGL_PrintShaderCompileLog(GLuint shaderId);
 ///////////////////////////////////////////////////////
 // Uploading
 ///////////////////////////////////////////////////////
-internal void ZRGL_UploadTexture(u8 *pixels, i32 width, i32 height, u32 *handle);
-internal void ZRGL_UploadMesh(ZRMeshData *data, ZRMeshHandles *result, u32 flags);
+ze_external void ZRGL_UploadTexture(u8 *pixels, i32 width, i32 height, u32 *handle);
+ze_external void ZRGL_UploadMesh(ZRMeshData *data, ZRMeshHandles *result, u32 flags);
+ze_external void ZRGL_UploaderInit();
+ze_external u32 ZRGL_GetTextureHandle(i32 assetId);
 ze_external zErrorCode ZRGL_InitShaders();
 
 ///////////////////////////////////////////////////////
@@ -117,7 +119,5 @@ ze_external void OpenglTest_DrawScreenSpaceQuad();
 ze_external void ZRGL_Debug_DrawCubeTest();
 ze_external void ZRGL_Debug_DrawWorldCubeTest();
 ze_external void ZRGL_Debug_DrawWorldSprites();
-
-#include "zrgl_upload.h"
 
 #endif // ZE_OPENGL_INTERNAL_H

@@ -63,6 +63,14 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
         }
         return YES;
     }
+    else if (key == GLFW_KEY_F7)
+    {
+        if (action == GLFW_PRESS)
+        {
+            Platform_DebugBreak();
+        }
+        return YES;
+    }
     return 0;
 }
 

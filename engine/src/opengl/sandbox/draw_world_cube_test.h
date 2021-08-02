@@ -277,7 +277,7 @@ ze_external void ZRGL_Debug_DrawWorldCubeTest()
             world_cube_vert_text, world_cube_frag_text, "fallback", 0, NO, &g_shader);
         
         // upload a texture
-        ZRTexture *tex = ZAssets_AllocTex(64, 64);
+        ZRTexture *tex = ZAssets_AllocTex(64, 64, "draw_world_cube_test_texture");
         ZGen_FillTexture(tex, { 50, 50, 50, 255 });
         ZGen_SetPixel(tex, COLOUR_U32_RED, 1, 1);
         ZGen_SetPixel(tex, COLOUR_U32_RED, 1, 62);

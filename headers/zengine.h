@@ -69,6 +69,11 @@ union ColourU32
 // Asset data types
 ///////////////////////////////////////////////////////////
 
+#define ZE_ASSET_TYPE_NONE 0
+#define ZE_ASSET_TYPE_TEXTURE 1
+#define ZE_ASSET_TYPE_MESH 2
+#define ZE_ASSET_TYPE_MATERIAL 2
+
 struct ZRAsset
 {
     i32 id;
@@ -79,17 +84,23 @@ struct ZRAsset
     // Data has changed - needs to be re-uploaded
     i32 bIsDirty;
     char *fileName;
+    i32 sentinel;
+};
+
+struct ZRMaterial
+{
+    ZRAsset header;
+    i32 programId;
+    i32 diffuseTexId;
+    i32 emissionTexId;
 };
 
 struct ZRTexture
 {
-    //char* fileName;
     ZRAsset header;
-    // 32 bit pixel data.
     ColourU32 *data;
     i32 width;
     i32 height;
-    i32 apiHandle;
 };
 
 #define VEC3_SIZE = 12
@@ -196,6 +207,12 @@ struct ZRMeshData
             cursor += 3;
         }
     }
+};
+
+struct ZRMeshAsset
+{
+    ZRAsset header;
+    ZRMeshData data;
 };
 
 ///////////////////////////////////////////////////////////

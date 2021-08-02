@@ -17,6 +17,31 @@ ze_external void Platform_Free(void *ptr)
 	free(ptr);
 }
 
+////////////////////////////////////////////////////////
+// Error handling
+////////////////////////////////////////////////////////
+static void Win_Error(const char *msg)
+{
+	printf("FATAL: %s\n", msg);
+	// TODO: LPCWSTR means unicode, but treated as ascii!
+	// casting to LPCWSTR breaks compile however
+	MessageBox(0, (LPCSTR)msg, (LPCSTR) "Error", MB_OK | MB_ICONINFORMATION);
+	DebugBreak();
+}
+
+static void Win_Warning(const char *msg)
+{
+	printf("WARNING: %s\n", msg);
+	// TODO: LPCWSTR means unicode, but treated as ascii!
+	// casting to LPCWSTR breaks compile however
+	MessageBox(0, (LPCSTR)msg, (LPCSTR) "Warning", MB_OK | MB_ICONINFORMATION);
+}
+
+ze_external void Platform_DebugBreak()
+{
+	DebugBreak();
+}
+
 ze_external ZEBuffer Platform_StageFile(char* path)
 {
 	FILE* f;
@@ -75,6 +100,11 @@ int CALLBACK WinMain(
 	if (tokenIndex != ZE_ERROR_BAD_INDEX)
 	{
 		printf("Init log file...\n");
+	}
+	tokenIndex=  ZCFG_FindParamIndex("--pauseonstart", "--pauseonstart", 0);
+	if (tokenIndex != ZE_ERROR_BAD_INDEX)
+	{
+		Win_Warning("Pause on start!\n");
 	}
 
 	// init proper

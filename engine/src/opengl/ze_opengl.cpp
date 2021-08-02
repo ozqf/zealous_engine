@@ -88,6 +88,7 @@ ze_external zErrorCode ZR_Init()
     glEnable(GL_CULL_FACE);
     CHECK_GL_ERR
 
+    ZRGL_UploaderInit();
     ZRGL_Debug_Init();
 
     // Init shaders

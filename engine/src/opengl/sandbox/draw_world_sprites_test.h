@@ -236,7 +236,7 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
             world_sprite_vert_text, world_sprite_frag_text, "world_sprite_test", 0, NO, &g_shader);
 
         // allocate a texture
-        ZRTexture *tex = ZAssets_AllocTex(64, 64);
+        ZRTexture *tex = ZAssets_AllocTex(64, 64, "draw_world_sprites_test_texture");
         // paint onto the texture
         ZGen_FillTexture(tex, {50, 50, 50, 255});
         ZGen_FillTextureRect(tex, COLOUR_U32_GREEN, {0, 0}, {32, 32});

@@ -2,7 +2,7 @@
 cd..
 cd bin
 @echo on
-start zealous.exe -w -c -l
+start zealous.exe -w -c -l --pauseonstart
 @echo off
 cd..
 cd buildwin

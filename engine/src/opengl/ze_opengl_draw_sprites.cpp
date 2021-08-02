@@ -64,7 +64,7 @@ internal void SpriteBatchInit()
     g_meshData = ZAssets_AllocMesh(1024 * 3);
 
     // allocate a texture
-    tex = ZAssets_AllocTex(64, 64);
+    tex = ZAssets_AllocTex(64, 64, "draw_sprites_test_texture");
     // paint onto the texture
     ZGen_FillTexture(tex, {50, 50, 50, 255});
     ZGen_FillTextureRect(tex, COLOUR_U32_GREEN, {0, 0}, {32, 32});
@@ -112,11 +112,22 @@ ze_external void ZRDraw_SpriteBatch(
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection->cells);
     ZR_SetProgM4x4(g_shader.handle, "u_modelView", modelView.cells);
 
-    ZR_PrepareTextureUnit2D(g_shader.handle, GL_TEXTURE0, 0, "u_diffuseTex", g_texHandle, 0);
+    u32 texHandle = ZRGL_GetTextureHandle(batch->textureId);
+
+    // ZR_PrepareTextureUnit2D(g_shader.handle, GL_TEXTURE0, 0, "u_diffuseTex", g_texHandle, 0);
+    ZR_PrepareTextureUnit2D(g_shader.handle, GL_TEXTURE0, 0, "u_diffuseTex", texHandle, 0);
+    CHECK_GL_ERR
+
+    // printf("Retrieved handle %d for texture %d\n", texHandle, batch->textureId);
+    // ZRGL_PrintHandles();
+    // Platform_DebugBreak();
 
     // set frag output colour
     ZR_SetProgVec4f(g_shader.handle, "u_colour", { 1, 1, 1, 1});
+    CHECK_GL_ERR
 
     glBindVertexArray(g_meshHandles.vao);
+    CHECK_GL_ERR
     glDrawArrays(GL_TRIANGLES, 0, g_meshHandles.vertexCount);
+    CHECK_GL_ERR
 }

@@ -80,6 +80,7 @@ ze_external void ZScene_Draw()
     
     #if 1 // proper draw commands submission
     BUF_BLOCK_BEGIN_STRUCT(spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
+    spriteBatch->textureId = ZAssets_GetTexByName("fallback_texture")->header.id;
     spriteBatch->items = (ZRSpriteBatchItem*)buf->cursor;
     spriteBatch->AddItem({ -0.5, -0.5 }, { 0.25, 0.25 }, { 0.25, 0.25 }, { 0.25, 0.25 });
     spriteBatch->AddItem({ 0.5, -0.5 }, { 0.25, 0.25 }, { 0.25, 0.75 }, { 0.25, 0.75 });

@@ -1,3 +1,7 @@
+/*
+Provides functions for creating/modifying assets
+programmatically
+*/
 #include "../../internal_headers/zengine_internal.h"
 
 ze_external void ZGen_Init()
