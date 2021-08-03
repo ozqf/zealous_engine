@@ -1,29 +1,4 @@
-#include "../../internal_headers/zengine_internal.h"
-
-/*
-Visual Scene manager
-Scene structs are stored in a hash table
-scene structs have a blob store of the objects within them.
-
-scenes draw in order, lowest to highest, as isolated passes
-
-*/
-
-struct ZRScene
-{
-    zeHandle id;
-    // Tightly packed list of objects
-    ZEBlobStore objects;
-    i32 bSkybox;
-    i32 bDeferred;
-    i32 bDebug;
-    i32 nextId;
-    i32 numObjects;
-    i32 maxObjects;
-
-    Transform camera;
-    M4x4 projection;
-};
+#include "ze_scene_internal.h"
 
 internal zeHandle g_nextHandle = 1;
 internal ZEHashTable* g_scenes = NULL;
@@ -105,41 +80,6 @@ ze_external ZRDrawObj* ZScene_AddObject(zeHandle sceneHandle)
 ///////////////////////////////////////////////////////////
 // service
 ///////////////////////////////////////////////////////////
-internal void WriteSceneDrawCommands(ZEBuffer* buf, ZRScene* scene)
-{
-    i32 len = scene->objects.m_array->m_numBlobs;
-    ZE_PRINTF("Write scene %d - %d objects\n",
-              scene->id, len);
-
-    // setup camera/projection
-    BUF_BLOCK_BEGIN_STRUCT(setCamera, ZRDrawCmdSetCamera, buf, ZR_DRAW_CMD_SET_CAMERA);
-    setCamera->camera = scene->camera;
-    setCamera->projection = scene->projection;
-    // Transform_SetToIdentity(&setCamera->camera);
-    // Transform_SetRotationDegrees(&setCamera->camera, 45.f, 0, 0);
-    // ZE_SetupDefault3DProjection(setCamera->projection.cells, 16.f / 9.f);
-
-    // start a batch
-    BUF_BLOCK_BEGIN_STRUCT(spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
-    spriteBatch->textureId = ZAssets_GetTexByName(FALLBACK_TEXTURE_NAME)->header.id;
-    spriteBatch->textureId = ZAssets_GetTexByName(FALLBACK_CHARSET_TEXTURE_NAME)->header.id;
-    spriteBatch->items = (ZRSpriteBatchItem *)buf->cursor;
-
-    char chars[] = { 'A', 'B', 'C' };
-    // iterate objects and add to batch
-    for (i32 i = 0; i < len; ++i)
-    {
-        ZRDrawObj* obj = (ZRDrawObj*)scene->objects.GetByIndex(i);
-        Vec3 p = obj->t.pos;
-        // spriteBatch->AddItem(p, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
-        Vec2 uvMin, uvMax;
-        ZEAsciToCharsheetUVs(chars[i % 3], &uvMin, &uvMax);
-        spriteBatch->AddItem(p, {0.25, 0.25}, uvMin, uvMax);
-    }
-
-    // complete batch command
-    spriteBatch->Finish(buf);
-}
 
 ze_external void ZScene_Draw()
 {
@@ -155,7 +95,7 @@ ze_external void ZScene_Draw()
         ZEHashTableKey* key = &g_scenes->m_keys[i];
         if (key->id == 0) { continue; }
         ZRScene* scene = (ZRScene*)key->data.ptr;
-        WriteSceneDrawCommands(buf, scene);
+        ZScene_WriteDrawCommands(buf, scene);
     }
 
     #if 1 // execute
