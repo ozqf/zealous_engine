@@ -356,6 +356,15 @@ struct ZGame
     i32 sentinel;
 };
 
+struct ZInput
+{
+    void (*AddAction)(u32 keyCode1, u32 keyCode2, char *label);
+    i32 (*GetActionValue)(char *actionName);
+    f32 (*GetActionValueNormalised)(char *actionName);
+    i32 (*HasActionToggledOn)(char* actionName);
+    i32 (*HasActionToggledOff)(char* actionName);
+};
+
 // Services
 struct ZSceneManager
 {
@@ -379,6 +388,7 @@ struct ZEngine
 {
     ZSceneManager scenes;
     ZAssetManager assets;
+    ZInput input;
     i32 sentinel;
 };
 

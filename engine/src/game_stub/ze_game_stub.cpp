@@ -12,6 +12,10 @@ internal zeHandle g_hudScene = 0;
 internal void Stub_Init()
 {
     printf("Stub init\n");
+    // register inputs
+    g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, "move_left");
+    g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, "move_right");
+
     // create a visual scene
     g_gameScene = g_engine.scenes.AddScene(0, 8);
 

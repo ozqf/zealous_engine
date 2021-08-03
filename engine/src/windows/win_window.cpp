@@ -31,6 +31,8 @@ internal f32 g_monitorAspect;
 internal i32 g_windowSize[2];
 internal f32 g_windowAspect;
 
+ze_internal ZEBuffer g_events;
+
 // TODO: App thread can cause a 'GLFW is not initialised' error here
 // by call into main thread during shutdown. Make sure App has closed before
 // closing GLFW
@@ -246,6 +248,9 @@ ze_external zErrorCode ZWindow_Init()
     i32 index = ZCFG_FindParamIndex("-w", "--windowed", 0);
     g_bWindowed = (index != ZE_ERROR_BAD_INDEX) ? YES : NO;
     printf("Windowed: %d\n", g_bWindowed);
+
+    g_events = Buf_FromMalloc(Platform_Alloc, KiloBytes(64));
+
     SpawnWindow();
     ZR_Init();
     return 0;
@@ -253,6 +258,7 @@ ze_external zErrorCode ZWindow_Init()
 
 ze_external void Platform_PollEvents()
 {
+    g_events.Clear(NO);
     glfwPollEvents();
 }
 

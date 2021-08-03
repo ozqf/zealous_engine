@@ -128,6 +128,10 @@ ze_external i32 ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc
 ze_external i32 ZCFG_FindParamIndex(const char* shortQuery, const char* longQuery, i32 extraTokens);
 
 //////////////////////////////////
+// input
+ze_external zErrorCode ZInput_Init(ZInput *inputExport);
+
+//////////////////////////////////
 // asset db
 ze_external ZRTexture *ZAssets_GetTexByName(char *name);
 ze_external ZRTexture *ZAssets_GetTexById(i32 id);

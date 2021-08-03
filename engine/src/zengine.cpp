@@ -35,15 +35,20 @@ ze_external ZEngine GetEngine()
 
 ze_external zErrorCode ZE_Init()
 {
+	// step 1
 	ZDebug_Init_1();
 	ZAssets_Init();
 	ZGen_Init();
 	ZEmbedded_Init();
 	ZScene_Init();
-	ZAssets_PrintAll();
+	ZInput_Init(&g_engine.input);
 
+	// step 2
 	ZDebug_Init_2();
 
+	ZAssets_PrintAll();
+
+	// link to app DLL
 	g_game = ZGame_StubLinkup(g_engine);
 	if (g_game.sentinel == ZE_SENTINEL)
 	{
