@@ -6,6 +6,9 @@ Zealous Engine internal header
 
 #include "../../headers/zengine.h"
 
+// scenes above this are internal - eg for debugging overlays
+#define ZR_INTERNAL_SCENE_START_DEPTH 0x0FFFFFFF
+
 #define ZR_MAX_BATCH_SIZE 256
 
 #ifndef ZE_PRINTF
@@ -100,6 +103,11 @@ ze_external ZGame ZGame_StubLinkup(ZEngine engine);
 ze_external zErrorCode ZE_Init();
 
 //////////////////////////////////
+// debug
+ze_external zErrorCode ZDebug_Init_1();
+ze_external zErrorCode ZDebug_Init_2();
+
+//////////////////////////////////
 // config
 ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, const i32 argc);
 ze_external i32 ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc);
@@ -140,12 +148,18 @@ ze_external i32 TexGen_DecodeBW(
 // scene manager
 ze_external void ZScene_Init();
 ze_external void ZScene_Draw();
+ze_external ZEngine GetEngine();
+
 ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity);
 ze_external ZRDrawObj *ZScene_AddObject(zeHandle sceneHandle);
+ze_external Transform ZScene_GetCamera(zeHandle sceneHandle);
+ze_external void ZScene_SetCamera(zeHandle sceneHandle, Transform t);
+ze_external void ZScene_SetProjection(zeHandle sceneHandle, M4x4 projection);
 
 ze_external i32 ZE_StartLoop();
 ze_external void ZE_Shutdown();
 
+// renderer
 ze_external zErrorCode ZR_Init();
 ze_external void ZR_ClearFrame(ColourF32 colour);
 ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer);

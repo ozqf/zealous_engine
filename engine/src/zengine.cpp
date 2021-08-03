@@ -3,29 +3,48 @@
 
 internal i32 g_running = YES;
 internal ZGame g_game = {};
-
-ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, const i32 argc)
-{
-	return ZCFG_Init(cmdLine, argv, argc);
-}
+internal ZEngine g_engine;
 
 internal ZEngine ZE_BuildPlatformExport()
 {
 	ZEngine engine = {};
 	engine.sentinel = ZE_SENTINEL;
+
 	engine.scenes.AddScene = ZScene_CreateScene;
 	engine.scenes.AddObject = ZScene_AddObject;
+	engine.scenes.GetCamera = ZScene_GetCamera;
+	engine.scenes.SetCamera = ZScene_SetCamera;
+	engine.scenes.SetProjection = ZScene_SetProjection;
+
+	engine.assets.AllocTexture = ZAssets_AllocTex;
+	engine.assets.GetTexById = ZAssets_GetTexById;
+	engine.assets.GetTexByName = ZAssets_GetTexByName;
 	return engine;
+}
+
+ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, const i32 argc)
+{
+	g_engine = ZE_BuildPlatformExport();
+	return ZCFG_Init(cmdLine, argv, argc);
+}
+
+ze_external ZEngine GetEngine()
+{
+	return g_engine;
 }
 
 ze_external zErrorCode ZE_Init()
 {
+	ZDebug_Init_1();
 	ZAssets_Init();
 	ZGen_Init();
 	ZEmbedded_Init();
 	ZScene_Init();
 	ZAssets_PrintAll();
-	g_game = ZGame_StubLinkup(ZE_BuildPlatformExport());
+
+	ZDebug_Init_2();
+
+	g_game = ZGame_StubLinkup(g_engine);
 	if (g_game.sentinel == ZE_SENTINEL)
 	{
 		g_game.Init();

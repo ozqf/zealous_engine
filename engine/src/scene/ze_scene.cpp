@@ -29,6 +29,7 @@ ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity)
     ZEHashTableData d;
     d.ptr = scene;
     g_scenes->Insert(result, d);
+    printf("added scene %d - capacity %d\n", result, capacity);
     return result;
 }
 
@@ -136,12 +137,13 @@ ze_external void ZScene_Init()
     i32 bufSize = KiloBytes(64);
     g_drawCommands = Buf_FromMalloc(Platform_Alloc, bufSize);
     g_drawCommands.Clear(YES);
-
+    ZScene_InitGrouping();
+    #if 0
     zeHandle scene;
     ZRDrawObj* obj;
-
-    #if 1
-    scene = ZScene_CreateScene(0, 64);
+    #endif
+    #if 0
+    scene = ZScene_CreateScene(0, 8);
     obj = ZScene_AddObject(scene);
     obj->t.pos = { -0.5f, -0.5f, 0 };
     obj->t.scale = { 0.25f, 0.25f, 0.25f };
@@ -150,8 +152,8 @@ ze_external void ZScene_Init()
     obj->t.pos = {-0.5f, 0.5f, 0};
     obj->t.scale = {0.25f, 0.25f, 0.25f};
     #endif
-    #if 1
-    scene = ZScene_CreateScene(0, 64);
+    #if 0
+    scene = ZScene_CreateScene(0, 8);
     Transform cam = ZScene_GetCamera(scene);
     Transform_SetRotationDegrees(&cam, -45, 0, 0);
     ZScene_SetCamera(scene, cam);

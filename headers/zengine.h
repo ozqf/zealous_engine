@@ -11,6 +11,7 @@ Zealous Engine public header
 ///////////////////////////////////////////////////////////
 #define FALLBACK_TEXTURE_NAME "fallback_texture"
 #define FALLBACK_CHARSET_TEXTURE_NAME "fallback_charset"
+#define FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME "fallback_charset_semi_transparent"
 
 ///////////////////////////////////////////////////////////
 // Colours
@@ -355,14 +356,29 @@ struct ZGame
     i32 sentinel;
 };
 
+// Services
+struct ZSceneManager
+{
+    zeHandle (*AddScene)(i32 order, i32 capacity);
+    ZRDrawObj *(*AddObject)(zeHandle scene);
+    Transform (*GetCamera)(zeHandle sceneHandle);
+    void (*SetCamera)(zeHandle sceneHandle, Transform t);
+    void (*SetProjection)(zeHandle sceneHandle, M4x4 projection);
+};
+
+struct ZAssetManager
+{
+    ZRTexture *(*GetTexByName)(char *name);
+    ZRTexture *(*GetTexById)(i32 id);
+
+    ZRTexture *(*AllocTexture)(i32 width, i32 height, char *name);
+};
+
 // engine functions provided to game
 struct ZEngine
 {
-    struct
-    {
-        zeHandle (*AddScene)(i32 order, i32 capacity);
-        ZRDrawObj* (*AddObject)(zeHandle scene);
-    } scenes;
+    ZSceneManager scenes;
+    ZAssetManager assets;
     i32 sentinel;
 };
 

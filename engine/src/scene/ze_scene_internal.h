@@ -27,5 +27,6 @@ struct ZRScene
 };
 
 ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene);
-
+ze_external void ZScene_InitGrouping();
+;
 #endif // ZE_SCENE_INTERNAL_H

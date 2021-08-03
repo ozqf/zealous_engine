@@ -13,15 +13,26 @@ ze_external zErrorCode ZEmbedded_Init()
 	ZGen_FillTexture(tex, { 255, 0, 255, 255 });
 
 	// embedded black and white charset
-	tex = ZAssets_AllocTex(bw_charset_width, bw_charset_height, "fallback_charset");
+	tex = ZAssets_AllocTex(bw_charset_width, bw_charset_height, FALLBACK_CHARSET_TEXTURE_NAME);
 	TexGen_DecodeBW(
 		bw_charset_bytes,
 		bw_charset_num_bytes,
 		tex->data,
 		bw_charset_width,
 		bw_charset_height,
-		COLOUR_U32_WHITE, COLOUR_U32_GREEN);
-	printf("Assigned %s to %d\n", FALLBACK_CHARSET_TEXTURE_NAME, tex->header.id);
+		COLOUR_U32_GREEN, COLOUR_U32_BLACK);
+
+	// embedded black and white charset
+	tex = ZAssets_AllocTex(
+		bw_charset_width, bw_charset_height, FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME);
+	TexGen_DecodeBW(
+		bw_charset_bytes,
+		bw_charset_num_bytes,
+		tex->data,
+		bw_charset_width,
+		bw_charset_height,
+		COLOUR_U32_GREEN, COLOUR_U32_RED);
+	// printf("Assigned %s to %d\n", FALLBACK_CHARSET_TEXTURE_NAME, tex->header.id);
 
 	return ZE_ERROR_NONE;
 }

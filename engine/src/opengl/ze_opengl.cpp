@@ -115,6 +115,7 @@ ze_external void ZR_ClearFrame(ColourF32 colour)
 
 ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
 {
+    ZE_PRINTF("ZRGL - exec %dKB of commands\n", commandBuffer->Written() / 1024);
     TRANSFORM_CREATE(camera);
     M4x4_CREATE(projection)
     BUF_BLOCK_BEGIN_READ(commandBuffer, header)
