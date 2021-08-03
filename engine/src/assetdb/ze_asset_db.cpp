@@ -2,9 +2,9 @@
 #include "../../internal_headers/zengine_internal.h"
 
 // these are assets returned if assets requested are not found
-ze_internal ZRTexture* g_fallbackTexture = NULL;
-ze_internal ZRMeshAsset* g_fallbackMesh = NULL;
-ze_internal ZRMaterial* g_fallbackMaterial = NULL;
+// ze_internal ZRTexture* g_fallbackTexture = NULL;
+// ze_internal ZRMeshAsset* g_fallbackMesh = NULL;
+// ze_internal ZRMaterial* g_fallbackMaterial = NULL;
 
 ze_internal ZEHashTable* g_table;
 
@@ -62,11 +62,26 @@ internal ZRAsset *ZAssets_FindAssetByName(char* name)
 // Specific retrieval
 /////////////////////////////////////////////////////////////
 
+ze_external ZRTexture *GetFallbackTexture()
+{
+    return ZAssets_GetTexByName(FALLBACK_TEXTURE_NAME);
+}
+
+ze_external ZRMaterial *GetFallbackMaterial()
+{
+    return NULL;
+}
+
+ze_external ZRMeshAsset *GetFallbackMesh()
+{
+    return NULL;
+}
+
 ze_external ZRTexture *ZAssets_GetTexById(i32 id)
 {
     ZRAsset* asset = (ZRAsset*)g_table->FindPointer(id);
-    if (asset == NULL) { return g_fallbackTexture; }
-    if (asset->type != ZE_ASSET_TYPE_TEXTURE) { return g_fallbackTexture; }
+    if (asset == NULL) { return GetFallbackTexture(); }
+    if (asset->type != ZE_ASSET_TYPE_TEXTURE) { return GetFallbackTexture(); }
     return (ZRTexture*)asset;
 }
 
@@ -80,8 +95,8 @@ ze_external ZRMaterial* ZAssets_GetMaterialByName(char* name)
 {
     i32 id = ZAssets_GetAssetIdByName(name);
     ZRAsset* asset = ZAssets_FindAssetById(id);
-    if (asset == NULL) { return g_fallbackMaterial; }
-    if (asset->type != ZE_ASSET_TYPE_MATERIAL) { return g_fallbackMaterial; }
+    if (asset == NULL) { return GetFallbackMaterial(); }
+    if (asset->type != ZE_ASSET_TYPE_MATERIAL) { return GetFallbackMaterial(); }
     return (ZRMaterial*)asset;
 }
 

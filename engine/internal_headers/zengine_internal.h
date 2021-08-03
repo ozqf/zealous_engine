@@ -4,6 +4,19 @@ Zealous Engine internal header
 #ifndef ZENGINE_INTERNAL_H
 #define ZENGINE_INTERNAL_H
 
+// Override the ze_common error handler
+#if 0
+#ifndef ZE_ASSERT
+#define ZE_ASSERT(expression, msg)                                          \
+    if (!(expression))                                                      \
+    {                                                                       \
+        char assertBuf[2048];                                               \
+        snprintf(assertBuf, 2048, "%s, %d: %s\n", __FILE__, __LINE__, msg); \
+        Platform_Fatal(assertBuf);                                          \
+    }
+#endif
+#endif
+
 #include "../../headers/zengine.h"
 
 // scenes above this are internal - eg for debugging overlays
@@ -95,6 +108,7 @@ ze_external void Platform_SubmitFrame();
 ze_external void *Platform_Alloc(size_t size);
 ze_external void Platform_Free(void* ptr);
 ze_external void Platform_DebugBreak();
+ze_external void Platform_Fatal(const char *msg);
 ze_external ZEBuffer Platform_StageFile(char *path);
 
 //////////////////////////////////

@@ -1,8 +1,11 @@
 #include "ze_scene_internal.h"
 
+#define MAX_SCENES 16
+
 internal zeHandle g_nextHandle = 1;
 internal ZEHashTable* g_scenes = NULL;
 internal ZEBuffer g_drawCommands;
+internal zeHandle g_drawOrderList[MAX_SCENES];
 
 ///////////////////////////////////////////////////////////
 // Scenes
@@ -98,68 +101,15 @@ ze_external void ZScene_Draw()
         ZRScene* scene = (ZRScene*)key->data.ptr;
         ZScene_WriteDrawCommands(buf, scene);
     }
-
-    #if 1 // execute
     ZR_ExecuteCommands(buf);
     Platform_SubmitFrame();
-    #endif
-
-    // -- test stuff --
-    #if 0 // proper draw commands submission
-    
-    // setup camera
-    BUF_BLOCK_BEGIN_STRUCT(setCamera, ZRDrawCmdSetCamera, buf, ZR_DRAW_CMD_SET_CAMERA);
-    Transform_SetToIdentity(&setCamera->camera);
-    Transform_SetRotationDegrees(&setCamera->camera, 45.f, 0, 0);
-    ZE_SetupDefault3DProjection(setCamera->projection.cells, 16.f / 9.f);
-    
-    BUF_BLOCK_BEGIN_STRUCT(spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
-    spriteBatch->textureId = ZAssets_GetTexByName("fallback_texture")->header.id;
-    spriteBatch->items = (ZRSpriteBatchItem*)buf->cursor;
-    spriteBatch->AddItem({ -0.5, -0.5 }, { 0.25, 0.25 }, { 0.25, 0.25 }, { 0.25, 0.25 });
-    spriteBatch->AddItem({ 0.5, -0.5 }, { 0.25, 0.25 }, { 0.25, 0.75 }, { 0.25, 0.75 });
-    spriteBatch->AddItem({ -0.5, 0.5 }, { 0.25, 0.25 }, { 0.75, 0.25 }, { 0.75, 0.25 });
-    spriteBatch->AddItem({ 0.5, 0.5 }, { 0.25, 0.25 }, { 0.75, 0.75 }, { 0.75, 0.75 });
-    spriteBatch->Finish(buf);
-    ZR_ExecuteCommands(buf);
-    Platform_SubmitFrame();
-    #endif
-    
-    #if 0 // screen test
-    ZR_DrawTest();
-    Platform_SubmitFrame();
-    #endif
 }
 
 ze_external void ZScene_Init()
 {
-    g_scenes = ZE_HashTable_Create(Platform_Alloc, 16, NULL);
+    g_scenes = ZE_HashTable_Create(Platform_Alloc, MAX_SCENES, NULL);
     i32 bufSize = KiloBytes(64);
     g_drawCommands = Buf_FromMalloc(Platform_Alloc, bufSize);
     g_drawCommands.Clear(YES);
     ZScene_InitGrouping();
-    #if 0
-    zeHandle scene;
-    ZRDrawObj* obj;
-    #endif
-    #if 0
-    scene = ZScene_CreateScene(0, 8);
-    obj = ZScene_AddObject(scene);
-    obj->t.pos = { -0.5f, -0.5f, 0 };
-    obj->t.scale = { 0.25f, 0.25f, 0.25f };
-
-    obj = ZScene_AddObject(scene);
-    obj->t.pos = {-0.5f, 0.5f, 0};
-    obj->t.scale = {0.25f, 0.25f, 0.25f};
-    #endif
-    #if 0
-    scene = ZScene_CreateScene(0, 8);
-    Transform cam = ZScene_GetCamera(scene);
-    Transform_SetRotationDegrees(&cam, -45, 0, 0);
-    ZScene_SetCamera(scene, cam);
-    
-    obj = ZScene_AddObject(scene);
-    obj->t.pos = {0.5f, 0.5f, 0};
-    obj->t.scale = {0.25f, 0.25f, 0.25f};
-    #endif
 }

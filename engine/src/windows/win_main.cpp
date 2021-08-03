@@ -19,7 +19,7 @@ ze_external void Platform_Free(void *ptr)
 ////////////////////////////////////////////////////////
 // Error handling
 ////////////////////////////////////////////////////////
-static void Win_Error(const char *msg)
+ze_external void Platform_Fatal(const char *msg)
 {
 	printf("FATAL: %s\n", msg);
 	// TODO: LPCWSTR means unicode, but treated as ascii!

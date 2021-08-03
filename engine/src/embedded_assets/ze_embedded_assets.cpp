@@ -31,7 +31,7 @@ ze_external zErrorCode ZEmbedded_Init()
 		tex->data,
 		bw_charset_width,
 		bw_charset_height,
-		COLOUR_U32_GREEN, COLOUR_U32_RED);
+		COLOUR_U32_GREEN, COLOUR_U32_EMPTY);
 	// printf("Assigned %s to %d\n", FALLBACK_CHARSET_TEXTURE_NAME, tex->header.id);
 
 	return ZE_ERROR_NONE;

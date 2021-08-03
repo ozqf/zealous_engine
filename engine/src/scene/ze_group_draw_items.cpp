@@ -4,9 +4,15 @@ internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
 {
     // start a batch
     BUF_BLOCK_BEGIN_STRUCT(spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
-    // spriteBatch->textureId = ZAssets_GetTexByName(FALLBACK_TEXTURE_NAME)->header.id;
-    spriteBatch->textureId = ZAssets_GetTexByName(FALLBACK_CHARSET_TEXTURE_NAME)->header.id;
-    // spriteBatch->textureId = textObj->data.text.charTextureId;
+    if (textObj->data.text.charTextureId != 0)
+    {
+        spriteBatch->textureId = textObj->data.text.charTextureId;
+    }
+    else
+    {
+        spriteBatch->textureId = ZAssets_GetTexByName(
+            FALLBACK_CHARSET_TEXTURE_NAME)->header.id;
+    }
     spriteBatch->items = (ZRSpriteBatchItem *)buf->cursor;
 
     char* str = textObj->data.text.text;
@@ -48,14 +54,6 @@ ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
     setCamera->camera = scene->camera;
     setCamera->projection = scene->projection;
     
-    // start a batch
-    // BUF_BLOCK_BEGIN_STRUCT(spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
-    // spriteBatch->textureId = ZAssets_GetTexByName(FALLBACK_TEXTURE_NAME)->header.id;
-    // spriteBatch->textureId = ZAssets_GetTexByName(FALLBACK_CHARSET_TEXTURE_NAME)->header.id;
-    // spriteBatch->items = (ZRSpriteBatchItem *)buf->cursor;
-
-    char chars[] = {'A', 'B', 'C'};
-    // iterate objects and add to batch
     for (i32 i = 0; i < len; ++i)
     {
         ZRDrawObj *obj = (ZRDrawObj *)scene->objects.GetByIndex(i);
@@ -65,16 +63,7 @@ ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
             WriteTextCommand(buf, obj);
             break;
         }
-
-        /*Vec3 p = obj->t.pos;
-        // spriteBatch->AddItem(p, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
-        Vec2 uvMin, uvMax;
-        ZEAsciToCharsheetUVs(chars[i % 3], &uvMin, &uvMax);
-        spriteBatch->AddItem(p, {0.25, 0.25}, uvMin, uvMax);*/
     }
-
-    // complete batch command
-    // spriteBatch->Finish(buf);
 }
 
 ze_external void ZScene_InitGrouping()

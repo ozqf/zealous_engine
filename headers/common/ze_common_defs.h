@@ -240,6 +240,7 @@ static void ZE_Fatal(char *msg)
 	ze_fatalErrorFunc(msg);
 }
 
+#ifndef ZE_ASSERT
 #define ZE_ASSERT(expression, msg)                                         \
 	if (!(expression))                                                     \
 	{                                                                      \
@@ -247,9 +248,12 @@ static void ZE_Fatal(char *msg)
 		snprintf(assertBuf, 512, "%s, %d: %s\n", __FILE__, __LINE__, msg); \
 		ZE_Fatal(assertBuf);                                               \
 	}
+#endif
 
+#ifndef ILLEGAL_CODE_PATH
 #define ILLEGAL_CODE_PATH \
 	ZE_ASSERT(NO, "Illegal Code Path")
+#endif ILLEGAL_CODE_PATH
 
 struct DateTime
 {

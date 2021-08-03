@@ -321,7 +321,7 @@ struct ZRDrawObjData
         }
         else
         {
-            this->text.charTextureId = -1;
+            this->text.charTextureId = 0;
         }
         this->text.colour = colour;
         this->text.bgColour = bgColour;
