@@ -40,8 +40,8 @@ ze_external zErrorCode ZE_Init()
 	ZAssets_Init();
 	ZGen_Init();
 	ZEmbedded_Init();
-	ZScene_Init();
-	ZInput_Init(&g_engine.input);
+	g_engine.scenes = ZScene_RegisterFunctions();
+	g_engine.input = ZInput_RegisterFunctions();
 
 	// step 2
 	ZDebug_Init_2();

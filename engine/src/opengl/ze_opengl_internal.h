@@ -38,6 +38,31 @@
 ///////////////////////////////////////////////////////
 // Internal datatypes
 ///////////////////////////////////////////////////////
+/**
+ * Asset handles required to execute a draw call
+ */
+struct ZRMeshHandles
+{
+    i32 vao;
+    i32 vbo;
+    i32 vertexCount;
+    i32 totalVBOBytes;
+    // all data before this point is static mesh geometry
+    i32 instanceDataOffset;
+    // Capacity for instances left behind static mesh data
+    i32 maxInstances;
+};
+
+struct ZRGLHandles
+{
+    i32 assetId;
+    i32 assetType;
+    union
+    {
+        ZRMeshHandles meshHandles;
+        u32 textureHandle;
+    } data;
+};
 
 struct ZRShader
 {

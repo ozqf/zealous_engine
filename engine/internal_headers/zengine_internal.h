@@ -30,31 +30,6 @@ Zealous Engine internal header
 #endif
 
 // internal types
-/**
- * Asset handles required to execute a draw call
- */
-struct ZRMeshHandles
-{
-    i32 vao;
-    i32 vbo;
-    i32 vertexCount;
-    i32 totalVBOBytes;
-    // all data before this point is static mesh geometry
-    i32 instanceDataOffset;
-    // Capacity for instances left behind static mesh data
-    i32 maxInstances;
-};
-
-struct ZRGLHandles
-{
-    i32 assetId;
-    i32 assetType;
-    union
-    {
-        ZRMeshHandles meshHandles;
-        u32 textureHandle;
-    } data;
-};
 
 /////////////////////////////////////////
 // Render commands
@@ -102,6 +77,68 @@ struct ZRDrawCmdSpriteBatch
 };
 
 //////////////////////////////////
+// system events
+//////////////////////////////////
+// #define (sysEvPtr) ((Buffer))
+
+#define ZE_SYS_EVENT_TYPE_NONE 0
+#define ZE_SYS_EVENT_TYPE_INPUT 1
+
+struct SysInputEvent
+{
+    BufferBlock header;
+    u32 inputID = 0;
+    i32 value = 0;
+    f32 normalised = 0;
+};
+
+////////////////////////////////////////////////////
+// Concrete event types
+////////////////////////////////////////////////////
+
+static void Sys_EnqueueEvent(ZEBuffer *buf, BufferBlock *ev)
+{
+    ErrorCode err = BufBlock_Validate(ev);
+    ZE_ASSERT(err == ZE_ERROR_NONE, "Invalid SysEvent")
+    ZE_ASSERT(buf->Space() >= ev->size, "No space for SysEvent")
+    //printf("SYS Enqueue ev %d size %d\n", ev->type, ev->size);
+    buf->cursor += ZE_COPY(ev, buf->cursor, ev->size);
+}
+
+static void Sys_CreateInputEvent(SysInputEvent *ev, u32 inputID, i32 value, f32 normalised)
+{
+    BufBlock_PrepareHeader(&ev->header, sizeof(SysInputEvent), ZE_SYS_EVENT_TYPE_INPUT);
+    ev->inputID = inputID;
+    ev->value = value;
+    ev->normalised = normalised;
+}
+
+static void Sys_WriteInputEvent(ZEBuffer *b, u32 inputID, i32 value, f32 normalised)
+{
+    SysInputEvent ev = {};
+    Sys_CreateInputEvent(&ev, inputID, value, normalised);
+    Sys_EnqueueEvent(b, BUF_BLOCK_CAST(&ev));
+}
+
+/*
+struct SysPacketEvent
+{
+    BufferBlock header;
+    i32 socketIndex;
+    ZNetAddress sender;
+    //number of bytes of data immediately following this struct
+    i32 numBytes;
+};
+
+static void Sys_PrepareEvent(SysEvent *ev, i32 type, i32 size)
+{
+    ev->sentinel = SYS_EVENT_SENTINEL;
+    ev->type = type;
+    ev->size = size;
+}
+*/
+
+//////////////////////////////////
 // platform
 ze_external void Platform_PollEvents();
 ze_external void Platform_SubmitFrame();
@@ -129,7 +166,8 @@ ze_external i32 ZCFG_FindParamIndex(const char* shortQuery, const char* longQuer
 
 //////////////////////////////////
 // input
-ze_external zErrorCode ZInput_Init(ZInput *inputExport);
+ze_external ZInput ZInput_RegisterFunctions();
+ze_external void ZInput_ReadEvent(SysInputEvent* ev);
 
 //////////////////////////////////
 // asset db
@@ -152,7 +190,7 @@ ze_external void ZGen_SetPixel(
 ze_external void ZGen_FillTextureRect(
     ZRTexture *tex, ColourU32 colour, Point2 topLeft, Point2 size);
 ze_external void ZGen_AddSriteGeoXY(
-    ZRMeshData* meshData, Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax);
+    ZRMeshData* meshData, Vec3 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax);
 ze_external i32 TexGen_DecodeBW(
     u8 *source,
     const i32 sourceSize,
@@ -164,7 +202,7 @@ ze_external i32 TexGen_DecodeBW(
 
 //////////////////////////////////
 // scene manager
-ze_external void ZScene_Init();
+ze_external ZSceneManager ZScene_RegisterFunctions();
 ze_external void ZScene_Draw();
 ze_external ZEngine GetEngine();
 

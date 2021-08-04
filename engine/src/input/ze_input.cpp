@@ -5,23 +5,54 @@
 ////////////////////////////////////////////////////////////////////
 struct InputAction
 {
+    i32 bytes = 0;
     u32 keyCode1;
     u32 keyCode2;
     i32 value;
     // value in a range between 0 and 1 (eg resolution independent mouse movement)
     f32 normalised;
     frameInt lastFrame;
-    char label[16];
+    char* label;
 };
 
-struct InputActionSet
+ze_internal ZEBuffer g_actions;
+ze_internal ZEHashTable* g_actionsByName;
+
+internal void DebugListActions()
 {
-    InputAction *actions;
-    i32 count;
-};
+    printf("-- Input Actions --\n");
+    i8 *read = g_actions.start;
+    i8 *end = g_actions.cursor;
+    while (read < end)
+    {
+        ZE_CAST_PTR(read, InputAction, action)
+        read += action->bytes;
+        printf("Action \"%s\", codes %d and %d\n",
+               action->label, action->keyCode1, action->keyCode2);
+    }
+}
 
+internal i32 ZInput_GetActionValue(char* name)
+{
+    i32 id = ZE_Hash_djb2((u8*)name);
+    void* ptr = g_actionsByName->FindPointer(id);
+    if (ptr == NULL)
+    {
+        return 0;
+    }
+    return ((InputAction*)ptr)->value;
+}
+
+// struct InputActionSet
+// {
+//     InputAction *actions;
+//     i32 count;
+// };
+
+// internal InputActionSet* g_set;
+#if 0
 internal void Input_InitAction(
-    InputActionSet *actions, u32 keyCode1, u32 keyCode2, char *label)
+    ZEHashTable *actions, u32 keyCode1, u32 keyCode2, char *label)
 {
     i32 index = actions->count++;
     actions->actions[index].keyCode1 = keyCode1;
@@ -116,14 +147,61 @@ internal InputAction *Input_TestForAction(
     }
     return NULL;
 }
-
+#endif
 internal void ZInput_AddAction(u32 keyCode1, u32 keyCode2, char *label)
 {
     printf("Add action %s\n", label);
+    // measure required space
+    i32 labelLen = ZStr_Len(label);
+    i32 requiredSpace = sizeof(InputAction) + labelLen;
+    if (g_actions.Space() < requiredSpace)
+    {
+        printf("No space for new action %s\n", label);
+        return;
+    }
+    // create a new action and buffer it + its name
+    ZE_BUF_INIT_PTR_IN_PLACE(action, InputAction, (&g_actions))
+    // record size so we can iterate actions in buffer
+    action->bytes = requiredSpace;
+    // set the name in the struct
+    action->label = (char*)g_actions.cursor;
+    // write the action's name into the buffer after it
+    g_actions.cursor += ZE_COPY(label, g_actions.cursor, labelLen);
+    // add to the hash table
+    g_actionsByName->InsertPointer(ZE_Hash_djb2((u8*)label), action);
+    action->keyCode1 = keyCode1;
+    action->keyCode2 = keyCode2;
+
+    DebugListActions();
 }
 
-ze_external zErrorCode ZInput_Init(ZInput *inputExport)
+ze_external void ZInput_ReadEvent(SysInputEvent* ev)
 {
-    inputExport->AddAction = ZInput_AddAction;
-    return ZE_ERROR_NONE;
+    printf("ZInput saw %d set to %d\n", ev->inputID, ev->value);
+    // find a control that matches this keycode
+    i8* read = g_actions.start;
+    i8* end = g_actions.cursor;
+    while (read < end)
+    {
+        ZE_CAST_PTR(read, InputAction, action)
+        read += action->bytes;
+        if (action->keyCode1 == ev->inputID || action->keyCode2 == ev->inputID)
+        {
+            action->value = ev->value;
+            action->normalised = ev->normalised;
+        }
+    }
+}
+
+ze_external ZInput ZInput_RegisterFunctions()
+{
+    // allocate
+    g_actions = Buf_FromMalloc(Platform_Alloc, KiloBytes(64));
+    g_actionsByName = ZE_HashTable_Create(Platform_Alloc, 128, NULL);
+
+    // setup game interface
+    ZInput inputExport;
+    inputExport.AddAction = ZInput_AddAction;
+    inputExport.GetActionValue = ZInput_GetActionValue;
+    return inputExport;
 }

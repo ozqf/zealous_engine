@@ -116,6 +116,13 @@ struct ZEHashTable
         return ZE_LT_INVALID_INDEX;
     }
 
+    i32 InsertPointer(i32 id, void* ptr)
+    {
+        ZEHashTableData data = {};
+        data.ptr = ptr;
+        return Insert(id, data);
+    }
+
     i32 Insert(i32 id, ZEHashTableData data)
     {
         u32 idHash = ZE_LT_HashUint(id);

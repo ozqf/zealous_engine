@@ -335,7 +335,7 @@ struct ZRDrawObj
     // For interpolation
     Vec3 prevPos;
     // a user Id to tag the object. not used in rasterisation
-    i32 userTag;
+    zeHandle userTag;
     // hash of data union, used to identify objects which are
     // similar and could be batched
     u32 hash;
@@ -370,6 +370,7 @@ struct ZSceneManager
 {
     zeHandle (*AddScene)(i32 order, i32 capacity);
     ZRDrawObj *(*AddObject)(zeHandle scene);
+    ZRDrawObj *(*GetObject)(zeHandle scene, zeHandle objectId);
     Transform (*GetCamera)(zeHandle sceneHandle);
     void (*SetCamera)(zeHandle sceneHandle, Transform t);
     void (*SetProjection)(zeHandle sceneHandle, M4x4 projection);

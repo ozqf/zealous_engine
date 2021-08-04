@@ -9,12 +9,16 @@ internal ZEngine g_engine;
 internal zeHandle g_gameScene = 0;
 internal zeHandle g_hudScene = 0;
 
+internal zeHandle g_avatarId = 0;
+
 internal void Stub_Init()
 {
     printf("Stub init\n");
     // register inputs
     g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, "move_left");
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, "move_right");
+    g_engine.input.AddAction(Z_INPUT_CODE_W, Z_INPUT_CODE_NULL, "move_up");
+    g_engine.input.AddAction(Z_INPUT_CODE_S, Z_INPUT_CODE_NULL, "move_down");
 
     // create a visual scene
     g_gameScene = g_engine.scenes.AddScene(0, 8);
@@ -31,6 +35,7 @@ internal void Stub_Init()
         "Game\nScene", textureId, COLOUR_U32_GREEN, COLOUR_U32_EMPTY, 0);
     obj1->t.pos.x = -2;
     obj1->t.scale = { scale, scale, scale };
+    g_avatarId = obj1->userTag;
 
     // add another object
     ZRDrawObj *obj2 = g_engine.scenes.AddObject(g_gameScene);
@@ -63,7 +68,26 @@ internal void Stub_Shutdown()
 
 internal void Stub_Tick()
 {
-
+    if (g_engine.input.GetActionValue("move_left"))
+    {
+        ZRDrawObj* obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
+        obj->t.pos.x -= 2.f * (1.f / 60.f);
+    }
+    if (g_engine.input.GetActionValue("move_right"))
+    {
+        ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
+        obj->t.pos.x += 2.f * (1.f / 60.f);
+    }
+    if (g_engine.input.GetActionValue("move_up"))
+    {
+        ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
+        obj->t.pos.z -= 2.f * (1.f / 60.f);
+    }
+    if (g_engine.input.GetActionValue("move_down"))
+    {
+        ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
+        obj->t.pos.z += 2.f * (1.f / 60.f);
+    }
 }
 
 ze_external ZGame ZGame_StubLinkup(ZEngine engine)

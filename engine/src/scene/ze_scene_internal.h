@@ -18,7 +18,7 @@ struct ZRScene
     // Tightly packed list of objects
     ZEBlobStore objects;
     i32 bDebug;
-    i32 nextId;
+    zeHandle nextId;
     i32 numObjects;
     i32 maxObjects;
 

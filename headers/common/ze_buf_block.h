@@ -15,18 +15,22 @@ struct BufferBlock
     i32 tag;
 };
 
+#ifndef BUF_BLOCK_CAST
+#define BUF_BLOCK_CAST(ptr) ((BufferBlock *)##ptr##)
+#endif
+
 #ifndef BUF_BLOCK_BEGIN_READ
 #define BUF_BLOCK_BEGIN_READ(ptrToBuffer, headerPtrName) \
-i8* read = ptrToBuffer->start; \
-i8 *end = ptrToBuffer->cursor; \
+i8* buf_block_read_ptr = ptrToBuffer->start; \
+i8 *buf_block_end_ptr = ptrToBuffer->cursor; \
 zErrorCode bufBlockHeaderError = ZE_ERROR_NONE; \
-while (read < end) \
+while (buf_block_read_ptr < buf_block_end_ptr) \
 { \
-    BufferBlock* headerPtrName = (BufferBlock*)read; \
+    BufferBlock* headerPtrName = (BufferBlock*)buf_block_read_ptr; \
     bufBlockHeaderError = BufBlock_Validate(headerPtrName); \
     if (bufBlockHeaderError != ZE_ERROR_NONE) \
     { break; } \
-    read += headerPtrName->size;
+    buf_block_read_ptr += headerPtrName->size;
 #endif
 
 #ifndef BUF_BLOCK_END_READ

@@ -36,15 +36,15 @@ ze_external i32 TexGen_DecodeBW(
 // geometry
 //////////////////////////////////////////////////////
 ze_external void ZGen_AddSriteGeoXY(
-    ZRMeshData* meshData, Vec2 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax)
+    ZRMeshData* meshData, Vec3 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax)
 {
-    meshData->AddVert({pos.x + -size.x, pos.y + -size.y, 0}, {uvMin.x, uvMin.y}, {0, 0, -1});
-    meshData->AddVert({pos.x + size.x, pos.y + -size.y, 0}, {uvMax.x, uvMin.y}, {0, 0, -1});
-    meshData->AddVert({pos.x + size.x, pos.y + size.y, 0}, {uvMax.x, uvMax.y}, {0, 0, -1});
+    meshData->AddVert({pos.x + -size.x, pos.y + -size.y, pos.z}, {uvMin.x, uvMin.y}, {0, 0, -1});
+    meshData->AddVert({pos.x + size.x, pos.y + -size.y, pos.z}, {uvMax.x, uvMin.y}, {0, 0, -1});
+    meshData->AddVert({pos.x + size.x, pos.y + size.y, pos.z}, {uvMax.x, uvMax.y}, {0, 0, -1});
 
-    meshData->AddVert({pos.x + -size.x, pos.y + -size.y, 0}, {uvMin.x, uvMin.y}, {0, 0, -1});
-    meshData->AddVert({pos.x + size.x, pos.y + size.y, 0}, {uvMax.x, uvMax.y}, {0, 0, -1});
-    meshData->AddVert({pos.x + -size.x, pos.y + size.y, 0}, {uvMin.x, uvMax.y}, {0, 0, -1});
+    meshData->AddVert({pos.x + -size.x, pos.y + -size.y, pos.z}, {uvMin.x, uvMin.y}, {0, 0, -1});
+    meshData->AddVert({pos.x + size.x, pos.y + size.y, pos.z}, {uvMax.x, uvMax.y}, {0, 0, -1});
+    meshData->AddVert({pos.x + -size.x, pos.y + size.y, pos.z}, {uvMin.x, uvMax.y}, {0, 0, -1});
 }
 
 //////////////////////////////////////////////////////

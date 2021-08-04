@@ -81,6 +81,14 @@ ze_external ZRDrawObj* ZScene_AddObject(zeHandle sceneHandle)
     return obj;
 }
 
+internal ZRDrawObj* ZScene_GetObjectById(zeHandle sceneHandle, zeHandle objectId)
+{
+    ZRScene* scene = GetSceneByHandle(sceneHandle);
+    if (scene == NULL) { return NULL; }
+    ZRDrawObj *obj = (ZRDrawObj *)scene->objects.GetById(objectId);
+    return obj;
+}
+
 ///////////////////////////////////////////////////////////
 // service
 ///////////////////////////////////////////////////////////
@@ -105,11 +113,19 @@ ze_external void ZScene_Draw()
     Platform_SubmitFrame();
 }
 
-ze_external void ZScene_Init()
+ze_external ZSceneManager ZScene_RegisterFunctions()
 {
     g_scenes = ZE_HashTable_Create(Platform_Alloc, MAX_SCENES, NULL);
     i32 bufSize = KiloBytes(64);
     g_drawCommands = Buf_FromMalloc(Platform_Alloc, bufSize);
     g_drawCommands.Clear(YES);
     ZScene_InitGrouping();
+    ZSceneManager result = {};
+    result.AddObject = ZScene_AddObject;
+    result.AddScene = ZScene_CreateScene;
+    result.GetCamera = ZScene_GetCamera;
+    result.GetObject = ZScene_GetObjectById;
+    result.SetCamera = ZScene_SetCamera;
+    result.SetProjection = ZScene_SetProjection;
+    return result;
 }

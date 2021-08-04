@@ -126,7 +126,7 @@ ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
             projection = ((ZRDrawCmdSetCamera *)header)->projection;
             break;
             case ZR_DRAW_CMD_SPRITE_BATCH:
-            ZE_CREATE_CAST_PTR(header, ZRDrawCmdSpriteBatch, batch);
+            ZE_CAST_PTR(header, ZRDrawCmdSpriteBatch, batch);
             M4x4 view;
             Transform_ToM4x4(&camera, &view);
             ZRDraw_SpriteBatch(batch, &view, &projection);

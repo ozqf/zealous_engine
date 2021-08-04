@@ -10,9 +10,11 @@
     }
 
 /**
- * allocate space for an instance of the given struct type in the bytebuffer.
+ * > allocate space for an instance of the given struct type in the bytebuffer
+ * > advance the buffer's cursor
+ * > provide a pointer of the given type
+ * > zero out the referenced memory
  * if byte buffer has no space, ptr will be null
- * ASSUMES SIZE REQUIRED == sizeof(StructType)
  */
 #define ZE_BUF_INIT_PTR_IN_PLACE(ptrVariableName, structTypeName, ptrToByteBufferDest) \
     structTypeName##*ptrVariableName = NULL;                                       \

@@ -151,8 +151,8 @@ inline u32 ZE_Copy(void *dest, void *source, u32 numBytes)
 	return numBytes;
 }
 
-#ifndef ZE_CREATE_CAST_PTR
-#define ZE_CREATE_CAST_PTR(ptr, newPtrStructType, newPtrName) \
+#ifndef ZE_CAST_PTR
+#define ZE_CAST_PTR(ptr, newPtrStructType, newPtrName) \
 newPtrStructType* newPtrName = (newPtrStructType*)ptr;
 #endif
 

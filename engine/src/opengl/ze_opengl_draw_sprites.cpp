@@ -96,7 +96,7 @@ ze_external void ZRDraw_SpriteBatch(
     {
         ZRSpriteBatchItem* item = &batch->items[i];
 
-        ZGen_AddSriteGeoXY(g_meshData, Vec2_FromVec3(item->pos), item->size, item->uvMin, item->uvMax);
+        ZGen_AddSriteGeoXY(g_meshData, item->pos, item->size, item->uvMin, item->uvMax);
     }
     // ZGen_AddSriteGeoXY(g_meshData, {-1, lerp}, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
     // ZGen_AddSriteGeoXY(g_meshData, {1, lerp}, {0.25, 0.25}, {0.75, 0.75}, {0.75, 0.75});
