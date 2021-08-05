@@ -17,7 +17,7 @@ set compilerFlags=-nologo -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi
 set compilerDefines=/DPARANOID=1
 @rem /DVERBOSE=1
 
-@rem === Compile Win32 Window application
+@rem === Compile Win32 Window application ===
 @rem platform
 set compIn1=../engine/src/windows/win_main.cpp ../engine/src/windows/win_window.cpp
 @rem opengl renderer

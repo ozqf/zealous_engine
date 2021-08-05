@@ -78,7 +78,7 @@ ze_external zErrorCode ZE_Init(ZGame_LinkupFunction gameLink)
 	ZAssets_PrintAll();
 
 	// link to app DLL
-	ZE_LinkToGame(ZGame_StubLinkup);
+	ZE_LinkToGame(gameLink);
 	// ZGame_StubLinkup(g_engine, &g_game, &g_gameDef);
 	// if (g_gameDef.targetFramerate > 0)
 	// {

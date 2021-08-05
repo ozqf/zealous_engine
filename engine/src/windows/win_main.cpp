@@ -2,6 +2,7 @@
 
 internal int g_bConsoleInit = FALSE;
 internal HWND consoleHandle;
+internal HMODULE g_appDLL;
 
 // performance counts per second
 // Read Quad Part for a complete 64 bit integer
@@ -51,7 +52,22 @@ ze_external void Platform_DebugBreak()
 internal ZGame_LinkupFunction* Win_LinkToGameDLL()
 {
 	ZGame_LinkupFunction* linkUpPtr = NULL;
-	linkUpPtr = &ZGame_StubLinkup;
+	char* targetPath = "base\\game.dll";
+	printf("Attempting to link to game dll at \"%s\"\n", targetPath);
+	g_appDLL = LoadLibraryA(targetPath);
+	if (g_appDLL == NULL)
+	{
+		printf("\tApp DLL not found\n");
+		return &ZGame_StubLinkup;
+	}
+	printf("\tFound DLL, attempting link\n");
+	linkUpPtr = (ZGame_LinkupFunction*)GetProcAddress(g_appDLL, ZGAME_LINKUP_FUNCTION_NAME);
+	if (linkUpPtr == NULL)
+	{
+		printf("\tFailed to find linking function in game dll\n");
+		return &ZGame_StubLinkup;
+	}
+	printf("\tFound linking function\n");
 	return linkUpPtr;
 }
 

@@ -408,7 +408,9 @@ struct ZEngine
     i32 sentinel;
 };
 
-#define ZGAME_LINKUP_FUNCTION_NAME "ZGameLinkup"
+#define ZGAME_DLL_NAME "game.dll"
+#define ZGAME_BASE_DIRECTORY "base"
+#define ZGAME_LINKUP_FUNCTION_NAME "ZGameLinkUp"
 
 #define Z_GAME_WINDOWS_LINK_FUNCTION \
 extern "C" zErrorCode __declspec(dllexport) ZGameLinkUp(ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef)

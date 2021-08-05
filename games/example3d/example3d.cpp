@@ -21,4 +21,5 @@ Z_GAME_WINDOWS_LINK_FUNCTION
     gameExport->Tick = Tick;
     gameExport->Shutdown = Shutdown;
     gameExport->sentinel = ZE_SENTINEL;
+    return ZE_ERROR_NONE;
 }
