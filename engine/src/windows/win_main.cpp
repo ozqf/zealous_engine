@@ -46,6 +46,16 @@ ze_external void Platform_DebugBreak()
 }
 
 ////////////////////////////////////////////////////////
+// Game DLL link
+////////////////////////////////////////////////////////
+internal ZGame_LinkupFunction* Win_LinkToGameDLL()
+{
+	ZGame_LinkupFunction* linkUpPtr = NULL;
+	linkUpPtr = &ZGame_StubLinkup;
+	return linkUpPtr;
+}
+
+////////////////////////////////////////////////////////
 // Timing
 ////////////////////////////////////////////////////////
 static void Win_InitTimer()
@@ -140,15 +150,25 @@ int CALLBACK WinMain(
 	{
 		printf("Init log file...\n");
 	}
-	tokenIndex=  ZCFG_FindParamIndex("--pauseonstart", "--pauseonstart", 0);
+	tokenIndex =  ZCFG_FindParamIndex("--pauseonstart", "--pauseonstart", 0);
 	if (tokenIndex != ZE_ERROR_BAD_INDEX)
 	{
 		Win_Warning("Pause on start!\n");
 	}
+	tokenIndex = ZCFG_FindParamIndex("-g", "--game", 1);
+	if (tokenIndex != ZE_ERROR_BAD_INDEX)
+	{
+		const char *gameDirectory = ZCFG_GetParamByIndex(tokenIndex + 1);
+		printf("Game dir: %s\n", gameDirectory);
+	}
+	else
+	{
+		printf("No custom game directory specified\n");
+	}
 
 	// init proper
 	Win_InitTimer();
-	ZE_Init();
+	ZE_Init(Win_LinkToGameDLL());
 	ZWindow_Init();
 	ZE_StartLoop();
 	printf("Done!\n");

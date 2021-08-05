@@ -68,7 +68,7 @@ internal void Stub_Shutdown()
 internal void Stub_Tick(ZEFrameTimeInfo timing)
 {
     f32 delta = (f32)timing.interval;
-    printf("Game tick interval: %.8f\n", delta);
+    // printf("Game tick interval: %.8f\n", delta);
     if (g_engine.input.GetActionValue("move_left"))
     {
         ZRDrawObj* obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);

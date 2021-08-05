@@ -29,3 +29,12 @@ ze_external i32 ZCFG_FindParamIndex(const char *shortQuery, const char *longQuer
 	index = ZE_FindParamIndex((const char **)g_argv, g_argc, longQuery, extraTokens);
 	return index;
 }
+
+ze_external const char* ZCFG_GetParamByIndex(const i32 index)
+{
+	if (index < 0 || index >= g_argc)
+	{
+		return "";
+	}
+	return g_argv[index];
+}

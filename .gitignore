@@ -5,11 +5,8 @@
 # Temp directories for compile
 /buildwin_platform/
 /buildwin_platform_libs/
-/buildwin_window/
-/buildwin_renderer/
-/buildwin_game/
-/buildwin_game2d/
-/buildwin_tools/
+/buildwin_example2d/
+/buildwin_example3d/
 
 /release/
 

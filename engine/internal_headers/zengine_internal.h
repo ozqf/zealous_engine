@@ -158,7 +158,7 @@ ze_external void Platform_Sleep(i32 milliSeconds);
 // game module linkup
 ze_external zErrorCode ZGame_StubLinkup(
     ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
-ze_external zErrorCode ZE_Init();
+ze_external zErrorCode ZE_Init(ZGame_LinkupFunction gameLink);
 
 //////////////////////////////////
 // debug
@@ -170,6 +170,7 @@ ze_external zErrorCode ZDebug_Init_2();
 ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, const i32 argc);
 ze_external i32 ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc);
 ze_external i32 ZCFG_FindParamIndex(const char* shortQuery, const char* longQuery, i32 extraTokens);
+ze_external const char *ZCFG_GetParamByIndex(const i32 index);
 
 //////////////////////////////////
 // input

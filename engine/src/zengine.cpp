@@ -45,6 +45,8 @@ ze_external ZGameDef GetGameDef()
 
 internal void ZE_LinkToGame(ZGame_LinkupFunction gameLink)
 {
+	g_game = {};
+	g_gameDef = {};
 	zErrorCode err = gameLink(g_engine, &g_game, &g_gameDef);
 	if (g_gameDef.targetFramerate > 0)
 	{
@@ -53,11 +55,14 @@ internal void ZE_LinkToGame(ZGame_LinkupFunction gameLink)
 	}
 	if (g_game.sentinel == ZE_SENTINEL)
 	{
-		g_game.Init();
+		if (g_game.Init != NULL)
+		{
+			g_game.Init();
+		}
 	}
 }
 
-ze_external zErrorCode ZE_Init()
+ze_external zErrorCode ZE_Init(ZGame_LinkupFunction gameLink)
 {
 	// step 1
 	ZDebug_Init_1();
@@ -118,7 +123,7 @@ ze_external i32 ZE_StartLoop()
 		info.interval = diff;
 		
 		Platform_PollEvents();
-		if (g_game.sentinel == ZE_SENTINEL)
+		if (g_game.sentinel == ZE_SENTINEL && g_game.Tick != NULL)
 		{
 			g_game.Tick(info);
 		}
