@@ -19,7 +19,6 @@ internal void Stub_Init()
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, "move_right");
     g_engine.input.AddAction(Z_INPUT_CODE_W, Z_INPUT_CODE_NULL, "move_up");
     g_engine.input.AddAction(Z_INPUT_CODE_S, Z_INPUT_CODE_NULL, "move_down");
-
     // create a visual scene
     g_gameScene = g_engine.scenes.AddScene(0, 8);
 
@@ -66,37 +65,44 @@ internal void Stub_Shutdown()
 
 }
 
-internal void Stub_Tick()
+internal void Stub_Tick(ZEFrameTimeInfo timing)
 {
+    f32 delta = (f32)timing.interval;
+    printf("Game tick interval: %.8f\n", delta);
     if (g_engine.input.GetActionValue("move_left"))
     {
         ZRDrawObj* obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        obj->t.pos.x -= 2.f * (1.f / 60.f);
+        obj->t.pos.x -= 2.f * delta;
     }
     if (g_engine.input.GetActionValue("move_right"))
     {
         ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        obj->t.pos.x += 2.f * (1.f / 60.f);
+        obj->t.pos.x += 2.f * delta;
     }
     if (g_engine.input.GetActionValue("move_up"))
     {
         ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        obj->t.pos.z -= 2.f * (1.f / 60.f);
+        obj->t.pos.z -= 2.f * delta;
     }
     if (g_engine.input.GetActionValue("move_down"))
     {
         ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        obj->t.pos.z += 2.f * (1.f / 60.f);
+        obj->t.pos.z += 2.f * delta;
     }
 }
 
-ze_external ZGame ZGame_StubLinkup(ZEngine engine)
+ze_external zErrorCode ZGame_StubLinkup(ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef)
 {
-    g_engine = engine;
-    ZGame game = {};
-    game.Init = Stub_Init;
-    game.Shutdown = Stub_Shutdown;
-    game.Tick = Stub_Tick;
-    game.sentinel = ZE_SENTINEL;
-    return game;
+    // grab engine function pointers
+    g_engine = engineImport;
+    // export game function pointers
+    gameExport->Init = Stub_Init;
+    gameExport->Shutdown = Stub_Shutdown;
+    gameExport->Tick = Stub_Tick;
+    gameExport->sentinel = ZE_SENTINEL;
+    // export app info
+    *gameDef = {};
+    gameDef->windowTitle = "Zealous Engine Example";
+    gameDef->targetFramerate = 60;
+    return ZE_ERROR_NONE;
 }

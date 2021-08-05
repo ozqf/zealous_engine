@@ -297,7 +297,12 @@ ze_external zErrorCode SpawnWindow()
     // Create!
     // Note: Passing any monitor here will enter dodgy horrible res-changing fullscreen mode
     // so just NULL NULL please.
-    g_window = glfwCreateWindow(scrWidth, scrHeight, "Zealous Engine", NULL, NULL);
+    char* title = GetGameDef().windowTitle;
+    if (title == NULL)
+    {
+        title = "Zealous Engine";
+    }
+    g_window = glfwCreateWindow(scrWidth, scrHeight, title, NULL, NULL);
 
     i32 monitorX, monitorY;
     glfwGetMonitorPos(monitor, &monitorX, &monitorY);
@@ -368,11 +373,11 @@ ze_external void Platform_PollEvents()
 {
     g_events.Clear(NO);
     glfwPollEvents();
-    i32 bytesRead = g_events.Written();
-    if (bytesRead > 0)
-    {
-        printf("Read %d bytes of platform events\n", bytesRead);
-    }
+    // i32 bytesRead = g_events.Written();
+    // if (bytesRead > 0)
+    // {
+    //     printf("Read %d bytes of platform events\n", bytesRead);
+    // }
     // ...broadcast events here?
     //ZEBuffer* buf = &g_events;
     BUF_BLOCK_BEGIN_READ((&g_events), header)

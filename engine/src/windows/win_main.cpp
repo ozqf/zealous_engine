@@ -3,6 +3,14 @@
 internal int g_bConsoleInit = FALSE;
 internal HWND consoleHandle;
 
+// performance counts per second
+// Read Quad Part for a complete 64 bit integer
+static LARGE_INTEGER g_timerFrequency;
+// used to calculate time since application startup.
+// NEVER change once set!
+static i64 g_clockBase;
+
+// read in pre-tokenised command line
 extern int __argc;
 extern char** __argv;
 
@@ -22,18 +30,14 @@ ze_external void Platform_Free(void *ptr)
 ze_external void Platform_Fatal(const char *msg)
 {
 	printf("FATAL: %s\n", msg);
-	// TODO: LPCWSTR means unicode, but treated as ascii!
-	// casting to LPCWSTR breaks compile however
-	MessageBox(0, (LPCSTR)msg, (LPCSTR) "Error", MB_OK | MB_ICONINFORMATION);
+	MessageBoxA(0, (LPCSTR)msg, (LPCSTR) "Error", MB_OK | MB_ICONINFORMATION);
 	DebugBreak();
 }
 
 static void Win_Warning(const char *msg)
 {
 	printf("WARNING: %s\n", msg);
-	// TODO: LPCWSTR means unicode, but treated as ascii!
-	// casting to LPCWSTR breaks compile however
-	MessageBox(0, (LPCSTR)msg, (LPCSTR) "Warning", MB_OK | MB_ICONINFORMATION);
+	MessageBoxA(0, (LPCSTR)msg, (LPCSTR) "Warning", MB_OK | MB_ICONINFORMATION);
 }
 
 ze_external void Platform_DebugBreak()
@@ -41,6 +45,39 @@ ze_external void Platform_DebugBreak()
 	DebugBreak();
 }
 
+////////////////////////////////////////////////////////
+// Timing
+////////////////////////////////////////////////////////
+static void Win_InitTimer()
+{
+	// Counts per second of performance frequency
+	// eg 2742188
+	QueryPerformanceFrequency(&g_timerFrequency);
+	printf("Precision timer freq %lld\n", g_timerFrequency.QuadPart);
+	LARGE_INTEGER counter;
+	QueryPerformanceCounter(&counter);
+	g_clockBase = counter.QuadPart;
+}
+
+ze_external f64 Platform_QueryClock()
+{
+	LARGE_INTEGER counter;
+	QueryPerformanceCounter(&counter);
+	i64 ticksSinceStart = counter.QuadPart - g_clockBase;
+	f64 secondsSinceStart =
+		(f64)((f64)ticksSinceStart / (f64)g_timerFrequency.QuadPart);
+	//printf("%f seconds since startup\n", secondsSinceStart);
+	return secondsSinceStart;
+}
+
+ze_external void Platform_Sleep(i32 milliSeconds)
+{
+	Sleep(milliSeconds);
+}
+
+////////////////////////////////////////////////////////
+// I/O
+////////////////////////////////////////////////////////
 ze_external ZEBuffer Platform_StageFile(char* path)
 {
 	FILE* f;
@@ -61,6 +98,9 @@ ze_external ZEBuffer Platform_StageFile(char* path)
 	return buf;
 }
 
+////////////////////////////////////////////////////////
+// Console
+////////////////////////////////////////////////////////
 static void InitConsole()
 {
 	if (g_bConsoleInit)
@@ -107,6 +147,7 @@ int CALLBACK WinMain(
 	}
 
 	// init proper
+	Win_InitTimer();
 	ZE_Init();
 	ZWindow_Init();
 	ZE_StartLoop();

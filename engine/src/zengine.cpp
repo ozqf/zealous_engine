@@ -3,7 +3,12 @@
 
 internal i32 g_running = YES;
 internal ZGame g_game = {};
+internal ZGameDef g_gameDef = {};
 internal ZEngine g_engine;
+ze_internal i32 g_frameNumber = 0;
+
+ze_internal i32 g_targetFPS = 0;
+ze_internal f32 g_targetDelta = 0;
 
 internal ZEngine ZE_BuildPlatformExport()
 {
@@ -33,6 +38,25 @@ ze_external ZEngine GetEngine()
 	return g_engine;
 }
 
+ze_external ZGameDef GetGameDef()
+{
+	return g_gameDef;
+}
+
+internal void ZE_LinkToGame(ZGame_LinkupFunction gameLink)
+{
+	zErrorCode err = gameLink(g_engine, &g_game, &g_gameDef);
+	if (g_gameDef.targetFramerate > 0)
+	{
+		g_targetFPS = g_gameDef.targetFramerate;
+		g_targetDelta = 1.f / (f32)g_targetFPS;
+	}
+	if (g_game.sentinel == ZE_SENTINEL)
+	{
+		g_game.Init();
+	}
+}
+
 ze_external zErrorCode ZE_Init()
 {
 	// step 1
@@ -49,11 +73,17 @@ ze_external zErrorCode ZE_Init()
 	ZAssets_PrintAll();
 
 	// link to app DLL
-	g_game = ZGame_StubLinkup(g_engine);
-	if (g_game.sentinel == ZE_SENTINEL)
-	{
-		g_game.Init();
-	}
+	ZE_LinkToGame(ZGame_StubLinkup);
+	// ZGame_StubLinkup(g_engine, &g_game, &g_gameDef);
+	// if (g_gameDef.targetFramerate > 0)
+	// {
+	// 	g_targetFPS = g_gameDef.targetFramerate;
+	// 	g_targetDelta = 1.f / (f32)g_targetFPS;
+	// }
+	// if (g_game.sentinel == ZE_SENTINEL)
+	// {
+	// 	g_game.Init();
+	// }
 	return ZE_ERROR_NONE;
 }
 
@@ -64,14 +94,36 @@ ze_external void ZE_Shutdown()
 
 ze_external i32 ZE_StartLoop()
 {
+	// f64 targetInterval = 1.f / 60.f;
+	f64 lastTickTime = Platform_QueryClock();
 	while (g_running)
 	{
+		f64 now = Platform_QueryClock();
+		f64 diff = now - lastTickTime;
+		// printf("Frame: diff: %.8f, now: %.8f, then: %.8f\n",
+		// 	diff, now, lastTickTime);
+		if (diff < g_targetDelta)
+		{
+			// if we have loads of time until the next frame, sleep
+			if (g_targetDelta / diff > 2)
+			{
+				Platform_Sleep(1);
+			}
+			continue;
+		}
+		g_frameNumber += 1;
+		ZEFrameTimeInfo info = {};
+		info.frameRate = 60;
+		info.frameNumber = g_frameNumber;
+		info.interval = diff;
+		
 		Platform_PollEvents();
 		if (g_game.sentinel == ZE_SENTINEL)
 		{
-			g_game.Tick();
+			g_game.Tick(info);
 		}
 		ZScene_Draw();
+		lastTickTime = now;
 	}
 	return 0;
 }

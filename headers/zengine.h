@@ -13,6 +13,15 @@ Zealous Engine public header
 #define FALLBACK_CHARSET_TEXTURE_NAME "fallback_charset"
 #define FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME "fallback_charset_semi_transparent"
 
+
+struct ZEFrameTimeInfo
+{
+    i32 frameRate;
+    i32 frameNumber;
+    f64 interval;
+    // f64 timeSinceStart;
+};
+
 ///////////////////////////////////////////////////////////
 // Colours
 ///////////////////////////////////////////////////////////
@@ -347,12 +356,18 @@ struct ZRDrawObj
     }
 };
 
+struct ZGameDef
+{
+    char* windowTitle;
+    i32 targetFramerate;
+};
+
 // game functions provided to engine
 struct ZGame
 {
     void (*Init)();
     void (*Shutdown)();
-    void (*Tick)();
+    void (*Tick)(ZEFrameTimeInfo timing);
     i32 sentinel;
 };
 
@@ -392,5 +407,8 @@ struct ZEngine
     ZInput input;
     i32 sentinel;
 };
+
+// Signature of linking function game DLL must export
+typedef zErrorCode(ZGame_LinkupFunction)(ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
 
 #endif // ZENGINE_H

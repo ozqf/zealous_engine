@@ -139,6 +139,10 @@ static void Sys_PrepareEvent(SysEvent *ev, i32 type, i32 size)
 */
 
 //////////////////////////////////
+ze_external ZEngine GetEngine();
+ze_external ZGameDef GetGameDef();
+
+//////////////////////////////////
 // platform
 ze_external void Platform_PollEvents();
 ze_external void Platform_SubmitFrame();
@@ -147,10 +151,13 @@ ze_external void Platform_Free(void* ptr);
 ze_external void Platform_DebugBreak();
 ze_external void Platform_Fatal(const char *msg);
 ze_external ZEBuffer Platform_StageFile(char *path);
+ze_external f64 Platform_QueryClock();
+ze_external void Platform_Sleep(i32 milliSeconds);
 
 //////////////////////////////////
 // game module linkup
-ze_external ZGame ZGame_StubLinkup(ZEngine engine);
+ze_external zErrorCode ZGame_StubLinkup(
+    ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
 ze_external zErrorCode ZE_Init();
 
 //////////////////////////////////
@@ -204,7 +211,6 @@ ze_external i32 TexGen_DecodeBW(
 // scene manager
 ze_external ZSceneManager ZScene_RegisterFunctions();
 ze_external void ZScene_Draw();
-ze_external ZEngine GetEngine();
 
 ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity);
 ze_external ZRDrawObj *ZScene_AddObject(zeHandle sceneHandle);
