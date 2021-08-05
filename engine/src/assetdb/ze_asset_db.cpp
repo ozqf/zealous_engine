@@ -64,17 +64,21 @@ internal ZRAsset *ZAssets_FindAssetByName(char* name)
 
 ze_external ZRTexture *GetFallbackTexture()
 {
-    return ZAssets_GetTexByName(FALLBACK_TEXTURE_NAME);
+    ZRAsset *asset = ZAssets_FindAssetByName(FALLBACK_TEXTURE_NAME);
+    ZE_ASSERT(asset != NULL, "No fallback texture found");
+    return (ZRTexture*)asset;
 }
 
 ze_external ZRMaterial *GetFallbackMaterial()
 {
-    return NULL;
+    return ZAssets_GetMaterialByName(FALLBACK_MATERIAL_NAME);
 }
 
 ze_external ZRMeshAsset *GetFallbackMesh()
 {
-    return NULL;
+    ZRAsset *asset = ZAssets_FindAssetByName(FALLBACK_MESH_NAME);
+    ZE_ASSERT(asset != NULL, "No fallback mesh found");
+    return (ZRMeshAsset*)asset;
 }
 
 ze_external ZRTexture *ZAssets_GetTexById(i32 id)
@@ -100,32 +104,23 @@ ze_external ZRMaterial* ZAssets_GetMaterialByName(char* name)
     return (ZRMaterial*)asset;
 }
 
+ze_external ZRMeshAsset* ZAssets_GetMeshById(i32 id)
+{
+    ZRAsset* asset = ZAssets_FindAssetById(id);
+    if (asset == NULL) { return GetFallbackMesh(); }
+    if (asset->type != ZE_ASSET_TYPE_MESH) { return GetFallbackMesh(); }
+    return (ZRMeshAsset*)asset;
+}
+
+ze_external ZRMeshAsset* ZAssets_GetMeshByName(char* name)
+{
+    i32 id = ZAssets_GetAssetIdByName(name);
+    return ZAssets_GetMeshById(id);
+}
+
 /////////////////////////////////////////////////////////////
 // Create new assets
 /////////////////////////////////////////////////////////////
-
-// Textures are assigned on allocation
-/*ze_external void ZAssets_AssignTexture(ZRTexture *tex, char *name)
-{
-    if (tex == NULL) { return; }
-    if (name == NULL) { return; }
-    i32 len = ZStr_Len(name);
-    if (len == 0) { return; }
-    i32 id = ZE_Hash_djb2((uChar *)name);
-    // check this key isn't already registered
-    ZRTexture* other = ZAssets_GetTexByName(name);
-    if (g_table->FindKeyIndex(id) != ZE_LT_INVALID_INDEX)
-    {
-        return;
-    }
-    tex->header.id = id;
-    tex->header.bIsDirty = YES;
-    ZEHashTableData d;
-    d.ptr = tex;
-    g_table->Insert(tex->header.id, d);
-    // TODO - save the filename and add pointer to asset header!
-    // tex->header.fileName = InternStringSomewhere(name);
-}*/
 
 ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char* name)
 {
@@ -171,6 +166,7 @@ ze_external ZRMaterial *ZAssets_AllocMaterial(char *name)
         printf("Asset Id %d from name %s already exists\n", id, name);
         return NULL;
     }
+
     ZRMaterial *mat = (ZRMaterial *)Platform_Alloc(sizeof(ZRMaterial));
     mat->header.id = id;
     mat->header.bIsDirty = YES;
@@ -181,26 +177,63 @@ ze_external ZRMaterial *ZAssets_AllocMaterial(char *name)
     return mat;
 }
 
-ze_external ZRMeshData* ZAssets_AllocMesh(i32 maxVerts)
+ze_external ZRMeshAsset* ZAssets_AllocEmptyMesh(char* name, i32 maxVerts)
 {
+    i32 id = ZAssets_GetAssetIdByName(name);
+    // Check this id isn't in use
+    ZRAsset *asset = ZAssets_FindAssetById(id);
+    if (asset != NULL)
+    {
+        printf("Asset Id %d from name %s already exists\n", id, name);
+        return NULL;
+    }
+
     i32 numVertBytes = (maxVerts * 3) * sizeof(f32);
     i32 numUVBytes = (maxVerts * 2) * sizeof(f32);
     i32 numNormalBytes = (maxVerts * 3) * sizeof(f32);
 
-    i32 totalBytes = sizeof(ZRMeshData) + numVertBytes + numUVBytes + numNormalBytes;
+    i32 totalBytes = sizeof(ZRMeshAsset) + numVertBytes + numUVBytes + numNormalBytes;
     u8* mem = (u8*)Platform_Alloc(totalBytes);
-    ZRMeshData* result = (ZRMeshData*)mem;
-    *result = {};
-    result->numVerts = 0;
-    result->maxVerts = maxVerts;
+    ZRMeshAsset *mesh = (ZRMeshAsset *)mem;
+    *mesh = {};
+    // register
+    mesh->header.id = id;
+    mesh->header.bIsDirty = YES;
+    mesh->header.type = ZE_ASSET_TYPE_MESH;
+
+    g_table->InsertPointer(id, mesh);
     
-    result->verts = (f32*)(mem + sizeof(ZRMeshData));
-    result->uvs = (f32*)(mem + sizeof(ZRMeshData) + numUVBytes);
-    result->normals = (f32*)(mem + sizeof(ZRMeshData) + numUVBytes + numNormalBytes);
-    return result;
+    // setup data
+    mesh->data.numVerts = 0;
+    mesh->data.maxVerts = maxVerts;
+    mesh->data.verts = (f32 *)(mem + sizeof(ZRMeshAsset));
+    mesh->data.uvs = (f32 *)(mem + sizeof(ZRMeshAsset) + numUVBytes);
+    mesh->data.normals = (f32 *)(mem + sizeof(ZRMeshAsset) + numUVBytes + numNormalBytes);
+
+    printf("Allocated mesh %s (%d max verts) with assetId %d\n",
+        name, mesh->data.maxVerts, id);
+    return mesh;
 }
 
 ze_external zErrorCode ZAssets_LoadTex()
 {
     return ZE_ERROR_NONE;
+}
+
+/////////////////////////////////////////////////////////////
+// Export
+/////////////////////////////////////////////////////////////
+ze_external ZAssetManager ZAssets_RegisterFunctions()
+{
+    ZAssetManager exportedFunctions = {};
+    exportedFunctions.AllocTexture = ZAssets_AllocTex;
+    exportedFunctions.AllocEmptyMesh = ZAssets_AllocEmptyMesh;
+    exportedFunctions.AllocMaterial = ZAssets_AllocMaterial;
+
+    exportedFunctions.GetTexById = ZAssets_GetTexById;
+    exportedFunctions.GetTexByName = ZAssets_GetTexByName;
+    exportedFunctions.GetMeshById = ZAssets_GetMeshById;
+    exportedFunctions.GetMeshByName = ZAssets_GetMeshByName;
+
+    return exportedFunctions;
 }

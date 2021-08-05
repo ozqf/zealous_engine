@@ -14,16 +14,6 @@ internal ZEngine ZE_BuildPlatformExport()
 {
 	ZEngine engine = {};
 	engine.sentinel = ZE_SENTINEL;
-
-	engine.scenes.AddScene = ZScene_CreateScene;
-	engine.scenes.AddObject = ZScene_AddObject;
-	engine.scenes.GetCamera = ZScene_GetCamera;
-	engine.scenes.SetCamera = ZScene_SetCamera;
-	engine.scenes.SetProjection = ZScene_SetProjection;
-
-	engine.assets.AllocTexture = ZAssets_AllocTex;
-	engine.assets.GetTexById = ZAssets_GetTexById;
-	engine.assets.GetTexByName = ZAssets_GetTexByName;
 	return engine;
 }
 
@@ -64,15 +54,18 @@ internal void ZE_LinkToGame(ZGame_LinkupFunction gameLink)
 
 ze_external zErrorCode ZE_Init(ZGame_LinkupFunction gameLink)
 {
-	// step 1
+	// step 1 - grab everyone's export functions
+	g_engine.assets = ZAssets_RegisterFunctions();
+	g_engine.scenes = ZScene_RegisterFunctions();
+	g_engine.input = ZInput_RegisterFunctions();
+
+	// step 2 - initialise now that game struct is read
 	ZDebug_Init_1();
 	ZAssets_Init();
 	ZGen_Init();
 	ZEmbedded_Init();
-	g_engine.scenes = ZScene_RegisterFunctions();
-	g_engine.input = ZInput_RegisterFunctions();
 
-	// step 2
+	// step 3 - further init that requires services be running
 	ZDebug_Init_2();
 
 	ZAssets_PrintAll();

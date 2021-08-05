@@ -181,11 +181,17 @@ ze_external void ZInput_ReadEvent(SysInputEvent* ev);
 // asset db
 ze_external ZRTexture *ZAssets_GetTexByName(char *name);
 ze_external ZRTexture *ZAssets_GetTexById(i32 id);
+ze_external ZRMeshAsset *ZAssets_GetMeshByName(char *name);
+ze_external ZRMeshAsset *ZAssets_GetMeshById(i32 id);
+ze_external ZRMaterial* ZAssets_GetMaterialByName(char* name);
+
+// asset allocation
+ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char *name);
+ze_external ZRMeshAsset *ZAssets_AllocEmptyMesh(char *name, i32 maxVerts);
 
 ze_external zErrorCode ZAssets_Init();
+ze_external ZAssetManager ZAssets_RegisterFunctions();
 ze_external void ZAssets_PrintAll();
-ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char *name);
-ze_external ZRMeshData *ZAssets_AllocMesh(i32 maxVerts);
 
 ze_external zErrorCode ZEmbedded_Init();
 

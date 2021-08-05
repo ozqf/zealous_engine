@@ -9,6 +9,10 @@ Zealous Engine public header
 ///////////////////////////////////////////////////////////
 // Embedded assets
 ///////////////////////////////////////////////////////////
+#define FALLBACK_MESH_NAME "cube"
+
+#define FALLBACK_MATERIAL_NAME "debug_magenta"
+
 #define FALLBACK_TEXTURE_NAME "fallback_texture"
 #define FALLBACK_CHARSET_TEXTURE_NAME "fallback_charset"
 #define FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME "fallback_charset_semi_transparent"
@@ -206,8 +210,8 @@ struct ZRMeshData
         numVerts = original.numVerts;
         const i32 numVertBytes = (sizeof(f32) * 3) * numVerts;
         const i32 numUVSBytes = (sizeof(f32) * 2) * numVerts;
-        printf("Copying %d verts (%d vert bytes, %d uv bytes)\n",
-               numVerts, numVertBytes, numUVSBytes);
+        printf("Copying %d verts (%d vert bytes, %d uv bytes, %d normal bytes)\n",
+               numVerts, numVertBytes, numUVSBytes, numVertBytes);
         ZE_Copy(verts, original.verts, numVertBytes);
         ZE_Copy(uvs, original.uvs, numUVSBytes);
         ZE_Copy(normals, original.normals, numVertBytes);
@@ -396,7 +400,12 @@ struct ZAssetManager
     ZRTexture *(*GetTexByName)(char *name);
     ZRTexture *(*GetTexById)(i32 id);
 
+    ZRMeshAsset *(*GetMeshByName)(char *name);
+    ZRMeshAsset *(*GetMeshById)(i32 id);
+
     ZRTexture *(*AllocTexture)(i32 width, i32 height, char *name);
+    ZRMaterial *(*AllocMaterial)(char* name);
+    ZRMeshAsset *(*AllocEmptyMesh)(char *name, i32 maxVerts);
 };
 
 // engine functions provided to game

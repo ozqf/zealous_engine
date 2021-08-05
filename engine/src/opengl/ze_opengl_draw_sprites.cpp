@@ -54,14 +54,15 @@ static const char *world_sprite_frag_text =
 internal i32 g_initialised = NO;
 internal ZRShader g_shader = {};
 internal ZRMeshHandles g_meshHandles = {};
-internal ZRMeshData *g_meshData;
+internal ZRMeshAsset *g_mesh;
+// internal ZRMeshData *g_mesh;
 internal ZRTexture *tex;
 local_persist u32 g_texHandle = 0;
 
 internal void SpriteBatchInit()
 {
     g_initialised = YES;
-    g_meshData = ZAssets_AllocMesh(1024 * 3);
+    g_mesh = ZAssets_AllocEmptyMesh("sprite_batch_mesh", 1024 * 3);
 
     // allocate a texture
     tex = ZAssets_AllocTex(64, 64, "draw_sprites_test_texture");
@@ -90,21 +91,21 @@ ze_external void ZRDraw_SpriteBatch(
         SpriteBatchInit();
     }
     ZE_PRINTF("Draw sprite batch - %d objects\n", batch->numItems);
-    g_meshData->Clear();
+    g_mesh->data.Clear();
     f32 lerp = 0;
     for (i32 i = 0; i < batch->numItems; ++i)
     {
         ZRSpriteBatchItem* item = &batch->items[i];
 
-        ZGen_AddSriteGeoXY(g_meshData, item->pos, item->size, item->uvMin, item->uvMax);
+        ZGen_AddSriteGeoXY(&(g_mesh->data), item->pos, item->size, item->uvMin, item->uvMax);
     }
-    // ZGen_AddSriteGeoXY(g_meshData, {-1, lerp}, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
-    // ZGen_AddSriteGeoXY(g_meshData, {1, lerp}, {0.25, 0.25}, {0.75, 0.75}, {0.75, 0.75});
+    // ZGen_AddSriteGeoXY(g_mesh, {-1, lerp}, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
+    // ZGen_AddSriteGeoXY(g_mesh, {1, lerp}, {0.25, 0.25}, {0.75, 0.75}, {0.75, 0.75});
 
     glUseProgram(g_shader.handle);
 
     // upload
-    ZRGL_UploadMesh(g_meshData, &g_meshHandles, 0);
+    ZRGL_UploadMesh(&g_mesh->data, &g_meshHandles, 0);
     // printf("Draw %d sprites\n", batch->numItems);
 
     M4x4_CREATE(modelView)

@@ -48,6 +48,18 @@ internal void Stub_Init()
     obj3->t.pos.y = 1;
     obj3->t.scale = { scale, scale, scale };
 
+    // add a mesh
+    ZRDrawObj* cube = g_engine.scenes.AddObject(g_gameScene);
+    ZRMeshAsset* cubeMesh = g_engine.assets.GetMeshByName(FALLBACK_MESH_NAME);
+    if (cubeMesh != NULL)
+    {
+        cube->data.SetAsMesh(cubeMesh->header.id, 0);
+    }
+    else
+    {
+        printf("No default mesh found!\n");
+    }
+
     // set the camera and projection for the scene
     TRANSFORM_CREATE(camera)
     Transform_SetRotationDegrees(&camera, 45.f, 0, 0);

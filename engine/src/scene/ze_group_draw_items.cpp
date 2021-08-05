@@ -36,7 +36,6 @@ internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
         ZEAsciToCharsheetUVs(c, &uvMin, &uvMax);
         spriteBatch->AddItem(drawPos, charSize, uvMin, uvMax);
         drawPos.x += step;
-
     }
 
     // complete batch command
@@ -61,6 +60,10 @@ ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
         {
             case ZR_DRAWOBJ_TYPE_TEXT:
             WriteTextCommand(buf, obj);
+            break;
+
+            case ZR_DRAWOBJ_TYPE_MESH:
+            printf("Draw mesh\n");
             break;
         }
     }

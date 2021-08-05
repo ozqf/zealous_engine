@@ -199,7 +199,7 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
 
     local_persist ZRShader g_shader = {};
     local_persist ZRMeshHandles g_meshHandles = {};
-    local_persist ZRMeshData* g_meshData;
+    local_persist ZRMeshAsset* g_mesh;
     local_persist u32 g_meshId = 0;
 
     // local_persist u32 g_quadVAO;
@@ -229,7 +229,7 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
         ZE_SetupDefault3DProjection(prjMatrix.cells, 16.f / 9.f);
 
         // allocate memory for mesh - we will build it at draw time
-        g_meshData = ZAssets_AllocMesh(1024 * 3);
+        g_mesh = ZAssets_AllocEmptyMesh("draw_world_sprites_test", 1024 * 3);
         
         // shader
         ZRGL_CreateProgram(
@@ -249,22 +249,22 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
     float delta = 1.f / 60.f;
     time += delta;
     f32 lerp = sinf(time);
-    g_meshData->Clear();
+    g_mesh->data.Clear();
 
     // set mesh data
-    g_meshData->AddVert({-0.5, -0.5, 0}, {0, 0}, {0, 0, -1});
-    g_meshData->AddVert({0.5, -0.5, 0}, {1, 0}, {0, 0, -1});
-    g_meshData->AddVert({0.5, 0.5, 0}, {1, 1}, {0, 0, -1});
+    g_mesh->data.AddVert({-0.5, -0.5, 0}, {0, 0}, {0, 0, -1});
+    g_mesh->data.AddVert({0.5, -0.5, 0}, {1, 0}, {0, 0, -1});
+    g_mesh->data.AddVert({0.5, 0.5, 0}, {1, 1}, {0, 0, -1});
 
-    g_meshData->AddVert({-0.5, -0.5, 0}, {0, 0}, {0, 0, -1});
-    g_meshData->AddVert({0.5, 0.5, 0}, {1, 1}, {0, 0, -1});
-    g_meshData->AddVert({-0.5, 0.5, 0}, {0, 1}, {0, 0, -1});
+    g_mesh->data.AddVert({-0.5, -0.5, 0}, {0, 0}, {0, 0, -1});
+    g_mesh->data.AddVert({0.5, 0.5, 0}, {1, 1}, {0, 0, -1});
+    g_mesh->data.AddVert({-0.5, 0.5, 0}, {0, 1}, {0, 0, -1});
 
-    ZGen_AddSriteGeoXY(g_meshData, {-1, lerp}, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
-    ZGen_AddSriteGeoXY(g_meshData, {1, lerp}, {0.25, 0.25}, {0.75, 0.75}, {0.75, 0.75});
+    ZGen_AddSriteGeoXY(&g_mesh->data, {-1, lerp}, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
+    ZGen_AddSriteGeoXY(&g_mesh->data, {1, lerp}, {0.25, 0.25}, {0.75, 0.75}, {0.75, 0.75});
 
     // upload
-    ZRGL_UploadMesh(g_meshData, &g_meshHandles, 0);
+    ZRGL_UploadMesh(&g_mesh->data, &g_meshHandles, 0);
     
     /////////////////////////////////////////////////////////////
     // Clear
