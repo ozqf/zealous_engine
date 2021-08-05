@@ -170,7 +170,7 @@ ze_external zErrorCode ZDebug_Init_2();
 ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, const i32 argc);
 ze_external i32 ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc);
 ze_external i32 ZCFG_FindParamIndex(const char* shortQuery, const char* longQuery, i32 extraTokens);
-ze_external const char *ZCFG_GetParamByIndex(const i32 index);
+ze_external char *ZCFG_GetParamByIndex(const i32 index);
 
 //////////////////////////////////
 // input

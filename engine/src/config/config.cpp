@@ -30,7 +30,7 @@ ze_external i32 ZCFG_FindParamIndex(const char *shortQuery, const char *longQuer
 	return index;
 }
 
-ze_external const char* ZCFG_GetParamByIndex(const i32 index)
+ze_external char* ZCFG_GetParamByIndex(const i32 index)
 {
 	if (index < 0 || index >= g_argc)
 	{

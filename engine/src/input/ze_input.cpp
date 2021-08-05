@@ -172,12 +172,12 @@ internal void ZInput_AddAction(u32 keyCode1, u32 keyCode2, char *label)
     action->keyCode1 = keyCode1;
     action->keyCode2 = keyCode2;
 
-    DebugListActions();
+    // DebugListActions();
 }
 
 ze_external void ZInput_ReadEvent(SysInputEvent* ev)
 {
-    printf("ZInput saw %d set to %d\n", ev->inputID, ev->value);
+    // printf("ZInput saw %d set to %d\n", ev->inputID, ev->value);
     // find a control that matches this keycode
     i8* read = g_actions.start;
     i8* end = g_actions.cursor;

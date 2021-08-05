@@ -49,10 +49,12 @@ ze_external void Platform_DebugBreak()
 ////////////////////////////////////////////////////////
 // Game DLL link
 ////////////////////////////////////////////////////////
-internal ZGame_LinkupFunction* Win_LinkToGameDLL()
+internal ZGame_LinkupFunction* Win_LinkToGameDLL(char* customDir)
 {
+	char targetPath[255];
+	i32 strLen = sprintf_s(targetPath, 255, "%s\\%s", customDir, ZGAME_DLL_NAME);
 	ZGame_LinkupFunction* linkUpPtr = NULL;
-	char* targetPath = "base\\game.dll";
+	// char* targetPath = "base\\game.dll";
 	printf("Attempting to link to game dll at \"%s\"\n", targetPath);
 	g_appDLL = LoadLibraryA(targetPath);
 	if (g_appDLL == NULL)
@@ -172,19 +174,26 @@ int CALLBACK WinMain(
 		Win_Warning("Pause on start!\n");
 	}
 	tokenIndex = ZCFG_FindParamIndex("-g", "--game", 1);
+	char *gameDirectory;
 	if (tokenIndex != ZE_ERROR_BAD_INDEX)
 	{
-		const char *gameDirectory = ZCFG_GetParamByIndex(tokenIndex + 1);
+		gameDirectory = ZCFG_GetParamByIndex(tokenIndex + 1);
+		if (gameDirectory == NULL || ZStr_Len(gameDirectory) <= 1)
+		{
+			printf("Custom game directory name is null or empty\n");
+			gameDirectory = ZGAME_BASE_DIRECTORY;
+		}
 		printf("Game dir: %s\n", gameDirectory);
 	}
 	else
 	{
 		printf("No custom game directory specified\n");
+		gameDirectory = ZGAME_BASE_DIRECTORY;
 	}
 
 	// init proper
 	Win_InitTimer();
-	ZE_Init(Win_LinkToGameDLL());
+	ZE_Init(Win_LinkToGameDLL(gameDirectory));
 	ZWindow_Init();
 	ZE_StartLoop();
 	printf("Done!\n");

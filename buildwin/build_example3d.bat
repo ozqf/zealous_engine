@@ -8,13 +8,13 @@ set buildDir=buildwin_example3d
 cd..
 if not exist bin mkdir bin
 cd bin
-if not exist base mkdir base
+if not exist example3d mkdir example3d
 cd..
 if not exist %buildDir% mkdir %buildDir%
 cd %buildDir%
 del *.* /Q
 @rem === COMPILER SETTINGS ===
-set outputExe=/Fe../bin/base/game.dll
+set outputExe=/Fe../bin/example3d/game.dll
 @rem main compile flags, elevating warnings
 @rem /LD - output a DLL
 set compilerFlags=-nologo -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi /LD
