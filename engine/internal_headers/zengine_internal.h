@@ -37,11 +37,19 @@ Zealous Engine internal header
 #define ZR_DRAW_CMD_NONE 0
 #define ZR_DRAW_CMD_SET_CAMERA 1
 #define ZR_DRAW_CMD_SPRITE_BATCH 2
+#define ZR_DRAW_CMD_MESH 3
+
 struct ZRDrawCmdSetCamera
 {
     BufferBlock header;
     Transform camera;
     M4x4 projection;
+};
+
+struct ZRDrawCmdMesh
+{
+    BufferBlock header;
+    ZRDrawObj obj;
 };
 
 struct ZRSpriteBatchItem

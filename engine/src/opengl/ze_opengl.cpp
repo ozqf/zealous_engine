@@ -118,18 +118,25 @@ ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
 {
     ZE_PRINTF("ZRGL - exec %dKB of commands\n", commandBuffer->Written() / 1024);
     TRANSFORM_CREATE(camera);
+    M4x4 view;
+    Transform_ToM4x4(&camera, &view);
     M4x4_CREATE(projection)
     BUF_BLOCK_BEGIN_READ(commandBuffer, header)
         switch (header->type)
         {
+            case ZR_DRAW_CMD_MESH:
+            {
+                ZE_CAST_PTR(header, ZRDrawCmdMesh, mesh);
+                ZRGL_DrawMesh(mesh, &view, &projection);
+            }
+            break;
             case ZR_DRAW_CMD_SET_CAMERA:
             camera = ((ZRDrawCmdSetCamera*)header)->camera;
             projection = ((ZRDrawCmdSetCamera *)header)->projection;
+            Transform_ToM4x4(&camera, &view);
             break;
             case ZR_DRAW_CMD_SPRITE_BATCH:
             ZE_CAST_PTR(header, ZRDrawCmdSpriteBatch, batch);
-            M4x4 view;
-            Transform_ToM4x4(&camera, &view);
             ZRDraw_SpriteBatch(batch, &view, &projection);
             break;
         }

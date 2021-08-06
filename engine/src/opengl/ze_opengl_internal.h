@@ -135,6 +135,7 @@ ze_external zErrorCode ZRGL_InitShaders();
 ///////////////////////////////////////////////////////
 ze_external void ZRDraw_SpriteBatch(
     ZRDrawCmdSpriteBatch *batch, M4x4 *view, M4x4 *projection);
+ze_external void ZRGL_DrawMesh(ZRDrawCmdMesh* meshCmd, M4x4* view, M4x4* projection);
 
 ///////////////////////////////////////////////////////
 // Debug

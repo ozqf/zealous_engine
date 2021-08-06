@@ -42,6 +42,12 @@ internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
     spriteBatch->Finish(buf);
 }
 
+internal void WriteMeshCommand(ZEBuffer* buf, ZRDrawObj* obj)
+{
+    BUF_BLOCK_BEGIN_STRUCT(meshCmd, ZRDrawCmdMesh, buf, ZR_DRAW_CMD_MESH)
+    meshCmd->obj = *obj;
+}
+
 ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
 {
     i32 len = scene->objects.m_array->m_numBlobs;
@@ -63,7 +69,7 @@ ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
             break;
 
             case ZR_DRAWOBJ_TYPE_MESH:
-            printf("Draw mesh\n");
+            WriteMeshCommand(buf, obj);
             break;
         }
     }

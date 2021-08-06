@@ -21,7 +21,7 @@ set compilerDefines=/DPARANOID=1
 @rem platform
 set compIn1=../engine/src/windows/win_main.cpp ../engine/src/windows/win_window.cpp
 @rem opengl renderer
-set compIn2=../engine/src/opengl/ze_opengl.cpp ../engine/src/opengl/ze_opengl_shaders.cpp ../engine/src/opengl/zrgl_uploader.cpp ../engine/src/opengl/ze_opengl_draw_sprites.cpp ../engine/src/opengl/sandbox/zrgl_sandbox.cpp
+set compIn2=../engine/src/opengl/ze_opengl.cpp ../engine/src/opengl/ze_opengl_shaders.cpp ../engine/src/opengl/zrgl_uploader.cpp ../engine/src/opengl/zrgl_draw_mesh.cpp ../engine/src/opengl/ze_opengl_draw_sprites.cpp ../engine/src/opengl/sandbox/zrgl_sandbox.cpp
 @rem engine + services
 set compIn3=../engine/src/zengine.cpp ../engine/src/config/config.cpp ../engine/src/assetdb/ze_asset_db.cpp ../engine/src/asset_gen/ze_asset_gen.cpp ../engine/src/debug/ze_debug.cpp
 set compIn4=../engine/src/scene/ze_scene.cpp ../engine/src/scene/ze_group_draw_items.cpp ../engine/src/embedded_assets/ze_embedded_assets.cpp ../engine/src/game_stub/ze_game_stub.cpp
