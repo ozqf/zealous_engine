@@ -3,6 +3,8 @@
 
 #include "../../internal_headers/zengine_internal.h"
 
+#include "shaders/zrgl_embedded_shaders.h"
+
 // third party
 #include "../../../lib/glad/glad.h"
 #include "../../../lib/glfw3_vc2015/glfw3.h"

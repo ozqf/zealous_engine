@@ -3,6 +3,9 @@
 @echo --------------------------------------------------------
 @echo Build Zealous Engine Windows Executable
 
+node prep_shaders.js
+@echo --------------------------------------------------------
+
 cd..
 if not exist bin mkdir bin
 if not exist buildwin_platform mkdir buildwin_platform
