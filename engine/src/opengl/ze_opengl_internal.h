@@ -152,4 +152,16 @@ ze_external void ZRGL_Debug_DrawCubeTest();
 ze_external void ZRGL_Debug_DrawWorldCubeTest();
 ze_external void ZRGL_Debug_DrawWorldSprites();
 
+inline void ZR_BuildViewMatrix(M4x4 *view, Transform *camT)
+{
+    // View
+    M4x4_SetToIdentity(view->cells);
+    Vec3 camEuler = M3x3_GetEulerAnglesRadians(camT->rotation.cells);
+    M4x4_RotateByAxis(view->cells, -camEuler.z, 0, 0, 1);
+    M4x4_RotateByAxis(view->cells, -camEuler.x, 1, 0, 0);
+    M4x4_RotateByAxis(view->cells, -camEuler.y, 0, 1, 0);
+    // inverse camera translation
+    M4x4_Translate(view->cells, -camT->pos.x, -camT->pos.y, -camT->pos.z);
+}
+
 #endif // ZE_OPENGL_INTERNAL_H

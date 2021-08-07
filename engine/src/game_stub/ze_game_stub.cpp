@@ -11,6 +11,7 @@ internal zeHandle g_hudScene = 0;
 
 internal zeHandle g_avatarId = 0;
 
+internal Transform g_debugOrigin;
 internal Transform g_debugCam;
 
 internal void Stub_Init()
@@ -23,6 +24,20 @@ internal void Stub_Init()
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, "move_right");
     g_engine.input.AddAction(Z_INPUT_CODE_W, Z_INPUT_CODE_NULL, "move_forward");
     g_engine.input.AddAction(Z_INPUT_CODE_S, Z_INPUT_CODE_NULL, "move_backward");
+
+    g_engine.input.AddAction(Z_INPUT_CODE_SPACE, Z_INPUT_CODE_NULL, "move_up");
+    g_engine.input.AddAction(Z_INPUT_CODE_LEFT_SHIFT, Z_INPUT_CODE_NULL, "move_down");
+
+    g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, "look_up");
+    g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, "look_down");
+    g_engine.input.AddAction(Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, "look_left");
+    g_engine.input.AddAction(Z_INPUT_CODE_RIGHT, Z_INPUT_CODE_NULL, "look_right");
+
+    g_engine.input.AddAction(Z_INPUT_CODE_Q, Z_INPUT_CODE_NULL, "roll_left");
+    g_engine.input.AddAction(Z_INPUT_CODE_E, Z_INPUT_CODE_NULL, "roll_right");
+
+    g_engine.input.AddAction(Z_INPUT_CODE_R, Z_INPUT_CODE_NULL, "reset");
+
     // create a visual scene
     g_gameScene = g_engine.scenes.AddScene(0, 8);
 
@@ -70,9 +85,10 @@ internal void Stub_Init()
 
     // set the camera and projection for the scene
     TRANSFORM_CREATE(camera)
-    Transform_SetRotationDegrees(&camera, 45.f, 0, 0);
-    camera.pos.z = -2.f;
+    // Transform_SetRotationDegrees(&camera, 45.f, 0, 0);
+    camera.pos.z = 2.f;
     g_debugCam = camera;
+    g_debugOrigin = g_debugCam;
 
     M4x4_CREATE(projection)
     ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
@@ -91,28 +107,111 @@ internal void Stub_Tick(ZEFrameTimeInfo timing)
     f32 delta = (f32)timing.interval;
     // printf("Game tick interval: %.8f\n", delta);
     i32 bMoved = NO;
+    Vec3 move = {};
+    f32 speed = 3;
+    if (g_engine.input.GetActionValue("reset"))
+    {
+        g_debugCam =g_debugOrigin;
+        // Transform_SetToIdentity(&g_debugCam);
+        bMoved = YES;
+    }
+
     if (g_engine.input.GetActionValue("move_left"))
     {
-        ZRDrawObj* obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        g_debugCam.pos.x += 2.f * delta;
+        // ZRDrawObj* obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
+        // g_debugCam.pos.x += 2.f * delta;
+        move.x -= 1;
         bMoved = YES;
     }
     if (g_engine.input.GetActionValue("move_right"))
     {
-        ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        g_debugCam.pos.x -= 2.f * delta;
+        // ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
+        // g_debugCam.pos.x -= 2.f * delta;
+        move.x += 1;
         bMoved = YES;
     }
     if (g_engine.input.GetActionValue("move_forward"))
     {
-        ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        g_debugCam.pos.z += 2.f * delta;
+        // ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
+        // g_debugCam.pos.z += 2.f * delta;
+        move.z -= 1;
         bMoved = YES;
     }
     if (g_engine.input.GetActionValue("move_backward"))
     {
-        ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        g_debugCam.pos.z -= 2.f * delta;
+        // ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
+        // g_debugCam.pos.z -= 2.f * delta;
+        move.z += 1;
+        bMoved = YES;
+    }
+    if (g_engine.input.GetActionValue("move_down"))
+    {
+        // ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
+        // g_debugCam.pos.z += 2.f * delta;
+        move.y -= 1;
+        bMoved = YES;
+    }
+    if (g_engine.input.GetActionValue("move_up"))
+    {
+        // ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
+        // g_debugCam.pos.z -= 2.f * delta;
+        move.y += 1;
+        bMoved = YES;
+    }
+    Vec3 forward = g_debugCam.rotation.zAxis;
+    Vec3 left = g_debugCam.rotation.xAxis;
+    Vec3 up = g_debugCam.rotation.yAxis;
+    Vec3 result = {};
+    result.x += forward.x * move.z;
+    result.y += forward.y * move.z;
+    result.z += forward.z * move.z;
+
+    result.x += left.x * move.x;
+    result.y += left.y * move.x;
+    result.z += left.z * move.x;
+
+    result.x += up.x * move.y;
+    result.y += up.y * move.y;
+    result.z += up.z * move.y;
+
+    Vec3_Normalise(&result);
+    result.x *= (speed * delta);
+    result.y *= (speed * delta);
+    result.z *= (speed * delta);
+
+    g_debugCam.pos.x += result.x;
+    g_debugCam.pos.y += result.y;
+    g_debugCam.pos.z += result.z;
+
+    float rotRate = 90.f * DEG2RAD;
+    if (g_engine.input.GetActionValue("look_up"))
+    {
+        M3x3_RotateByAxis(g_debugCam.rotation.cells, rotRate * delta, 1, 0, 0);
+        bMoved = YES;
+    }
+    if (g_engine.input.GetActionValue("look_down"))
+    {
+        M3x3_RotateByAxis(g_debugCam.rotation.cells, -rotRate * delta, 1, 0, 0);
+        bMoved = YES;
+    }
+    if (g_engine.input.GetActionValue("look_left"))
+    {
+        M3x3_RotateByAxis(g_debugCam.rotation.cells, rotRate * delta, 0, 1, 0);
+        bMoved = YES;
+    }
+    if (g_engine.input.GetActionValue("look_right"))
+    {
+        M3x3_RotateByAxis(g_debugCam.rotation.cells, -rotRate * delta, 0, 1, 0);
+        bMoved = YES;
+    }
+    if (g_engine.input.GetActionValue("roll_left"))
+    {
+        M3x3_RotateByAxis(g_debugCam.rotation.cells, rotRate * delta, 0, 0, 1);
+        bMoved = YES;
+    }
+    if (g_engine.input.GetActionValue("roll_right"))
+    {
+        M3x3_RotateByAxis(g_debugCam.rotation.cells, -rotRate * delta, 0, 0, 1);
         bMoved = YES;
     }
 
