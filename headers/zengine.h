@@ -12,6 +12,7 @@ Zealous Engine public header
 #define ZE_EMBEDDED_CUBE_NAME "cube"
 
 #define FALLBACK_MATERIAL_NAME "debug_magenta"
+#define FALLBACK_CHEQUER_MATERIAL "debug_chequer"
 
 #define FALLBACK_TEXTURE_NAME "fallback_texture"
 #define FALLBACK_CHARSET_TEXTURE_NAME "fallback_charset"
@@ -417,9 +418,14 @@ struct ZAssetManager
     ZRMeshAsset *(*GetMeshByName)(char *name);
     ZRMeshAsset *(*GetMeshById)(i32 id);
 
+    ZRMaterial *(*GetMaterialById)(i32 id);
+    ZRMaterial *(*GetMaterialByName)(char *name);
+
     ZRTexture *(*AllocTexture)(i32 width, i32 height, char *name);
     ZRMaterial *(*AllocMaterial)(char* name);
     ZRMeshAsset *(*AllocEmptyMesh)(char *name, i32 maxVerts);
+    ZRMaterial* (*BuildMaterial)(
+        char* name, char* diffuseName, char* emissionName);
 };
 
 // engine functions provided to game

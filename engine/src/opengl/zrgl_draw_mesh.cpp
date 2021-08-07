@@ -27,9 +27,9 @@ ze_external void ZRGL_DrawMesh(
     ZE_ASSERT(mesh != NULL, "Mesh is null");
 
     // material and textures
-    // ZRMaterial *mat = ZAssets_GetMaterialById(obj->data.model.materialId);
-    // ZRTexture* diffuse = ZAssets_GetTexById(mat->diffuseTexId);
-    ZRTexture* diffuse = ZAssets_GetTexByName(FALLBACK_TEXTURE_NAME);
+    ZRMaterial *mat = ZAssets_GetMaterialById(obj->data.model.materialId);
+    ZRTexture* diffuse = ZAssets_GetTexById(mat->diffuseTexId);
+    // ZRTexture* diffuse = ZAssets_GetTexByName(FALLBACK_TEXTURE_NAME);
     ZE_ASSERT(diffuse != NULL, "Diffuse is null")
 
     // ZRGLHandles* meshHandle = ZRGL_GetHandleData(mesh->header.id);

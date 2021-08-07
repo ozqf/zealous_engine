@@ -67,22 +67,45 @@ internal void Stub_Init()
     obj3->t.scale = { scale, scale, scale };
     #endif
     // add a mesh
-    ZRDrawObj* cube = g_engine.scenes.AddObject(g_gameScene);
-    g_avatarId = cube->userTag;
     ZRMeshAsset* cubeMesh = g_engine.assets.GetMeshByName(ZE_EMBEDDED_CUBE_NAME);
-    printf("Game - assigning mesh Id %d to obj\n", cubeMesh->header.id);
+    ZRMaterial *cubeMat = g_engine.assets.GetMaterialByName(FALLBACK_CHEQUER_MATERIAL);
+    ZRDrawObj *cube = g_engine.scenes.AddObject(g_gameScene);
+    cube->data.SetAsMesh(cubeMesh->header.id, cubeMat->header.id);
+    g_avatarId = cube->userTag;
+
+    // printf("Game - assigning mesh Id %d to obj\n", cubeMesh->header.id);
     Transform_SetToIdentity(&cube->t);
     cube->t.scale = { 1, 1, 1 };
     cube->t.pos.z = -2;
-    if (cubeMesh != NULL)
-    {
-        cube->data.SetAsMesh(cubeMesh->header.id, 0);
-    }
-    else
-    {
-        printf("No default mesh found!\n");
-    }
 
+    ////////////////////////////////////////////////////
+    // pillars
+    cube = g_engine.scenes.AddObject(g_gameScene);
+    cube->data.SetAsMesh(cubeMesh->header.id, cubeMat->header.id);
+    cube->t.pos.x = 8;
+    cube->t.pos.z = 8;
+    cube->t.scale = { 2, 10, 2 };
+
+    cube = g_engine.scenes.AddObject(g_gameScene);
+    cube->data.SetAsMesh(cubeMesh->header.id, cubeMat->header.id);
+    cube->t.pos.x = -8;
+    cube->t.pos.z = 8;
+    cube->t.scale = { 2, 10, 2 };
+
+    cube = g_engine.scenes.AddObject(g_gameScene);
+    cube->data.SetAsMesh(cubeMesh->header.id, cubeMat->header.id);
+    cube->t.pos.x = 8;
+    cube->t.pos.z = -8;
+    cube->t.scale = { 2, 10, 2 };
+
+    cube = g_engine.scenes.AddObject(g_gameScene);
+    cube->data.SetAsMesh(cubeMesh->header.id, cubeMat->header.id);
+    cube->t.pos.x = -8;
+    cube->t.pos.z = -8;
+    cube->t.scale = { 2, 10, 2 };
+
+
+    ////////////////////////////////////////////////////
     // set the camera and projection for the scene
     TRANSFORM_CREATE(camera)
     // Transform_SetRotationDegrees(&camera, 45.f, 0, 0);

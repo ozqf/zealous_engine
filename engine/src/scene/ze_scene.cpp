@@ -90,6 +90,7 @@ ze_external ZRDrawObj* ZScene_AddObject(zeHandle sceneHandle)
     ZRDrawObj* obj = (ZRDrawObj*)scene->objects.GetFreeSlot(scene->nextId);
     if (obj == NULL) { return NULL; }
     *obj = {};
+    Transform_SetToIdentity(&obj->t);
     obj->userTag = scene->nextId;
     scene->nextId += 1;
     return obj;

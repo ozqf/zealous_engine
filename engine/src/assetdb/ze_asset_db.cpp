@@ -191,6 +191,19 @@ ze_external ZRMaterial *ZAssets_AllocMaterial(char *name)
     return mat;
 }
 
+ze_external ZRMaterial* ZAssets_BuildMaterial(
+    char* name, char* diffuseName, char* emissionName)
+{
+    ZRMaterial* mat = ZAssets_AllocMaterial(name);
+    if (mat == NULL) { return NULL; }
+    ZRTexture* tex = ZAssets_GetTexByName(diffuseName);
+    if (tex != NULL)
+    {
+        mat->diffuseTexId = tex->header.id;
+    }
+    return mat;
+}
+
 ze_external ZRMeshAsset* ZAssets_AllocEmptyMesh(char* name, i32 maxVerts)
 {
     i32 id = ZAssets_GetAssetIdByName(name);
@@ -244,11 +257,14 @@ ze_external ZAssetManager ZAssets_RegisterFunctions()
     exportedFunctions.AllocTexture = ZAssets_AllocTex;
     exportedFunctions.AllocEmptyMesh = ZAssets_AllocEmptyMesh;
     exportedFunctions.AllocMaterial = ZAssets_AllocMaterial;
+    exportedFunctions.BuildMaterial = ZAssets_BuildMaterial;
 
     exportedFunctions.GetTexById = ZAssets_GetTexById;
     exportedFunctions.GetTexByName = ZAssets_GetTexByName;
     exportedFunctions.GetMeshById = ZAssets_GetMeshById;
     exportedFunctions.GetMeshByName = ZAssets_GetMeshByName;
+    exportedFunctions.GetMaterialById = ZAssets_GetMaterialById;
+    exportedFunctions.GetMaterialByName = ZAssets_GetMaterialByName;
 
     return exportedFunctions;
 }

@@ -133,7 +133,7 @@ ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
             case ZR_DRAW_CMD_SET_CAMERA:
             {
                 ZRDrawCmdSetCamera *cmd = (ZRDrawCmdSetCamera *)header;
-                ZR_BuildViewMatrix(&view, &cmd->camera);
+                Transform_ToViewMatrix(&view, &cmd->camera);
                 // camera = ((ZRDrawCmdSetCamera*)header)->camera;(ZRDrawCmdSetCamera*)
                 // Transform_ToM4x4(&camera, &view);
 

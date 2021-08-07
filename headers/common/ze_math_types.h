@@ -1288,12 +1288,28 @@ extern "C" internal void Transform_ToM4x4NoScale(Transform *t, M4x4 *result)
 	result->w3 = 1;
 }
 
-internal void Transform_FromM4x4NoScale(Transform *t, f32 *m4x4)
+inline void Transform_FromM4x4NoScale(Transform *t, f32 *m4x4)
 {
 	t->pos.x = m4x4[M4x4_W0];
 	t->pos.y = m4x4[M4x4_W1];
 	t->pos.z = m4x4[M4x4_W2];
 	M3x3_CopyFromM4x4(t->rotation.cells, m4x4);
+}
+
+/*
+Resulting camera's forward will be looking into negative Z
+if rotation is set to Identity
+*/
+inline void Transform_ToViewMatrix(M4x4 *view, Transform *camT)
+{
+	// View
+	M4x4_SetToIdentity(view->cells);
+	Vec3 camEuler = M3x3_GetEulerAnglesRadians(camT->rotation.cells);
+	M4x4_RotateByAxis(view->cells, -camEuler.z, 0, 0, 1);
+	M4x4_RotateByAxis(view->cells, -camEuler.x, 1, 0, 0);
+	M4x4_RotateByAxis(view->cells, -camEuler.y, 0, 1, 0);
+	// inverse camera translation
+	M4x4_Translate(view->cells, -camT->pos.x, -camT->pos.y, -camT->pos.z);
 }
 
 /////////////////////////////////////////////////////////////////////
