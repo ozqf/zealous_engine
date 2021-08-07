@@ -49,16 +49,21 @@ ze_external void ZRGL_DrawMesh(
     // M4x4_SetToIdentity(projection->cells);
     // M4x4_SetToIdentity(modelMatrix.cells);
     // M4x4_SetToIdentity(viewMatrix.cells);
+    #if 0
     M4x4_SetToIdentity(modelView.cells);
-    modelView.posZ = -2.f;
     M4x4_RotateByAxis(modelView.cells, 45.f * DEG2RAD, 1, 0, 0);
+    M4x4_RotateByAxis(modelView.cells, 45.f * DEG2RAD, 0, 1, 0);
+    modelView.posZ = -2.f;
     M4x4_SetToIdentity(projection->cells);
 
     ZE_SetupDefault3DProjection(projection->cells, 16.f / 9.f);
-    // M4x4_CREATE(model)
-    // Transform_ToM4x4(&obj->t, &model);
-    // M4x4_Multiply(modelView.cells, view->cells, modelView.cells);
-    // M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
+    #endif
+    #if 1
+    M4x4_CREATE(model)
+    Transform_ToM4x4(&obj->t, &model);
+    M4x4_Multiply(modelView.cells, view->cells, modelView.cells);
+    M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
+    #endif
 
     ZR_SetProgM4x4(g_shader.handle, "u_modelView", modelView.cells);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection->cells);

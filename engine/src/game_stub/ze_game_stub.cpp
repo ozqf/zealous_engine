@@ -11,21 +11,25 @@ internal zeHandle g_hudScene = 0;
 
 internal zeHandle g_avatarId = 0;
 
+internal Transform g_debugCam;
+
 internal void Stub_Init()
 {
     printf("Stub init\n");
+    Transform_SetToIdentity(&g_debugCam);
+
     // register inputs
     g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, "move_left");
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, "move_right");
-    g_engine.input.AddAction(Z_INPUT_CODE_W, Z_INPUT_CODE_NULL, "move_up");
-    g_engine.input.AddAction(Z_INPUT_CODE_S, Z_INPUT_CODE_NULL, "move_down");
+    g_engine.input.AddAction(Z_INPUT_CODE_W, Z_INPUT_CODE_NULL, "move_forward");
+    g_engine.input.AddAction(Z_INPUT_CODE_S, Z_INPUT_CODE_NULL, "move_backward");
     // create a visual scene
     g_gameScene = g_engine.scenes.AddScene(0, 8);
 
     // find some assets to use on our objects
     i32 textureId = g_engine.assets.GetTexByName(
         FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME)->header.id;
-    #if 0
+    #if 1
     // add an object to the scene
     ZRDrawObj* obj1 = g_engine.scenes.AddObject(g_gameScene);
     // configure object
@@ -53,8 +57,8 @@ internal void Stub_Init()
     ZRMeshAsset* cubeMesh = g_engine.assets.GetMeshByName(ZE_EMBEDDED_CUBE_NAME);
     printf("Game - assigning mesh Id %d to obj\n", cubeMesh->header.id);
     Transform_SetToIdentity(&cube->t);
-    cube->t.scale = { 0.25f, 0.25f, 0.25f };
-    cube->t.pos.z = 4;
+    cube->t.scale = { 1, 1, 1 };
+    cube->t.pos.z = -2;
     if (cubeMesh != NULL)
     {
         cube->data.SetAsMesh(cubeMesh->header.id, 0);
@@ -68,6 +72,7 @@ internal void Stub_Init()
     TRANSFORM_CREATE(camera)
     Transform_SetRotationDegrees(&camera, 45.f, 0, 0);
     camera.pos.z = -2.f;
+    g_debugCam = camera;
 
     M4x4_CREATE(projection)
     ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
@@ -85,25 +90,37 @@ internal void Stub_Tick(ZEFrameTimeInfo timing)
 {
     f32 delta = (f32)timing.interval;
     // printf("Game tick interval: %.8f\n", delta);
+    i32 bMoved = NO;
     if (g_engine.input.GetActionValue("move_left"))
     {
         ZRDrawObj* obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        obj->t.pos.x -= 2.f * delta;
+        g_debugCam.pos.x += 2.f * delta;
+        bMoved = YES;
     }
     if (g_engine.input.GetActionValue("move_right"))
     {
         ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        obj->t.pos.x += 2.f * delta;
+        g_debugCam.pos.x -= 2.f * delta;
+        bMoved = YES;
     }
-    if (g_engine.input.GetActionValue("move_up"))
+    if (g_engine.input.GetActionValue("move_forward"))
     {
         ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        obj->t.pos.z -= 2.f * delta;
+        g_debugCam.pos.z += 2.f * delta;
+        bMoved = YES;
     }
-    if (g_engine.input.GetActionValue("move_down"))
+    if (g_engine.input.GetActionValue("move_backward"))
     {
         ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        obj->t.pos.z += 2.f * delta;
+        g_debugCam.pos.z -= 2.f * delta;
+        bMoved = YES;
+    }
+
+    if (bMoved)
+    {
+        printf("Cam pos: %.3f, %.3f, %.3f\n",
+            g_debugCam.pos.x, g_debugCam.pos.y, g_debugCam.pos.z);
+        g_engine.scenes.SetCamera(g_gameScene, g_debugCam);
     }
 }
 
