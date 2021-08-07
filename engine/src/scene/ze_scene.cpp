@@ -41,6 +41,20 @@ ze_external void ZScene_RemoveScene(zeHandle handle)
 
 }
 
+ze_external void ZScene_SetFlags(zeHandle handle, u32 flags)
+{
+    ZRScene *scene = GetSceneByHandle(handle);
+    ZE_ASSERT(scene != NULL, "Set flags - no scene found")
+    scene->flags = flags;
+}
+
+ze_external u32 ZScene_GetFlags(zeHandle handle)
+{
+    ZRScene *scene = GetSceneByHandle(handle);
+    ZE_ASSERT(scene != NULL, "Set flags - no scene found")
+    return scene->flags;
+}
+
 ze_external Transform ZScene_GetCamera(zeHandle sceneHandle)
 {
     ZRScene *scene = GetSceneByHandle(sceneHandle);
@@ -95,6 +109,7 @@ internal ZRDrawObj* ZScene_GetObjectById(zeHandle sceneHandle, zeHandle objectId
 
 ze_external void ZScene_Draw()
 {
+    #if 1
     ZE_PRINTF("=== FRAME ===\n");
     ZR_ClearFrame({ 0.1f, 0.1f, 0.1f, 1});
     ZEBuffer* buf = &g_drawCommands;
@@ -107,10 +122,17 @@ ze_external void ZScene_Draw()
         ZEHashTableKey* key = &g_scenes->m_keys[i];
         if (key->id == 0) { continue; }
         ZRScene* scene = (ZRScene*)key->data.ptr;
+        if (scene->flags & ZSCENE_FLAG_NO_DRAW) { continue; }
         ZScene_WriteDrawCommands(buf, scene);
     }
     ZR_ExecuteCommands(buf);
     Platform_SubmitFrame();
+    #endif
+
+    #if 0
+    ZR_DrawTest();
+    Platform_SubmitFrame();
+    #endif
 }
 
 ze_external ZSceneManager ZScene_RegisterFunctions()

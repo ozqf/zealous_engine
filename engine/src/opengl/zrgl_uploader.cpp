@@ -8,6 +8,7 @@ internal ZEBlobStore g_store;
 ze_external void ZRGL_UploaderInit()
 {
     ZE_InitBlobStore(Platform_Alloc, &g_store, 1024, sizeof(ZRGLHandles), 0);
+    ZE_SetFatalError(Platform_Fatal);
 }
 
 ze_external void ZRGL_PrintHandles()
@@ -28,6 +29,16 @@ ze_external void ZRGL_PrintHandles()
             break;
         }
     }
+}
+
+ze_external ZRGLHandles* ZRGL_GetHandleData(i32 assetId)
+{
+    ZRGLHandles *handles = (ZRGLHandles *)g_store.GetById(assetId);
+    if (handles != NULL)
+    {
+        return handles;
+    }
+    return NULL;
 }
 
 ze_external u32 ZRGL_GetTextureHandle(i32 assetId)
@@ -57,6 +68,24 @@ ze_external u32 ZRGL_GetTextureHandle(i32 assetId)
         // return the handle for that instead
         return ZRGL_GetTextureHandle(tex->header.id);
     }
+}
+
+ze_external ZRMeshHandles* ZRGL_GetMeshHandles(i32 assetId)
+{
+    ZRGLHandles* handles = ZRGL_GetHandleData(assetId);
+    if (handles != NULL)
+    {
+        return &handles->data.meshHandles;
+    }
+    printf("Mesh %d handle not found, uploading\n", assetId);
+    handles = (ZRGLHandles*)g_store.GetFreeSlot(assetId);
+    handles->data = {};
+    ZE_ASSERT(handles != NULL, "Failed to acquire free handles in store")
+    ZRMeshAsset* asset = ZAssets_GetMeshById(assetId);
+    ZE_ASSERT(asset != NULL, "No mesh found to upload")
+    printf("upload and assign handles for mesh Id %d\n", asset->header.id);
+    ZRGL_UploadMesh(&asset->data, &handles->data.meshHandles, 0);
+    return &handles->data.meshHandles;
 }
 
 ze_external void ZRGL_UploadTexture(u8 *pixels, i32 width, i32 height, u32 *handle)
@@ -109,6 +138,16 @@ ze_external void ZRGL_UploadTexture(u8 *pixels, i32 width, i32 height, u32 *hand
     //return handle;
 }
 
+internal void PrintMeshData(ZRMeshData* data)
+{
+    printf("--- Mesh (%d/%d verts) ---\n", data->numVerts, data->maxVerts);
+    for (u32 i = 0; i < data->numVerts; ++i)
+    {
+        Vec3* v = data->GetVert(i);
+        printf("%d: %.3f, %.3f, %.3f\n", i, v->x, v->y, v->z);
+    }
+}
+
 //////////////////////////////////////////////////////
 // CREATE VAO
 // VBO data layout:
@@ -120,6 +159,7 @@ ze_external void ZRGL_UploadTexture(u8 *pixels, i32 width, i32 height, u32 *hand
 ze_external void ZRGL_UploadMesh(ZRMeshData *data, ZRMeshHandles *result, u32 flags)
 {
     ZE_ASSERT(data->numVerts <= data->maxVerts, "Bad upload - num verts > max verts\n");
+    // Platform_DebugBreak();
     u32 vaoHandle, vboHandle;
     //////////////////////////////////////////
     // Get handles
@@ -136,6 +176,9 @@ ze_external void ZRGL_UploadMesh(ZRMeshData *data, ZRMeshHandles *result, u32 fl
         vaoHandle = result->vao;
         vboHandle = result->vbo;
     }
+
+    // PrintMeshData(data);
+
     // bind vao/vbo
     glBindVertexArray(vaoHandle);
     CHECK_GL_ERR
@@ -172,6 +215,8 @@ ze_external void ZRGL_UploadMesh(ZRMeshData *data, ZRMeshHandles *result, u32 fl
     i32 instanceDataBytes = maxInstances * sizeof(M4x4);
 
     i32 totalBytes = staticBytes + instanceDataBytes;
+    // printf("Uploading mesh with %d of %d verts, %dKB\n",
+    //     data->numVerts, data->maxVerts, (totalBytes / 1024));
 
     /////////////////////////////////////////
     // upload sub-buffers and configure pointers

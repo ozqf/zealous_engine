@@ -288,6 +288,7 @@ ze_external void ZRGL_Debug_DrawWorldCubeTest()
 
         ZRGL_UploadTexture((u8*)tex->data, 64, 64, &g_diffuseTex);
     }
+    printf("Draw world cube test\n");
     /////////////////////////////////////////////////////////////
     // Clear
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

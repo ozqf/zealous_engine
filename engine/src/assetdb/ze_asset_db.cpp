@@ -48,7 +48,7 @@ internal i32 ZAssets_GetAssetIdByName(char* name)
 
 internal ZRAsset *ZAssets_FindAssetById(i32 id)
 {
-    ZRAsset* asset = (ZRAsset*)g_table->FindData(id);
+    ZRAsset *asset = (ZRAsset *)g_table->FindPointer(id);
     return asset;
 }
 
@@ -64,6 +64,7 @@ internal ZRAsset *ZAssets_FindAssetByName(char* name)
 
 ze_external ZRTexture *GetFallbackTexture()
 {
+    Platform_Fatal("Hit texture fallback");
     ZRAsset *asset = ZAssets_FindAssetByName(FALLBACK_TEXTURE_NAME);
     ZE_ASSERT(asset != NULL, "No fallback texture found");
     return (ZRTexture*)asset;
@@ -71,12 +72,14 @@ ze_external ZRTexture *GetFallbackTexture()
 
 ze_external ZRMaterial *GetFallbackMaterial()
 {
+    Platform_Fatal("Hit material fallback");
     return ZAssets_GetMaterialByName(FALLBACK_MATERIAL_NAME);
 }
 
 ze_external ZRMeshAsset *GetFallbackMesh()
 {
-    ZRAsset *asset = ZAssets_FindAssetByName(FALLBACK_MESH_NAME);
+    Platform_Fatal("Hit mesh fallback");
+    ZRAsset *asset = ZAssets_FindAssetByName(ZE_EMBEDDED_CUBE_NAME);
     ZE_ASSERT(asset != NULL, "No fallback mesh found");
     return (ZRMeshAsset*)asset;
 }
@@ -95,18 +98,28 @@ ze_external ZRTexture *ZAssets_GetTexByName(char *name)
     return ZAssets_GetTexById(id);
 }
 
-ze_external ZRMaterial* ZAssets_GetMaterialByName(char* name)
+ze_internal ZRMaterial* ZAssets_GetMaterialById(i32 id)
 {
-    i32 id = ZAssets_GetAssetIdByName(name);
     ZRAsset* asset = ZAssets_FindAssetById(id);
     if (asset == NULL) { return GetFallbackMaterial(); }
     if (asset->type != ZE_ASSET_TYPE_MATERIAL) { return GetFallbackMaterial(); }
     return (ZRMaterial*)asset;
 }
 
+ze_external ZRMaterial* ZAssets_GetMaterialByName(char* name)
+{
+    i32 id = ZAssets_GetAssetIdByName(name);
+    return ZAssets_GetMaterialById(id);
+}
+
 ze_external ZRMeshAsset* ZAssets_GetMeshById(i32 id)
 {
     ZRAsset* asset = ZAssets_FindAssetById(id);
+    if (asset == NULL)
+    {
+        printf("Mesh %d not found\n", id);
+        Platform_Fatal("Mesh not found");
+    }
     if (asset == NULL) { return GetFallbackMesh(); }
     if (asset->type != ZE_ASSET_TYPE_MESH) { return GetFallbackMesh(); }
     return (ZRMeshAsset*)asset;
@@ -115,6 +128,7 @@ ze_external ZRMeshAsset* ZAssets_GetMeshById(i32 id)
 ze_external ZRMeshAsset* ZAssets_GetMeshByName(char* name)
 {
     i32 id = ZAssets_GetAssetIdByName(name);
+    printf("Get mesh %s - id %d\n", name, id);
     return ZAssets_GetMeshById(id);
 }
 
@@ -200,6 +214,7 @@ ze_external ZRMeshAsset* ZAssets_AllocEmptyMesh(char* name, i32 maxVerts)
     mesh->header.id = id;
     mesh->header.bIsDirty = YES;
     mesh->header.type = ZE_ASSET_TYPE_MESH;
+    mesh->header.sentinel = ZE_SENTINEL;
 
     g_table->InsertPointer(id, mesh);
     
@@ -207,8 +222,8 @@ ze_external ZRMeshAsset* ZAssets_AllocEmptyMesh(char* name, i32 maxVerts)
     mesh->data.numVerts = 0;
     mesh->data.maxVerts = maxVerts;
     mesh->data.verts = (f32 *)(mem + sizeof(ZRMeshAsset));
-    mesh->data.uvs = (f32 *)(mem + sizeof(ZRMeshAsset) + numUVBytes);
-    mesh->data.normals = (f32 *)(mem + sizeof(ZRMeshAsset) + numUVBytes + numNormalBytes);
+    mesh->data.uvs = (f32 *)(mem + sizeof(ZRMeshAsset) + numVertBytes);
+    mesh->data.normals = (f32 *)(mem + sizeof(ZRMeshAsset) + numVertBytes + numUVBytes);
 
     printf("Allocated mesh %s (%d max verts) with assetId %d\n",
         name, mesh->data.maxVerts, id);

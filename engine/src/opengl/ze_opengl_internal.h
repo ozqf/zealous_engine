@@ -129,8 +129,12 @@ ze_external void ZRGL_PrintShaderCompileLog(GLuint shaderId);
 ze_external void ZRGL_UploadTexture(u8 *pixels, i32 width, i32 height, u32 *handle);
 ze_external void ZRGL_UploadMesh(ZRMeshData *data, ZRMeshHandles *result, u32 flags);
 ze_external void ZRGL_UploaderInit();
-ze_external u32 ZRGL_GetTextureHandle(i32 assetId);
 ze_external zErrorCode ZRGL_InitShaders();
+
+// handles
+ze_external u32 ZRGL_GetTextureHandle(i32 assetId);
+ze_external ZRMeshHandles *ZRGL_GetMeshHandles(i32 assetId);
+ze_external ZRGLHandles* ZRGL_GetHandleData(i32 assetId);
 
 ///////////////////////////////////////////////////////
 // Drawing

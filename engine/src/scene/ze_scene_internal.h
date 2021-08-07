@@ -15,6 +15,7 @@ scenes draw in order, lowest to highest, as isolated passes
 struct ZRScene
 {
     zeHandle id;
+    u32 flags;
     // Tightly packed list of objects
     ZEBlobStore objects;
     i32 bDebug;
@@ -28,5 +29,5 @@ struct ZRScene
 
 ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene);
 ze_external void ZScene_InitGrouping();
-;
+
 #endif // ZE_SCENE_INTERNAL_H

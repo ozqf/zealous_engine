@@ -16,6 +16,7 @@ ze_external zErrorCode ZDebug_Init_2()
         FALLBACK_CHARSET_TEXTURE_NAME)->header.id;
 
 	g_scene = ZScene_CreateScene(ZR_INTERNAL_SCENE_START_DEPTH, 16);
+	ZScene_SetFlags(g_scene, ZSCENE_FLAG_NO_DRAW);
 
 	// add an object to the scene
 	ZRDrawObj *obj1 = ZScene_AddObject(g_scene);

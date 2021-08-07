@@ -192,6 +192,7 @@ ze_external ZRTexture *ZAssets_GetTexById(i32 id);
 ze_external ZRMeshAsset *ZAssets_GetMeshByName(char *name);
 ze_external ZRMeshAsset *ZAssets_GetMeshById(i32 id);
 ze_external ZRMaterial* ZAssets_GetMaterialByName(char* name);
+ze_external ZRMaterial *ZAssets_GetMaterialById(i32 id);
 
 // asset allocation
 ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char *name);
@@ -232,6 +233,10 @@ ze_external ZRDrawObj *ZScene_AddObject(zeHandle sceneHandle);
 ze_external Transform ZScene_GetCamera(zeHandle sceneHandle);
 ze_external void ZScene_SetCamera(zeHandle sceneHandle, Transform t);
 ze_external void ZScene_SetProjection(zeHandle sceneHandle, M4x4 projection);
+ze_external void ZScene_SetFlags(zeHandle handle, u32 flags);
+ze_external u32 ZScene_GetFlags(zeHandle handle);
+
+
 
 ze_external i32 ZE_StartLoop();
 ze_external void ZE_Shutdown();

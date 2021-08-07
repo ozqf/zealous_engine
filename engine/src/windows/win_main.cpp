@@ -166,7 +166,8 @@ int CALLBACK WinMain(
 	tokenIndex = ZCFG_FindParamIndex("-l", "--log", 0);
 	if (tokenIndex != ZE_ERROR_BAD_INDEX)
 	{
-		printf("Init log file...\n");
+		// TODO - err, write logging code and err, init a log file...?
+		// printf("Init log file...\n");
 	}
 	tokenIndex =  ZCFG_FindParamIndex("--pauseonstart", "--pauseonstart", 0);
 	if (tokenIndex != ZE_ERROR_BAD_INDEX)

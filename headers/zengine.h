@@ -9,7 +9,7 @@ Zealous Engine public header
 ///////////////////////////////////////////////////////////
 // Embedded assets
 ///////////////////////////////////////////////////////////
-#define FALLBACK_MESH_NAME "cube"
+#define ZE_EMBEDDED_CUBE_NAME "cube"
 
 #define FALLBACK_MATERIAL_NAME "debug_magenta"
 
@@ -138,7 +138,12 @@ struct ZRMeshData
     f32 *uvs;
     f32 *normals;
 
-    Vec3 *GetVert(i32 i) { return (Vec3 *)(verts + (i * 3)); }
+    Vec3 *GetVert(i32 i)
+    {
+        u8* mem = (u8*)verts;
+        mem += (sizeof(Vec3) * i);
+        return (Vec3*)mem;
+    }
 
     void Clear()
     {
@@ -207,20 +212,29 @@ struct ZRMeshData
                    original.numVerts, maxVerts);
             return ZE_ERROR_NO_SPACE;
         }
+        // no need to set max verts, we assume we have the capacity for it
         numVerts = original.numVerts;
-        const i32 numVertBytes = (sizeof(f32) * 3) * numVerts;
-        const i32 numUVSBytes = (sizeof(f32) * 2) * numVerts;
+        
+        i32 numVertBytes = (sizeof(f32) * 3) * numVerts;
+        i32 numUVSBytes = (sizeof(f32) * 2) * numVerts;
         printf("Copying %d verts (%d vert bytes, %d uv bytes, %d normal bytes)\n",
                numVerts, numVertBytes, numUVSBytes, numVertBytes);
-        ZE_Copy(verts, original.verts, numVertBytes);
-        ZE_Copy(uvs, original.uvs, numUVSBytes);
-        ZE_Copy(normals, original.normals, numVertBytes);
+        // i32 numFloats = numVerts * 3;
+        // for (i32 i = 0; i < numFloats; ++i)
+        // {
+        //     this->verts[i] = original.verts[i];
+        // }
+        ZE_Copy(this->verts, original.verts, numVertBytes);
+        ZE_Copy(this->uvs, original.uvs, numUVSBytes);
+        ZE_Copy(this->normals, original.normals, numVertBytes);
+
+        // ZE_CompareMemory((u8 *)verts, (u8 *)(original.verts), );
         return ZE_ERROR_NONE;
     }
 
     void PrintVerts()
     {
-        printf("--- %d verts ---\n", numVerts);
+        printf("--- %d of %d verts ---\n", numVerts, maxVerts);
         f32 *cursor = verts;
         for (u32 i = 0; i < numVerts; ++i)
         {
@@ -420,6 +434,8 @@ struct ZEngine
 #define ZGAME_DLL_NAME "game.dll"
 #define ZGAME_BASE_DIRECTORY "base"
 #define ZGAME_LINKUP_FUNCTION_NAME "ZGameLinkUp"
+
+#define ZSCENE_FLAG_NO_DRAW (1 << 0)
 
 #define Z_GAME_WINDOWS_LINK_FUNCTION \
 extern "C" zErrorCode __declspec(dllexport) ZGameLinkUp(ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef)

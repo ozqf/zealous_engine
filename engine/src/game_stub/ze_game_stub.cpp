@@ -25,7 +25,7 @@ internal void Stub_Init()
     // find some assets to use on our objects
     i32 textureId = g_engine.assets.GetTexByName(
         FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME)->header.id;
-
+    #if 0
     // add an object to the scene
     ZRDrawObj* obj1 = g_engine.scenes.AddObject(g_gameScene);
     // configure object
@@ -34,7 +34,6 @@ internal void Stub_Init()
         "Game\nScene", textureId, COLOUR_U32_GREEN, COLOUR_U32_EMPTY, 0);
     obj1->t.pos.x = -2;
     obj1->t.scale = { scale, scale, scale };
-    g_avatarId = obj1->userTag;
 
     // add another object
     ZRDrawObj *obj2 = g_engine.scenes.AddObject(g_gameScene);
@@ -47,10 +46,15 @@ internal void Stub_Init()
     *obj3 = *obj1;
     obj3->t.pos.y = 1;
     obj3->t.scale = { scale, scale, scale };
-
+    #endif
     // add a mesh
     ZRDrawObj* cube = g_engine.scenes.AddObject(g_gameScene);
-    ZRMeshAsset* cubeMesh = g_engine.assets.GetMeshByName(FALLBACK_MESH_NAME);
+    g_avatarId = cube->userTag;
+    ZRMeshAsset* cubeMesh = g_engine.assets.GetMeshByName(ZE_EMBEDDED_CUBE_NAME);
+    printf("Game - assigning mesh Id %d to obj\n", cubeMesh->header.id);
+    Transform_SetToIdentity(&cube->t);
+    cube->t.scale = { 0.25f, 0.25f, 0.25f };
+    cube->t.pos.z = 4;
     if (cubeMesh != NULL)
     {
         cube->data.SetAsMesh(cubeMesh->header.id, 0);
