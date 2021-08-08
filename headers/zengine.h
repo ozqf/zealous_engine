@@ -78,6 +78,8 @@ struct ZSceneManager
     zeHandle (*AddScene)(i32 order, i32 capacity);
     ZRDrawObj *(*AddObject)(zeHandle scene);
     ZRDrawObj *(*GetObject)(zeHandle scene, zeHandle objectId);
+    void (*RemoveObject)(zeHandle scene, zeHandle objectId);
+
     Transform (*GetCamera)(zeHandle sceneHandle);
     void (*SetCamera)(zeHandle sceneHandle, Transform t);
     void (*SetProjection)(zeHandle sceneHandle, M4x4 projection);
@@ -108,12 +110,19 @@ struct ZAssetGen
     void (*ZGen_FillTexture)(ZRTexture *tex, ColourU32 colour);
 };
 
+struct ZSystem
+{
+    void* (*Malloc)(size_t size);
+    void (*Free)(void* ptr);
+};
+
 // engine functions provided to game
 struct ZEngine
 {
     ZSceneManager scenes;
     ZAssetManager assets;
     ZInput input;
+    ZSystem system;
     i32 sentinel;
 };
 

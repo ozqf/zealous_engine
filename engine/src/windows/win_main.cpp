@@ -194,7 +194,10 @@ int CALLBACK WinMain(
 
 	// init proper
 	Win_InitTimer();
-	ZE_Init(Win_LinkToGameDLL(gameDirectory));
+	ZSystem sys = {};
+	sys.Malloc = Platform_Alloc;
+	sys.Free = Platform_Free;
+	ZEngine_Init(sys, Win_LinkToGameDLL(gameDirectory));
 	ZWindow_Init();
 	ZE_StartLoop();
 	printf("Done!\n");

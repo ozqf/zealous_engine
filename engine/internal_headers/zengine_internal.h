@@ -166,7 +166,7 @@ ze_external void Platform_Sleep(i32 milliSeconds);
 // game module linkup
 ze_external zErrorCode ZGame_StubLinkup(
     ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
-ze_external zErrorCode ZE_Init(ZGame_LinkupFunction gameLink);
+ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunction gameLink);
 
 //////////////////////////////////
 // debug
@@ -238,7 +238,7 @@ ze_external void ZScene_SetCamera(zeHandle sceneHandle, Transform t);
 ze_external void ZScene_SetProjection(zeHandle sceneHandle, M4x4 projection);
 ze_external void ZScene_SetFlags(zeHandle handle, u32 flags);
 ze_external u32 ZScene_GetFlags(zeHandle handle);
-
+ze_external void ZScene_PostFrameTick();
 
 
 ze_external i32 ZE_StartLoop();

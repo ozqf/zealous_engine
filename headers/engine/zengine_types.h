@@ -229,17 +229,19 @@ struct ZRMeshAsset
 #define ZR_DRAWOBJ_STATUS_ASSIGNED 1
 #define ZR_DRAWOBJ_STATUS_DELETED 2
 
+struct ZRMeshObjData
+{
+    i32 meshId;
+    i32 materialId;
+    i32 billboard;
+};
+
 struct ZRDrawObjData
 {
     i32 type;
     union
     {
-        struct
-        {
-            i32 meshId;
-            i32 materialId;
-            i32 billboard;
-        } model;
+        ZRMeshObjData model;
         struct
         {
             u32 frameId;
@@ -275,6 +277,13 @@ struct ZRDrawObjData
         this->type = ZR_DRAWOBJ_TYPE_MESH;
         this->model.meshId = meshId;
         this->model.materialId = materialId;
+    }
+
+    void SetAsMeshFromData(ZRMeshObjData data)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_MESH;
+        this->model.meshId = data.meshId;
+        this->model.materialId = data.materialId;
     }
 
     void SetAsSprite(u32 spriteFrameId)
@@ -324,7 +333,7 @@ struct ZRDrawObj
     // For interpolation
     Vec3 prevPos;
     // a user Id to tag the object. not used in rasterisation
-    zeHandle userTag;
+    zeHandle id;
     // hash of data union, used to identify objects which are
     // similar and could be batched
     u32 hash;

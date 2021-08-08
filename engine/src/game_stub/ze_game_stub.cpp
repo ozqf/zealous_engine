@@ -71,7 +71,7 @@ internal void Stub_Init()
     ZRMaterial *cubeMat = g_engine.assets.GetMaterialByName(FALLBACK_CHEQUER_MATERIAL);
     ZRDrawObj *cube = g_engine.scenes.AddObject(g_gameScene);
     cube->data.SetAsMesh(cubeMesh->header.id, cubeMat->header.id);
-    g_avatarId = cube->userTag;
+    g_avatarId = cube->id;
 
     // printf("Game - assigning mesh Id %d to obj\n", cubeMesh->header.id);
     Transform_SetToIdentity(&cube->t);

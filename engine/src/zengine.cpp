@@ -52,9 +52,10 @@ internal void ZE_LinkToGame(ZGame_LinkupFunction gameLink)
 	}
 }
 
-ze_external zErrorCode ZE_Init(ZGame_LinkupFunction gameLink)
+ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunction gameLink)
 {
 	// step 1 - grab everyone's export functions
+	g_engine.system = systemFunctions;
 	g_engine.assets = ZAssets_RegisterFunctions();
 	g_engine.scenes = ZScene_RegisterFunctions();
 	g_engine.input = ZInput_RegisterFunctions();
@@ -111,6 +112,7 @@ ze_external i32 ZE_StartLoop()
 		{
 			g_game.Tick(info);
 		}
+		ZScene_PostFrameTick();
 		ZScene_Draw();
 	}
 	return 0;

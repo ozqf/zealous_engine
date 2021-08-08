@@ -91,9 +91,16 @@ ze_external ZRDrawObj* ZScene_AddObject(zeHandle sceneHandle)
     if (obj == NULL) { return NULL; }
     *obj = {};
     Transform_SetToIdentity(&obj->t);
-    obj->userTag = scene->nextId;
+    obj->id = scene->nextId;
     scene->nextId += 1;
     return obj;
+}
+
+internal void ZScene_RemoveObject(zeHandle sceneHandle, zeHandle objectId)
+{
+    ZRScene* scene = GetSceneByHandle(sceneHandle);
+    if (scene == NULL) { return; }
+    scene->objects.MarkForRemoval(objectId);
 }
 
 internal ZRDrawObj* ZScene_GetObjectById(zeHandle sceneHandle, zeHandle objectId)
@@ -136,6 +143,18 @@ ze_external void ZScene_Draw()
     #endif
 }
 
+ze_external void ZScene_PostFrameTick()
+{
+    i32 len = g_scenes->m_maxKeys;
+    for (i32 i = 0; i < len; ++i)
+    {
+        ZEHashTableKey* key = &g_scenes->m_keys[i];
+        if (key->id == 0) { continue; }
+        ZRScene* scene = (ZRScene*)key->data.ptr;
+        scene->objects.Truncate();
+    }
+}
+
 ze_external ZSceneManager ZScene_RegisterFunctions()
 {
     g_scenes = ZE_HashTable_Create(Platform_Alloc, MAX_SCENES, NULL);
@@ -148,6 +167,7 @@ ze_external ZSceneManager ZScene_RegisterFunctions()
     result.AddScene = ZScene_CreateScene;
     result.GetCamera = ZScene_GetCamera;
     result.GetObject = ZScene_GetObjectById;
+    result.RemoveObject = ZScene_RemoveObject;
     result.SetCamera = ZScene_SetCamera;
     result.SetProjection = ZScene_SetProjection;
     return result;
