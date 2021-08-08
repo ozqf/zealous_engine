@@ -62,9 +62,9 @@ ze_external zErrorCode ZEmbedded_Init()
 		ZE_EMBEDDED_CUBE_NAME, g_meshCube.numVerts, g_meshCube.maxVerts);
 	ZRMeshAsset *asset = ZAssets_AllocEmptyMesh(ZE_EMBEDDED_CUBE_NAME, mesh.numVerts);
 	asset->data.CopyData(mesh);
-	printf("Copied:\n");
-	g_meshCube.PrintVerts();
-	printf("to:\n");
-	asset->data.PrintVerts();
+	// printf("Copied:\n");
+	// g_meshCube.PrintVerts();
+	// printf("to:\n");
+	// asset->data.PrintVerts();
 	return ZE_ERROR_NONE;
 }

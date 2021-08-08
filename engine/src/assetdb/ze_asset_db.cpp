@@ -8,16 +8,6 @@
 
 ze_internal ZEHashTable* g_table;
 
-/////////////////////////////////////////////////////////////
-// internal data types
-/*struct ZEAssetHeader
-{
-    i32 id;
-    i32 type;
-    void* mem;
-    i32 size;
-};*/
-
 ze_external zErrorCode ZAssets_Init()
 {
     g_table = ZE_HashTable_Create(Platform_Alloc, 2048, NULL);
@@ -65,23 +55,26 @@ internal ZRAsset *ZAssets_FindAssetByName(char* name)
 ze_external ZRTexture *GetFallbackTexture()
 {
     Platform_Fatal("Hit texture fallback");
-    ZRAsset *asset = ZAssets_FindAssetByName(FALLBACK_TEXTURE_NAME);
-    ZE_ASSERT(asset != NULL, "No fallback texture found");
-    return (ZRTexture*)asset;
+    return NULL;
+    // ZRAsset *asset = ZAssets_FindAssetByName(FALLBACK_TEXTURE_NAME);
+    // ZE_ASSERT(asset != NULL, "No fallback texture found");
+    // return (ZRTexture*)asset;
 }
 
 ze_external ZRMaterial *GetFallbackMaterial()
 {
     Platform_Fatal("Hit material fallback");
-    return ZAssets_GetMaterialByName(FALLBACK_MATERIAL_NAME);
+    return NULL;
+    // return ZAssets_GetMaterialByName(FALLBACK_MATERIAL_NAME);
 }
 
 ze_external ZRMeshAsset *GetFallbackMesh()
 {
     Platform_Fatal("Hit mesh fallback");
-    ZRAsset *asset = ZAssets_FindAssetByName(ZE_EMBEDDED_CUBE_NAME);
-    ZE_ASSERT(asset != NULL, "No fallback mesh found");
-    return (ZRMeshAsset*)asset;
+    return NULL;
+    // ZRAsset *asset = ZAssets_FindAssetByName(ZE_EMBEDDED_CUBE_NAME);
+    // ZE_ASSERT(asset != NULL, "No fallback mesh found");
+    // return (ZRMeshAsset*)asset;
 }
 
 ze_external ZRTexture *ZAssets_GetTexById(i32 id)

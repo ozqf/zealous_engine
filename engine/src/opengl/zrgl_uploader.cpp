@@ -43,24 +43,35 @@ ze_external ZRGLHandles* ZRGL_GetHandleData(i32 assetId)
 
 ze_external u32 ZRGL_GetTextureHandle(i32 assetId)
 {
+    i32 bUpload = NO;
+    ZRTexture* tex = ZAssets_GetTexById(assetId);
+    if (tex->header.bIsDirty)
+    {
+        bUpload = YES;
+    }
     ZRGLHandles* handles = (ZRGLHandles*)g_store.GetById(assetId);
-    if (handles != NULL)
+    if (handles != NULL && bUpload == NO)
     {
         return handles->data.textureHandle;
     }
-    // we have no handle for this asset - find and upload it
-    printf("Texture %d handle not found, uploading\n", assetId);
-    ZRTexture *tex = ZAssets_GetTexById(assetId);
+
+    // we have no handle for this asset or the asset is dirty
     if (tex->header.id == assetId)
     {
         // we need to upload this mesh and add a handle entry
-        ZRGLHandles *newRecord = (ZRGLHandles *)g_store.GetFreeSlot(assetId);
-        *newRecord = {};
-        newRecord->assetId = assetId;
-        newRecord->assetType = ZE_ASSET_TYPE_TEXTURE;
+        if (handles == NULL)
+        {
+            handles = (ZRGLHandles *)g_store.GetFreeSlot(assetId);
+            *handles = {};
+            handles->assetId = assetId;
+            handles->assetType = ZE_ASSET_TYPE_TEXTURE;
+        }
+        // ZRGLHandles *newRecord = (ZRGLHandles *)g_store.GetFreeSlot(assetId);
+        tex->header.bIsDirty = NO;
+        // printf("Upload tex %d\n", assetId);
         ZRGL_UploadTexture(
-            (u8 *)tex->data, tex->width, tex->height, &newRecord->data.textureHandle);
-        return newRecord->data.textureHandle;
+            (u8 *)tex->data, tex->width, tex->height, &handles->data.textureHandle);
+        return handles->data.textureHandle;
     }
     else
     {
