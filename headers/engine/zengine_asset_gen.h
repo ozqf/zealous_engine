@@ -1,11 +1,9 @@
-/*
-Provides functions for creating/modifying assets
-programmatically
-*/
-#if 0
-#include "../../internal_headers/zengine_internal.h"
+#ifndef ZENGINE_ASSET_GEN_H
+#define ZENGINE_ASSET_GEN_H
 
-ze_external i32 TexGen_DecodeBW(
+#include "../zengine.h"
+
+inline i32 TexGen_DecodeBW(
     u8 *source,
     const i32 sourceSize,
     ColourU32 *target,
@@ -36,7 +34,7 @@ ze_external i32 TexGen_DecodeBW(
 //////////////////////////////////////////////////////
 // geometry
 //////////////////////////////////////////////////////
-ze_external void ZGen_AddSriteGeoXY(
+inline void ZGen_AddSriteGeoXY(
     ZRMeshData* meshData, Vec3 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax)
 {
     meshData->AddVert({pos.x + -size.x, pos.y + -size.y, pos.z}, {uvMin.x, uvMin.y}, {0, 0, -1});
@@ -51,7 +49,7 @@ ze_external void ZGen_AddSriteGeoXY(
 //////////////////////////////////////////////////////
 // textures
 //////////////////////////////////////////////////////
-ze_external void ZGen_SetPixel(
+inline void ZGen_SetPixel(
     ZRTexture* tex, ColourU32 colour, i32 x, i32 y)
 {
     if (tex == NULL) { return; }
@@ -65,7 +63,7 @@ ze_external void ZGen_SetPixel(
     pixels[i] = colour;
 }
 
-ze_external void ZGen_DrawLine(
+inline void ZGen_DrawLine(
     ZRTexture *tex, ColourU32 colour, Point2 a, Point2 b)
 {
     if (tex == NULL) { return; }
@@ -74,7 +72,7 @@ ze_external void ZGen_DrawLine(
     i32 h = tex->height;
 }
 
-ze_external void ZGen_FillTextureRect(
+inline void ZGen_FillTextureRect(
     ZRTexture *tex, ColourU32 colour, Point2 topLeft, Point2 size)
 {
     if (tex == NULL) { return; }
@@ -103,7 +101,7 @@ ze_external void ZGen_FillTextureRect(
     }
 }
 
-ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour)
+inline void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour)
 {
     if (tex == NULL) { return; }
     ColourU32 *pixels = tex->data;
@@ -117,15 +115,4 @@ ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour)
     }
 }
 
-ze_external void ZGen_Init()
-{
-
-}
-
-ze_external ZAssetGen ZGen_RegisterFunctions(ZEngine engine)
-{
-    ZAssetGen result = {};
-    result.ZGen_FillTexture = ZGen_FillTexture;
-    return result;
-}
-#endif
+#endif // ZENGINE_ASSET_GEN_H

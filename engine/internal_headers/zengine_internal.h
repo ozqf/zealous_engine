@@ -197,6 +197,8 @@ ze_external ZRMaterial *ZAssets_GetMaterialById(i32 id);
 // asset allocation
 ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char *name);
 ze_external ZRMeshAsset *ZAssets_AllocEmptyMesh(char *name, i32 maxVerts);
+ze_external ZRMaterial *ZAssets_BuildMaterial(
+    char *name, char *diffuseName, char *emissionName);
 
 ze_external zErrorCode ZAssets_Init();
 ze_external ZAssetManager ZAssets_RegisterFunctions();
@@ -206,6 +208,7 @@ ze_external zErrorCode ZEmbedded_Init();
 
 //////////////////////////////////
 // asset creation
+/*
 ze_external void ZGen_Init();
 ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour);
 ze_external void ZGen_SetPixel(
@@ -222,7 +225,7 @@ ze_external i32 TexGen_DecodeBW(
     const i32 h,
     ColourU32 solid,
     ColourU32 empty);
-
+*/
 //////////////////////////////////
 // scene manager
 ze_external ZSceneManager ZScene_RegisterFunctions();

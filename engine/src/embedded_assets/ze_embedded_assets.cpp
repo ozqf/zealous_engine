@@ -18,14 +18,14 @@ ze_external zErrorCode ZEmbedded_Init()
 	ZGen_FillTexture(tex, { 255, 0, 255, 255 });
 
 	ZRMaterial* mat;
-	mat = GetEngine().assets.BuildMaterial(FALLBACK_MATERIAL_NAME, FALLBACK_TEXTURE_NAME, NULL);
+	mat = ZAssets_BuildMaterial(FALLBACK_MATERIAL_NAME, FALLBACK_TEXTURE_NAME, NULL);
 
 	tex = ZAssets_AllocTex(64, 64, "chequer_texture");
 	ZGen_FillTexture(tex, { 50, 50, 50, 255 });
 	ZGen_FillTextureRect(tex, {100, 100, 100, 255}, {0, 0}, {32, 32});
 	ZGen_FillTextureRect(tex, {100, 100, 100, 255}, {32, 32}, {32, 32});
 
-	GetEngine().assets.BuildMaterial(FALLBACK_CHEQUER_MATERIAL, "chequer_texture", NULL);
+	ZAssets_BuildMaterial(FALLBACK_CHEQUER_MATERIAL, "chequer_texture", NULL);
 
 	// embedded black and white charset
 	tex = ZAssets_AllocTex(bw_charset_width, bw_charset_height, FALLBACK_CHARSET_TEXTURE_NAME);

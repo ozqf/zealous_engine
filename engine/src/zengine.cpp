@@ -62,7 +62,7 @@ ze_external zErrorCode ZE_Init(ZGame_LinkupFunction gameLink)
 	// step 2 - initialise now that game struct is ready
 	ZDebug_Init_1();
 	ZAssets_Init();
-	ZGen_Init();
+	// ZGen_Init();
 	ZEmbedded_Init();
 
 	// step 3 - further init that requires services to be running
