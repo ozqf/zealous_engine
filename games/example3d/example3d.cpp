@@ -30,6 +30,7 @@ struct Entity
     f32 tick;
     Transform t;
     Vec3 velocity;
+    AABB aabb;
     zeHandle drawObj;
     EntityTick* tickFunction;
 };
@@ -91,6 +92,8 @@ internal void TickPlayer(Entity* ent, f32 delta)
     ent->t.pos.y += moveDir.y;
     ent->t.pos.z += moveDir.z;
 
+    ent->t.pos = ZE_BoundaryPointCheck(&g_arenaBounds, ent->t.pos);
+
     ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, ent->drawObj);
     obj->t.pos = ent->t.pos;
     obj->t.rotation = ent->t.rotation;
@@ -135,6 +138,12 @@ internal void TickProjectile(Entity* ent, f32 delta)
     ent->t.pos.x += ent->velocity.x * delta;
     ent->t.pos.y += ent->velocity.y * delta;
     ent->t.pos.z += ent->velocity.z * delta;
+    if (ZE_Vec3VsAABB(ent->t.pos, &g_arenaBounds) == NO)
+    {
+        g_entities.MarkForRemoval(ent->id);
+        g_engine.scenes.RemoveObject(g_gameScene, ent->drawObj);
+        return;
+    }
 
     ZRDrawObj *drawObj = g_engine.scenes.GetObject(g_gameScene, ent->drawObj);
     drawObj->t = ent->t;
@@ -265,7 +274,7 @@ internal void Init()
     // create render object for player
     ZRDrawObj *avatar = g_engine.scenes.AddObject(g_gameScene);
     avatar->data.SetAsMeshFromData(g_playerMeshObjData);
-    avatar->t.scale = {1.5f, 0.5f, 0.5f};
+    avatar->t.scale = {0.5f, 0.5f, 0.5f};
     // link render object to entity
     player->drawObj = avatar->id;
     printf("Create player ent %d with draw obj %d\n", player->id, player->drawObj);
@@ -277,8 +286,8 @@ internal void Init()
     f32 arenaHeight = 8;
     f32 arenaHalfWidth = arenaWidth / 2;
     f32 arenaHalfHeight = arenaHeight / 2;
-    g_arenaBounds.min = { -(arenaWidth / 2), -(arenaHeight / 2) };
-    g_arenaBounds.max = { (arenaWidth / 2), (arenaHeight / 2) };
+    g_arenaBounds.min = { -(arenaWidth / 2), -(arenaHeight / 2), -(arenaHeight / 2) };
+    g_arenaBounds.max = { (arenaWidth / 2), (arenaHeight / 2), (arenaHeight / 2) };
 
     // floor
     tex = g_engine.assets.AllocTexture(64, 64, "arena_floor");
@@ -331,7 +340,7 @@ internal void Tick(ZEFrameTimeInfo timing)
     ZRTexture* tex = g_engine.assets.GetTexByName("arena_floor");
     f32 sinValue = sinf(g_time);
     if (sinValue < 0) { sinValue = -sinValue; }
-    u8 lerpColour = (u8)ZE_LerpF32(20, 100, sinValue);
+    u8 lerpColour = (u8)ZE_LerpF32(10, 50, sinValue);
     ZGen_FillTexture(tex, { 0, lerpColour, 0, 255});
     tex->header.bIsDirty = YES;
 

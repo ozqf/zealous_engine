@@ -130,10 +130,23 @@ inline Vec4 ZE_Vec3ToVec4(Vec3 v3, f32 w)
 	return {v3.x, v3.y, v3.z, w};
 }
 
+struct AABB2d
+{
+	Vec2 min;
+	Vec2 max;
+
+	f32 CentreX() { return min.x + ((max.x - min.x) / 2.f); }
+	f32 CentreY() { return min.y + ((max.y - min.y) / 2.f); }
+};
+
 struct AABB
 {
 	Vec3 min;
 	Vec3 max;
+
+	f32 CentreX() { return min.x + ((max.x - min.x) / 2.f); }
+	f32 CentreY() { return min.y + ((max.y - min.y) / 2.f); }
+	f32 CentreZ() { return min.z + ((max.z - min.z) / 2.f); }
 };
 
 /////////////////////////////////////////////////////////////////////////////
