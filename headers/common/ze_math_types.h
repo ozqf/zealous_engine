@@ -130,24 +130,33 @@ inline Vec4 ZE_Vec3ToVec4(Vec3 v3, f32 w)
 	return {v3.x, v3.y, v3.z, w};
 }
 
-struct AABB2d
-{
-	Vec2 min;
-	Vec2 max;
-
-	f32 CentreX() { return min.x + ((max.x - min.x) / 2.f); }
-	f32 CentreY() { return min.y + ((max.y - min.y) / 2.f); }
-};
-
 struct AABB
 {
 	Vec3 min;
 	Vec3 max;
 
+	f32 Width() { return max.x - min.x; }
+	f32 Height() { return max.y - min.y; }
+	f32 Breadth() { return max.z - min.z; }
+
+	f32 HalfWidth() { return (max.x - min.x) / 2.f; }
+	f32 HalfHeight() { return (max.y - min.y) / 2.f; }
+	f32 HalfBreadth() { return (max.z - min.z) / 2.f; }
+	
 	f32 CentreX() { return min.x + ((max.x - min.x) / 2.f); }
 	f32 CentreY() { return min.y + ((max.y - min.y) / 2.f); }
 	f32 CentreZ() { return min.z + ((max.z - min.z) / 2.f); }
 };
+
+inline Vec3 AABB_RandomInside(AABB aabb, f32 seedX, f32 seedY, f32 seedZ)
+{
+	return
+	{
+		aabb.min.x + aabb.Width() * seedX,
+		aabb.min.y + aabb.Height() * seedY,
+		aabb.min.z + aabb.Breadth() * seedZ
+	};
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // MATRIX 3x3

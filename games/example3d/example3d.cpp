@@ -1,5 +1,8 @@
 #include "../../headers/zengine.h"
 
+// for rand()
+#include <stdlib.h>
+
 #define MOVE_LEFT "move_left"
 #define MOVE_RIGHT "move_right"
 #define MOVE_UP "move_up"
@@ -15,8 +18,9 @@
 
 #define ENT_TYPE_NONE 0
 #define ENT_TYPE_PLAYER 1
-#define ENT_TYPE_PLAYER_PROJECTION 2
-#define ENT_TYPE_PROJECTILE 2
+#define ENT_TYPE_PLAYER_PROJECTILE 2
+#define ENT_TYPE_ENEMY 3
+#define ENT_TYPE_SPAWNER 4
 
 struct Entity;
 
@@ -50,15 +54,82 @@ internal ZRMeshObjData g_wallMeshObjData;
 internal ZRMeshObjData g_projMeshObjData;
 internal ZRMeshObjData g_enemyMeshObjData;
 
-internal void PlayerShoot(Vec3 pos, Vec3 dir);
+internal Entity* CreateEntity(i32 entType);
+internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir);
+internal Entity* CreateEnemy(Vec3 pos, f32 yaw);
 
-internal Entity* CreateEntity()
+internal void TickPlayer(Entity* ent, f32 delta);
+internal void TickProjectile(Entity *ent, f32 delta);
+internal void TickEnemy(Entity* ent, f32 delta);
+
+internal Entity* CreateEntity(i32 entType)
 {
     i32 newId = g_nextEntId++;
     Entity *ent = (Entity *)g_entities.GetFreeSlot(newId);
+    *ent = {};
+    ent->type = entType;
     ent->id = newId;
     Transform_SetToIdentity(&ent->t);
     return ent;
+}
+
+internal void AttachModelToEntity(Entity* ent, ZRMeshObjData meshData, Vec3 scale)
+{
+    ZRDrawObj *drawObj = g_engine.scenes.AddObject(g_gameScene);
+    drawObj->data.SetAsMeshFromData(meshData);
+    drawObj->t.pos = ent->t.pos;
+    if (Vec3_MagnitudeSqr(&scale) == 0)
+    {
+        drawObj->t.scale = ent->t.scale;
+    }
+    else
+    {
+        drawObj->t.scale = scale;
+    }
+    ent->drawObj = drawObj->id;
+}
+
+internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir)
+{
+    Entity *ent = CreateEntity(ENT_TYPE_PLAYER_PROJECTILE);
+    ent->tickFunction = TickProjectile;
+    Vec3_SetMagnitude(&dir, 10);
+    ent->t.pos = pos;
+    ent->velocity = dir;
+    ent->t.scale = {0.2f, 0.2f, 0.2f};
+    ent->tick = 0;
+    AttachModelToEntity(ent, g_projMeshObjData, { 0.2f, 0.2f, 0.2f });
+    return ent;
+}
+
+internal Entity* CreatePlayer(Vec3 pos, f32 yaw)
+{
+    Entity* ent = CreateEntity(ENT_TYPE_PLAYER);
+    ent->t.pos = pos;
+    ent->tickFunction = TickPlayer;
+    ent->t.scale = { 0.5f, 0.5f, 0.5f };
+    AttachModelToEntity(ent, g_playerMeshObjData, ent->t.scale);
+    return ent;
+}
+
+internal Entity* CreateEnemy(Vec3 pos, f32 yaw)
+{
+    Entity* ent = CreateEntity(ENT_TYPE_ENEMY);
+    ent->tickFunction = TickEnemy;
+    ent->t.pos = pos;
+    ent->t.scale = { 0.5f, 0.5f, 0.5f };
+    AttachModelToEntity(ent, g_enemyMeshObjData, {});
+    return ent;
+}
+
+internal i32 TouchEntities(Entity* a, Entity* b)
+{
+    return 0;
+}
+
+internal void TickEnemy(Entity* ent, f32 delta)
+{
+    ent->t.pos = ZE_BoundaryPointCheck(ent->t.pos, &g_arenaBounds);
 }
 
 internal void TickPlayer(Entity* ent, f32 delta)
@@ -92,7 +163,7 @@ internal void TickPlayer(Entity* ent, f32 delta)
     ent->t.pos.y += moveDir.y;
     ent->t.pos.z += moveDir.z;
 
-    ent->t.pos = ZE_BoundaryPointCheck(&g_arenaBounds, ent->t.pos);
+    ent->t.pos = ZE_BoundaryPointCheck(ent->t.pos, &g_arenaBounds);
 
     ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, ent->drawObj);
     obj->t.pos = ent->t.pos;
@@ -129,7 +200,7 @@ internal void TickPlayer(Entity* ent, f32 delta)
     {
         ent->tick = 0.1f;
         Vec3_Normalise(&shootDir);
-        PlayerShoot(ent->t.pos, shootDir);
+        CreatePlayerProjectile(ent->t.pos, shootDir);
     }
 }
 
@@ -155,22 +226,9 @@ internal void TickProjectile(Entity* ent, f32 delta)
     }
 }
 
-internal void PlayerShoot(Vec3 pos, Vec3 dir)
-{
-    Entity* ent = CreateEntity();
-    ent->tickFunction = TickProjectile;
-    Vec3_SetMagnitude(&dir, 10);
-    ent->t.pos = pos;
-    ent->velocity = dir;
-    ent->t.scale = { 0.2f, 0.2f, 0.2f };
-    ent->tick = 0;
-
-    ZRDrawObj* drawObj = g_engine.scenes.AddObject(g_gameScene);
-    drawObj->data.SetAsMeshFromData(g_projMeshObjData);
-    drawObj->t.pos = pos;
-    ent->drawObj = drawObj->id;
-    // printf("Create player ent %d with draw obj %d\n", player->id, player->drawObj);
-}
+//////////////////////////////////////////////////////////////
+// Init
+//////////////////////////////////////////////////////////////
 
 internal void Init()
 {
@@ -184,6 +242,8 @@ internal void Init()
     g_engine.input.AddAction(Z_INPUT_CODE_RIGHT, Z_INPUT_CODE_NULL, "shoot_right");
     g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, "shoot_up");
     g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, "shoot_down");
+
+    g_engine.input.AddAction(Z_INPUT_CODE_R, Z_INPUT_CODE_NULL, "debug_spawn");
 
     //////////////////////////////////////////////////////////////
     // Create draw scene
@@ -259,26 +319,8 @@ internal void Init()
     //////////////////////////////////////////////////////////////
     // Create player avatar
     //////////////////////////////////////////////////////////////
-
-    // create an entity
-    i32 newId = g_nextEntId++;
-    // Entity* player = (Entity*)g_entities.GetFreeSlot(newId);
-    // player->id = newId;
-    // g_avatarId = newId;
-    Entity *player = CreateEntity();
-    Transform_SetToIdentity(&player->t);
-    player->tickFunction = TickPlayer;
-    player->t.pos.z = -2.f;
-    player->t.scale = {0.5f, 0.5f, 0.5f};
-
-    // create render object for player
-    ZRDrawObj *avatar = g_engine.scenes.AddObject(g_gameScene);
-    avatar->data.SetAsMeshFromData(g_playerMeshObjData);
-    avatar->t.scale = {0.5f, 0.5f, 0.5f};
-    // link render object to entity
-    player->drawObj = avatar->id;
-    printf("Create player ent %d with draw obj %d\n", player->id, player->drawObj);
-
+    CreatePlayer({ 0, 0, -2 }, 0);
+    
     //////////////////////////////////////////////////////////////
     // create arena
     //////////////////////////////////////////////////////////////
@@ -303,35 +345,31 @@ internal void Init()
     // left wall
     obj = g_engine.scenes.AddObject(g_gameScene);
     obj->data.SetAsMeshFromData(g_wallMeshObjData);
-    // obj->data.SetAsMesh(cubeMesh->header.id, mat->header.id);
     obj->t.scale = {wallWidth, wallWidth, arenaHeight};
     obj->t.pos = {-arenaHalfWidth, 0, 0};
 
     // right wall
     obj = g_engine.scenes.AddObject(g_gameScene);
     obj->data.SetAsMeshFromData(g_wallMeshObjData);
-    // obj->data.SetAsMesh(cubeMesh->header.id, mat->header.id);
     obj->t.scale = {wallWidth, wallWidth, arenaHeight};
     obj->t.pos = {arenaHalfWidth, 0, 0};
     
     // far wall
     obj = g_engine.scenes.AddObject(g_gameScene);
     obj->data.SetAsMeshFromData(g_wallMeshObjData);
-    // obj->data.SetAsMesh(cubeMesh->header.id, mat->header.id);
     obj->t.scale = {arenaWidth, wallWidth, wallWidth};
     obj->t.pos = {0, 0, -arenaHalfHeight};
 
     // near wall
     obj = g_engine.scenes.AddObject(g_gameScene);
     obj->data.SetAsMeshFromData(g_wallMeshObjData);
-    // obj->data.SetAsMesh(cubeMesh->header.id, mat->header.id);
     obj->t.scale = {arenaWidth, wallWidth, wallWidth};
     obj->t.pos = {0, 0, arenaHalfHeight};
 }
 
 internal void Shutdown()
 {
-
+    
 }
 
 internal void Tick(ZEFrameTimeInfo timing)
@@ -343,6 +381,18 @@ internal void Tick(ZEFrameTimeInfo timing)
     u8 lerpColour = (u8)ZE_LerpF32(10, 50, sinValue);
     ZGen_FillTexture(tex, { 0, lerpColour, 0, 255});
     tex->header.bIsDirty = YES;
+
+    if (g_engine.input.GetActionValue("debug_spawn"))
+    {
+        // g_arenaBounds
+        f32 rX = (f32)rand() / RAND_MAX;
+        // f32 rY = (f32)rand() / RAND_MAX;
+        f32 rZ = (f32)rand() / RAND_MAX;
+        Vec3 p = AABB_RandomInside(g_arenaBounds, rX, 0.5f, rZ);
+        printf("Random: %.3f, %.3f, %.3f\n",
+            p.x, p.y, p.z);
+        CreateEnemy(p, 0);
+    }
 
     f32 delta = (f32)timing.interval;
     for (i32 i = 0; i < g_entities.m_array->m_numBlobs; ++i)

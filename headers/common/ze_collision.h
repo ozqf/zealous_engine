@@ -81,7 +81,7 @@ internal void ZE_SimpleBoundaryBounce1D(f32 *pos, f32 *vel, f32 min, f32 max)
     }
 }
 
-internal Vec3 ZE_BoundaryPointCheck(AABB* aabb, Vec3 pos)
+internal Vec3 ZE_BoundaryPointCheck(Vec3 pos, AABB *aabb)
 {
     if (pos.x < aabb->min.x) { pos.x = aabb->min.x; }
     if (pos.y < aabb->min.y) { pos.y = aabb->min.y; }
