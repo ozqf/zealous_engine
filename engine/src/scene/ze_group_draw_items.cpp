@@ -73,6 +73,8 @@ ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
             break;
         }
     }
+    BUF_BLOCK_BEGIN_STRUCT(meshCmd, ZRDrawCmdDebugLines, buf, ZR_DRAW_CMD_DEBUG_LINES)
+    
 }
 
 ze_external void ZScene_InitGrouping()

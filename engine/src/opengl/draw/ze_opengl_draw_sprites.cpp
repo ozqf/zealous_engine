@@ -1,4 +1,4 @@
-#include "ze_opengl_internal.h"
+#include "../ze_opengl_internal.h"
 
 //////////////////////////////////////////////////
 // fallback_vert.glsl

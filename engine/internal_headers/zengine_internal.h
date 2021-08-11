@@ -38,6 +38,7 @@ Zealous Engine internal header
 #define ZR_DRAW_CMD_SET_CAMERA 1
 #define ZR_DRAW_CMD_SPRITE_BATCH 2
 #define ZR_DRAW_CMD_MESH 3
+#define ZR_DRAW_CMD_DEBUG_LINES 4
 
 struct ZRDrawCmdSetCamera
 {
@@ -50,6 +51,25 @@ struct ZRDrawCmdMesh
 {
     BufferBlock header;
     ZRDrawObj obj;
+};
+
+struct ZRLineVertex
+{
+	Vec3 pos;
+	Vec3 colour;
+	f32 thickness;
+};
+
+struct ZRDrawCmdDebugLines
+{
+	BufferBlock header;
+	// if lines are chained, lines will be drawn between verts
+	// otherwise, lines will be drawn independently between vertex pairs
+	// chained: a->b->c->d->e
+	// unchained: a->b c->d (e has no pair and is ignored)
+	i32 bChained;
+	i32 numVerts;
+	ZRLineVertex* verts;
 };
 
 struct ZRSpriteBatchItem

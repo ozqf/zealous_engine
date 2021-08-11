@@ -142,6 +142,7 @@ ze_external ZRGLHandles* ZRGL_GetHandleData(i32 assetId);
 ze_external void ZRDraw_SpriteBatch(
     ZRDrawCmdSpriteBatch *batch, M4x4 *view, M4x4 *projection);
 ze_external void ZRGL_DrawMesh(ZRDrawCmdMesh* meshCmd, M4x4* view, M4x4* projection);
+ze_external void ZRGL_DrawDebugLines(ZRDrawCmdDebugLines* cmd, M4x4* view, M4x4* projection);
 
 ///////////////////////////////////////////////////////
 // Debug

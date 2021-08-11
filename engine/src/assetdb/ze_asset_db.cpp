@@ -121,7 +121,7 @@ ze_external ZRMeshAsset* ZAssets_GetMeshById(i32 id)
 ze_external ZRMeshAsset* ZAssets_GetMeshByName(char* name)
 {
     i32 id = ZAssets_GetAssetIdByName(name);
-    printf("Get mesh %s - id %d\n", name, id);
+    // printf("Get mesh %s - id %d\n", name, id);
     return ZAssets_GetMeshById(id);
 }
 

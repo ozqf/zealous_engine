@@ -130,6 +130,12 @@ ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
                 ZRGL_DrawMesh(mesh, &view, &projection);
             }
             break;
+			case ZR_DRAW_CMD_DEBUG_LINES:
+			{
+				ZE_CAST_PTR(header, ZRDrawCmdDebugLines, lines);
+				ZRGL_DrawDebugLines(lines, &view, &projection);
+			}
+			break;
             case ZR_DRAW_CMD_SET_CAMERA:
             {
                 ZRDrawCmdSetCamera *cmd = (ZRDrawCmdSetCamera *)header;

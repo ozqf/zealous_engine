@@ -1,4 +1,4 @@
-#include "ze_opengl_internal.h"
+#include "../ze_opengl_internal.h"
 
 internal i32 g_initialised = NO;
 internal ZRShader g_shader = {};
