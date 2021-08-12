@@ -114,6 +114,19 @@ ze_external void ZR_ClearFrame(ColourF32 colour)
     CHECK_GL_ERR
 }
 
+ze_external void ZR_Screenshot(char *fileName)
+{
+    ZScreenInfo info = Window_GetInfo();
+    // 3 bytes for RGB
+    i32 numBytes = info.width * info.height * 3;
+    u8* pixels = (u8*)Platform_Alloc(numBytes);
+    printf("ZR Screenshot - read %d %d pixels, Allocated %dKB\n", info.width, info.height, (numBytes / 1024));
+    glReadPixels(0, 0, info.width, info.height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+    CHECK_GL_ERR
+    ZAssets_SaveImage(fileName, info.width, info.height, pixels);
+    Platform_Free(pixels);
+}
+
 ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
 {
     ZE_PRINTF("ZRGL - exec %dKB of commands\n", commandBuffer->Written() / 1024);

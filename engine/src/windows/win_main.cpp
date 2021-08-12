@@ -1,5 +1,7 @@
 #include "ze_windows.h"
 
+#include <userenv.h> // for SHGetFolderPath constants
+
 internal int g_bConsoleInit = FALSE;
 internal HWND consoleHandle;
 internal HMODULE g_appDLL;
@@ -18,6 +20,11 @@ extern char** __argv;
 ze_external void *Platform_Alloc(size_t size)
 {
 	return malloc(size);
+}
+
+ze_external void *Platform_Realloc(void* ptr, size_t size)
+{
+	return realloc(ptr, size);
 }
 
 ze_external void Platform_Free(void *ptr)
@@ -191,6 +198,15 @@ int CALLBACK WinMain(
 		printf("No custom game directory specified\n");
 		gameDirectory = ZGAME_BASE_DIRECTORY;
 	}
+	
+	// find 'known' folder for local storage
+	/*
+	// need to acquire a token for this to work it seems
+	CHAR path[MAX_PATH];
+	DWORD size = MAX_PATH;
+	GetUserProfileDirectoryA(token_here, path, &size);
+	printf("User folder: %s\n", path);
+	*/
 
 	// init proper
 	Win_InitTimer();

@@ -54,13 +54,30 @@ struct ZGameDef
     i32 targetFramerate;
 };
 
+///////////////////////////////////////////
 // game functions provided to engine
+///////////////////////////////////////////
 struct ZGame
 {
     void (*Init)();
     void (*Shutdown)();
     void (*Tick)(ZEFrameTimeInfo timing);
     i32 sentinel;
+};
+
+
+///////////////////////////////////////////
+// Engine objects provided to game DLL
+///////////////////////////////////////////
+
+struct ZFileIO
+{
+	// if handle == 0, open failed
+	zeHandle	(*Open)(char* path);
+	void		(*Close)(zeHandle fileHandle);
+	u32			(*Measure)(zeHandle fileHandle);
+	void		(*Seek)(zeHandle fileHandle, u32 position);
+	
 };
 
 struct ZInput

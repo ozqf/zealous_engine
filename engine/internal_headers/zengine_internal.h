@@ -175,12 +175,16 @@ ze_external ZGameDef GetGameDef();
 ze_external void Platform_PollEvents();
 ze_external void Platform_SubmitFrame();
 ze_external void *Platform_Alloc(size_t size);
+ze_external void *Platform_Realloc(void* ptr, size_t size);
 ze_external void Platform_Free(void* ptr);
 ze_external void Platform_DebugBreak();
 ze_external void Platform_Fatal(const char *msg);
 ze_external ZEBuffer Platform_StageFile(char *path);
 ze_external f64 Platform_QueryClock();
 ze_external void Platform_Sleep(i32 milliSeconds);
+
+ze_external void Window_Shutdown();
+ze_external ZScreenInfo Window_GetInfo();
 
 //////////////////////////////////
 // game module linkup
@@ -213,6 +217,9 @@ ze_external ZRMeshAsset *ZAssets_GetMeshByName(char *name);
 ze_external ZRMeshAsset *ZAssets_GetMeshById(i32 id);
 ze_external ZRMaterial* ZAssets_GetMaterialByName(char* name);
 ze_external ZRMaterial *ZAssets_GetMaterialById(i32 id);
+
+ze_external void ZAssets_SaveImage(
+    const char *fileName, i32 width, i32 height, const void *rgbPixels);
 
 // asset allocation
 ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char *name);
@@ -262,13 +269,14 @@ ze_external void ZScene_PostFrameTick();
 
 
 ze_external i32 ZE_StartLoop();
-ze_external void ZE_Shutdown();
+ze_external void ZEngine_BeginShutdown();
 
 // renderer
-ze_external zErrorCode ZR_Init();
-ze_external void ZR_ClearFrame(ColourF32 colour);
-ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer);
-ze_external zErrorCode ZR_DrawTest();
-ze_external void ZRGL_PrintHandles();
+ze_external zErrorCode  ZR_Init();
+ze_external void        ZR_ClearFrame(ColourF32 colour);
+ze_external void        ZR_ExecuteCommands(ZEBuffer* commandBuffer);
+ze_external void        ZR_Screenshot(char *fileName);
+ze_external zErrorCode  ZR_DrawTest();
+ze_external void        ZRGL_PrintHandles();
 
 #endif // ZENGINE_INTERNAL_H

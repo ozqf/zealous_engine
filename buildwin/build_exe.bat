@@ -26,7 +26,7 @@ set compIn1=../engine/src/windows/win_main.cpp ../engine/src/windows/win_window.
 @rem opengl renderer
 set compIn2=../engine/src/opengl/ze_opengl.cpp ../engine/src/opengl/ze_opengl_shaders.cpp ../engine/src/opengl/zrgl_uploader.cpp ../engine/src/opengl/draw/zrgl_draw_mesh.cpp ../engine/src/opengl/draw/ze_opengl_draw_sprites.cpp ../engine/src/opengl/draw/zrgl_draw_primitives.cpp ../engine/src/opengl/sandbox/zrgl_sandbox.cpp
 @rem engine + services
-set compIn3=../engine/src/zengine.cpp ../engine/src/config/config.cpp ../engine/src/assetdb/ze_asset_db.cpp ../engine/src/asset_gen/ze_asset_gen.cpp ../engine/src/debug/ze_debug.cpp
+set compIn3=../engine/src/zengine.cpp ../engine/src/config/config.cpp ../engine/src/assetdb/ze_asset_db.cpp ../engine/src/assetdb/ze_asset_loader.cpp ../engine/src/asset_gen/ze_asset_gen.cpp ../engine/src/debug/ze_debug.cpp
 set compIn4=../engine/src/scene/ze_scene.cpp ../engine/src/scene/ze_group_draw_items.cpp ../engine/src/embedded_assets/ze_embedded_assets.cpp ../engine/src/game_stub/ze_game_stub.cpp
 set compIn5=../engine/src/input/ze_input.cpp
 
@@ -36,7 +36,7 @@ set compIn5=../engine/src/input/ze_input.cpp
 
 @rem === LINK SETTINGS === (disable if running win32 console application test)
 set linkStr=/link
-set linkInputA=user32.lib opengl32.lib Gdi32.lib Ws2_32.lib
+set linkInputA=user32.lib opengl32.lib Gdi32.lib Ws2_32.lib userenv.lib
 set linkInputB=../lib/fmod/fmod_vc.lib ../lib/fmod/fmodstudio_vc.lib ../buildwin_platform_libs/platlibs.lib
 set linkInputC=../lib/glfw3_vc2015/glfw3dll.lib
 @echo on

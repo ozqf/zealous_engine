@@ -5,6 +5,7 @@ internal i32 g_running = YES;
 internal ZGame g_game = {};
 internal ZGameDef g_gameDef = {};
 internal ZEngine g_engine;
+internal i32 g_bSingleFrame = NO;
 ze_internal i32 g_frameNumber = 0;
 
 ze_internal i32 g_targetFPS = 0;
@@ -54,19 +55,25 @@ internal void ZE_LinkToGame(ZGame_LinkupFunction gameLink)
 
 ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunction gameLink)
 {
-	// step 1 - grab everyone's export functions
+	i32 tokenIndex = ZCFG_FindParamIndex("--single", "--single", 0);
+	if (tokenIndex > 0)
+	{
+		g_bSingleFrame = YES;
+	}
+
+	// grab everyone's export functions
 	g_engine.system = systemFunctions;
 	g_engine.assets = ZAssets_RegisterFunctions();
 	g_engine.scenes = ZScene_RegisterFunctions();
 	g_engine.input = ZInput_RegisterFunctions();
 
-	// step 2 - initialise now that game struct is ready
+	// initialise now that game struct is ready
 	ZDebug_Init_1();
 	ZAssets_Init();
 	// ZGen_Init();
 	ZEmbedded_Init();
 
-	// step 3 - further init that requires services to be running
+	// further init that requires services to be running
 	ZDebug_Init_2();
 
 	ZAssets_PrintAll();
@@ -76,7 +83,7 @@ ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunctio
 	return ZE_ERROR_NONE;
 }
 
-ze_external void ZE_Shutdown()
+ze_external void ZEngine_BeginShutdown()
 {
 	g_running = NO;
 }
@@ -114,6 +121,14 @@ ze_external i32 ZE_StartLoop()
 		}
 		ZScene_PostFrameTick();
 		ZScene_Draw();
+
+		if (g_bSingleFrame)
+		{
+			ZR_Screenshot("screenshot.png");
+			g_running = false;
+		}
 	}
+	// shutdown
+	Window_Shutdown();
 	return 0;
 }

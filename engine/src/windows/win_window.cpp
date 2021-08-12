@@ -40,7 +40,6 @@ static void error_callback(int error, const char *description)
     fprintf(stderr, "Error: %s\n", description);
 }
 
-
 static zeInputCode Win_GlfwToZEKey(i32 glfwKeyCode)
 {
     switch (glfwKeyCode)
@@ -126,15 +125,24 @@ static zeInputCode Win_GlfwToZEKey(i32 glfwKeyCode)
     }
 }
 
+ze_external ZScreenInfo Window_GetInfo()
+{
+    ZScreenInfo info = {};
+    info.width = g_windowSize[0];
+    info.height = g_windowSize[1];
+    info.aspect = g_windowAspect;
+    return info;
+}
+
+ze_external void Window_Shutdown()
+{
+    glfwSetWindowShouldClose(g_window, GLFW_TRUE);
+    ZEngine_BeginShutdown();
+}
+
 //////////////////////////////////////////////////////////////////
 // GLFW Callbacks
 //////////////////////////////////////////////////////////////////
-
-internal void Window_StartShutdown(GLFWwindow *window)
-{
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
-    ZE_Shutdown();
-}
 
 /**
  * Handle inputs within this module. If they are handled, event is not
@@ -146,9 +154,17 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
     {
         if (action == GLFW_PRESS)
         {
-            Window_StartShutdown(window);
+            ZEngine_BeginShutdown();
+            Window_Shutdown();
         }
         return YES;
+    }
+    else if (key == GLFW_KEY_F6)
+    {
+        if (action == GLFW_PRESS)
+        {
+            ZR_Screenshot("screenshot.png");
+        }
     }
     else if (key == GLFW_KEY_F7)
     {
@@ -198,7 +214,7 @@ static void key_callback(GLFWwindow *window, int glfwKey, int scancode, int acti
 
 static void window_close_callback(GLFWwindow *window)
 {
-    Window_StartShutdown(window);
+    ZEngine_BeginShutdown();
 }
 
 static void mouse_position_callback(GLFWwindow* window, double posX, double posY)
