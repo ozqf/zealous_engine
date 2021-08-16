@@ -14,6 +14,8 @@
 #define SHOOT_UP "shoot_up"
 #define SHOOT_DOWN "shoot_down"
 
+#define ENT_FLAG_COLLISION_SOLID (1 << 0)
+
 #define MAX_ENTITIES 1024
 
 #define ENT_TYPE_NONE 0
@@ -32,6 +34,7 @@ struct Entity
     i32 type;
     i32 state;
     f32 tick;
+    i32 flags;
     Transform t;
     Vec3 velocity;
     AABB aabb;
@@ -98,6 +101,7 @@ internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir)
     ent->velocity = dir;
     ent->t.scale = {0.2f, 0.2f, 0.2f};
     ent->tick = 0;
+    ent->flags |= ENT_FLAG_COLLISION_SOLID;
     AttachModelToEntity(ent, g_projMeshObjData, { 0.2f, 0.2f, 0.2f });
     return ent;
 }
@@ -108,6 +112,7 @@ internal Entity* CreatePlayer(Vec3 pos, f32 yaw)
     ent->t.pos = pos;
     ent->tickFunction = TickPlayer;
     ent->t.scale = { 0.5f, 0.5f, 0.5f };
+    ent->flags |= ENT_FLAG_COLLISION_SOLID;
     AttachModelToEntity(ent, g_playerMeshObjData, ent->t.scale);
     return ent;
 }
@@ -118,6 +123,7 @@ internal Entity* CreateEnemy(Vec3 pos, f32 yaw)
     ent->tickFunction = TickEnemy;
     ent->t.pos = pos;
     ent->t.scale = { 0.5f, 0.5f, 0.5f };
+    ent->flags |= ENT_FLAG_COLLISION_SOLID;
     AttachModelToEntity(ent, g_enemyMeshObjData, {});
     return ent;
 }
@@ -125,6 +131,27 @@ internal Entity* CreateEnemy(Vec3 pos, f32 yaw)
 internal i32 TouchEntities(Entity* a, Entity* b)
 {
     return 0;
+}
+
+internal void CheckCollision(Entity *subject)
+{
+    for (i32 i = 0; i < g_entities.m_array->m_numBlobs; ++i)
+    {
+        Entity *ent = (Entity *)g_entities.GetByIndex(i);
+        if (ent == NULL) { continue; }
+        // don't collide with yourself!
+        if (subject->id == ent->id) { continue; }
+        // is target solid?
+        if ((ent->flags & ENT_FLAG_COLLISION_SOLID) == 0) { continue; }
+
+        // TODO - remove me - filtering to just enemies
+        if (ent->type != ENT_TYPE_ENEMY) { continue; }
+
+        // test
+        i32 result = ZE_Vec3VsAABB(subject->t.pos, &ent->aabb);
+        if (!result) { continue; }
+        printf("Player touching enemy\n");
+    }
 }
 
 internal void TickEnemy(Entity* ent, f32 delta)
@@ -202,6 +229,8 @@ internal void TickPlayer(Entity* ent, f32 delta)
         Vec3_Normalise(&shootDir);
         CreatePlayerProjectile(ent->t.pos, shootDir);
     }
+
+    CheckCollision(ent);
 }
 
 internal void TickProjectile(Entity* ent, f32 delta)
@@ -408,10 +437,16 @@ internal void Tick(ZEFrameTimeInfo timing)
 
 Z_GAME_WINDOWS_LINK_FUNCTION
 {
+	// link functions
     g_engine = engineImport;
     gameExport->Init = Init;
     gameExport->Tick = Tick;
     gameExport->Shutdown = Shutdown;
     gameExport->sentinel = ZE_SENTINEL;
+	// export app info
+    *gameDef = {};
+    gameDef->windowTitle = "3D Example";
+    gameDef->targetFramerate = 60;
+	gameDef->bOverrideEscapeKey = YES;
     return ZE_ERROR_NONE;
 }

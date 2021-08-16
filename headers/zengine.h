@@ -52,6 +52,7 @@ struct ZGameDef
 {
     char* windowTitle;
     i32 targetFramerate;
+	i32 bOverrideEscapeKey;
 };
 
 ///////////////////////////////////////////

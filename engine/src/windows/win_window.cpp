@@ -150,8 +150,9 @@ ze_external void Window_Shutdown()
  */
 static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_F8)
-    {
+	if ((key == GLFW_KEY_ESCAPE && !GetGameDef().bOverrideEscapeKey)
+		|| key == GLFW_KEY_F8)
+	{
         if (action == GLFW_PRESS)
         {
             ZEngine_BeginShutdown();
