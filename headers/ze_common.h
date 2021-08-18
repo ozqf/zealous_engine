@@ -17,6 +17,7 @@
 #include "common/ze_blob_array.h"
 #include "common/ze_blob_store.h"
 
+#include "common/ze_bvh.h"
 #include "common/ze_drawing_utils.h"
 #include "common/ze_input.h"
 

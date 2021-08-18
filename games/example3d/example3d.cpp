@@ -24,6 +24,9 @@
 #define ENT_TYPE_ENEMY 3
 #define ENT_TYPE_SPAWNER 4
 
+#define ENT_STATE_NONE 0
+#define ENT_STATE_DEAD 1 // do not interact with anything that is dead!
+
 struct Entity;
 
 typedef void(EntityTick)(Entity* ent, f32 delta);
@@ -52,15 +55,18 @@ internal i32 g_nextEntId = 1;
 internal AABB g_arenaBounds = {};
 internal f32 g_time = 0;
 
+// display settings for each entity type
 internal ZRMeshObjData g_playerMeshObjData;
 internal ZRMeshObjData g_wallMeshObjData;
 internal ZRMeshObjData g_projMeshObjData;
 internal ZRMeshObjData g_enemyMeshObjData;
 
+// add/remove entity definitions
 internal Entity* CreateEntity(i32 entType);
 internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir);
 internal Entity* CreateEnemy(Vec3 pos, f32 yaw);
 
+// entity update functions
 internal void TickPlayer(Entity* ent, f32 delta);
 internal void TickProjectile(Entity *ent, f32 delta);
 internal void TickEnemy(Entity* ent, f32 delta);
@@ -74,6 +80,16 @@ internal Entity* CreateEntity(i32 entType)
     ent->id = newId;
     Transform_SetToIdentity(&ent->t);
     return ent;
+}
+
+internal void QueueEntityRemoval(Entity* ent)
+{
+	ent->state = ENT_STATE_DEAD;
+    g_entities.MarkForRemoval(ent->id);
+    if (ent->drawObj != 0)
+    {
+        g_engine.scenes.RemoveObject(g_gameScene, ent->drawObj);
+    }
 }
 
 internal void AttachModelToEntity(Entity* ent, ZRMeshObjData meshData, Vec3 scale)
@@ -124,6 +140,8 @@ internal Entity* CreateEnemy(Vec3 pos, f32 yaw)
     ent->t.pos = pos;
     ent->t.scale = { 0.5f, 0.5f, 0.5f };
     ent->flags |= ENT_FLAG_COLLISION_SOLID;
+    ent->aabb.min = { -0.25f, -0.25f, -0.25f };
+    ent->aabb.max = { 0.25f, 0.25f, 0.25f };
     AttachModelToEntity(ent, g_enemyMeshObjData, {});
     return ent;
 }
@@ -133,7 +151,8 @@ internal i32 TouchEntities(Entity* a, Entity* b)
     return 0;
 }
 
-internal void CheckCollision(Entity *subject)
+internal void CheckCollision(
+    Entity *subject, i32* resultIds, i32* numResults, i32 maxResults)
 {
     for (i32 i = 0; i < g_entities.m_array->m_numBlobs; ++i)
     {
@@ -141,6 +160,8 @@ internal void CheckCollision(Entity *subject)
         if (ent == NULL) { continue; }
         // don't collide with yourself!
         if (subject->id == ent->id) { continue; }
+		// don't interact with dead stuff
+		if (ent->state == ENT_STATE_DEAD) { continue; }
         // is target solid?
         if ((ent->flags & ENT_FLAG_COLLISION_SOLID) == 0) { continue; }
 
@@ -148,10 +169,28 @@ internal void CheckCollision(Entity *subject)
         if (ent->type != ENT_TYPE_ENEMY) { continue; }
 
         // test
-        i32 result = ZE_Vec3VsAABB(subject->t.pos, &ent->aabb);
+        AABB mobAABB = ZE_CreateWorldAABB(ent->t.pos, &ent->aabb);
+        // printf("Player (%.3f, %.3f) vs mob aabb: %.3f,%.3f to %.3f, %.3f\n",
+        //     subject->t.pos.x, subject->t.pos.z,
+        //     mobAABB.min.x, mobAABB.min.z, mobAABB.max.x, mobAABB.max.z);
+        i32 result = ZE_Vec3VsAABB(subject->t.pos, &mobAABB);
         if (!result) { continue; }
-        printf("Player touching enemy\n");
+        // printf("Player touching enemy\n");
+        resultIds[*numResults] = ent->id;
+        *numResults += 1;
+        if (*numResults >= maxResults) { return; }
     }
+}
+
+internal void SpawnTestEnemy()
+{
+    f32 rX = (f32)rand() / RAND_MAX;
+    // f32 rY = (f32)rand() / RAND_MAX;
+    f32 rZ = (f32)rand() / RAND_MAX;
+    Vec3 p = AABB_RandomInside(g_arenaBounds, rX, 0.5f, rZ);
+    printf("Random: %.3f, %.3f, %.3f\n",
+        p.x, p.y, p.z);
+    CreateEnemy(p, 0);
 }
 
 internal void TickEnemy(Entity* ent, f32 delta)
@@ -230,7 +269,15 @@ internal void TickPlayer(Entity* ent, f32 delta)
         CreatePlayerProjectile(ent->t.pos, shootDir);
     }
 
-    CheckCollision(ent);
+    const i32 maxTouchResults = 32;
+    i32 touchResults[maxTouchResults];
+    i32 numTouchResults = 0;
+
+    CheckCollision(ent, touchResults, &numTouchResults, maxTouchResults);
+    if (numTouchResults > 0)
+    {
+        printf("Player touching %d ents\n", numTouchResults);
+    }
 }
 
 internal void TickProjectile(Entity* ent, f32 delta)
@@ -252,6 +299,22 @@ internal void TickProjectile(Entity* ent, f32 delta)
     {
         g_entities.MarkForRemoval(ent->id);
         g_engine.scenes.RemoveObject(g_gameScene, ent->drawObj);
+    }
+
+    const i32 maxTouchResults = 32;
+    i32 touchResults[maxTouchResults];
+    i32 numTouchResults = 0;
+
+    CheckCollision(ent, touchResults, &numTouchResults, maxTouchResults);
+    if (numTouchResults > 0)
+    {
+        printf("Projectile touching %d ents\n", numTouchResults);
+    }
+    for (i32 i = 0; i < numTouchResults; ++i)
+    {
+        printf("Culling ent %d\n", touchResults[i]);
+        Entity* victim = (Entity*)g_entities.GetById(touchResults[i]);
+        QueueEntityRemoval(victim);
     }
 }
 
@@ -394,6 +457,8 @@ internal void Init()
     obj->data.SetAsMeshFromData(g_wallMeshObjData);
     obj->t.scale = {arenaWidth, wallWidth, wallWidth};
     obj->t.pos = {0, 0, arenaHalfHeight};
+
+    SpawnTestEnemy();
 }
 
 internal void Shutdown()
@@ -413,20 +478,14 @@ internal void Tick(ZEFrameTimeInfo timing)
 
     if (g_engine.input.GetActionValue("debug_spawn"))
     {
-        // g_arenaBounds
-        f32 rX = (f32)rand() / RAND_MAX;
-        // f32 rY = (f32)rand() / RAND_MAX;
-        f32 rZ = (f32)rand() / RAND_MAX;
-        Vec3 p = AABB_RandomInside(g_arenaBounds, rX, 0.5f, rZ);
-        printf("Random: %.3f, %.3f, %.3f\n",
-            p.x, p.y, p.z);
-        CreateEnemy(p, 0);
+        SpawnTestEnemy();
     }
 
     f32 delta = (f32)timing.interval;
     for (i32 i = 0; i < g_entities.m_array->m_numBlobs; ++i)
     {
         Entity* ent = (Entity*)g_entities.GetByIndex(i);
+        if (ent == NULL) { continue;  }
         if (ent->tickFunction != NULL)
         {
             ent->tickFunction(ent, delta);

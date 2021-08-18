@@ -33,6 +33,19 @@ internal i32 ZE_Vec3VsAABB(Vec3 pos, AABB* aabb)
     return YES;
 }
 
+internal AABB ZE_CreateWorldAABB(Vec3 pos, AABB* aabb)
+{
+    AABB result;
+    result.min.x = pos.x + aabb->min.x;
+    result.min.y = pos.y + aabb->min.y;
+    result.min.z = pos.z + aabb->min.z;
+
+    result.max.x = pos.x + aabb->max.x;
+    result.max.y = pos.y + aabb->max.y;
+    result.max.z = pos.z + aabb->max.z;
+    return result;
+}
+
 internal u8 AABBVsAABB(
     f32 aX, f32 aY, f32 aZ,
     f32 bX, f32 bY, f32 bZ,
