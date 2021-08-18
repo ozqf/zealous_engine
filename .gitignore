@@ -17,6 +17,11 @@
 !/bin/fmodstudio.dll
 !/bin/base/config.ini
 
+# single-shot mode places screenshots as results whereever
+# it ran from
+/bin/screenshot.png
+/buildwin/screenshot.png
+
 # test data files
 /bin_tools/*
 !/bin_tools/stats.txt
