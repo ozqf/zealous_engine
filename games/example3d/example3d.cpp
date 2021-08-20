@@ -108,6 +108,14 @@ internal void AttachModelToEntity(Entity* ent, ZRMeshObjData meshData, Vec3 scal
     ent->drawObj = drawObj->id;
 }
 
+internal void SyncEntityDrawObj(Entity* ent)
+{
+    ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, ent->drawObj);
+    if (obj == NULL) { return; }
+    obj->t.pos = ent->t.pos;
+    obj->t.rotation = ent->t.rotation;
+}
+
 internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir)
 {
     Entity *ent = CreateEntity(ENT_TYPE_PLAYER_PROJECTILE);
@@ -118,6 +126,8 @@ internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir)
     ent->t.scale = {0.2f, 0.2f, 0.2f};
     ent->tick = 0;
     ent->flags |= ENT_FLAG_COLLISION_SOLID;
+    ent->aabb.min = { -0.25, -0.25, -0.25 };
+    ent->aabb.min = { 0.25, 0.25, 0.25 };
     AttachModelToEntity(ent, g_projMeshObjData, { 0.2f, 0.2f, 0.2f });
     return ent;
 }
@@ -129,7 +139,12 @@ internal Entity* CreatePlayer(Vec3 pos, f32 yaw)
     ent->tickFunction = TickPlayer;
     ent->t.scale = { 0.5f, 0.5f, 0.5f };
     ent->flags |= ENT_FLAG_COLLISION_SOLID;
-    AttachModelToEntity(ent, g_playerMeshObjData, ent->t.scale);
+    ent->aabb.min = { -0.25f, -0.25f, -0.25f };
+    ent->aabb.max = { 0.25f, 0.25f, 0.25f };
+    // AttachModelToEntity(ent, g_playerMeshObjData, ent->t.scale);
+    ZRDrawObj *drawObj = g_engine.scenes.AddObject(g_gameScene);
+    drawObj->data.SetAsBoundingBox(ent->aabb, COLOUR_U32_GREEN);
+    SyncEntityDrawObj(ent);
     return ent;
 }
 
@@ -231,10 +246,8 @@ internal void TickPlayer(Entity* ent, f32 delta)
 
     ent->t.pos = ZE_BoundaryPointCheck(ent->t.pos, &g_arenaBounds);
 
-    ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, ent->drawObj);
-    obj->t.pos = ent->t.pos;
-    obj->t.rotation = ent->t.rotation;
-
+    SyncEntityDrawObj(ent);
+    
     if (ent->tick > 0)
     {
         ent->tick -= delta;
@@ -411,7 +424,7 @@ internal void Init()
     //////////////////////////////////////////////////////////////
     // Create player avatar
     //////////////////////////////////////////////////////////////
-    CreatePlayer({ 0, 0, -2 }, 0);
+    CreatePlayer({ -2, 0, -2 }, 0);
     
     //////////////////////////////////////////////////////////////
     // create arena

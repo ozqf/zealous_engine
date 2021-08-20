@@ -231,6 +231,7 @@ struct ZRMeshAsset
 #define ZR_DRAWOBJ_TYPE_BILLBOARD 5
 #define ZR_DRAWOBJ_TYPE_PARTICLES 6
 #define ZR_DRAWOBJ_TYPE_SPRITE 7
+#define ZR_DRAWOBJ_TYPE_BOUNDING_BOX 8
 
 #define ZR_DRAWOBJ_STATUS_FREE 0
 #define ZR_DRAWOBJ_STATUS_ASSIGNED 1
@@ -243,12 +244,19 @@ struct ZRMeshObjData
     i32 billboard;
 };
 
+struct ZRBoundingBox
+{
+    AABB aabb;
+    ColourU32 colour;
+};
+
 struct ZRDrawObjData
 {
     i32 type;
     union
     {
         ZRMeshObjData model;
+        ZRBoundingBox box;
         struct
         {
             u32 frameId;
@@ -291,6 +299,13 @@ struct ZRDrawObjData
         this->type = ZR_DRAWOBJ_TYPE_MESH;
         this->model.meshId = data.meshId;
         this->model.materialId = data.materialId;
+    }
+
+    void SetAsBoundingBox(AABB aabb, ColourU32 colour)
+    {
+        this->type = ZR_DRAWOBJ_TYPE_BOUNDING_BOX;
+        this->box.aabb = aabb;
+        this->box.colour = colour;
     }
 
     void SetAsSprite(u32 spriteFrameId)

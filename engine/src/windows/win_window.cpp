@@ -19,8 +19,8 @@ internal i32 g_resolutionsY[ZW_NUM_16X9_RESOLUTIONS] =
 { 576, 720, 768, 900, 1080 };
 internal const i32 g_numModes = 5;
 */
-internal i32 g_pendingWidth = 1024;
-internal i32 g_pendingHeight = 576;
+internal i32 g_pendingWidth = 1366; //1024;
+internal i32 g_pendingHeight = 768; //576;
 
 internal i32 g_bWindowed = FALSE;
 
@@ -320,7 +320,13 @@ ze_external zErrorCode SpawnWindow()
         title = "Zealous Engine";
     }
     g_window = glfwCreateWindow(scrWidth, scrHeight, title, NULL, NULL);
-
+	
+	// TODO: if in single frame mode, hide the window
+	if (GetSingleFrameMode())
+	{
+		glfwHideWindow(g_window);
+	}	
+	
     i32 monitorX, monitorY;
     glfwGetMonitorPos(monitor, &monitorX, &monitorY);
     i32 x = monitorX;

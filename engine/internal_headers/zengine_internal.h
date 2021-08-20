@@ -169,6 +169,7 @@ static void Sys_PrepareEvent(SysEvent *ev, i32 type, i32 size)
 //////////////////////////////////
 ze_external ZEngine GetEngine();
 ze_external ZGameDef GetGameDef();
+ze_external i32 GetSingleFrameMode();
 
 //////////////////////////////////
 // platform

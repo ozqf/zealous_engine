@@ -220,5 +220,10 @@ int CALLBACK WinMain(
 	// Sleep(3000);
 	// printf("Stopping!\n");
 	// Sleep(200);
+	tokenIndex =  ZCFG_FindParamIndex("--pauseonstop", "--pauseonstop", 0);
+	if (tokenIndex != ZE_ERROR_BAD_INDEX)
+	{
+		Win_Warning("Pause on stop!\n");
+	}
 	return 0;
 }

@@ -53,6 +53,11 @@ internal void ZE_LinkToGame(ZGame_LinkupFunction gameLink)
 	}
 }
 
+ze_external i32 GetSingleFrameMode()
+{
+	return g_bSingleFrame;
+}
+
 ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunction gameLink)
 {
 	i32 tokenIndex = ZCFG_FindParamIndex("--single", "--single", 0);

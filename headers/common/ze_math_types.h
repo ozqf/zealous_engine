@@ -142,11 +142,53 @@ struct AABB
 	f32 HalfWidth() { return (max.x - min.x) / 2.f; }
 	f32 HalfHeight() { return (max.y - min.y) / 2.f; }
 	f32 HalfBreadth() { return (max.z - min.z) / 2.f; }
-	
+
 	f32 CentreX() { return min.x + ((max.x - min.x) / 2.f); }
 	f32 CentreY() { return min.y + ((max.y - min.y) / 2.f); }
 	f32 CentreZ() { return min.z + ((max.z - min.z) / 2.f); }
+
+	f32 Volume()
+	{
+		return (max.x - min.x) * (max.y - min.y) * (max.z - min.z);
+	}
 };
+
+inline AABB AABB_Combine(AABB a, AABB b)
+{
+	AABB result;
+	result.min.x = a.min.x < b.min.x ? a.min.x : b.min.x;
+	result.min.y = a.min.y < b.min.y ? a.min.y : b.min.y;
+	result.min.z = a.min.z < b.min.z ? a.min.z : b.min.z;
+
+	result.max.x = a.max.x > b.max.x ? a.max.x : b.max.x;
+	result.max.y = a.max.y > b.max.y ? a.max.y : b.max.y;
+	result.max.z = a.max.z > b.max.z ? a.max.z : b.max.z;
+	return result;
+}
+
+/**
+ * Axis Aligned - No rotation!
+ */
+inline AABB AABB_LocalToWorld(Vec3 pos, AABB aabb)
+{
+	// AABB a = {};
+	// a.min.x = pos.x + aabb.min.x;
+	// a.min.y = pos.y + aabb.min.y;
+	// a.min.z = pos.z + aabb.min.z;
+
+	// a.max.x = pos.x + aabb.max.x;
+	// a.max.y = pos.y + aabb.max.y;
+	// a.max.z = pos.z + aabb.max.z;
+	AABB a = aabb;
+	a.min.x += pos.x;
+	a.min.y += pos.y;
+	a.min.z += pos.z;
+
+	a.max.x += pos.x;
+	a.max.y += pos.y;
+	a.max.z += pos.z;
+	return a;
+}
 
 inline Vec3 AABB_RandomInside(AABB aabb, f32 seedX, f32 seedY, f32 seedZ)
 {
