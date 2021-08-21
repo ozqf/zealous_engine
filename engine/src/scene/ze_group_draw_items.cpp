@@ -63,10 +63,21 @@ internal void WriteBoundBoxCommand(ZEBuffer* buf, ZRDrawObj* obj)
         obj->t.pos,
         local
     );
-    
+    // vertical
     lines->verts[0].pos = {aabb.min.x, aabb.min.y, aabb.min.z};
     lines->verts[1].pos = {aabb.min.x, aabb.max.y, aabb.min.z};
+
+    lines->verts[2].pos = {aabb.max.x, aabb.min.y, aabb.min.z};
+    lines->verts[3].pos = {aabb.max.x, aabb.max.y, aabb.min.z};
+
+    lines->verts[4].pos = {aabb.min.x, aabb.min.y, aabb.max.z};
+    lines->verts[5].pos = {aabb.min.x, aabb.max.y, aabb.max.z};
+
+    lines->verts[6].pos = {aabb.max.x, aabb.min.y, aabb.max.z};
+    lines->verts[7].pos = {aabb.max.x, aabb.max.y, aabb.max.z};
     
+
+    /*
     lines->verts[2].pos = {aabb.min.x, aabb.max.y, aabb.min.z};
     lines->verts[3].pos = {aabb.max.x, aabb.max.y, aabb.min.z};
     
@@ -75,7 +86,7 @@ internal void WriteBoundBoxCommand(ZEBuffer* buf, ZRDrawObj* obj)
 
     lines->verts[6].pos = {aabb.max.x, aabb.min.y, aabb.max.z};
     lines->verts[7].pos = {aabb.max.x, aabb.max.y, aabb.max.z};
-
+    */
     // printf("Wrote %d bytes of lines\n", lines->header.size);
 }
 
