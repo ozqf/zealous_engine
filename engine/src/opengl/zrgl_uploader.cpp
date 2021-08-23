@@ -126,7 +126,7 @@ ze_external void ZRGL_UploadTexture(u8 *pixels, i32 width, i32 height, u32 *hand
     GLuint texID = *handle;
     glBindTexture(GL_TEXTURE_2D, texID);
     CHECK_GL_ERR
-    // TODO: Assuming images are always RGBA here
+    // Assuming images are always RGBA here
     // Make sure conversion of pixel encoding is correct.
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
     CHECK_GL_ERR
@@ -164,9 +164,8 @@ internal void PrintMeshData(ZRMeshData* data)
 // VBO data layout:
 // attribs: 0	1		2		3...
 // [ Vertices | UVs | Normals | space for instance data... ]
+// glDataType is always assumed to be GL_FLOAT. GL_DOUBLE isn't used.
 //////////////////////////////////////////////////////
-// TODO: glDataType is ignored! Always assuming FLOAT
-// Type should be either GL_FLOAT or GL_DOUBLE!
 ze_external void ZRGL_UploadMesh(ZRMeshData *data, ZRMeshHandles *result, u32 flags)
 {
     ZE_ASSERT(data->numVerts <= data->maxVerts, "Bad upload - num verts > max verts\n");

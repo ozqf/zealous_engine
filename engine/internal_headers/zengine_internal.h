@@ -204,6 +204,14 @@ ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, con
 ze_external i32 ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc);
 ze_external i32 ZCFG_FindParamIndex(const char* shortQuery, const char* longQuery, i32 extraTokens);
 ze_external char *ZCFG_GetParamByIndex(const i32 index);
+ze_external i32 ZCFG_FindIntParam(const char *shortQuery, const char *longQuery, i32 failResponse);
+
+//////////////////////////////////
+// console
+ze_external i32 ZCmdConsole_Init();
+ze_external i32 ZCmdConsole_Init_b();
+ze_external void ZCmdConsole_QueueCommand(char *cmd);
+ze_external void ZCmdConsole_Execute();
 
 //////////////////////////////////
 // input

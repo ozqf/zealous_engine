@@ -250,59 +250,6 @@ ze_external ErrorCode ZRGL_CreateProgram(
     return ZE_ERROR_NONE;
 }
 
-#if 0
-////////////////////////////////////////////////////
-// Setup Text Shader
-////////////////////////////////////////////////////
-ze_external void ZRGL_SetupProg_Text(
-    M4x4 *projection,
-    M4x4 *modelView,
-    i32 diffuseTexHandle,
-    i32 charSheetStencilTexHandle,
-    Colour fontColour,
-    Colour bgColour)
-{
-    i32 programHandle = g_programs[ZR_SHADER_TYPE_TEXT].handle;
-    GLuint programId = programHandle;
-    static i32 printed = NO;
-    if (printed == NO)
-    {
-        printed = YES;
-        printf("Setup program %d\n", programId);
-    }
-    glUseProgram(programId);
-    CHECK_GL_ERR
-    Vec4 c = {fontColour.r, fontColour.g, fontColour.b, fontColour.a};
-    Vec4 bg = {bgColour.r, bgColour.g, bgColour.b, bgColour.a};
-    ZR_SetProgVec4f(programHandle, "u_colour", c);
-    ZR_SetProgVec4f(programHandle, "u_backgroundColour", bg);
-
-    ///////////////////////////////////////////////////
-    // Setup texture samplers
-
-    ZR_PrepareTextureUnit2D(
-        programHandle, GL_TEXTURE0, 0, "u_diffuseTex", diffuseTexHandle, g_samplerA);
-
-    ZR_PrepareTextureUnit2D(
-        programHandle, GL_TEXTURE1, 1, "u_stencilTex", charSheetStencilTexHandle, g_samplerDataTex2D);
-
-    ///////////////////////////////////////////////////
-    // Upload matrices
-    // TODO: Different shaders might have different inputs...
-    i32 projectionLoc = glGetUniformLocation(
-        programId, "u_projection");
-    CHECK_GL_ERR
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, projection->cells);
-    CHECK_GL_ERR
-
-    i32 modelViewLoc = glGetUniformLocation(
-        programId, "u_modelView");
-    CHECK_GL_ERR
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, modelView->cells);
-    CHECK_GL_ERR
-}
-#endif
-
 ze_external zErrorCode ZRGL_InitShaders()
 {
     glGenSamplers(1, &g_samplerDefault2d);

@@ -77,9 +77,11 @@ ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunctio
 	ZAssets_Init();
 	// ZGen_Init();
 	ZEmbedded_Init();
+	ZCmdConsole_Init();
 
 	// further init that requires services to be running
 	ZDebug_Init_2();
+	ZCmdConsole_Init_b();
 
 	ZAssets_PrintAll();
 
@@ -118,7 +120,7 @@ ze_external i32 ZE_StartLoop()
 		info.frameRate = g_targetFPS;
 		info.frameNumber = g_frameNumber;
 		info.interval = diff;
-		
+		ZCmdConsole_Execute();
 		Platform_PollEvents();
 		if (g_game.sentinel == ZE_SENTINEL && g_game.Tick != NULL)
 		{

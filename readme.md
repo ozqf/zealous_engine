@@ -23,3 +23,37 @@
 * GLAD for opengl
 * stb_image.h for textures.
 * OpenFBX for loading simple FBX model files.
+
+#### Console Commands and variables
+
+TODO - ...implement the command console....
+
+#### Command line options
+
+eg ```zealous.exe -g my_game_dir -w --monitor 2```
+
+##### Functionality parameters
+
+```-g <my_game_sub_directory>``` or ```--game <my_game_sub_directory>```
+Specify the directory containing the game.dll to load.
+
+```-w``` or ```--window```
+Start in a window rather than default which is borderless fullsize window.
+
+```--monitor <number>```
+eg --monitor 0, --monitor 1 etc
+Specify which monitor to create the window on.
+
+##### Debugging parameters
+
+```-c``` or ```--console```
+Create command prompt window for debugging
+
+```-l``` or ```--log```
+Start a logging file
+
+```--single```
+Start up, run one frame, take a screenshot and exit
+
+```--pauseonstart``` and ```--pauseonstop```
+Pauses execution at startup or shutdown with an alert popup

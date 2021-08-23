@@ -30,6 +30,8 @@ internal f32 g_monitorAspect;
 internal i32 g_windowSize[2];
 internal f32 g_windowAspect;
 
+internal i32 g_requestedMonitorIndex = 0;
+
 ze_internal ZEBuffer g_events;
 
 // TODO: App thread can cause a 'GLFW is not initialised' error here
@@ -160,13 +162,6 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
         }
         return YES;
     }
-    else if (key == GLFW_KEY_F6)
-    {
-        if (action == GLFW_PRESS)
-        {
-            ZR_Screenshot("screenshot.png");
-        }
-    }
     else if (key == GLFW_KEY_F7)
     {
         if (action == GLFW_PRESS)
@@ -174,6 +169,21 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
             Platform_DebugBreak();
         }
         return YES;
+    }
+    else if (key == GLFW_KEY_F6)
+    {
+        if (action == GLFW_PRESS)
+        {
+            ZR_Screenshot("screenshot.png");
+        }
+    }
+    else if (key == GLFW_KEY_F5)
+    {
+        if (action == GLFW_PRESS)
+        {
+            ZCmdConsole_QueueCommand("map foo");
+            ZCmdConsole_QueueCommand("set bar 7");
+        }
     }
     return 0;
 }
@@ -241,20 +251,22 @@ static void InitCallbacks(GLFWwindow *window)
 //////////////////////////////////////////////////////////////////
 static GLFWmonitor *SelectMonitor()
 {
-    #if 0
+    #if 1
     int count;
     GLFWmonitor **monitors = glfwGetMonitors(&count);
-    int index = 0;
+    int index = g_requestedMonitorIndex;
+    if (index < 0) { index = 0; }
+    if (index >= count) { index = count - 1; }
     printf("Found %d monitors, using %d\n", count, index);
     for (i32 i = 0; i < count; ++i)
     {
         i32 monitorX, monitorY;
         glfwGetMonitorPos(monitors[i], &monitorX, &monitorY);
-        printf("Monitor pos: %d, %d\n", monitorX, monitorY);
+        printf("Monitor %d pos: %d, %d\n", i, monitorX, monitorY);
     }
     return monitors[index];
     #endif
-    #if 1
+    #if 0
     return glfwGetPrimaryMonitor();
     #endif
 }
@@ -321,7 +333,7 @@ ze_external zErrorCode SpawnWindow()
     }
     g_window = glfwCreateWindow(scrWidth, scrHeight, title, NULL, NULL);
 	
-	// TODO: if in single frame mode, hide the window
+	// If in single frame mode, hide the window.
 	if (GetSingleFrameMode())
 	{
 		glfwHideWindow(g_window);
@@ -386,6 +398,8 @@ ze_external zErrorCode ZWindow_Init()
     printf("Windowed: %d\n", g_bWindowed);
 
     g_events = Buf_FromMalloc(Platform_Alloc, KiloBytes(64));
+
+    g_requestedMonitorIndex = ZCFG_FindIntParam("--monitor", "--monitor", 0);
 
     SpawnWindow();
     ZR_Init();

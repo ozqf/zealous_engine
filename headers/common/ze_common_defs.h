@@ -53,7 +53,7 @@ static_assert(sizeof(f64) == 8, "Code requires f64 size == 8");
 #endif
 
 // Quick cross platform assert. Read from address zero if expression is false
-// TODO: Message box assert with a print of __FILE__, __LINE__ and __TIME__ possible?
+// Message box assert with a print of __FILE__, __LINE__ and __TIME__ possible?
 // Yes, yes it is, eg:
 /* 
 #define log_message(guard,format,...) \

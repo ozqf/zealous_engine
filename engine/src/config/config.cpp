@@ -38,3 +38,17 @@ ze_external char* ZCFG_GetParamByIndex(const i32 index)
 	}
 	return g_argv[index];
 }
+
+ze_external i32 ZCFG_FindIntParam(const char* shortQuery, const char* longQuery, i32 failResponse)
+{
+	i32 index = ZCFG_FindParamIndex(shortQuery, longQuery, 1);
+	if (index == ZE_ERROR_BAD_INDEX)
+	{
+		printf("Could not find param %s/%s\n", shortQuery, longQuery);
+		return failResponse;
+	}
+	printf("Found param %s: %s\n", longQuery, ZCFG_GetParamByIndex(index + 1));
+	i32 i = ZStr_AsciToInt32(ZCFG_GetParamByIndex(index + 1));
+	printf("Found Int param %s: %d\n", longQuery, i);
+	return i;
+}

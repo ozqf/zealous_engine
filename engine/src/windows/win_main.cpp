@@ -216,10 +216,7 @@ int CALLBACK WinMain(
 	ZEngine_Init(sys, Win_LinkToGameDLL(gameDirectory));
 	ZWindow_Init();
 	ZE_StartLoop();
-	printf("Done!\n");
-	// Sleep(3000);
-	// printf("Stopping!\n");
-	// Sleep(200);
+	printf("Exited loop\n");
 	tokenIndex =  ZCFG_FindParamIndex("--pauseonstop", "--pauseonstop", 0);
 	if (tokenIndex != ZE_ERROR_BAD_INDEX)
 	{
