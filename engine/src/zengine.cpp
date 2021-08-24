@@ -11,6 +11,11 @@ ze_internal i32 g_frameNumber = 0;
 ze_internal i32 g_targetFPS = 0;
 ze_internal f32 g_targetDelta = 0;
 
+internal void Exec_Exit(char* fullText, char** tokens, i32 numTokens)
+{
+	g_running = false;
+}
+
 internal ZEngine ZE_BuildPlatformExport()
 {
 	ZEngine engine = {};
@@ -74,6 +79,9 @@ ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunctio
 
 	// initialise now that game struct is ready
 	ZCmdConsole_Init();
+	ZCmdConsole_RegisterInternalCommand("exit", "Close application.", Exec_Exit);
+	ZCmdConsole_RegisterInternalCommand("quit", "Close application.", Exec_Exit);
+
 	ZDebug_Init_1();
 	ZAssets_Init();
 	// ZGen_Init();

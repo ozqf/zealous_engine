@@ -7,12 +7,6 @@
 
 ze_internal ZEHashTable* g_table;
 
-ze_external zErrorCode ZAssets_Init()
-{
-    g_table = ZE_HashTable_Create(Platform_Alloc, 2048, NULL);
-    return ZE_ERROR_NONE;
-}
-
 ze_external void ZAssets_PrintAll()
 {
     printf("=== Asset Heap ===\n");
@@ -21,9 +15,22 @@ ze_external void ZAssets_PrintAll()
         ZEHashTableKey* key = &g_table->m_keys[i];
         if (key->id == 0) { continue; }
         ZRAsset* asset = (ZRAsset*)key->data.ptr;
-        printf("KeyId %d, keyHash %d. AssetId %d - type %d - sentinel %X\n",
+        printf("KeyId %d, keyHash %d. AssetId %d - type %d - sentinel %X",
             key->id, key->idHash, asset->id, asset->type, asset->sentinel);
+        printf("\n");
     }
+}
+
+internal void Exec_Manifest(char* fullText, char** tokens, i32 numTokens)
+{
+    ZAssets_PrintAll();
+}
+
+ze_external zErrorCode ZAssets_Init()
+{
+    g_table = ZE_HashTable_Create(Platform_Alloc, 2048, NULL);
+    ZCmdConsole_RegisterInternalCommand("manifest", "List asset db contents", Exec_Manifest);
+    return ZE_ERROR_NONE;
 }
 
 /////////////////////////////////////////////////////////////

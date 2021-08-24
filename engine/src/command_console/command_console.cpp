@@ -50,6 +50,7 @@ internal void ResetConsoleText()
 ze_external void ZCmdConsole_SetInputEnabled(i32 flag)
 {
 	g_bTextInputOn = flag;
+	printf("Console enabled: %s\n", flag ? "yes" : "no");
 }
 
 ze_external i32 ZCmdConsole_GetInputEnabled()
@@ -59,10 +60,23 @@ ze_external i32 ZCmdConsole_GetInputEnabled()
 
 ze_external void ZCmdConsole_WriteChar(char c, i32 bShiftOn)
 {
-	printf("Console write char %c code %d\n", c, c);
+	// printf("Console write char %c code %d\n", c, c);
 	if (c == 1)
 	{
 		ZCmdConsole_SubmitText();
+		return;
+	}
+	// backspace
+	if (c == 3)
+	{
+		if (g_consoleText.Written() == 0)
+		{
+			return;
+		}
+		g_consoleText.cursor -= 1;
+		*(g_consoleText.cursor) = '<';
+		*(g_consoleText.cursor + 1) = '\0';
+		printf("Console: %s\n", g_consoleText.start);
 		return;
 	}
 	// A - Z is 65 - 90

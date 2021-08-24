@@ -193,7 +193,7 @@ static i32 handle_engine_key_event(GLFWwindow* window, int key, int scancode, in
     // Console overrides all
     if (ZCmdConsole_GetInputEnabled())
     {
-        if (action == GLFW_PRESS)
+        if (action == GLFW_PRESS && !bConsoleIgnore)
         {
             ZCmdConsole_WriteChar((char)key, g_bLeftShiftOn | g_bRightShiftOn);
         }
