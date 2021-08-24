@@ -212,6 +212,13 @@ ze_external i32 ZCmdConsole_Init();
 ze_external i32 ZCmdConsole_Init_b();
 ze_external void ZCmdConsole_QueueCommand(char *cmd);
 ze_external void ZCmdConsole_Execute();
+ze_external void ZCmdConsole_RegisterInternalCommand(
+    char *name, char *description, ZCommand_Callback functionPtr);
+
+ze_external void ZCmdConsole_SetInputEnabled(i32 flag);
+ze_external i32 ZCmdConsole_GetInputEnabled();
+ze_external void ZCmdConsole_WriteChar(char c, i32 bShiftOn);
+ze_external void ZCmdConsole_SubmitText();
 
 //////////////////////////////////
 // input

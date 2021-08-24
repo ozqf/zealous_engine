@@ -9,14 +9,13 @@ ze_external zErrorCode ZDebug_Init_1()
 
 ze_external zErrorCode ZDebug_Init_2()
 {
-	#if 1
 	ZEngine engine = GetEngine();
     // find some assets to use on our objects
     i32 textureId = ZAssets_GetTexByName(
         FALLBACK_CHARSET_TEXTURE_NAME)->header.id;
 
 	g_scene = ZScene_CreateScene(ZR_INTERNAL_SCENE_START_DEPTH, 16);
-	ZScene_SetFlags(g_scene, ZSCENE_FLAG_NO_DRAW);
+	// ZScene_SetFlags(g_scene, ZSCENE_FLAG_NO_DRAW);
 
 	// add an object to the scene
 	ZRDrawObj *obj1 = ZScene_AddObject(g_scene);
@@ -33,6 +32,5 @@ ze_external zErrorCode ZDebug_Init_2()
 	M4x4_CREATE(projection)
 	engine.scenes.SetCamera(g_scene, camera);
 	engine.scenes.SetProjection(g_scene, projection);
-	#endif
 	return ZE_ERROR_NONE;
 }

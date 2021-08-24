@@ -32,6 +32,9 @@ internal f32 g_windowAspect;
 
 internal i32 g_requestedMonitorIndex = 0;
 
+internal i32 g_bLeftShiftOn = NO;
+internal i32 g_bRightShiftOn = NO;
+
 ze_internal ZEBuffer g_events;
 
 // TODO: App thread can cause a 'GLFW is not initialised' error here
@@ -142,6 +145,16 @@ ze_external void Window_Shutdown()
     ZEngine_BeginShutdown();
 }
 
+internal void Exec_Windowed(char* fullString, char** tokens, i32 numTokens)
+{
+    if (numTokens < 2)
+    {
+        return;
+    }
+    i32 flag = ZStr_AsciToInt32(tokens[1]);
+    printf("Windowed: %d\n", flag);
+}
+
 //////////////////////////////////////////////////////////////////
 // GLFW Callbacks
 //////////////////////////////////////////////////////////////////
@@ -150,8 +163,44 @@ ze_external void Window_Shutdown()
  * Handle inputs within this module. If they are handled, event is not
  * passed to app module.
  */
-static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int action, int mods)
+static i32 handle_engine_key_event(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    i32 bConsoleIgnore = NO;
+    if (key == GLFW_KEY_LEFT_SHIFT)
+    {
+        g_bLeftShiftOn = (action == GLFW_PRESS);
+        bConsoleIgnore = YES;
+    }
+    if (key == GLFW_KEY_RIGHT_SHIFT)
+    {
+        g_bRightShiftOn = (action == GLFW_PRESS);
+        bConsoleIgnore = YES;
+    }
+    
+    // (not) tilde key console toggle:
+    // escape belongs to the App
+    i32 bConsoleOn = ZCmdConsole_GetInputEnabled();
+    if (key == GLFW_KEY_GRAVE_ACCENT) // || key == GLFW_KEY_ESCAPE)
+    {
+        if (action == GLFW_PRESS)
+        {
+            ZCmdConsole_SetInputEnabled(!bConsoleOn);
+        }
+        return YES;
+    }
+
+    //////////////////////////////////////////
+    // Console overrides all
+    if (ZCmdConsole_GetInputEnabled())
+    {
+        if (action == GLFW_PRESS)
+        {
+            ZCmdConsole_WriteChar((char)key, g_bLeftShiftOn | g_bRightShiftOn);
+        }
+        return YES;
+    }
+    //////////////////////////////////////////
+    // Platform 
 	if ((key == GLFW_KEY_ESCAPE && !GetGameDef().bOverrideEscapeKey)
 		|| key == GLFW_KEY_F8)
 	{
@@ -196,7 +245,7 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
 static void key_callback(GLFWwindow *window, int glfwKey, int scancode, int action, int mods)
 {
     // check for internal debug input handling
-    if (handle_window_key(window, glfwKey, scancode, action, mods) == YES)
+    if (handle_engine_key_event(window, glfwKey, scancode, action, mods) == YES)
     {
         return;
     }
@@ -394,6 +443,11 @@ ze_external zErrorCode SpawnWindow()
 
 ze_external zErrorCode ZWindow_Init()
 {
+    // register Exec_Windowed
+    ZCmdConsole_RegisterInternalCommand(
+        "windowed", "Set windowed, eg: windowed 1", Exec_Windowed);
+    ZCmdConsole_QueueCommand("windowed 1");
+    
     i32 index = ZCFG_FindParamIndex("-w", "--windowed", 0);
     g_bWindowed = (index != ZE_ERROR_BAD_INDEX) ? YES : NO;
     printf("Windowed: %d\n", g_bWindowed);

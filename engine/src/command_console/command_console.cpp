@@ -1,22 +1,34 @@
 #include "../../internal_headers/zengine_internal.h"
 
+#define MAX_CONSOLE_COMMAND_TYPES 256
+
 struct ZConsoleCmd
 {
 	char* name;
 	char* description;
+	i32 bExternal;
 	ZCommand_Callback functionPtr;
 };
 
+// commands are queued up and executed at the start of a frame
+// the queue is copied before execution, so commands queued
+// during execution will run on the next frame.
+// I guess it could also make it thread-safe?
 internal ZEBuffer g_queue;
 internal ZEBuffer g_execute;
+
+// linear buffer storing ZConsoleCmd items and their strings.
 internal ZEBuffer g_commandData;
-
-#define MAX_CONSOLE_COMMAND_TYPES 256
-
+// Hash table to lookup ZConsoleCmd items in g_commandData
 internal ZEHashTable* g_commands;
+
+internal ZEBuffer g_consoleText;
+
+internal i32 g_bTextInputOn = NO;
 
 internal void Exec_Help(char *fullString, char **tokens, i32 numTokens)
 {
+	printf("============================\n");
 	printf("=== Command console help ===\n");
 	for (i32 i = 0; i < g_commands->m_maxKeys; ++i)
 	{
@@ -26,6 +38,51 @@ internal void Exec_Help(char *fullString, char **tokens, i32 numTokens)
 		if (cmd == NULL) { continue; }
 		printf("%s: %s\n", cmd->name, cmd->description);
 	}
+}
+
+internal void ResetConsoleText()
+{
+	g_consoleText.Clear(NO);
+	*(g_consoleText.cursor) = '<';
+	*(g_consoleText.cursor + 1) = '\0';
+}
+
+ze_external void ZCmdConsole_SetInputEnabled(i32 flag)
+{
+	g_bTextInputOn = flag;
+}
+
+ze_external i32 ZCmdConsole_GetInputEnabled()
+{
+	return g_bTextInputOn;
+}
+
+ze_external void ZCmdConsole_WriteChar(char c, i32 bShiftOn)
+{
+	printf("Console write char %c code %d\n", c, c);
+	if (c == 1)
+	{
+		ZCmdConsole_SubmitText();
+		return;
+	}
+	// A - Z is 65 - 90
+	if (c >= 65 && c <= 90 && !bShiftOn)
+	{
+		c += 32;
+	}
+
+	*g_consoleText.cursor = c;
+	g_consoleText.cursor += 1;
+	*(g_consoleText.cursor) = '<';
+	*(g_consoleText.cursor + 1) = '\0';
+	printf("Console: %s\n", g_consoleText.start);
+}
+
+ze_external void ZCmdConsole_SubmitText()
+{
+	*(g_consoleText.cursor) = '\0';
+	ZCmdConsole_QueueCommand((char*)g_consoleText.start);
+	ResetConsoleText();
 }
 
 ze_external void ZCmdConsole_QueueCommand(char* cmd)
@@ -46,14 +103,24 @@ ze_external void ZCmdConsole_QueueCommand(char* cmd)
 	g_queue.cursor += ZE_COPY(cmd, g_queue.cursor, len);
 }
 
-ze_external void ZCmdConsole_RegisterCommand(
-	char *name, char *description, ZCommand_Callback functionPtr)
+internal void ZCmdConsole_RegisterCommand(
+	char *name, char *description, i32 bExternal, ZCommand_Callback functionPtr)
 {
+	if (name == NULL || description == NULL || functionPtr == NULL)
+	{ return; }
+	
+	
+	i32 nameLen = ZStr_Len(name);
+	if (nameLen == 0) { return; }
+	i32 descriptionLen = ZStr_Len(description);
+	if (descriptionLen == 0) { return; }
+	
+	i32 totalBytes = sizeof(ZConsoleCmd) + nameLen + descriptionLen;
+	if (totalBytes > g_commandData.Space()) { return; }
+	
 	ZConsoleCmd* cmd = (ZConsoleCmd*)g_commandData.cursor;
 	g_commandData.cursor += sizeof(ZConsoleCmd);
 	cmd->functionPtr = functionPtr;
-	i32 nameLen = ZStr_Len(name);
-	i32 descriptionLen = ZStr_Len(description);
 
 	cmd->name = (char*)g_commandData.cursor;
 	g_commandData.cursor += ZE_COPY(name, g_commandData.cursor, nameLen);
@@ -61,6 +128,20 @@ ze_external void ZCmdConsole_RegisterCommand(
 	g_commandData.cursor += ZE_COPY(description, g_commandData.cursor, descriptionLen);
 	i32 id = ZE_Hash_djb2((uChar*)name);
 	g_commands->InsertPointer(id, cmd);
+}
+
+// Engine components should register commands here
+ze_external void ZCmdConsole_RegisterInternalCommand(
+	char *name, char *description, ZCommand_Callback functionPtr)
+{
+	ZCmdConsole_RegisterCommand(name, description, NO, functionPtr);
+}
+
+// game DLL registers through here
+internal void ZCmdConsole_RegisterExternalCommand(
+	char *name, char *description, ZCommand_Callback functionPtr)
+{
+	ZCmdConsole_RegisterCommand(name, description, YES, functionPtr);
 }
 
 ze_external void ZCmdConsole_Execute()
@@ -112,10 +193,19 @@ ze_external i32 ZCmdConsole_Init()
 {
 	g_queue = Buf_FromMalloc(Platform_Alloc, KiloBytes(32));
 	g_execute = Buf_FromMalloc(Platform_Alloc, KiloBytes(32));
+	g_consoleText = Buf_FromMalloc(Platform_Alloc, KiloBytes(32));
+	ResetConsoleText();
 	g_commandData = Buf_FromMalloc(Platform_Alloc, KiloBytes(32));
 	g_commands = ZE_HashTable_Create(Platform_Alloc, MAX_CONSOLE_COMMAND_TYPES, NULL);
 
-	ZCmdConsole_RegisterCommand("help", "List commands", Exec_Help);
+	ZCmdConsole_RegisterInternalCommand("help", "List commands", Exec_Help);
+	
+	
+	ZCmdConsole_WriteChar('h', NO);
+	ZCmdConsole_WriteChar('e', NO);
+	ZCmdConsole_WriteChar('l', NO);
+	ZCmdConsole_WriteChar('p', NO);
+	ZCmdConsole_SubmitText();
 	return ZE_ERROR_NONE;
 }
 
