@@ -183,6 +183,7 @@ static i32 handle_window_key(GLFWwindow* window, int key, int scancode, int acti
         {
             ZCmdConsole_QueueCommand("map foo");
             ZCmdConsole_QueueCommand("set bar 7");
+            ZCmdConsole_QueueCommand("help");
         }
     }
     return 0;

@@ -71,6 +71,8 @@ struct ZGame
 // Engine objects provided to game DLL
 ///////////////////////////////////////////
 
+typedef void (*ZCommand_Callback)(char* fullString, char** tokens, i32 numTokens);
+
 struct ZFileIO
 {
 	// if handle == 0, open failed
