@@ -203,7 +203,7 @@ ze_external zErrorCode ZDebug_Init_2();
 ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, const i32 argc);
 
 ze_external i32 ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc);
-ze_external i32 ZCFG_RegisterFunctions();
+ze_external ZConfig ZCFG_RegisterFunctions();
 ze_external i32 ZCFG_RegisterTextCommands();
 
 ze_external i32 ZCFG_FindParamIndex(const char* shortQuery, const char* longQuery, i32 extraTokens);
@@ -254,26 +254,6 @@ ze_external void ZAssets_PrintAll();
 
 ze_external zErrorCode ZEmbedded_Init();
 
-//////////////////////////////////
-// asset creation
-/*
-ze_external void ZGen_Init();
-ze_external void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour);
-ze_external void ZGen_SetPixel(
-    ZRTexture *tex, ColourU32 colour, i32 x, i32 y);
-ze_external void ZGen_FillTextureRect(
-    ZRTexture *tex, ColourU32 colour, Point2 topLeft, Point2 size);
-ze_external void ZGen_AddSriteGeoXY(
-    ZRMeshData* meshData, Vec3 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax);
-ze_external i32 TexGen_DecodeBW(
-    u8 *source,
-    const i32 sourceSize,
-    ColourU32 *target,
-    const i32 w,
-    const i32 h,
-    ColourU32 solid,
-    ColourU32 empty);
-*/
 //////////////////////////////////
 // scene manager
 ze_external ZSceneManager ZScene_RegisterFunctions();

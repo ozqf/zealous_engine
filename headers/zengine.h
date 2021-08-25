@@ -76,6 +76,13 @@ typedef void (*ZCommand_Callback)(char* fullString, char** tokens, i32 numTokens
 #define ZCMD_CALLBACK(functionName) \
 ze_external void functionName(char* fullString, char** tokens, i32 numTokens)
 
+struct ZConfig
+{
+    i32 (*FindParamIndex)(const char *shortQuery, const char *longQuery, i32 extraTokens);
+    char* (*GetParamByIndex)(const i32 index);
+    i32 (*FindIntParam)(const char *shortQuery, const char *longQuery, i32 failResponse);
+};
+
 struct ZTextCommand
 {
     zErrorCode (*RegisterCommand)(
@@ -90,6 +97,7 @@ struct ZFileIO
 	void		(*Close)(zeHandle fileHandle);
 	u32			(*Measure)(zeHandle fileHandle);
 	void		(*Seek)(zeHandle fileHandle, u32 position);
+    i32         (*Read)(zeHandle fileHandle, i32 numBytes, ZEBuffer* target);
 	
 };
 
@@ -151,9 +159,11 @@ struct ZEngine
 {
     ZSceneManager scenes;
     ZAssetManager assets;
+    ZConfig cfg;
     ZTextCommand textCommands;
     ZInput input;
     ZSystem system;
+    ZFileIO io;
     i32 sentinel;
 };
 

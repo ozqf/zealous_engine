@@ -81,9 +81,13 @@ ze_external zErrorCode ZCFG_Init(const char *cmdLine, const char **argv, const i
 	return ZE_ERROR_NONE;
 }
 
-ze_external zErrorCode ZCFG_RegisterFunctions()
+ze_external ZConfig ZCFG_RegisterFunctions()
 {
-	return NO;
+	ZConfig r = {};
+	r.FindParamIndex = ZCFG_FindParamIndex;
+	r.FindIntParam = ZCFG_FindIntParam;
+	r.GetParamByIndex = ZCFG_GetParamByIndex;
+	return r;
 }
 
 ze_external zErrorCode ZCFG_RegisterTextCommands()

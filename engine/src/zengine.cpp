@@ -73,6 +73,7 @@ ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunctio
 
 	// grab everyone's export functions
 	g_engine.system = systemFunctions;
+	g_engine.cfg = ZCFG_RegisterFunctions();
 	g_engine.assets = ZAssets_RegisterFunctions();
 	g_engine.scenes = ZScene_RegisterFunctions();
 	g_engine.input = ZInput_RegisterFunctions();

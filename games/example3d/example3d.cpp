@@ -331,6 +331,12 @@ internal void TickProjectile(Entity* ent, f32 delta)
     }
 }
 
+// Function callback for our custom console command
+ZCMD_CALLBACK(Exec_LoadLevel)
+{
+    printf("Game - load level\n");
+}
+
 //////////////////////////////////////////////////////////////
 // Init
 //////////////////////////////////////////////////////////////
@@ -349,6 +355,9 @@ internal void Init()
     g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, "shoot_down");
 
     g_engine.input.AddAction(Z_INPUT_CODE_R, Z_INPUT_CODE_NULL, "debug_spawn");
+
+    // register custom console command callbacks
+    g_engine.textCommands.RegisterCommand("loadlevel", "Load provided game level", Exec_LoadLevel);
 
     //////////////////////////////////////////////////////////////
     // Create draw scene
