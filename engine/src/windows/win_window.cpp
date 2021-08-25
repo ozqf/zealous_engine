@@ -145,7 +145,7 @@ ze_external void Window_Shutdown()
     ZEngine_BeginShutdown();
 }
 
-internal void Exec_Windowed(char* fullString, char** tokens, i32 numTokens)
+ZCMD_CALLBACK(Exec_Windowed)
 {
     if (numTokens < 2)
     {

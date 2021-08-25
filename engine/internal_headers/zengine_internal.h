@@ -201,18 +201,23 @@ ze_external zErrorCode ZDebug_Init_2();
 //////////////////////////////////
 // config
 ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, const i32 argc);
+
 ze_external i32 ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc);
+ze_external i32 ZCFG_RegisterFunctions();
+ze_external i32 ZCFG_RegisterTextCommands();
+
 ze_external i32 ZCFG_FindParamIndex(const char* shortQuery, const char* longQuery, i32 extraTokens);
 ze_external char *ZCFG_GetParamByIndex(const i32 index);
 ze_external i32 ZCFG_FindIntParam(const char *shortQuery, const char *longQuery, i32 failResponse);
 
 //////////////////////////////////
 // console
+ze_external ZTextCommand ZCmdConsole_RegisterFunctions();
 ze_external i32 ZCmdConsole_Init();
 ze_external i32 ZCmdConsole_Init_b();
-ze_external void ZCmdConsole_QueueCommand(char *cmd);
+ze_external zErrorCode ZCmdConsole_QueueCommand(char *cmd);
 ze_external void ZCmdConsole_Execute();
-ze_external void ZCmdConsole_RegisterInternalCommand(
+ze_external zErrorCode ZCmdConsole_RegisterInternalCommand(
     char *name, char *description, ZCommand_Callback functionPtr);
 
 ze_external void ZCmdConsole_SetInputEnabled(i32 flag);

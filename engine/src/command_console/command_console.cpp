@@ -26,7 +26,7 @@ internal ZEBuffer g_consoleText;
 
 internal i32 g_bTextInputOn = NO;
 
-internal void Exec_Help(char *fullString, char **tokens, i32 numTokens)
+ZCMD_CALLBACK(Exec_Help)
 {
 	printf("============================\n");
 	printf("=== Command console help ===\n");
@@ -99,38 +99,51 @@ ze_external void ZCmdConsole_SubmitText()
 	ResetConsoleText();
 }
 
-ze_external void ZCmdConsole_QueueCommand(char* cmd)
+ze_external zErrorCode ZCmdConsole_QueueCommand(char* cmd)
 {
-	if (cmd == NULL) { return; }
+	if (cmd == NULL) { return ZE_ERROR_NULL_ARGUMENT; }
 	i32 len = ZStr_Len(cmd);
 	i32 size = sizeof(i32) + sizeof(i32) + len;
+	// is this text just a terminator?
+	if (len <= 1)
+	{
+		return ZE_ERROR_BAD_ARGUMENT;
+	}
 	if (len >= g_queue.Space())
 	{
 		printf("No space to buffer commnd \"%s\"\n", cmd);
-		return;
-	
+		return ZE_ERROR_NO_SPACE;
 	}
 	*(i32*)g_queue.cursor = ZE_SENTINEL;
 	g_queue.cursor += sizeof(i32);
 	*(i32*)g_queue.cursor = len;
 	g_queue.cursor += sizeof(i32);
 	g_queue.cursor += ZE_COPY(cmd, g_queue.cursor, len);
+	return ZE_ERROR_NONE;
 }
 
-internal void ZCmdConsole_RegisterCommand(
+internal zErrorCode ZCmdConsole_RegisterCommand(
 	char *name, char *description, i32 bExternal, ZCommand_Callback functionPtr)
 {
 	if (name == NULL || description == NULL || functionPtr == NULL)
-	{ return; }
+	{ return ZE_ERROR_NULL_ARGUMENT; }
 	
+	i32 newId = ZE_Hash_djb2((uChar*)name);
+
+	ZConsoleCmd *existingCmd = (ZConsoleCmd *)g_commands->FindPointer(newId);
+	if (existingCmd != NULL)
+	{
+		printf("!Command \"%s\" is already registered\n", name);
+		return ZE_ERROR_IDENTIFIER_ALREADY_TAKEN;
+	}
 	
 	i32 nameLen = ZStr_Len(name);
-	if (nameLen == 0) { return; }
+	if (nameLen == 0) { return ZE_ERROR_BAD_ARGUMENT; }
 	i32 descriptionLen = ZStr_Len(description);
-	if (descriptionLen == 0) { return; }
+	if (descriptionLen == 0) { return ZE_ERROR_BAD_ARGUMENT; }
 	
 	i32 totalBytes = sizeof(ZConsoleCmd) + nameLen + descriptionLen;
-	if (totalBytes > g_commandData.Space()) { return; }
+	if (totalBytes > g_commandData.Space()) { return ZE_ERROR_NO_SPACE; }
 	
 	ZConsoleCmd* cmd = (ZConsoleCmd*)g_commandData.cursor;
 	g_commandData.cursor += sizeof(ZConsoleCmd);
@@ -140,22 +153,22 @@ internal void ZCmdConsole_RegisterCommand(
 	g_commandData.cursor += ZE_COPY(name, g_commandData.cursor, nameLen);
 	cmd->description = (char *)g_commandData.cursor;
 	g_commandData.cursor += ZE_COPY(description, g_commandData.cursor, descriptionLen);
-	i32 id = ZE_Hash_djb2((uChar*)name);
-	g_commands->InsertPointer(id, cmd);
+	g_commands->InsertPointer(newId, cmd);
+	return ZE_ERROR_NONE;
 }
 
 // Engine components should register commands here
-ze_external void ZCmdConsole_RegisterInternalCommand(
+ze_external zErrorCode ZCmdConsole_RegisterInternalCommand(
 	char *name, char *description, ZCommand_Callback functionPtr)
 {
-	ZCmdConsole_RegisterCommand(name, description, NO, functionPtr);
+	return ZCmdConsole_RegisterCommand(name, description, NO, functionPtr);
 }
 
 // game DLL registers through here
-internal void ZCmdConsole_RegisterExternalCommand(
+internal zErrorCode ZCmdConsole_RegisterExternalCommand(
 	char *name, char *description, ZCommand_Callback functionPtr)
 {
-	ZCmdConsole_RegisterCommand(name, description, YES, functionPtr);
+	return ZCmdConsole_RegisterCommand(name, description, YES, functionPtr);
 }
 
 ze_external void ZCmdConsole_Execute()
@@ -168,7 +181,7 @@ ze_external void ZCmdConsole_Execute()
 	g_execute.Clear(NO);
 	Buf_CopyAll(&g_queue, &g_execute);
 	g_queue.Clear(NO);
-	printf("Execute %d text command bytes\n", g_execute.Written());
+	// printf("Execute %d text command bytes\n", g_execute.Written());
 
 	i8* read = g_execute.start;
 	i8* end = g_execute.cursor;
@@ -182,7 +195,7 @@ ze_external void ZCmdConsole_Execute()
 		i32 len = ZE_ReadI32(&read);
 		char* txt = (char*)read;
 		read += len;
-		printf("Exec %s\n", txt);
+		// printf("Exec %s\n", txt);
 
 		const i32 execBufSize = 256;
 		const i32 maxTokens = 64;
@@ -201,6 +214,14 @@ ze_external void ZCmdConsole_Execute()
 		if (cmd->functionPtr == NULL) { continue; }
 		cmd->functionPtr(txt, tokens, numTokens);
 	}
+}
+
+ze_external ZTextCommand ZCmdConsole_RegisterFunctions()
+{
+	ZTextCommand r = {};
+	r.QueueCommand = ZCmdConsole_QueueCommand;
+	r.RegisterCommand = ZCmdConsole_RegisterExternalCommand;
+	return r;
 }
 
 ze_external i32 ZCmdConsole_Init()

@@ -30,6 +30,7 @@
 typedef i64 frameInt;
 typedef f64 timeFloat;
 typedef i32 zErrorCode;
+typedef int ErrorCode; // TODO - replace uses of this typedef
 typedef i32 zeHandle;
 
 static_assert(sizeof(char) == 1, "Code requires char size == 1");
@@ -184,10 +185,9 @@ newPtrStructType* newPtrName = (newPtrStructType*)ptr;
 	memset(##ptrToMemory, 0, numberOfBytesToZero##);
 #endif
 
-	///////////////////////////////////////////////////////////////////////
-	// Error handling
-	///////////////////////////////////////////////////////////////////////
-	typedef int ErrorCode;
+///////////////////////////////////////////////////////////////////////
+// Error handling
+///////////////////////////////////////////////////////////////////////
 
 #define ZE_ERROR_NONE 0
 
@@ -212,6 +212,7 @@ newPtrStructType* newPtrName = (newPtrStructType*)ptr;
 #define ZE_ERROR_LINK_UP_FAILED 18
 #define ZE_ERROR_TEST_FAILED 19
 #define ZE_ERROR_STRING_TOO_LONG 20
+#define ZE_ERROR_IDENTIFIER_ALREADY_TAKEN 21
 
 typedef void (*ZE_FatalErrorFunction)(const char *message);
 typedef void* (*ZE_mallocFunction)(const size_t numBytes);

@@ -21,7 +21,7 @@ ze_external void ZAssets_PrintAll()
     }
 }
 
-internal void Exec_Manifest(char* fullText, char** tokens, i32 numTokens)
+ZCMD_CALLBACK(Exec_Manifest)
 {
     ZAssets_PrintAll();
 }

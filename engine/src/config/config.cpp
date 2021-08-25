@@ -1,23 +1,12 @@
-#include "../../../headers/zengine.h"
+#include "../../internal_headers/zengine_internal.h"
 
 internal char* g_cmdLine;
 internal char** g_argv;
 internal i32 g_argc;
 
-ze_external i32 ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc)
-{
-	g_cmdLine = (char*)cmdLine;
-	g_argv = (char**)argv;
-	g_argc = argc;
-	printf("ZCFG Init with %d args\n", argc);
-	for (i32 i = 0; i < argc; ++i)
-	{
-		printf("%s, ", argv[i]);
-	}
-	printf("\n");
-	return ZE_ERROR_NONE;
-}
-
+//////////////////////////////////////////
+// Launch parameters
+//////////////////////////////////////////
 ze_external i32 ZCFG_FindParamIndex(const char *shortQuery, const char *longQuery, i32 extraTokens)
 {
 	i32 index = ZE_ERROR_BAD_INDEX;
@@ -51,4 +40,65 @@ ze_external i32 ZCFG_FindIntParam(const char* shortQuery, const char* longQuery,
 	i32 i = ZStr_AsciToInt32(ZCFG_GetParamByIndex(index + 1));
 	printf("Found Int param %s: %d\n", longQuery, i);
 	return i;
+}
+
+//////////////////////////////////////////
+// Config variables
+//////////////////////////////////////////
+/*
+TODO - configuration values + save/load
+
+*/
+ZCMD_CALLBACK(Exec_SaveConfig)
+{
+	printf("Save cfg\n");
+}
+
+ZCMD_CALLBACK(Exec_LoadConfig)
+{
+	printf("Load cfg\n");
+}
+
+ZCMD_CALLBACK(Exec_Set)
+{
+	printf("Set var\n");
+}
+
+//////////////////////////////////////////
+// Initialisation
+//////////////////////////////////////////
+ze_external zErrorCode ZCFG_Init(const char *cmdLine, const char **argv, const i32 argc)
+{
+	g_cmdLine = (char*)cmdLine;
+	g_argv = (char**)argv;
+	g_argc = argc;
+	printf("ZCFG Init with %d args\n", argc);
+	for (i32 i = 0; i < argc; ++i)
+	{
+		printf("%s, ", argv[i]);
+	}
+	printf("\n");
+	return ZE_ERROR_NONE;
+}
+
+ze_external zErrorCode ZCFG_RegisterFunctions()
+{
+	return NO;
+}
+
+ze_external zErrorCode ZCFG_RegisterTextCommands()
+{
+	ZCmdConsole_RegisterInternalCommand(
+		"set",
+		"Set a configuration variable",
+		Exec_Set);
+	ZCmdConsole_RegisterInternalCommand(
+		"savecfg",
+		"Save a configuration file. If name is not provided as a second param a default is used.",
+		Exec_SaveConfig);
+	ZCmdConsole_RegisterInternalCommand(
+		"loadcfg",
+		"Load a configuration file. If name is not provided as a second param a default is used.",
+		Exec_LoadConfig);
+	return NO;
 }

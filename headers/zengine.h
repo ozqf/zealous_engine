@@ -73,6 +73,16 @@ struct ZGame
 
 typedef void (*ZCommand_Callback)(char* fullString, char** tokens, i32 numTokens);
 
+#define ZCMD_CALLBACK(functionName) \
+ze_external void functionName(char* fullString, char** tokens, i32 numTokens)
+
+struct ZTextCommand
+{
+    zErrorCode (*RegisterCommand)(
+        char *name, char *description, ZCommand_Callback functionPtr);
+    zErrorCode (*QueueCommand)(char *cmd);
+};
+
 struct ZFileIO
 {
 	// if handle == 0, open failed
@@ -141,6 +151,7 @@ struct ZEngine
 {
     ZSceneManager scenes;
     ZAssetManager assets;
+    ZTextCommand textCommands;
     ZInput input;
     ZSystem system;
     i32 sentinel;
