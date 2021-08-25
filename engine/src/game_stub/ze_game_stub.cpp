@@ -79,6 +79,14 @@ internal void Stub_Init()
     cube->t.pos.z = -2;
 
     ////////////////////////////////////////////////////
+    // bound box test object
+    ZRDrawObj *aabbObj = g_engine.scenes.AddObject(g_gameScene);
+    AABB aabb = {};
+    aabb.min = { -1.5, -1.5, -1.5 };
+    aabb.max = { 1.5, 1.5, 1.5 };
+    aabbObj->data.SetAsBoundingBox(aabb, COLOUR_U32_GREEN);
+
+    ////////////////////////////////////////////////////
     // pillars
     cube = g_engine.scenes.AddObject(g_gameScene);
     cube->data.SetAsMesh(cubeMesh->header.id, cubeMat->header.id);

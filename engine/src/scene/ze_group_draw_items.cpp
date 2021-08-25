@@ -55,7 +55,7 @@ internal void WriteBoundBoxCommand(ZEBuffer* buf, ZRDrawObj* obj)
     lines->verts = (ZRLineVertex*)buf->cursor;
     lines->bChained = NO;
     // allocate space for vertices and finished header
-    lines->numVerts = 8;
+    lines->numVerts = 24;
     buf->cursor += (lines->numVerts * sizeof(ZRLineVertex));
     lines->header.size = buf->cursor - (i8 *)lines;
     AABB local = obj->data.box.aabb;
@@ -63,7 +63,8 @@ internal void WriteBoundBoxCommand(ZEBuffer* buf, ZRDrawObj* obj)
         obj->t.pos,
         local
     );
-    // vertical
+
+    // y
     lines->verts[0].pos = {aabb.min.x, aabb.min.y, aabb.min.z};
     lines->verts[1].pos = {aabb.min.x, aabb.max.y, aabb.min.z};
 
@@ -75,7 +76,32 @@ internal void WriteBoundBoxCommand(ZEBuffer* buf, ZRDrawObj* obj)
 
     lines->verts[6].pos = {aabb.max.x, aabb.min.y, aabb.max.z};
     lines->verts[7].pos = {aabb.max.x, aabb.max.y, aabb.max.z};
-    
+
+    // x
+    lines->verts[8].pos = {aabb.min.x, aabb.min.y, aabb.min.z};
+    lines->verts[9].pos = {aabb.max.x, aabb.min.y, aabb.min.z};
+
+    lines->verts[10].pos = {aabb.min.x, aabb.max.y, aabb.min.z};
+    lines->verts[11].pos = {aabb.max.x, aabb.max.y, aabb.min.z};
+
+    lines->verts[12].pos = {aabb.min.x, aabb.min.y, aabb.max.z};
+    lines->verts[13].pos = {aabb.max.x, aabb.min.y, aabb.max.z};
+
+    lines->verts[14].pos = {aabb.min.x, aabb.max.y, aabb.max.z};
+    lines->verts[15].pos = {aabb.max.x, aabb.max.y, aabb.max.z};
+
+    // z
+    lines->verts[16].pos = {aabb.min.x, aabb.min.y, aabb.min.z};
+    lines->verts[17].pos = {aabb.min.x, aabb.min.y, aabb.max.z};
+
+    lines->verts[18].pos = {aabb.min.x, aabb.max.y, aabb.min.z};
+    lines->verts[19].pos = {aabb.min.x, aabb.max.y, aabb.max.z};
+
+    lines->verts[20].pos = {aabb.max.x, aabb.min.y, aabb.min.z};
+    lines->verts[21].pos = {aabb.max.x, aabb.min.y, aabb.max.z};
+
+    lines->verts[22].pos = {aabb.max.x, aabb.max.y, aabb.min.z};
+    lines->verts[23].pos = {aabb.max.x, aabb.max.y, aabb.max.z};
 
     /*
     lines->verts[2].pos = {aabb.min.x, aabb.max.y, aabb.min.z};
