@@ -58,6 +58,7 @@ internal void WriteBoundBoxCommand(ZEBuffer* buf, ZRDrawObj* obj)
     lines->numVerts = 24;
     buf->cursor += (lines->numVerts * sizeof(ZRLineVertex));
     lines->header.size = buf->cursor - (i8 *)lines;
+    // move aabb from object local to world space
     AABB local = obj->data.box.aabb;
     AABB aabb = AABB_LocalToWorld(
         obj->t.pos,
@@ -127,10 +128,10 @@ internal void AddTestLines(ZEBuffer* buf)
     buf->cursor += (lines->numVerts * sizeof(ZRLineVertex));
     lines->header.size = buf->cursor - (i8*)lines;
     // write vertices
-    lines->verts[0].pos = { -2, -2, -2 };
-    lines->verts[1].pos = { 2, 2, 2 };
-    lines->verts[2].pos = { 2, -2, 2 };
-    lines->verts[3].pos = { -2, 2, -2 };
+    lines->verts[0].pos = { -4, -2, -3 };
+    lines->verts[1].pos = { -1, -1, -1 };
+    lines->verts[2].pos = { 1, 1, 1 };
+    lines->verts[3].pos = { 2, 4, 4 };
     // printf("Wrote %d bytes of lines\n", lines->header.size);
 }
 
@@ -145,7 +146,7 @@ ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
     setCamera->camera = scene->camera;
     setCamera->projection = scene->projection;
 
-    // AddTestLines(buf);
+    AddTestLines(buf);
     
     for (i32 i = 0; i < len; ++i)
     {

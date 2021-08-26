@@ -1,5 +1,10 @@
 #include "../ze_opengl_internal.h"
 
+/**
+ * TODO - Move - If this function breaks the line down into mesh draw jobs...
+ * why not do this in group_draw_items instead of the renderer and
+ * spit out a big bunch of mesh jobs...?
+ */
 internal void ZRGL_DrawLineSegment(
 	ZRDrawCmdMesh* meshCmd, Vec3 a, Vec3 b, M4x4* view, M4x4* projection)
 {
@@ -17,9 +22,10 @@ internal void ZRGL_DrawLineSegment(
 	Vec3 scale = { 0.1f, 0.1f, length };
 	meshCmd->obj.t.scale = scale;
 	Vec3 euler = Vec3_EulerAnglesBetween(a, b);
+	euler.x = -euler.x;
 	Transform_SetRotation(&meshCmd->obj.t, euler.x, euler.y, euler.z);
 	// M3x3_Rot
-	/*
+	#if 0 // debugging because I suck.
 	printf("Drawing line from %.3f, %.3f, %.3f to %.3f, %.3f, %.3f\n",
 		a.x, a.y, a.z, b.x, b.y, b.z);
 	printf("Drawing line centred at %.3f, %.3f, %.3f\n",
@@ -27,7 +33,7 @@ internal void ZRGL_DrawLineSegment(
 	printf("Scale %.3f, %.3f, %.3f\n", scale.x, scale.y, scale.z);
 	printf("Line Euler: %.3f, %.3f, %.3f\n",
 		euler.x * RAD2DEG, euler.y * RAD2DEG, euler.z * RAD2DEG);
-	*/
+	#endif
 	// linePos
 	meshCmd->obj.t.pos = linePos;
 	ZRGL_DrawMesh(meshCmd, view, projection);
@@ -49,11 +55,24 @@ ze_external void ZRGL_DrawDebugLines(
 	// choose point iteration
 	if (cmd->bChained == YES)
 	{
-		i32 stop = cmd->numVerts - 1;
-		for (i32 i = 0; i < stop; ++i)
+		i32 numSegments = 0;
+		if (numSegments % 2 == 0)
+		{
+			// eg 4 verts would be 3 segments
+			numSegments = (cmd->numVerts / 2) + 1;
+		}
+		else
+		{
+			// eg 3 verts would be 2 segments
+			numSegments = (cmd->numVerts + 1) / 2;
+		}
+		// printf("Draw chain with %d segments\n", numSegments);
+		for (i32 i = 0; i < numSegments; ++i)
 		{
 			ZRLineVertex a = cmd->verts[i];
 			ZRLineVertex b = cmd->verts[i + 1];
+			// printf("Draw Chain segment %d -> %d from %.3f, %.3f, %.3f to %.3f, %.3f, %.3f\n",
+			// 	   i, i + 1, a.pos.x, a.pos.y, a.pos.z, b.pos.x, b.pos.y, b.pos.z);
 			ZRGL_DrawLineSegment(&meshCmd, a.pos, b.pos, view, projection);
 		}
 	}
@@ -71,6 +90,4 @@ ze_external void ZRGL_DrawDebugLines(
 			ZRGL_DrawLineSegment(&meshCmd, a.pos, b.pos, view, projection);
 		}
 	}
-
-	
 }

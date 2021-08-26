@@ -117,7 +117,7 @@ internal void Stub_Init()
     // set the camera and projection for the scene
     TRANSFORM_CREATE(camera)
     // Transform_SetRotationDegrees(&camera, 45.f, 0, 0);
-    camera.pos.z = 2.f;
+    camera.pos.z = 4.f;
     g_debugCam = camera;
     g_debugOrigin = g_debugCam;
 
