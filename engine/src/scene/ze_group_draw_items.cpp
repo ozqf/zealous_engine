@@ -146,7 +146,7 @@ ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
     setCamera->camera = scene->camera;
     setCamera->projection = scene->projection;
 
-    AddTestLines(buf);
+    // AddTestLines(buf);
     
     for (i32 i = 0; i < len; ++i)
     {

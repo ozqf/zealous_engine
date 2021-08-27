@@ -45,6 +45,14 @@ struct Entity
     EntityTick* tickFunction;
 };
 
+#define GAME_STATE_TITLE 0
+#define GAME_STATE_STARTUP 1
+#define GAME_STATE_PLAYING 2
+#define GAME_STATE_DEAD 3
+
+internal i32 g_gameState = 0;
+internal i32 g_pendingState = -1;
+
 internal ZEngine g_engine;
 internal zeHandle g_gameScene = 0;
 internal zeHandle g_avatarId = 0;
@@ -110,6 +118,8 @@ internal void AttachModelToEntity(Entity* ent, ZRMeshObjData meshData, Vec3 scal
 
 internal void SyncEntityDrawObj(Entity* ent)
 {
+    if (ent == NULL) { return; }
+    if (ent->drawObj == 0) { return; }
     ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, ent->drawObj);
     if (obj == NULL) { return; }
     obj->t.pos = ent->t.pos;
@@ -139,11 +149,12 @@ internal Entity* CreatePlayer(Vec3 pos, f32 yaw)
     ent->tickFunction = TickPlayer;
     ent->t.scale = { 0.5f, 0.5f, 0.5f };
     ent->flags |= ENT_FLAG_COLLISION_SOLID;
-    ent->aabb.min = { -0.25f, -0.25f, -0.25f };
-    ent->aabb.max = { 0.25f, 0.25f, 0.25f };
+    // collision area
+    ent->aabb = AABB_FromCube(0.25f);
     // AttachModelToEntity(ent, g_playerMeshObjData, ent->t.scale);
     ZRDrawObj *drawObj = g_engine.scenes.AddObject(g_gameScene);
     drawObj->data.SetAsBoundingBox(ent->aabb, COLOUR_U32_GREEN);
+    ent->drawObj = drawObj->id;
     SyncEntityDrawObj(ent);
     return ent;
 }
@@ -354,10 +365,12 @@ internal void Init()
     g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, "shoot_up");
     g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, "shoot_down");
 
+    g_engine.input.AddAction(Z_INPUT_CODE_SPACE, Z_INPUT_CODE_NULL, "menu_confirm");
     g_engine.input.AddAction(Z_INPUT_CODE_R, Z_INPUT_CODE_NULL, "debug_spawn");
 
     // register custom console command callbacks
-    g_engine.textCommands.RegisterCommand("loadlevel", "Load provided game level", Exec_LoadLevel);
+    g_engine.textCommands.RegisterCommand(
+        "loadlevel", "Load provided game level", Exec_LoadLevel);
 
     //////////////////////////////////////////////////////////////
     // Create draw scene
@@ -431,11 +444,6 @@ internal void Init()
     ZE_ASSERT(err == ZE_ERROR_NONE, "error creating object pool")
 
     //////////////////////////////////////////////////////////////
-    // Create player avatar
-    //////////////////////////////////////////////////////////////
-    CreatePlayer({ -2, 0, -2 }, 0);
-    
-    //////////////////////////////////////////////////////////////
     // create arena
     //////////////////////////////////////////////////////////////
     f32 arenaWidth = 12;
@@ -488,22 +496,18 @@ internal void Shutdown()
     
 }
 
-internal void Tick(ZEFrameTimeInfo timing)
+internal void TickBackground()
 {
-    g_time += (f32)timing.interval;
     ZRTexture* tex = g_engine.assets.GetTexByName("arena_floor");
     f32 sinValue = sinf(g_time);
     if (sinValue < 0) { sinValue = -sinValue; }
     u8 lerpColour = (u8)ZE_LerpF32(10, 50, sinValue);
     ZGen_FillTexture(tex, { 0, lerpColour, 0, 255});
     tex->header.bIsDirty = YES;
+}
 
-    if (g_engine.input.GetActionValue("debug_spawn"))
-    {
-        SpawnTestEnemy();
-    }
-
-    f32 delta = (f32)timing.interval;
+internal void TickEntities(f32 delta)
+{
     for (i32 i = 0; i < g_entities.m_array->m_numBlobs; ++i)
     {
         Entity* ent = (Entity*)g_entities.GetByIndex(i);
@@ -513,7 +517,90 @@ internal void Tick(ZEFrameTimeInfo timing)
             ent->tickFunction(ent, delta);
         }
     }
+}
+
+internal void SetPendingState(i32 state)
+{
+    g_pendingState = state;
+}
+
+internal void ChangeState(i32 newState)
+{
+    if (g_gameState == newState)
+    {
+        return;
+    }
+    g_gameState = newState;
+    if (g_gameState == GAME_STATE_STARTUP)
+    {
+        //////////////////////////////////////////////////////////////
+        // Create player avatar
+        //////////////////////////////////////////////////////////////
+        CreatePlayer({-2, 0, -2}, 0);
+    }
+}
+
+internal void TickTitle(ZEFrameTimeInfo timing)
+{
+    if (g_engine.input.GetActionValue("menu_confirm") != 0)
+    {
+        SetPendingState(GAME_STATE_STARTUP);
+    }
+}
+
+internal void TickStarting(ZEFrameTimeInfo timing)
+{
+    
+}
+
+internal void TickPlaying(ZEFrameTimeInfo timing)
+{
+    if (g_engine.input.GetActionValue("debug_spawn"))
+    {
+        SpawnTestEnemy();
+    }
+}
+
+internal void TickDead(ZEFrameTimeInfo timing)
+{
+    
+}
+
+internal void Tick(ZEFrameTimeInfo timing)
+{
+    g_time += (f32)timing.interval;
+    TickBackground();
+    
+    f32 delta = (f32)timing.interval;
+    TickEntities(delta);
+
+    switch (g_gameState)
+    {
+        case GAME_STATE_PLAYING:
+        TickPlaying(timing);
+        break;
+        case GAME_STATE_STARTUP:
+        TickStarting(timing);
+        break;
+        case GAME_STATE_DEAD:
+        TickDead(timing);
+        break;
+        case GAME_STATE_TITLE:
+        TickTitle(timing);
+        break;
+        default:
+        SetPendingState(GAME_STATE_TITLE);
+        break;
+    }
+    
     g_entities.Truncate();
+
+    if (g_pendingState != -1)
+    {
+        i32 newState = g_pendingState;
+        g_pendingState = -1;
+        ChangeState(newState);
+    }
 }
 
 Z_GAME_WINDOWS_LINK_FUNCTION
@@ -526,7 +613,7 @@ Z_GAME_WINDOWS_LINK_FUNCTION
     gameExport->sentinel = ZE_SENTINEL;
 	// export app info
     *gameDef = {};
-    gameDef->windowTitle = "3D Example";
+    gameDef->windowTitle = "Shape Hostility: Devolved";
     gameDef->targetFramerate = 60;
 	gameDef->bOverrideEscapeKey = YES;
     return ZE_ERROR_NONE;

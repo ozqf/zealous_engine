@@ -1,5 +1,7 @@
 #include "../ze_opengl_internal.h"
 
+#define DEFAULT_LINE_THICKNESS 0.05f
+
 /**
  * TODO - Move - If this function breaks the line down into mesh draw jobs...
  * why not do this in group_draw_items instead of the renderer and
@@ -19,7 +21,7 @@ internal void ZRGL_DrawLineSegment(
 	linePos.x = a.x + halfSize.x;
 	linePos.y = a.y + halfSize.y;
 	linePos.z = a.z + halfSize.z;
-	Vec3 scale = { 0.1f, 0.1f, length };
+	Vec3 scale = { DEFAULT_LINE_THICKNESS, DEFAULT_LINE_THICKNESS, length };
 	meshCmd->obj.t.scale = scale;
 	Vec3 euler = Vec3_EulerAnglesBetween(a, b);
 	euler.x = -euler.x;

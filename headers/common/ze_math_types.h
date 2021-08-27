@@ -153,6 +153,20 @@ struct AABB
 	}
 };
 
+inline AABB AABB_FromCube(f32 size)
+{
+	f32 halfSize = size / 2.f;
+	AABB r;
+	r.min.x = -halfSize;
+	r.min.y = -halfSize;
+	r.min.z = -halfSize;
+
+	r.max.x = halfSize;
+	r.max.y = halfSize;
+	r.max.z = halfSize;
+	return r;
+}
+
 inline AABB AABB_Combine(AABB a, AABB b)
 {
 	AABB result;
