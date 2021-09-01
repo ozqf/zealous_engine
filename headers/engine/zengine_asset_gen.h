@@ -115,4 +115,31 @@ inline void ZGen_FillTexture(ZRTexture *tex, ColourU32 colour)
     }
 }
 
+inline void ZGen_FillTexturePixelChequer(ZRTexture *tex, ColourU32 odd, ColourU32 even)
+{
+    if (tex == NULL) { return; }
+    ColourU32 *pixels = tex->data;
+    i32 w = tex->width;
+    i32 h = tex->height;
+    if (pixels == NULL) { return; }
+    i32 numPixels = w * h;
+	for (i32 y = 0; y < h; ++y)
+	{
+		for (i32 x = 0; x < w; ++x)
+		{
+			i32 bEvenX = (x % 2 == 0);
+			i32 bEvenY = (y % 2 == 0);
+			i32 i = ZE_2D_INDEX(x, y, w);
+			if (bEvenX == bEvenY)
+			{
+				pixels[i] = even;
+			}
+			else
+			{
+				pixels[i] = odd;
+			}
+		}
+	}
+}
+
 #endif // ZENGINE_ASSET_GEN_H

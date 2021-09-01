@@ -501,8 +501,18 @@ internal void TickBackground()
     ZRTexture* tex = g_engine.assets.GetTexByName("arena_floor");
     f32 sinValue = sinf(g_time);
     if (sinValue < 0) { sinValue = -sinValue; }
-    u8 lerpColour = (u8)ZE_LerpF32(10, 50, sinValue);
-    ZGen_FillTexture(tex, { 0, lerpColour, 0, 255});
+	
+    u8 lerpColour = (u8)ZE_LerpF32(10, 80, sinValue);
+	// u8 antiLerpColour = (u8)ZE_LerpF32(10, 80, 1 - sinValue);
+	
+	ColourU32 colourA = { 0, lerpColour, 0, 255 };
+	// colourA = { 255, 255, 255, 255 };
+	
+	ColourU32 colourB = { 0, 0, 0, 255 };
+	// ColourU32 colourB = { 0, antiLerpColour, 0, 255 };
+	// colourB = { 0, 0, 0, 255 };
+	
+    ZGen_FillTexturePixelChequer(tex, colourA, colourB);
     tex->header.bIsDirty = YES;
 }
 
