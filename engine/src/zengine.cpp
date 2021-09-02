@@ -91,6 +91,7 @@ ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunctio
 	ZAssets_Init();
 	// ZGen_Init();
 	ZEmbedded_Init();
+	ZInput_Init();
 
 	// further init that requires services to be running
 	ZDebug_Init_2();

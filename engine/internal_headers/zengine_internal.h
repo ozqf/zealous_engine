@@ -228,6 +228,7 @@ ze_external void ZCmdConsole_SubmitText();
 //////////////////////////////////
 // input
 ze_external ZInput ZInput_RegisterFunctions();
+ze_external zErrorCode ZInput_Init();
 ze_external void ZInput_ReadEvent(SysInputEvent* ev);
 
 //////////////////////////////////

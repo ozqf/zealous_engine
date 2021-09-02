@@ -235,11 +235,11 @@ ze_external i32 ZCmdConsole_Init()
 
 	ZCmdConsole_RegisterInternalCommand("help", "List commands", Exec_Help);
 	
+	// ZCmdConsole_WriteChar('h', NO);
+	// ZCmdConsole_WriteChar('e', NO);
+	// ZCmdConsole_WriteChar('l', NO);
+	// ZCmdConsole_WriteChar('p', NO);
 	
-	ZCmdConsole_WriteChar('h', NO);
-	ZCmdConsole_WriteChar('e', NO);
-	ZCmdConsole_WriteChar('l', NO);
-	ZCmdConsole_WriteChar('p', NO);
 	ZCmdConsole_SubmitText();
 	return ZE_ERROR_NONE;
 }

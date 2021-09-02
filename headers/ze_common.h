@@ -10,6 +10,7 @@
 #include "common/ze_parse_parameters.h"
 
 #include "common/ze_math_types.h"
+#include "common/ze_math_functions.h"
 #include "common/ze_collision.h"
 
 #include "common/ze_buf_block.h"
