@@ -27,6 +27,8 @@ ze_internal ZEHashTable* g_actionsByName;
 
 ze_internal ZInputIdentifier g_inputIds[Z_INPUT_CODE__COUNT__];
 
+ze_internal InputAction* g_rebindTarget = NULL;
+
 internal void DebugListActions()
 {
     printf("-- Input Actions --\n");

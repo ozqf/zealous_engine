@@ -560,7 +560,7 @@ internal void TickTitle(ZEFrameTimeInfo timing)
 
 internal void TickStarting(ZEFrameTimeInfo timing)
 {
-    
+    ChangeState(GAME_STATE_PLAYING);
 }
 
 internal void TickPlaying(ZEFrameTimeInfo timing)

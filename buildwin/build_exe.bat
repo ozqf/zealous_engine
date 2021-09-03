@@ -28,7 +28,7 @@ set compIn2=../engine/src/opengl/ze_opengl.cpp ../engine/src/opengl/ze_opengl_sh
 @rem engine + services
 set compIn3=../engine/src/zengine.cpp ../engine/src/config/config.cpp ../engine/src/assetdb/ze_asset_db.cpp ../engine/src/assetdb/ze_asset_loader.cpp ../engine/src/debug/ze_debug.cpp
 set compIn4=../engine/src/scene/ze_scene.cpp ../engine/src/scene/ze_group_draw_items.cpp ../engine/src/embedded_assets/ze_embedded_assets.cpp ../engine/src/game_stub/ze_game_stub.cpp
-set compIn5=../engine/src/input/ze_input.cpp ../engine/src/command_console/command_console.cpp
+set compIn5=../engine/src/input/ze_input.cpp ../engine/src/command_console/command_console.cpp ../engine/src/events/ze_events.cpp
 
 @rem === Compile Testing Win32 Console application
 @rem set compilerInput=../src/Platform/win32_consoleApp.cpp

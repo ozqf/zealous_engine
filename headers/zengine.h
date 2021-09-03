@@ -74,7 +74,7 @@ struct ZGame
 typedef void (*ZCommand_Callback)(char* fullString, char** tokens, i32 numTokens);
 
 #define ZCMD_CALLBACK(functionName) \
-ze_external void functionName(char* fullString, char** tokens, i32 numTokens)
+internal void functionName(char* fullString, char** tokens, i32 numTokens)
 
 struct ZConfig
 {
@@ -144,12 +144,12 @@ struct ZAssetManager
         char* name, char* diffuseName, char* emissionName);
 };
 
-struct ZAssetGen
+/*struct ZAssetGen
 {
     void (*ZGen_DrawLine)(ZRTexture *tex, ColourU32 colour, Point2 a, Point2 b);
     void (*ZGen_FillTextureRect)(ZRTexture *tex, ColourU32 colour, Point2 topLeft, Point2 size);
     void (*ZGen_FillTexture)(ZRTexture *tex, ColourU32 colour);
-};
+};*/
 
 struct ZSystem
 {
@@ -181,5 +181,7 @@ extern "C" zErrorCode __declspec(dllexport) ZGameLinkUp(ZEngine engineImport, ZG
 
 // Signature of linking function game DLL must export
 typedef zErrorCode(ZGame_LinkupFunction)(ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
+
+typedef zErrorCode(ZE_EventCallback)(i32 code, void *data, size_t dataSize);
 
 #endif // ZENGINE_H
