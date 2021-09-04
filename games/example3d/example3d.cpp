@@ -224,7 +224,7 @@ internal void SpawnTestEnemy()
     // printf("Random: %.3f, %.3f, %.3f\n",
     //     p.x, p.y, p.z);
     CreateEnemy(p, 0);
-    printf("Spawn enemy, ent count %d\n", g_entities.Count());
+    // printf("Spawn enemy, ent count %d\n", g_entities.Count());
 }
 
 internal void TickEnemy(Entity* ent, f32 delta)
@@ -338,13 +338,13 @@ internal void TickProjectile(Entity* ent, f32 delta)
     i32 numTouchResults = 0;
 
     CheckCollision(ent, touchResults, &numTouchResults, maxTouchResults);
-    if (numTouchResults > 0)
-    {
-        printf("Projectile touching %d ents\n", numTouchResults);
-    }
+    // if (numTouchResults > 0)
+    // {
+    //     printf("Projectile touching %d ents\n", numTouchResults);
+    // }
     for (i32 i = 0; i < numTouchResults; ++i)
     {
-        printf("Culling ent %d\n", touchResults[i]);
+        // printf("Culling ent %d\n", touchResults[i]);
         Entity* victim = (Entity*)g_entities.GetById(touchResults[i]);
         QueueEntityRemoval(victim);
     }

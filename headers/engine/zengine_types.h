@@ -59,7 +59,7 @@ union ColourF32
 #define ZE_ASSET_TYPE_NONE 0
 #define ZE_ASSET_TYPE_TEXTURE 1
 #define ZE_ASSET_TYPE_MESH 2
-#define ZE_ASSET_TYPE_MATERIAL 2
+#define ZE_ASSET_TYPE_MATERIAL 3
 
 struct ZRAsset
 {
@@ -70,6 +70,7 @@ struct ZRAsset
     i32 bIsUploaded;
     // Data has changed - needs to be re-uploaded
     i32 bIsDirty;
+    zeSize totalSize;
     char *fileName;
     i32 sentinel;
 };

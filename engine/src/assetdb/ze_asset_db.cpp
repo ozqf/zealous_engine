@@ -7,18 +7,40 @@
 
 ze_internal ZEHashTable* g_table;
 
+ze_internal char* GetAssetTypeLabel(i32 type)
+{
+    switch (type)
+    {
+        case ZE_ASSET_TYPE_TEXTURE:
+        return "texture";
+        case ZE_ASSET_TYPE_MESH:
+        return "mesh";
+        case ZE_ASSET_TYPE_MATERIAL:
+        return "material";
+        default:
+        return "none";
+    }
+}
+
 ze_external void ZAssets_PrintAll()
 {
     printf("=== Asset Heap ===\n");
+    size_t totalBytes = 0;
     for (i32 i = 0; i < g_table->m_maxKeys; ++i)
     {
         ZEHashTableKey* key = &g_table->m_keys[i];
         if (key->id == 0) { continue; }
         ZRAsset* asset = (ZRAsset*)key->data.ptr;
-        printf("KeyId %d, keyHash %d. AssetId %d - type %d - sentinel %X",
-            key->id, key->idHash, asset->id, asset->type, asset->sentinel);
+        printf("AssetId %d - type %d (%s) - size %lldKB",
+            asset->id, asset->type, GetAssetTypeLabel(asset->type), asset->totalSize / 1024);
+        totalBytes += asset->totalSize;
+        if (asset->sentinel != ZE_SENTINEL)
+        {
+            printf("Bad sentinel! (%X)", asset->sentinel);
+        }
         printf("\n");
     }
+    printf("Total allocated: %lldKB\n", totalBytes / 1024);
 }
 
 ZCMD_CALLBACK(Exec_Manifest)
@@ -158,6 +180,7 @@ ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char* name)
     tex->header.type = ZE_ASSET_TYPE_TEXTURE;
     tex->header.bIsDirty = YES;
     tex->header.sentinel = ZE_SENTINEL;
+    tex->header.totalSize = totalBytes;
     tex->width = width;
     tex->height = height;
     
@@ -180,10 +203,13 @@ ze_external ZRMaterial *ZAssets_AllocMaterial(char *name)
         return NULL;
     }
 
-    ZRMaterial *mat = (ZRMaterial *)Platform_Alloc(sizeof(ZRMaterial));
+    zeSize totalBytes = sizeof(ZRMaterial);
+    ZRMaterial *mat = (ZRMaterial *)Platform_Alloc(totalBytes);
     mat->header.id = id;
     mat->header.bIsDirty = YES;
     mat->header.type = ZE_ASSET_TYPE_MATERIAL;
+    mat->header.totalSize = totalBytes;
+    mat->header.sentinel = ZE_SENTINEL;
     ZEHashTableData d;
     d.ptr = mat;
     g_table->Insert(id, d);
@@ -226,6 +252,7 @@ ze_external ZRMeshAsset* ZAssets_AllocEmptyMesh(char* name, i32 maxVerts)
     mesh->header.id = id;
     mesh->header.bIsDirty = YES;
     mesh->header.type = ZE_ASSET_TYPE_MESH;
+    mesh->header.totalSize = totalBytes;
     mesh->header.sentinel = ZE_SENTINEL;
 
     g_table->InsertPointer(id, mesh);
