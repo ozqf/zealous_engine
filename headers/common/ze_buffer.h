@@ -37,11 +37,12 @@ struct ZEBuffer
     i8 *cursor;
     i32 capacity;
 
-    i32 Written()
+    zeSize Written()
     {
         return this->cursor - this->start;
     }
-    i32 Space()
+
+    zeSize Space()
     {
         return capacity - (cursor - start);
     }
@@ -76,7 +77,7 @@ struct ZEBuffer
         cursor = start;
     }
 
-    i32 CursorOffset()
+    zeSize CursorOffset()
     {
         return this->cursor - this->start;
     }
@@ -88,9 +89,9 @@ struct ZEBuffer
         return addr;
     }
 
-    i8 *GetAtOffsetReversed(i32 offsetFromEnd)
+    i8 *GetAtOffsetReversed(zeSize offsetFromEnd)
     {
-        i32 offset = this->Written() - offsetFromEnd;
+        zeSize offset = this->Written() - offsetFromEnd;
         i8 *addr = this->start + offset;
         ZE_ASSERT(addr < this->cursor, "ZEBuffer GetAtOffset out of bounds");
         return addr;
@@ -178,7 +179,7 @@ internal void Buf_CopyAll(ZEBuffer *source, ZEBuffer *target)
     {
         return;
     }
-    i32 written = source->Written();
+    zeSize written = source->Written();
     if (target->capacity < written)
     {
         return;

@@ -36,9 +36,10 @@ set compIn5=../engine/src/input/ze_input.cpp ../engine/src/command_console/comma
 
 @rem === LINK SETTINGS === (disable if running win32 console application test)
 set linkStr=/link
-set linkInputA=user32.lib opengl32.lib Gdi32.lib Ws2_32.lib userenv.lib
-set linkInputB=../lib/fmod/fmod_vc.lib ../lib/fmod/fmodstudio_vc.lib ../buildwin_platform_libs/platlibs.lib
-set linkInputC=../lib/glfw3_vc2015/glfw3dll.lib
+set linkInputA=user32.lib opengl32.lib kernel32.lib Gdi32.lib Ws2_32.lib userenv.lib shell32.lib
+@REM set linkInputB=../lib/fmod/fmod_vc.lib ../lib/fmod/fmodstudio_vc.lib
+set linkInputB=
+set linkInputC=../lib/glfw3_vc2019/glfw3_mt.lib ../buildwin_platform_libs/platlibs.lib
 @echo on
 cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% %compIn3% %compIn4% %compIn5% %linkStr% %linkInputA%  %linkInputB% %linkInputC%
 @echo off

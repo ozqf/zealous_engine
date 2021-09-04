@@ -245,9 +245,9 @@ ze_external void ZRGL_UploadMesh(ZRMeshData *data, ZRMeshHandles *result, u32 fl
     // send null ptr for data, we're not uploading yet
     glBufferData(GL_ARRAY_BUFFER, totalBytes, NULL, vboUsage);
     // Upload sub-buffers
-    i32 vertOffset = 0;
-    i32 uvOffset = numVertBytes;
-    i32 normalOffset = numVertBytes + numUVBytes;
+    zeSize vertOffset = 0;
+    zeSize uvOffset = numVertBytes;
+    zeSize normalOffset = numVertBytes + numUVBytes;
 
     // BUFFER: - All Verts | All Normals | All Uvs -
     glBufferSubData(GL_ARRAY_BUFFER, vertOffset, numVertBytes, data->verts);

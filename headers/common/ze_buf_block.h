@@ -10,7 +10,7 @@ struct BufferBlock
 #ifdef MEMORY_BLOCKS_PARANOID
     i32 sentinel;
 #endif
-    i32 size;
+    zeSize size;
     i32 type;
     i32 tag;
 };
@@ -44,7 +44,7 @@ ZE_BUF_INIT_PTR_IN_PLACE(ptrToCreate, structType, ptrToBuffer) \
 BufBlock_PrepareHeader(&ptrToCreate->header, sizeof(structType), bufBlockType);
 #endif
 
-internal void BufBlock_PrepareHeader(BufferBlock *block, i32 size, i32 type)
+internal void BufBlock_PrepareHeader(BufferBlock *block, zeSize size, i32 type)
 {
 #ifdef MEMORY_BLOCKS_PARANOID
     block->sentinel = ZE_SENTINEL;
@@ -56,7 +56,7 @@ internal void BufBlock_PrepareHeader(BufferBlock *block, i32 size, i32 type)
 /**
  * creates a new buffer block header and advances the cursor
  */
-internal BufferBlock *BufBlock_Begin(ZEBuffer *buf, i32 size, i32 type)
+internal BufferBlock *BufBlock_Begin(ZEBuffer *buf, zeSize size, i32 type)
 {
     if (buf->Space() < size)
     {
@@ -101,10 +101,10 @@ internal void BufBlock_Print(ZEBuffer *b)
     while (read < end)
     {
         BufferBlock *h = (BufferBlock *)read;
-        ErrorCode err = BufBlock_Validate(h);
+        zErrorCode err = BufBlock_Validate(h);
         if (err == ZE_ERROR_NONE)
         {
-            printf("%d: Block type %d, size %d Bytes\n", i, h->type, h->size);
+            printf("%d: Block type %d, size %lld Bytes\n", i, h->type, h->size);
             read += h->size;
         }
         else

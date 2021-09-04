@@ -96,7 +96,7 @@ struct ZRDrawCmdSpriteBatch
         numItems++;
     }
 
-    i32 Finish(ZEBuffer* buf)
+    zeSize Finish(ZEBuffer* buf)
     {
         this->header.size = sizeof(ZRDrawCmdSpriteBatch) + (sizeof(ZRSpriteBatchItem) * numItems);
         buf->cursor = (i8*)this + this->header.size;

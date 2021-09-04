@@ -16,7 +16,7 @@
 
 #define ENT_FLAG_COLLISION_SOLID (1 << 0)
 
-#define MAX_ENTITIES 1024
+#define MAX_ENTITIES 256
 
 #define ENT_TYPE_NONE 0
 #define ENT_TYPE_PLAYER 1
@@ -81,6 +81,7 @@ internal void TickEnemy(Entity* ent, f32 delta);
 
 internal Entity* CreateEntity(i32 entType)
 {
+    if (!g_entities.HasFreeSlot()) { return NULL; }
     i32 newId = g_nextEntId++;
     Entity *ent = (Entity *)g_entities.GetFreeSlot(newId);
     *ent = {};
@@ -129,6 +130,7 @@ internal void SyncEntityDrawObj(Entity* ent)
 internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir)
 {
     Entity *ent = CreateEntity(ENT_TYPE_PLAYER_PROJECTILE);
+    if (ent == NULL) { return NULL; }
     ent->tickFunction = TickProjectile;
     Vec3_SetMagnitude(&dir, 10);
     ent->t.pos = pos;
@@ -145,6 +147,7 @@ internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir)
 internal Entity* CreatePlayer(Vec3 pos, f32 yaw)
 {
     Entity* ent = CreateEntity(ENT_TYPE_PLAYER);
+    if (ent == NULL) { return NULL; }
     ent->t.pos = pos;
     ent->tickFunction = TickPlayer;
     ent->t.scale = { 0.5f, 0.5f, 0.5f };
@@ -161,7 +164,11 @@ internal Entity* CreatePlayer(Vec3 pos, f32 yaw)
 
 internal Entity* CreateEnemy(Vec3 pos, f32 yaw)
 {
+    // if entity list is filling up leave a little space in
+    // entity capacity for projectiles to be spawned!
+    if (g_entities.FreeSlotCount() < 12) { return NULL; }
     Entity* ent = CreateEntity(ENT_TYPE_ENEMY);
+    if (ent == NULL) { return NULL; }
     ent->tickFunction = TickEnemy;
     ent->t.pos = pos;
     ent->t.scale = { 0.5f, 0.5f, 0.5f };
@@ -214,9 +221,10 @@ internal void SpawnTestEnemy()
     // f32 rY = (f32)rand() / RAND_MAX;
     f32 rZ = (f32)rand() / RAND_MAX;
     Vec3 p = AABB_RandomInside(g_arenaBounds, rX, 0.5f, rZ);
-    printf("Random: %.3f, %.3f, %.3f\n",
-        p.x, p.y, p.z);
+    // printf("Random: %.3f, %.3f, %.3f\n",
+    //     p.x, p.y, p.z);
     CreateEnemy(p, 0);
+    printf("Spawn enemy, ent count %d\n", g_entities.Count());
 }
 
 internal void TickEnemy(Entity* ent, f32 delta)

@@ -243,9 +243,9 @@ ze_external void ZRGL_Debug_DrawCubeTest()
         // send null ptr for data, we're not uploading yet
         glBufferData(GL_ARRAY_BUFFER, totalBytes, NULL, vboUsage);
 
-        i32 vertOffset = 0;
-        i32 uvOffset = numVertBytes;
-        i32 normalOffset = numVertBytes + numUVBytes;
+        size_t vertOffset = 0;
+        size_t uvOffset = numVertBytes;
+        size_t normalOffset = numVertBytes + numUVBytes;
 
         // BUFFER: - All Verts | All Normals | All Uvs -
         glBufferSubData(GL_ARRAY_BUFFER, vertOffset, numVertBytes, cubeVerts);

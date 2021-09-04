@@ -11,6 +11,8 @@
 #define f32 float
 #define f64 double
 
+#define zeSize size_t
+
 #define i8 int8_t
 #define i16 int16_t
 #define i32 int32_t
@@ -146,7 +148,7 @@ internal f32 ZAbsf(f32 value)
 // Buffer macros
 ///////////////////////////////////////////////////////////////////////
 
-inline u32 ZE_Copy(void *dest, void *source, u32 numBytes)
+inline zeSize ZE_Copy(void *dest, void *source, zeSize numBytes)
 {
 	memcpy(dest, source, numBytes);
 	return numBytes;

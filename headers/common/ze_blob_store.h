@@ -22,6 +22,16 @@ struct ZEBlobStore
         return m_array->m_numBlobs;
     }
 
+    i32 FreeSlotCount()
+    {
+        return m_array->m_maxBlobs - m_array->m_numBlobs;
+    }
+
+    i32 HasFreeSlot()
+    {
+        return m_array->m_numBlobs < m_array->m_maxBlobs;
+    }
+
     u8 *GetById(i32 id)
     {
         i32 index = m_lookup->FindI32(id, ZE_LT_INVALID_INDEX);
