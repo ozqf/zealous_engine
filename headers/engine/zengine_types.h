@@ -233,6 +233,7 @@ struct ZRMeshAsset
 #define ZR_DRAWOBJ_TYPE_PARTICLES 6
 #define ZR_DRAWOBJ_TYPE_SPRITE 7
 #define ZR_DRAWOBJ_TYPE_BOUNDING_BOX 8
+#define ZR_DRAWOBJ_TYPE_QUAD 9
 
 #define ZR_DRAWOBJ_STATUS_FREE 0
 #define ZR_DRAWOBJ_STATUS_ASSIGNED 1
@@ -276,6 +277,13 @@ struct ZRDrawObjData
             f32 multiplier;
             f32 range;
         } directLight;
+        struct
+        {
+            i32 textureId;
+            Vec2 offset;
+            Vec2 uvMin;
+            Vec2 uvMax;
+        } quad;
         struct
         {
             char *text;

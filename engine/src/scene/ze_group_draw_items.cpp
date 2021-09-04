@@ -43,6 +43,47 @@ internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
     spriteBatch->Finish(buf);
 }
 
+internal void WriteSingleQuadCommand(ZEBuffer* buf, ZRDrawObj* quad)
+{
+    // start a batch
+    BUF_BLOCK_BEGIN_STRUCT(
+        spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
+    spriteBatch->textureId = quad->data.quad.textureId;
+    spriteBatch->items = (ZRSpriteBatchItem *)buf->cursor;
+
+    printf("Draw single quad, tex Id %d\n", spriteBatch->textureId);
+
+    i32 len = 1;
+    spriteBatch->AddItem(
+        { 0, 0 },
+        { 0.5f, 0.5f, },
+        quad->data.quad.uvMin,
+        quad->data.quad.uvMax);
+    //     Vec2 charSize = Vec2_FromVec3(textObj->t.scale);
+    //     f32 step = charSize.x * 2.f;
+    //     Vec3 origin = textObj->t.pos;
+    //     origin.x += charSize.x;
+    //     origin.y -= charSize.x;
+    //     Vec3 drawPos = origin;
+    //     for (i32 i = 0; i < len; ++i)
+    //     {
+    //         char c = str[i];
+    //         if (c == '\n')
+    //         {
+    //             drawPos.x = origin.x;
+    //             drawPos.y -= step;
+    //             continue;
+    //         }
+    //         Vec2 uvMin, uvMax;
+    //         ZEAsciToCharsheetUVs(c, &uvMin, &uvMax);
+    //         spriteBatch->AddItem(drawPos, charSize, uvMin, uvMax);
+    //         drawPos.x += step;
+    // }
+
+    // complete batch command
+    spriteBatch->Finish(buf);
+}
+
 internal void WriteMeshCommand(ZEBuffer* buf, ZRDrawObj* obj)
 {
     BUF_BLOCK_BEGIN_STRUCT(meshCmd, ZRDrawCmdMesh, buf, ZR_DRAW_CMD_MESH)
@@ -155,6 +196,10 @@ ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
         {
             case ZR_DRAWOBJ_TYPE_MESH:
             WriteMeshCommand(buf, obj);
+            break;
+
+            case ZR_DRAWOBJ_TYPE_QUAD:
+            WriteSingleQuadCommand(buf, obj);
             break;
 
             case ZR_DRAWOBJ_TYPE_BOUNDING_BOX:
