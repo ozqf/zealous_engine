@@ -117,14 +117,15 @@ internal void Stub_Init()
     // set the camera and projection for the scene
     TRANSFORM_CREATE(camera)
     // Transform_SetRotationDegrees(&camera, 45.f, 0, 0);
-    camera.pos.z = 4.f;
-    g_debugCam = camera;
+    // camera.pos.z = 4.f;
+    g_debugCam = g_engine.scenes.GetCamera(g_gameScene);
     g_debugOrigin = g_debugCam;
 
     M4x4_CREATE(projection)
     ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
 
-    g_engine.scenes.SetCamera(g_gameScene, camera);
+    
+    // g_engine.scenes.SetCamera(g_gameScene, camera);
     g_engine.scenes.SetProjection(g_gameScene, projection);
 }
 

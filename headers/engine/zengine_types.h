@@ -91,6 +91,14 @@ struct ZRTexture
     i32 height;
 };
 
+struct ZRQuad
+{
+    i32 textureId;
+    Vec2 offset;
+    Vec2 uvMin;
+    Vec2 uvMax;
+};
+
 #define VEC3_SIZE = 12
 #define VEC2_SIZE = 8
 
@@ -277,13 +285,7 @@ struct ZRDrawObjData
             f32 multiplier;
             f32 range;
         } directLight;
-        struct
-        {
-            i32 textureId;
-            Vec2 offset;
-            Vec2 uvMin;
-            Vec2 uvMax;
-        } quad;
+        ZRQuad quad;
         struct
         {
             char *text;

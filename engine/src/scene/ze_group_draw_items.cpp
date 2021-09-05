@@ -43,22 +43,23 @@ internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
     spriteBatch->Finish(buf);
 }
 
-internal void WriteSingleQuadCommand(ZEBuffer* buf, ZRDrawObj* quad)
+internal void WriteSingleQuadCommand(ZEBuffer* buf, ZRDrawObj* quadObj)
 {
     // start a batch
     BUF_BLOCK_BEGIN_STRUCT(
         spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
-    spriteBatch->textureId = quad->data.quad.textureId;
+    spriteBatch->textureId = quadObj->data.quad.textureId;
     spriteBatch->items = (ZRSpriteBatchItem *)buf->cursor;
-
-    printf("Draw single quad, tex Id %d\n", spriteBatch->textureId);
+    ZRQuad *quad = &quadObj->data.quad;
+    // printf("Draw single quad, tex Id %d uvs %.3f, %.3f to %.3f, %.3f\n",
+    //     quad->textureId, quad->uvMin.x, quad->uvMin.y, quad->uvMax.x, quad->uvMax.y);
 
     i32 len = 1;
     spriteBatch->AddItem(
-        { 0, 0 },
-        { 0.5f, 0.5f, },
-        quad->data.quad.uvMin,
-        quad->data.quad.uvMax);
+        quadObj->t.pos,
+        { 0.5f, 0.5f },
+        quad->uvMin,
+        quad->uvMax);
     //     Vec2 charSize = Vec2_FromVec3(textObj->t.scale);
     //     f32 step = charSize.x * 2.f;
     //     Vec3 origin = textObj->t.pos;

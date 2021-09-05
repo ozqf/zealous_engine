@@ -24,8 +24,8 @@ ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity)
     scene->id = result;
     scene->nextId = 1;
     Transform_SetToIdentity(&scene->camera);
-    Transform_SetRotationDegrees(&scene->camera, 45.f, 0, 0);
-    scene->camera.pos.z = -2.f;
+    // Transform_SetRotationDegrees(&scene->camera, 45.f, 0, 0);
+    scene->camera.pos.z = 4.f;
     ZE_SetupDefault3DProjection(scene->projection.cells, 16.f / 9.f);
 
     ZE_InitBlobStore(Platform_Alloc, &scene->objects, capacity, sizeof(ZRScene), 0);

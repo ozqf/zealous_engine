@@ -9,6 +9,7 @@ internal void Init()
     printf("2D demo init\n");
     g_scene = g_engine.scenes.AddScene(0, 256);
     ZRDrawObj* obj = g_engine.scenes.AddObject(g_scene);
+    obj->t.pos = { 0, 0, -4 };
     obj->data.type = ZR_DRAWOBJ_TYPE_QUAD;
     obj->data.quad.textureId = g_engine.assets.GetTexByName(FALLBACK_TEXTURE_NAME)->header.id;
     obj->data.quad.uvMin = { 0, 0 };
