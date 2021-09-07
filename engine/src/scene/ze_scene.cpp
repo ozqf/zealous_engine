@@ -112,6 +112,23 @@ internal ZRDrawObj* ZScene_GetObjectById(zeHandle sceneHandle, zeHandle objectId
 }
 
 ///////////////////////////////////////////////////////////
+// scene object utility functions
+///////////////////////////////////////////////////////////
+
+ze_internal ZRDrawObj* ZScene_AddFullTextureQuad(zeHandle scene, char* textureName, Vec2 size)
+{
+    ZRDrawObj* obj = ZScene_AddObject(scene);
+    obj->data.type = ZR_DRAWOBJ_TYPE_QUAD;
+    ZRTexture* tex = ZAssets_GetTexByName(textureName);
+    obj->data.quad.textureId = tex->header.id;
+    obj->data.quad.uvMin = { 0, 0 };
+    obj->data.quad.uvMax = { 1, 1 };
+    obj->data.quad.offset = { };
+    obj->t.scale = { size.x, size.y, 1 };
+    return obj;
+}
+
+///////////////////////////////////////////////////////////
 // service
 ///////////////////////////////////////////////////////////
 
@@ -170,5 +187,7 @@ ze_external ZSceneManager ZScene_RegisterFunctions()
     result.RemoveObject = ZScene_RemoveObject;
     result.SetCamera = ZScene_SetCamera;
     result.SetProjection = ZScene_SetProjection;
+
+    result.AddFullTextureQuad = ZScene_AddFullTextureQuad;
     return result;
 }

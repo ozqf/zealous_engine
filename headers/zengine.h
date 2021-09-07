@@ -124,6 +124,9 @@ struct ZSceneManager
     Transform (*GetCamera)(zeHandle sceneHandle);
     void (*SetCamera)(zeHandle sceneHandle, Transform t);
     void (*SetProjection)(zeHandle sceneHandle, M4x4 projection);
+
+    // utilities
+    ZRDrawObj* (*AddFullTextureQuad)(zeHandle scene, char *textureName, Vec2 size);
 };
 
 struct ZAssetManager

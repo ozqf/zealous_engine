@@ -8,13 +8,19 @@ internal void Init()
 {
     printf("2D demo init\n");
     g_scene = g_engine.scenes.AddScene(0, 256);
-    ZRDrawObj* obj = g_engine.scenes.AddObject(g_scene);
-    obj->t.pos = { 0, 0, -4 };
-    obj->data.type = ZR_DRAWOBJ_TYPE_QUAD;
-    obj->data.quad.textureId = g_engine.assets.GetTexByName(FALLBACK_TEXTURE_NAME)->header.id;
-    obj->data.quad.uvMin = { 0, 0 };
-    obj->data.quad.uvMax = { 1, 1 };
-    obj->data.quad.offset = { };
+
+    M4x4_CREATE(prj)
+    ZE_SetupOrthoProjection(prj.cells, 4, 16.f / 9.f);
+    g_engine.scenes.SetProjection(g_scene, prj);
+
+    ZRDrawObj *obj1 = g_engine.scenes.AddFullTextureQuad(g_scene, FALLBACK_TEXTURE_NAME, { 1, 1 });
+    obj1->t.pos = { 0, 0, -4 };
+
+    ZRDrawObj *obj2 = g_engine.scenes.AddFullTextureQuad(g_scene, FALLBACK_TEXTURE_NAME, { 1, 1 });
+    obj2->t.pos = { -2, -2, -2 };
+
+    ZRDrawObj *obj3 = g_engine.scenes.AddFullTextureQuad(g_scene, FALLBACK_TEXTURE_NAME, { 1, 1 });
+    obj3->t.pos = { 2, 2, -2 };
 }
 
 internal void Shutdown()
