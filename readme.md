@@ -13,9 +13,13 @@
 
 * Requires Visual C++ command line tools.
 * Requires Node.js to run a script to embed shader text.
-* Run buildall.bat.
-* All libraries and data required to build the engine itself are embedded in the code or the repo, so it should be able to build and run in a 'stub' mode immediately (fingers crossed).
-* Run r.bat to run the engine from the build directory.
+* Run buildall.bat to build everything. other build batch files build specific components, for example engine, engine libs, example games etc.
+* All libraries and asset data required to build the engine itself are embedded in the code or the repo, so it should be able to build and run in a 'stub' mode immediately (fingers crossed).
+
+#### Running
+* Run r.bat to run the engine from the build directory. Other 'r' batch files run example projects.
+* The game will look for a game dll in the 'base' directory by default. Change  ```-g MySpecificDirectory``` or ```--game MySpecificDirectory``` on the command line.
+* If no dll is found, the game will load a test game 'stub' so at least you see something...
 
 #### 3rd Party Libraries
 

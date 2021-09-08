@@ -12,7 +12,10 @@ cls
 @echo STEP 2 - build engine
 @call build_exe.bat
 @echo ---------------------------------------------------
-@echo STEP 3 - Build example 3d
+@echo STEP 3 - Build example 2d
+@call build_example2d.bat
+@echo ---------------------------------------------------
+@echo STEP 4 - Build example 3d
 @call build_example3d.bat
 @echo ---------------------------------------------------
 @echo buildall done.
