@@ -296,6 +296,10 @@ struct ZRDrawObjData
             ColourU32 bgColour;
             i32 alignment;
         } text;
+        struct
+        {
+            Vec3 
+        } lineSegment;
     };
 
     void SetAsMesh(i32 meshId, i32 materialId)
@@ -374,6 +378,7 @@ struct ZRDrawObj
     u32 CalcHash()
     {
         hash = ZE_Hash_djb2_Fixed((u8 *)&this->data, sizeof(ZRDrawObjData));
+        const size_t foo = sizeof(ZRDrawObjData);
         return hash;
     }
 };

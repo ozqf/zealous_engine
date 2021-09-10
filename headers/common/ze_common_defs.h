@@ -121,6 +121,9 @@ internal f32 ZAbsf(f32 value)
 #define ZE_2D_INDEX(positionX, positionY, gridWidth) \
 	positionX + (positionY * gridWidth)
 
+#define ZE_ARR_SIZE(arrayPtr, arrayStructType) \
+(sizeof(arrayPtr) / sizeof(arrayStructType))
+
 #define ze_external extern "C"
 
 // used for serialise/deserialise validation
