@@ -27,7 +27,7 @@ ze_internal void BuildTileAtlas()
         COLOUR_U32_PURPLE,
         COLOUR_U32_CYAN,
     };
- 
+
     int i = 0;
     size_t numColours = ZE_ARR_SIZE(colours, ColourU32);
     printf("Num colours: %lld\n", numColours);
@@ -50,20 +50,12 @@ ze_internal void Init()
     BuildTileAtlas();
 
     g_scene = g_engine.scenes.AddScene(0, 256);
-    /*
-    // Bottom left
-	ZGen_FillTextureRect(g_tileAtlas, COLOUR_U32_RED, { 0, 0 }, { 32, 32 });
-	// Bottom right
-	ZGen_FillTextureRect(g_tileAtlas, COLOUR_U32_GREEN, { 32, 0 }, { 32, 32 });
-	// top left
-	ZGen_FillTextureRect(g_tileAtlas, COLOUR_U32_BLUE, { 0, 32 }, { 32, 32 });
-	// top right
-	ZGen_FillTextureRect(g_tileAtlas, COLOUR_U32_YELLOW, { 32, 32 }, { 32, 32 });
-    */
+    
     M4x4_CREATE(prj)
     ZE_SetupOrthoProjection(prj.cells, 4, 16.f / 9.f);
     g_engine.scenes.SetProjection(g_scene, prj);
 
+    // test quads
     ZRDrawObj *obj1 = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
     obj1->t.pos = { 0, 0, -4 };
     // fiddle with the UVs!
@@ -75,6 +67,17 @@ ze_internal void Init()
 
     ZRDrawObj *obj3 = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
     obj3->t.pos = { 2, 2, -2 };
+
+    // test line segments object
+    ZRDrawObj* linesObj = g_engine.scenes.AddLinesObj(g_scene, 16);
+    ZRDrawObjData* d = &linesObj->data;
+    d->lines.bChained = YES;
+    i32 i = 0;
+    ZRDrawObj_AddLineVert(d, { -3, -2, 0 });
+    ZRDrawObj_AddLineVert(d, { -1, -1.5f, 0 });
+    ZRDrawObj_AddLineVert(d, { 1, 2, 0 });
+    ZRDrawObj_AddLineVert(d, { 3, 1, 0 });
+    printf("Created lines with %d verts\n", d->lines.numVerts);
 }
 
 ze_internal void Shutdown()

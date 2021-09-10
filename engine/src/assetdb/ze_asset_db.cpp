@@ -119,7 +119,7 @@ ze_external ZRTexture *ZAssets_GetTexByName(char *name)
     return ZAssets_GetTexById(id);
 }
 
-ze_internal ZRMaterial* ZAssets_GetMaterialById(i32 id)
+ze_external ZRMaterial* ZAssets_GetMaterialById(i32 id)
 {
     ZRAsset* asset = ZAssets_FindAssetById(id);
     if (asset == NULL) { return GetFallbackMaterial(); }

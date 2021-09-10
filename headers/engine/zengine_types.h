@@ -99,6 +99,13 @@ struct ZRQuad
     Vec2 uvMax;
 };
 
+struct ZRLineVertex
+{
+    Vec3 pos;
+    Vec3 colour;
+    f32 thickness;
+};
+
 #define VEC3_SIZE = 12
 #define VEC2_SIZE = 8
 
@@ -242,6 +249,7 @@ struct ZRMeshAsset
 #define ZR_DRAWOBJ_TYPE_SPRITE 7
 #define ZR_DRAWOBJ_TYPE_BOUNDING_BOX 8
 #define ZR_DRAWOBJ_TYPE_QUAD 9
+#define ZR_DRAWOBJ_TYPE_LINES 10
 
 #define ZR_DRAWOBJ_STATUS_FREE 0
 #define ZR_DRAWOBJ_STATUS_ASSIGNED 1
@@ -298,8 +306,12 @@ struct ZRDrawObjData
         } text;
         struct
         {
-            Vec3 
-        } lineSegment;
+            ZRLineVertex* verts;
+            i32 numVerts;
+            // verts is allocated as a fixed buffer
+            i32 maxVerts;
+            i32 bChained;
+        } lines;
     };
 
     void SetAsMesh(i32 meshId, i32 materialId)

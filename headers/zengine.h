@@ -6,6 +6,7 @@ Zealous Engine public header
 
 #include "ze_common.h"
 #include "engine/zengine_types.h"
+#include "engine/zengine_type_utils.h"
 #include "engine/zengine_asset_gen.h"
 
 ///////////////////////////////////////////////////////////
@@ -128,6 +129,7 @@ struct ZSceneManager
 
     // utilities
     ZRDrawObj* (*AddFullTextureQuad)(zeHandle scene, char *textureName, Vec2 size);
+    ZRDrawObj *(*AddLinesObj)(zeHandle scene, i32 maxVerts);
 };
 
 struct ZAssetManager

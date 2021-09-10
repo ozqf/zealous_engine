@@ -2,15 +2,15 @@
 
 #define MAX_SCENES 16
 
-internal zeHandle g_nextHandle = 1;
-internal ZEHashTable* g_scenes = NULL;
-internal ZEBuffer g_drawCommands;
-internal zeHandle g_drawOrderList[MAX_SCENES];
+ze_internal zeHandle g_nextHandle = 1;
+ze_internal ZEHashTable* g_scenes = NULL;
+ze_internal ZEBuffer g_drawCommands;
+ze_internal zeHandle g_drawOrderList[MAX_SCENES];
 
 ///////////////////////////////////////////////////////////
 // Scenes
 ///////////////////////////////////////////////////////////
-internal ZRScene* GetSceneByHandle(zeHandle handle)
+ze_internal ZRScene* GetSceneByHandle(zeHandle handle)
 {
     return (ZRScene*)g_scenes->FindPointer(handle);
 }
@@ -96,14 +96,14 @@ ze_external ZRDrawObj* ZScene_AddObject(zeHandle sceneHandle)
     return obj;
 }
 
-internal void ZScene_RemoveObject(zeHandle sceneHandle, zeHandle objectId)
+ze_internal void ZScene_RemoveObject(zeHandle sceneHandle, zeHandle objectId)
 {
     ZRScene* scene = GetSceneByHandle(sceneHandle);
     if (scene == NULL) { return; }
     scene->objects.MarkForRemoval(objectId);
 }
 
-internal ZRDrawObj* ZScene_GetObjectById(zeHandle sceneHandle, zeHandle objectId)
+ze_internal ZRDrawObj* ZScene_GetObjectById(zeHandle sceneHandle, zeHandle objectId)
 {
     ZRScene* scene = GetSceneByHandle(sceneHandle);
     if (scene == NULL) { return NULL; }
@@ -125,6 +125,16 @@ ze_internal ZRDrawObj* ZScene_AddFullTextureQuad(zeHandle scene, char* textureNa
     obj->data.quad.uvMax = { 1, 1 };
     obj->data.quad.offset = { };
     obj->t.scale = { size.x, size.y, 1 };
+    return obj;
+}
+
+ze_internal ZRDrawObj* ZScene_AddLinesObj(zeHandle scene, i32 maxVerts)
+{
+    ZRDrawObj *obj = ZScene_AddObject(scene);
+    obj->data.type = ZR_DRAWOBJ_TYPE_LINES;
+    obj->data.lines.verts = (ZRLineVertex*)Platform_Alloc(sizeof(ZRLineVertex) * maxVerts);
+    obj->data.lines.maxVerts = maxVerts;
+    obj->data.lines.numVerts = 0;
     return obj;
 }
 
@@ -180,6 +190,7 @@ ze_external ZSceneManager ZScene_RegisterFunctions()
     g_drawCommands.Clear(YES);
     ZScene_InitGrouping();
     ZSceneManager result = {};
+    // core
     result.AddObject = ZScene_AddObject;
     result.AddScene = ZScene_CreateScene;
     result.GetCamera = ZScene_GetCamera;
@@ -188,6 +199,8 @@ ze_external ZSceneManager ZScene_RegisterFunctions()
     result.SetCamera = ZScene_SetCamera;
     result.SetProjection = ZScene_SetProjection;
 
+    // utility
     result.AddFullTextureQuad = ZScene_AddFullTextureQuad;
+    result.AddLinesObj = ZScene_AddLinesObj;
     return result;
 }

@@ -159,6 +159,20 @@ internal void WriteBoundBoxCommand(ZEBuffer* buf, ZRDrawObj* obj)
     // printf("Wrote %d bytes of lines\n", lines->header.size);
 }
 
+internal void WriteLinesCommand(ZEBuffer *buf, ZRDrawObj *obj)
+{
+    BUF_BLOCK_BEGIN_STRUCT(lines, ZRDrawCmdDebugLines, buf, ZR_DRAW_CMD_DEBUG_LINES);
+    lines->verts = (ZRLineVertex*)buf->cursor;
+    lines->numVerts = obj->data.lines.numVerts;
+    lines->bChained = obj->data.lines.bChained;
+    buf->cursor += (lines->numVerts * sizeof(ZRLineVertex));
+    lines->header.size = buf->cursor - (i8*)lines;
+    for (i32 i = 0; i < lines->numVerts; ++i)
+    {
+        lines->verts[i] = obj->data.lines.verts[i];
+    }
+}
+
 internal void AddTestLines(ZEBuffer* buf)
 {
     BUF_BLOCK_BEGIN_STRUCT(lines, ZRDrawCmdDebugLines, buf, ZR_DRAW_CMD_DEBUG_LINES);
@@ -201,6 +215,10 @@ ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
 
             case ZR_DRAWOBJ_TYPE_QUAD:
             WriteSingleQuadCommand(buf, obj);
+            break;
+
+            case ZR_DRAWOBJ_TYPE_LINES:
+            WriteLinesCommand(buf, obj);
             break;
 
             case ZR_DRAWOBJ_TYPE_BOUNDING_BOX:

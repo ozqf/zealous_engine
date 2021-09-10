@@ -53,13 +53,6 @@ struct ZRDrawCmdMesh
     ZRDrawObj obj;
 };
 
-struct ZRLineVertex
-{
-	Vec3 pos;
-	Vec3 colour;
-	f32 thickness;
-};
-
 struct ZRDrawCmdDebugLines
 {
 	BufferBlock header;
