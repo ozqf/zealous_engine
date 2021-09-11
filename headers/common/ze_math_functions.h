@@ -210,6 +210,13 @@ internal f32 Vec3_Magnitudef(f32 x, f32 y, f32 z)
 	return (f32)sqrt((f32)(x * x) + (y * y) + (z * z));
 }
 
+inline void Vec3_AddTo(Vec3* v, Vec3 addition)
+{
+	v->x += addition.x;
+	v->y += addition.y;
+	v->z += addition.z;
+}
+
 internal Vec3 Vec3_Flipped(Vec3 v)
 {
 	return {-v.x, -v.y, -v.z};
@@ -327,14 +334,15 @@ internal void Vec3_NormaliseOrForward(Vec3 *v)
 	v->z = v->z /= mag;
 }
 
-internal Vec3 Vec3_MultiplyByM3x3(Vec3 *v, f32 *m)
+internal void Vec3_MultiplyByM3x3(Vec3 *v, f32 *m)
 {
 	Vec3 r;
 	r = {};
 	r.x = (m[M3x3_X0] * v->x) + (m[M3x3_Y0] * v->y) + (m[M3x3_Z0] * v->z);
 	r.y = (m[M3x3_X1] * v->x) + (m[M3x3_Y1] * v->y) + (m[M3x3_Z1] * v->z);
 	r.z = (m[M3x3_X2] * v->x) + (m[M3x3_Y2] * v->y) + (m[M3x3_Z2] * v->z);
-	return r;
+	*v = r;
+	// return r;
 }
 
 internal Vec3 Vec3_MultiplyByM4x4(Vec3 *v, f32 *m)

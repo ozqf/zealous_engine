@@ -92,12 +92,13 @@ ze_external void ZRDraw_SpriteBatch(
     }
     ZE_PRINTF("Draw sprite batch - %d objects\n", batch->numItems);
     g_mesh->data.Clear();
+    //Platform_DebugBreak();
     f32 lerp = 0;
     for (i32 i = 0; i < batch->numItems; ++i)
     {
         ZRSpriteBatchItem* item = &batch->items[i];
 
-        ZGen_AddSriteGeoXY(&(g_mesh->data), item->pos, item->size, item->uvMin, item->uvMax);
+        ZGen_AddSriteGeoXY(&(g_mesh->data), item->pos, item->size, item->uvMin, item->uvMax, item->radians);
     }
     // ZGen_AddSriteGeoXY(g_mesh, {-1, lerp}, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
     // ZGen_AddSriteGeoXY(g_mesh, {1, lerp}, {0.25, 0.25}, {0.75, 0.75}, {0.75, 0.75});

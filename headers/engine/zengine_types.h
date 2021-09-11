@@ -97,6 +97,7 @@ struct ZRQuad
     Vec2 offset;
     Vec2 uvMin;
     Vec2 uvMax;
+    f32 radians;
 };
 
 struct ZRLineVertex

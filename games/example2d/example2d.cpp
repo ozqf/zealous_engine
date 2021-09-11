@@ -5,7 +5,8 @@
 
 #define TILE_SET_NAME "tile_set"
 
-#define ENTITY_COUNT 2048
+#define ENTITY_COUNT 4096
+// #define ENTITY_COUNT 1024
 
 #define BOUNCER_TAG 1
 
@@ -19,6 +20,8 @@ if (drawObjPtr != NULL) { entPtrName = (Ent2d*)drawObjPtr->userData; }
 struct Ent2d
 {
     Vec3 velocity;
+    f32 degrees;
+    f32 rotDegreesPerSecond;
 };
 
 const i32 screenSize = 8;
@@ -75,7 +78,27 @@ ze_internal void Init()
     M4x4_CREATE(prj)
     ZE_SetupOrthoProjection(prj.cells, screenSize, 16.f / 9.f);
     g_engine.scenes.SetProjection(g_scene, prj);
+    
+    #if 1// create some random objects
+    i32 count = ENTITY_COUNT;
+    // i32 count = (ENTITY_COUNT - 16);
+    for (i32 i = 0; i < count; ++i)
+    {
+        ZRDrawObj *mover = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
+        mover->t.pos = { RANDF_RANGE(-4, 4), RANDF_RANGE(-4, 4), -2};
+        mover->userTag = BOUNCER_TAG;
+        mover->t.scale = { RANDF_RANGE(0.1f, 1.5f), RANDF_RANGE(0.1f, 1.5f), 1 };
 
+        CREATE_ENT_PTR(ent, mover)
+        ent->velocity.x = RANDF_RANGE(-5, 5);
+        ent->velocity.y = RANDF_RANGE(-5, 5);
+        ent->rotDegreesPerSecond = RANDF_RANGE(-360, 360);
+        // ent->rotDegreesPerSecond = 180.f;
+        i32 atlasFrame = (i32)RANDF_RANGE(0, 16);
+    }
+    #endif
+
+    #if 0
     // test quads
     ZRDrawObj *obj1 = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
     obj1->t.pos = { 0, 0, -4 };
@@ -93,19 +116,6 @@ ze_internal void Init()
     // obj3->t.pos = { 2, 2, -2 };
     // obj3->userTag = BOUNCER_TAG;
 
-    // create some random objects
-    // i32 count = 1024;
-    i32 count = (ENTITY_COUNT - 16);
-    for (i32 i = 0; i < count; ++i)
-    {
-        ZRDrawObj *mover = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
-        mover->t.pos = { RANDF_RANGE(-4, 4), RANDF_RANGE(-4, 4), -2};
-        mover->userTag = BOUNCER_TAG;
-        CREATE_ENT_PTR(ent, mover)
-        ent->velocity.x = RANDF_RANGE(-5, 5);
-        ent->velocity.y = RANDF_RANGE(-5, 5);
-    }
-
     // test line segments object
     ZRDrawObj* linesObj = g_engine.scenes.AddLinesObj(g_scene, 16);
     ZRDrawObjData* d = &linesObj->data;
@@ -116,6 +126,7 @@ ze_internal void Init()
     ZRDrawObj_AddLineVert(d, { 1, 2, 0 });
     ZRDrawObj_AddLineVert(d, { 3, 1, 0 });
     printf("Created lines with %d verts\n", d->lines.numVerts);
+    #endif
 }
 
 ze_internal void Shutdown()
@@ -134,16 +145,31 @@ ze_internal void Tick(ZEFrameTimeInfo timing)
         if (obj->userTag != BOUNCER_TAG) { continue; }
 
         CREATE_ENT_PTR(ent, obj)
+
+        // spin
+        ent->degrees += ent->rotDegreesPerSecond * (f32)timing.interval;
+        // ent->degrees = 45.f;
+        f32 radians = ent->degrees * DEG2RAD;
+        // printf("Ent rot %.3f\n", radians * RAD2DEG);
+
+        // M3x3_RotateByAxis(obj->t.rotation.cells, radians, 0, 0, 1);
+        M3x3_SetToIdentity(obj->t.rotation.cells);
+        M3x3_RotateZ(obj->t.rotation.cells, radians);
+
+        // move
         Vec3* pos = &obj->t.pos;
 
         pos->x += ent->velocity.x * (f32)timing.interval;
         pos->y += ent->velocity.y * (f32)timing.interval;
 
-        if (pos->x > screenSize) { pos->x = -screenSize; }
-        if (pos->x < -screenSize) { pos->x = screenSize; }
+        f32 screenSizeY = screenSize;
+        f32 screenSizeX = screenSizeY * (16.f / 9.f);
 
-        if (pos->y < -screenSize) { pos->y = screenSize; }
-        if (pos->y > screenSize) { pos->y = -screenSize; }
+        if (pos->x > screenSizeX) { pos->x = -screenSizeX; }
+        if (pos->x < -screenSizeX) { pos->x = screenSizeX; }
+
+        if (pos->y < -screenSizeY) { pos->y = screenSizeY; }
+        if (pos->y > screenSizeY) { pos->y = -screenSizeY; }
     }
 }
 

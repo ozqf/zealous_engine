@@ -208,12 +208,16 @@ int CALLBACK WinMain(
 	printf("User folder: %s\n", path);
 	*/
 
+	/////////////////////////////////
 	// init proper
 	Win_InitTimer();
+
 	ZSystem sys = {};
 	sys.Malloc = Platform_Alloc;
 	sys.Realloc = Platform_Realloc;
 	sys.Free = Platform_Free;
+	sys.QueryClock = Platform_QueryClock;
+	
 	ZEngine_Init(sys, Win_LinkToGameDLL(gameDirectory));
 	ZWindow_Init();
 	ZE_StartLoop();

@@ -138,7 +138,10 @@ ze_external i32 ZE_StartLoop()
 		Platform_PollEvents();
 		if (g_game.sentinel == ZE_SENTINEL && g_game.Tick != NULL)
 		{
+			f64 gameTickStart = Platform_QueryClock();
 			g_game.Tick(info);
+			f64 gameTickEnd = Platform_QueryClock();
+			printf("Game tick %.3f\n", (gameTickEnd - gameTickStart) * 1000);
 		}
 		ZScene_PostFrameTick();
 		ZScene_Draw();

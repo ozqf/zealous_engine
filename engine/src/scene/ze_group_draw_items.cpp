@@ -1,6 +1,6 @@
 #include "ze_scene_internal.h"
 
-ze_internal void CheckBufferCapacity(ZEBuffer* buf, zeSize additionalBytes)
+inline void CheckBufferCapacity(ZEBuffer* buf, zeSize additionalBytes)
 {
     if (buf->Space() >= additionalBytes) { return; }
     // expand buffer
@@ -13,7 +13,7 @@ ze_internal void CheckBufferCapacity(ZEBuffer* buf, zeSize additionalBytes)
     buf->capacity = newSize;
 }
 
-internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
+inline void WriteTextCommand(ZEBuffer *buf, ZRDrawObj *textObj)
 {
     // calculate required space
     char *str = textObj->data.text.text;
@@ -33,7 +33,6 @@ internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
             FALLBACK_CHARSET_TEXTURE_NAME)->header.id;
     }
     spriteBatch->items = (ZRSpriteBatchItem *)buf->cursor;
-
     Vec2 charSize = Vec2_FromVec3(textObj->t.scale);
     f32 step = charSize.x * 2.f;
     Vec3 origin = textObj->t.pos;
@@ -51,7 +50,7 @@ internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
         }
         Vec2 uvMin, uvMax;
         ZEAsciToCharsheetUVs(c, &uvMin, &uvMax);
-        spriteBatch->AddItem(drawPos, charSize, uvMin, uvMax);
+        spriteBatch->AddItem(drawPos, charSize, uvMin, uvMax, 0);
         drawPos.x += step;
     }
 
@@ -59,7 +58,7 @@ internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
     spriteBatch->Finish(buf);
 }
 
-internal void WriteSingleQuadCommand(ZEBuffer* buf, ZRDrawObj* quadObj)
+inline void WriteSingleQuadCommand(ZEBuffer *buf, ZRDrawObj *quadObj)
 {
     zeSize totalBytes = sizeof(ZRDrawCmdSpriteBatch) + sizeof(ZRQuad);
     CheckBufferCapacity(buf, totalBytes);
@@ -71,13 +70,14 @@ internal void WriteSingleQuadCommand(ZEBuffer* buf, ZRDrawObj* quadObj)
     ZRQuad *quad = &quadObj->data.quad;
     // printf("Draw single quad, tex Id %d uvs %.3f, %.3f to %.3f, %.3f\n",
     //     quad->textureId, quad->uvMin.x, quad->uvMin.y, quad->uvMax.x, quad->uvMax.y);
-
+    f32 radians = M3x3_GetEulerAnglesRadians(quadObj->t.rotation.cells).z;
     i32 len = 1;
     spriteBatch->AddItem(
         quadObj->t.pos,
-        { 0.5f, 0.5f },
+        { quadObj->t.scale.x, quadObj->t.scale.y },
         quad->uvMin,
-        quad->uvMax);
+        quad->uvMax,
+        radians);
     //     Vec2 charSize = Vec2_FromVec3(textObj->t.scale);
     //     f32 step = charSize.x * 2.f;
     //     Vec3 origin = textObj->t.pos;
@@ -103,13 +103,13 @@ internal void WriteSingleQuadCommand(ZEBuffer* buf, ZRDrawObj* quadObj)
     spriteBatch->Finish(buf);
 }
 
-internal void WriteMeshCommand(ZEBuffer* buf, ZRDrawObj* obj)
+inline void WriteMeshCommand(ZEBuffer *buf, ZRDrawObj *obj)
 {
     BUF_BLOCK_BEGIN_STRUCT(meshCmd, ZRDrawCmdMesh, buf, ZR_DRAW_CMD_MESH)
     meshCmd->obj = *obj;
 }
 
-internal void WriteBoundBoxCommand(ZEBuffer* buf, ZRDrawObj* obj)
+inline void WriteBoundBoxCommand(ZEBuffer *buf, ZRDrawObj *obj)
 {
     BUF_BLOCK_BEGIN_STRUCT(lines, ZRDrawCmdDebugLines, buf, ZR_DRAW_CMD_DEBUG_LINES);
     lines->verts = (ZRLineVertex*)buf->cursor;
@@ -177,7 +177,7 @@ internal void WriteBoundBoxCommand(ZEBuffer* buf, ZRDrawObj* obj)
     // printf("Wrote %d bytes of lines\n", lines->header.size);
 }
 
-internal void WriteLinesCommand(ZEBuffer *buf, ZRDrawObj *obj)
+inline void WriteLinesCommand(ZEBuffer *buf, ZRDrawObj *obj)
 {
     BUF_BLOCK_BEGIN_STRUCT(lines, ZRDrawCmdDebugLines, buf, ZR_DRAW_CMD_DEBUG_LINES);
     lines->verts = (ZRLineVertex*)buf->cursor;
@@ -191,7 +191,7 @@ internal void WriteLinesCommand(ZEBuffer *buf, ZRDrawObj *obj)
     }
 }
 
-internal void AddTestLines(ZEBuffer* buf)
+inline void AddTestLines(ZEBuffer *buf)
 {
     BUF_BLOCK_BEGIN_STRUCT(lines, ZRDrawCmdDebugLines, buf, ZR_DRAW_CMD_DEBUG_LINES);
     // start vertices after struct

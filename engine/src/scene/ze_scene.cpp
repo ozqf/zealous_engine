@@ -185,6 +185,7 @@ ze_external void ZScene_Draw()
     #if 1
     ZE_PRINTF("=== FRAME ===\n");
     ZR_ClearFrame({ 0.1f, 0.1f, 0.1f, 1});
+    f64 cmdStart = Platform_QueryClock();
     ZEBuffer* buf = &g_drawCommands;
     buf->Clear(NO);
 
@@ -198,8 +199,16 @@ ze_external void ZScene_Draw()
         if (scene->flags & ZSCENE_FLAG_NO_DRAW) { continue; }
         ZScene_WriteDrawCommands(buf, scene);
     }
+    f64 cmdEnd = Platform_QueryClock();
+    f64 drawStart = Platform_QueryClock();
     ZR_ExecuteCommands(buf);
     Platform_SubmitFrame();
+    f64 drawEnd = Platform_QueryClock();
+
+    printf("Write draw time: %.3fms - submit draw time %.3fms\n",
+        (cmdEnd - cmdStart) * 1000.f,
+        (drawEnd - drawStart) * 1000.f);
+
     #endif
 
     #if 0

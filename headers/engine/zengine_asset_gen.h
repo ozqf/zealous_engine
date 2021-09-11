@@ -35,15 +35,52 @@ inline i32 TexGen_DecodeBW(
 // geometry
 //////////////////////////////////////////////////////
 inline void ZGen_AddSriteGeoXY(
-    ZRMeshData* meshData, Vec3 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax)
+    ZRMeshData* meshData, Vec3 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax, f32 radians)
 {
-    meshData->AddVert({pos.x + -size.x, pos.y + -size.y, pos.z}, {uvMin.x, uvMin.y}, {0, 0, -1});
-    meshData->AddVert({pos.x + size.x, pos.y + -size.y, pos.z}, {uvMax.x, uvMin.y}, {0, 0, -1});
-    meshData->AddVert({pos.x + size.x, pos.y + size.y, pos.z}, {uvMax.x, uvMax.y}, {0, 0, -1});
+    //printf("Add sprite geo, rotation %.3f degrees\n", radians * RAD2DEG);
+    // build verts at 0,0,0, apply rotation and move into position
+    Vec3 verts[6];
+    verts[0] = { -size.x, -size.y, 0 };
+    verts[1] = { size.x, -size.y, 0 };
+    verts[2] = { size.x, size.y, 0 };
 
-    meshData->AddVert({pos.x + -size.x, pos.y + -size.y, pos.z}, {uvMin.x, uvMin.y}, {0, 0, -1});
-    meshData->AddVert({pos.x + size.x, pos.y + size.y, pos.z}, {uvMax.x, uvMax.y}, {0, 0, -1});
-    meshData->AddVert({pos.x + -size.x, pos.y + size.y, pos.z}, {uvMin.x, uvMax.y}, {0, 0, -1});
+    verts[3] = { -size.x, -size.y, 0 };
+    verts[4] = { size.x, size.y, 0 };
+    verts[5] = { -size.x, size.y, 0 };
+
+    M3x3_CREATE(rotM)
+    M3x3_RotateZ(rotM.cells, radians);
+    Vec3_MultiplyByM3x3(&verts[0], rotM.cells);
+    Vec3_MultiplyByM3x3(&verts[1], rotM.cells);
+    Vec3_MultiplyByM3x3(&verts[2], rotM.cells);
+
+    Vec3_MultiplyByM3x3(&verts[3], rotM.cells);
+    Vec3_MultiplyByM3x3(&verts[4], rotM.cells);
+    Vec3_MultiplyByM3x3(&verts[5], rotM.cells);
+
+     Vec3_AddTo(&verts[0], pos);
+     Vec3_AddTo(&verts[1], pos);
+     Vec3_AddTo(&verts[2], pos);
+
+     Vec3_AddTo(&verts[3], pos);
+     Vec3_AddTo(&verts[4], pos);
+     Vec3_AddTo(&verts[5], pos);
+
+    meshData->AddVert(verts[0], {uvMin.x, uvMin.y}, {0, 0, -1});
+    meshData->AddVert(verts[1], {uvMax.x, uvMin.y}, {0, 0, -1});
+    meshData->AddVert(verts[2], {uvMax.x, uvMax.y}, {0, 0, -1});
+
+    meshData->AddVert(verts[3], {uvMin.x, uvMin.y}, {0, 0, -1});
+    meshData->AddVert(verts[4], {uvMax.x, uvMax.y}, {0, 0, -1});
+    meshData->AddVert(verts[5], {uvMin.x, uvMax.y}, {0, 0, -1});
+
+    // meshData->AddVert({pos.x + -size.x, pos.y + -size.y, pos.z}, {uvMin.x, uvMin.y}, {0, 0, -1});
+    // meshData->AddVert({pos.x + size.x, pos.y + -size.y, pos.z}, {uvMax.x, uvMin.y}, {0, 0, -1});
+    // meshData->AddVert({pos.x + size.x, pos.y + size.y, pos.z}, {uvMax.x, uvMax.y}, {0, 0, -1});
+
+    // meshData->AddVert({pos.x + -size.x, pos.y + -size.y, pos.z}, {uvMin.x, uvMin.y}, {0, 0, -1});
+    // meshData->AddVert({pos.x + size.x, pos.y + size.y, pos.z}, {uvMax.x, uvMax.y}, {0, 0, -1});
+    // meshData->AddVert({pos.x + -size.x, pos.y + size.y, pos.z}, {uvMin.x, uvMax.y}, {0, 0, -1});
 }
 
 //////////////////////////////////////////////////////

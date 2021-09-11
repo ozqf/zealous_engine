@@ -260,8 +260,8 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
     g_mesh->data.AddVert({0.5, 0.5, 0}, {1, 1}, {0, 0, -1});
     g_mesh->data.AddVert({-0.5, 0.5, 0}, {0, 1}, {0, 0, -1});
 
-    ZGen_AddSriteGeoXY(&g_mesh->data, {-1, lerp}, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
-    ZGen_AddSriteGeoXY(&g_mesh->data, {1, lerp}, {0.25, 0.25}, {0.75, 0.75}, {0.75, 0.75});
+    ZGen_AddSriteGeoXY(&g_mesh->data, {-1, lerp}, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25}, 0);
+    ZGen_AddSriteGeoXY(&g_mesh->data, {1, lerp}, {0.25, 0.25}, {0.75, 0.75}, {0.75, 0.75}, 0);
 
     // upload
     ZRGL_UploadMesh(&g_mesh->data, &g_meshHandles, 0);
