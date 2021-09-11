@@ -111,6 +111,20 @@ ze_internal ZRDrawObj* ZScene_GetObjectById(zeHandle sceneHandle, zeHandle objec
     return obj;
 }
 
+ze_internal i32 ZScene_GetObjectCount(zeHandle sceneHandle)
+{
+    ZRScene* scene = GetSceneByHandle(sceneHandle);
+    if (scene == NULL) { return 0; }
+    return scene->objects.m_array->m_numBlobs;
+}
+
+ze_internal ZRDrawObj* ZScene_GetObjectByIndex(zeHandle sceneHandle, i32 i)
+{
+    ZRScene* scene = GetSceneByHandle(sceneHandle);
+    if (scene == NULL) { return NULL; }
+    return (ZRDrawObj*)scene->objects.GetByIndex(i);
+}
+
 ///////////////////////////////////////////////////////////
 // scene object utility functions
 ///////////////////////////////////////////////////////////
@@ -196,6 +210,9 @@ ze_external ZSceneManager ZScene_RegisterFunctions()
     result.GetCamera = ZScene_GetCamera;
     result.GetObject = ZScene_GetObjectById;
     result.RemoveObject = ZScene_RemoveObject;
+    result.GetObjectCount = ZScene_GetObjectCount;
+    result.GetObjectByIndex = ZScene_GetObjectByIndex;
+    
     result.SetCamera = ZScene_SetCamera;
     result.SetProjection = ZScene_SetProjection;
 

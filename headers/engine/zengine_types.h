@@ -381,8 +381,10 @@ struct ZRDrawObj
     Transform t;
     // For interpolation
     Vec3 prevPos;
-    // a user Id to tag the object. not used in rasterisation
+    // an Id used to locate this object.
     zeHandle id;
+    // userTag is for external game use and is not used by the engine itself.
+    i32 userTag;
     // hash of data union, used to identify objects which are
     // similar and could be batched
     u32 hash;

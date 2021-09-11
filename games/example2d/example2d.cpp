@@ -1,6 +1,16 @@
 #include "../../headers/zengine.h"
 
+// for rand()
+#include <stdlib.h>
+
 #define TILE_SET_NAME "tile_set"
+
+#define ENTITY_COUNT 2048
+
+#define BOUNCER_TAG 1
+
+#define RANDF ((f32)rand() / RAND_MAX)
+#define RANDF_RANGE(minValueF, maxValueF) (RANDF * (maxValueF - minValueF) + minValueF)
 
 ze_internal ZEngine g_engine;
 ze_internal ZRTexture* g_tileAtlas;
@@ -49,8 +59,8 @@ ze_internal void Init()
     printf("2D demo init\n");
     BuildTileAtlas();
 
-    g_scene = g_engine.scenes.AddScene(0, 256);
-    
+    g_scene = g_engine.scenes.AddScene(0, ENTITY_COUNT);
+
     M4x4_CREATE(prj)
     ZE_SetupOrthoProjection(prj.cells, 4, 16.f / 9.f);
     g_engine.scenes.SetProjection(g_scene, prj);
@@ -62,11 +72,23 @@ ze_internal void Init()
     obj1->data.quad.uvMin = { 0.25f, 0.25f };
     obj1->data.quad.uvMax = { 0.5f, 0.5f };
 
-    ZRDrawObj *obj2 = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
-    obj2->t.pos = { -2, -2, -2 };
+    // ZRDrawObj *obj2 = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
+    // obj2->t.pos = { -2, -2, -2 };
+    // // f32 vx = ((f32)rand() / RAND_MAX) * 5;
+    // // f32 vy = ((f32)rand() / RAND_MAX) * 5;
+    // obj2->userTag = BOUNCER_TAG;
 
-    ZRDrawObj *obj3 = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
-    obj3->t.pos = { 2, 2, -2 };
+    // ZRDrawObj *obj3 = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
+    // obj3->t.pos = { 2, 2, -2 };
+    // obj3->userTag = BOUNCER_TAG;
+
+    // create some random objects
+    for (i32 i = 0; i < 512; ++i)
+    {
+        ZRDrawObj *mover = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
+        mover->t.pos = { RANDF_RANGE(-4, 4), RANDF_RANGE(-4, 4), -2};
+        mover->userTag = BOUNCER_TAG;
+    }
 
     // test line segments object
     ZRDrawObj* linesObj = g_engine.scenes.AddLinesObj(g_scene, 16);
@@ -87,7 +109,23 @@ ze_internal void Shutdown()
 
 ze_internal void Tick(ZEFrameTimeInfo timing)
 {
+    i32 numObjects = g_engine.scenes.GetObjectCount(g_scene);
+    printf("Tick with %d objects\n", numObjects);
+    for (i32 i = 0; i < numObjects; ++i)
+    {
+        ZRDrawObj* obj = (ZRDrawObj*)g_engine.scenes.GetObjectByIndex(g_scene, i);
+        if (obj == NULL) { continue; }
+        if (obj->userTag != BOUNCER_TAG) { continue; }
 
+        Vec3* pos = &obj->t.pos;
+        pos->x += 5.f * (f32)timing.interval;
+        pos->y += 5.f * (f32)timing.interval;
+
+        if (pos->x > 4) { pos->x = -4; }
+
+        if (pos->y < -4) { pos->y = 4; }
+        if (pos->y > 4) { pos->y = -4; }
+    }
 }
 
 Z_GAME_WINDOWS_LINK_FUNCTION

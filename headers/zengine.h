@@ -123,6 +123,9 @@ struct ZSceneManager
     ZRDrawObj *(*GetObject)(zeHandle scene, zeHandle objectId);
     void (*RemoveObject)(zeHandle scene, zeHandle objectId);
 
+    i32 (*GetObjectCount)(zeHandle sceneHandle);
+    ZRDrawObj *(*GetObjectByIndex)(zeHandle sceneHandle, i32 i);
+
     Transform (*GetCamera)(zeHandle sceneHandle);
     void (*SetCamera)(zeHandle sceneHandle, Transform t);
     void (*SetProjection)(zeHandle sceneHandle, M4x4 projection);
