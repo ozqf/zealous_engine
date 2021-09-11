@@ -118,7 +118,7 @@ struct ZInput
 // Services
 struct ZSceneManager
 {
-    zeHandle (*AddScene)(i32 order, i32 capacity);
+    zeHandle (*AddScene)(i32 order, i32 capacity, zeSize userDataBytesPerObject);
     ZRDrawObj *(*AddObject)(zeHandle scene);
     ZRDrawObj *(*GetObject)(zeHandle scene, zeHandle objectId);
     void (*RemoveObject)(zeHandle scene, zeHandle objectId);
@@ -162,7 +162,8 @@ struct ZAssetManager
 
 struct ZSystem
 {
-    void* (*Malloc)(size_t size);
+    void* (*Malloc)(zeSize size);
+    void* (*Realloc)(void* ptr, zeSize size);
     void (*Free)(void* ptr);
 };
 
@@ -191,6 +192,6 @@ extern "C" zErrorCode __declspec(dllexport) ZGameLinkUp(ZEngine engineImport, ZG
 // Signature of linking function game DLL must export
 typedef zErrorCode(ZGame_LinkupFunction)(ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
 
-typedef zErrorCode(ZE_EventCallback)(i32 code, void *data, size_t dataSize);
+typedef zErrorCode(ZE_EventCallback)(i32 code, void *data, zeSize dataSize);
 
 #endif // ZENGINE_H

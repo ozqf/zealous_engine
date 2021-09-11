@@ -35,7 +35,7 @@ struct ZEBuffer
     // when writing, advance cursor forward,
     // when reading, read from start to cursor
     i8 *cursor;
-    i32 capacity;
+    zeSize capacity;
 
     zeSize Written()
     {

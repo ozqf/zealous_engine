@@ -18,6 +18,8 @@ struct ZRScene
     u32 flags;
     // Tightly packed list of objects
     ZEBlobStore objects;
+    ZEBlobStore userStore;
+    zeSize userStoreItemSize;
     i32 bDebug;
     zeHandle nextId;
     i32 numObjects;

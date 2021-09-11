@@ -15,23 +15,36 @@ ze_internal ZRScene* GetSceneByHandle(zeHandle handle)
     return (ZRScene*)g_scenes->FindPointer(handle);
 }
 
-ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity)
+ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity, zeSize userDataBytesPerObject)
 {
     zeHandle result = g_nextHandle;
     g_nextHandle += 1;
+
+    // allocate scene
     ZRScene* scene = (ZRScene*)Platform_Alloc(sizeof(ZRScene));
     *scene = {};
     scene->id = result;
     scene->nextId = 1;
+    scene->userStoreItemSize = userDataBytesPerObject;
+    g_scenes->InsertPointer(result, scene);
+
+    // allocate primary draw object store
+    ZE_InitBlobStore(Platform_Alloc, &scene->objects, capacity, sizeof(ZRDrawObj), 0);
+
+    // allocate user data store if required
+    if (userDataBytesPerObject > 0)
+    {
+        ZE_InitBlobStore(
+            Platform_Alloc, &scene->userStore, capacity, scene->userStoreItemSize, 0
+        );
+    }
+
+    // set defaults
     Transform_SetToIdentity(&scene->camera);
     // Transform_SetRotationDegrees(&scene->camera, 45.f, 0, 0);
     scene->camera.pos.z = 4.f;
     ZE_SetupDefault3DProjection(scene->projection.cells, 16.f / 9.f);
 
-    ZE_InitBlobStore(Platform_Alloc, &scene->objects, capacity, sizeof(ZRScene), 0);
-    ZEHashTableData d;
-    d.ptr = scene;
-    g_scenes->Insert(result, d);
     printf("added scene %d - capacity %d\n", result, capacity);
     return result;
 }
@@ -93,6 +106,13 @@ ze_external ZRDrawObj* ZScene_AddObject(zeHandle sceneHandle)
     Transform_SetToIdentity(&obj->t);
     obj->id = scene->nextId;
     scene->nextId += 1;
+
+    // acquire user data blob if necessary
+    if (scene->userStoreItemSize > 0)
+    {
+        void* blob = scene->userStore.GetFreeSlot(obj->id);
+        obj->userData = blob;
+    }
     return obj;
 }
 
@@ -101,6 +121,10 @@ ze_internal void ZScene_RemoveObject(zeHandle sceneHandle, zeHandle objectId)
     ZRScene* scene = GetSceneByHandle(sceneHandle);
     if (scene == NULL) { return; }
     scene->objects.MarkForRemoval(objectId);
+    if (scene->userStoreItemSize > 0)
+    {
+        scene->userStore.MarkForRemoval(objectId);
+    }
 }
 
 ze_internal ZRDrawObj* ZScene_GetObjectById(zeHandle sceneHandle, zeHandle objectId)
@@ -193,6 +217,10 @@ ze_external void ZScene_PostFrameTick()
         if (key->id == 0) { continue; }
         ZRScene* scene = (ZRScene*)key->data.ptr;
         scene->objects.Truncate();
+        if (scene->userStoreItemSize > 0)
+        {
+            scene->userStore.Truncate();
+        }
     }
 }
 

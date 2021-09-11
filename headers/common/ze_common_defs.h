@@ -220,7 +220,7 @@ newPtrStructType* newPtrName = (newPtrStructType*)ptr;
 #define ZE_ERROR_IDENTIFIER_ALREADY_TAKEN 21
 
 typedef void (*ZE_FatalErrorFunction)(const char *message);
-typedef void* (*ZE_mallocFunction)(const size_t numBytes);
+typedef void* (*ZE_mallocFunction)(const zeSize numBytes);
 typedef void (*ZE_freeFunction)(const void * memory);
 
 static ZE_FatalErrorFunction ze_fatalErrorFunc = NULL;

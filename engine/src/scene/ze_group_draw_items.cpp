@@ -1,7 +1,25 @@
 #include "ze_scene_internal.h"
 
+ze_internal void CheckBufferCapacity(ZEBuffer* buf, zeSize additionalBytes)
+{
+    if (buf->Space() >= additionalBytes) { return; }
+    // expand buffer
+    zeSize newSize = buf->capacity * 2;
+    printf("!Expanding draw cmd buf from %lldKB to %lldKB\n",
+        buf->capacity / 1024, newSize / 1024);
+    zeSize offset = buf->cursor - buf->start;
+    buf->start = (i8*)Platform_Realloc(buf->start, newSize * 2);
+    buf->cursor = buf->start + offset;
+    buf->capacity = newSize;
+}
+
 internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
 {
+    // calculate required space
+    char *str = textObj->data.text.text;
+    i32 len = ZStr_Len(str) - 1; // ignore terminator at the end
+    zeSize totalBytes = sizeof(ZR_DRAW_CMD_SPRITE_BATCH) + (len * sizeof(ZRQuad));
+    CheckBufferCapacity(buf, totalBytes);
     // start a batch
     BUF_BLOCK_BEGIN_STRUCT(
         spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);
@@ -16,8 +34,6 @@ internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
     }
     spriteBatch->items = (ZRSpriteBatchItem *)buf->cursor;
 
-    char* str = textObj->data.text.text;
-    i32 len = ZStr_Len(str) - 1; // ignore terminator at the end
     Vec2 charSize = Vec2_FromVec3(textObj->t.scale);
     f32 step = charSize.x * 2.f;
     Vec3 origin = textObj->t.pos;
@@ -45,6 +61,8 @@ internal void WriteTextCommand(ZEBuffer* buf, ZRDrawObj* textObj)
 
 internal void WriteSingleQuadCommand(ZEBuffer* buf, ZRDrawObj* quadObj)
 {
+    zeSize totalBytes = sizeof(ZRDrawCmdSpriteBatch) + sizeof(ZRQuad);
+    CheckBufferCapacity(buf, totalBytes);
     // start a batch
     BUF_BLOCK_BEGIN_STRUCT(
         spriteBatch, ZRDrawCmdSpriteBatch, buf, ZR_DRAW_CMD_SPRITE_BATCH);

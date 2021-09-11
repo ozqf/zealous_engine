@@ -25,7 +25,7 @@ ze_internal char* GetAssetTypeLabel(i32 type)
 ze_external void ZAssets_PrintAll()
 {
     printf("=== Asset Heap ===\n");
-    size_t totalBytes = 0;
+    zeSize totalBytes = 0;
     for (i32 i = 0; i < g_table->m_maxKeys; ++i)
     {
         ZEHashTableKey* key = &g_table->m_keys[i];

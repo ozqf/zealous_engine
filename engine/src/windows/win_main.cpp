@@ -17,12 +17,12 @@ static i64 g_clockBase;
 extern int __argc;
 extern char** __argv;
 
-ze_external void *Platform_Alloc(size_t size)
+ze_external void *Platform_Alloc(zeSize size)
 {
 	return malloc(size);
 }
 
-ze_external void *Platform_Realloc(void* ptr, size_t size)
+ze_external void *Platform_Realloc(void* ptr, zeSize size)
 {
 	return realloc(ptr, size);
 }
@@ -212,6 +212,7 @@ int CALLBACK WinMain(
 	Win_InitTimer();
 	ZSystem sys = {};
 	sys.Malloc = Platform_Alloc;
+	sys.Realloc = Platform_Realloc;
 	sys.Free = Platform_Free;
 	ZEngine_Init(sys, Win_LinkToGameDLL(gameDirectory));
 	ZWindow_Init();

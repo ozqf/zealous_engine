@@ -37,8 +37,8 @@ struct ZEBlobArray
 {
     u8 *m_blobs;
     u8 *m_end;
-    i32 m_totalBlobSize;
-    i32 m_blobUserSize;
+    zeSize m_totalBlobSize;
+    zeSize m_blobUserSize;
     i32 m_maxBlobs;
     i32 m_numBlobs;
     i32 m_invalidId;
@@ -49,7 +49,7 @@ struct ZEBlobArray
     ZEBlobHeader *GetHeaderByIndex(i32 index)
     {
         ZE_ASSERT((index >= 0 && index < m_numBlobs), "Blob array out of bounds");
-        i32 offset = m_totalBlobSize * index;
+        zeSize offset = m_totalBlobSize * index;
         ZEBlobHeader *result = (ZEBlobHeader *)(m_blobs + offset);
         ZE_ASSERT(result->sentinel == ZE_BA_SENTINEL, "Blob GetByIndex sentinel failed")
         return result;
@@ -57,7 +57,7 @@ struct ZEBlobArray
 
     ZEBlobHeader *GetHeaderByIndexUnchecked(i32 index)
     {
-        i32 offset = m_totalBlobSize * index;
+        zeSize offset = m_totalBlobSize * index;
         ZEBlobHeader *result = (ZEBlobHeader *)(m_blobs + offset);
         return result;
     }
@@ -76,7 +76,7 @@ struct ZEBlobArray
     {
         //if (m_numBlobs == 0) { return NULL; }
         ZE_ASSERT((index >= 0 && index < m_numBlobs), "Blob array out of bounds");
-        i32 offset = m_totalBlobSize * index;
+        zeSize offset = m_totalBlobSize * index;
         ZEBlobHeader *h = GetHeaderByIndexUnchecked(index);
         ZE_ASSERT(h->sentinel == ZE_BA_SENTINEL, "Blob GetByIndex sentinel failed")
         if (h->status != ZE_BA_STATUS_OCCUPIED)
@@ -120,7 +120,7 @@ struct ZEBlobArray
 
         i32 newBlobIndex = m_numBlobs++;
 
-        i32 offset = m_totalBlobSize * newBlobIndex;
+        zeSize offset = m_totalBlobSize * newBlobIndex;
         ZEBlobHeader *header = (ZEBlobHeader *)(m_blobs + offset);
         ZE_ASSERT(header->status != ZE_BA_STATUS_OCCUPIED, "Attempting to reassigned in-use blob")
         header->id = id;
@@ -202,10 +202,10 @@ struct ZEBlobArray
 
 static ErrorCode ZE_CreateBlobArray(
     ZE_mallocFunction mallocFn,
-    ZEBlobArray **result, i32 capacity, i32 sizePerObject, i32 invalidId)
+    ZEBlobArray **result, i32 capacity, zeSize sizePerObject, i32 invalidId)
 {
-    i32 sizePerBlob = sizeof(ZEBlobHeader) + sizePerObject;
-    i32 totalBytes = sizeof(ZEBlobArray) + (sizePerBlob * capacity);
+    zeSize sizePerBlob = sizeof(ZEBlobHeader) + sizePerObject;
+    zeSize totalBytes = sizeof(ZEBlobArray) + (sizePerBlob * capacity);
     u8 *mem = (u8*)mallocFn(totalBytes);
     if (mem == NULL)
     {

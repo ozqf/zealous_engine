@@ -12,6 +12,17 @@
 #define RANDF ((f32)rand() / RAND_MAX)
 #define RANDF_RANGE(minValueF, maxValueF) (RANDF * (maxValueF - minValueF) + minValueF)
 
+#define CREATE_ENT_PTR(entPtrName, drawObjPtr) \
+Ent2d* entPtrName = NULL; \
+if (drawObjPtr != NULL) { entPtrName = (Ent2d*)drawObjPtr->userData; }
+
+struct Ent2d
+{
+    Vec3 velocity;
+};
+
+const i32 screenSize = 8;
+
 ze_internal ZEngine g_engine;
 ze_internal ZRTexture* g_tileAtlas;
 ze_internal zeHandle g_scene;
@@ -39,7 +50,7 @@ ze_internal void BuildTileAtlas()
     };
 
     int i = 0;
-    size_t numColours = ZE_ARR_SIZE(colours, ColourU32);
+    zeSize numColours = ZE_ARR_SIZE(colours, ColourU32);
     printf("Num colours: %lld\n", numColours);
     for (int y = 0; y < g_tileAtlas->height; y += 16)
     {
@@ -59,10 +70,10 @@ ze_internal void Init()
     printf("2D demo init\n");
     BuildTileAtlas();
 
-    g_scene = g_engine.scenes.AddScene(0, ENTITY_COUNT);
+    g_scene = g_engine.scenes.AddScene(0, ENTITY_COUNT, sizeof(Ent2d));
 
     M4x4_CREATE(prj)
-    ZE_SetupOrthoProjection(prj.cells, 4, 16.f / 9.f);
+    ZE_SetupOrthoProjection(prj.cells, screenSize, 16.f / 9.f);
     g_engine.scenes.SetProjection(g_scene, prj);
 
     // test quads
@@ -83,11 +94,16 @@ ze_internal void Init()
     // obj3->userTag = BOUNCER_TAG;
 
     // create some random objects
-    for (i32 i = 0; i < 512; ++i)
+    // i32 count = 1024;
+    i32 count = (ENTITY_COUNT - 16);
+    for (i32 i = 0; i < count; ++i)
     {
         ZRDrawObj *mover = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
         mover->t.pos = { RANDF_RANGE(-4, 4), RANDF_RANGE(-4, 4), -2};
         mover->userTag = BOUNCER_TAG;
+        CREATE_ENT_PTR(ent, mover)
+        ent->velocity.x = RANDF_RANGE(-5, 5);
+        ent->velocity.y = RANDF_RANGE(-5, 5);
     }
 
     // test line segments object
@@ -110,21 +126,24 @@ ze_internal void Shutdown()
 ze_internal void Tick(ZEFrameTimeInfo timing)
 {
     i32 numObjects = g_engine.scenes.GetObjectCount(g_scene);
-    printf("Tick with %d objects\n", numObjects);
+    // printf("Tick with %d objects\n", numObjects);
     for (i32 i = 0; i < numObjects; ++i)
     {
         ZRDrawObj* obj = (ZRDrawObj*)g_engine.scenes.GetObjectByIndex(g_scene, i);
         if (obj == NULL) { continue; }
         if (obj->userTag != BOUNCER_TAG) { continue; }
 
+        CREATE_ENT_PTR(ent, obj)
         Vec3* pos = &obj->t.pos;
-        pos->x += 5.f * (f32)timing.interval;
-        pos->y += 5.f * (f32)timing.interval;
 
-        if (pos->x > 4) { pos->x = -4; }
+        pos->x += ent->velocity.x * (f32)timing.interval;
+        pos->y += ent->velocity.y * (f32)timing.interval;
 
-        if (pos->y < -4) { pos->y = 4; }
-        if (pos->y > 4) { pos->y = -4; }
+        if (pos->x > screenSize) { pos->x = -screenSize; }
+        if (pos->x < -screenSize) { pos->x = screenSize; }
+
+        if (pos->y < -screenSize) { pos->y = screenSize; }
+        if (pos->y > screenSize) { pos->y = -screenSize; }
     }
 }
 

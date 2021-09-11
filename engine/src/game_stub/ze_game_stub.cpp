@@ -39,7 +39,7 @@ internal void Stub_Init()
     g_engine.input.AddAction(Z_INPUT_CODE_R, Z_INPUT_CODE_NULL, "reset");
 
     // create a visual scene
-    g_gameScene = g_engine.scenes.AddScene(0, 1024);
+    g_gameScene = g_engine.scenes.AddScene(0, 1024, 0);
 
     // find some assets to use on our objects
     i32 textureId = g_engine.assets.GetTexByName(

@@ -20,7 +20,7 @@ ze_external zErrorCode ZE_RegisterListener(ZE_EventCallback callbackFn, i32 mask
     return ZE_ERROR_NONE;
 }
 
-ze_external void ZEvents_BroadcastImmediately(i32 code, void* data, size_t dataSize)
+ze_external void ZEvents_BroadcastImmediately(i32 code, void* data, zeSize dataSize)
 {
 
 }

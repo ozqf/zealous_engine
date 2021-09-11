@@ -385,7 +385,7 @@ internal void Init()
     //////////////////////////////////////////////////////////////
 
     // register a visual scene
-    g_gameScene = g_engine.scenes.AddScene(0, 1024);
+    g_gameScene = g_engine.scenes.AddScene(0, 1024, 0);
 
     // setup camera and projection
     M4x4_CREATE(projection)

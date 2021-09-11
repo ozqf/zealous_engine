@@ -385,6 +385,9 @@ struct ZRDrawObj
     zeHandle id;
     // userTag is for external game use and is not used by the engine itself.
     i32 userTag;
+    // user data blob allocated at the same time as this object.
+    // will be of a fixed size specified when the scene was created.
+    void* userData;
     // hash of data union, used to identify objects which are
     // similar and could be batched
     u32 hash;
@@ -392,7 +395,7 @@ struct ZRDrawObj
     u32 CalcHash()
     {
         hash = ZE_Hash_djb2_Fixed((u8 *)&this->data, sizeof(ZRDrawObjData));
-        const size_t foo = sizeof(ZRDrawObjData);
+        const zeSize foo = sizeof(ZRDrawObjData);
         return hash;
     }
 };

@@ -168,7 +168,7 @@ struct ZEBlobStore
 };
 
 static ErrorCode ZE_InitBlobStore(
-    ZE_mallocFunction mallocFn, ZEBlobStore *store, i32 capacity, i32 sizePerObject, i32 invalidId)
+    ZE_mallocFunction mallocFn, ZEBlobStore *store, i32 capacity, zeSize sizePerObject, i32 invalidId)
 {
     *store = {};
     i32 err = ZE_CreateBlobArray(mallocFn, &store->m_array, capacity, sizePerObject, invalidId);
