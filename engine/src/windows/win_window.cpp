@@ -5,7 +5,7 @@
 #include "../../../lib/glfw3_vc2015/glfw3.h"
 
 // Version of Opengl that will be requested
-const i32 MAJOR_VERSION_REQ = 3;
+const i32 MAJOR_VERSION_REQ = 4;
 const i32 MINOR_VERSION_REQ = 3;
 
 internal GLFWwindow *g_window;

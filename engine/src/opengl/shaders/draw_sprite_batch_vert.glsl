@@ -2,6 +2,7 @@
 
 uniform mat4 u_projection;
 uniform int u_instanceCount;
+uniform sampler2D u_dataTexture;
 
 layout (location = 0) in vec3 i_position;
 layout (location = 1) in vec2 i_uv;

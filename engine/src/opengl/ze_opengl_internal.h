@@ -99,14 +99,14 @@ ze_external void ZR_PrepareTextureUnit1D(
     i32 textureUnit,
     char *uniformName,
     GLint texture,
-    GLint sampler);
+    GLuint sampler);
 ze_external void ZR_PrepareTextureUnit2D(
     GLint programId,
     GLint glTextureUnit,
     i32 textureUnit,
     char *uniformName,
     GLint texture,
-    GLint sampler);
+    GLuint sampler);
 ze_external void ZR_PrepareTextureUnitCubeMap(
     GLint programId,
     GLint glTextureUnit,
