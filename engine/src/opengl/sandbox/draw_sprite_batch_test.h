@@ -62,16 +62,19 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    i32 instanceCount = 4;
+
     // bind gpu objects
-    glUseProgram(g_shader.handle);
     glBindVertexArray(mesh->vao);
+    glUseProgram(g_shader.handle);
 
     M4x4_CREATE(projection)
     M4x4_CREATE(model)
 
+    ZR_SetProg1i(g_shader.handle, "u_instanceCount", instanceCount);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
-    ZR_SetProgM4x4(g_shader.handle, "u_modelView", model.cells);
+    // ZR_SetProgM4x4(g_shader.handle, "u_modelView", model.cells);
 
     // draw
-    glDrawArrays(GL_TRIANGLES, 0, mesh->vertexCount);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, mesh->vertexCount, instanceCount);
 }
