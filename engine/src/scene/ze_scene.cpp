@@ -184,8 +184,12 @@ ze_external void ZScene_Draw()
 {
     if (ZR_GetGraphicsTestMode() != 0)
     {
+        f64 testStart = Platform_QueryClock();
         ZR_DrawTest();
         Platform_SubmitFrame();
+        f64 testEnd = Platform_QueryClock();
+        printf("Draw test time %.3fms\n",
+            (testEnd - testStart) * 1000.f);
         return;
     }
 

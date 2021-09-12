@@ -1,5 +1,11 @@
 #include "../ze_opengl_internal.h"
 
+// for rand()
+#include <stdlib.h>
+
+#define RANDF ((f32)rand() / RAND_MAX)
+#define RANDF_RANGE(minValueF, maxValueF) (RANDF * (maxValueF - minValueF) + minValueF)
+
 struct ZRGLSpriteBatchItem
 {
     Vec4 posAndRadians;
@@ -23,6 +29,7 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     local_persist ZRShader g_shader = {};
     local_persist i32 g_meshId;
     local_persist i32 g_diffuseTexHandle;
+    local_persist i32 g_instanceCount;
 
     // SSBO
     local_persist GLuint ssbo;
@@ -31,6 +38,7 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     local_persist Vec4 g_dataPixels[totalDataPixels];
     local_persist GLuint g_dataTextureHandle;
     local_persist GLuint g_samplerDataTex2D;
+    local_persist i32 g_dataPixelStride = 2;
 
     //////////////////////////////////////////////////
     // local vars
@@ -56,8 +64,10 @@ ze_external void ZRSandbox_DrawSpriteBatch()
 
         // create a little sprite sheet
         ZRTexture* tex = ZAssets_AllocTex(32, 32, "sprite_batch_test_atlas");
-        ZGen_FillTexture(tex, COLOUR_U32_BLACK);
-        ZGen_FillTextureRect(tex, COLOUR_U32_WHITE, { 16, 16 }, { 16, 16 });
+        ZGen_FillTextureRect(tex, COLOUR_U32_RED, { 0, 0 }, { 16, 16 });
+        ZGen_FillTextureRect(tex, COLOUR_U32_GREEN, { 16, 0 }, { 16, 16 });
+        ZGen_FillTextureRect(tex, COLOUR_U32_BLUE, { 0, 16 }, { 16, 16 });
+        ZGen_FillTextureRect(tex, COLOUR_U32_YELLOW, { 16, 16 }, { 16, 16 });
         g_diffuseTexHandle = ZRGL_GetTextureHandle(tex->header.id);
         
         // allocate data texture and sampler for it
@@ -71,13 +81,50 @@ ze_external void ZRSandbox_DrawSpriteBatch()
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
             dataTextureSize, dataTextureSize, 0, GL_RGBA, GL_FLOAT, NULL);
         CHECK_GL_ERR
-        i32 i = 0;
-        g_dataPixels[i++] = { 1, 0, 0, 1 };
-        g_dataPixels[i++] = { 0, 1, 0, 1 };
-        g_dataPixels[i++] = { 0, 0, 1, 1 };
-        g_dataPixels[i++] = { 1, 0, 1, 1 };
 
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 4, 1,  GL_RGBA, GL_FLOAT, g_dataPixels);
+        g_dataPixelStride = 2;
+        i32 i = 0;
+        i32 batchMax = totalDataPixels / g_dataPixelStride;
+        
+        #if 0 // hard coded
+        g_dataPixels[i++] = { -0.5f, -0.5f, 0, 1 }; // pos and rot
+        g_dataPixels[i++] = { 0.25f, 0.25f, 0.25f, 0.25f }; // uvs min/max
+        g_dataPixelStride = 2;
+
+        g_dataPixels[i++] = { 0.5f, -0.5f, 0, 1 };
+        g_dataPixels[i++] = { 0.75f, 0.25f, 0.75f, 0.25f };
+
+        g_dataPixels[i++] = { 0.5f, 0.5f, 0, 1 };
+        g_dataPixels[i++] = { 0.75f, 0.75f, 0.75f, 0.75f };
+
+        g_dataPixels[i++] = { -0.5f, 0.5f, 0, 1 };
+        g_dataPixels[i++] = { 0.25f, 0.75f, 0.25f, 0.75 };
+
+        g_dataPixels[i++] = { 0, 0, 0, 1 };
+        g_dataPixels[i++] = { 0, 0, 1, 1 };
+        #endif
+        
+        #if 1
+        for (i = 0; i < batchMax; i += 1)
+        {
+            i32 pixel = g_dataPixelStride * i;
+            g_dataPixels[pixel] =
+            {
+                RANDF_RANGE(-1.0f, 1.0f),
+                RANDF_RANGE(-1.0f, 1.0f),
+                0,
+                1
+            };
+            g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
+        }
+
+        #endif
+
+        g_instanceCount = i / g_dataPixelStride;
+        printf("Drawing %d instances of %d max\n", g_instanceCount, batchMax);
+
+        // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, i, 1,  GL_RGBA, GL_FLOAT, g_dataPixels);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_dataPixels);
         CHECK_GL_ERR
         #endif
 
@@ -126,6 +173,26 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     // execute
     //////////////////////////////////////////////////
 
+    // update data texture
+    #if 1
+    for (i32 i = 0; i < g_instanceCount; i += 1)
+    {
+        i32 pixel = g_dataPixelStride * i;
+        g_dataPixels[pixel] =
+        {
+            RANDF_RANGE(-1.0f, 1.0f),
+            RANDF_RANGE(-1.0f, 1.0f),
+            0,
+            1
+        };
+        g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
+    }
+    #endif
+
+    glBindTexture(GL_TEXTURE_2D, g_dataTextureHandle);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_dataPixels);
+        CHECK_GL_ERR
+
     //////////////////////////////////////////////////
     // draw
 
@@ -138,8 +205,6 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     glClearColor(0.5f, 0, 0.5f, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    i32 instanceCount = 4;
-
     // bind gpu objects
     glBindVertexArray(mesh->vao);
     CHECK_GL_ERR
@@ -149,7 +214,9 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     M4x4_CREATE(projection)
     M4x4_CREATE(model)
 
-    // ZR_SetProg1i(g_shader.handle, "u_instanceCount", instanceCount);
+    // ZR_SetProg1i(g_shader.handle, "u_instanceCount", g_instanceCount);
+    ZR_SetProg1i(g_shader.handle, "u_dataStride", g_dataPixelStride);
+    ZR_SetProg1i(g_shader.handle, "u_dataTexSize", dataTextureSize);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
     
     ZR_PrepareTextureUnit2D(
@@ -159,7 +226,7 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     );
 
     // draw
-    glDrawArraysInstanced(GL_TRIANGLES, 0, mesh->vertexCount, instanceCount);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, mesh->vertexCount, g_instanceCount);
     CHECK_GL_ERR
     #endif
 }
