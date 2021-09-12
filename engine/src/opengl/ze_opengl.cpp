@@ -167,11 +167,27 @@ ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
     BUF_BLOCK_END_READ
 }
 
+ze_internal i32 g_testMode = 2;
+
 ze_external zErrorCode ZR_DrawTest()
 {
-    // ZRGL_Debug_DrawCubeTest();
-    // OpenglTest_DrawScreenSpaceQuad();
-    ZRGL_Debug_DrawWorldCubeTest();
-    // ZRGL_Debug_DrawWorldSprites();
+    switch (g_testMode)
+    {
+        case 1:
+        ZRGL_Debug_DrawCubeTest();
+        break;
+        case 2:
+        ZRGL_Debug_DrawWorldCubeTest();
+        break;
+        case 3:
+        ZRGL_Debug_DrawWorldSprites();
+        break;
+        case 4:
+        ZRSandbox_DrawSpriteBatch();
+        break;
+        default:
+        OpenglTest_DrawScreenSpaceQuad();
+        break;
+    }
     return ZE_ERROR_NONE;
 }

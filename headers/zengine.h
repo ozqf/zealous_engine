@@ -13,6 +13,7 @@ Zealous Engine public header
 // Embedded assets
 ///////////////////////////////////////////////////////////
 #define ZE_EMBEDDED_CUBE_NAME "cube"
+#define ZE_EMBEDDED_QUAD_NAME "quad"
 
 #define FALLBACK_MATERIAL_NAME "debug_magenta"
 #define FALLBACK_CHEQUER_MATERIAL "debug_chequer"

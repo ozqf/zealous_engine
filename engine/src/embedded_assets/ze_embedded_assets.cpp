@@ -57,11 +57,17 @@ ze_external zErrorCode ZEmbedded_Init()
 	// Created embedded meshes
 	////////////////////////////////////////////////
 	ZRMeshData mesh;
+	ZRMeshAsset *asset;
 	mesh = g_meshCube;
 	printf("Create placeholder %s (%d/%d verts)\n",
 		ZE_EMBEDDED_CUBE_NAME, g_meshCube.numVerts, g_meshCube.maxVerts);
-	ZRMeshAsset *asset = ZAssets_AllocEmptyMesh(ZE_EMBEDDED_CUBE_NAME, mesh.numVerts);
+	asset = ZAssets_AllocEmptyMesh(ZE_EMBEDDED_CUBE_NAME, mesh.numVerts);
 	asset->data.CopyData(mesh);
+
+	mesh = g_meshPrimitive_quad;
+	asset = ZAssets_AllocEmptyMesh(ZE_EMBEDDED_QUAD_NAME, mesh.numVerts);
+	asset->data.CopyData(mesh);
+
 	// printf("Copied:\n");
 	// g_meshCube.PrintVerts();
 	// printf("to:\n");

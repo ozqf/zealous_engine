@@ -186,7 +186,6 @@ internal InputAction *Input_TestForAction(
 #endif
 internal void ZInput_AddAction(u32 keyCode1, u32 keyCode2, char *label)
 {
-    printf("Add action %s\n", label);
     // measure required space
     i32 labelLen = ZStr_Len(label);
     i32 requiredSpace = sizeof(InputAction) + labelLen;

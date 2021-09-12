@@ -5,7 +5,7 @@ Zealous Engine internal header
 #define ZENGINE_INTERNAL_H
 
 // Override the ze_common error handler
-#if 0
+#if 1
 #ifndef ZE_ASSERT
 #define ZE_ASSERT(expression, msg)                                          \
     if (!(expression))                                                      \
@@ -17,6 +17,13 @@ Zealous Engine internal header
 #endif
 #endif
 
+// declared here so assert override can paste into headers
+// messy, want to use ze_external here but its in the headers
+// we are patching with the call to it...
+// TODO: look into a better error handling scheme
+extern "C" void Platform_Fatal(const char *msg);
+
+// public engine core
 #include "../../headers/zengine.h"
 
 // scenes above this are internal - eg for debugging overlays
@@ -174,7 +181,6 @@ ze_external void *Platform_Alloc(zeSize size);
 ze_external void *Platform_Realloc(void* ptr, zeSize size);
 ze_external void Platform_Free(void* ptr);
 ze_external void Platform_DebugBreak();
-ze_external void Platform_Fatal(const char *msg);
 ze_external ZEBuffer Platform_StageFile(char *path);
 ze_external f64 Platform_QueryClock();
 ze_external void Platform_Sleep(i32 milliSeconds);
