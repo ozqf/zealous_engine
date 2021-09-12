@@ -75,12 +75,42 @@ static const char* draw_single_mesh_vert_text =
 // draw_sprite_batch_frag.glsl
 //////////////////////////////////////////////////
 static const char* draw_sprite_batch_frag_text =
+"#version 330\n"
 "\n"
+"out vec4 outputColor;\n"
+"\n"
+"void main()\n"
+"{\n"
+"   outputColor = vec4(1, 1, 1, 1);\n"
+"}\n"
 ;
 //////////////////////////////////////////////////
 // draw_sprite_batch_vert.glsl
 //////////////////////////////////////////////////
 static const char* draw_sprite_batch_vert_text =
+"#version 330\n"
+"\n"
+"uniform mat4 u_projection;\n"
+"uniform mat4 u_modelView;\n"
+"// Vertex Attrib 0\n"
+"layout (location = 0) in vec3 i_position;\n"
+"// // Vertex Attrib 1\n"
+"layout (location = 1) in vec2 i_uv;\n"
+"// // Vertex Attrib 2\n"
+"layout (location = 2) in vec3 i_normal;\n"
+"\n"
+"out vec2 m_texCoord;\n"
+"out vec3 m_normal;\n"
+"out vec3 m_fragPos;\n"
+"\n"
+"void main()\n"
+"{\n"
+"   vec4 positionV4 = vec4(i_position, 1.0);\n"
+"   gl_Position = u_projection * u_modelView * positionV4;\n"
+"   m_texCoord = i_uv;\n"
+"	m_normal = normalize(mat3(u_modelView) * i_normal);\n"
+"	m_fragPos = vec3(u_modelView * positionV4);\n"
+"}\n"
 "\n"
 ;
 

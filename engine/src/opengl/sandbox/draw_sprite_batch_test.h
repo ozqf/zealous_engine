@@ -66,6 +66,12 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     glUseProgram(g_shader.handle);
     glBindVertexArray(mesh->vao);
 
+    M4x4_CREATE(projection)
+    M4x4_CREATE(model)
+
+    ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
+    ZR_SetProgM4x4(g_shader.handle, "u_modelView", model.cells);
+
     // draw
     glDrawArrays(GL_TRIANGLES, 0, mesh->vertexCount);
 }
