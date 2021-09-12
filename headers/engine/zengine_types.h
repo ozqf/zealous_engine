@@ -393,10 +393,9 @@ struct ZRDrawObj
     // similar and could be batched
     u32 hash;
     ZRDrawObjData data;
-    u32 CalcHash()
+    u32 CalcDataHash()
     {
         hash = ZE_Hash_djb2_Fixed((u8 *)&this->data, sizeof(ZRDrawObjData));
-        const zeSize foo = sizeof(ZRDrawObjData);
         return hash;
     }
 };

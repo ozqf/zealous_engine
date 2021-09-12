@@ -1,5 +1,16 @@
 #include "ze_scene_internal.h"
 
+#define MAX_DRAW_GROUPS 1024
+
+ze_internal ZEBuffer g_scratch;
+
+struct ZEDrawGroup
+{
+    i32 objType;
+    u32 objHash;
+    i32 numIndices;  
+};
+
 inline void CheckBufferCapacity(ZEBuffer* buf, zeSize additionalBytes)
 {
     if (buf->Space() >= additionalBytes) { return; }
@@ -78,27 +89,7 @@ inline void WriteSingleQuadCommand(ZEBuffer *buf, ZRDrawObj *quadObj)
         quad->uvMin,
         quad->uvMax,
         radians);
-    //     Vec2 charSize = Vec2_FromVec3(textObj->t.scale);
-    //     f32 step = charSize.x * 2.f;
-    //     Vec3 origin = textObj->t.pos;
-    //     origin.x += charSize.x;
-    //     origin.y -= charSize.x;
-    //     Vec3 drawPos = origin;
-    //     for (i32 i = 0; i < len; ++i)
-    //     {
-    //         char c = str[i];
-    //         if (c == '\n')
-    //         {
-    //             drawPos.x = origin.x;
-    //             drawPos.y -= step;
-    //             continue;
-    //         }
-    //         Vec2 uvMin, uvMax;
-    //         ZEAsciToCharsheetUVs(c, &uvMin, &uvMax);
-    //         spriteBatch->AddItem(drawPos, charSize, uvMin, uvMax);
-    //         drawPos.x += step;
-    // }
-
+    
     // complete batch command
     spriteBatch->Finish(buf);
 }
@@ -209,19 +200,98 @@ inline void AddTestLines(ZEBuffer *buf)
     // printf("Wrote %d bytes of lines\n", lines->header.size);
 }
 
-ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
+inline ZEDrawGroup* FindGroupForObject(
+    ZEDrawGroup* groups,
+    i32* numGroups,
+    i32 objType,
+    u32 hash)
 {
-    i32 len = scene->objects.m_array->m_numBlobs;
-    ZE_PRINTF("Write scene %d - %d objects\n",
-              scene->id, len);
+    ZEDrawGroup* result = NULL;
+    for (i32 i = 0; i < *numGroups; ++i)
+    {
+        ZEDrawGroup* candidate = &groups[i];
+        if (candidate->objHash == hash)
+        {
+            ZE_ASSERT(candidate->objType == objType, "Type mismatch in object group")
+            result = candidate;
+            break;
+        }
+    }
+    if (result == NULL)
+    {
+        result = &groups[*numGroups];
+        *numGroups += 1;
+        result->objHash = hash;
+        result->objType = objType;
+    }
+    result->numIndices += 1;
+    return result;
+}
 
+ze_internal void ZScene_BuildDrawGroups(ZEBuffer* scratch, ZRScene* scene)
+{
+    i32* numGroups = (i32*)scratch->cursor;
+    *numGroups = 0;
+    scratch->cursor += sizeof(i32);
+    ZE_BUF_INIT_PTR_IN_PLACE(firstGroup, ZEDrawGroup, scratch)
+    ZEDrawGroup* nextGroup = firstGroup;
+
+    // first scan to find groups and their sizes so space can be allocated
+    // second, with groups allocated, scan again and build commands
+    i32 len = scene->objects.m_array->m_numBlobs;
+    for (i32 i = 0; i < len; ++i)
+    {
+        ZRDrawObj *obj = (ZRDrawObj *)scene->objects.GetByIndex(i);
+        switch (obj->data.type)
+        {
+            case ZR_DRAWOBJ_TYPE_MESH:
+            FindGroupForObject(firstGroup, numGroups, obj->data.type, obj->CalcDataHash());
+            break;
+
+            case ZR_DRAWOBJ_TYPE_QUAD:
+            FindGroupForObject(
+                firstGroup, numGroups, obj->data.type, (u32)obj->data.quad.textureId);
+            break;
+
+            case ZR_DRAWOBJ_TYPE_LINES:
+            break;
+
+            case ZR_DRAWOBJ_TYPE_BOUNDING_BOX:
+            break;
+
+            case ZR_DRAWOBJ_TYPE_TEXT:
+            break;
+        }
+    }
+    printf("--- Found %d draw groups ---\n", *numGroups);
+    for (i32 i = 0; i < *numGroups; ++i)
+    {
+        ZEDrawGroup* group = &firstGroup[i];
+        printf("%d - %d objects\n", group->objHash, group->numIndices);
+    }
+}
+
+ze_internal void ZScene_WriteSceneWithGrouping(ZEBuffer *buf, ZRScene *scene)
+{
+    g_scratch.Clear(NO);
+    i32 len = scene->objects.Count();
     // setup camera/projection
     BUF_BLOCK_BEGIN_STRUCT(setCamera, ZRDrawCmdSetCamera, buf, ZR_DRAW_CMD_SET_CAMERA);
     setCamera->camera = scene->camera;
     setCamera->projection = scene->projection;
 
-    // AddTestLines(buf);
-    
+    ZScene_BuildDrawGroups(&g_scratch, scene);
+}
+
+
+ze_internal void ZScene_WriteSceneNoGrouping(ZEBuffer *buf, ZRScene *scene)
+{
+    i32 len = scene->objects.m_array->m_numBlobs;
+    // setup camera/projection
+    BUF_BLOCK_BEGIN_STRUCT(setCamera, ZRDrawCmdSetCamera, buf, ZR_DRAW_CMD_SET_CAMERA);
+    setCamera->camera = scene->camera;
+    setCamera->projection = scene->projection;
+
     for (i32 i = 0; i < len; ++i)
     {
         ZRDrawObj *obj = (ZRDrawObj *)scene->objects.GetByIndex(i);
@@ -247,12 +317,21 @@ ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
             WriteTextCommand(buf, obj);
             break;
         }
-    }
-    BUF_BLOCK_BEGIN_STRUCT(meshCmd, ZRDrawCmdDebugLines, buf, ZR_DRAW_CMD_DEBUG_LINES)
-    
+    }   
+}
+
+
+///////////////////////////////////////////////////////////
+// External
+///////////////////////////////////////////////////////////
+
+ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
+{
+    ZScene_WriteSceneNoGrouping(buf, scene);
+    ZScene_WriteSceneWithGrouping(buf, scene);
 }
 
 ze_external void ZScene_InitGrouping()
 {
-
+    g_scratch = Buf_FromMalloc(Platform_Alloc, MegaBytes(1));
 }

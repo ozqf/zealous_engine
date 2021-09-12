@@ -92,7 +92,7 @@ ze_external void ZRDraw_SpriteBatch(
     }
     ZE_PRINTF("Draw sprite batch - %d objects\n", batch->numItems);
     g_mesh->data.Clear();
-    //Platform_DebugBreak();
+    
     f32 lerp = 0;
     for (i32 i = 0; i < batch->numItems; ++i)
     {
@@ -100,20 +100,15 @@ ze_external void ZRDraw_SpriteBatch(
 
         ZGen_AddSriteGeoXY(&(g_mesh->data), item->pos, item->size, item->uvMin, item->uvMax, item->radians);
     }
-    // ZGen_AddSriteGeoXY(g_mesh, {-1, lerp}, {0.25, 0.25}, {0.25, 0.25}, {0.25, 0.25});
-    // ZGen_AddSriteGeoXY(g_mesh, {1, lerp}, {0.25, 0.25}, {0.75, 0.75}, {0.75, 0.75});
-
+    
     glUseProgram(g_shader.handle);
 
     // upload
     ZRGL_UploadMesh(&g_mesh->data, &g_meshHandles, 0);
-    // printf("Draw %d sprites\n", batch->numItems);
-
+    
     M4x4_CREATE(modelView)
     M4x4_CREATE(model)
 
-    // modelView.posZ = -2.f;
-    // M4x4_RotateY(modelView.cells, (90.f * DEG2RAD) * delta);
     M4x4_Multiply(modelView.cells, view->cells, modelView.cells);
     M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
     
@@ -122,13 +117,8 @@ ze_external void ZRDraw_SpriteBatch(
 
     u32 texHandle = ZRGL_GetTextureHandle(batch->textureId);
 
-    // ZR_PrepareTextureUnit2D(g_shader.handle, GL_TEXTURE0, 0, "u_diffuseTex", g_texHandle, 0);
     ZR_PrepareTextureUnit2D(g_shader.handle, GL_TEXTURE0, 0, "u_diffuseTex", texHandle, 0);
     CHECK_GL_ERR
-
-    // printf("Retrieved handle %d for texture %d\n", texHandle, batch->textureId);
-    // ZRGL_PrintHandles();
-    // Platform_DebugBreak();
 
     // set frag output colour
     ZR_SetProgVec4f(g_shader.handle, "u_colour", { 1, 1, 1, 1});

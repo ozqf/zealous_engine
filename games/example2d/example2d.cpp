@@ -81,6 +81,7 @@ ze_internal void Init()
     
     #if 1// create some random objects
     i32 count = ENTITY_COUNT;
+    // i32 count = 1024;
     // i32 count = (ENTITY_COUNT - 16);
     for (i32 i = 0; i < count; ++i)
     {

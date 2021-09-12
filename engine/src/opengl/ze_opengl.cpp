@@ -76,8 +76,8 @@ ze_external zErrorCode ZR_Init()
 
     // v-sync - off
     // want to cap frame rate manually... v-sync gives me jip.
-    const i32 swapInterval = 1;
-    // const i32 swapInterval = 0;
+    // const i32 swapInterval = 1;
+    const i32 swapInterval = 0;
     printf("Swap interval - %d\n", swapInterval);
     glfwSwapInterval(swapInterval);
 

@@ -13,6 +13,7 @@
 @rem -wd4201 -> disable warning
 @rem -wd4189 -> disable warning
 @rem /Zi -> generate debug information
+@rem /O2 -> optimised
 @rem /Fe -> specify file name and path
 @rem -subsystem:windows,5.1 creates xp compatible windows program
 @rem -MT package standard library into exe (increase compatibility)
