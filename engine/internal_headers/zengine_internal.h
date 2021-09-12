@@ -281,5 +281,6 @@ ze_external void        ZR_ExecuteCommands(ZEBuffer* commandBuffer);
 ze_external void        ZR_Screenshot(char *fileName);
 ze_external zErrorCode  ZR_DrawTest();
 ze_external void        ZRGL_PrintHandles();
+ze_external i32         ZR_GetGraphicsTestMode();
 
 #endif // ZENGINE_INTERNAL_H

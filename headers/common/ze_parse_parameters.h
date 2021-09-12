@@ -40,6 +40,9 @@ internal i32 ZE_FindParamIndex(
     const char* query,
     const i32 trailingTokens)
 {
+    if (params == NULL) { return ZE_ERROR_BAD_INDEX; }
+    if (query == NULL) { return ZE_ERROR_BAD_INDEX; }
+    
     for (i32 i = 0; i < numTokens; ++i)
     {
         const char* txt = params[i];

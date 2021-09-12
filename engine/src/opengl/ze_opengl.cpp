@@ -20,6 +20,13 @@ struct ZRGPUSpecs
 
 internal ZRGPUSpecs g_gpuLimits;
 
+ze_internal i32 g_graphicsTestMode = 0;
+
+ze_external i32 ZR_GetGraphicsTestMode()
+{
+	return g_graphicsTestMode;
+}
+
 static void ZRGL_PrintGPUInfo()
 {
     const u8 *vendor = glGetString(GL_VENDOR);
@@ -91,6 +98,8 @@ ze_external zErrorCode ZR_Init()
 
     ZRGL_UploaderInit();
     ZRGL_Debug_Init();
+
+    g_graphicsTestMode = ZCFG_FindIntParam(NULL, "--testmode", 0);
 
     // Init shaders
     /*
@@ -167,26 +176,28 @@ ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
     BUF_BLOCK_END_READ
 }
 
-ze_internal i32 g_testMode = 2;
-
 ze_external zErrorCode ZR_DrawTest()
 {
-    switch (g_testMode)
+    switch (g_graphicsTestMode)
     {
         case 1:
-        ZRGL_Debug_DrawCubeTest();
+        OpenglTest_DrawScreenSpaceQuad();
         break;
         case 2:
-        ZRGL_Debug_DrawWorldCubeTest();
+        ZRGL_Debug_DrawCubeTest();
         break;
         case 3:
-        ZRGL_Debug_DrawWorldSprites();
+        ZRGL_Debug_DrawWorldCubeTest();
         break;
         case 4:
+        ZRGL_Debug_DrawWorldSprites();
+        break;
+        case 5:
         ZRSandbox_DrawSpriteBatch();
         break;
+
         default:
-        OpenglTest_DrawScreenSpaceQuad();
+        ZRGL_Debug_DrawWorldCubeTest();
         break;
     }
     return ZE_ERROR_NONE;

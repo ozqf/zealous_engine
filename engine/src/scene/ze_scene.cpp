@@ -180,12 +180,15 @@ ze_internal ZRDrawObj* ZScene_AddLinesObj(zeHandle scene, i32 maxVerts)
 // service
 ///////////////////////////////////////////////////////////
 
-// uncomment to ignore scene system and draw renderer tests instead
-// #define DRAW_TEST
-
 ze_external void ZScene_Draw()
 {
-    #ifndef DRAW_TEST
+    if (ZR_GetGraphicsTestMode() != 0)
+    {
+        ZR_DrawTest();
+        Platform_SubmitFrame();
+        return;
+    }
+
     ZE_PRINTF("=== FRAME ===\n");
     ZR_ClearFrame({ 0.1f, 0.1f, 0.1f, 1});
     f64 cmdStart = Platform_QueryClock();
@@ -211,13 +214,6 @@ ze_external void ZScene_Draw()
     printf("Write draw time: %.3fms - submit draw time %.3fms\n",
         (cmdEnd - cmdStart) * 1000.f,
         (drawEnd - drawStart) * 1000.f);
-
-    #endif
-
-    #ifdef DRAW_TEST
-    ZR_DrawTest();
-    Platform_SubmitFrame();
-    #endif
 }
 
 ze_external void ZScene_PostFrameTick()

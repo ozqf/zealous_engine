@@ -1,11 +1,11 @@
 #include "../../headers/zengine.h"
 #include "../internal_headers/zengine_internal.h"
 
-internal i32 g_running = YES;
-internal ZGame g_game = {};
-internal ZGameDef g_gameDef = {};
-internal ZEngine g_engine;
-internal i32 g_bSingleFrame = NO;
+ze_internal i32 g_running = YES;
+ze_internal ZGame g_game = {};
+ze_internal ZGameDef g_gameDef = {};
+ze_internal ZEngine g_engine;
+ze_internal i32 g_bSingleFrame = NO;
 ze_internal i32 g_frameNumber = 0;
 
 ze_internal i32 g_targetFPS = 0;

@@ -220,6 +220,7 @@ inline ZEDrawGroup* FindGroupForObject(
     if (result == NULL)
     {
         result = &groups[*numGroups];
+        *result = {};
         *numGroups += 1;
         result->objHash = hash;
         result->objType = objType;
