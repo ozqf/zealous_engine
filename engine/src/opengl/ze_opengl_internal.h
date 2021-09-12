@@ -152,6 +152,7 @@ ze_external void OpenglTest_DrawScreenSpaceQuad();
 ze_external void ZRGL_Debug_DrawCubeTest();
 ze_external void ZRGL_Debug_DrawWorldCubeTest();
 ze_external void ZRGL_Debug_DrawWorldSprites();
+ze_external void ZRSandbox_DrawQuadBatch();
 ze_external void ZRSandbox_DrawSpriteBatch();
 
 #endif // ZE_OPENGL_INTERNAL_H

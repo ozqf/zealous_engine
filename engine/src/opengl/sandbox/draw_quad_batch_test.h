@@ -1,6 +1,6 @@
 #include "../ze_opengl_internal.h"
 
-ze_external void ZRSandbox_DrawSpriteBatch()
+ze_external void ZRSandbox_DrawQuadBatch()
 {
     //////////////////////////////////////////////////
     // persist vars
@@ -8,7 +8,6 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     local_persist i32 g_bInitialised = NO;
     local_persist ZRShader g_shader = {};
     local_persist i32 g_meshId;
-    local_persist i32 g_diffuseTexHandle;
 
     //////////////////////////////////////////////////
     // local vars
@@ -22,8 +21,8 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     {
         g_bInitialised = YES;
         err = ZRGL_CreateProgram(
-            draw_sprite_batch_vert_text,
-            draw_sprite_batch_frag_text,
+            batch_quad_test_vert_text,
+            batch_quad_test_frag_text,
             "sprite_batch_test",
             ZR_DRAWOBJ_TYPE_QUAD,
             YES,
@@ -31,12 +30,6 @@ ze_external void ZRSandbox_DrawSpriteBatch()
         ZE_ASSERT(err == ZE_ERROR_NONE, "create prog failed")
 
         g_meshId = ZAssets_GetMeshByName(ZE_EMBEDDED_QUAD_NAME)->header.id;
-
-        // create a little sprite sheet
-        ZRTexture* tex = ZAssets_AllocTex(32, 32, "sprite_batch_test_atlas");
-        ZGen_FillTexture(tex, COLOUR_U32_BLACK);
-        ZGen_FillTextureRect(tex, COLOUR_U32_WHITE, { 16, 16 }, { 16, 16 });
-        g_diffuseTexHandle = ZRGL_GetTextureHandle(tex->header.id);
     }
 
     //////////////////////////////////////////////////
@@ -66,9 +59,7 @@ ze_external void ZRSandbox_DrawSpriteBatch()
 
     ZR_SetProg1i(g_shader.handle, "u_instanceCount", instanceCount);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
-    
-    ZR_PrepareTextureUnit2D(
-        g_shader.handle, GL_TEXTURE0, 0, "u_diffuseTex", g_diffuseTexHandle, 0);
+    // ZR_SetProgM4x4(g_shader.handle, "u_modelView", model.cells);
 
     // draw
     glDrawArraysInstanced(GL_TRIANGLES, 0, mesh->vertexCount, instanceCount);

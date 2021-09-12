@@ -193,6 +193,9 @@ ze_external zErrorCode ZR_DrawTest()
         ZRGL_Debug_DrawWorldSprites();
         break;
         case 5:
+        ZRSandbox_DrawQuadBatch();
+        break;
+        case 6:
         ZRSandbox_DrawSpriteBatch();
         break;
 
