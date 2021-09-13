@@ -40,13 +40,15 @@ void main()
     
     mat4 u_modelView = u_projection;
 
-    u_modelView[0][0] *= 0.01f;
-    u_modelView[1][1] *= 0.01f;
-    u_modelView[2][2] *= 0.01f;
+    u_modelView[0][0] *= 0.02f;
+    u_modelView[1][1] *= 0.02f;
+    u_modelView[2][2] *= 0.02f;
 
-    // x/y pos
+    // pos
     u_modelView[3][0] = data1.x;
     u_modelView[3][1] = data1.y;
+    u_modelView[3][2] = data1.z;
+    u_modelView[3][3] = 1;
 
     vec4 positionV4 = vec4(i_position, 1.0);
     gl_Position = u_projection * u_modelView * positionV4;

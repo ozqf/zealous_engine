@@ -19,7 +19,7 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     //////////////////////////////////////////////////
     // constants
     //////////////////////////////////////////////////
-    const i32 dataTextureSize = 128;
+    const i32 dataTextureSize = 512;
     const i32 totalDataPixels = dataTextureSize * dataTextureSize;
 
     //////////////////////////////////////////////////
@@ -85,6 +85,8 @@ ze_external void ZRSandbox_DrawSpriteBatch()
         g_dataPixelStride = 2;
         i32 i = 0;
         i32 batchMax = totalDataPixels / g_dataPixelStride;
+        printf("Total data pixels: %d, stride %d, batch max %d\n",
+            totalDataPixels, g_dataPixelStride, batchMax);
         
         #if 0 // hard coded
         g_dataPixels[i++] = { -0.5f, -0.5f, 0, 1 }; // pos and rot
@@ -110,8 +112,8 @@ ze_external void ZRSandbox_DrawSpriteBatch()
             i32 pixel = g_dataPixelStride * i;
             g_dataPixels[pixel] =
             {
-                RANDF_RANGE(-1.0f, 1.0f),
-                RANDF_RANGE(-1.0f, 1.0f),
+                0, //RANDF_RANGE(-1.0f, 1.0f),
+                0, //RANDF_RANGE(-1.0f, 1.0f),
                 0,
                 1
             };
@@ -120,8 +122,9 @@ ze_external void ZRSandbox_DrawSpriteBatch()
 
         #endif
 
-        g_instanceCount = i / g_dataPixelStride;
+        g_instanceCount = i;
         printf("Drawing %d instances of %d max\n", g_instanceCount, batchMax);
+        printf("\tData texture is %lldKB\n", (totalDataPixels * sizeof(Vec4)) / 1024);
 
         // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, i, 1,  GL_RGBA, GL_FLOAT, g_dataPixels);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_dataPixels);
@@ -173,16 +176,17 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     // execute
     //////////////////////////////////////////////////
 
-    // update data texture
-    #if 1
+    f32 range = 3.f;
+    
+    #if 1 // update data texture to check data refreshing
     for (i32 i = 0; i < g_instanceCount; i += 1)
     {
         i32 pixel = g_dataPixelStride * i;
         g_dataPixels[pixel] =
         {
-            RANDF_RANGE(-1.0f, 1.0f),
-            RANDF_RANGE(-1.0f, 1.0f),
-            0,
+            RANDF_RANGE(-range, range),
+            RANDF_RANGE(-range, range),
+            -4,
             1
         };
         g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
@@ -212,6 +216,7 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     CHECK_GL_ERR
 
     M4x4_CREATE(projection)
+    ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
     M4x4_CREATE(model)
 
     // ZR_SetProg1i(g_shader.handle, "u_instanceCount", g_instanceCount);
