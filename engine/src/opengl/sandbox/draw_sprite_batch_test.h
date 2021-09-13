@@ -10,8 +10,8 @@ struct ZRGLSpriteBatchItem
 {
     Vec4 posAndRadians;
     Vec4 uvs;
-    Vec4 colour;
     Vec4 scaleAndOffset;
+    Vec4 colour;
 };
 
 ze_external void ZRSandbox_DrawSpriteBatch()
@@ -21,6 +21,8 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     //////////////////////////////////////////////////
     const i32 dataTextureSize = 512;
     const i32 totalDataPixels = dataTextureSize * dataTextureSize;
+    const f32 range = 3.f;
+    
 
     //////////////////////////////////////////////////
     // persist vars
@@ -30,6 +32,9 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     local_persist i32 g_meshId;
     local_persist i32 g_diffuseTexHandle;
     local_persist i32 g_instanceCount;
+
+    local_persist Transform camera;
+    local_persist f64 g_lastTickTime;
 
     // SSBO
     local_persist GLuint ssbo;
@@ -51,6 +56,9 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     if (g_bInitialised == NO)
     {
         g_bInitialised = YES;
+        g_lastTickTime = Platform_QueryClock();
+        Transform_SetToIdentity(&camera);
+
         err = ZRGL_CreateProgram(
             draw_sprite_batch_vert_text,
             draw_sprite_batch_frag_text,
@@ -84,7 +92,8 @@ ze_external void ZRSandbox_DrawSpriteBatch()
 
         g_dataPixelStride = 2;
         i32 i = 0;
-        i32 batchMax = totalDataPixels / g_dataPixelStride;
+        // i32 batchMax = totalDataPixels / g_dataPixelStride;
+        i32 batchMax = 1;
         printf("Total data pixels: %d, stride %d, batch max %d\n",
             totalDataPixels, g_dataPixelStride, batchMax);
         
@@ -112,9 +121,9 @@ ze_external void ZRSandbox_DrawSpriteBatch()
             i32 pixel = g_dataPixelStride * i;
             g_dataPixels[pixel] =
             {
-                0, //RANDF_RANGE(-1.0f, 1.0f),
-                0, //RANDF_RANGE(-1.0f, 1.0f),
-                0,
+                RANDF_RANGE(-range, range),
+                RANDF_RANGE(-range, range),
+                RANDF_RANGE(-4, -16),
                 1
             };
             g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
@@ -176,9 +185,11 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     // execute
     //////////////////////////////////////////////////
 
-    f32 range = 3.f;
-    
-    #if 1 // update data texture to check data refreshing
+    // calculate delta
+    f64 now = Platform_QueryClock();
+    f64 delta = now - g_lastTickTime;
+
+    #if 0 // update data texture to check data refreshing
     for (i32 i = 0; i < g_instanceCount; i += 1)
     {
         i32 pixel = g_dataPixelStride * i;
@@ -186,16 +197,15 @@ ze_external void ZRSandbox_DrawSpriteBatch()
         {
             RANDF_RANGE(-range, range),
             RANDF_RANGE(-range, range),
-            -4,
+            RANDF_RANGE(-4, -16),
             1
         };
         g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
     }
-    #endif
-
     glBindTexture(GL_TEXTURE_2D, g_dataTextureHandle);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_dataPixels);
         CHECK_GL_ERR
+    #endif
 
     //////////////////////////////////////////////////
     // draw
@@ -214,15 +224,18 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     CHECK_GL_ERR
     glUseProgram(g_shader.handle);
     CHECK_GL_ERR
-
-    M4x4_CREATE(projection)
-    ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
-    M4x4_CREATE(model)
-
+    
     // ZR_SetProg1i(g_shader.handle, "u_instanceCount", g_instanceCount);
     ZR_SetProg1i(g_shader.handle, "u_dataStride", g_dataPixelStride);
     ZR_SetProg1i(g_shader.handle, "u_dataTexSize", dataTextureSize);
+
+    M4x4_CREATE(projection)
+    ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
+
+    M4x4_CREATE(view)
+    Transform_ToM4x4(&camera, &view);
+    ZR_SetProgM4x4(g_shader.handle, "u_view", view.cells);
     
     ZR_PrepareTextureUnit2D(
         g_shader.handle, GL_TEXTURE0, 0, "u_diffuseTex", g_diffuseTexHandle, 0);
