@@ -154,6 +154,9 @@ static void InitConsole()
 	printf("[%s] Console initialized.\n", __FILE__);
 }
 
+////////////////////////////////////////////////////////
+// Windows Entry Point
+////////////////////////////////////////////////////////
 int CALLBACK WinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,

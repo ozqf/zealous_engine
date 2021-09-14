@@ -40,8 +40,6 @@ void main()
     vec4 data1 = ReadDataPixel(0);
     vec4 data2 = ReadDataPixel(1);
     
-    // mat4 u_modelView = u_projection;
-
     mat4 u_model;
     
     u_model[0][0] = 0.1; // scale x
@@ -63,18 +61,8 @@ void main()
     u_model[3][1] = data1.y; // pos y
     u_model[3][2] = data1.z; // pos z
     u_model[3][3] = 1;      // pos w
-
-    
+                        
     mat4 u_modelView = u_view * u_model;
-    // u_modelView[0][0] *= 0.02f;
-    // u_modelView[1][1] *= 0.02f;
-    // u_modelView[2][2] *= 0.02f;
-
-    // // pos
-    // u_modelView[3][0] = data1.x;
-    // u_modelView[3][1] = data1.y;
-    // u_modelView[3][2] = data1.z;
-    // u_modelView[3][3] = 1;
     
     vec4 positionV4 = vec4(i_position, 1.0);
     if (u_isBillboard == 0)
@@ -96,11 +84,6 @@ void main()
 		gl_Position = u_projection * mv * positionV4;
     }
     
-    // gl_Position = u_projection * u_model * positionV4;
-    // gl_Position = u_projection * u_model * u_view * positionV4;
-    // gl_Position = u_projection * u_view * u_model * positionV4;
-    // m_texCoord = i_uv;
-    // m_texCoord = vec2(0.25, 0.25);
     m_texCoord.x = data2.x + ((data2.z - data2.x) * i_uv.x);
     m_texCoord.y = data2.y + ((data2.w - data2.y) * i_uv.y);
 	m_normal = normalize(mat3(u_modelView) * i_normal);
