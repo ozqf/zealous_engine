@@ -145,7 +145,7 @@ ze_external i32 ZE_StartLoop()
 		}
 		ZScene_PostFrameTick();
 		ZScene_Draw();
-
+		
 		if (g_bSingleFrame)
 		{
 			ZR_Screenshot("screenshot.png");

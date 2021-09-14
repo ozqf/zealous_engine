@@ -3,7 +3,10 @@
 @echo --------------------------------------------------------
 @echo Build Zealous Engine Windows Executable
 
-node prep_shaders.js
+@echo Embed Engine Shaders
+@call write_engine_shaders.bat
+@echo Embed Renderer Sandbox Shaders
+@call write_sandbox_shaders.bat
 @echo --------------------------------------------------------
 
 cd..

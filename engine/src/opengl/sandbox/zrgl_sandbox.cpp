@@ -6,6 +6,8 @@
 
 #include "../ze_opengl_internal.h"
 
+#include "shaders/sandbox_shaders.h"
+
 #include "draw_screen_quad_test.h"
 #include "draw_screen_cube_test.h"
 #include "draw_world_cube_test.h"
