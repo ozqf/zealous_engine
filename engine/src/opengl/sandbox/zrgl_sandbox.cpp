@@ -15,6 +15,7 @@
 #include "draw_quad_batch_test.h"
 #include "draw_sprite_batch_test.h"
 #include "draw_sprite_batch_test_2.h"
+#include "draw_sprite_batch_test_3.h"
 
 ze_external void ZRGL_Debug_Init()
 {
@@ -45,6 +46,9 @@ ze_external void ZRGL_SandboxRunTest(i32 mode)
         break;
 		case 7:
 		ZRSandbox_DrawSpriteBatch_2();
+		break;
+        case 8:
+		ZRSandbox_DrawSpriteBatch_3();
 		break;
 
         default:
