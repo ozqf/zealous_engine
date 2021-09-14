@@ -77,6 +77,8 @@ ze_external void ZRSandbox_DrawSpriteBatch_2()
 
         GetEngine().input.AddAction(Z_INPUT_CODE_W, 0, "move_forward");
         GetEngine().input.AddAction(Z_INPUT_CODE_S, 0, "move_backward");
+        GetEngine().input.AddAction(Z_INPUT_CODE_A, 0, "move_left");
+        GetEngine().input.AddAction(Z_INPUT_CODE_D, 0, "move_right");
 
         GetEngine().input.AddAction(Z_INPUT_CODE_R, 0, "reset");
 
@@ -246,6 +248,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_2()
     // ZR_SetProg1i(g_shader.handle, "u_instanceCount", g_instanceCount);
     ZR_SetProg1i(g_shader.handle, "u_dataStride", g_dataPixelStride);
     ZR_SetProg1i(g_shader.handle, "u_dataTexSize", dataTextureSize);
+    ZR_SetProg1i(g_shader.handle, "u_isBillboard", 1);
 
     M4x4_CREATE(projection)
         ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
@@ -297,18 +300,14 @@ ze_external void ZRSandbox_DrawSpriteBatch_2()
     
     // Transform_SetRotation(&camera, 0, (45.f * sinVal) * DEG2RAD, 0);
     M3x3_SetToIdentity(camera.rotation.cells);
-    M3x3_RotateY(camera.rotation.cells, g_yawDegrees * DEG2RAD);
-    // Transform_SetRotation(&camera, 0, g_yawDegrees * DEG2RAD, 0);
+    // M3x3_RotateY(camera.rotation.cells, g_yawDegrees * DEG2RAD);
+    Transform_SetRotation(&camera, 0, g_yawDegrees * DEG2RAD, 0);
     
     Vec3 move = {};
-    if (engine.input.GetActionValue("move_forward"))
-    {
-        move.z -= 1;
-    }
-    if (engine.input.GetActionValue("move_backward"))
-    {
-        move.z += 1;
-    }
+    if (engine.input.GetActionValue("move_forward")) { move.z -= 1; }
+    if (engine.input.GetActionValue("move_backward")) { move.z += 1; }
+    if (engine.input.GetActionValue("move_left")) { move.x -= 1; }
+    if (engine.input.GetActionValue("move_right")) { move.x += 1; }
     Vec3 moveDir = M3x3_Calculate3DMove(&camera.rotation, move);
     Vec3_MulF(&moveDir, 10.f * delta);
     Vec3_AddTo(&camera.pos, moveDir);
@@ -316,7 +315,6 @@ ze_external void ZRSandbox_DrawSpriteBatch_2()
     #endif
 
     M4x4_CREATE(view)
-    // Transform_ToM4x4(&camera, &view);
     Transform_ToViewMatrix(&camera, &view);
     ZR_SetProgM4x4(g_shader.handle, "u_view", view.cells);
 

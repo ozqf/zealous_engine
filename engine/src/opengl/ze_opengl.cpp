@@ -162,10 +162,7 @@ ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
             {
                 ZRDrawCmdSetCamera *cmd = (ZRDrawCmdSetCamera *)header;
                 Transform_ToViewMatrix(&cmd->camera, &view);
-                // camera = ((ZRDrawCmdSetCamera*)header)->camera;(ZRDrawCmdSetCamera*)
-                // Transform_ToM4x4(&camera, &view);
-
-                projection = ((ZRDrawCmdSetCamera *)header)->projection;
+                projection = cmd->projection;
             }
             break;
             case ZR_DRAW_CMD_SPRITE_BATCH:

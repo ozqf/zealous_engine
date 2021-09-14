@@ -6,6 +6,7 @@ uniform mat4 u_view;
 uniform sampler2D u_dataTexture;
 uniform int u_dataStride;
 uniform int u_dataTexSize;
+uniform int u_isBillboard;
 
 layout (location = 0) in vec3 i_position;
 layout (location = 1) in vec2 i_uv;
@@ -76,10 +77,28 @@ void main()
     // u_modelView[3][3] = 1;
     
     vec4 positionV4 = vec4(i_position, 1.0);
-    // gl_Position = u_projection * u_modelView * positionV4;
+    if (u_isBillboard == 0)
+    {
+        // regular 3d
+        gl_Position = u_projection * u_modelView * positionV4;
+    }
+    else
+    {
+        // reset rotation
+        vec3 scale;
+		mat4 mv = u_modelView;
+		scale.x = length(mv[0].xyz);
+		scale.y = length(mv[1].xyz);
+		scale.z = length(mv[2].xyz);
+		mv[0].xyz = vec3(1, 0, 0) * scale.x;
+		mv[1].xyz = vec3(0, 1, 0) * scale.y;
+		mv[2].xyz = vec3(0, 0, 1) * scale.z;
+		gl_Position = u_projection * mv * positionV4;
+    }
+    
     // gl_Position = u_projection * u_model * positionV4;
     // gl_Position = u_projection * u_model * u_view * positionV4;
-    gl_Position = u_projection * u_view * u_model * positionV4;
+    // gl_Position = u_projection * u_view * u_model * positionV4;
     // m_texCoord = i_uv;
     // m_texCoord = vec2(0.25, 0.25);
     m_texCoord.x = data2.x + ((data2.z - data2.x) * i_uv.x);
