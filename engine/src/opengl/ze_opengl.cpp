@@ -178,30 +178,6 @@ ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
 
 ze_external zErrorCode ZR_DrawTest()
 {
-    switch (g_graphicsTestMode)
-    {
-        case 1:
-        OpenglTest_DrawScreenSpaceQuad();
-        break;
-        case 2:
-        ZRGL_Debug_DrawCubeTest();
-        break;
-        case 3:
-        ZRGL_Debug_DrawWorldCubeTest();
-        break;
-        case 4:
-        ZRGL_Debug_DrawWorldSprites();
-        break;
-        case 5:
-        ZRSandbox_DrawQuadBatch();
-        break;
-        case 6:
-        ZRSandbox_DrawSpriteBatch();
-        break;
-
-        default:
-        ZRGL_Debug_DrawWorldCubeTest();
-        break;
-    }
+    ZRGL_SandboxRunTest(g_graphicsTestMode);
     return ZE_ERROR_NONE;
 }

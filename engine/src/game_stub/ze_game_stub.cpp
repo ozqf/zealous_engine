@@ -143,78 +143,45 @@ internal void Stub_Tick(ZEFrameTimeInfo timing)
     f32 speed = 3;
     if (g_engine.input.GetActionValue("reset"))
     {
-        g_debugCam =g_debugOrigin;
-        // Transform_SetToIdentity(&g_debugCam);
+        g_debugCam = g_debugOrigin;
         bMoved = YES;
     }
 
     if (g_engine.input.GetActionValue("move_left"))
     {
-        // ZRDrawObj* obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        // g_debugCam.pos.x += 2.f * delta;
         move.x -= 1;
         bMoved = YES;
     }
     if (g_engine.input.GetActionValue("move_right"))
     {
-        // ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        // g_debugCam.pos.x -= 2.f * delta;
         move.x += 1;
         bMoved = YES;
     }
     if (g_engine.input.GetActionValue("move_forward"))
     {
-        // ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        // g_debugCam.pos.z += 2.f * delta;
         move.z -= 1;
         bMoved = YES;
     }
     if (g_engine.input.GetActionValue("move_backward"))
     {
-        // ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        // g_debugCam.pos.z -= 2.f * delta;
         move.z += 1;
         bMoved = YES;
     }
     if (g_engine.input.GetActionValue("move_down"))
     {
-        // ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        // g_debugCam.pos.z += 2.f * delta;
         move.y -= 1;
         bMoved = YES;
     }
     if (g_engine.input.GetActionValue("move_up"))
     {
-        // ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, g_avatarId);
-        // g_debugCam.pos.z -= 2.f * delta;
         move.y += 1;
         bMoved = YES;
     }
-    Vec3 forward = g_debugCam.rotation.zAxis;
-    Vec3 left = g_debugCam.rotation.xAxis;
-    Vec3 up = g_debugCam.rotation.yAxis;
-    Vec3 result = {};
-    result.x += forward.x * move.z;
-    result.y += forward.y * move.z;
-    result.z += forward.z * move.z;
-
-    result.x += left.x * move.x;
-    result.y += left.y * move.x;
-    result.z += left.z * move.x;
-
-    result.x += up.x * move.y;
-    result.y += up.y * move.y;
-    result.z += up.z * move.y;
-
-    Vec3_Normalise(&result);
-    result.x *= (speed * delta);
-    result.y *= (speed * delta);
-    result.z *= (speed * delta);
-
-    g_debugCam.pos.x += result.x;
-    g_debugCam.pos.y += result.y;
-    g_debugCam.pos.z += result.z;
-
+    
+    Vec3 result = M3x3_Calculate3DMove(&g_debugCam.rotation, move);
+    Vec3_MulF(&result, speed * delta);
+    Vec3_AddTo(&g_debugCam.pos, result);
+    
     float rotRate = 90.f * DEG2RAD;
     if (g_engine.input.GetActionValue("look_up"))
     {

@@ -16,15 +16,14 @@
     Vec4 colour;
 };*/
 
-ze_external void ZRSandbox_DrawSpriteBatch()
+ze_external void ZRSandbox_DrawSpriteBatch_2()
 {
     //////////////////////////////////////////////////
     // constants
     //////////////////////////////////////////////////
-    const i32 dataTextureSize = 256; //512;
+    const i32 dataTextureSize = 512;
     const i32 totalDataPixels = dataTextureSize * dataTextureSize;
-    const f32 range = 3.f;
-    
+    const f32 range = 5.f;
 
     //////////////////////////////////////////////////
     // persist vars
@@ -37,6 +36,7 @@ ze_external void ZRSandbox_DrawSpriteBatch()
 
     local_persist Transform camera;
     local_persist f64 g_lastTickTime;
+    local_persist f32 g_yawDegrees = 0;
 
     // SSBO
     local_persist GLuint ssbo;
@@ -62,9 +62,9 @@ ze_external void ZRSandbox_DrawSpriteBatch()
         Transform_SetToIdentity(&camera);
 
         err = ZRGL_CreateProgram(
-            draw_sprite_batch_vert_text,
+            draw_sprite_batch_2_vert_text,
             draw_sprite_batch_frag_text,
-            "sprite_batch_test",
+            "sprite_batch_test_2",
             ZR_DRAWOBJ_TYPE_QUAD,
             YES,
             &g_shader);
@@ -72,24 +72,29 @@ ze_external void ZRSandbox_DrawSpriteBatch()
 
         g_meshId = ZAssets_GetMeshByName(ZE_EMBEDDED_QUAD_NAME)->header.id;
 
+        GetEngine().input.AddAction(Z_INPUT_CODE_LEFT, 0, "turn_left");
+        GetEngine().input.AddAction(Z_INPUT_CODE_RIGHT, 0, "turn_right");
+
+        GetEngine().input.AddAction(Z_INPUT_CODE_W, 0, "move_forward");
+        GetEngine().input.AddAction(Z_INPUT_CODE_S, 0, "move_backward");
+
         // create a little sprite sheet
-        ZRTexture* tex = ZAssets_AllocTex(32, 32, "sprite_batch_test_atlas");
-        ZGen_FillTextureRect(tex, COLOUR_U32_RED, { 0, 0 }, { 16, 16 });
-        ZGen_FillTextureRect(tex, COLOUR_U32_GREEN, { 16, 0 }, { 16, 16 });
-        ZGen_FillTextureRect(tex, COLOUR_U32_BLUE, { 0, 16 }, { 16, 16 });
-        ZGen_FillTextureRect(tex, COLOUR_U32_YELLOW, { 16, 16 }, { 16, 16 });
+        ZRTexture *tex = ZAssets_AllocTex(32, 32, "sprite_batch_test_atlas_2");
+        ZGen_FillTextureRect(tex, COLOUR_U32_RED, {0, 0}, {16, 16});
+        ZGen_FillTextureRect(tex, COLOUR_U32_GREEN, {16, 0}, {16, 16});
+        ZGen_FillTextureRect(tex, COLOUR_U32_BLUE, {0, 16}, {16, 16});
+        ZGen_FillTextureRect(tex, COLOUR_U32_YELLOW, {16, 16}, {16, 16});
         g_diffuseTexHandle = ZRGL_GetTextureHandle(tex->header.id);
-        
+
         // allocate data texture and sampler for it
         glGenTextures(1, &g_dataTextureHandle);
         CHECK_GL_ERR
         glBindTexture(GL_TEXTURE_2D, g_dataTextureHandle);
         CHECK_GL_ERR
 
-
-        #if 1 // try and set just a portion of the data texture
+#if 1 // try and set just a portion of the data texture
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
-            dataTextureSize, dataTextureSize, 0, GL_RGBA, GL_FLOAT, NULL);
+                     dataTextureSize, dataTextureSize, 0, GL_RGBA, GL_FLOAT, NULL);
         CHECK_GL_ERR
 
         g_dataPixelStride = 2;
@@ -97,52 +102,61 @@ ze_external void ZRSandbox_DrawSpriteBatch()
         i32 batchMax = totalDataPixels / g_dataPixelStride;
         // i32 batchMax = 1;
         printf("Total data pixels: %d, stride %d, batch max %d\n",
-            totalDataPixels, g_dataPixelStride, batchMax);
-        
-        #if 0 // hard coded
-        g_dataPixels[i++] = { -0.5f, -0.5f, 0, 1 }; // pos and rot
+               totalDataPixels, g_dataPixelStride, batchMax);
+
+        Vec4 uvs[4] = {
+            {0.25f, 0.25f, 0.25f, 0.25f},
+            {0.75f, 0.25f, 0.75f, 0.25f},
+            {0.75f, 0.75f, 0.75f, 0.75f},
+            {0.25f, 0.75f, 0.25f, 0.75}};
+
+#if 0 // hard coded
+        batchMax = 5;
+        g_dataPixels[i++] = { 0, 0, -4, 1 }; // pos and rot
         g_dataPixels[i++] = { 0.25f, 0.25f, 0.25f, 0.25f }; // uvs min/max
         g_dataPixelStride = 2;
 
-        g_dataPixels[i++] = { 0.5f, -0.5f, 0, 1 };
+        g_dataPixels[i++] = { -2, 0, -4, 1 };
         g_dataPixels[i++] = { 0.75f, 0.25f, 0.75f, 0.25f };
 
-        g_dataPixels[i++] = { 0.5f, 0.5f, 0, 1 };
+        g_dataPixels[i++] = { 2, 0, -4, 1 };
         g_dataPixels[i++] = { 0.75f, 0.75f, 0.75f, 0.75f };
 
-        g_dataPixels[i++] = { -0.5f, 0.5f, 0, 1 };
+        g_dataPixels[i++] = { 0, 2, -4, 1 };
         g_dataPixels[i++] = { 0.25f, 0.75f, 0.25f, 0.75 };
 
         g_dataPixels[i++] = { 0, 0, 0, 1 };
         g_dataPixels[i++] = { 0, 0, 1, 1 };
-        #endif
-        
-        #if 1
+#endif
+
+#if 1
+        const f32 minZ = -10; //-4;
+        const f32 maxZ = 10; //-16;
         for (i = 0; i < batchMax; i += 1)
         {
             i32 pixel = g_dataPixelStride * i;
             g_dataPixels[pixel] =
-            {
-                RANDF_RANGE(-range, range),
-                RANDF_RANGE(-range, range),
-                RANDF_RANGE(-4, -16),
-                1
-            };
-            g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
+                {
+                    RANDF_RANGE(-range, range),
+                    RANDF_RANGE(-range, range),
+                    RANDF_RANGE(minZ, maxZ),
+                    1};
+            // g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
+            g_dataPixels[pixel + 1] = uvs[i % 4];
         }
 
-        #endif
+#endif
 
         g_instanceCount = i;
         printf("Drawing %d instances of %d max\n", g_instanceCount, batchMax);
         printf("\tData texture is %lldKB\n", (totalDataPixels * sizeof(Vec4)) / 1024);
 
         // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, i, 1,  GL_RGBA, GL_FLOAT, g_dataPixels);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_dataPixels);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize, GL_RGBA, GL_FLOAT, g_dataPixels);
         CHECK_GL_ERR
-        #endif
+#endif
 
-        #if 0 // set the whole data texture
+#if 0 // set the whole data texture
         for (i32 i = 0; i < totalDataPixels; ++i)
         {
             g_dataPixels[i] = COLOUR_F32_WHITE;
@@ -162,16 +176,15 @@ ze_external void ZRSandbox_DrawSpriteBatch()
         //     GL_TEXTURE_2D, 0, 0, 0,
         //     dataTextureSize, dataTextureSize, GL_RGBA, GL_FLOAT, g_dataPixels);
         // CHECK_GL_ERR
-        #endif
+#endif
 
-        // ...okay lets try an SSBO instead...?
-        #if 0
+// ...okay lets try an SSBO instead...?
+#if 0
         glGenBuffers(1, &ssbo);
         CHECK_GL_ERR
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
         CHECK_GL_ERR
-        #endif
-
+#endif
 
         // Samplers for data textures
         // Make sure filtering and mip-mapping are disabled!
@@ -182,25 +195,17 @@ ze_external void ZRSandbox_DrawSpriteBatch()
         glSamplerParameteri(g_samplerDataTex2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         CHECK_GL_ERR
     }
-    #if 1
+#if 1
     //////////////////////////////////////////////////
     // execute
     //////////////////////////////////////////////////
 
     // calculate delta
     f64 now = Platform_QueryClock();
-    f64 delta = now - g_lastTickTime;
+    f32 delta = (f32)(now - g_lastTickTime);
+    g_lastTickTime = now;
 
-    #if 1 // update data texture to check data refreshing
-    const i32 numColours = 4;
-    const Vec4 colours[numColours] =
-    {
-        { 0.25f, 0.25f, 0.25f, 0.25f },
-        { 0.75f, 0.25f, 0.75f, 0.25f },
-        { 0.75f, 0.75f, 0.75f, 0.75f },
-        { 0.25f, 0.75f, 0.25f, 0.75f }
-    };
-
+#if 0 // update data texture to check data refreshing
     for (i32 i = 0; i < g_instanceCount; i += 1)
     {
         i32 pixel = g_dataPixelStride * i;
@@ -211,19 +216,19 @@ ze_external void ZRSandbox_DrawSpriteBatch()
             RANDF_RANGE(-4, -16),
             1
         };
-        g_dataPixels[pixel + 1] = colours[i % numColours];
+        g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
     }
     glBindTexture(GL_TEXTURE_2D, g_dataTextureHandle);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_dataPixels);
         CHECK_GL_ERR
-    #endif
+#endif
 
     //////////////////////////////////////////////////
     // draw
 
     // acquire mesh handles
-    ZRMeshHandles* mesh = ZRGL_GetMeshHandles(g_meshId);
-    
+    ZRMeshHandles *mesh = ZRGL_GetMeshHandles(g_meshId);
+
     // clear
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glEnable(GL_DEPTH_TEST);
@@ -235,27 +240,92 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     CHECK_GL_ERR
     glUseProgram(g_shader.handle);
     CHECK_GL_ERR
-    
+
     // ZR_SetProg1i(g_shader.handle, "u_instanceCount", g_instanceCount);
     ZR_SetProg1i(g_shader.handle, "u_dataStride", g_dataPixelStride);
     ZR_SetProg1i(g_shader.handle, "u_dataTexSize", dataTextureSize);
 
     M4x4_CREATE(projection)
-    ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
+        ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
 
+    // rotate camera
+    f32 cosVal = cosf((f32)g_lastTickTime / 2.f);
+    f32 sinVal = sinf((f32)g_lastTickTime / 2.f);
+    f32 x = (cosVal * 100);
+    f32 z = (sinVal * 100);
+    // f32 x = 0;
+    // f32 z = -2;
+    // f32 x = cosf(0) * 10;
+    // f32 z = sinf(0) * 10;
+    // 0, 1, -2 is visible
+    // camera.pos.x = 0; //x;
+    // camera.pos.y = 0;
+    // camera.pos.z = -4;//0; //z;
+
+#if 0 // rotate camera
+    Vec3 target = { 0, 0, 0 };
+    Vec3 toTarget =
+    {
+        target.x + camera.pos.x,
+        target.y + camera.pos.y,
+        target.z + camera.pos.z
+    };
+    Vec3_Normalise(&toTarget);
+    Vec3 rot = Vec3_EulerAngles(toTarget);
+    printf("Euler %.3f, %.3f, %.3f\n", rot.x, rot.y, rot.z);
+    Transform_SetRotation(&camera, rot.x, rot.y, rot.z);
+#endif
+    #if 1
+    ZEngine engine = GetEngine();
+    if (engine.input.GetActionValue("turn_left"))
+    {
+        g_yawDegrees += 45.f * delta;
+    }
+    if (engine.input.GetActionValue("turn_right"))
+    {
+        g_yawDegrees -= 45.f * delta;
+    }
+    
+    // Transform_SetRotation(&camera, 0, (45.f * sinVal) * DEG2RAD, 0);
+    Transform_SetRotation(&camera, 0, g_yawDegrees * DEG2RAD, 0);
+    
+    Vec3 move = {};
+    if (engine.input.GetActionValue("move_forward"))
+    {
+        // Vec3 forward = camera.rotation.zAxis;
+        // forward.x *= 10.f * delta;
+        // forward.y *= 10.f * delta;
+        // forward.z *= 10.f * delta;
+        // Vec3_AddTo(&camera.pos, forward);
+        move.z -= 1;
+    }
+    if (engine.input.GetActionValue("move_backward"))
+    {
+        move.z += 1;
+    }
+    Vec3 moveDir = M3x3_Calculate3DMove(&camera.rotation, move);
+    Vec3_MulF(&moveDir, 10.f * delta);
+    Vec3_AddTo(&camera.pos, moveDir);
+
+    #endif
+
     M4x4_CREATE(view)
+    // f32 sinValue = sinf((f32)g_lastTickTime);
+    // camera.pos.x = cosf((f32)g_lastTickTime);//sinValue;
+    // camera.pos.y = sinf((f32)g_lastTickTime);//sinValue;
+    // camera.pos.x += 0.1f * delta;
+    // camera.pos.y += 0.1f * delta;
     Transform_ToM4x4(&camera, &view);
     ZR_SetProgM4x4(g_shader.handle, "u_view", view.cells);
-    
+
     ZR_PrepareTextureUnit2D(
         g_shader.handle, GL_TEXTURE0, 0, "u_diffuseTex", g_diffuseTexHandle, 0);
     ZR_PrepareTextureUnit2D(
-        g_shader.handle, GL_TEXTURE2, 2, "u_dataTexture", g_dataTextureHandle, g_samplerDataTex2D
-    );
+        g_shader.handle, GL_TEXTURE2, 2, "u_dataTexture", g_dataTextureHandle, g_samplerDataTex2D);
 
     // draw
     glDrawArraysInstanced(GL_TRIANGLES, 0, mesh->vertexCount, g_instanceCount);
     CHECK_GL_ERR
-    #endif
+#endif
 }

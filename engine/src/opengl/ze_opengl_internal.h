@@ -148,11 +148,6 @@ ze_external void ZRGL_DrawDebugLines(ZRDrawCmdDebugLines* cmd, M4x4* view, M4x4*
 // Debug
 ///////////////////////////////////////////////////////
 ze_external void ZRGL_Debug_Init();
-ze_external void OpenglTest_DrawScreenSpaceQuad();
-ze_external void ZRGL_Debug_DrawCubeTest();
-ze_external void ZRGL_Debug_DrawWorldCubeTest();
-ze_external void ZRGL_Debug_DrawWorldSprites();
-ze_external void ZRSandbox_DrawQuadBatch();
-ze_external void ZRSandbox_DrawSpriteBatch();
+ze_external void ZRGL_SandboxRunTest(i32 mode);
 
 #endif // ZE_OPENGL_INTERNAL_H

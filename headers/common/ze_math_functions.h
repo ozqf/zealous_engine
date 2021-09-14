@@ -217,6 +217,13 @@ inline void Vec3_AddTo(Vec3* v, Vec3 addition)
 	v->z += addition.z;
 }
 
+inline void Vec3_MulF(Vec3* v, f32 val)
+{
+	v->x *= val;
+	v->y *= val;
+	v->z *= val;
+}
+
 internal Vec3 Vec3_Flipped(Vec3 v)
 {
 	return {-v.x, -v.y, -v.z};
