@@ -23,7 +23,9 @@ ze_external void ZRSandbox_DrawSpriteBatch_3()
     //////////////////////////////////////////////////
     const i32 dataTextureSize = 512;
     const i32 totalDataPixels = dataTextureSize * dataTextureSize;
-    const f32 range = 5.f;
+    const f32 rangeX = 100.f;
+    const f32 rangeY = 10.f;
+    const f32 rangeZ = 100.f;
 
     //////////////////////////////////////////////////
     // persist vars
@@ -96,12 +98,12 @@ ze_external void ZRSandbox_DrawSpriteBatch_3()
         glBindTexture(GL_TEXTURE_2D, g_dataTextureHandle);
         CHECK_GL_ERR
 
-#if 1 // try and set just a portion of the data texture
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
                      dataTextureSize, dataTextureSize, 0, GL_RGBA, GL_FLOAT, NULL);
         CHECK_GL_ERR
 
-        g_dataPixelStride = 2;
+        // pixel 0 is position, 1 is UVs, 2 is scale
+        g_dataPixelStride = 3;
         i32 i = 0;
         i32 batchMax = totalDataPixels / g_dataPixelStride;
         // i32 batchMax = 1;
@@ -114,81 +116,32 @@ ze_external void ZRSandbox_DrawSpriteBatch_3()
             {0.75f, 0.75f, 0.75f, 0.75f},
             {0.25f, 0.75f, 0.25f, 0.75}};
 
-#if 0 // hard coded
-        batchMax = 5;
-        g_dataPixels[i++] = { 0, 0, -4, 1 }; // pos and rot
-        g_dataPixels[i++] = { 0.25f, 0.25f, 0.25f, 0.25f }; // uvs min/max
-        g_dataPixelStride = 2;
+        #if 0 // hard coded
 
-        g_dataPixels[i++] = { -2, 0, -4, 1 };
-        g_dataPixels[i++] = { 0.75f, 0.25f, 0.75f, 0.25f };
-
-        g_dataPixels[i++] = { 2, 0, -4, 1 };
-        g_dataPixels[i++] = { 0.75f, 0.75f, 0.75f, 0.75f };
-
-        g_dataPixels[i++] = { 0, 2, -4, 1 };
-        g_dataPixels[i++] = { 0.25f, 0.75f, 0.25f, 0.75 };
-
-        g_dataPixels[i++] = { 0, 0, 0, 1 };
-        g_dataPixels[i++] = { 0, 0, 1, 1 };
-#endif
-
-#if 1
-        const f32 minZ = -10; //-4;
-        const f32 maxZ = 10; //-16;
+        #endif
+        
+        #if 1 // random scatter
         for (i = 0; i < batchMax; i += 1)
         {
             i32 pixel = g_dataPixelStride * i;
             g_dataPixels[pixel] =
                 {
-                    RANDF_RANGE(-range, range),
-                    RANDF_RANGE(-range, range),
-                    RANDF_RANGE(minZ, maxZ),
-                    1};
-            // g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
+                    RANDF_RANGE(-rangeX, rangeX),
+                    RANDF_RANGE(-rangeY, rangeY),
+                    RANDF_RANGE(-rangeZ, rangeZ),
+                    1
+                };
             g_dataPixels[pixel + 1] = uvs[i % 4];
+            g_dataPixels[pixel + 2] = { RANDF_RANGE(0.1f, 1), RANDF_RANGE(0.1f, 1) };
         }
-
-#endif
+        #endif
 
         g_instanceCount = i;
         printf("Drawing %d instances of %d max\n", g_instanceCount, batchMax);
         printf("\tData texture is %lldKB\n", (totalDataPixels * sizeof(Vec4)) / 1024);
 
-        // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, i, 1,  GL_RGBA, GL_FLOAT, g_dataPixels);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize, GL_RGBA, GL_FLOAT, g_dataPixels);
         CHECK_GL_ERR
-#endif
-
-#if 0 // set the whole data texture
-        for (i32 i = 0; i < totalDataPixels; ++i)
-        {
-            g_dataPixels[i] = COLOUR_F32_WHITE;
-        }
-        
-        // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_dataPixels);
-        printf("Uploading %d by %d data pixels\n", dataTextureSize, dataTextureSize);
-        glBindTexture(GL_TEXTURE_2D, g_dataTextureHandle);
-        CHECK_GL_ERR
-        //Platform_DebugBreak();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
-            dataTextureSize, dataTextureSize, 0, GL_RGBA, GL_FLOAT, g_dataPixels);
-        CHECK_GL_ERR
-        // glBindTexture(GL_TEXTURE_2D, g_dataTextureHandle);
-        // CHECK_GL_ERR
-        // glTexSubImage2D(
-        //     GL_TEXTURE_2D, 0, 0, 0,
-        //     dataTextureSize, dataTextureSize, GL_RGBA, GL_FLOAT, g_dataPixels);
-        // CHECK_GL_ERR
-#endif
-
-// ...okay lets try an SSBO instead...?
-#if 0
-        glGenBuffers(1, &ssbo);
-        CHECK_GL_ERR
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-        CHECK_GL_ERR
-#endif
 
         // Samplers for data textures
         // Make sure filtering and mip-mapping are disabled!

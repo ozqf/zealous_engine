@@ -23,7 +23,9 @@ ze_external void ZRSandbox_DrawSpriteBatch_2()
     //////////////////////////////////////////////////
     const i32 dataTextureSize = 512;
     const i32 totalDataPixels = dataTextureSize * dataTextureSize;
-    const f32 range = 5.f;
+    const f32 rangeX = 25.f;
+    const f32 rangeY = 25.f;
+    const f32 rangeZ = 25.f;
 
     //////////////////////////////////////////////////
     // persist vars
@@ -134,16 +136,14 @@ ze_external void ZRSandbox_DrawSpriteBatch_2()
 #endif
 
 #if 1
-        const f32 minZ = -10; //-4;
-        const f32 maxZ = 10; //-16;
         for (i = 0; i < batchMax; i += 1)
         {
             i32 pixel = g_dataPixelStride * i;
             g_dataPixels[pixel] =
                 {
-                    RANDF_RANGE(-range, range),
-                    RANDF_RANGE(-range, range),
-                    RANDF_RANGE(minZ, maxZ),
+                    RANDF_RANGE(-rangeX, rangeX),
+                    RANDF_RANGE(-rangeY, rangeY),
+                    RANDF_RANGE(-rangeZ, rangeZ),
                     1};
             // g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
             g_dataPixels[pixel + 1] = uvs[i % 4];

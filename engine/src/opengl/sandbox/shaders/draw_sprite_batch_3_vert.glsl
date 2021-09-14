@@ -1,5 +1,7 @@
 #version 330
 
+#define DEG2RAD 0.0174532925
+
 uniform mat4 u_projection;
 uniform mat4 u_view;
 // uniform int u_instanceCount;
@@ -31,6 +33,23 @@ vec4 ReadDataPixel(int dataItemNumber)
     return texelFetch(u_dataTexture, pixel, 0);
 }
 
+vec3 RotateSpritVertex(vec3 pos, float radians)
+{
+    mat3 rot;
+    rot[0][0] = cos(radians);
+    rot[0][1] = sin(radians);
+    rot[0][2] = 0;
+
+    rot[1][0] = -sin(radians);
+    rot[1][1] = cos(radians);
+    rot[1][2] = 0;
+
+    rot[2][0] = 0;
+    rot[2][1] = 0;
+    rot[2][2] = 1;
+    return pos * rot;
+}
+
 void main()
 {
     // pass instance to frag shader
@@ -39,22 +58,23 @@ void main()
     // read instance data
     vec4 data1 = ReadDataPixel(0);
     vec4 data2 = ReadDataPixel(1);
+    vec4 data3 = ReadDataPixel(2);
     
     mat4 u_model;
     
-    u_model[0][0] = 0.1; // scale x
+    u_model[0][0] = data3.x; // scale x
     u_model[0][1] = 0;
     u_model[0][2] = 0;
     u_model[0][3] = 0;
 
     u_model[1][0] = 0;
-    u_model[1][1] = 0.1; // scale y
+    u_model[1][1] = data3.y; // scale y
     u_model[1][3] = 0;
     u_model[1][2] = 0;
 
     u_model[2][0] = 0;
     u_model[2][1] = 0;
-    u_model[2][2] = 0.1; // scale z
+    u_model[2][2] = 1; // scale z
     u_model[2][3] = 0;
     
     u_model[3][0] = data1.x; // pos x
@@ -64,7 +84,7 @@ void main()
                         
     mat4 u_modelView = u_view * u_model;
     
-    vec4 positionV4 = vec4(i_position, 1.0);
+    vec4 positionV4 = vec4(RotateSpritVertex(i_position, 45 * DEG2RAD), 1.0);
     if (u_isBillboard == 0)
     {
         // regular 3d
