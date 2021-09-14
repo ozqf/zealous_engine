@@ -1137,6 +1137,10 @@ extern "C" static void Transform_SetToIdentity(Transform *t)
 /////////////////////////////////////////////////////////////////////
 // Conversion
 /////////////////////////////////////////////////////////////////////
+
+/**
+ * Do NOT use this function to create a view matrix! Use Transform_ToViewMatrix
+ */
 extern "C" internal void Transform_ToM4x4(Transform *t, M4x4 *result)
 {
 	M4x4_SetToIdentity(result->cells);
@@ -1191,11 +1195,13 @@ inline void Transform_FromM4x4NoScale(Transform *t, f32 *m4x4)
 	M3x3_CopyFromM4x4(t->rotation.cells, m4x4);
 }
 
-/*
+/**
+Use this function NOT Transform_ToM4x4 to create a view
+Matrix for rendering.
 Resulting camera's forward will be looking into negative Z
 if rotation is set to Identity
 */
-inline void Transform_ToViewMatrix(M4x4 *view, Transform *camT)
+inline void Transform_ToViewMatrix(Transform *camT, M4x4 *view)
 {
 	// View
 	M4x4_SetToIdentity(view->cells);
