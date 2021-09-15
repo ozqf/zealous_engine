@@ -291,11 +291,11 @@ ze_external void ZRSandbox_DrawSpriteBatch_2()
 
     if (engine.input.GetActionValue("turn_left"))
     {
-        g_yawDegrees += 45.f * delta;
+        g_yawDegrees += 90.f * delta;
     }
     if (engine.input.GetActionValue("turn_right"))
     {
-        g_yawDegrees -= 45.f * delta;
+        g_yawDegrees -= 90.f * delta;
     }
     
     // Transform_SetRotation(&camera, 0, (45.f * sinVal) * DEG2RAD, 0);

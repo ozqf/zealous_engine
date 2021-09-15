@@ -214,12 +214,12 @@ internal void Stub_Tick(ZEFrameTimeInfo timing)
         bMoved = YES;
     }
 
-    /*if (bMoved)
+    if (bMoved)
     {
-        printf("Cam pos: %.3f, %.3f, %.3f\n",
-            g_debugCam.pos.x, g_debugCam.pos.y, g_debugCam.pos.z);
+        // printf("Cam pos: %.3f, %.3f, %.3f\n",
+        //     g_debugCam.pos.x, g_debugCam.pos.y, g_debugCam.pos.z);
         g_engine.scenes.SetCamera(g_gameScene, g_debugCam);
-    }*/
+    }
 }
 
 ze_external zErrorCode ZGame_StubLinkup(ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef)
