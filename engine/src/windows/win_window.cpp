@@ -5,7 +5,7 @@
 #include "../../../lib/glfw3_vc2015/glfw3.h"
 
 // Version of Opengl that will be requested
-const i32 MAJOR_VERSION_REQ = 4;
+const i32 MAJOR_VERSION_REQ = 3;//4;
 const i32 MINOR_VERSION_REQ = 3;
 
 internal GLFWwindow *g_window;
@@ -43,6 +43,7 @@ ze_internal ZEBuffer g_events;
 static void error_callback(int error, const char *description)
 {
     fprintf(stderr, "Error: %s\n", description);
+	Platform_Fatal(description);
 }
 
 static zeInputCode Win_GlfwToZEKey(i32 glfwKeyCode)
@@ -382,7 +383,7 @@ ze_external zErrorCode SpawnWindow()
         title = "Zealous Engine";
     }
     g_window = glfwCreateWindow(scrWidth, scrHeight, title, NULL, NULL);
-	
+	printf("Created window\n");
 	// If in single frame mode, hide the window.
 	if (GetSingleFrameMode())
 	{
@@ -418,7 +419,7 @@ ze_external zErrorCode SpawnWindow()
     glGetIntegerv(GL_MINOR_VERSION, &minorVer);
     printf("Requested Opengl ver %d.%d\n", MAJOR_VERSION_REQ, MINOR_VERSION_REQ);
     printf("Opengl ver read as %d.%d\n", majorVer, minorVer);
-
+	
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, scrWidth, scrHeight);
     glClearColor(0, 0, 0, 1);
