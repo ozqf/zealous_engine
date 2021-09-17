@@ -27,7 +27,7 @@ set compilerDefines=/DPARANOID=1
 @rem platform
 set compIn1=../games/example3d/example3d.cpp
 
-set linkInA=../build_plugins/map_converter.lib
+set linkInA=../buildwin_plugins/map_converter.lib
 
 @echo on
 cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% /link %linkInA%

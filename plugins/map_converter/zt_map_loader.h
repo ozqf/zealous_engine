@@ -137,7 +137,7 @@ static ErrorCode ParseMapFromFile(const char* path, ZTMapFile* result)
 	char buf[bufSize];
 	// read line by line in text mode
 	FILE* f = NULL;
-	const char* path = "map_format_example_128x128x32_cube.map";
+	// const char* path = "map_format_example_128x128x32_cube.map";
 	printf("--- Test read map %s ---\n", path);
 	fopen_s(&f, path, "r");
 	if (f == NULL)

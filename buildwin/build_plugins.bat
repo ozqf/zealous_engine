@@ -4,8 +4,8 @@
 @echo Build Zealous Engine Plugins
 cd..
 if not exist bin mkdir bin
-if not exist build_plugins mkdir build_plugins
-cd build_plugins
+if not exist buildwin_plugins mkdir buildwin_plugins
+cd buildwin_plugins
 
 @rem Note that ofbx will spit out lots of warnings, so warnings as errors
 @rem has to be disabled.
