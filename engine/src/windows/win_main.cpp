@@ -62,21 +62,19 @@ internal ZGame_LinkupFunction* Win_LinkToGameDLL(char* customDir)
 	i32 strLen = sprintf_s(targetPath, 255, "%s\\%s", customDir, ZGAME_DLL_NAME);
 	ZGame_LinkupFunction* linkUpPtr = NULL;
 	// char* targetPath = "base\\game.dll";
-	printf("Attempting to link to game dll at \"%s\"\n", targetPath);
+	printf("Linking to game dll at \"%s\"\n", targetPath);
 	g_appDLL = LoadLibraryA(targetPath);
 	if (g_appDLL == NULL)
 	{
-		printf("\tApp DLL not found\n");
+		printf("\tApp DLL not found, loading fallback\n");
 		return &ZGame_StubLinkup;
 	}
-	printf("\tFound DLL, attempting link\n");
 	linkUpPtr = (ZGame_LinkupFunction*)GetProcAddress(g_appDLL, ZGAME_LINKUP_FUNCTION_NAME);
 	if (linkUpPtr == NULL)
 	{
-		printf("\tFailed to find linking function in game dll\n");
+		printf("\tFailed to find linking function in game dll, loading fallback\n");
 		return &ZGame_StubLinkup;
 	}
-	printf("\tFound linking function\n");
 	return linkUpPtr;
 }
 

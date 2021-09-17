@@ -1,5 +1,7 @@
 #include "../../headers/zengine.h"
 
+#include "../../plugins/zt_map_converter.h"
+
 // for rand()
 #include <stdlib.h>
 
@@ -362,6 +364,9 @@ ZCMD_CALLBACK(Exec_LoadLevel)
 
 internal void Init()
 {
+    // test plugin
+    ZT_MapConvert("foo");
+
     // register inputs
     g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, "move_left");
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, "move_right");

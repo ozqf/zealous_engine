@@ -188,7 +188,7 @@ ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char* name)
     ZEHashTableData d;
     d.ptr = tex;
     g_table->Insert(tex->header.id, d);
-    printf("Allocated texture %s with asset id %d\n", name, id);
+    // printf("Allocated texture %s with asset id %d\n", name, id);
     return tex;
 }
 

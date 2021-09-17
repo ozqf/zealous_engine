@@ -97,7 +97,7 @@ ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunctio
 	ZDebug_Init_2();
 	ZCmdConsole_Init_b();
 
-	ZAssets_PrintAll();
+	// ZAssets_PrintAll();
 
 	// link to app DLL
 	ZE_LinkToGame(gameLink);
