@@ -128,6 +128,7 @@ ze_external i32 ZE_StartLoop()
 			}
 			continue;
 		}
+		
 		lastTickTime = now;
 		g_frameNumber += 1;
 		ZEFrameTimeInfo info = {};
@@ -136,15 +137,32 @@ ze_external i32 ZE_StartLoop()
 		info.interval = diff;
 		ZCmdConsole_Execute();
 		Platform_PollEvents();
-		if (g_game.sentinel == ZE_SENTINEL && g_game.Tick != NULL)
+
+		// normal - tick game
+		if (ZR_GetGraphicsTestMode() == 0)
 		{
-			f64 gameTickStart = Platform_QueryClock();
-			g_game.Tick(info);
-			f64 gameTickEnd = Platform_QueryClock();
-			// printf("Game tick %.3f\n", (gameTickEnd - gameTickStart) * 1000);
+			if (g_game.sentinel == ZE_SENTINEL
+			&& g_game.Tick != NULL)
+			{
+				f64 gameTickStart = Platform_QueryClock();
+				g_game.Tick(info);
+				f64 gameTickEnd = Platform_QueryClock();
+				// printf("Game tick %.3f\n", (gameTickEnd - gameTickStart) * 1000);
+			}
+
+			ZScene_PostFrameTick();
+			ZScene_Draw();
 		}
-		ZScene_PostFrameTick();
-		ZScene_Draw();
+		// ignore game and scene manager, call render test.
+		else
+		{
+			f64 testStart = Platform_QueryClock();
+        	ZR_DrawTest();
+        	Platform_SubmitFrame();
+        	f64 testEnd = Platform_QueryClock();
+        	printf("Draw test time %.3fms\n",
+        	    (testEnd - testStart) * 1000.f);
+		}
 		
 		if (g_bSingleFrame)
 		{
