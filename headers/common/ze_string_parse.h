@@ -135,6 +135,43 @@ static char* ZStr_RunToNextLine(char* start, char* bufferEnd)
     return cursor;
 }
 
+/**
+ * Returns 1 if there is still text remaining
+ */
+static i32 ZStr_ReadLine(char** source, char* target, zeSize capacity)
+{
+    i32 i = 0;
+    char* cursor = *source;
+    for(;;)
+    {
+        char c = cursor[i];
+        // end of line or buffer, but not end of text
+        if (c == '\n')
+        {
+            *source = &cursor[i] + 1;
+            target[i] = '\0';
+            // printf("End line at %d on code %d\n", i, c);
+            return YES;
+        }
+        // end of text
+        else if (c == '\0')
+        {
+            *source = cursor + 1;
+            target[i] = '\0';
+            // printf("End line at %d on code %d\n", i, c);
+            return NO;
+        }
+        // carriage return. replace it with null but continue to 
+        // make sure the newline is consumed as well.
+        if (c == '\r')
+        {
+            c = ' ';
+        }
+        target[i] = c;
+        i += 1;
+    }
+}
+
 static char* ZStr_RunPastTerminator(char* start, char* bufferEnd)
 {
     char* cursor = start;

@@ -3,6 +3,7 @@
 
 #include "../headers/zengine.h"
 
-extern "C" ErrorCode ZT_MapConvert(const char* filePath);
+ze_external zErrorCode ZT_MapConvert(const char* mapText);
+ze_external zErrorCode ZT_MapConvertTest();
 
 #endif // ZT_MAP_CONVERTER_H

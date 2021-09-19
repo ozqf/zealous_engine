@@ -144,6 +144,16 @@ internal ZEBuffer Buf_FromMemory(void *ptr, i32 size)
     return b;
 }
 
+internal ZEBuffer Buf_FromString(const char* ptr)
+{
+    ZE_ASSERT(ptr != NULL, "Buf from bytes - ptr is null");
+    ZEBuffer b = {};
+    b.start = (i8*)ptr;
+    b.cursor = (i8*)ptr;
+    b.capacity = ZStr_Len(ptr);
+    return b;
+}
+
 internal ZEBuffer Buf_FromMalloc(ZE_mallocFunction mallocFn, i32 size)
 {
     ZE_ASSERT(mallocFn != NULL, "Buf from malloc - MallocFn is null");

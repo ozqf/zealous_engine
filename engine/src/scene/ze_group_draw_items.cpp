@@ -264,12 +264,14 @@ ze_internal void ZScene_BuildDrawGroups(ZEBuffer* scratch, ZRScene* scene)
             break;
         }
     }
+    #if 0 // frame log
     printf("--- Found %d draw groups ---\n", *numGroups);
     for (i32 i = 0; i < *numGroups; ++i)
     {
         ZEDrawGroup* group = &firstGroup[i];
         printf("%d - %d objects\n", group->objHash, group->numIndices);
     }
+    #endif
 }
 
 ze_internal void ZScene_WriteSceneWithGrouping(ZEBuffer *buf, ZRScene *scene)

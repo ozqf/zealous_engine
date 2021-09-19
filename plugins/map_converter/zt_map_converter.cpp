@@ -38,13 +38,14 @@ static ErrorCode ConvertToTriSoup(ZTMapFile* map)
 /////////////////////////////////////////////////////
 // Public
 /////////////////////////////////////////////////////
-extern "C" ErrorCode ZT_MapConvert(const char* filePath)
+ze_external zErrorCode ZT_MapConvert(const char* mapText)
 {
+	/*
 	printf("Convert Map\n");
 	ZTMapFile map = {};
 	printf("Parse map file\n");
 	const char* path = "map_format_example_128x128x32_cube.map";
-	ErrorCode err = ParseMapFromFile(path, &map);
+	zErrorCode err = ParseMapFromFile(path, &map);
 	
 	if (err != 0)
 	{
@@ -68,8 +69,28 @@ extern "C" ErrorCode ZT_MapConvert(const char* filePath)
 	}
 	
 	printf("Done\n");
-	
+	*/
 	return ZE_ERROR_NONE;
+}
+
+ze_external zErrorCode ZT_MapConvertTest()
+{
+	ZTMapFile map;
+	
+	// Load map file into heap
+	zErrorCode err = ZT_ParseMapFromText(map_format_example_128x128x32_cube_h, &map);
+	printf("Map test result code: %d\n", err);
+	DebugPrintFileData(map.brushes, map.numBrushes, map.faces, map.numFaces);
+
+	
+	err = ConvertToTriSoup(&map);
+	if (err != 0)
+	{
+		printf("Error %d converting brushes\n", err);
+		return err;
+	}
+	
+	return err;
 }
 
 #endif // ZT_MAP_CONVERTER_CPP

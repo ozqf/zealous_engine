@@ -4,6 +4,9 @@
 // public
 #include "../zt_map_converter.h"
 
+// embedded examples
+#include "map_format_example_128x128x32_cube.h"
+
 // internal
 #include <stdlib.h>
 

@@ -122,29 +122,13 @@ static void ParseSetting(const char* line, i32 lineLen)
 	printf("Field Key: %s value: %s\n", keyStart, valueStart);
 }
 
-static zErrorCode ParseMapFromText(const char* text)
+ze_external zErrorCode ZT_ParseMapFromText(const char* mapText, ZTMapFile* result)
 {
-	
-}
-
-static ErrorCode ParseMapFromFile(const char* path, ZTMapFile* result)
-{
-	if (result == NULL)
-	{
-		return ZE_ERROR_NULL_ARGUMENT;
-	}
 	const i32 bufSize = 512;
 	char buf[bufSize];
-	// read line by line in text mode
-	FILE* f = NULL;
-	// const char* path = "map_format_example_128x128x32_cube.map";
-	printf("--- Test read map %s ---\n", path);
-	fopen_s(&f, path, "r");
-	if (f == NULL)
-	{
-		printf("Failed to open ini test %s\n", path);
-		return ZE_ERROR_MISSING_FILE;
-	}
+
+	// ZEBuffer text = Buf_FromString(mapText);
+
 	i32 line = 1;
 	i32 i = -1;
 	
@@ -166,7 +150,8 @@ static ErrorCode ParseMapFromFile(const char* path, ZTMapFile* result)
 	result->faces = faces;
 	result->maxFaces = maxFaces;
 	
-	while(fgets(buf, bufSize, f))
+	char* cursor = (char*)mapText;
+	while(ZStr_ReadLine(&cursor, buf, bufSize))
 	{
 		// patch out '\n'
 		i = ZStr_FindFirstCharMatch(buf, '\n');
@@ -174,6 +159,7 @@ static ErrorCode ParseMapFromFile(const char* path, ZTMapFile* result)
 		{
 			buf[i] = '\0';
 		}
+		printf("Parse line %s\n", buf);
 		// eat whitespace
 		char* lineStart = ZStr_EatWhiteSpace(buf);
 		// detect comments
@@ -214,11 +200,13 @@ static ErrorCode ParseMapFromFile(const char* path, ZTMapFile* result)
 			case '"':
 			ParseSetting(lineStart, len);
 			break;
+			// might be a blank line at the end of the file
+			case '\0':
+			break;
 			default:
 			// FAIL PARSE
-			printf("Unexpected first char %c on line %d\n",
-				lineStart[0], line);
-			fclose(f);
+			printf("Unexpected first char %c (code %d) on line %d\n",
+				lineStart[0], lineStart[0], line);
 			return ZE_ERROR_DESERIALISE_FAILED;
 			break;
 		}
@@ -233,10 +221,32 @@ static ErrorCode ParseMapFromFile(const char* path, ZTMapFile* result)
 		
 		line++;
 	}
-	fclose(f);
 	
 	result->numBrushes = nextBrushIndex;
 	result->numFaces = nextFaceIndex;
+	
+	return ZE_ERROR_NONE;
+}
+
+static zErrorCode ParseMapFromFile(const char* path, ZTMapFile* result)
+{
+	if (result == NULL)
+	{
+		return ZE_ERROR_NULL_ARGUMENT;
+	}
+	
+	// read line by line in text mode
+	FILE* f = NULL;
+	// const char* path = "map_format_example_128x128x32_cube.map";
+	printf("--- Test read map %s ---\n", path);
+	fopen_s(&f, path, "r");
+	if (f == NULL)
+	{
+		printf("Failed to open ini test %s\n", path);
+		return ZE_ERROR_MISSING_FILE;
+	}
+	
+	fclose(f);
 	
 	return ZE_ERROR_NONE;
 }

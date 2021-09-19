@@ -365,7 +365,10 @@ ZCMD_CALLBACK(Exec_LoadLevel)
 internal void Init()
 {
     // test plugin
-    ZT_MapConvert("foo");
+    // ZT_MapConvert("foo");
+    printf("\n=== Test Map Converter ===\n");
+    ZT_MapConvertTest();
+    printf("\n");
 
     // register inputs
     g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, "move_left");

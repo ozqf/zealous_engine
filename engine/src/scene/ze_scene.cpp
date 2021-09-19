@@ -182,7 +182,7 @@ ze_internal ZRDrawObj* ZScene_AddLinesObj(zeHandle scene, i32 maxVerts)
 
 ze_external void ZScene_Draw()
 {
-    ZE_PRINTF("=== FRAME ===\n");
+    // ZE_PRINTF("=== FRAME ===\n");
     ZR_ClearFrame({ 0.1f, 0.1f, 0.1f, 1});
     f64 cmdStart = Platform_QueryClock();
     ZEBuffer* buf = &g_drawCommands;
@@ -204,9 +204,9 @@ ze_external void ZScene_Draw()
     Platform_SubmitFrame();
     f64 drawEnd = Platform_QueryClock();
 
-    printf("Write draw time: %.3fms - submit draw time %.3fms\n",
-        (cmdEnd - cmdStart) * 1000.f,
-        (drawEnd - drawStart) * 1000.f);
+    // printf("Write draw time: %.3fms - submit draw time %.3fms\n",
+    //     (cmdEnd - cmdStart) * 1000.f,
+    //     (drawEnd - drawStart) * 1000.f);
 }
 
 ze_external void ZScene_PostFrameTick()

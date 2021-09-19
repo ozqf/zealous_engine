@@ -12,14 +12,15 @@ cd buildwin_plugins
 
 @rem Compile with no linking /c and no exceptions from extern "C" functions /EHsc
 set compilerFlags=-nologo -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi /O2 -Oi /c
+@REM set compilerFlags=-nologo -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi /c
 set compilerDefines=/DPARANOID=1
 
 set compilerInput1=../plugins/map_converter/zt_map_converter.cpp 
 set compilerInput2=
 
 @echo on
-cl %compilerFlags% %compilerDefines% %outputExe% %compilerInput1% %compilerInput2%
-lib  -nologo /out:map_converter.lib zt_map_converter.obj
+@cl %compilerFlags% %compilerDefines% %outputExe% %compilerInput1% %compilerInput2%
+@lib  -nologo /out:map_converter.lib zt_map_converter.obj
 @echo off
 
 cd..
