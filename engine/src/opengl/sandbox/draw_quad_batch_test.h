@@ -24,8 +24,6 @@ ze_external void ZRSandbox_DrawQuadBatch()
             batch_quad_test_vert_text,
             batch_quad_test_frag_text,
             "sprite_batch_test",
-            ZR_DRAWOBJ_TYPE_QUAD,
-            YES,
             &g_shader);
         ZE_ASSERT(err == ZE_ERROR_NONE, "create prog failed")
 

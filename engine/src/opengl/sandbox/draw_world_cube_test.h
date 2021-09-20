@@ -274,7 +274,7 @@ ze_external void ZRGL_Debug_DrawWorldCubeTest()
         // #define ZRGL_DATA_ATTRIB_NORMALS 2
 
         ZRGL_CreateProgram(
-            world_cube_vert_text, world_cube_frag_text, "fallback", 0, NO, &g_shader);
+            world_cube_vert_text, world_cube_frag_text, "fallback", &g_shader);
         
         // upload a texture
         ZRTexture *tex = ZAssets_AllocTex(64, 64, "draw_world_cube_test_texture");

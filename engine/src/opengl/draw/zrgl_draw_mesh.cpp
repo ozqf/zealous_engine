@@ -10,7 +10,7 @@ ze_external void ZRGL_DrawMesh(
     {
         g_initialised = true;
         ZE_SetFatalError(Platform_Fatal);
-        zErrorCode err = ZRGL_CreateProgram(draw_single_mesh_vert_text, draw_single_mesh_frag_text, "draw_mesh", ZR_DRAWOBJ_TYPE_MESH, NO, &g_shader);
+        zErrorCode err = ZRGL_CreateProgram(draw_single_mesh_vert_text, draw_single_mesh_frag_text, "draw_mesh", &g_shader);
         if (err != ZE_ERROR_NONE)
         {
             Platform_Fatal("Shader compile failed");

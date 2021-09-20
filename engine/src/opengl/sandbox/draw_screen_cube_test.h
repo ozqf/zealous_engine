@@ -269,7 +269,7 @@ ze_external void ZRGL_Debug_DrawCubeTest()
         // #define ZRGL_DATA_ATTRIB_NORMALS 2
 
         ZRGL_CreateProgram(
-            fallback_vert_text, fallback_frag_text, "fallback", 0, NO, &g_shader);
+            fallback_vert_text, fallback_frag_text, "fallback", &g_shader);
     }
     /////////////////////////////////////////////////////////////
     // Clear

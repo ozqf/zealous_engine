@@ -180,16 +180,14 @@ ze_external ErrorCode ZRGL_CreateProgram(
     const char *vertexShader,
     const char *fragmentShader,
     char *shaderName,
-    const i32 drawObjType,
-    const i32 bIsBatchable,
     ZRShader *result)
 {
     //printf("---------------------------------\n");
     //printf("Building shader program \"%s\"\n", shaderName);
     *result = {};
     result->name = shaderName;
-    result->drawObjType = drawObjType;
-    result->bBatchable = bIsBatchable;
+    // result->drawObjType = drawObjType;
+    // result->bBatchable = bIsBatchable;
 
     // Vertex shader
     GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);

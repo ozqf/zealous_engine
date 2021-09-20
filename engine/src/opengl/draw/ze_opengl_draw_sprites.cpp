@@ -77,7 +77,7 @@ internal void SpriteBatchInit()
 
     // shader
     ZRGL_CreateProgram(
-        world_sprite_vert_text, world_sprite_frag_text, "sprite_batch", 0, NO, &g_shader);
+        world_sprite_vert_text, world_sprite_frag_text, "sprite_batch", &g_shader);
 }
 
 ///////////////////////////////////////////////////////////

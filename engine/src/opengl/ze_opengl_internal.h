@@ -118,8 +118,6 @@ ze_external ErrorCode ZRGL_CreateProgram(
     const char *vertexShader,
     const char *fragmentShader,
     char *shaderName,
-    const i32 drawObjType,
-    const i32 bIsBatchable,
     ZRShader *result);
 ze_external void ZRGL_PrintShaderCompileLog(GLuint shaderId);
 

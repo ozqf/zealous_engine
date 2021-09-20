@@ -37,6 +37,9 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     local_persist i32 g_instanceCount;
 
     local_persist Transform camera;
+    local_persist Transform cameraOrigin;
+    local_persist f32 g_orthographicSize = 8;
+    local_persist f32 g_originalOrthographicSize = 8;
     local_persist f64 g_lastTickTime;
     local_persist f32 g_yawDegrees = 0;
 
@@ -63,13 +66,12 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         g_lastTickTime = Platform_QueryClock();
         Transform_SetToIdentity(&camera);
         camera.pos.z = 1;
+        cameraOrigin = camera;
 
         err = ZRGL_CreateProgram(
             draw_sprite_batch_3_vert_text,
             draw_sprite_batch_frag_text,
             "sprite_batch_test_3",
-            ZR_DRAWOBJ_TYPE_QUAD,
-            YES,
             &g_shader);
         ZE_ASSERT(err == ZE_ERROR_NONE, "create prog failed")
 
@@ -152,6 +154,15 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         CHECK_GL_ERR
         glSamplerParameteri(g_samplerDataTex2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         CHECK_GL_ERR
+        
+        /*
+        Set up for drawing debug quad
+        */
+        // err = ZRGL_CreateProgram(
+        //     sandbox_draw_single_mesh_vert_text,
+        //     sandbox_draw_single_mesh_frag_text,
+        //     "draw_tiles_debug",
+        //     &g_shader);
     }
 #if 1
     //////////////////////////////////////////////////
@@ -204,10 +215,6 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     ZR_SetProg1i(g_shader.handle, "u_dataTexSize", dataTextureSize);
     ZR_SetProg1i(g_shader.handle, "u_isBillboard", 1);
 
-    M4x4_CREATE(projection)
-        ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
-    ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
-
     // rotate camera
     f32 cosVal = cosf((f32)g_lastTickTime / 2.f);
     f32 sinVal = sinf((f32)g_lastTickTime / 2.f);
@@ -239,10 +246,13 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     ZEngine engine = GetEngine();
     if (engine.input.GetActionValue("reset"))
     {
-        Transform_SetToIdentity(&camera);
+        // Transform_SetToIdentity(&camera);
+        camera = cameraOrigin;
         g_yawDegrees = 0;
+        g_orthographicSize = g_originalOrthographicSize;
     }
 
+    /* No turning in orthographic!
     if (engine.input.GetActionValue("turn_left"))
     {
         g_yawDegrees += 90.f * delta;
@@ -251,15 +261,15 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     {
         g_yawDegrees -= 90.f * delta;
     }
-    
+    */
     // Transform_SetRotation(&camera, 0, (45.f * sinVal) * DEG2RAD, 0);
     M3x3_SetToIdentity(camera.rotation.cells);
     // M3x3_RotateY(camera.rotation.cells, g_yawDegrees * DEG2RAD);
     Transform_SetRotation(&camera, 0, g_yawDegrees * DEG2RAD, 0);
     
     Vec3 move = {};
-    if (engine.input.GetActionValue("move_forward")) { move.z -= 1; }
-    if (engine.input.GetActionValue("move_backward")) { move.z += 1; }
+    // if (engine.input.GetActionValue("move_forward")) { move.z -= 1; }
+    // if (engine.input.GetActionValue("move_backward")) { move.z += 1; }
     if (engine.input.GetActionValue("move_left")) { move.x -= 1; }
     if (engine.input.GetActionValue("move_right")) { move.x += 1; }
     Vec3 moveDir = M3x3_Calculate3DMove(&camera.rotation, move);
@@ -267,6 +277,14 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     Vec3_AddTo(&camera.pos, moveDir);
 
     #endif
+
+    if (engine.input.GetActionValue("move_forward")) { g_orthographicSize -= 1.f * delta; }
+    if (engine.input.GetActionValue("move_backward")) { g_orthographicSize += 1.f * delta; }
+
+    M4x4_CREATE(projection)
+    ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
+    ZE_SetupOrthoProjection(projection.cells, g_orthographicSize, 16.f / 9.f);
+    ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
 
     M4x4_CREATE(view)
     Transform_ToViewMatrix(&camera, &view);
@@ -280,5 +298,9 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     // draw
     glDrawArraysInstanced(GL_TRIANGLES, 0, mesh->vertexCount, g_instanceCount);
     CHECK_GL_ERR
+
+    /*
+    
+    */
 #endif
 }

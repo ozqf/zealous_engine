@@ -67,8 +67,6 @@ ze_external void ZRSandbox_DrawSpriteBatch_3()
             draw_sprite_batch_3_vert_text,
             draw_sprite_batch_frag_text,
             "sprite_batch_test_3",
-            ZR_DRAWOBJ_TYPE_QUAD,
-            YES,
             &g_shader);
         ZE_ASSERT(err == ZE_ERROR_NONE, "create prog failed")
 

@@ -233,7 +233,7 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
         
         // shader
         ZRGL_CreateProgram(
-            world_sprite_vert_text, world_sprite_frag_text, "world_sprite_test", 0, NO, &g_shader);
+            world_sprite_vert_text, world_sprite_frag_text, "world_sprite_test", &g_shader);
 
         // allocate a texture
         ZRTexture *tex = ZAssets_AllocTex(64, 64, "draw_world_sprites_test_texture");
