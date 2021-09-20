@@ -319,6 +319,7 @@ static const char* draw_sprite_batch_3_vert_text =
 "    */\n"
 "    \n"
 "    vec4 positionV4 = vec4(i_position, 1.0);\n"
+"    // apply scale then rotate in model space\n"
 "    mat4 scale = CreateScaleM4x4(data3.x, data3.y, 1);\n"
 "    mat4 rot = CreateRotateM4x4(data1.w);\n"
 "    positionV4 *= scale;\n"
