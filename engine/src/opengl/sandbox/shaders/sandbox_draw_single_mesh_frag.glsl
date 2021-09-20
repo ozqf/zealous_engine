@@ -11,26 +11,48 @@ out vec4 outputColor;
 
 void main()
 {
-#if 0
-   outputColor = vec4(1, 1, 1, 1);
-#endif
-#if 1
-   outputColor = vec4(m_texCoord.x, m_texCoord.y, 1, 1);
-#endif
-#if 0
+   #if 0
+   if ((int(gl_FragCoord.x) % 2) == 0 && (int(gl_FragCoord.y) % 2) == 0)
+   {
+      discard;
+   }
    outputColor = u_colour;
-#endif
-#if 0 // Output depth
-   float depthValue = gl_FragCoord.z;
-   outputColor = vec4(u_colour.x * depthValue, u_colour.y * depthValue, u_colour.z * depthValue, 1);
-#endif
-#if 1 // output texture
-   vec4 diffuse = texture2D(u_diffuseTex, m_texCoord);
-   outputColor = diffuse;
-#endif
-#if 0 // output texture with boolean transparency
-   vec4 diffuse = texture2D(u_diffuseTex, m_texCoord);
-   if (diffuse.w < 0.5) { discard; }
-   outputColor = diffuse;
-#endif
+   #endif
+
+   #if 1
+   // move frag screen x/y into 0-1 range
+   float x = (m_fragPos.x + 1) / 2;
+   float y = (m_fragPos.y + 1) / 2;
+   if (x < 0.5f)
+   {
+      if (y < 0.5f)
+      {
+         outputColor = vec4(1, 0, 0, 0.5);
+      }
+      else
+      {
+         outputColor = vec4(0, 1, 0, 0.5);
+      }
+   }
+   else
+   {
+      if (y < 0.5f)
+      {
+         outputColor = vec4(1, 1, 0, 0.5);
+      }
+      else
+      {
+         outputColor = vec4(1, 0, 1, 0.5);
+      }
+   }
+   #endif
+
+   #if 0
+   float x = m_fragPos.x;
+   float y = m_fragPos.y;
+   vec4 colour = u_colour;
+   colour.x *= x;
+   colour.y *= y;
+   outputColor = colour;
+   #endif
 }

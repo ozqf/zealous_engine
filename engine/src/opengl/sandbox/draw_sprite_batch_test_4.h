@@ -31,10 +31,12 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     // persist vars
     //////////////////////////////////////////////////
     local_persist i32 g_bInitialised = NO;
-    local_persist ZRShader g_shader = {};
+    local_persist ZRShader g_batchDrawShader = {};
     local_persist i32 g_meshId;
     local_persist i32 g_diffuseTexHandle;
     local_persist i32 g_instanceCount;
+
+    local_persist ZRShader g_blendShader = {};
 
     local_persist Transform camera;
     local_persist Transform cameraOrigin;
@@ -72,7 +74,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
             draw_sprite_batch_3_vert_text,
             draw_sprite_batch_frag_text,
             "sprite_batch_test_3",
-            &g_shader);
+            &g_batchDrawShader);
         ZE_ASSERT(err == ZE_ERROR_NONE, "create prog failed")
 
         g_meshId = ZAssets_GetMeshByName(ZE_EMBEDDED_QUAD_NAME)->header.id;
@@ -158,11 +160,11 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         /*
         Set up for drawing debug quad
         */
-        // err = ZRGL_CreateProgram(
-        //     sandbox_draw_single_mesh_vert_text,
-        //     sandbox_draw_single_mesh_frag_text,
-        //     "draw_tiles_debug",
-        //     &g_shader);
+        err = ZRGL_CreateProgram(
+            sandbox_draw_single_mesh_vert_text,
+            sandbox_draw_single_mesh_frag_text,
+            "draw_tiles_debug",
+            &g_blendShader);
     }
 #if 1
     //////////////////////////////////////////////////
@@ -207,13 +209,13 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     // bind gpu objects
     glBindVertexArray(mesh->vao);
     CHECK_GL_ERR
-    glUseProgram(g_shader.handle);
+    glUseProgram(g_batchDrawShader.handle);
     CHECK_GL_ERR
 
-    // ZR_SetProg1i(g_shader.handle, "u_instanceCount", g_instanceCount);
-    ZR_SetProg1i(g_shader.handle, "u_dataStride", g_dataPixelStride);
-    ZR_SetProg1i(g_shader.handle, "u_dataTexSize", dataTextureSize);
-    ZR_SetProg1i(g_shader.handle, "u_isBillboard", 1);
+    // ZR_SetProg1i(g_batchDrawShader.handle, "u_instanceCount", g_instanceCount);
+    ZR_SetProg1i(g_batchDrawShader.handle, "u_dataStride", g_dataPixelStride);
+    ZR_SetProg1i(g_batchDrawShader.handle, "u_dataTexSize", dataTextureSize);
+    ZR_SetProg1i(g_batchDrawShader.handle, "u_isBillboard", 1);
 
     // rotate camera
     f32 cosVal = cosf((f32)g_lastTickTime / 2.f);
@@ -284,23 +286,54 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     M4x4_CREATE(projection)
     ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
     ZE_SetupOrthoProjection(projection.cells, g_orthographicSize, 16.f / 9.f);
-    ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
+    ZR_SetProgM4x4(g_batchDrawShader.handle, "u_projection", projection.cells);
 
     M4x4_CREATE(view)
     Transform_ToViewMatrix(&camera, &view);
-    ZR_SetProgM4x4(g_shader.handle, "u_view", view.cells);
+    ZR_SetProgM4x4(g_batchDrawShader.handle, "u_view", view.cells);
 
     ZR_PrepareTextureUnit2D(
-        g_shader.handle, GL_TEXTURE0, 0, "u_diffuseTex", g_diffuseTexHandle, 0);
+        g_batchDrawShader.handle, GL_TEXTURE0, 0, "u_diffuseTex", g_diffuseTexHandle, 0);
     ZR_PrepareTextureUnit2D(
-        g_shader.handle, GL_TEXTURE2, 2, "u_dataTexture", g_dataTextureHandle, g_samplerDataTex2D);
+        g_batchDrawShader.handle, GL_TEXTURE2, 2, "u_dataTexture", g_dataTextureHandle, g_samplerDataTex2D);
 
     // draw
     glDrawArraysInstanced(GL_TRIANGLES, 0, mesh->vertexCount, g_instanceCount);
     CHECK_GL_ERR
 
-    /*
-    
-    */
+    // disable depth testing
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+
+    // draw screen quad to debug tiles
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_ONE, GL_ONE);
+
+    // bind gpu objects
+    glUseProgram(g_blendShader.handle);
+    CHECK_GL_ERR
+    glBindVertexArray(mesh->vao);
+    CHECK_GL_ERR
+    // M4x4_CREATE(model)
+    // M4x4_CREATE(modelView)
+    // M4x4_Multiply(modelView.cells, view.cells, modelView.cells);
+    // M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
+    M4x4_CREATE(screenspaceMV)
+    M4x4_BuildScale(screenspaceMV.cells, 2, 2, 2);
+    M4x4_CREATE(screenspacePrj)
+    ZR_SetProgM4x4(g_blendShader.handle, "u_modelView", screenspaceMV.cells);
+    ZR_SetProgM4x4(g_blendShader.handle, "u_projection", screenspacePrj.cells);
+    // Vec4 colour = { 0.5f, 0.5f, 0.5f, 0.5f };
+    Vec4 colour = { 1, 0.5f, 0.5f, 0.5f };
+    ZR_SetProgVec4f(g_blendShader.handle, "u_colour", colour);
+    glDrawArrays(GL_TRIANGLES, 0, mesh->vertexCount);
+
+    glDisable(GL_BLEND);
+    // reenable depth test
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE);
 #endif
 }
