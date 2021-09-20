@@ -129,7 +129,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_3()
                     RANDF_RANGE(-rangeX, rangeX),
                     RANDF_RANGE(-rangeY, rangeY),
                     RANDF_RANGE(-rangeZ, rangeZ),
-                    1
+                    RANDF_RANGE(0, 360) * DEG2RAD
                 };
             g_dataPixels[pixel + 1] = uvs[i % 4];
             g_dataPixels[pixel + 2] = { RANDF_RANGE(0.1f, 1), RANDF_RANGE(0.1f, 1) };
