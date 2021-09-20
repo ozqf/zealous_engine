@@ -176,6 +176,15 @@ ze_internal ZRDrawObj* ZScene_AddLinesObj(zeHandle scene, i32 maxVerts)
     return obj;
 }
 
+ze_internal ZRDrawObj* ZScene_AddCube(zeHandle scene, char* materialName)
+{
+    ZRDrawObj *obj = ZScene_AddObject(scene);
+    ZRMaterial* mat = ZAssets_GetMaterialByName(materialName);
+    ZRMeshAsset* mesh = ZAssets_GetMeshByName(ZE_EMBEDDED_CUBE_NAME);
+    obj->data.SetAsMesh(mesh->header.id, mat->header.id);
+    return obj;
+}
+
 ///////////////////////////////////////////////////////////
 // service
 ///////////////////////////////////////////////////////////
@@ -246,6 +255,7 @@ ze_external ZSceneManager ZScene_RegisterFunctions()
     result.SetProjection = ZScene_SetProjection;
 
     // utility
+    result.AddCube = ZScene_AddCube;
     result.AddFullTextureQuad = ZScene_AddFullTextureQuad;
     result.AddLinesObj = ZScene_AddLinesObj;
     return result;

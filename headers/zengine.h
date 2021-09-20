@@ -132,6 +132,7 @@ struct ZSceneManager
     void (*SetProjection)(zeHandle sceneHandle, M4x4 projection);
 
     // utilities
+    ZRDrawObj* (*AddCube)(zeHandle scene, char* materialName);
     ZRDrawObj* (*AddFullTextureQuad)(zeHandle scene, char *textureName, Vec2 size);
     ZRDrawObj *(*AddLinesObj)(zeHandle scene, i32 maxVerts);
 };
