@@ -66,11 +66,14 @@ struct ZRGLHandles
     } data;
 };
 
+#define ZR_SHADER_FLAG_NO_DEPTH (1 << 0)
+#define ZR_SHADER_FLAG_BLEND (1 << 1)
+
 struct ZRShader
 {
     i32 handle;      // considered invalid if this is 0
     i32 drawObjType; // considered invalid if this is 0
-    i32 bBatchable;
+    i32 flags;
     char *name;
 };
 
@@ -88,6 +91,7 @@ struct ZRMeshDrawHandles
 ///////////////////////////////////////////////////////
 // Shader setup
 ///////////////////////////////////////////////////////
+ze_external void ZR_PrepareShader(ZRShader* shader);
 ze_external void ZR_SetProg1i(GLuint prog, char *uniform, GLint value);
 ze_external void ZR_SetProg1f(GLuint prog, char *uniform, GLfloat value);
 ze_external void ZR_SetProgVec3f(GLuint prog, char *uniform, Vec3 vec);

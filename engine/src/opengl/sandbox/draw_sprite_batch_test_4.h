@@ -165,8 +165,13 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
             sandbox_draw_single_mesh_frag_text,
             "draw_tiles_debug",
             &g_blendShader);
+        g_blendShader.flags = ZR_SHADER_FLAG_BLEND | ZR_SHADER_FLAG_NO_DEPTH;
     }
 #if 1
+    
+    
+    
+    
     //////////////////////////////////////////////////
     // execute
     //////////////////////////////////////////////////
@@ -202,16 +207,15 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
 
     // clear
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glEnable(GL_DEPTH_TEST);
     glClearColor(0, 0, 0, 1);
+    glDepthMask(GL_TRUE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // bind gpu objects
     glBindVertexArray(mesh->vao);
     CHECK_GL_ERR
-    glUseProgram(g_batchDrawShader.handle);
-    CHECK_GL_ERR
-
+    ZR_PrepareShader(&g_batchDrawShader);
+    
     // ZR_SetProg1i(g_batchDrawShader.handle, "u_instanceCount", g_instanceCount);
     ZR_SetProg1i(g_batchDrawShader.handle, "u_dataStride", g_dataPixelStride);
     ZR_SetProg1i(g_batchDrawShader.handle, "u_dataTexSize", dataTextureSize);
@@ -244,7 +248,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     printf("Euler %.3f, %.3f, %.3f\n", rot.x, rot.y, rot.z);
     Transform_SetRotation(&camera, rot.x, rot.y, rot.z);
 #endif
-    #if 1
+    
     ZEngine engine = GetEngine();
     if (engine.input.GetActionValue("reset"))
     {
@@ -278,8 +282,6 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     Vec3_MulF(&moveDir, 10.f * delta);
     Vec3_AddTo(&camera.pos, moveDir);
 
-    #endif
-
     if (engine.input.GetActionValue("move_forward")) { g_orthographicSize -= 1.f * delta; }
     if (engine.input.GetActionValue("move_backward")) { g_orthographicSize += 1.f * delta; }
 
@@ -301,39 +303,29 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     glDrawArraysInstanced(GL_TRIANGLES, 0, mesh->vertexCount, g_instanceCount);
     CHECK_GL_ERR
 
-    // disable depth testing
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE);
-
-    // draw screen quad to debug tiles
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_ONE, GL_ONE);
+    #if 1 // draw overlay
+    // draw tiles overlay
+    ZR_PrepareShader(&g_blendShader);
 
     // bind gpu objects
-    glUseProgram(g_blendShader.handle);
-    CHECK_GL_ERR
-    glBindVertexArray(mesh->vao);
+    i32 screenQuadAssetId = ZAssets_GetMeshByName(ZE_EMBEDDED_SCREEN_QUAD_NAME)->header.id;
+    i32 overlayVao = ZRGL_GetMeshHandles(screenQuadAssetId)->vao;
+    glBindVertexArray(overlayVao);
     CHECK_GL_ERR
     // M4x4_CREATE(model)
     // M4x4_CREATE(modelView)
     // M4x4_Multiply(modelView.cells, view.cells, modelView.cells);
     // M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
     M4x4_CREATE(screenspaceMV)
-    M4x4_BuildScale(screenspaceMV.cells, 2, 2, 2);
+    // M4x4_BuildScale(screenspaceMV.cells, 2, 2, 2);
     M4x4_CREATE(screenspacePrj)
     ZR_SetProgM4x4(g_blendShader.handle, "u_modelView", screenspaceMV.cells);
     ZR_SetProgM4x4(g_blendShader.handle, "u_projection", screenspacePrj.cells);
     // Vec4 colour = { 0.5f, 0.5f, 0.5f, 0.5f };
     Vec4 colour = { 1, 0.5f, 0.5f, 0.5f };
-    ZR_SetProgVec4f(g_blendShader.handle, "u_colour", colour);
+    // ZR_SetProgVec4f(g_blendShader.handle, "u_colour", colour);
     glDrawArrays(GL_TRIANGLES, 0, mesh->vertexCount);
-
-    glDisable(GL_BLEND);
-    // reenable depth test
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glDepthMask(GL_TRUE);
+    
+    #endif // draw overlay
 #endif
 }

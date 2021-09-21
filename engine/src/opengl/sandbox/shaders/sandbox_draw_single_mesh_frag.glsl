@@ -42,7 +42,8 @@ void main()
       }
       else
       {
-         outputColor = vec4(1, 0, 1, 0.5);
+         // outputColor = vec4(1, 0, 1, 0.5);
+         discard;
       }
    }
    #endif

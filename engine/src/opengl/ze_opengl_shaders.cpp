@@ -136,6 +136,34 @@ ze_external void ZR_PrepareTextureUnitCubeMap(
     CHECK_GL_ERR
 }
 
+ze_external void ZR_PrepareShader(ZRShader* shader)
+{
+    glUseProgram(shader->handle);
+    CHECK_GL_ERR
+    if ((shader->flags & ZR_SHADER_FLAG_NO_DEPTH) != 0)
+    {
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glDepthMask(GL_FALSE);
+    }
+    else
+    {
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glDepthMask(GL_TRUE);
+    }
+    if ((shader->flags & ZR_SHADER_FLAG_BLEND) != 0)
+    {
+        glEnable(GL_BLEND);
+        glBlendEquation(GL_FUNC_ADD);
+        glBlendFunc(GL_ONE, GL_ONE);
+    }
+    else
+    {
+        glDisable(GL_BLEND);
+    }
+}
+
 ///////////////////////////////////////////////////////////
 // Build shaders
 ///////////////////////////////////////////////////////////
@@ -186,8 +214,6 @@ ze_external ErrorCode ZRGL_CreateProgram(
     //printf("Building shader program \"%s\"\n", shaderName);
     *result = {};
     result->name = shaderName;
-    // result->drawObjType = drawObjType;
-    // result->bBatchable = bIsBatchable;
 
     // Vertex shader
     GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);

@@ -12,8 +12,12 @@ Zealous Engine public header
 ///////////////////////////////////////////////////////////
 // Embedded assets
 ///////////////////////////////////////////////////////////
+// unit cube, -0.5 to 0.5 on x/y/z
 #define ZE_EMBEDDED_CUBE_NAME "cube"
+// unit quad, -0.5 to 0.5 on x/y
 #define ZE_EMBEDDED_QUAD_NAME "quad"
+// quad -1 to 1 on x/y to cover screenspace.
+#define ZE_EMBEDDED_SCREEN_QUAD_NAME "screen_quad"
 
 #define FALLBACK_MATERIAL_NAME "debug_magenta"
 #define FALLBACK_CHEQUER_MATERIAL "debug_chequer"
@@ -22,17 +26,7 @@ Zealous Engine public header
 #define FALLBACK_CHARSET_TEXTURE_NAME "fallback_charset"
 #define FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME "fallback_charset_semi_transparent"
 
-
-#define COLOUR_F32_EMPTY { 0, 0, 0, 0 }
-#define COLOUR_F32_WHITE { 1.f, 1.f, 1.f, 1.f }
-#define COLOUR_F32_BLACK { 0, 0, 0, 1.f }
-#define COLOUR_F32_RED { 1.f, 0, 0, 1.f }
-#define COLOUR_F32_GREEN { 0, 1.f, 0, 1.f }
-#define COLOUR_F32_BLUE { 0, 0, 1.f, 1.f }
-#define COLOUR_F32_YELLOW { 1.f, 1.f, 0, 1.f }
-#define COLOUR_F32_CYAN { 0, 1.f, 1.f, 1.f }
-#define COLOUR_F32_PURPLE { 1.f, 0, 1.f, 1.f }
-
+// 32 bit colours
 #define COLOUR_U32_EMPTY { 0, 0, 0, 0 }
 #define COLOUR_U32_WHITE { 255, 255, 255, 255 }
 #define COLOUR_U32_BLACK { 0, 0, 0, 255 }
@@ -48,6 +42,17 @@ Zealous Engine public header
 
 #define COLOUR_U32_SEMI_GREY { 155, 155, 155, 155 }
 #define COLOUR_U32_SEMI_GREY_DARK { 200, 200, 200, 200 }
+
+// colors as Vec4s
+#define COLOUR_F32_EMPTY { 0, 0, 0, 0 }
+#define COLOUR_F32_WHITE { 1.f, 1.f, 1.f, 1.f }
+#define COLOUR_F32_BLACK { 0, 0, 0, 1.f }
+#define COLOUR_F32_RED { 1.f, 0, 0, 1.f }
+#define COLOUR_F32_GREEN { 0, 1.f, 0, 1.f }
+#define COLOUR_F32_BLUE { 0, 0, 1.f, 1.f }
+#define COLOUR_F32_YELLOW { 1.f, 1.f, 0, 1.f }
+#define COLOUR_F32_CYAN { 0, 1.f, 1.f, 1.f }
+#define COLOUR_F32_PURPLE { 1.f, 0, 1.f, 1.f }
 
 #define ZR_TEX_SAMPLER_DEFAULT 0
 
@@ -159,13 +164,6 @@ struct ZAssetManager
     ZRMaterial* (*BuildMaterial)(
         char* name, char* diffuseName, char* emissionName);
 };
-
-/*struct ZAssetGen
-{
-    void (*ZGen_DrawLine)(ZRTexture *tex, ColourU32 colour, Point2 a, Point2 b);
-    void (*ZGen_FillTextureRect)(ZRTexture *tex, ColourU32 colour, Point2 topLeft, Point2 size);
-    void (*ZGen_FillTexture)(ZRTexture *tex, ColourU32 colour);
-};*/
 
 struct ZSystem
 {

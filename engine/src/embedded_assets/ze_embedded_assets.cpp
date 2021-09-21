@@ -63,14 +63,19 @@ ze_external zErrorCode ZEmbedded_Init()
 		ZE_EMBEDDED_CUBE_NAME, g_meshCube.numVerts, g_meshCube.maxVerts);
 	asset = ZAssets_AllocEmptyMesh(ZE_EMBEDDED_CUBE_NAME, mesh.numVerts);
 	asset->data.CopyData(mesh);
-
+	
 	mesh = g_meshPrimitive_quad;
 	asset = ZAssets_AllocEmptyMesh(ZE_EMBEDDED_QUAD_NAME, mesh.numVerts);
 	asset->data.CopyData(mesh);
 
-	// printf("Copied:\n");
-	// g_meshCube.PrintVerts();
-	// printf("to:\n");
-	// asset->data.PrintVerts();
+	asset = ZAssets_AllocEmptyMesh(ZE_EMBEDDED_SCREEN_QUAD_NAME, mesh.numVerts);
+	asset->data.AddVert({ -1, -1, 0 }, { 0, 0 }, { 0, 0, -1 });
+	asset->data.AddVert({ 1, -1, 0 }, { 1, 0 }, { 0, 0, -1 });
+	asset->data.AddVert({ 1, 1, 0 }, { 1, 1 }, { 0, 0, -1 });
+
+	asset->data.AddVert({ -1, -1, 0 }, { 0, 0 }, { 0, 0, -1 });
+	asset->data.AddVert({ 1, 1, 0 }, { 1, 1 }, { 0, 0, -1 });
+	asset->data.AddVert({ -1, 1, 0 }, { 0, 1 }, { 0, 0, -1 });
+
 	return ZE_ERROR_NONE;
 }
