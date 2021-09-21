@@ -60,19 +60,27 @@ union ColourF32
 #define ZE_ASSET_TYPE_TEXTURE 1
 #define ZE_ASSET_TYPE_MESH 2
 #define ZE_ASSET_TYPE_MATERIAL 3
+#define ZE_ASSET_TYPE_BLOB 4
 
 struct ZRAsset
 {
     i32 id;
     i32 index;
     i32 type;
-    // On GPU - handles are set
-    i32 bIsUploaded;
     // Data has changed - needs to be re-uploaded
     i32 bIsDirty;
     zeSize totalSize;
     char *fileName;
     i32 sentinel;
+};
+
+struct ZRBlobAsset
+{
+    ZRAsset header;
+    void* ptrA;
+    zeSize sizeA;
+    void* ptrB;
+    zeSize sizeB;
 };
 
 struct ZRMaterial

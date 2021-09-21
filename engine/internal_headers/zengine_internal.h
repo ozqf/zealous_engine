@@ -236,10 +236,15 @@ ze_external void ZInput_ReadEvent(SysInputEvent* ev);
 // asset db
 ze_external ZRTexture *ZAssets_GetTexByName(char *name);
 ze_external ZRTexture *ZAssets_GetTexById(i32 id);
+
 ze_external ZRMeshAsset *ZAssets_GetMeshByName(char *name);
 ze_external ZRMeshAsset *ZAssets_GetMeshById(i32 id);
+
 ze_external ZRMaterial* ZAssets_GetMaterialByName(char* name);
 ze_external ZRMaterial *ZAssets_GetMaterialById(i32 id);
+
+ze_external ZRBlobAsset* ZAssets_GetBlobByName(char* name);
+ze_external ZRBlobAsset* ZAssets_GetBlobById(i32 id);
 
 ze_external void ZAssets_SaveImage(
     const char *fileName, i32 width, i32 height, const void *rgbPixels);
@@ -247,6 +252,7 @@ ze_external void ZAssets_SaveImage(
 // asset allocation
 ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char *name);
 ze_external ZRMeshAsset *ZAssets_AllocEmptyMesh(char *name, i32 maxVerts);
+ze_external ZRBlobAsset* ZAssets_AllocBlob(char* name, zeSize numBytesA, zeSize numBytesB);
 ze_external ZRMaterial *ZAssets_BuildMaterial(
     char *name, char *diffuseName, char *emissionName);
 

@@ -148,9 +148,14 @@ struct ZAssetManager
     ZRMaterial *(*GetMaterialById)(i32 id);
     ZRMaterial *(*GetMaterialByName)(char *name);
 
+    ZRBlobAsset* (*GetBlobByName)(char* name);
+    ZRBlobAsset* (*GetBlobById)(i32 id);
+
     ZRTexture *(*AllocTexture)(i32 width, i32 height, char *name);
     ZRMaterial *(*AllocMaterial)(char* name);
     ZRMeshAsset *(*AllocEmptyMesh)(char *name, i32 maxVerts);
+    ZRBlobAsset* (*AllocBlob)(char* name, zeSize numBytesA, zeSize numBytesB);
+
     ZRMaterial* (*BuildMaterial)(
         char* name, char* diffuseName, char* emissionName);
 };

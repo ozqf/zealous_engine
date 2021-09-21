@@ -153,6 +153,25 @@ ze_external ZRMeshAsset* ZAssets_GetMeshByName(char* name)
     return ZAssets_GetMeshById(id);
 }
 
+ze_external ZRBlobAsset* ZAssets_GetBlobById(i32 id)
+{
+    ZRAsset* asset = ZAssets_FindAssetById(id);
+    if (asset == NULL)
+    {
+        printf("Blob %d not found\n", id);
+        Platform_Fatal("Blob not found");
+    }
+    if (asset == NULL) { return NULL; }
+    if (asset->type != ZE_ASSET_TYPE_MESH) { return NULL; }
+    return (ZRBlobAsset*)asset;
+}
+
+ze_external ZRBlobAsset* ZAssets_GetBlobByName(char* name)
+{
+    i32 id = ZAssets_GetAssetIdByName(name);
+    return ZAssets_GetBlobById(id);
+}
+
 /////////////////////////////////////////////////////////////
 // Create new assets
 /////////////////////////////////////////////////////////////
@@ -214,6 +233,38 @@ ze_external ZRMaterial *ZAssets_AllocMaterial(char *name)
     d.ptr = mat;
     g_table->Insert(id, d);
     return mat;
+}
+
+ze_external ZRBlobAsset* ZAssets_AllocBlob(char* name, zeSize numBytesA, zeSize numBytesB)
+{
+    i32 id = ZAssets_GetAssetIdByName(name);
+    // Check this id isn't in use
+    ZRAsset* asset = ZAssets_FindAssetById(id);
+    if (asset != NULL)
+    {
+        printf("Asset Id %d from name %s already exists\n", id, name);
+        return NULL;
+    }
+    // allocate blob - asset header + space for data
+    zeSize totalBytes = sizeof(ZRBlobAsset) + numBytesA + numBytesB;
+    void* ptr = Platform_Alloc(totalBytes);
+    ZRBlobAsset* blob = (ZRBlobAsset*)ptr;
+    *blob = {};
+    // arrange memory blocks
+    blob->ptrA = ((u8*)ptr + sizeof(ZRBlobAsset));
+    blob->sizeA = numBytesA;
+    blob->ptrB = (u8*)blob->ptrA + numBytesA;
+    blob->sizeB = numBytesB;
+    // setup header
+    blob->header.id = id;
+    blob->header.bIsDirty = YES;
+    blob->header.type = ZE_ASSET_TYPE_BLOB;
+    blob->header.totalSize = totalBytes;
+    blob->header.sentinel = ZE_SENTINEL;
+
+    // add lookup record
+    g_table->InsertPointer(id, blob);
+    return blob;
 }
 
 ze_external ZRMaterial* ZAssets_BuildMaterial(
@@ -283,6 +334,7 @@ ze_external ZAssetManager ZAssets_RegisterFunctions()
     exportedFunctions.AllocTexture = ZAssets_AllocTex;
     exportedFunctions.AllocEmptyMesh = ZAssets_AllocEmptyMesh;
     exportedFunctions.AllocMaterial = ZAssets_AllocMaterial;
+    exportedFunctions.AllocBlob = ZAssets_AllocBlob;
     exportedFunctions.BuildMaterial = ZAssets_BuildMaterial;
 
     exportedFunctions.GetTexById = ZAssets_GetTexById;
@@ -291,6 +343,8 @@ ze_external ZAssetManager ZAssets_RegisterFunctions()
     exportedFunctions.GetMeshByName = ZAssets_GetMeshByName;
     exportedFunctions.GetMaterialById = ZAssets_GetMaterialById;
     exportedFunctions.GetMaterialByName = ZAssets_GetMaterialByName;
+    exportedFunctions.GetBlobById = ZAssets_GetBlobById;
+    exportedFunctions.GetBlobByName = ZAssets_GetBlobByName;
 
     return exportedFunctions;
 }
