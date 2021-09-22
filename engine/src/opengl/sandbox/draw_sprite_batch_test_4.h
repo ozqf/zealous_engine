@@ -49,7 +49,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     local_persist GLuint ssbo;
 
     // data texture
-    local_persist Vec4 g_dataPixels[totalDataPixels];
+    local_persist Vec4 g_batchDataPixels[totalDataPixels];
     local_persist GLuint g_dataTextureHandle;
     local_persist GLuint g_samplerDataTex2D;
     local_persist i32 g_dataPixelStride = 2;
@@ -129,15 +129,15 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         for (i = 0; i < batchMax; i += 1)
         {
             i32 pixel = g_dataPixelStride * i;
-            g_dataPixels[pixel] =
+            g_batchDataPixels[pixel] =
                 {
                     RANDF_RANGE(-rangeX, rangeX),
                     RANDF_RANGE(-rangeY, rangeY),
                     0,//RANDF_RANGE(-rangeZ, rangeZ),
                     RANDF_RANGE(0, 360) * DEG2RAD
                 };
-            g_dataPixels[pixel + 1] = uvs[i % 4];
-            g_dataPixels[pixel + 2] = { RANDF_RANGE(0.1f, 1), RANDF_RANGE(0.1f, 1) };
+            g_batchDataPixels[pixel + 1] = uvs[i % 4];
+            g_batchDataPixels[pixel + 2] = { RANDF_RANGE(0.1f, 1), RANDF_RANGE(0.1f, 1) };
         }
         #endif
 
@@ -145,7 +145,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         printf("Drawing %d instances of %d max\n", g_instanceCount, batchMax);
         printf("\tData texture is %lldKB\n", (totalDataPixels * sizeof(Vec4)) / 1024);
 
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize, GL_RGBA, GL_FLOAT, g_dataPixels);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize, GL_RGBA, GL_FLOAT, g_batchDataPixels);
         CHECK_GL_ERR
 
         // Samplers for data textures
@@ -185,17 +185,17 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     for (i32 i = 0; i < g_instanceCount; i += 1)
     {
         i32 pixel = g_dataPixelStride * i;
-        g_dataPixels[pixel] =
+        g_batchDataPixels[pixel] =
         {
             RANDF_RANGE(-range, range),
             RANDF_RANGE(-range, range),
             RANDF_RANGE(-4, -16),
             1
         };
-        g_dataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
+        g_batchDataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
     }
     glBindTexture(GL_TEXTURE_2D, g_dataTextureHandle);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_dataPixels);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_batchDataPixels);
         CHECK_GL_ERR
 #endif
 

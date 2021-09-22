@@ -21,7 +21,7 @@ set compilerFlags=-nologo -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi /O2 -O
 @REM set compilerFlags=-nologo -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi
 @rem No elevated warnings
 @rem set compilerFlags=-nologo -Gm -MT -W4 -wd4100 -wd4201 -wd4189 /Zi
-set compilerDefines=/DPARANOID=1
+set compilerDefines=/DPARANOID=1 /DGLFW_USE_HYBRID_HPG
 @rem /DVERBOSE=1
 
 @rem === Compile Win32 Window application ===

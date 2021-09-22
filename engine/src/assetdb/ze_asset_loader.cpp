@@ -23,4 +23,5 @@ ze_external void ZAssets_SaveImage(
 {
 	stbi_flip_vertically_on_write(YES);
 	stbi_write_png(fileName, width, height, 3, rgbPixels, width * 3);
+	printf("Wrote %s\n", fileName);
 }

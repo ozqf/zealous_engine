@@ -121,19 +121,26 @@ internal f32 ZAbsf(f32 value)
 #define ZE_2D_INDEX(positionX, positionY, gridWidth) \
 	positionX + (positionY * gridWidth)
 
+// convert a 1d linear index to the X positon on a grid
+#define ZE_1D_TO_2D_X(index, gridWidth) \
+	(i32)(index % gridWidth)
+
+// convert a 1d linear index to the Y positon on a grid
+#define ZE_1D_TO_2D_Y(index, gridWidth) \
+	(i32)(index / gridWidth)
+
 #define ZE_ARR_SIZE(arrayPtr, arrayStructType) \
 (sizeof(arrayPtr) / sizeof(arrayStructType))
 
 #define ze_external extern "C"
 
-// used for serialise/deserialise validation
+// used for serialise/deserialise validation and general memory
+// alignment checking
 #define ZE_SENTINEL 0xDEADBEEF
-#define ZE_SENTINEL_B 0xEFBEBEEF
 
-#define ZE_DEBUG_PORT 59594
-#define ZE_MONITOR_PORT 59595
-
-#define DLL_EXPORT __declspec(dllexport)
+// not moved the monitor code over...
+// #define ZE_DEBUG_PORT 59594
+// #define ZE_MONITOR_PORT 59595
 
 #define ZE_BUILD_STRING(stringBufName, stringBufSize, stringFormat, ...) \
 	char stringBufName##[##stringBufSize##];                             \
