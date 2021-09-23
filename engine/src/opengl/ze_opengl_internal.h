@@ -147,6 +147,14 @@ ze_external void ZRGL_DrawMesh(ZRDrawCmdMesh* meshCmd, M4x4* view, M4x4* project
 ze_external void ZRGL_DrawDebugLines(ZRDrawCmdDebugLines* cmd, M4x4* view, M4x4* projection);
 
 ///////////////////////////////////////////////////////
+// Data texture
+///////////////////////////////////////////////////////
+ze_external ZRVec4Texture* Vec4Tex_Alloc(i32 width, i32 height);
+ze_external void Vec4Tex_SetAll(ZRVec4Texture* tex, Vec4 value);
+ze_external zErrorCode Vec4Tex_SetAt(ZRVec4Texture* tex, i32 x, i32 y, Vec4 v);
+ze_external i32 Vec4Tex_IsPosSafe(ZRVec4Texture* tex, i32 x, i32 y);
+
+///////////////////////////////////////////////////////
 // Debug
 ///////////////////////////////////////////////////////
 ze_external void ZRGL_Debug_Init();

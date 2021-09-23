@@ -54,6 +54,8 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     local_persist GLuint g_samplerDataTex2D;
     local_persist i32 g_dataPixelStride = 2;
 
+    local_persist ZRVec4Texture* g_tileData = NULL;
+
     //////////////////////////////////////////////////
     // local vars
     //////////////////////////////////////////////////
@@ -156,13 +158,41 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         CHECK_GL_ERR
         glSamplerParameteri(g_samplerDataTex2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         CHECK_GL_ERR
+
+        /////////////////////////////////////////////////////////////////////////
+        // setup overlay data
+        g_tileData = Vec4Tex_Alloc(64, 64);
+        Vec4Tex_SetAll(g_tileData, { 1, 0, 0, 0.5f });
+		
+		
+        if (Vec4Tex_SetAt(g_tileData, 0, 0, { 1, 0, 0, 0.5f }))
+        {
+            Platform_Fatal("Data texture out of bounds");
+        }
+        Vec4Tex_SetAt(g_tileData, 0, 1, { 0, 1, 0, 0.5f });
+        Vec4Tex_SetAt(g_tileData, 0, 2, { 0, 0, 1, 0.5f });
+        Vec4Tex_SetAt(g_tileData, 0, 3, { 0, 0, 0, 0 });
+		
+		
+        // upload tile data
+        glGenTextures(1, &g_tileData->handle);
+        CHECK_GL_ERR
+        glBindTexture(GL_TEXTURE_2D, g_tileData->handle);
+        CHECK_GL_ERR
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
+            g_tileData->width, g_tileData->height, 0, GL_RGBA, GL_FLOAT, g_tileData->data);
+        CHECK_GL_ERR
+
+        printf("Created tile data tex %d by %d, handle %d\n",
+            g_tileData->width, g_tileData->height, g_tileData->handle);
         
         /*
         Set up for drawing debug quad
         */
         err = ZRGL_CreateProgram(
             sandbox_draw_single_mesh_vert_text,
-            sandbox_draw_single_mesh_frag_text,
+            sandbox_draw_screen_tiles_frag_text,
             "draw_tiles_debug",
             &g_blendShader);
         g_blendShader.flags = ZR_SHADER_FLAG_BLEND | ZR_SHADER_FLAG_NO_DEPTH;
@@ -321,6 +351,8 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     M4x4_CREATE(screenspacePrj)
     ZR_SetProgM4x4(g_blendShader.handle, "u_modelView", screenspaceMV.cells);
     ZR_SetProgM4x4(g_blendShader.handle, "u_projection", screenspacePrj.cells);
+    ZR_PrepareTextureUnit2D(
+        g_blendShader.handle, GL_TEXTURE0, 0, "u_tileDataTex", g_tileData->handle, g_samplerDataTex2D);
     // Vec4 colour = { 0.5f, 0.5f, 0.5f, 0.5f };
     Vec4 colour = { 1, 0.5f, 0.5f, 0.5f };
     // ZR_SetProgVec4f(g_blendShader.handle, "u_colour", colour);

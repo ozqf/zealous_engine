@@ -244,6 +244,15 @@ struct ZRMeshAsset
     ZRMeshData data;
 };
 
+struct ZRVec4Texture
+{
+	u32 handle;
+    i32 bIsDirty;
+	i32 width;
+	i32 height;
+	Vec4* data;
+};
+
 ///////////////////////////////////////////////////////////
 // Render scene data types
 ///////////////////////////////////////////////////////////
