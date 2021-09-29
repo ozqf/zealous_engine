@@ -55,6 +55,8 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     local_persist i32 g_dataPixelStride = 2;
 
     local_persist ZRVec4Texture* g_tileData = NULL;
+    local_persist i32 g_lightingTilesWidth = 2;
+    local_persist i32 g_lightingTilesHeight = 2;
 
     //////////////////////////////////////////////////
     // local vars
@@ -164,7 +166,6 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         g_tileData = Vec4Tex_Alloc(64, 64);
         Vec4Tex_SetAll(g_tileData, { 1, 0, 0, 0.5f });
 		
-		
         if (Vec4Tex_SetAt(g_tileData, 0, 0, { 1, 0, 0, 0.5f }))
         {
             Platform_Fatal("Data texture out of bounds");
@@ -172,7 +173,6 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         Vec4Tex_SetAt(g_tileData, 0, 1, { 0, 1, 0, 0.5f });
         Vec4Tex_SetAt(g_tileData, 0, 2, { 0, 0, 1, 0.5f });
         Vec4Tex_SetAt(g_tileData, 0, 3, { 0, 0, 0, 0 });
-		
 		
         // upload tile data
         glGenTextures(1, &g_tileData->handle);
@@ -336,6 +336,9 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     #if 1 // draw overlay
     // draw tiles overlay
     ZR_PrepareShader(&g_blendShader);
+
+    ZR_SetProg1i(g_blendShader.handle, "u_tilesWide", g_lightingTilesWidth);
+    ZR_SetProg1i(g_blendShader.handle, "u_tilesHigh", g_lightingTilesHeight);
 
     // bind gpu objects
     i32 screenQuadAssetId = ZAssets_GetMeshByName(ZE_EMBEDDED_SCREEN_QUAD_NAME)->header.id;
