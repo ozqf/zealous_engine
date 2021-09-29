@@ -32,8 +32,8 @@ void main()
    float y = (m_fragPos.y + 1) / 2;
    // calculate grid x/y
    int tilesWide = 2;
-   int gridX = int(x);
-   int gridY = int(y);
+   int gridX = int(x * tilesWide);
+   int gridY = int(y * tilesWide);
    // convert grid x/y to linear index
    int i = gridX + (gridY * tilesWide);
    vec4 data = texelFetch(u_tileDataTex, ivec2(0, i), 0);
