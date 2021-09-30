@@ -1,25 +1,25 @@
 #include "ze_opengl_internal.h"
 
-ze_external i32 Vec4Tex_IsPosSafe(ZRVec4Texture* tex, i32 x, i32 y)
+ze_external i32 ZEGrid2D_IsPosSafe(ZEGrid2D* grid, i32 x, i32 y)
 {
-	if (tex == NULL) { return NO; }
+	if (grid == NULL) { return NO; }
 	return (x >= 0
-		&& x < tex->width
+		&& x < grid->width
 		&& y >= 0
-		&& y < tex->height);
+		&& y < grid->height);
 }
 
 ze_external zErrorCode Vec4Tex_SetAt(ZRVec4Texture* tex, i32 x, i32 y, Vec4 v)
 {
-	if (!Vec4Tex_IsPosSafe(tex, x, y)) { return ZE_ERROR_OUT_OF_BOUNDS; }
-	i32 i = ZE_2D_INDEX(x, y, tex->width);
+	if (!ZEGrid2D_IsPosSafe(&tex->header, x, y)) { return ZE_ERROR_OUT_OF_BOUNDS; }
+	i32 i = ZE_2D_INDEX(x, y, tex->header.width);
 	tex->data[i] = v;
 	return ZE_ERROR_NONE;
 }
 
 ze_external void Vec4Tex_SetAll(ZRVec4Texture* tex, Vec4 value)
 {
-	i32 totalPixels = tex->width * tex->height;
+	i32 totalPixels = tex->header.width * tex->header.height;
 	for (i32 i = 0; i < totalPixels; ++i)
 	{
 		tex->data[i] = value;
@@ -36,23 +36,27 @@ ze_external ZRVec4Texture* Vec4Tex_Alloc(i32 width, i32 height)
 	ZRVec4Texture* tex = (ZRVec4Texture*)mem;
 	*tex = {};
 	tex->data = (Vec4*)(mem + sizeof(ZRVec4Texture));
-	tex->width = width;
-	tex->height = height;
-	tex->bIsDirty = YES;
+	tex->header.width = width;
+	tex->header.height = height;
+	tex->header.bIsDirty = YES;
 	return tex;
 }
 
 /*
-ze_external void Vec4Tex_CreateVec4DataTexture(i32 width, i32 height)
-{
-	GLuint g_dataTextureHandle;
-	glGenTextures(1, &g_dataTextureHandle);
-    CHECK_GL_ERR
-    glBindTexture(GL_TEXTURE_2D, g_dataTextureHandle);
-    CHECK_GL_ERR
-	
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
-		width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-    CHECK_GL_ERR
-}
+Returns handle.
+Data can be null
 */
+ze_external GLuint Vec4Tex_Register(ZRVec4Texture* tex)
+{
+	GLuint dataTextureHandle;
+	glGenTextures(1, &dataTextureHandle);
+    CHECK_GL_ERR
+    glBindTexture(GL_TEXTURE_2D, dataTextureHandle);
+    CHECK_GL_ERR
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
+		tex->header.width, tex->header.height, 0, GL_RGBA, GL_FLOAT, tex->data);
+    CHECK_GL_ERR
+	glBindTexture(GL_TEXTURE_2D, 0);
+	CHECK_GL_ERR
+	return dataTextureHandle;
+}

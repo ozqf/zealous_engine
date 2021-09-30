@@ -244,12 +244,17 @@ struct ZRMeshAsset
     ZRMeshData data;
 };
 
-struct ZRVec4Texture
+struct ZEGrid2D
 {
-	u32 handle;
     i32 bIsDirty;
 	i32 width;
 	i32 height;
+};
+
+struct ZRVec4Texture
+{
+    ZEGrid2D header;
+	u32 handle;
 	Vec4* data;
 };
 

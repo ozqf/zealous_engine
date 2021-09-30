@@ -1,3 +1,29 @@
+/*
+Sprite batching + Tile based shader lighting data.
+
+Tiles
+Linear 2d array, each cell being a index into a list of lights
+
+Two data blobs:
+> List of lights affecting the view in a linear array. type: Vec4
+> 2D grid, with one axis being the tile index, and the other being the list of indices
+    type: u8. each tile is a row, value in column 0 is the number of indices.
+
+Lights stored in a Vec4 texture, 256xDataPixelsPerLight
+Vec4 x/y/z/radius
+Vec4 r/g/b/strength
+
+
+16x16 == 256 screen tiles, u8 type
+0-------width
+|cell 0 - 0 to 256 indices...
+|cell 1 - 0 to 256 indices...
+|cell 2 ...etc
+|...
+|cell 255
+height
+
+*/
 #include "../ze_opengl_internal.h"
 
 // for rand()
@@ -57,6 +83,11 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     local_persist ZRVec4Texture* g_tileData = NULL;
     local_persist i32 g_lightingTilesWidth = 2;
     local_persist i32 g_lightingTilesHeight = 2;
+
+    local_persist GLuint g_viewLightsHandle = 0;
+    local_persist ZRVec4Texture* viewLights = NULL;
+    const i32 viewSceneLights = 256;
+    const i32 dataPixelsPerLight = 2;
 
     //////////////////////////////////////////////////
     // local vars
@@ -181,11 +212,16 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         CHECK_GL_ERR
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
-            g_tileData->width, g_tileData->height, 0, GL_RGBA, GL_FLOAT, g_tileData->data);
+            g_tileData->header.width, g_tileData->header.height, 0, GL_RGBA, GL_FLOAT, g_tileData->data);
         CHECK_GL_ERR
 
         printf("Created tile data tex %d by %d, handle %d\n",
-            g_tileData->width, g_tileData->height, g_tileData->handle);
+            g_tileData->header.width, g_tileData->header.height, g_tileData->handle);
+        
+        // Create texture with light data here...
+        viewLights = Vec4Tex_Alloc(dataPixelsPerLight, viewSceneLights);
+        Vec4Tex_SetAll(viewLights, { 0.5f, 0.5f, 0.5f, 0.5f });
+        g_viewLightsHandle = Vec4Tex_Register(viewLights);
         
         /*
         Set up for drawing debug quad
@@ -201,10 +237,12 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     
     
     
-    
+    //////////////////////////////////////////////////
     //////////////////////////////////////////////////
     // execute
     //////////////////////////////////////////////////
+    //////////////////////////////////////////////////
+
 
     // calculate delta
     f64 now = Platform_QueryClock();
@@ -333,6 +371,41 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     glDrawArraysInstanced(GL_TRIANGLES, 0, mesh->vertexCount, g_instanceCount);
     CHECK_GL_ERR
 
+    //////////////////////////////////////////////////////////
+    // draw some cubes to represent lights and their area of influence
+	const i32 numLights = 3;
+	Vec3 lightPositions[numLights] =
+	{
+		{ 4, 4, 0 },
+		{ -4, 4, 0 },
+		{ -4, -4, 0 },
+	};
+	Vec3 lightScales[numLights] =
+	{
+		{ 3, 3, 1 },
+		{ 6, 6, 1 },
+		{ 5, 5, 1 },
+	};
+	
+    ZRDrawCmdMesh cubeCmd = {};
+    Transform_SetToIdentity(&cubeCmd.obj.t);
+    i32 cubeMeshIndex = ZAssets_GetMeshByName(ZE_EMBEDDED_CUBE_NAME)->header.id;
+    i32 cubeMaterialIndex = ZAssets_GetMaterialByName(FALLBACK_CHEQUER_MATERIAL)->header.id;
+    cubeCmd.obj.data.SetAsMesh(cubeMeshIndex, cubeMaterialIndex);
+	
+	for (i32 i = 0; i < numLights; ++i)
+	{
+		cubeCmd.obj.t.pos = lightPositions[i];
+		cubeCmd.obj.t.scale = lightScales[i];
+		ZRGL_DrawMesh(&cubeCmd, &view, &projection);
+	}
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////
     #if 1 // draw overlay
     // draw tiles overlay
     ZR_PrepareShader(&g_blendShader);

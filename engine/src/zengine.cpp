@@ -1,3 +1,6 @@
+/*
+Core initialisation and frameloop.
+*/
 #include "../../headers/zengine.h"
 #include "../internal_headers/zengine_internal.h"
 
@@ -66,7 +69,7 @@ ze_external i32 GetSingleFrameMode()
 ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunction gameLink)
 {
 	i32 tokenIndex = ZCFG_FindParamIndex("--single", "--single", 0);
-	if (tokenIndex > 0)
+	if (tokenIndex != ZE_ERROR_BAD_INDEX)
 	{
 		g_bSingleFrame = YES;
 	}
@@ -170,7 +173,7 @@ ze_external i32 ZE_StartLoop()
 			g_running = false;
 		}
 	}
-	// shutdown
+	
 	Window_Shutdown();
 	return 0;
 }

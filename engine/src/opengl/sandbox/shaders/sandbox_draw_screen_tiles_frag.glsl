@@ -42,42 +42,4 @@ void main()
    vec4 data = texelFetch(u_tileDataTex, ivec2(0, i), 0);
    outputColor = data;
    #endif
-
-   #if 0
-   // move frag screen x/y into 0-1 range
-   float x = (m_fragPos.x + 1) / 2;
-   float y = (m_fragPos.y + 1) / 2;
-   if (x < 0.5f)
-   {
-      if (y < 0.5f)
-      {
-         outputColor = vec4(1, 0, 0, 0.5);
-      }
-      else
-      {
-         outputColor = vec4(0, 1, 0, 0.5);
-      }
-   }
-   else
-   {
-      if (y < 0.5f)
-      {
-         outputColor = vec4(1, 1, 0, 0.5);
-      }
-      else
-      {
-         // outputColor = vec4(1, 0, 1, 0.5);
-         discard;
-      }
-   }
-   #endif
-
-   #if 0
-   float x = m_fragPos.x;
-   float y = m_fragPos.y;
-   vec4 colour = u_colour;
-   colour.x *= x;
-   colour.y *= y;
-   outputColor = colour;
-   #endif
 }
