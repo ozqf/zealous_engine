@@ -163,12 +163,22 @@ ze_external i32 ZE_StartLoop()
         	ZR_DrawTest();
         	Platform_SubmitFrame();
         	f64 testEnd = Platform_QueryClock();
-        	printf("Draw test time %.3fms\n",
-        	    (testEnd - testStart) * 1000.f);
+        	// printf("Draw test time %.3fms\n",
+        	    // (testEnd - testStart) * 1000.f);
 		}
 		
 		if (g_bSingleFrame)
 		{
+			// TODO: For some reason in single mode frame buffer may still be empty at this point.
+			// so if we take a screenshot it will be completely blank
+			// tick one frame and then it will be filled.
+			if (g_frameNumber < 2)
+			{
+				printf("Single frame tick\n");
+				continue;
+			}
+			// printf("Single frame sleep - 1000\n");
+			// Platform_Sleep(1000);
 			ZR_Screenshot("screenshot.png");
 			g_running = false;
 		}

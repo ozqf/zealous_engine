@@ -25,7 +25,8 @@ ze_external zErrorCode ZEmbedded_Init()
 	ZGen_FillTextureRect(tex, {100, 100, 100, 255}, {0, 0}, {32, 32});
 	ZGen_FillTextureRect(tex, {100, 100, 100, 255}, {32, 32}, {32, 32});
 
-	ZAssets_BuildMaterial(FALLBACK_CHEQUER_MATERIAL, "chequer_texture", NULL);
+	tex = ZAssets_AllocTex(32, 32, "white_texture");
+	ZGen_FillTexture(tex, COLOUR_U32_WHITE);
 
 	// embedded black and white charset
 	tex = ZAssets_AllocTex(bw_charset_width, bw_charset_height, FALLBACK_CHARSET_TEXTURE_NAME);
@@ -52,6 +53,9 @@ ze_external zErrorCode ZEmbedded_Init()
 	////////////////////////////////////////////////
 	// Create embedded materials
 	////////////////////////////////////////////////
+
+	ZAssets_BuildMaterial(FALLBACK_CHEQUER_MATERIAL, "chequer_texture", NULL);
+	ZAssets_BuildMaterial("white", "white_texture", NULL);
 
 	////////////////////////////////////////////////
 	// Created embedded meshes

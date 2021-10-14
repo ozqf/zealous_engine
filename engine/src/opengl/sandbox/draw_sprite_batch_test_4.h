@@ -7,22 +7,72 @@ Linear 2d array, each cell being a index into a list of lights
 Two data blobs:
 > List of lights affecting the view in a linear array. type: Vec4
 > 2D grid, with one axis being the tile index, and the other being the list of indices
-    type: u8. each tile is a row, value in column 0 is the number of indices.
+    type: u16. each tile is a row, value in column 0 is the number of indices.
 
-Lights stored in a Vec4 texture, 256xDataPixelsPerLight
+Lights stored in a Vec4 texture, MaxLightCount by DataPixelsPerLight
 Vec4 x/y/z/radius
 Vec4 r/g/b/strength
 
+0-------DataPixelsPerLight
+|<light 0 pixel 0>, <light 0 pixel 1>
+|<light 1 pixel 0>, <light 1 pixel 1>
+|<light 2 pixel 0>, <light 2 pixel 1>
+|...etc
+Max Light Count
 
-16x16 == 256 screen tiles, u8 type
+16x16 == 256 screen tiles, u16 type
+Column 0 is count of lights, rest are indices to lights table
 0-------width
-|cell 0 - 0 to 256 indices...
+|cell 0 count, 0 to 254 indices...
 |cell 1 - 0 to 256 indices...
 |cell 2 ...etc
 |...
 |cell 255
 height
 
+Lookup example - pseudo code.
+eg frag_pos of -0.5, -0.5 -> what lights affect this pixel?
+    // convert frag pos to 0...1 range.
+    float fragPosXNormalised = (m_fragPos.x + 1) / 2;
+    float fragPosYNormalised = (m_fragPos.y + 1) / 2;
+    // convert to tile coords.
+    int gridX = int(x * u_tilesWide);
+    int gridY = int(y * u_tilesHigh);
+    // convert x/y to linear index
+    int tileIndex = gridX + (gridY * u_tilesWide);
+    // texel fetch - read first data item, the light count in this tile.
+    vec4 lightCount = texelFetch(u_tileDataTex, ivec2(0, tileIndex), 0);
+    // only care about GL_RED, convert red channel from 0-1 to 0-65535
+    int numLights = int(0xFFFF * lightCount.x);
+
+    // advance to read light indices
+    vec3 lightContribution = vec3(0, 0, 0);
+    for (int i = 0; i < numLights; ++i)
+    {
+        // now reading from the lights array
+        // i + 1 because first was the count!
+        vec4 lightIndexV4 = texelFetch(u_lightArrayTex, ivec2(i + 1, tileIndex), 0);
+        int lightIndex = int(0xFFFF * lightIndex.x);
+        // we now fetch light information for light index specified...
+        // ...
+        // and accumulate this lighting information
+        // ...lightContribution += light - distance etc...
+    }
+
+    // apply to pixel
+    output = diffuse * lightContribution;
+
+	1
+-1 		1
+	-1
+to
+	1
+0		1
+	0
+in four tiles:
+2 3
+0 1
+int(0.75 * 2) -> 1
 */
 #include "../ze_opengl_internal.h"
 
@@ -42,6 +92,14 @@ height
     Vec4 colour;
 };*/
 
+struct ZRGLTestLight
+{
+    Vec3 pos;
+    float radius;
+    Vec3 colour;
+    float strength;
+};
+
 ze_external void ZRSandbox_DrawSpriteBatch_4()
 {
     //////////////////////////////////////////////////
@@ -52,6 +110,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     const f32 rangeX = 100.f;
     const f32 rangeY = 10.f;
     const f32 rangeZ = 100.f;
+    const i32 numLights = 3;
 
     //////////////////////////////////////////////////
     // persist vars
@@ -71,8 +130,8 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     local_persist f64 g_lastTickTime;
     local_persist f32 g_yawDegrees = 0;
 
-    // SSBO
-    local_persist GLuint ssbo;
+    // lights
+    local_persist ZRGLTestLight lights[numLights];
 
     // data texture
     local_persist Vec4 g_batchDataPixels[totalDataPixels];
@@ -80,10 +139,11 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     local_persist GLuint g_samplerDataTex2D;
     local_persist i32 g_dataPixelStride = 2;
 
-    local_persist ZRVec4Texture* g_tileData = NULL;
+    local_persist ZRU16Texture* g_tileData = NULL;
     local_persist i32 g_lightingTilesWidth = 2;
     local_persist i32 g_lightingTilesHeight = 2;
 
+    // lights array
     local_persist GLuint g_viewLightsHandle = 0;
     local_persist ZRVec4Texture* viewLights = NULL;
     const i32 viewSceneLights = 256;
@@ -117,10 +177,13 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         GetEngine().input.AddAction(Z_INPUT_CODE_LEFT, 0, "turn_left");
         GetEngine().input.AddAction(Z_INPUT_CODE_RIGHT, 0, "turn_right");
 
-        GetEngine().input.AddAction(Z_INPUT_CODE_W, 0, "move_forward");
-        GetEngine().input.AddAction(Z_INPUT_CODE_S, 0, "move_backward");
+        GetEngine().input.AddAction(Z_INPUT_CODE_SPACE, 0, "move_forward");
+        GetEngine().input.AddAction(Z_INPUT_CODE_LEFT_SHIFT, 0, "move_backward");
         GetEngine().input.AddAction(Z_INPUT_CODE_A, 0, "move_left");
         GetEngine().input.AddAction(Z_INPUT_CODE_D, 0, "move_right");
+
+        GetEngine().input.AddAction(Z_INPUT_CODE_W, 0, "move_up");
+        GetEngine().input.AddAction(Z_INPUT_CODE_S, 0, "move_down");
 
         GetEngine().input.AddAction(Z_INPUT_CODE_R, 0, "reset");
 
@@ -180,7 +243,9 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         printf("Drawing %d instances of %d max\n", g_instanceCount, batchMax);
         printf("\tData texture is %lldKB\n", (totalDataPixels * sizeof(Vec4)) / 1024);
 
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize, GL_RGBA, GL_FLOAT, g_batchDataPixels);
+        glTexSubImage2D(
+            GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,
+            GL_RGBA, GL_FLOAT, g_batchDataPixels);
         CHECK_GL_ERR
 
         // Samplers for data textures
@@ -193,35 +258,96 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         CHECK_GL_ERR
 
         /////////////////////////////////////////////////////////////////////////
-        // setup overlay data
-        g_tileData = Vec4Tex_Alloc(64, 64);
-        Vec4Tex_SetAll(g_tileData, { 1, 0, 0, 0.5f });
-		
-        if (Vec4Tex_SetAt(g_tileData, 0, 0, { 1, 0, 0, 0.5f }))
+        // setup tile data
+        
+        g_tileData = U16Tex_Alloc(256, 256);
+        i32 totalTilesCells = 256 * 256;
+        for (i = 0; i < totalTilesCells; ++i)
         {
-            Platform_Fatal("Data texture out of bounds");
+            g_tileData->data[i] = 255;
         }
-        Vec4Tex_SetAt(g_tileData, 0, 1, { 0, 1, 0, 0.5f });
-        Vec4Tex_SetAt(g_tileData, 0, 2, { 0, 0, 1, 0.5f });
-        Vec4Tex_SetAt(g_tileData, 0, 3, { 0, 0, 0, 0 });
+        /*
+        2, 3
+        0, 1
+        */
+        // set light counts
+        g_tileData->data[ZE_2D_INDEX(0, 0, 256)] = 2; //0xFFFF;
+        g_tileData->data[ZE_2D_INDEX(0, 1, 256)] = 1; //0xFFFF / 2;
+        g_tileData->data[ZE_2D_INDEX(0, 2, 256)] = 0; //0x7FFF / 3;
+        g_tileData->data[ZE_2D_INDEX(0, 3, 256)] = 1; //0x7FFF / 4;
+
+        // give tile 0 some light indices
+		// x coord is the data column (0 == count, 1 and up are light indices)
+		// y coord is the tile index
+		// first light
+        g_tileData->data[ZE_2D_INDEX(1, 0, 256)] = 2; // light 2 (blue)
+		// second light
+		g_tileData->data[ZE_2D_INDEX(2, 0, 256)] = 1; // light 1 (green)
 		
+		// tile 1
+		g_tileData->data[ZE_2D_INDEX(1, 1, 256)] = 1; // light 1 (green)
+		
+		// tile 3
+		g_tileData->data[ZE_2D_INDEX(1, 3, 256)] = 0; // light 0 (red)
+    
         // upload tile data
         glGenTextures(1, &g_tileData->handle);
         CHECK_GL_ERR
         glBindTexture(GL_TEXTURE_2D, g_tileData->handle);
         CHECK_GL_ERR
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
-            g_tileData->header.width, g_tileData->header.height, 0, GL_RGBA, GL_FLOAT, g_tileData->data);
+        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RED,
+        //     g_tileData->header.width, g_tileData->header.height,
+        //     0, GL_RED, GL_UNSIGNED_SHORT, g_tileData->data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R16UI,
+            g_tileData->header.width, g_tileData->header.height,
+            0, GL_RED_INTEGER, GL_UNSIGNED_SHORT, g_tileData->data);
+        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F,
+        //     g_tileData->header.width, g_tileData->header.height,
+        //     0, GL_RGBA, GL_FLOAT, g_tileData->data);
         CHECK_GL_ERR
 
         printf("Created tile data tex %d by %d, handle %d\n",
             g_tileData->header.width, g_tileData->header.height, g_tileData->handle);
         
+        // setup light data
+        lights[0].pos = { 4, 4, 0 };
+        lights[0].radius = 3;
+        lights[0].colour = { 1, 0, 0 };
+        lights[0].strength = 1;
+
+        lights[1].pos = { -4, 4, 0 };
+        lights[1].radius = 6;
+        lights[1].colour = { 0, 1, 0 };
+        lights[1].strength = 1;
+
+        lights[2].pos = { -4, -4, 0 };
+        lights[2].radius = 5;
+        lights[2].colour = { 0, 0, 1 };
+        lights[2].strength = 1;
+
         // Create texture with light data here...
         viewLights = Vec4Tex_Alloc(dataPixelsPerLight, viewSceneLights);
         Vec4Tex_SetAll(viewLights, { 0.5f, 0.5f, 0.5f, 0.5f });
+        
+        // write lights array data
+        i32 lightNumber = 0;
+        i = ZE_2D_INDEX(0, lightNumber, dataPixelsPerLight);
+        viewLights->data[i] = { -4, -4, 0, 1 };
+        viewLights->data[i + 1] = { 1, 0, 0, 1 };
+        
+        lightNumber++;
+        i = ZE_2D_INDEX(0, lightNumber, dataPixelsPerLight);
+        viewLights->data[i] = { -4, 4, 0, 1 };
+        viewLights->data[i + 1] = { 0, 1, 0, 1 };
+        
+        lightNumber++;
+        i = ZE_2D_INDEX(0, lightNumber, dataPixelsPerLight);
+        viewLights->data[i] = { 4, 4, 0, 1 };
+        viewLights->data[i + 1] = { 0, 0, 1, 1 };
+
         g_viewLightsHandle = Vec4Tex_Register(viewLights);
+
         
         /*
         Set up for drawing debug quad
@@ -263,7 +389,8 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
         g_batchDataPixels[pixel + 1] = { 0.75f, 0.25f, 0.75f, 0.25f };
     }
     glBindTexture(GL_TEXTURE_2D, g_dataTextureHandle);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_batchDataPixels);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+    dataTextureSize, dataTextureSize,  GL_RGBA, GL_FLOAT, g_batchDataPixels);
         CHECK_GL_ERR
 #endif
 
@@ -346,12 +473,17 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     // if (engine.input.GetActionValue("move_backward")) { move.z += 1; }
     if (engine.input.GetActionValue("move_left")) { move.x -= 1; }
     if (engine.input.GetActionValue("move_right")) { move.x += 1; }
+    if (engine.input.GetActionValue("move_up")) { move.y += 1; }
+    if (engine.input.GetActionValue("move_down")) { move.y -= 1; }
+
     Vec3 moveDir = M3x3_Calculate3DMove(&camera.rotation, move);
     Vec3_MulF(&moveDir, 10.f * delta);
     Vec3_AddTo(&camera.pos, moveDir);
 
-    if (engine.input.GetActionValue("move_forward")) { g_orthographicSize -= 1.f * delta; }
-    if (engine.input.GetActionValue("move_backward")) { g_orthographicSize += 1.f * delta; }
+    if (engine.input.GetActionValue("move_forward"))
+    { g_orthographicSize -= 1.f * delta; }
+    if (engine.input.GetActionValue("move_backward"))
+    { g_orthographicSize += 1.f * delta; }
 
     M4x4_CREATE(projection)
     ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
@@ -371,32 +503,24 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     glDrawArraysInstanced(GL_TRIANGLES, 0, mesh->vertexCount, g_instanceCount);
     CHECK_GL_ERR
 
+
+
+
+
     //////////////////////////////////////////////////////////
     // draw some cubes to represent lights and their area of influence
-	const i32 numLights = 3;
-	Vec3 lightPositions[numLights] =
-	{
-		{ 4, 4, 0 },
-		{ -4, 4, 0 },
-		{ -4, -4, 0 },
-	};
-	Vec3 lightScales[numLights] =
-	{
-		{ 3, 3, 1 },
-		{ 6, 6, 1 },
-		{ 5, 5, 1 },
-	};
-	
     ZRDrawCmdMesh cubeCmd = {};
     Transform_SetToIdentity(&cubeCmd.obj.t);
     i32 cubeMeshIndex = ZAssets_GetMeshByName(ZE_EMBEDDED_CUBE_NAME)->header.id;
     i32 cubeMaterialIndex = ZAssets_GetMaterialByName(FALLBACK_CHEQUER_MATERIAL)->header.id;
+    // i32 cubeMaterialIndex = ZAssets_GetMaterialByName("white")->header.id;
     cubeCmd.obj.data.SetAsMesh(cubeMeshIndex, cubeMaterialIndex);
 	
 	for (i32 i = 0; i < numLights; ++i)
 	{
-		cubeCmd.obj.t.pos = lightPositions[i];
-		cubeCmd.obj.t.scale = lightScales[i];
+        ZRGLTestLight* light = &lights[i];
+		cubeCmd.obj.t.pos = light->pos;
+		cubeCmd.obj.t.scale = { light->radius, light->radius, 1 };
 		ZRGL_DrawMesh(&cubeCmd, &view, &projection);
 	}
 
@@ -429,6 +553,8 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     ZR_SetProgM4x4(g_blendShader.handle, "u_projection", screenspacePrj.cells);
     ZR_PrepareTextureUnit2D(
         g_blendShader.handle, GL_TEXTURE0, 0, "u_tileDataTex", g_tileData->handle, g_samplerDataTex2D);
+    ZR_PrepareTextureUnit2D(
+        g_blendShader.handle, GL_TEXTURE2, 2, "u_lightsArrayTex", g_viewLightsHandle, g_samplerDataTex2D);
     // Vec4 colour = { 0.5f, 0.5f, 0.5f, 0.5f };
     Vec4 colour = { 1, 0.5f, 0.5f, 0.5f };
     // ZR_SetProgVec4f(g_blendShader.handle, "u_colour", colour);

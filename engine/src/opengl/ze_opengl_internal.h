@@ -150,6 +150,7 @@ ze_external void ZRGL_DrawDebugLines(ZRDrawCmdDebugLines* cmd, M4x4* view, M4x4*
 // Data texture
 ///////////////////////////////////////////////////////
 ze_external ZRVec4Texture* Vec4Tex_Alloc(i32 width, i32 height);
+ze_external ZRU16Texture* U16Tex_Alloc(i32 width, i32 height);
 ze_external void Vec4Tex_SetAll(ZRVec4Texture* tex, Vec4 value);
 ze_external zErrorCode Vec4Tex_SetAt(ZRVec4Texture* tex, i32 x, i32 y, Vec4 v);
 ze_external i32 ZEGrid2D_IsPosSafe(ZEGrid2D* grid, i32 x, i32 y);

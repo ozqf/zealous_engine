@@ -42,6 +42,22 @@ ze_external ZRVec4Texture* Vec4Tex_Alloc(i32 width, i32 height)
 	return tex;
 }
 
+ze_external ZRU16Texture* U16Tex_Alloc(i32 width, i32 height)
+{
+	zeSize totalPixels = width * height;
+	zeSize pixelBytes = totalPixels * sizeof(u16);
+	zeSize totalBytes = sizeof(ZRU16Texture) + pixelBytes;
+	
+	u8* mem = (u8*)Platform_Alloc(totalBytes);
+	ZRU16Texture* tex = (ZRU16Texture*)mem;
+	*tex = {};
+	tex->data = (u16*)(mem + sizeof(ZRU16Texture));
+	tex->header.width = width;
+	tex->header.height = height;
+	tex->header.bIsDirty = YES;
+	return tex;
+}
+
 /*
 Returns handle.
 Data can be null
