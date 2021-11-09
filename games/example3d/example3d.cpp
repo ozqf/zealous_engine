@@ -367,7 +367,8 @@ internal void Init()
     // test plugin
     // ZT_MapConvert("foo");
     printf("\n=== Test Map Converter ===\n");
-    ZT_MapConvertTest();
+    ZTMapOutput* output;
+    ZT_MapConvertTest(&output);
     printf("\n");
 
     // register inputs

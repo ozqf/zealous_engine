@@ -167,7 +167,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
 
         err = ZRGL_CreateProgram(
             draw_sprite_batch_3_vert_text,
-            draw_sprite_batch_frag_text,
+            draw_sprite_batch_test_4_frag_text,
             "sprite_batch_test_3",
             &g_batchDrawShader);
         ZE_ASSERT(err == ZE_ERROR_NONE, "create prog failed")
@@ -416,6 +416,13 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     ZR_SetProg1i(g_batchDrawShader.handle, "u_dataTexSize", dataTextureSize);
     ZR_SetProg1i(g_batchDrawShader.handle, "u_isBillboard", 1);
 
+	ZR_SetProg1i(g_batchDrawShader.handle, "u_tilesWide", g_lightingTilesWidth);
+    ZR_SetProg1i(g_batchDrawShader.handle, "u_tilesHigh", g_lightingTilesHeight);
+	ZR_PrepareTextureUnit2D(
+        g_batchDrawShader.handle, GL_TEXTURE0, 0, "u_tileDataTex", g_tileData->handle, g_samplerDataTex2D);
+    ZR_PrepareTextureUnit2D(
+        g_batchDrawShader.handle, GL_TEXTURE2, 2, "u_lightsArrayTex", g_viewLightsHandle, g_samplerDataTex2D);
+
     // rotate camera
     f32 cosVal = cosf((f32)g_lastTickTime / 2.f);
     f32 sinVal = sinf((f32)g_lastTickTime / 2.f);
@@ -523,9 +530,6 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
 		cubeCmd.obj.t.scale = { light->radius, light->radius, 1 };
 		ZRGL_DrawMesh(&cubeCmd, &view, &projection);
 	}
-
-
-
 
 
 

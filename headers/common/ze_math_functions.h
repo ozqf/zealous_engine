@@ -217,6 +217,24 @@ inline void Vec3_AddTo(Vec3* v, Vec3 addition)
 	v->z += addition.z;
 }
 
+inline Vec3 Vec3_Add(Vec3 a, Vec3 b)
+{
+	Vec3 c;
+	c.x = a.x + b.x;
+	c.y = a.y + b.y;
+	c.z = a.z + b.z;
+	return c;
+}
+
+inline Vec3 Vec3_Subtract(Vec3 a, Vec3 b)
+{
+	Vec3 c;
+	c.x = a.x - b.x;
+	c.y = a.y - b.y;
+	c.z = a.z - b.z;
+	return c;
+}
+
 inline void Vec3_MulF(Vec3* v, f32 val)
 {
 	v->x *= val;
@@ -321,9 +339,22 @@ internal Vec3 Vec3_CrossProduct(Vec3 *a, Vec3 *b)
 		(a->z * b->x) - (a->x * b->z)};
 }
 
+internal Vec3 Vec3_CrossProduct(Vec3 a, Vec3 b)
+{
+	return {
+		(a.y * b.z) - (a.z * b.y),
+		(a.x * b.y) - (a.y * b.x),
+		(a.z * b.x) - (a.x * b.z)};
+}
+
 internal f32 Vec3_DotProduct(Vec3 *a, Vec3 *b)
 {
 	return (a->x * b->x) + (a->y * b->y) + (a->z * b->z);
+}
+
+internal f32 Vec3_DotProduct(Vec3 a, Vec3 b)
+{
+	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
 internal void Vec3_NormaliseOrForward(Vec3 *v)

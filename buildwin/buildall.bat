@@ -21,4 +21,7 @@ cls
 @echo STEP 5 - Build example 3d
 @call build_example3d.bat
 @echo ---------------------------------------------------
+@echo STEP 5 - Build example 3d
+@call build_run_n_gun.bat
+@echo ---------------------------------------------------
 @echo buildall done.
