@@ -15,13 +15,16 @@ cls
 @echo STEP 3 - Build plugins
 @call build_plugins.bat
 @echo ---------------------------------------------------
-@echo STEP 4 - Build example 2d
+@echo STEP 4 - Build plugin sandbox
+@call build_plugin_sandbox.bat
+@echo ---------------------------------------------------
+@echo STEP 5 - Build example 2d
 @call build_example2d.bat
 @echo ---------------------------------------------------
-@echo STEP 5 - Build example 3d
+@echo STEP 6 - Build example 3d
 @call build_example3d.bat
 @echo ---------------------------------------------------
-@echo STEP 5 - Build example 3d
+@echo STEP 7 - Build Run N Gun
 @call build_run_n_gun.bat
 @echo ---------------------------------------------------
 @echo buildall done.

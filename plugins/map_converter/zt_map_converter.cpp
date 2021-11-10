@@ -9,18 +9,6 @@
 #include "zt_map_converter_internal.h"
 #include "zt_map_loader.h"
 
-/*struct ZPlane
-{
-	Vec3 normal;
-	Vec3 point;
-};*/
-
-struct ZPlane
-{
-	Vec3 normal;
-	f32 d; // distance from origin
-};
-
 ze_internal void DebugPrintPlane(ZPlane* p)
 {
 	printf("Normal: %.3f, %.3f, %.3f - D: %.3f\n",
@@ -68,7 +56,7 @@ static i32 IntersectFaces(ZTMapFace* faceA, ZTMapFace* faceB, ZTMapFace* faceC, 
 	return YES;
 }
 
-static ErrorCode BrushToVertices(ZTMapFile* map, i32 brushIndex)
+static ErrorCode BrushToVertices(ZTMapFile* map, i32 brushIndex, ZTMapOutput* output)
 {
 	ErrorCode err = ZE_ERROR_NONE;
 	ZTMapBrush* brush = &map->brushes[brushIndex];
@@ -77,8 +65,10 @@ static ErrorCode BrushToVertices(ZTMapFile* map, i32 brushIndex)
 	printf("Brush %d has %d faces\n", brushIndex, len);
 	i32 intersectionsFound = 0;
 	i32 intersectionsSkipped = 0;
+	
 	for (i32 i = 0; i < len; ++i)
 	{
+		i32 numPoints = 0;
 		for (i32 j = 0; j < len; ++j)
 		{
 			for (i32 k = 0; k < len; ++k)
@@ -96,6 +86,7 @@ static ErrorCode BrushToVertices(ZTMapFile* map, i32 brushIndex)
 						intersectionsSkipped += 1;
 						continue;
 					}
+					numPoints += 1;
 					intersectionsFound += 1;
 					printf("intersect faces %d, %d, %d\n",
 						first + i,
@@ -106,16 +97,20 @@ static ErrorCode BrushToVertices(ZTMapFile* map, i32 brushIndex)
 					// DebugPrintFace(fc);
 					printf("\tintersection at %.3f, %.3f, %.3f\n",
 						point.x, point.y, point.z);
+					output->verts[output->numVerts] = point;
+					output->numVerts += 1;
 				}
 			}
 		}
+		printf("Brush %d face %d has %d points\n",
+			brushIndex, i, numPoints);
 	}
 	printf("Intersections found: %d vs skipped: %d\n",
 		intersectionsFound, intersectionsSkipped);
 	return ZE_ERROR_NONE;
 }
 
-static ErrorCode ConvertToTriSoup(ZTMapFile* map)
+static ErrorCode ConvertToTriSoup(ZTMapFile* map, ZTMapOutput* output)
 {
 	// No validity checking here - assuming we have brushes and faces
 	printf("Converting %d brushes to trisoup\n", map->numBrushes);
@@ -124,9 +119,9 @@ static ErrorCode ConvertToTriSoup(ZTMapFile* map)
 		ZTMapBrush* brush = &map->brushes[i];
 		CalcBrushExtends(brush, map->faces);
 		// calculate face intersections
-		BrushToVertices(map, i);
+		BrushToVertices(map, i, output);
 	}
-	
+	printf("Read %d brush vertices\n", output->numVerts);
 	return 0;
 }
 
@@ -171,7 +166,7 @@ ze_external zErrorCode ZT_MapConvert(const char* mapText)
 ze_external zErrorCode ZT_MapConvertTest(ZTMapOutput** userOutput)
 {
 	ZTMapOutput* output = (ZTMapOutput*)malloc(sizeof(ZTMapOutput));
-	output->maxVerts = 1000;
+	output->maxVerts = 10000;
 	output->verts = (Vec3*)malloc(sizeof(Vec3) * output->maxVerts);
 	output->numVerts = 0;
 	
@@ -182,8 +177,9 @@ ze_external zErrorCode ZT_MapConvertTest(ZTMapOutput** userOutput)
 	zErrorCode err = ZT_ParseMapFromText(map_format_example_128x128x32_cube_h, &map);
 	printf("Map test result code: %d\n", err);
 	DebugPrintFileData(map.brushes, map.numBrushes, map.faces, map.numFaces);
-
-	err = ConvertToTriSoup(&map);
+	
+	// convert from brushes to triangles
+	err = ConvertToTriSoup(&map, output);
 	if (err != 0)
 	{
 		printf("Error %d converting brushes\n", err);

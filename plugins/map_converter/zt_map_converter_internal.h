@@ -10,6 +10,18 @@
 // internal
 #include <stdlib.h>
 
+/*struct ZPlane
+{
+	Vec3 normal;
+	Vec3 point;
+};*/
+
+struct ZPlane
+{
+	Vec3 normal;
+	f32 d; // distance from origin
+};
+
 struct ZTMapFace
 {
 	// note that raw coords from a .map z is vertical, not y
