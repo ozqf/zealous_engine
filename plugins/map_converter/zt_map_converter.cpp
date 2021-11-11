@@ -66,7 +66,8 @@ static ErrorCode BrushToVertices(ZTMapFile* map, i32 brushIndex, ZTMapOutput* ou
 	i32 intersectionsFound = 0;
 	i32 intersectionsSkipped = 0;
 	
-	for (i32 i = 0; i < len; ++i)
+	// for debugging - just run the first face:
+	for (i32 i = 0; i < 1; ++i)
 	{
 		i32 numPoints = 0;
 		for (i32 j = 0; j < len; ++j)
@@ -183,9 +184,11 @@ ze_external zErrorCode ZT_MapConvertTest(ZTMapOutput** userOutput)
 	if (err != 0)
 	{
 		printf("Error %d converting brushes\n", err);
+		*userOutput = NULL;
 		return err;
 	}
-	
+	printf("\tMap conversion complete\n");
+	*userOutput = output;
 	return err;
 }
 

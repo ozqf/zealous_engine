@@ -12,7 +12,13 @@ ze_internal zeHandle g_drawOrderList[MAX_SCENES];
 ///////////////////////////////////////////////////////////
 ze_internal ZRScene* GetSceneByHandle(zeHandle handle)
 {
-    return (ZRScene*)g_scenes->FindPointer(handle);
+    ZRScene* result = (ZRScene*)g_scenes->FindPointer(handle);
+    if (result == NULL)
+    {
+        ZE_BUILD_STRING(str, 256, "Scene %d was not found", handle);
+        Platform_Fatal(str);
+    }
+    return result;
 }
 
 ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity, zeSize userDataBytesPerObject)
@@ -155,6 +161,11 @@ ze_internal ZRDrawObj* ZScene_GetObjectByIndex(zeHandle sceneHandle, i32 i)
 
 ze_internal ZRDrawObj* ZScene_AddFullTextureQuad(zeHandle scene, char* textureName, Vec2 size)
 {
+	if (textureName == NULL)
+	{
+		textureName = FALLBACK_TEXTURE_NAME;
+	}
+	
     ZRDrawObj* obj = ZScene_AddObject(scene);
     obj->data.type = ZR_DRAWOBJ_TYPE_QUAD;
     ZRTexture* tex = ZAssets_GetTexByName(textureName);
@@ -178,6 +189,10 @@ ze_internal ZRDrawObj* ZScene_AddLinesObj(zeHandle scene, i32 maxVerts)
 
 ze_internal ZRDrawObj* ZScene_AddCube(zeHandle scene, char* materialName)
 {
+	if (materialName == NULL)
+	{
+		materialName = FALLBACK_CHEQUER_MATERIAL;
+	}
     ZRDrawObj *obj = ZScene_AddObject(scene);
     ZRMaterial* mat = ZAssets_GetMaterialByName(materialName);
     ZRMeshAsset* mesh = ZAssets_GetMeshByName(ZE_EMBEDDED_CUBE_NAME);
