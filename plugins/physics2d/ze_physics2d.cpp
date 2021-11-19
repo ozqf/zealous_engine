@@ -27,7 +27,7 @@ internal ZPVolume2d* GetVolume(zeHandle id)
 	}
 }
 
-ze_external Vec2 ZP_GetBodyPosition(zeHandle bodyId)
+ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId)
 {
 	ZPVolume2d* vol = GetVolume(bodyId);
 	if (vol == NULL)
@@ -36,7 +36,19 @@ ze_external Vec2 ZP_GetBodyPosition(zeHandle bodyId)
 		ILLEGAL_CODE_PATH
 	}
 	b2Vec2 p = vol->body->GetPosition();
-	return { p.x, p.y };
+	return { { p.x, p.y }, vol->body->GetAngle() };
+}
+
+ze_external void ZP_ApplyForce(zeHandle bodyId, Vec2 force)
+{
+	ZPVolume2d* vol = GetVolume(bodyId);
+	if (vol == NULL) { return; }
+
+	b2Vec2 b2Force;
+	b2Force.x = force.x;
+	b2Force.y = force.y;
+	b2Vec2 point = vol->body->GetPosition();
+	vol->body->ApplyForce(b2Force, point, true);
 }
 
 internal ZPVolume2d* GetFreeStaticVolume()
@@ -57,6 +69,7 @@ internal ZPVolume2d* GetFreeDynamicVolume()
 
 ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size)
 {
+	size = Vec2_Divide(size, 2);
 	ZPVolume2d* vol = GetFreeStaticVolume();
 	vol->size = size;
 
@@ -71,6 +84,7 @@ ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size)
 
 ze_external zeHandle ZP_AddDynamicVolume(Vec2 pos, Vec2 size)
 {
+	size = Vec2_Divide(size, 2);
 	ZPVolume2d* vol = GetFreeDynamicVolume();
 	vol->size = size;
 
@@ -84,7 +98,7 @@ ze_external zeHandle ZP_AddDynamicVolume(Vec2 pos, Vec2 size)
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &box;
 	fixtureDef.density = 1.0f;
-	fixtureDef.restitution = 0.9f;
+	fixtureDef.restitution = 0.1f;
 	fixtureDef.friction = 0.3f;
 
 	b2Fixture* fixture = vol->body->CreateFixture(&fixtureDef);

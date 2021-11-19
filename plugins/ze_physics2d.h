@@ -3,12 +3,22 @@
 
 #include "../headers/zengine.h"
 
-// edit
+struct Transform2d
+{
+    Vec2 pos;
+    f32 radians;
+};
+
+
+// construct
 ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size);
 ze_external zeHandle ZP_AddDynamicVolume(Vec2 pos, Vec2 size);
 
+// affect
+ze_external void ZP_ApplyForce(zeHandle bodyId, Vec2 force);
+
 // query
-ze_external Vec2 ZP_GetBodyPosition(zeHandle bodyId);
+ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId);
 
 // lifetime
 ze_external void ZPhysicsInit(ZEngine engine);
