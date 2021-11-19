@@ -6,6 +6,7 @@ ze_internal zeHandle g_nextHandle = 1;
 ze_internal ZEHashTable* g_scenes = NULL;
 ze_internal ZEBuffer g_drawCommands;
 ze_internal zeHandle g_drawOrderList[MAX_SCENES];
+ze_internal ColourF32 g_clearColour = { 0.1f, 0.1f, 0.1f, 1 };
 
 ///////////////////////////////////////////////////////////
 // Scenes
@@ -97,6 +98,11 @@ ze_external void ZScene_SetProjection(zeHandle sceneHandle, M4x4 projection)
     ZRScene* scene = GetSceneByHandle(sceneHandle);
     if (scene == NULL) { return; }
     scene->projection = projection;
+}
+
+internal void SetClearColour(ColourF32 colour)
+{
+	g_clearColour = colour;
 }
 
 ///////////////////////////////////////////////////////////
@@ -207,7 +213,7 @@ ze_internal ZRDrawObj* ZScene_AddCube(zeHandle scene, char* materialName)
 ze_external void ZScene_Draw()
 {
     // ZE_PRINTF("=== FRAME ===\n");
-    ZR_ClearFrame({ 0.1f, 0.1f, 0.1f, 1});
+    ZR_ClearFrame(g_clearColour);
     f64 cmdStart = Platform_QueryClock();
     ZEBuffer* buf = &g_drawCommands;
     buf->Clear(NO);
@@ -268,6 +274,7 @@ ze_external ZSceneManager ZScene_RegisterFunctions()
     
     result.SetCamera = ZScene_SetCamera;
     result.SetProjection = ZScene_SetProjection;
+	result.SetClearColour = SetClearColour;
 
     // utility
     result.AddCube = ZScene_AddCube;
