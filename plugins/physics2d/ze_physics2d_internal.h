@@ -14,6 +14,16 @@ struct ZPVolume2d
 	b2Body* body;
 };
 
-internal ZEngine g_engine;
+ze_internal Vec2 Vec2_FromB2Vec2(b2Vec2 b2v)
+{
+	return { b2v.x, b2v.y };
+}
+
+ze_internal b2Vec2 b2Vec2_FromVec2(Vec2 v)
+{
+	return b2Vec2(v.x, v.y);
+}
+
+ze_internal ZEngine g_engine;
 
 #endif ZE_PHYSICS2D_INTERNAL_H

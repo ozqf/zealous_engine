@@ -227,6 +227,8 @@ static i32 handle_engine_key_event(GLFWwindow* window, int key, int scancode, in
             ZR_Screenshot("screenshot.png");
         }
     }
+    /*
+    // console queuing test
     else if (key == GLFW_KEY_F5)
     {
         if (action == GLFW_PRESS)
@@ -235,7 +237,7 @@ static i32 handle_engine_key_event(GLFWwindow* window, int key, int scancode, in
             ZCmdConsole_QueueCommand("set bar 7");
             ZCmdConsole_QueueCommand("help");
         }
-    }
+    }*/
     return 0;
 }
 
@@ -281,7 +283,9 @@ static void window_close_callback(GLFWwindow *window)
 
 static void mouse_position_callback(GLFWwindow* window, double posX, double posY)
 {
-
+    // printf("Mouse move %.3f, %.3f\n", posX, posY);
+    // Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_X, 0, (f32)posX);
+    // Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_Y, 0, (f32)posY);
 }
 
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -472,6 +476,14 @@ ze_external void Platform_PollEvents()
     //     printf("Read %d bytes of platform events\n", bytesRead);
     // }
     // ...broadcast events here?
+    f64 posX, posY;
+    glfwGetCursorPos(g_window, &posX, &posY);
+    f32 nX = (f32)posX / g_windowSize[0];
+    f32 nY = (f32)posY / g_windowSize[1];
+    nX = (nX * 2.f) - 1.f;
+    nY = (nY * 2.f) - 1.f;
+    Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_X, (i32)posX, nX);
+    Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_Y, (i32)posY, nY);
     //ZEBuffer* buf = &g_events;
     BUF_BLOCK_BEGIN_READ((&g_events), header)
         if (header->type == ZE_SYS_EVENT_TYPE_INPUT)

@@ -176,6 +176,13 @@ inline Vec2 Vec2_Divide(Vec2 v, f32 divider)
 	return { v.x / divider, v.y / divider };
 }
 
+inline f32 Vec2_AngleTo(Vec2 from, Vec2 to)
+{
+	f32 vx = to.x - from.x;
+	f32 vy = to.y - from.y;
+	return atan2f(vy, vx);
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // VECTOR 3 OPERATIONS
 /////////////////////////////////////////////////////////////////////////////
