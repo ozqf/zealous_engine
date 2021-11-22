@@ -35,6 +35,7 @@ ze_external void ZP_SetLinearVelocity(zeHandle bodyId, Vec2 v);
 // query
 ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId);
 ze_external BodyState ZP_GetBodyState(zeHandle bodyId);
+ze_external void ZP_Raycast(Vec2 from, Vec2 to);
 
 // lifetime
 ze_external void ZPhysicsInit(ZEngine engine);

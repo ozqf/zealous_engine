@@ -141,6 +141,11 @@ internal void TickPlayer(float delta)
 	if (g_engine.input.GetActionValue(MOVE_LEFT) > 0) { dir.x -= 1; }
 	if (g_engine.input.GetActionValue(MOVE_RIGHT) > 0) { dir.x += 1; }
 
+	if (g_engine.input.GetActionValue("use") > 0)
+	{
+		ZP_Raycast({-4, -4}, {4, 4});
+	}
+
 	// grab body
 	BodyState state = ZP_GetBodyState(ent->bodyId);
 
@@ -150,7 +155,15 @@ internal void TickPlayer(float delta)
 	
 	// apply velocity changes from input
 	Vec2 v = state.velocity;
-	v.x += (ACCLE_FORCE * delta) * dir.x;
+	if (dir.x != 0)
+	{
+		v.x += (ACCLE_FORCE * delta) * dir.x;
+	}
+	else
+	{
+		// friction and stop
+		v.x *= 0.9f;
+	}
 
 	if (g_engine.input.GetActionValue(MOVE_UP) > 0)
 	{

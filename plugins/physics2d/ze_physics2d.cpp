@@ -1,17 +1,17 @@
 #include "ze_physics2d_internal.h"
 
-internal b2Vec2 g_gravity(0.0f, -20.0f);
-internal b2World g_world(g_gravity);
-internal i32 g_velocityIterations = 6;
-internal i32 g_positionIterations = 2;
+ze_internal b2Vec2 g_gravity(0.0f, -20.0f);
+ze_internal b2World g_world(g_gravity);
+ze_internal i32 g_velocityIterations = 6;
+ze_internal i32 g_positionIterations = 2;
 
-internal ZEBlobStore g_dynamicBodies;
-internal ZEBlobStore g_staticBodies;
+ze_internal ZEBlobStore g_dynamicBodies;
+ze_internal ZEBlobStore g_staticBodies;
 // id for dynamic bodies. ascends.
-internal i32 g_nextDynamicId = 1;
-internal i32 g_nextStaticId = -1;
+ze_internal i32 g_nextDynamicId = 1;
+ze_internal i32 g_nextStaticId = -1;
 
-internal ZPVolume2d* GetVolume(zeHandle id)
+ze_internal ZPVolume2d* GetVolume(zeHandle id)
 {
 	if (id == 0)
 	{
@@ -141,6 +141,14 @@ ze_external zeHandle ZP_AddDynamicVolume(ZPShapeDef def)
 
 	b2Fixture* fixture = vol->body->CreateFixture(&fixtureDef);
 	return vol->id;
+}
+
+ze_external void ZP_Raycast(Vec2 from, Vec2 to)
+{
+	RaycastCallback cb;
+	b2Vec2 b2From = b2Vec2_FromVec2(from);
+	b2Vec2 b2To = b2Vec2_FromVec2(to);
+	g_world.RayCast(&cb, b2From, b2To);
 }
 
 ze_external void ZPhysicsInit(ZEngine engine)
