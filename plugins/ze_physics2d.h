@@ -1,6 +1,9 @@
 #ifndef ZE_PHYSICS2D_H
 #define ZE_PHYSICS2D_H
 
+#define ZP_SHAPE_TYPE_BOX 0
+#define ZP_SHAPE_TYPE_CIRCLE 1
+
 #include "../headers/zengine.h"
 
 struct Transform2d
@@ -19,8 +22,17 @@ struct ZPShapeDef
 {
     Vec2 pos;
     Vec2 size;
+    // if shapetype == circle, only x component of size is used.
+    i32 shapeType;
     f32 resitition;
     f32 friction;
+};
+
+struct ZPBodyDef
+{
+    i32 bIsStatic;
+    i32 bLockRotation;
+    ZPShapeDef shape;
 };
 
 // construct

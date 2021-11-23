@@ -104,12 +104,12 @@ internal void Init()
 	
 	// add platforms
 	AddPlatform({ 0, -1 }, { 8, 1 });
-	AddPlatform({ 0, -4 }, { 16, 1 });
 
-	AddPlatform({ 0, 4 }, { 16, 1 });
+	AddPlatform({ 0, -8 }, { 24, 1 });
+	AddPlatform({ 0, 8 }, { 24, 1 });
 	
-	AddPlatform({ -8, 0 }, { 1, 8 });
-	AddPlatform({ 8, 0 }, { 1, 8 });
+	AddPlatform({ -12, 0 }, { 1, 16 });
+	AddPlatform({ 12, 0 }, { 1, 16 });
 	
 	// register inputs
 	g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, MOVE_LEFT);
@@ -123,6 +123,11 @@ internal void Init()
 
 	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_POS_X, NULL, "mouseX");
 	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_POS_Y, NULL, "mouseY");
+
+	g_engine.input.AddAction(Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, "backward");
+	g_engine.input.AddAction(Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, "forward");
+	g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, "stop");
+	g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, "play");
 }
 
 internal void Shutdown()
@@ -207,6 +212,14 @@ internal void Tick(ZEFrameTimeInfo timing)
 	UpdateCursor();
 	ZPhysicsTick(dt);
 	TickPlayer(dt);
+
+	i32 numObjects = g_engine.scenes.GetObjectCount(g_scene);
+	for (i32 i = 0; i < numObjects; ++i)
+	{
+		ZRDrawObj* obj = g_engine.scenes.GetObjectByIndex(g_scene, i);
+		if (obj == NULL) { continue; }
+		
+	}
 }
 
 Z_GAME_WINDOWS_LINK_FUNCTION

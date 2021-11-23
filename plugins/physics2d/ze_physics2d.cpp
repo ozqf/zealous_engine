@@ -143,6 +143,32 @@ ze_external zeHandle ZP_AddDynamicVolume(ZPShapeDef def)
 	return vol->id;
 }
 
+ze_external zeHandle ZP_AddBody(ZPBodyDef def)
+{
+	ZPVolume2d* vol;
+	if (def.bIsStatic)
+	{
+		def.bLockRotation = YES;
+		vol = GetFreeStaticVolume();
+	}
+	else
+	{
+		vol = GetFreeDynamicVolume();
+	}
+	ZE_ASSERT(vol != NULL, "ZP_AddBody got no free volume")
+	vol->size = def.shape.size;
+
+	b2BodyDef bodyDef;
+	bodyDef.fixedRotation = def.bLockRotation;
+	bodyDef.type = def.bIsStatic ? b2_staticBody : b2_dynamicBody;
+	bodyDef.position.Set(def.shape.pos.x, def.shape.pos.y);
+
+	b2PolygonShape box;
+	box.SetAsBox(def.shape.size.x, def.shape.size.y);
+
+	return vol->id;
+}
+
 ze_external void ZP_Raycast(Vec2 from, Vec2 to)
 {
 	RaycastCallback cb;
