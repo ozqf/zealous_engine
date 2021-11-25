@@ -16,17 +16,7 @@ internal zeHandle g_cursorId;
 internal Vec2 g_mousePos;
 internal i32 g_platformTexture;
 
-// internal void AddPlatform(Vec2 pos, Vec2 size)
-// {
-	// ZRDrawObj *platform = g_engine.scenes.AddFullTextureQuad(g_scene, TEX_PLATFORM, {size.x * 0.5f, size.y * 0.5f});
-	// CREATE_ENT_PTR(ent, platform)
-	// ent->type = ENT_TYPE_SOLID;
-	// ent->bodyId = ZP_AddStaticVolume(pos, size);
-	// platform->t.pos = Vec3_FromVec2(ZP_GetBodyPosition(ent->bodyId).pos, platform->t.pos.z);
-	// printf("Platform %d assigned body %d\n", platform->id, ent->bodyId);
-// }
-
-internal void AddPlayer(Vec3 pos)
+/*internal void AddPlayer(Vec3 pos)
 {
 	// player avatar
 	ZRDrawObj *player = g_engine.scenes.AddFullTextureQuad(g_scene, FALLBACK_TEXTURE_NAME, {0.5f, 0.5f});
@@ -47,12 +37,7 @@ internal void AddPlayer(Vec3 pos)
 	gun->t.pos = pos;
 	gun->t.pos.z += 0.1f;
 
-	// cursor
-	ZRTexture* cursorTex = g_engine.assets.AllocTexture(8, 8, TEX_CURSOR);
-	ZGen_FillTexture(cursorTex, COLOUR_U32_GREEN);
-	ZRDrawObj *cursor = g_engine.scenes.AddFullTextureQuad(g_scene, TEX_CURSOR, {0.2f, 0.2f});
-	g_cursorId = cursor->id;
-}
+}*/
 
 internal void Init()
 {
@@ -72,24 +57,17 @@ internal void Init()
 	ZGen_FillTexture(tex, COLOUR_U32_GREY);
 	ZGen_FillTextureRect(tex, COLOUR_U32_EMPTY, { 1, 1 }, { 14, 14 });
 	
-	// RNGShared shared = {};
-	// shared.engine = g_engine;
-	// shared.scene = g_scene;
+	// cursor
+	ZRTexture* cursorTex = g_engine.assets.AllocTexture(8, 8, TEX_CURSOR);
+	ZGen_FillTexture(cursorTex, COLOUR_U32_GREEN);
+	ZRDrawObj *cursor = g_engine.scenes.AddFullTextureQuad(g_scene, TEX_CURSOR, {0.2f, 0.2f});
+	g_cursorId = cursor->id;
 	
 	// init sim module
 	Sim_Init(g_engine, g_scene);
 	
 	// Create player placeholder
 	// AddPlayer({0, 2, 0});
-	
-	// add platforms
-	// AddPlatform({ 0, -1 }, { 8, 1 });
-
-	// AddPlatform({ 0, -8 }, { 24, 1 });
-	// AddPlatform({ 0, 8 }, { 24, 1 });
-	
-	// AddPlatform({ -12, 0 }, { 1, 16 });
-	// AddPlatform({ 12, 0 }, { 1, 16 });
 	
 	// register inputs
 	g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, MOVE_LEFT);
@@ -115,7 +93,7 @@ internal void Shutdown()
 
 }
 
-internal void TickPlayer(float delta)
+/*internal void TickPlayer(float delta)
 {
 	ZRDrawObj *player = g_engine.scenes.GetObject(g_scene, g_playerId);
 	if (player == NULL) { return; }
@@ -167,7 +145,7 @@ internal void TickPlayer(float delta)
 	gun->t.pos = player->t.pos;
 	
 	Transform_SetRotation(&gun->t, 0, 0, Vec2_AngleTo(Vec2_FromVec3(gun->t.pos), g_mousePos));
-}
+}*/
 
 internal void UpdateCursor()
 {

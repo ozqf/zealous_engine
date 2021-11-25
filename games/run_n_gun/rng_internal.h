@@ -20,9 +20,9 @@
 #define RANDF ((f32)rand() / RAND_MAX)
 #define RANDF_RANGE(minValueF, maxValueF) (RANDF * (maxValueF - minValueF) + minValueF)
 
-#define CREATE_ENT_PTR(entPtrName, drawObjPtr) \
-Ent2d* entPtrName = NULL; \
-if (drawObjPtr != NULL) { entPtrName = (Ent2d*)drawObjPtr->userData; }
+// #define CREATE_ENT_PTR(entPtrName, drawObjPtr) \
+// Ent2d* entPtrName = NULL; \
+// if (drawObjPtr != NULL) { entPtrName = (Ent2d*)drawObjPtr->userData; }
 
 struct Ent2d
 {
@@ -30,6 +30,7 @@ struct Ent2d
     Vec2 velocity;
     // f32 degrees;
     // f32 rotDegreesPerSecond;
+	zeHandle drawId = 0;
 	zeHandle bodyId = 0;
 };
 
