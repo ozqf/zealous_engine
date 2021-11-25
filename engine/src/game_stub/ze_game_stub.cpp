@@ -50,7 +50,7 @@ internal void Stub_Init()
     // configure object
     f32 scale = 0.25f;
     obj1->data.SetAsText(
-        "Game\nScene", textureId, COLOUR_U32_GREEN, COLOUR_U32_EMPTY, 0);
+        "3D World\nText!", textureId, COLOUR_U32_GREEN, COLOUR_U32_EMPTY, 0);
     obj1->t.pos.x = -2;
     obj1->t.scale = { scale, scale, scale };
 

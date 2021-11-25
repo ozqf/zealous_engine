@@ -460,6 +460,10 @@ ze_external zErrorCode ZWindow_Init()
     g_events = Buf_FromMalloc(Platform_Alloc, KiloBytes(64));
 
     g_requestedMonitorIndex = ZCFG_FindIntParam("--monitor", "--monitor", 0);
+	
+	// read resolution overrides
+	g_pendingWidth = ZCFG_FindIntParam("--width", "--width", g_pendingWidth);
+	g_pendingHeight = ZCFG_FindIntParam("--height", "--height", g_pendingHeight);
 
     SpawnWindow();
     ZR_Init();

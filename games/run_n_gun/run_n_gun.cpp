@@ -1,8 +1,4 @@
-#include "../../headers/zengine.h"
-#include "../../plugins/ze_physics2d.h"
-
-#define TEX_PLATFORM "platform_texture"
-#define TEX_CURSOR "cursor_texture"
+#include "rng_internal.h"
 
 #define MOVE_LEFT "move_left"
 #define MOVE_RIGHT "move_right"
@@ -11,29 +7,6 @@
 
 #define ACCLE_FORCE 100
 #define MOVE_SPEED 8
-
-#define ENT_TYPE_NONE 0
-#define ENT_TYPE_SOLID 1
-#define ENT_TYPE_PLAYER 2
-
-#define ENTITY_COUNT 4096
-
-#define RANDF ((f32)rand() / RAND_MAX)
-#define RANDF_RANGE(minValueF, maxValueF) (RANDF * (maxValueF - minValueF) + minValueF)
-
-#define CREATE_ENT_PTR(entPtrName, drawObjPtr) \
-Ent2d* entPtrName = NULL; \
-if (drawObjPtr != NULL) { entPtrName = (Ent2d*)drawObjPtr->userData; }
-
-struct Ent2d
-{
-	i32 type;
-    Vec3 velocity;
-    f32 degrees;
-    f32 rotDegreesPerSecond;
-	zeHandle bodyId = 0;
-};
-
 const i32 screenSize = 8;
 internal ZEngine g_engine;
 internal zeHandle g_scene;
@@ -43,15 +16,15 @@ internal zeHandle g_cursorId;
 internal Vec2 g_mousePos;
 internal i32 g_platformTexture;
 
-internal void AddPlatform(Vec2 pos, Vec2 size)
-{
-	ZRDrawObj *platform = g_engine.scenes.AddFullTextureQuad(g_scene, TEX_PLATFORM, {size.x * 0.5f, size.y * 0.5f});
-	CREATE_ENT_PTR(ent, platform)
-	ent->type = ENT_TYPE_SOLID;
-	ent->bodyId = ZP_AddStaticVolume(pos, size);
-	platform->t.pos = Vec3_FromVec2(ZP_GetBodyPosition(ent->bodyId).pos, platform->t.pos.z);
-	printf("Platform %d assigned body %d\n", platform->id, ent->bodyId);
-}
+// internal void AddPlatform(Vec2 pos, Vec2 size)
+// {
+	// ZRDrawObj *platform = g_engine.scenes.AddFullTextureQuad(g_scene, TEX_PLATFORM, {size.x * 0.5f, size.y * 0.5f});
+	// CREATE_ENT_PTR(ent, platform)
+	// ent->type = ENT_TYPE_SOLID;
+	// ent->bodyId = ZP_AddStaticVolume(pos, size);
+	// platform->t.pos = Vec3_FromVec2(ZP_GetBodyPosition(ent->bodyId).pos, platform->t.pos.z);
+	// printf("Platform %d assigned body %d\n", platform->id, ent->bodyId);
+// }
 
 internal void AddPlayer(Vec3 pos)
 {
@@ -60,7 +33,7 @@ internal void AddPlayer(Vec3 pos)
 	g_playerId = player->id;
 	player->t.pos = pos;
 	CREATE_ENT_PTR(ent, player)
-	ent->type = ENT_TYPE_SOLID;
+	ent->type = ENT_TYPE_PLAYER;
 	ZPShapeDef def = {};
 	def.pos = Vec2_FromVec3(pos);
 	def.size = { 1, 1, };
@@ -93,23 +66,30 @@ internal void Init()
 	ZE_SetupOrthoProjection(prj.cells, screenSize, 16.f / 9.f);
 	g_engine.scenes.SetProjection(g_scene, prj);
 	
-	// Create player placeholder
-	AddPlayer({0, 2, 0});
-	
 	// Create platform placeholder
 	ZRTexture* tex = g_engine.assets.AllocTexture(16, 16, TEX_PLATFORM);
 	g_platformTexture = tex->header.id;
 	ZGen_FillTexture(tex, COLOUR_U32_GREY);
 	ZGen_FillTextureRect(tex, COLOUR_U32_EMPTY, { 1, 1 }, { 14, 14 });
 	
-	// add platforms
-	AddPlatform({ 0, -1 }, { 8, 1 });
-
-	AddPlatform({ 0, -8 }, { 24, 1 });
-	AddPlatform({ 0, 8 }, { 24, 1 });
+	// RNGShared shared = {};
+	// shared.engine = g_engine;
+	// shared.scene = g_scene;
 	
-	AddPlatform({ -12, 0 }, { 1, 16 });
-	AddPlatform({ 12, 0 }, { 1, 16 });
+	// init sim module
+	Sim_Init(g_engine, g_scene);
+	
+	// Create player placeholder
+	// AddPlayer({0, 2, 0});
+	
+	// add platforms
+	// AddPlatform({ 0, -1 }, { 8, 1 });
+
+	// AddPlatform({ 0, -8 }, { 24, 1 });
+	// AddPlatform({ 0, 8 }, { 24, 1 });
+	
+	// AddPlatform({ -12, 0 }, { 1, 16 });
+	// AddPlatform({ 12, 0 }, { 1, 16 });
 	
 	// register inputs
 	g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, MOVE_LEFT);
@@ -211,7 +191,8 @@ internal void Tick(ZEFrameTimeInfo timing)
 	f32 dt = (f32)timing.interval;
 	UpdateCursor();
 	ZPhysicsTick(dt);
-	TickPlayer(dt);
+	// TickPlayer(dt);
+	Sim_SyncDrawObjects();
 
 	i32 numObjects = g_engine.scenes.GetObjectCount(g_scene);
 	for (i32 i = 0; i < numObjects; ++i)

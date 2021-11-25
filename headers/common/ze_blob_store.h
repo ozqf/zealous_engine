@@ -73,7 +73,7 @@ struct ZEBlobStore
 
     i32 ClearEntireStore()
     {
-        printf("Clear entire store\n");
+        printf("Clear entire store (%d blobs)\n", m_array->m_numBlobs);
         for (i32 i = 0; i < m_array->m_numBlobs; ++i)
         {
             ZEBlobHeader *h = m_array->GetHeaderByIndex(i);
@@ -93,6 +93,10 @@ struct ZEBlobStore
      */
     i32 Truncate()
     {
+        if (m_array->m_numBlobs == 0)
+        {
+            return 0;
+        }
         i32 numDeletes = 0;
         i32 i = m_array->m_numBlobs - 1;
         ErrorCode err;
