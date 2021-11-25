@@ -110,53 +110,25 @@ ze_internal void RestoreDebris(DebrisEntState* state)
 		debris->t.pos = Vec3_FromVec2(state->pos, state->depth);
 
 		// add body
-		ZPShapeDef def = {};
+		ZPBodyDef def = {};
+		def.bIsStatic = NO;
+		def.bLockRotation = NO;
+		def.friction = 0.1f;
+		def.resitition = 0.95f;
+
+		def.shape.pos = state->pos;
+		def.shape.radius = { 0.5f, 0.5f };
+		ent->bodyId = ZP_AddBody(def);
+		/*ZPShapeDef def = {};
 		def.pos = state->pos;
 		def.size = { 1, 1, };
 		def.friction = 0;
 		def.resitition = 0;
-		ent->bodyId = ZP_AddDynamicVolume(def);
+		ent->bodyId = ZP_AddDynamicVolume(def);*/
 		printf("Added debris body %d at %.3f, %.3f\n",
-			ent->bodyId, def.pos.x, def.pos.y);
+			ent->bodyId, state->pos.x, state->pos.y);
 	}
 }
-
-ze_external void Sim_SyncDrawObjects()
-{
-	i32 numEnts = g_entities.Count();
-	for (i32 i = 0; i < numEnts; ++i)
-	{
-		Ent2d* ent = (Ent2d*)g_entities.GetByIndex(i);
-		if (ent == NULL || ent->drawId == 0 || ent->bodyId == 0) { continue; }
-
-		ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, ent->drawId);
-		if (obj == NULL) { continue; }
-		
-		BodyState state = ZP_GetBodyState(ent->bodyId);
-		obj->t.pos.x = state.t.pos.x;
-		obj->t.pos.y = state.t.pos.y;
-
-	}
-
-	/*i32 numObjects = g_engine.scenes.GetObjectCount(g_scene);
-	for (i32 i = 0; i < numObjects; ++i)
-	{
-		ZRDrawObj* obj = g_engine.scenes.GetObjectByIndex(g_scene, i);
-		if (obj == NULL) { continue; }
-		
-		if (obj->data.type == ZR_DRAWOBJ_TYPE_NONE) { continue; }
-		
-		CREATE_ENT_PTR(ent, obj)
-		if (ent->type == 0) { continue; }
-		
-		if (ent->bodyId == 0) { continue; }
-		
-		BodyState state = ZP_GetBodyState(ent->bodyId);
-		obj->t.pos.x = state.t.pos.x;
-		obj->t.pos.y = state.t.pos.y;
-	}*/
-}
-
 
 ze_internal void Sim_RestoreEntity(EntStateHeader* header)
 {
@@ -190,6 +162,24 @@ internal void Sim_WriteEntity(ZEBuffer* buf)
 ze_external void Sim_WriteFrame()
 {
 	
+}
+
+ze_external void Sim_SyncDrawObjects()
+{
+	i32 numEnts = g_entities.Count();
+	for (i32 i = 0; i < numEnts; ++i)
+	{
+		Ent2d* ent = (Ent2d*)g_entities.GetByIndex(i);
+		if (ent == NULL || ent->drawId == 0 || ent->bodyId == 0) { continue; }
+
+		ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, ent->drawId);
+		if (obj == NULL) { continue; }
+		
+		BodyState state = ZP_GetBodyState(ent->bodyId);
+		obj->t.pos.x = state.t.pos.x;
+		obj->t.pos.y = state.t.pos.y;
+		Transform_SetRotation(&obj->t, 0, 0, state.t.radians);
+	}
 }
 
 ze_external void Sim_TickForward()

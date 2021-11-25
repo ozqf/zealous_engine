@@ -7,7 +7,7 @@ ze_internal i32 g_positionIterations = 2;
 
 ze_internal ZEBlobStore g_dynamicBodies;
 ze_internal ZEBlobStore g_staticBodies;
-// id for dynamic bodies. ascends.
+
 ze_internal i32 g_nextDynamicId = 1;
 ze_internal i32 g_nextStaticId = -1;
 
@@ -53,14 +53,14 @@ ze_external void ZP_SetLinearVelocity(zeHandle bodyId, Vec2 v)
 	vol->body->SetLinearVelocity(b2Vec2_FromVec2(v));
 }
 
-/*ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state)
+ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state)
 {
 	ZPVolume2d* vol = GetVolume(bodyId);
 	ZE_ASSERT(vol != NULL, "Body is null")
 
 	vol->body->SetTransform(b2Vec2_FromVec2(state.t.pos), state.t.radians);
 	vol->body->SetLinearVelocity(b2Vec2_FromVec2(state.velocity));
-}*/
+}
 
 ze_external BodyState ZP_GetBodyState(zeHandle bodyId)
 {
@@ -108,7 +108,7 @@ ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size)
 {
 	size = Vec2_Divide(size, 2);
 	ZPVolume2d* vol = GetFreeStaticVolume();
-	vol->size = size;
+	vol->radius = size;
 
 	b2BodyDef groundBodyDef;
 	groundBodyDef.position.Set(pos.x, pos.y);
@@ -119,33 +119,9 @@ ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size)
 	return vol->id;
 }
 
-ze_external zeHandle ZP_AddDynamicVolume(ZPShapeDef def)
-{
-	Vec2 size = Vec2_Divide(def.size, 2);
-	ZPVolume2d* vol = GetFreeDynamicVolume();
-	vol->size = size;
-
-	b2BodyDef bodyDef;
-	bodyDef.fixedRotation = true;
-	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(def.pos.x, def.pos.y);
-	vol->body = g_world.CreateBody(&bodyDef);
-	b2PolygonShape box;
-	box.SetAsBox(size.x, size.y);
-
-	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &box;
-	fixtureDef.density = 1.0f;
-	fixtureDef.restitution = def.resitition;
-	fixtureDef.friction = def.friction;
-
-	b2Fixture* fixture = vol->body->CreateFixture(&fixtureDef);
-	return vol->id;
-}
-
 ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 {
-	ZPVolume2d* vol;
+	ZPVolume2d* vol = NULL;
 	if (def.bIsStatic)
 	{
 		def.bLockRotation = YES;
@@ -156,16 +132,24 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 		vol = GetFreeDynamicVolume();
 	}
 	ZE_ASSERT(vol != NULL, "ZP_AddBody got no free volume")
-	vol->size = def.shape.size;
+	vol->radius = def.shape.radius;
 
 	b2BodyDef bodyDef;
 	bodyDef.fixedRotation = def.bLockRotation;
 	bodyDef.type = def.bIsStatic ? b2_staticBody : b2_dynamicBody;
 	bodyDef.position.Set(def.shape.pos.x, def.shape.pos.y);
+	vol->body = g_world.CreateBody(&bodyDef);
 
 	b2PolygonShape box;
-	box.SetAsBox(def.shape.size.x, def.shape.size.y);
+	box.SetAsBox(def.shape.radius.x, def.shape.radius.y);
 
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = &box;
+	fixtureDef.density = 1.0f;
+	fixtureDef.restitution = def.resitition;
+	fixtureDef.friction = def.friction;
+
+	b2Fixture* fixture = vol->body->CreateFixture(&fixtureDef);
 	return vol->id;
 }
 

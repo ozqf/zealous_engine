@@ -21,28 +21,30 @@ struct BodyState
 struct ZPShapeDef
 {
     Vec2 pos;
-    Vec2 size;
+    Vec2 radius;
     // if shapetype == circle, only x component of size is used.
     i32 shapeType;
-    f32 resitition;
-    f32 friction;
 };
 
 struct ZPBodyDef
 {
     i32 bIsStatic;
     i32 bLockRotation;
+    f32 resitition;
+    f32 friction;
     ZPShapeDef shape;
 };
 
 // construct
+// ze_external zeHandle ZP_AddDynamicVolume(ZPShapeDef def);
 ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size);
-ze_external zeHandle ZP_AddDynamicVolume(ZPShapeDef def);
+ze_external zeHandle ZP_AddBody(ZPBodyDef def);
 
 // affect
 ze_external void ZP_ApplyForce(zeHandle bodyId, Vec2 force);
 ze_external void ZP_SetBodyPosition(zeHandle bodyId, Vec2 pos);
 ze_external void ZP_SetLinearVelocity(zeHandle bodyId, Vec2 v);
+ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state);
 
 // query
 ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId);

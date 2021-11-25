@@ -10,7 +10,7 @@ struct ZPVolume2d
 {
 	i32 id;
 	// zeHandle handle;
-	Vec2 size;
+	Vec2 radius;
 	b2Body* body;
 };
 
