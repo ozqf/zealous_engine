@@ -24,6 +24,9 @@ ze_internal WorldVolume g_worldVolumes[WORLD_VOLUMES_MAX];
 ze_internal i32 g_numWorldVolumes = 0;
 
 ze_internal ZEBuffer g_frames;
+// frame 0 is initial state. 1 is the first frame actually run
+ze_internal u32 g_currentFrame = 0;
+ze_internal u32 g_lastFrame = 0;
 
 internal ZEBlobStore g_entities;
 internal i32 g_nextDynamicId = 1;
@@ -159,7 +162,7 @@ internal void Sim_WriteEntity(ZEBuffer* buf)
 	
 }
 
-ze_external void Sim_WriteFrame()
+ze_external void Sim_WriteFrame(i32 frameNumber)
 {
 	
 }
@@ -182,12 +185,20 @@ ze_external void Sim_SyncDrawObjects()
 	}
 }
 
-ze_external void Sim_TickForward()
+ze_external void Sim_TickForward(f32 delta)
 {
+	printf("Run frame %d\n", g_currentFrame);
+	ZPhysicsTick(delta);
 	Sim_SyncDrawObjects();
+	g_currentFrame += 1;
+	if (g_currentFrame > g_lastFrame)
+	{
+		Sim_WriteFrame(g_currentFrame);
+		g_lastFrame += 1;
+	}
 }
 
-ze_external void Sim_TickBackward()
+ze_external void Sim_TickBackward(f32 delta)
 {
 	Sim_SyncDrawObjects();
 }
@@ -197,7 +208,7 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 	g_engine = engine;
 	g_scene = sceneId;
 	
-	g_frames = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));
+	g_frames = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(100));
 	ZE_InitBlobStore(g_engine.system.Malloc, &g_entities, 1024, sizeof(Ent2d), 0);
 
 	Sim_RestoreStaticScene(0);
@@ -218,4 +229,9 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 		// f32 depth = 0;
 		// AddDebris({x, y, depth});
 	}
+
+	// write first frame
+	Sim_WriteFrame(0);
+	g_currentFrame = 0;
+	g_lastFrame = 0;
 }

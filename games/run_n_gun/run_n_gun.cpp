@@ -83,7 +83,7 @@ internal void Init()
 	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_POS_Y, NULL, "mouseY");
 
 	g_engine.input.AddAction(Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, "backward");
-	g_engine.input.AddAction(Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, "forward");
+	g_engine.input.AddAction(Z_INPUT_CODE_RIGHT, Z_INPUT_CODE_NULL, "forward");
 	g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, "stop");
 	g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, "play");
 }
@@ -168,22 +168,29 @@ internal void Tick(ZEFrameTimeInfo timing)
 {
 	f32 dt = (f32)timing.interval;
 	UpdateCursor();
-	ZPhysicsTick(dt);
+	if (g_engine.input.GetActionValue("forward") > 0)
+	{
+		// tick
+		Sim_TickForward(dt);
+	}
+	
 	// TickPlayer(dt);
-	Sim_SyncDrawObjects();
+	// Sim_SyncDrawObjects();
 
-	i32 numObjects = g_engine.scenes.GetObjectCount(g_scene);
+	/*i32 numObjects = g_engine.scenes.GetObjectCount(g_scene);
 	for (i32 i = 0; i < numObjects; ++i)
 	{
 		ZRDrawObj* obj = g_engine.scenes.GetObjectByIndex(g_scene, i);
 		if (obj == NULL) { continue; }
 		
-	}
+	}*/
 }
 
 Z_GAME_WINDOWS_LINK_FUNCTION
 {
     g_engine = engineImport;
+	gameDef->targetFramerate = 60;
+	gameDef->windowTitle = "Run N Gun";
     gameExport->Init = Init;
     gameExport->Tick = Tick;
     gameExport->Shutdown = Shutdown;

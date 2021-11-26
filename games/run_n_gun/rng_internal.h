@@ -59,6 +59,8 @@ struct RNGShared
 
 ze_external void Sim_Init(ZEngine engine, zeHandle sceneId);
 ze_external void Sim_SyncDrawObjects();
+ze_external void Sim_TickForward(f32 delta);
+ze_external void Sim_TickBackward(f32 delta);
 
 #endif // RNG_INTERNAL_H
  
