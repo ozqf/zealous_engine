@@ -104,7 +104,7 @@ internal void BufBlock_Print(ZEBuffer *b)
         zErrorCode err = BufBlock_Validate(h);
         if (err == ZE_ERROR_NONE)
         {
-            printf("%d: Block type %d, size %lld Bytes\n", i, h->type, h->size);
+            printf("%d: Block type %d, size %zd Bytes\n", i, h->type, h->size);
             read += h->size;
         }
         else

@@ -99,7 +99,7 @@ struct ZEBuffer
 
     i32 WriteString(const char *str)
     {
-        i32 len = 0;
+        zeSize len = 0;
         while (str[len])
         {
             ++len;
@@ -134,7 +134,7 @@ internal ZEBuffer Buf_FromBytes(i8 *ptr, i32 numBytes)
     return b;
 }
 
-internal ZEBuffer Buf_FromMemory(void *ptr, i32 size)
+internal ZEBuffer Buf_FromMemory(void *ptr, zeSize size)
 {
     ZE_ASSERT(ptr != NULL, "Buf from malloc - ptr is null");
     ZEBuffer b = {};
@@ -154,7 +154,7 @@ internal ZEBuffer Buf_FromString(const char* ptr)
     return b;
 }
 
-internal ZEBuffer Buf_FromMalloc(ZE_mallocFunction mallocFn, i32 size)
+internal ZEBuffer Buf_FromMalloc(ZE_mallocFunction mallocFn, zeSize size)
 {
     ZE_ASSERT(mallocFn != NULL, "Buf from malloc - MallocFn is null");
     return Buf_FromMemory(mallocFn(size), size);
@@ -164,7 +164,7 @@ internal ZEBuffer Buf_FromMalloc(ZE_mallocFunction mallocFn, i32 size)
  * init another buffer from within the given buffer and return it
  * If the result has a size of 0 then alloc failed
  */
-internal ZEBuffer Buf_SubBuffer(ZEBuffer *buf, i32 subBufferSize)
+internal ZEBuffer Buf_SubBuffer(ZEBuffer *buf, zeSize subBufferSize)
 {
     if (buf->Space() < subBufferSize)
     {
