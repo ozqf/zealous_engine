@@ -57,6 +57,7 @@ internal i32 g_pendingState = -1;
 
 internal ZEngine g_engine;
 internal zeHandle g_gameScene = 0;
+internal zeHandle g_uiScene = 0;
 internal zeHandle g_avatarId = 0;
 internal Transform g_camera;
 
@@ -399,6 +400,24 @@ internal void Init()
 
     g_engine.scenes.SetCamera(g_gameScene, g_camera);
     g_engine.scenes.SetProjection(g_gameScene, projection);
+
+    //////////////////////////////////////////////////////////////
+    // Create draw scene
+    //////////////////////////////////////////////////////////////
+
+	g_uiScene = g_engine.scenes.AddScene(0, 1024, 0);
+
+    M4x4_CREATE(prj)
+    ZE_SetupOrthoProjection(prj.cells, 8, 16.f / 9.f);
+    g_engine.scenes.SetProjection(g_uiScene, prj);
+
+	// find charsheet texture
+	i32 textureId = g_engine.assets.GetTexByName(
+        FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME)->header.id;
+	ZRDrawObj* textObj = g_engine.scenes.AddObject(g_uiScene);
+	textObj->data.SetAsText("Test Text.", textureId, COLOUR_U32_GREEN, COLOUR_U32_EMPTY, 0);
+	textObj->t.scale = { 0.25f, 0.25f, 0.25f };
+	textObj->t.pos = { -8, 7, 0 };
 
     //////////////////////////////////////////////////////////////
     // Create assets
