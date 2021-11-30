@@ -8,9 +8,16 @@ struct WorldVolume
 
 struct FrameHeader
 {
+	u32 sentinel;
 	i32 sequence;
 	i32 staticSceneIndex;
-	i32 size;
+	zeSize size;
+};
+
+struct FrameFooter
+{
+	u32 sentinel;
+	zeSize size;
 };
 
 #define WORLD_VOLUMES_MAX 1024
@@ -152,9 +159,18 @@ ze_internal void Sim_RestoreEntity(EntStateHeader* header)
 	
 }
 
-ze_external void Sim_RestoreFrame()
+ze_external void Sim_RestoreFrame(FrameHeader* header)
 {
-	
+	zeSize entityBytes = header->size - (sizeof(FrameHeader) + sizeof(FrameFooter));
+	u8* read = (u8*)header + sizeof(FrameHeader);
+	u8* end = read + entityBytes;
+
+	while(read < end)
+	{
+		EntStateHeader* entHeader = (EntStateHeader*)read;
+		read += entHeader->numBytes;
+		Sim_RestoreEntity(entHeader);
+	}
 }
 
 internal void Sim_WriteEntity(ZEBuffer* buf)
@@ -164,7 +180,7 @@ internal void Sim_WriteEntity(ZEBuffer* buf)
 
 ze_external void Sim_WriteFrame(i32 frameNumber)
 {
-	
+	printf("TODO - write frame %d\n", frameNumber);
 }
 
 ze_external void Sim_SyncDrawObjects()
@@ -203,6 +219,30 @@ ze_external void Sim_TickBackward(f32 delta)
 	Sim_SyncDrawObjects();
 }
 
+ze_internal void StartNewSession(ZEBuffer* frames)
+{
+	frames->Clear(NO);
+	ZE_BUF_INIT_PTR_IN_PLACE(header, FrameHeader, frames);
+	header->staticSceneIndex = 0;
+	header->sequence = 0;
+
+	for (i32 i = 0; i < 20; ++i)
+	{
+		ZE_BUF_INIT_PTR_IN_PLACE(debris, DebrisEntState, frames)
+		debris->header.type = ENT_TYPE_DEBRIS;
+		debris->header.numBytes = sizeof(DebrisEntState);
+		debris->header.id = ReserveDynamicIds(1);
+		debris->pos.x = RANDF_RANGE(-10, 10);
+		debris->pos.y = RANDF_RANGE(1, 5);
+		debris->depth = 0;
+	}
+	ZE_BUF_INIT_PTR_IN_PLACE(footer, FrameFooter, frames)
+	u8* end = (u8*)footer + sizeof(footer);
+	header->size = end - (u8*)header;
+	footer->size = header->size;
+	printf("Wrote %zd bytes to frame %d\n", header->size, header->sequence);
+}
+
 ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 {
 	g_engine = engine;
@@ -211,8 +251,10 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 	g_frames = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(100));
 	ZE_InitBlobStore(g_engine.system.Malloc, &g_entities, 1024, sizeof(Ent2d), 0);
 
+	StartNewSession(&g_frames);
+
 	Sim_RestoreStaticScene(0);
-	
+	/*
 	DebrisEntState debris = {};
 	debris.header.type = ENT_TYPE_DEBRIS;
 	debris.header.numBytes = sizeof(DebrisEntState);
@@ -229,7 +271,7 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 		// f32 depth = 0;
 		// AddDebris({x, y, depth});
 	}
-
+	*/
 	// write first frame
 	Sim_WriteFrame(0);
 	g_currentFrame = 0;

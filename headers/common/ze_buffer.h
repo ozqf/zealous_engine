@@ -70,7 +70,9 @@ struct ZEBuffer
 
     void Clear(i32 bSetZero)
     {
-        if (start != NULL && bSetZero)
+        ZE_ASSERT(start != NULL, "Buffer start is null")
+        ZE_ASSERT(cursor != NULL, "Buffer cursor is null")
+        if (bSetZero)
         {
             ZE_SET_ZERO(start, capacity);
         }
