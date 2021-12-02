@@ -402,7 +402,7 @@ internal void Init()
     g_engine.scenes.SetProjection(g_gameScene, projection);
 
     //////////////////////////////////////////////////////////////
-    // Create draw scene
+    // Create UI scene
     //////////////////////////////////////////////////////////////
 
 	g_uiScene = g_engine.scenes.AddScene(0, 1024, 0);

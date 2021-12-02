@@ -14,6 +14,7 @@
 #define ENT_TYPE_STATIC 1
 #define ENT_TYPE_PLAYER 2
 #define ENT_TYPE_DEBRIS 3
+#define ENT_TYPE__LAST 4
 
 #define ENTITY_COUNT 4096
 
@@ -58,6 +59,7 @@ struct RNGShared
 };	
 
 ze_external void Sim_Init(ZEngine engine, zeHandle sceneId);
+ze_external char* Sim_GetDebugText();
 ze_external void Sim_SyncDrawObjects();
 ze_external void Sim_TickForward(f32 delta);
 ze_external void Sim_TickBackward(f32 delta);

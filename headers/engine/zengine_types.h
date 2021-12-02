@@ -411,6 +411,13 @@ struct ZRDrawObjData
 		this->text.bgColour = bgColour;
 		this->text.alignment = alignment;
 	}
+	
+	void UpdateText(char* chars)
+	{
+		ZE_ASSERT(this->type == ZR_DRAWOBJ_TYPE_TEXT, "DrawObj is not text")
+		this->text.text = chars;
+		this->text.length = ZStr_LenNoTerminator(chars) + 1;
+	}
 };
 
 struct ZRDrawObj

@@ -20,7 +20,18 @@ struct FrameFooter
 	zeSize size;
 };
 
+struct EntityType
+{
+	i32 type;
+	char* label;
+	void (*Restore)(EntStateHeader* ptr);
+	void (*Write)(Ent2d* ent, ZEBuffer* buf);
+	void (*Tick)(Ent2d* ent, f32 delta);
+};
+
 #define WORLD_VOLUMES_MAX 1024
+
+ze_internal EntityType g_types[ENT_TYPE__LAST];
 
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
@@ -35,9 +46,11 @@ ze_internal ZEBuffer g_frames;
 ze_internal u32 g_currentFrame = 0;
 ze_internal u32 g_lastFrame = 0;
 
-internal ZEBlobStore g_entities;
-internal i32 g_nextDynamicId = 1;
-internal i32 g_nextStaticId = -1;
+ze_internal ZEBlobStore g_entities;
+ze_internal i32 g_nextDynamicId = 1;
+ze_internal i32 g_nextStaticId = -1;
+
+ze_internal ZEBuffer g_debugText;
 
 ze_internal i32 ReserveDynamicIds(i32 count)
 {
@@ -101,8 +114,9 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 	AddStatic({ 12, 0 }, { 1, 16 });
 }
 
-ze_internal void RestoreDebris(DebrisEntState* state)
+ze_internal void RestoreDebris(EntStateHeader* stateHeader)
 {
+	DebrisEntState* state = (DebrisEntState*)stateHeader;
 	Ent2d* ent = (Ent2d*)g_entities.GetById(state->header.id);
 	if (ent != NULL)
 	{
@@ -140,23 +154,30 @@ ze_internal void RestoreDebris(DebrisEntState* state)
 	}
 }
 
+ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
+{
+	
+}
+
 ze_internal void Sim_RestoreEntity(EntStateHeader* header)
 {
-	switch (header->type)
+	EntityType* entType = &g_types[header->type];
+	entType->Restore(header);
+	
+	/*switch (header->type)
 	{
 		case ENT_TYPE_DEBRIS:
 		{
 			DebrisEntState* debris = (DebrisEntState*)header;
 			printf("Restore debris at %.3f, %.3f\n",
 				debris->pos.x, debris->pos.y);
-			RestoreDebris(debris);
+			RestoreDebris(header);
 			
 		} break;
 		default:
 			printf("Cannot restore unknown entity type %d\n", header->type);
 			return;
-	}
-	
+	}*/
 }
 
 ze_external void Sim_RestoreFrame(FrameHeader* header)
@@ -164,6 +185,11 @@ ze_external void Sim_RestoreFrame(FrameHeader* header)
 	zeSize entityBytes = header->size - (sizeof(FrameHeader) + sizeof(FrameFooter));
 	u8* read = (u8*)header + sizeof(FrameHeader);
 	u8* end = read + entityBytes;
+	
+	if (g_staticSceneIndex != header->staticSceneIndex)
+	{
+		Sim_RestoreStaticScene(header->staticSceneIndex);
+	}
 
 	while(read < end)
 	{
@@ -173,14 +199,23 @@ ze_external void Sim_RestoreFrame(FrameHeader* header)
 	}
 }
 
-internal void Sim_WriteEntity(ZEBuffer* buf)
+internal void Sim_WriteEntity(Ent2d* ent, ZEBuffer* buf)
 {
 	
 }
 
-ze_external void Sim_WriteFrame(i32 frameNumber)
+ze_external void Sim_WriteFrame(ZEBuffer* buf, i32 frameNumber)
 {
-	printf("TODO - write frame %d\n", frameNumber);
+	ZE_BUF_INIT_PTR_IN_PLACE(header, FrameHeader, buf)
+	
+	i32 numEnts = g_entities.Count();
+	for (i32 i = 0; i < numEnts; ++i)
+	{
+		Ent2d* ent = (Ent2d*)g_entities.GetByIndex(i);
+		if (ent == NULL) { continue; }
+		
+		
+	}
 }
 
 ze_external void Sim_SyncDrawObjects()
@@ -201,6 +236,28 @@ ze_external void Sim_SyncDrawObjects()
 	}
 }
 
+ze_internal void UpdateDebugText()
+{
+	g_debugText.Clear(YES);
+	
+	i32 numChars = sprintf_s(
+		(char*)g_debugText.cursor,
+		g_debugText.Space(),
+		
+		"Frame buffer capacity %zd of %zd (%.3f%%)",
+		g_frames.Written(),
+		g_frames.capacity,
+		g_frames.PercentageUsed());
+	
+	g_debugText.cursor += numChars;
+	*g_debugText.cursor = '\0';
+}
+
+ze_external char* Sim_GetDebugText()
+{
+	return (char*)g_debugText.start;
+}
+
 ze_external void Sim_TickForward(f32 delta)
 {
 	printf("Run frame %d\n", g_currentFrame);
@@ -209,17 +266,19 @@ ze_external void Sim_TickForward(f32 delta)
 	g_currentFrame += 1;
 	if (g_currentFrame > g_lastFrame)
 	{
-		Sim_WriteFrame(g_currentFrame);
+		Sim_WriteFrame(&g_frames, g_currentFrame);
 		g_lastFrame += 1;
 	}
+	UpdateDebugText();
 }
 
 ze_external void Sim_TickBackward(f32 delta)
 {
 	Sim_SyncDrawObjects();
+	UpdateDebugText();
 }
 
-ze_internal void StartNewSession(ZEBuffer* frames)
+ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 {
 	frames->Clear(NO);
 	ZE_BUF_INIT_PTR_IN_PLACE(header, FrameHeader, frames);
@@ -241,6 +300,16 @@ ze_internal void StartNewSession(ZEBuffer* frames)
 	header->size = end - (u8*)header;
 	footer->size = header->size;
 	printf("Wrote %zd bytes to frame %d\n", header->size, header->sequence);
+	return header;
+}
+
+ze_internal void InitEntityTypes()
+{
+	EntityType* entType = &g_types[ENT_TYPE_DEBRIS];
+	entType->type = ENT_TYPE_DEBRIS;
+	entType->label = "Debris";
+	entType->Restore = RestoreDebris;
+	entType->Write = WriteDebris;
 }
 
 ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
@@ -248,12 +317,16 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 	g_engine = engine;
 	g_scene = sceneId;
 	
-	g_frames = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(100));
+	g_frames = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));
 	ZE_InitBlobStore(g_engine.system.Malloc, &g_entities, 1024, sizeof(Ent2d), 0);
+	
+	g_debugText = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));
+	
+	InitEntityTypes();
 
-	StartNewSession(&g_frames);
-
-	Sim_RestoreStaticScene(0);
+	FrameHeader* frame = WriteNewSession(&g_frames);
+	Sim_RestoreFrame(frame);
+	// Sim_RestoreStaticScene(0);
 	/*
 	DebrisEntState debris = {};
 	debris.header.type = ENT_TYPE_DEBRIS;
@@ -272,8 +345,9 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 		// AddDebris({x, y, depth});
 	}
 	*/
-	// write first frame
-	Sim_WriteFrame(0);
+	
 	g_currentFrame = 0;
 	g_lastFrame = 0;
+	
+	UpdateDebugText();
 }

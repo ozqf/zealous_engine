@@ -10,6 +10,8 @@
 const i32 screenSize = 8;
 internal ZEngine g_engine;
 internal zeHandle g_scene;
+internal zeHandle g_uiScene;
+internal zeHandle g_debugTextObj;
 internal zeHandle g_playerId;
 internal zeHandle g_playerGunId;
 internal zeHandle g_cursorId;
@@ -50,6 +52,22 @@ internal void Init()
 	M4x4_CREATE(prj)
 	ZE_SetupOrthoProjection(prj.cells, screenSize, 16.f / 9.f);
 	g_engine.scenes.SetProjection(g_scene, prj);
+	
+	// setup UI scene
+	g_uiScene = g_engine.scenes.AddScene(0, 1024, 0);
+    M4x4_CREATE(uiPrj)
+    ZE_SetupOrthoProjection(uiPrj.cells, 8, 16.f / 9.f);
+    g_engine.scenes.SetProjection(g_uiScene, uiPrj);
+	
+	// create debug text object in ui scene
+	i32 charSettextureId = g_engine.assets.GetTexByName(
+        FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME)->header.id;
+	ZRDrawObj* textObj = g_engine.scenes.AddObject(g_uiScene);
+	textObj->data.SetAsText("Test Text.", charSettextureId, COLOUR_U32_GREEN, COLOUR_U32_EMPTY, 0);
+	textObj->t.scale = { 0.2f, 0.2f, 0.2f };
+	textObj->t.pos = { -10, 7.5f, 0 };
+
+	g_debugTextObj = textObj->id;
 	
 	// Create platform placeholder
 	ZRTexture* tex = g_engine.assets.AllocTexture(16, 16, TEX_PLATFORM);
@@ -164,6 +182,19 @@ internal void UpdateCursor()
 	cursor->t.pos.y = g_mousePos.y;
 }
 
+internal void UpdateDebugText()
+{
+	char* str = Sim_GetDebugText();
+	printf("%s\n", str);
+	ZRDrawObj* obj = g_engine.scenes.GetObject(g_uiScene, g_debugTextObj);
+	if (obj == NULL)
+	{
+		printf("UI text object is null\n");
+		return;
+	}
+	obj->data.UpdateText(str);
+}
+
 internal void Tick(ZEFrameTimeInfo timing)
 {
 	f32 dt = (f32)timing.interval;
@@ -173,6 +204,7 @@ internal void Tick(ZEFrameTimeInfo timing)
 		// tick
 		Sim_TickForward(dt);
 	}
+	UpdateDebugText();
 	
 	// TickPlayer(dt);
 	// Sim_SyncDrawObjects();

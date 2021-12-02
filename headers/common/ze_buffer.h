@@ -46,6 +46,12 @@ struct ZEBuffer
     {
         return capacity - (cursor - start);
     }
+	
+	f32 PercentageUsed()
+	{
+		zeSize space = Space();
+		return ((capacity - space) / space) * 100.f;
+	}
 
     i32 IsValid()
     {
