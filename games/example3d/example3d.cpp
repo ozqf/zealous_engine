@@ -29,6 +29,14 @@
 #define ENT_STATE_NONE 0
 #define ENT_STATE_DEAD 1 // do not interact with anything that is dead!
 
+#define GAME_STATE_TITLE 0
+#define GAME_STATE_STARTUP 1
+#define GAME_STATE_PLAYING 2
+#define GAME_STATE_DEAD 3
+
+///////////////////////////////////////////////////
+// types
+///////////////////////////////////////////////////
 struct Entity;
 
 typedef void(EntityTick)(Entity* ent, f32 delta);
@@ -47,10 +55,19 @@ struct Entity
     EntityTick* tickFunction;
 };
 
-#define GAME_STATE_TITLE 0
-#define GAME_STATE_STARTUP 1
-#define GAME_STATE_PLAYING 2
-#define GAME_STATE_DEAD 3
+///////////////////////////////////////////////////
+// functions
+///////////////////////////////////////////////////
+
+// add/remove entity definitions
+internal Entity* CreateEntity(i32 entType);
+internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir);
+internal Entity* CreateEnemy(Vec3 pos, f32 yaw);
+
+// entity update functions
+internal void TickPlayer(Entity* ent, f32 delta);
+internal void TickProjectile(Entity *ent, f32 delta);
+internal void TickEnemy(Entity* ent, f32 delta);
 
 internal i32 g_gameState = 0;
 internal i32 g_pendingState = -1;
@@ -72,15 +89,10 @@ internal ZRMeshObjData g_wallMeshObjData;
 internal ZRMeshObjData g_projMeshObjData;
 internal ZRMeshObjData g_enemyMeshObjData;
 
-// add/remove entity definitions
-internal Entity* CreateEntity(i32 entType);
-internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir);
-internal Entity* CreateEnemy(Vec3 pos, f32 yaw);
 
-// entity update functions
-internal void TickPlayer(Entity* ent, f32 delta);
-internal void TickProjectile(Entity *ent, f32 delta);
-internal void TickEnemy(Entity* ent, f32 delta);
+///////////////////////////////////////////////////
+// implementations
+///////////////////////////////////////////////////
 
 internal Entity* CreateEntity(i32 entType)
 {
@@ -96,6 +108,11 @@ internal Entity* CreateEntity(i32 entType)
 
 internal void QueueEntityRemoval(Entity* ent)
 {
+	if (ent == NULL)
+	{
+		printf("Tried to remove a null ent\n");
+		return;
+	}
 	ent->state = ENT_STATE_DEAD;
     g_entities.MarkForRemoval(ent->id);
     if (ent->drawObj != 0)
@@ -345,12 +362,20 @@ internal void TickProjectile(Entity* ent, f32 delta)
     // {
     //     printf("Projectile touching %d ents\n", numTouchResults);
     // }
+	i32 cull = NO;
     for (i32 i = 0; i < numTouchResults; ++i)
     {
         // printf("Culling ent %d\n", touchResults[i]);
+		// remove the victim
         Entity* victim = (Entity*)g_entities.GetById(touchResults[i]);
         QueueEntityRemoval(victim);
+		cull = YES;
     }
+	// remove the projectile
+	if (cull == YES)
+	{
+		QueueEntityRemoval(ent);
+	}
 }
 
 // Function callback for our custom console command

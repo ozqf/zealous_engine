@@ -185,7 +185,7 @@ internal void UpdateCursor()
 internal void UpdateDebugText()
 {
 	char* str = Sim_GetDebugText();
-	printf("%s\n", str);
+	// printf("%s\n", str);
 	ZRDrawObj* obj = g_engine.scenes.GetObject(g_uiScene, g_debugTextObj);
 	if (obj == NULL)
 	{

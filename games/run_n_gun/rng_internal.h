@@ -27,6 +27,7 @@
 
 struct Ent2d
 {
+	i32 id;
 	i32 type;
     Vec2 velocity;
     // f32 degrees;
@@ -63,6 +64,8 @@ ze_external char* Sim_GetDebugText();
 ze_external void Sim_SyncDrawObjects();
 ze_external void Sim_TickForward(f32 delta);
 ze_external void Sim_TickBackward(f32 delta);
+
+ze_external void Sim_DebugScanFrameData(i32 maxFrames);
 
 #endif // RNG_INTERNAL_H
  
