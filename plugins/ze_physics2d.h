@@ -1,6 +1,8 @@
 #ifndef ZE_PHYSICS2D_H
 #define ZE_PHYSICS2D_H
-
+/*
+2D physics public interface
+*/
 #define ZP_SHAPE_TYPE_BOX 0
 #define ZP_SHAPE_TYPE_CIRCLE 1
 
@@ -16,6 +18,7 @@ struct BodyState
 {
     Transform2d t;
     Vec2 velocity;
+    f32 angularVelocity;
 };
 
 struct ZPShapeDef

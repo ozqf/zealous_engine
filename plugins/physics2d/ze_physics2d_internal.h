@@ -1,6 +1,8 @@
 #ifndef ZE_PHYSICS2D_INTERNAL_H
 #define ZE_PHYSICS2D_INTERNAL_H
-
+/*
+2D physics box2d implementation - private header
+*/
 #include "../ze_physics2d.h"
 
 // Box2d must be built in 64 bit, using embedded standard library and exception disabled.

@@ -50,6 +50,7 @@ struct DebrisEntState
 	f32 depth;
 	f32 degrees;
 	Vec2 velocity;
+	f32 angularVelocity;
 };
 
 struct RNGShared
@@ -65,7 +66,7 @@ ze_external void Sim_SyncDrawObjects();
 ze_external void Sim_TickForward(f32 delta);
 ze_external void Sim_TickBackward(f32 delta);
 
-ze_external void Sim_DebugScanFrameData(i32 maxFrames);
+ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames);
 
 #endif // RNG_INTERNAL_H
  

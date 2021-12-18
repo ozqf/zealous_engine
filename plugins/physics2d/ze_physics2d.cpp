@@ -1,3 +1,6 @@
+/*
+2D physics box2d implementation
+*/
 #include "ze_physics2d_internal.h"
 
 ze_internal b2Vec2 g_gravity(0.0f, -20.0f);
@@ -60,6 +63,7 @@ ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state)
 
 	vol->body->SetTransform(b2Vec2_FromVec2(state.t.pos), state.t.radians);
 	vol->body->SetLinearVelocity(b2Vec2_FromVec2(state.velocity));
+	vol->body->SetAngularVelocity(state.angularVelocity);
 }
 
 ze_external BodyState ZP_GetBodyState(zeHandle bodyId)
@@ -73,6 +77,7 @@ ze_external BodyState ZP_GetBodyState(zeHandle bodyId)
 	state.t.radians = vol->body->GetAngle();
 	b2Vec2 v = vol->body->GetLinearVelocity();
 	state.velocity = Vec2_FromB2Vec2(v);
+	state.angularVelocity = vol->body->GetAngularVelocity();
 	return state;
 }
 

@@ -204,6 +204,10 @@ internal void Tick(ZEFrameTimeInfo timing)
 		// tick
 		Sim_TickForward(dt);
 	}
+	else if (g_engine.input.GetActionValue("backward") > 0)
+	{
+		Sim_TickBackward(dt);
+	}
 	UpdateDebugText();
 	
 	// TickPlayer(dt);
