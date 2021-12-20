@@ -5,7 +5,7 @@
 struct ZEFrameTimeInfo
 {
 	i32 frameRate;
-	i32 frameNumber;
+	frameInt frameNumber;
 	f64 interval;
 	// f64 timeSinceStart;
 };

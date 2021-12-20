@@ -264,14 +264,14 @@ static void key_callback(GLFWwindow *window, int glfwKey, int scancode, int acti
     {
         //ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")
         //printf("WINDOW Writing key %d pressed\n", key);
-        Sys_WriteInputEvent(&g_events, keyCode, 1, 1);
+        Sys_WriteInputEvent(&g_events, keyCode, 1, 1, ZEngine_GetFrameNumber());
         //ZKeys_WriteEvent(&g_events, key, 1);
     }
     else if (action == GLFW_RELEASE)
     {
         //ZE_ASSERT(g_events.Space() >= sizeof(ze_key_event), "Events buffer overflow")
         //printf("WINDOW Writing key %d released\n", key);
-        Sys_WriteInputEvent(&g_events, keyCode, 0, 1);
+        Sys_WriteInputEvent(&g_events, keyCode, 0, 1, ZEngine_GetFrameNumber());
         //ZKeys_WriteEvent(&g_events, key, 0);
     }
 }
@@ -486,8 +486,8 @@ ze_external void Platform_PollEvents()
     f32 nY = (f32)posY / g_windowSize[1];
     nX = (nX * 2.f) - 1.f;
     nY = (nY * 2.f) - 1.f;
-    Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_X, (i32)posX, nX);
-    Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_Y, (i32)posY, nY);
+    Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_X, (i32)posX, nX, ZEngine_GetFrameNumber());
+    Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_Y, (i32)posY, nY, ZEngine_GetFrameNumber());
     //ZEBuffer* buf = &g_events;
     BUF_BLOCK_BEGIN_READ((&g_events), header)
         if (header->type == ZE_SYS_EVENT_TYPE_INPUT)

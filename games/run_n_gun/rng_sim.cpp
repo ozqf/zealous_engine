@@ -369,7 +369,7 @@ ze_external char* Sim_GetDebugText()
 
 ze_external void Sim_TickForward(f32 delta)
 {
-	printf("Run frame %d\n", g_currentFrame);
+	// printf("Run frame %d\n", g_currentFrame);
 	
 	g_currentFrame += 1;
 	if (g_currentFrame > g_lastFrame)
@@ -457,7 +457,7 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 	g_engine = engine;
 	g_scene = sceneId;
 	
-	g_frames = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));
+	g_frames = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1024));
 	ZE_InitBlobStore(g_engine.system.Malloc, &g_entities, 1024, sizeof(Ent2d), 0);
 	
 	g_debugText = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));

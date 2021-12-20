@@ -7,16 +7,22 @@
 
 #define ACCLE_FORCE 100
 #define MOVE_SPEED 8
+
+#define GAME_STATE_PLAYING 0
+#define GAME_STATE_PAUSED 1
+
 const i32 screenSize = 8;
-internal ZEngine g_engine;
-internal zeHandle g_scene;
-internal zeHandle g_uiScene;
-internal zeHandle g_debugTextObj;
-internal zeHandle g_playerId;
-internal zeHandle g_playerGunId;
-internal zeHandle g_cursorId;
-internal Vec2 g_mousePos;
-internal i32 g_platformTexture;
+ze_internal ZEngine g_engine;
+ze_internal zeHandle g_scene;
+ze_internal zeHandle g_uiScene;
+ze_internal zeHandle g_debugTextObj;
+ze_internal zeHandle g_playerId;
+ze_internal zeHandle g_playerGunId;
+ze_internal zeHandle g_cursorId;
+ze_internal Vec2 g_mousePos;
+ze_internal i32 g_platformTexture;
+
+ze_internal i32 g_gameState = GAME_STATE_PLAYING;
 
 /*internal void AddPlayer(Vec3 pos)
 {
@@ -199,15 +205,35 @@ internal void Tick(ZEFrameTimeInfo timing)
 {
 	f32 dt = (f32)timing.interval;
 	UpdateCursor();
-	if (g_engine.input.GetActionValue("forward") > 0)
+
+	switch (g_gameState)
 	{
-		// tick
+		case GAME_STATE_PAUSED:
+		if (g_engine.input.HasActionToggledOn("special", timing.frameNumber))
+		{
+			g_gameState = GAME_STATE_PLAYING;
+		}
+		if (g_engine.input.GetActionValue("forward") > 0)
+		{
+			// tick
+			Sim_TickForward(dt);
+		}
+		else if (g_engine.input.GetActionValue("backward") > 0)
+		{
+			Sim_TickBackward(dt);
+		}
+		break;
+
+		default:
+		if (g_engine.input.HasActionToggledOn("special", timing.frameNumber))
+		{
+			g_gameState = GAME_STATE_PAUSED;
+			break;
+		}
 		Sim_TickForward(dt);
+		break;
 	}
-	else if (g_engine.input.GetActionValue("backward") > 0)
-	{
-		Sim_TickBackward(dt);
-	}
+
 	UpdateDebugText();
 	
 	// TickPlayer(dt);

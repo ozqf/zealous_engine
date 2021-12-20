@@ -120,6 +120,7 @@ struct SysInputEvent
     u32 inputID = 0;
     i32 value = 0;
     f32 normalised = 0;
+	frameInt frame;
 };
 
 ////////////////////////////////////////////////////
@@ -135,18 +136,28 @@ static void Sys_EnqueueEvent(ZEBuffer *buf, BufferBlock *ev)
     buf->cursor += ZE_COPY(ev, buf->cursor, ev->size);
 }
 
-static void Sys_CreateInputEvent(SysInputEvent *ev, u32 inputID, i32 value, f32 normalised)
+/*static void Sys_CreateInputEvent(SysInputEvent *ev, u32 inputID, i32 value, f32 normalised)
 {
     BufBlock_PrepareHeader(&ev->header, sizeof(SysInputEvent), ZE_SYS_EVENT_TYPE_INPUT);
     ev->inputID = inputID;
     ev->value = value;
     ev->normalised = normalised;
-}
+}*/
 
-static void Sys_WriteInputEvent(ZEBuffer *b, u32 inputID, i32 value, f32 normalised)
+static void Sys_WriteInputEvent(
+	ZEBuffer *b,
+	u32 inputID,
+	i32 value,
+	f32 normalised,
+	frameInt frameNumber)
 {
     SysInputEvent ev = {};
-    Sys_CreateInputEvent(&ev, inputID, value, normalised);
+    // Sys_CreateInputEvent(&ev, inputID, value, normalised);
+	BufBlock_PrepareHeader(&ev.header, sizeof(SysInputEvent), ZE_SYS_EVENT_TYPE_INPUT);
+    ev.inputID = inputID;
+    ev.value = value;
+    ev.normalised = normalised;
+	ev.frame = frameNumber;
     Sys_EnqueueEvent(b, BUF_BLOCK_CAST(&ev));
 }
 
@@ -171,6 +182,7 @@ static void Sys_PrepareEvent(SysEvent *ev, i32 type, i32 size)
 //////////////////////////////////
 ze_external ZEngine GetEngine();
 ze_external ZGameDef GetGameDef();
+ze_external frameInt ZEngine_GetFrameNumber();
 ze_external i32 GetSingleFrameMode();
 
 //////////////////////////////////

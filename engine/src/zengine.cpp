@@ -9,7 +9,7 @@ ze_internal ZGame g_game = {};
 ze_internal ZGameDef g_gameDef = {};
 ze_internal ZEngine g_engine;
 ze_internal i32 g_bSingleFrame = NO;
-ze_internal i32 g_frameNumber = 0;
+ze_internal frameInt g_frameNumber = 0;
 
 ze_internal i32 g_targetFPS = 0;
 ze_internal f32 g_targetDelta = 0;
@@ -40,6 +40,11 @@ ze_external ZEngine GetEngine()
 ze_external ZGameDef GetGameDef()
 {
 	return g_gameDef;
+}
+
+ze_external frameInt ZEngine_GetFrameNumber()
+{
+	return g_frameNumber;
 }
 
 internal void ZE_LinkToGame(ZGame_LinkupFunction gameLink)

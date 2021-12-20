@@ -114,7 +114,8 @@ struct ZInput
     void (*AddAction)(u32 keyCode1, u32 keyCode2, char *label);
     i32 (*GetActionValue)(char *actionName);
     f32 (*GetActionValueNormalised)(char *actionName);
-    // i32 (*HasActionToggledOn)(char* actionName);
+
+    i32 (*HasActionToggledOn)(char* actionName, frameInt frameNumber);
     // i32 (*HasActionToggledOff)(char* actionName);
 	
 	const char* (*GetInputLongLabel)(i32 code);

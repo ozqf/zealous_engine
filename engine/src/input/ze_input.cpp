@@ -67,8 +67,18 @@ internal i32 ZInput_GetActionValue(char* name)
     return ((InputAction*)ptr)->value;
 }
 
+internal InputAction* FindActionByName(char* name)
+{
+	i32 id = ZE_Hash_djb2((u8*)name);
+    void* ptr = g_actionsByName->FindPointer(id);
+    if (ptr == NULL)
+    {
+        return NULL;
+    }
+    return ((InputAction*)ptr);
+}
 
-internal f32 Input_GetActionValueNormalised(char *name)
+internal f32 GetActionValueNormalised(char *name)
 {
     i32 id = ZE_Hash_djb2((u8*)name);
     void* ptr = g_actionsByName->FindPointer(id);
@@ -79,111 +89,6 @@ internal f32 Input_GetActionValueNormalised(char *name)
     return ((InputAction*)ptr)->normalised;
 }
 
-// struct InputActionSet
-// {
-//     InputAction *actions;
-//     i32 count;
-// };
-
-// internal InputActionSet* g_set;
-#if 0
-internal void Input_InitAction(
-    ZEHashTable *actions, u32 keyCode1, u32 keyCode2, char *label)
-{
-    i32 index = actions->count++;
-    actions->actions[index].keyCode1 = keyCode1;
-    actions->actions[index].keyCode2 = keyCode2;
-    actions->actions[index].value = 0;
-    actions->actions[index].lastFrame = 0;
-    i32 len = strlen(label);
-    if (len > 16)
-    {
-        printf("Cannot add action %s - label must be below 16 chars\n",
-               label);
-        return;
-    }
-    ZStr_CopyLimited(label, actions->actions[index].label, 16);
-}
-
-internal void Input_ClearValues(InputActionSet *actions)
-{
-    for (i32 i = 0; i < actions->count; ++i)
-    {
-        actions->actions[i].value = 0;
-        actions->actions[i].normalised = 0;
-    }
-}
-
-// Find an action... duh
-internal InputAction *Input_FindAction(InputAction *actions, i32 numActions, char *name)
-{
-    for (i32 i = 0; i < numActions; ++i)
-    {
-        InputAction *action = &actions[i];
-        if (!ZStr_Compare(action->label, name))
-        {
-            return action;
-        }
-    }
-    printf("Failed to find action %s\n", name);
-    return NULL;
-}
-
-internal i32 Input_GetActionValue(InputAction *actions, i32 numActions, char *actionName)
-{
-    InputAction *action = Input_FindAction(actions, numActions, actionName);
-    ZE_ASSERT(action != NULL, actionName);
-    return action->value;
-}
-
-internal i32 Input_GetActionValue(InputActionSet *actions, char *actionName)
-{
-    return Input_GetActionValue(actions->actions, actions->count, actionName);
-}
-
-internal f32 Input_GetActionValueNormalised(char *actionName)
-{
-    InputAction *action = Input_FindAction(actions->actions, actions->count, actionName);
-    ZE_ASSERT(action != NULL, actionName);
-    return action->normalised;
-}
-
-internal u8 Input_CheckActionToggledOn(InputActionSet *actions, char *actionName, frameInt frameNumber)
-{
-    InputAction *action = Input_FindAction(actions->actions, actions->count, actionName);
-    ZE_ASSERT(action != NULL, actionName);
-    //printf("Action frame %lld vs platform frame %lld\n",
-    //    action->lastFrame, frameNumber);
-    return (action->value != 0 && action->lastFrame == frameNumber);
-}
-
-internal u8 Input_CheckActionToggledOff(InputActionSet *actions, char *actionName, frameInt frameNumber)
-{
-    InputAction *action = Input_FindAction(actions->actions, actions->count, actionName);
-    ZE_ASSERT(action != NULL, actionName);
-
-    return (action->value == 0 && action->lastFrame == frameNumber);
-}
-
-// Test an input event vs actions array. Return an input if it has changed, NULL if nothing changed
-internal InputAction *Input_TestForAction(
-    InputActionSet *actions, i32 inputValue, f32 normalised, u32 inputKeyCode, frameInt frameNumber)
-{
-    for (i32 i = 0; i < actions->count; ++i)
-    {
-        InputAction *action = &actions->actions[i];
-        if (
-            (action->keyCode1 == inputKeyCode || action->keyCode2 == inputKeyCode) && action->value != inputValue)
-        {
-            action->value = inputValue;
-            action->lastFrame = frameNumber;
-            action->normalised = normalised;
-            return action;
-        }
-    }
-    return NULL;
-}
-#endif
 internal void ZInput_AddAction(u32 keyCode1, u32 keyCode2, char *label)
 {
     // measure required space
@@ -224,6 +129,7 @@ ze_external void ZInput_ReadEvent(SysInputEvent* ev)
         {
             action->value = ev->value;
             action->normalised = ev->normalised;
+			action->lastFrame = ev->frame;
         }
     }
 }
@@ -320,6 +226,14 @@ internal void ZInput_BuildInputsTable()
 	g_inputIds[Z_INPUT_CODE_FORWARDSLASH] = { Z_INPUT_CODE_FORWARDSLASH, "/", "Forwardslash" };
 }
 
+ze_internal i32 ZInput_HasActionToggledOn(char* actionName, frameInt frameNumber)
+{
+	InputAction* action = FindActionByName(actionName);
+	// printf("Has %s toggled? %lld vs %lld\n", actionName, frameNumber, action->lastFrame);
+	return (action->value != 0 && action->lastFrame == frameNumber);
+	// return Input_CheckActionToggledOn(g_actionsByName, actionName, frameNumber);
+}
+
 ze_external ZInput ZInput_RegisterFunctions()
 {
     // allocate
@@ -332,8 +246,10 @@ ze_external ZInput ZInput_RegisterFunctions()
     ZInput inputExport;
     inputExport.AddAction = ZInput_AddAction;
     inputExport.GetActionValue = ZInput_GetActionValue;
-	inputExport.GetActionValueNormalised = Input_GetActionValueNormalised;
+	inputExport.GetActionValueNormalised = GetActionValueNormalised;
 	
+	inputExport.HasActionToggledOn = ZInput_HasActionToggledOn;
+
 	inputExport.GetInputShortLabel = ZInput_GetInputShortLabel;
 	inputExport.GetInputLongLabel = ZInput_GetInputLongLabel;
     return inputExport;
