@@ -186,13 +186,11 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 		def.shape.pos = state->pos;
 		
 		ent->bodyId = ZP_AddBody(def);
-		
-		// printf("Added debris body %d at %.3f, %.3f\n",
-		// 	ent->bodyId, state->pos.x, state->pos.y);
 	}
 
 	// mark ent with latest restore tick
 	ent->lastRestoreTick = restoreTick;
+	ent->tick = state->tick;
 }
 
 ze_internal void Sim_RestoreEntity(EntStateHeader* header, u32 restoreTick)
@@ -350,37 +348,6 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	}
 	
 	FrameHeader* header = Sim_WriteFrame(frames, 0);
-	// ---  write first frame ---
-	
-	/*
-	frames->Clear(NO);
-	i8* start = frames->cursor;
-	ZE_BUF_INIT_PTR_IN_PLACE(header, FrameHeader, frames);
-	header->staticSceneIndex = 0;
-	header->sequence = 0;
-	header->offsetToEnts = frames->cursor - start;
-	
-	i8* entStart = frames->cursor;
-	for (i32 i = 0; i < 20; ++i)
-	{
-		ZE_BUF_INIT_PTR_IN_PLACE(debris, DebrisEntState, frames)
-		debris->header.type = ENT_TYPE_DEBRIS;
-		debris->header.numBytes = sizeof(DebrisEntState);
-		debris->header.id = ReserveDynamicIds(1);
-		debris->pos.x = RANDF_RANGE(-10, 10);
-		debris->pos.y = RANDF_RANGE(1, 5);
-		debris->depth = 0;
-	}
-	header->entBytes = frames->cursor - entStart;
-	
-	// footer
-	ZE_BUF_INIT_PTR_IN_PLACE(footer, FrameFooter, frames)
-	// -- no more added beyond this point --
-	i8* end = frames->cursor;
-	header->size = end - start;
-	footer->size = header->size;
-	printf("Wrote %zd bytes to frame %d\n", header->size, header->sequence);
-	*/
 	return header;
 }
 
@@ -427,19 +394,36 @@ ze_external char* Sim_GetDebugText()
 	return (char*)g_debugText.start;
 }
 
+ze_internal void TickEntities(f32 delta)
+{
+	i32 len = g_entities.Count();
+	for (i32 i = 0; i < len; ++i)
+	{
+		Ent2d* ent = (Ent2d*)g_entities.GetByIndex(i);
+		if (ent == NULL) { continue; }
+		
+		EntityType* type = &g_types[ent->type];
+		if (type->Tick != NULL)
+		{
+			type->Tick(ent, delta);
+		}
+	}
+}
+
 ze_external void Sim_TickForward(f32 delta)
 {
-	// printf("Run frame %d\n", g_currentFrame);
-	
 	g_currentFrame += 1;
 	if (g_currentFrame > g_lastFrame)
 	{
+		// run a new frame
+		TickEntities(delta);
 		ZPhysicsTick(delta);
 		Sim_WriteFrame(&g_frames, g_currentFrame);
 		g_lastFrame += 1;
 	}
 	else
 	{
+		// restore frame
 		FrameHeader* header = FindFrame(&g_frames, g_currentFrame);
 		Sim_RestoreFrame(header);
 	}
@@ -460,6 +444,15 @@ ze_external void Sim_TickBackward(f32 delta)
 	UpdateDebugText();
 }
 
+ze_internal void TickDebris(Ent2d* ent, f32 delta)
+{
+	ent->tick += delta;
+	if (ent->tick > 5.f)
+	{
+		Sim_RemoveEntity(ent);
+	}
+}
+
 ze_internal void InitEntityTypes()
 {
 	EntityType* entType = &g_types[ENT_TYPE_DEBRIS];
@@ -467,6 +460,7 @@ ze_internal void InitEntityTypes()
 	entType->label = "Debris";
 	entType->Restore = RestoreDebris;
 	entType->Write = WriteDebris;
+	entType->Tick = TickDebris;
 }
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames)

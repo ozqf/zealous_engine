@@ -31,6 +31,7 @@ struct Ent2d
 	i32 type;
 	u32 lastRestoreTick;
     Vec2 velocity;
+	f32 tick;
     // f32 degrees;
     // f32 rotDegreesPerSecond;
 	zeHandle drawId = 0;
@@ -52,6 +53,7 @@ struct DebrisEntState
 	f32 degrees;
 	Vec2 velocity;
 	f32 angularVelocity;
+	f32 tick;
 };
 
 struct RNGShared
