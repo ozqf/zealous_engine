@@ -20,6 +20,7 @@ ze_internal zeHandle g_playerId;
 ze_internal zeHandle g_playerGunId;
 ze_internal zeHandle g_cursorId;
 ze_internal Vec2 g_mousePos;
+ze_internal Vec2 g_mouseWorldPos;
 ze_internal i32 g_platformTexture;
 
 ze_internal i32 g_gameState = GAME_STATE_PLAYING;
@@ -186,6 +187,8 @@ internal void UpdateCursor()
 
 	cursor->t.pos.x = g_mousePos.x;
 	cursor->t.pos.y = g_mousePos.y;
+	// update with scroll position when that's implemented...
+	g_mouseWorldPos = g_mousePos;
 }
 
 internal void UpdateDebugText()
@@ -228,6 +231,15 @@ internal void Tick(ZEFrameTimeInfo timing)
 		if (g_engine.input.HasActionToggledOn("special", timing.frameNumber))
 		{
 			g_gameState = GAME_STATE_PAUSED;
+			break;
+		}
+		if (g_engine.input.HasActionToggledOn("attack_1", timing.frameNumber))
+		{
+			printf("Spawn debris\n");
+			Vec2 pos = {};
+			pos.x = RANDF_RANGE(-10, 10);
+			pos.y = RANDF_RANGE(1, 5);
+			Sim_SpawnDebris(pos);
 			break;
 		}
 		Sim_TickForward(dt);

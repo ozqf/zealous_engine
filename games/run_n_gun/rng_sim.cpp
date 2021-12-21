@@ -36,12 +36,14 @@ struct EntityType
 {
 	i32 type;
 	char* label;
-	void (*Restore)(EntStateHeader* ptr);
+	void (*Restore)(EntStateHeader* ptr, u32 restoreTick);
 	void (*Write)(Ent2d* ent, ZEBuffer* buf);
 	void (*Tick)(Ent2d* ent, f32 delta);
 };
 
 #define WORLD_VOLUMES_MAX 1024
+
+ze_internal u32 g_restoreTick = 1;
 
 ze_internal EntityType g_types[ENT_TYPE__LAST];
 
@@ -89,6 +91,21 @@ ze_internal Ent2d* GetFreeEntity(i32 id)
 	return ent;
 }
 
+ze_internal void Sim_RemoveEntity(Ent2d* ent)
+{
+	if (ent == NULL) { return; }
+
+	// remove components
+	if (ent->drawId != 0)
+	{ g_engine.scenes.RemoveObject(g_scene, ent->drawId); }
+
+	if (ent->bodyId != 0)
+	{ ZP_RemoveBody(ent->bodyId); }
+
+	// remove entity
+	g_entities.MarkForRemoval(ent->id);
+}
+
 ze_internal WorldVolume* GetFreeWorldVolume()
 {
 	WorldVolume* vol = &g_worldVolumes[g_numWorldVolumes];
@@ -128,7 +145,10 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 	AddStatic({ 12, 0 }, { 1, 16 });
 }
 
-ze_internal void RestoreDebris(EntStateHeader* stateHeader)
+/////////////////////////////////////////////////
+// read frame data
+/////////////////////////////////////////////////
+ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 {
 	DebrisEntState* state = (DebrisEntState*)stateHeader;
 	Ent2d* ent = (Ent2d*)g_entities.GetById(state->header.id);
@@ -167,11 +187,61 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader)
 		
 		ent->bodyId = ZP_AddBody(def);
 		
-		printf("Added debris body %d at %.3f, %.3f\n",
-			ent->bodyId, state->pos.x, state->pos.y);
+		// printf("Added debris body %d at %.3f, %.3f\n",
+		// 	ent->bodyId, state->pos.x, state->pos.y);
 	}
+
+	// mark ent with latest restore tick
+	ent->lastRestoreTick = restoreTick;
 }
 
+ze_internal void Sim_RestoreEntity(EntStateHeader* header, u32 restoreTick)
+{
+	EntityType* entType = &g_types[header->type];
+	entType->Restore(header, restoreTick);
+}
+
+ze_external void Sim_RestoreFrame(FrameHeader* header)
+{
+	zeSize entityBytes = header->size - (sizeof(FrameHeader) + sizeof(FrameFooter));
+	u8* read = (u8*)header + sizeof(FrameHeader);
+	u8* end = read + entityBytes;
+	
+	if (g_staticSceneIndex != header->staticSceneIndex)
+	{
+		Sim_RestoreStaticScene(header->staticSceneIndex);
+	}
+
+	// firstly, iterate frame state data.
+	// ents that are restored will be marked with the current restore tick.
+	g_restoreTick += 1;
+	while(read < end)
+	{
+		EntStateHeader* entHeader = (EntStateHeader*)read;
+		read += entHeader->numBytes;
+		Sim_RestoreEntity(entHeader, g_restoreTick);
+	}
+
+	// iterate ents list and remove any entities not marked
+	// with the current restore tick.
+	i32 numEnts = g_entities.Count();
+	for (i32 i = 0; i < numEnts; ++i)
+	{
+		Ent2d* ent = (Ent2d*)g_entities.GetByIndex(i);
+		if (ent == NULL) { continue; }
+
+		if (ent->lastRestoreTick != g_restoreTick)
+		{
+			Sim_RemoveEntity(ent);
+			// g_entities.MarkForRemoval(ent->id);
+		}
+	}
+	g_entities.Truncate();
+}
+
+/////////////////////////////////////////////////
+// write frame data
+/////////////////////////////////////////////////
 ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
 {
 	DebrisEntState* state = (DebrisEntState*)buf->cursor;
@@ -187,31 +257,6 @@ ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
 	state->degrees = body.t.radians * RAD2DEG;
 	state->velocity = body.velocity;
 	state->angularVelocity = body.angularVelocity;
-}
-
-ze_internal void Sim_RestoreEntity(EntStateHeader* header)
-{
-	EntityType* entType = &g_types[header->type];
-	entType->Restore(header);
-}
-
-ze_external void Sim_RestoreFrame(FrameHeader* header)
-{
-	zeSize entityBytes = header->size - (sizeof(FrameHeader) + sizeof(FrameFooter));
-	u8* read = (u8*)header + sizeof(FrameHeader);
-	u8* end = read + entityBytes;
-	
-	if (g_staticSceneIndex != header->staticSceneIndex)
-	{
-		Sim_RestoreStaticScene(header->staticSceneIndex);
-	}
-
-	while(read < end)
-	{
-		EntStateHeader* entHeader = (EntStateHeader*)read;
-		read += entHeader->numBytes;
-		Sim_RestoreEntity(entHeader);
-	}
 }
 
 ze_external FrameHeader* Sim_WriteFrame(ZEBuffer* buf, i32 frameNumber)
@@ -267,6 +312,17 @@ ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 	return NULL;
 }
 
+ze_external void Sim_SpawnDebris(Vec2 pos)
+{
+	DebrisEntState debris = {};
+	debris.header.type = ENT_TYPE_DEBRIS;
+	debris.header.numBytes = sizeof(DebrisEntState);
+	debris.header.id = ReserveDynamicIds(1);
+	debris.pos = pos;
+	debris.depth = 0;
+	RestoreDebris(&debris.header, g_restoreTick);
+}
+
 ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 {
 	// --- clear frames array ---
@@ -277,16 +333,20 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	Sim_RestoreStaticScene(0);
 	
 	// add ents
-	for (i32 i = 0; i < 20; ++i)
+	for (i32 i = 0; i < 0; ++i)
 	{
-		DebrisEntState debris = {};
+		Vec2 pos = {};
+		pos.x = RANDF_RANGE(-10, 10);
+		pos.y = RANDF_RANGE(1, 5);
+		Sim_SpawnDebris(pos);
+		/*DebrisEntState debris = {};
 		debris.header.type = ENT_TYPE_DEBRIS;
 		debris.header.numBytes = sizeof(DebrisEntState);
 		debris.header.id = ReserveDynamicIds(1);
 		debris.pos.x = RANDF_RANGE(-10, 10);
 		debris.pos.y = RANDF_RANGE(1, 5);
 		debris.depth = 0;
-		RestoreDebris(&debris.header);
+		RestoreDebris(&debris.header, g_restoreTick);*/
 	}
 	
 	FrameHeader* header = Sim_WriteFrame(frames, 0);

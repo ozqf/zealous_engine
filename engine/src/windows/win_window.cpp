@@ -281,20 +281,64 @@ static void window_close_callback(GLFWwindow *window)
     ZEngine_BeginShutdown();
 }
 
-static void mouse_position_callback(GLFWwindow* window, double posX, double posY)
+static void mouse_position_callback(
+	GLFWwindow* window,
+	double posX,
+	double posY)
 {
     // printf("Mouse move %.3f, %.3f\n", posX, posY);
     // Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_X, 0, (f32)posX);
     // Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_Y, 0, (f32)posY);
 }
 
-static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+static void mouse_button_callback(
+	GLFWwindow* window,
+	int button,
+	int action,
+	int mods)
 {
+	// printf("Mouse button callback: %d\n", button);
+	i32 zeCode;
+	i32 value;
 
+	switch (button)
+	{
+		case GLFW_MOUSE_BUTTON_LEFT:
+		zeCode = Z_INPUT_CODE_MOUSE_1;
+		break;
+
+		case GLFW_MOUSE_BUTTON_RIGHT:
+		zeCode = Z_INPUT_CODE_MOUSE_2;
+		break;
+
+		default:
+		printf("Unknown GLFW mouse code %d\n", button);
+		return;
+	}
+
+	switch (action)
+	{
+		case GLFW_PRESS:
+		value = 1;
+		break;
+
+		case GLFW_RELEASE:
+		value = 0;
+		break;
+
+		default:
+		printf("Unknown mouse action %d on glfw button %d\n",
+			action, button);
+		return;
+	}
+
+	Sys_WriteInputEvent(
+		&g_events, zeCode, value, (f32)value, ZEngine_GetFrameNumber());
 }
 
 static void InitCallbacks(GLFWwindow *window)
 {
+	printf("Init window callbacks\n");
     glfwSetWindowCloseCallback(window, window_close_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);

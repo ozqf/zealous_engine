@@ -30,6 +30,25 @@ ze_internal ZPVolume2d* GetVolume(zeHandle id)
 	}
 }
 
+ze_external zErrorCode ZP_RemoveBody(zeHandle bodyId)
+{
+	if (bodyId == 0) { return ZE_ERROR_NOT_FOUND; }
+
+	ZPVolume2d* vol = GetVolume(bodyId);
+	g_world.DestroyBody(vol->body);
+	if (bodyId > 0)
+	{
+		g_dynamicBodies.MarkForRemoval(bodyId);
+		g_dynamicBodies.Truncate();
+	}
+	else
+	{
+		g_staticBodies.MarkForRemoval(bodyId);
+		g_dynamicBodies.Truncate();
+	}
+	return ZE_ERROR_NONE;
+}
+
 ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId)
 {
 	ZPVolume2d* vol = GetVolume(bodyId);

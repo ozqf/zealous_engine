@@ -42,6 +42,7 @@ struct ZPBodyDef
 // ze_external zeHandle ZP_AddDynamicVolume(ZPShapeDef def);
 ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size);
 ze_external zeHandle ZP_AddBody(ZPBodyDef def);
+ze_external zErrorCode ZP_RemoveBody(zeHandle bodyId);
 
 // affect
 ze_external void ZP_ApplyForce(zeHandle bodyId, Vec2 force);

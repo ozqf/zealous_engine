@@ -29,6 +29,7 @@ struct Ent2d
 {
 	i32 id;
 	i32 type;
+	u32 lastRestoreTick;
     Vec2 velocity;
     // f32 degrees;
     // f32 rotDegreesPerSecond;
@@ -65,6 +66,7 @@ ze_external char* Sim_GetDebugText();
 ze_external void Sim_SyncDrawObjects();
 ze_external void Sim_TickForward(f32 delta);
 ze_external void Sim_TickBackward(f32 delta);
+ze_external void Sim_SpawnDebris(Vec2 pos);
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames);
 
