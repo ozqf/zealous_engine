@@ -52,6 +52,8 @@ internal void Init()
 {
 	// init physics plugin
 	ZPhysicsInit(g_engine);
+
+	TilesInit(g_engine);
 	
 	// setup scene
 	g_scene = g_engine.scenes.AddScene(0, ENTITY_COUNT, sizeof(Ent2d));
@@ -237,8 +239,9 @@ internal void Tick(ZEFrameTimeInfo timing)
 		{
 			printf("Spawn debris\n");
 			Vec2 pos = {};
-			pos.x = RANDF_RANGE(-10, 10);
-			pos.y = RANDF_RANGE(1, 5);
+			// pos.x = RANDF_RANGE(-10, 10);
+			// pos.y = RANDF_RANGE(1, 5);
+			pos = g_mouseWorldPos;
 			Sim_SpawnDebris(pos);
 			break;
 		}

@@ -4,6 +4,8 @@
 #include "../../headers/zengine.h"
 #include "../../plugins/ze_physics2d.h"
 
+#include "tile_map.h"
+
 // for RAND
 #include <stdlib.h>
 
