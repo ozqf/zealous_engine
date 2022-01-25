@@ -32,15 +32,6 @@ struct FrameFooter
 	zeSize size;
 };
 
-struct EntityType
-{
-	i32 type;
-	char* label;
-	void (*Restore)(EntStateHeader* ptr, u32 restoreTick);
-	void (*Write)(Ent2d* ent, ZEBuffer* buf);
-	void (*Tick)(Ent2d* ent, f32 delta);
-};
-
 #define WORLD_VOLUMES_MAX 1024
 
 ze_internal u32 g_restoreTick = 1;
@@ -68,6 +59,16 @@ ze_internal i32 g_nextStaticId = -1;
 
 ze_internal ZEBuffer g_debugText;
 
+ze_external ZEngine GetEngine()
+{
+	return g_engine;
+}
+
+ze_external zeHandle GetGameScene()
+{
+	return g_scene;
+}
+
 ze_internal i32 ReserveDynamicIds(i32 count)
 {
 	ZE_ASSERT(count > 0, "Reserve Id count must be > 0")
@@ -84,14 +85,23 @@ ze_internal i32 ReserveStaticIds(i32 count)
 	return result;
 }
 
-ze_internal Ent2d* GetFreeEntity(i32 id)
+ze_external Ent2d* Sim_GetFreeEntity(i32 id)
 {
 	Ent2d* ent = (Ent2d*)g_entities.GetFreeSlot(id);
 	ZE_ASSERT(ent != NULL, "No free entities")
 	return ent;
 }
 
-ze_internal void Sim_RemoveEntity(Ent2d* ent)
+ze_external Ent2d* Sim_GetEntById(i32 id)
+{
+	return (Ent2d*)g_entities.GetById(id);
+}
+
+/*
+Function to cleanup basic entity components.
+Should only be called from within an EntityType's remove function.
+*/
+ze_external void Sim_RemoveEntityBase(Ent2d* ent)
 {
 	if (ent == NULL) { return; }
 
@@ -104,6 +114,27 @@ ze_internal void Sim_RemoveEntity(Ent2d* ent)
 
 	// remove entity
 	g_entities.MarkForRemoval(ent->id);
+}
+
+/*
+Call this when wanting to remove an entity - calls type specific
+remove function.
+*/
+ze_external void Sim_RemoveEntity(Ent2d* ent)
+{
+	if (ent == NULL) { return; }
+	
+	EntityType* type = Sim_GetEntityType(ent->type);
+	ZE_ASSERT(type != NULL, "Null Entity type")
+	ZE_ASSERT(type->Remove != NULL, "Entity Type has NULL Remove func")
+	type->Remove(ent);
+}
+
+ze_external EntityType* Sim_GetEntityType(i32 typeId)
+{
+	ZE_ASSERT(typeId >= 0, "Type id < than zero")
+	ZE_ASSERT(typeId < ENT_TYPE__LAST, "Type Id > max")
+	return &g_types[typeId];
 }
 
 ze_internal WorldVolume* GetFreeWorldVolume()
@@ -148,6 +179,7 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 /////////////////////////////////////////////////
 // read frame data
 /////////////////////////////////////////////////
+#if 0
 ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 {
 	DebrisEntState* state = (DebrisEntState*)stateHeader;
@@ -165,7 +197,7 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 	else
 	{
 		// add entity and restore core entity info
-		ent = GetFreeEntity(state->header.id);
+		ent = Sim_GetFreeEntity(state->header.id);
 		ent->type = ENT_TYPE_DEBRIS;
 		ent->id = state->header.id;
 
@@ -192,6 +224,7 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 	ent->lastRestoreTick = restoreTick;
 	ent->tick = state->tick;
 }
+#endif
 
 ze_internal void Sim_RestoreEntity(EntStateHeader* header, u32 restoreTick)
 {
@@ -240,6 +273,7 @@ ze_external void Sim_RestoreFrame(FrameHeader* header)
 /////////////////////////////////////////////////
 // write frame data
 /////////////////////////////////////////////////
+#if 0
 ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
 {
 	DebrisEntState* state = (DebrisEntState*)buf->cursor;
@@ -256,6 +290,7 @@ ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
 	state->velocity = body.velocity;
 	state->angularVelocity = body.angularVelocity;
 }
+#endif
 
 ze_external FrameHeader* Sim_WriteFrame(ZEBuffer* buf, i32 frameNumber)
 {
@@ -318,7 +353,8 @@ ze_external void Sim_SpawnDebris(Vec2 pos)
 	debris.header.id = ReserveDynamicIds(1);
 	debris.pos = pos;
 	debris.depth = 0;
-	RestoreDebris(&debris.header, g_restoreTick);
+	// RestoreDebris(&debris.header, g_restoreTick);
+	Sim_GetEntityType(ENT_TYPE_DEBRIS)->Restore(&debris.header, g_restoreTick);
 }
 
 ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
@@ -444,23 +480,22 @@ ze_external void Sim_TickBackward(f32 delta)
 	UpdateDebugText();
 }
 
-ze_internal void TickDebris(Ent2d* ent, f32 delta)
-{
-	ent->tick += delta;
-	if (ent->tick > 5.f)
-	{
-		Sim_RemoveEntity(ent);
-	}
-}
+// ze_internal void TickDebris(Ent2d* ent, f32 delta)
+// {
+	// ent->tick += delta;
+	// if (ent->tick > 5.f)
+	// {
+		// Sim_RemoveEntity(ent);
+	// }
+// }
 
 ze_internal void InitEntityTypes()
 {
-	EntityType* entType = &g_types[ENT_TYPE_DEBRIS];
-	entType->type = ENT_TYPE_DEBRIS;
-	entType->label = "Debris";
-	entType->Restore = RestoreDebris;
-	entType->Write = WriteDebris;
-	entType->Tick = TickDebris;
+	EntityType* entType;
+	
+	entType	= &g_types[ENT_TYPE_DEBRIS];
+	EntDebris_Register(entType);
+	EntPlayer_Register(&g_types[ENT_TYPE_PLAYER]);
 }
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames)

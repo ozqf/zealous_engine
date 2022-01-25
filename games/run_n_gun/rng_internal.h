@@ -12,6 +12,17 @@
 #define TEX_PLATFORM "platform_texture"
 #define TEX_CURSOR "cursor_texture"
 
+#define MOVE_LEFT "move_left"
+#define MOVE_RIGHT "move_right"
+#define MOVE_UP "move_up"
+#define MOVE_DOWN "move_down"
+
+#define ACCLE_FORCE 100
+#define MOVE_SPEED 8
+
+#define GAME_STATE_PLAYING 0
+#define GAME_STATE_PAUSED 1
+
 #define ENT_TYPE_NONE 0
 #define ENT_TYPE_STATIC 1
 #define ENT_TYPE_PLAYER 2
@@ -58,6 +69,26 @@ struct DebrisEntState
 	f32 tick;
 };
 
+struct PlayerEntState
+{
+	EntStateHeader header;
+	Vec2 pos;
+	f32 depth;
+	f32 degrees;
+	Vec2 velocity;
+	f32 tick;
+};
+
+struct EntityType
+{
+	i32 type;
+	char* label;
+	void (*Restore)(EntStateHeader* ptr, u32 restoreTick);
+	void (*Write)(Ent2d* ent, ZEBuffer* buf);
+	void (*Remove)(Ent2d* ent);
+	void (*Tick)(Ent2d* ent, f32 delta);
+};
+
 struct RNGShared
 {
 	ZEngine engine;
@@ -71,6 +102,20 @@ ze_external void Sim_SyncDrawObjects();
 ze_external void Sim_TickForward(f32 delta);
 ze_external void Sim_TickBackward(f32 delta);
 ze_external void Sim_SpawnDebris(Vec2 pos);
+
+ze_external ZEngine GetEngine();
+ze_external zeHandle GetGameScene();
+
+// general entities
+ze_external Ent2d* Sim_GetFreeEntity(i32 id);
+ze_external Ent2d* Sim_GetEntById(i32 id);
+ze_external EntityType* Sim_GetEntityType(i32 typeId);
+ze_external void Sim_RemoveEntityBase(Ent2d* ent);
+ze_external void Sim_RemoveEntity(Ent2d* ent);
+
+// specific entities
+ze_external void EntDebris_Register(EntityType* type);
+ze_external void EntPlayer_Register(EntityType* type);
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames);
 

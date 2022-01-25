@@ -26,17 +26,19 @@ set compilerDefines=/DPARANOID=1
 
 @rem === DLL ===
 @rem platform
-set compIn1=../games/run_n_gun/run_n_gun.cpp ../games/run_n_gun/rng_sim.cpp
-set compIn2=../plugins/physics2d/ze_physics2d.cpp ../games/run_n_gun/tile_map.cpp
+set compIn1=../games/run_n_gun/run_n_gun.cpp ../games/run_n_gun/rng_sim.cpp ../games/run_n_gun/rng_ent_debris.cpp
+set compIn2=../games/run_n_gun/rng_ent_player.cpp
+set compIn3=../plugins/physics2d/ze_physics2d.cpp ../games/run_n_gun/tile_map.cpp
 
 set linkInA=../lib/box2d/box2d.lib
 
 @echo on
-cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% /link %linkInA%
+cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% %compIn3% /link %linkInA%
 @echo off
 
 set compIn1=
 set compIn2=
+set compIn3=
 set linkInA=
 set buildDir=
 

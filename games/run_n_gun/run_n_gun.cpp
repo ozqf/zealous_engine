@@ -1,16 +1,5 @@
 #include "rng_internal.h"
 
-#define MOVE_LEFT "move_left"
-#define MOVE_RIGHT "move_right"
-#define MOVE_UP "move_up"
-#define MOVE_DOWN "move_down"
-
-#define ACCLE_FORCE 100
-#define MOVE_SPEED 8
-
-#define GAME_STATE_PLAYING 0
-#define GAME_STATE_PAUSED 1
-
 const i32 screenSize = 8;
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
