@@ -9,6 +9,9 @@
 // for RAND
 #include <stdlib.h>
 
+#define RANDF ((f32)rand() / RAND_MAX)
+#define RANDF_RANGE(minValueF, maxValueF) (RANDF * (maxValueF - minValueF) + minValueF)
+
 #define TEX_PLATFORM "platform_texture"
 #define TEX_CURSOR "cursor_texture"
 
@@ -31,25 +34,9 @@
 
 #define ENTITY_COUNT 4096
 
-#define RANDF ((f32)rand() / RAND_MAX)
-#define RANDF_RANGE(minValueF, maxValueF) (RANDF * (maxValueF - minValueF) + minValueF)
-
 // #define CREATE_ENT_PTR(entPtrName, drawObjPtr) \
 // Ent2d* entPtrName = NULL; \
 // if (drawObjPtr != NULL) { entPtrName = (Ent2d*)drawObjPtr->userData; }
-
-struct Ent2d
-{
-	i32 id;
-	i32 type;
-	u32 lastRestoreTick;
-    Vec2 velocity;
-	f32 tick;
-    // f32 degrees;
-    // f32 rotDegreesPerSecond;
-	zeHandle drawId = 0;
-	zeHandle bodyId = 0;
-};
 
 struct EntStateHeader
 {
@@ -58,25 +45,70 @@ struct EntStateHeader
 	i32 numBytes;
 };
 
+struct EntDebris
+{
+	Vec2 velocity;
+	f32 tick;
+	zeHandle drawId = 0;
+	zeHandle physicsBodyId = 0;
+};
+
 struct DebrisEntState
 {
 	EntStateHeader header;
-	Vec2 pos;
+	// Ent
+	f32 tick;
+
+	// Display
 	f32 depth;
+
+	// body
+	Vec2 pos;
 	f32 degrees;
 	Vec2 velocity;
 	f32 angularVelocity;
+};
+
+struct EntPlayer
+{
+	Vec2 velocity;
 	f32 tick;
+	f32 aimDegrees;
+	u32 buttons;
+	zeHandle bodyDrawId = 0;
+	zeHandle gunDrawId = 0;
+	zeHandle physicsBodyId = 0;
 };
 
 struct PlayerEntState
 {
 	EntStateHeader header;
-	Vec2 pos;
-	f32 depth;
-	f32 degrees;
-	Vec2 velocity;
+	// ent
+	f32 aimDegrees;
+	u32 buttons;
 	f32 tick;
+
+	// Display
+	f32 depth;
+
+	// body
+	Vec2 pos;
+	Vec2 velocity;
+};
+
+union EntData
+{
+	EntPlayer player;
+	EntDebris debris;
+};
+
+struct Ent2d
+{
+	i32 id;
+	i32 type;
+	u32 lastRestoreTick;
+	f32 tick;
+	EntData d;
 };
 
 struct EntityType
@@ -87,6 +119,7 @@ struct EntityType
 	void (*Write)(Ent2d* ent, ZEBuffer* buf);
 	void (*Remove)(Ent2d* ent);
 	void (*Tick)(Ent2d* ent, f32 delta);
+	void (*Sync)(Ent2d* ent);
 };
 
 struct RNGShared
@@ -112,6 +145,7 @@ ze_external Ent2d* Sim_GetEntById(i32 id);
 ze_external EntityType* Sim_GetEntityType(i32 typeId);
 ze_external void Sim_RemoveEntityBase(Ent2d* ent);
 ze_external void Sim_RemoveEntity(Ent2d* ent);
+ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId);
 
 // specific entities
 ze_external void EntDebris_Register(EntityType* type);

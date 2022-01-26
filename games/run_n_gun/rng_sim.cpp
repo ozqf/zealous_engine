@@ -100,19 +100,15 @@ ze_external Ent2d* Sim_GetEntById(i32 id)
 /*
 Function to cleanup basic entity components.
 Should only be called from within an EntityType's remove function.
+Remove function should clear the entity type to confirm it is deleted
 */
 ze_external void Sim_RemoveEntityBase(Ent2d* ent)
 {
 	if (ent == NULL) { return; }
-
-	// remove components
-	if (ent->drawId != 0)
-	{ g_engine.scenes.RemoveObject(g_scene, ent->drawId); }
-
-	if (ent->bodyId != 0)
-	{ ZP_RemoveBody(ent->bodyId); }
-
-	// remove entity
+	if (ent->type != ENT_TYPE_NONE)
+	{
+		g_engine.system.Fatal("Attempting to remove entity with concrete type");
+	}
 	g_entities.MarkForRemoval(ent->id);
 }
 
@@ -179,52 +175,6 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 /////////////////////////////////////////////////
 // read frame data
 /////////////////////////////////////////////////
-#if 0
-ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
-{
-	DebrisEntState* state = (DebrisEntState*)stateHeader;
-	Ent2d* ent = (Ent2d*)g_entities.GetById(state->header.id);
-	if (ent != NULL)
-	{
-		// restore state
-		BodyState body = {};
-		body.t.pos = state->pos;
-		body.t.radians = state->degrees * DEG2RAD;
-		body.velocity = state->velocity;
-		body.angularVelocity = state->angularVelocity;
-		ZP_SetBodyState(ent->bodyId, body);
-	}
-	else
-	{
-		// add entity and restore core entity info
-		ent = Sim_GetFreeEntity(state->header.id);
-		ent->type = ENT_TYPE_DEBRIS;
-		ent->id = state->header.id;
-
-		// add sprite
-		ZRDrawObj *debris = g_engine.scenes.AddFullTextureQuad(g_scene, FALLBACK_TEXTURE_NAME, {0.5f, 0.5f});
-		ent->drawId = debris->id;
-		debris->t.pos = Vec3_FromVec2(state->pos, state->depth);
-
-		// add body
-		ZPBodyDef def = {};
-		def.bIsStatic = NO;
-		def.bLockRotation = NO;
-		def.friction = 0.5f;
-		def.resitition = 0.5f;
-		def.shape.radius = { 0.5f, 0.5f };
-		
-		// restore state
-		def.shape.pos = state->pos;
-		
-		ent->bodyId = ZP_AddBody(def);
-	}
-
-	// mark ent with latest restore tick
-	ent->lastRestoreTick = restoreTick;
-	ent->tick = state->tick;
-}
-#endif
 
 ze_internal void Sim_RestoreEntity(EntStateHeader* header, u32 restoreTick)
 {
@@ -273,24 +223,6 @@ ze_external void Sim_RestoreFrame(FrameHeader* header)
 /////////////////////////////////////////////////
 // write frame data
 /////////////////////////////////////////////////
-#if 0
-ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
-{
-	DebrisEntState* state = (DebrisEntState*)buf->cursor;
-	buf->cursor += sizeof(DebrisEntState);
-	
-	state->header.type = ent->type;
-	state->header.id = ent->id;
-	state->header.numBytes = sizeof(DebrisEntState);
-	
-	BodyState body = ZP_GetBodyState(ent->bodyId);
-	
-	state->pos = body.t.pos;
-	state->degrees = body.t.radians * RAD2DEG;
-	state->velocity = body.velocity;
-	state->angularVelocity = body.angularVelocity;
-}
-#endif
 
 ze_external FrameHeader* Sim_WriteFrame(ZEBuffer* buf, i32 frameNumber)
 {
@@ -353,7 +285,6 @@ ze_external void Sim_SpawnDebris(Vec2 pos)
 	debris.header.id = ReserveDynamicIds(1);
 	debris.pos = pos;
 	debris.depth = 0;
-	// RestoreDebris(&debris.header, g_restoreTick);
 	Sim_GetEntityType(ENT_TYPE_DEBRIS)->Restore(&debris.header, g_restoreTick);
 }
 
@@ -373,18 +304,20 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 		pos.x = RANDF_RANGE(-10, 10);
 		pos.y = RANDF_RANGE(1, 5);
 		Sim_SpawnDebris(pos);
-		/*DebrisEntState debris = {};
-		debris.header.type = ENT_TYPE_DEBRIS;
-		debris.header.numBytes = sizeof(DebrisEntState);
-		debris.header.id = ReserveDynamicIds(1);
-		debris.pos.x = RANDF_RANGE(-10, 10);
-		debris.pos.y = RANDF_RANGE(1, 5);
-		debris.depth = 0;
-		RestoreDebris(&debris.header, g_restoreTick);*/
 	}
 	
 	FrameHeader* header = Sim_WriteFrame(frames, 0);
 	return header;
+}
+
+ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId)
+{
+	if (drawId == 0 || bodyId == 0) { return; }
+	ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, drawId);
+	BodyState state = ZP_GetBodyState(bodyId);
+	obj->t.pos.x = state.t.pos.x;
+	obj->t.pos.y = state.t.pos.y;
+	Transform_SetRotation(&obj->t, 0, 0, state.t.radians);
 }
 
 ze_external void Sim_SyncDrawObjects()
@@ -393,15 +326,13 @@ ze_external void Sim_SyncDrawObjects()
 	for (i32 i = 0; i < numEnts; ++i)
 	{
 		Ent2d* ent = (Ent2d*)g_entities.GetByIndex(i);
-		if (ent == NULL || ent->drawId == 0 || ent->bodyId == 0) { continue; }
+		if (ent == NULL) { continue; }
 
-		ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, ent->drawId);
-		if (obj == NULL) { continue; }
-		
-		BodyState state = ZP_GetBodyState(ent->bodyId);
-		obj->t.pos.x = state.t.pos.x;
-		obj->t.pos.y = state.t.pos.y;
-		Transform_SetRotation(&obj->t, 0, 0, state.t.radians);
+		EntityType* type = Sim_GetEntityType(ent->type);
+		if (type != NULL && type->Sync != NULL)
+		{
+			type->Sync(ent);
+		}
 	}
 }
 
@@ -479,15 +410,6 @@ ze_external void Sim_TickBackward(f32 delta)
 	Sim_SyncDrawObjects();
 	UpdateDebugText();
 }
-
-// ze_internal void TickDebris(Ent2d* ent, f32 delta)
-// {
-	// ent->tick += delta;
-	// if (ent->tick > 5.f)
-	// {
-		// Sim_RemoveEntity(ent);
-	// }
-// }
 
 ze_internal void InitEntityTypes()
 {

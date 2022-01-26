@@ -15,7 +15,7 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 		body.t.radians = state->degrees * DEG2RAD;
 		body.velocity = state->velocity;
 		body.angularVelocity = state->angularVelocity;
-		ZP_SetBodyState(ent->bodyId, body);
+		ZP_SetBodyState(ent->d.debris.physicsBodyId, body);
 	}
 	else
 	{
@@ -25,8 +25,9 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 		ent->id = state->header.id;
 
 		// add sprite
-		ZRDrawObj *debris = g_engine.scenes.AddFullTextureQuad(g_scene, FALLBACK_TEXTURE_NAME, {0.5f, 0.5f});
-		ent->drawId = debris->id;
+		ZRDrawObj *debris = g_engine.scenes.AddFullTextureQuad(
+			g_scene, FALLBACK_TEXTURE_NAME, {0.5f, 0.5f});
+		ent->d.debris.drawId = debris->id;
 		debris->t.pos = Vec3_FromVec2(state->pos, state->depth);
 
 		// add body
@@ -40,7 +41,7 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 		// restore state
 		def.shape.pos = state->pos;
 		
-		ent->bodyId = ZP_AddBody(def);
+		ent->d.debris.physicsBodyId = ZP_AddBody(def);
 	}
 
 	// mark ent with latest restore tick
@@ -57,7 +58,7 @@ ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
 	state->header.id = ent->id;
 	state->header.numBytes = sizeof(DebrisEntState);
 	
-	BodyState body = ZP_GetBodyState(ent->bodyId);
+	BodyState body = ZP_GetBodyState(ent->d.debris.physicsBodyId);
 	
 	state->pos = body.t.pos;
 	state->degrees = body.t.radians * RAD2DEG;
@@ -68,6 +69,9 @@ ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
 ze_internal void Remove(Ent2d* ent)
 {
 	// printf("Remove debris\n");
+	g_engine.scenes.RemoveObject(g_scene, ent->d.debris.drawId);
+	ZP_RemoveBody(ent->d.debris.physicsBodyId);
+	ent->type = ENT_TYPE_NONE;
 	Sim_RemoveEntityBase(ent);
 }
 
@@ -85,6 +89,12 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	}
 }
 
+ze_internal void Sync(Ent2d* ent)
+{
+	EntDebris* debris = &ent->d.debris;
+	Sim_SyncDrawObjToPhysicsObj(debris->drawId, debris->physicsBodyId);
+}
+
 ze_external void EntDebris_Register(EntityType* type)
 {
 	g_engine = GetEngine();
@@ -95,4 +105,5 @@ ze_external void EntDebris_Register(EntityType* type)
 	type->Write = WriteDebris;
 	type->Remove = Remove;
 	type->Tick = Tick;
+	type->Sync = Sync;
 }

@@ -234,6 +234,7 @@ int CALLBACK WinMain(
 	sys.Realloc = Platform_Realloc;
 	sys.Free = Platform_Free;
 	sys.QueryClock = Platform_QueryClock;
+	sys.Fatal = Platform_Fatal;
 	
 	ZEngine_Init(sys, Win_LinkToGameDLL(gameDirectory));
 	ZWindow_Init();

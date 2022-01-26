@@ -173,6 +173,7 @@ struct ZSystem
     void* (*Realloc)(void* ptr, zeSize size);
     void (*Free)(void* ptr);
     f64 (*QueryClock)();
+    void (*Fatal)(const char *msg);
 };
 
 // engine functions provided to game
