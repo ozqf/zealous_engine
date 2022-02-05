@@ -30,7 +30,8 @@
 #define ENT_TYPE_STATIC 1
 #define ENT_TYPE_PLAYER 2
 #define ENT_TYPE_DEBRIS 3
-#define ENT_TYPE__LAST 4
+#define ENT_TYPE_POINT_PRJ 4
+#define ENT_TYPE__COUNT 5
 
 #define ENTITY_COUNT 4096
 
@@ -96,10 +97,24 @@ struct PlayerEntState
 	Vec2 velocity;
 };
 
+struct EntPointProjectile
+{
+	Vec2 pos;
+	f32 depth;
+	f32 radians;
+};
+
+struct EntPointProjectileState
+{
+	EntStateHeader header;
+	EntPointProjectile data;
+};
+
 union EntData
 {
 	EntPlayer player;
 	EntDebris debris;
+	EntPointProjectile pointPrj;
 };
 
 struct Ent2d
@@ -148,8 +163,12 @@ ze_external void Sim_RemoveEntity(Ent2d* ent);
 ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId);
 
 // specific entities
+ze_external void EntNull_Register(EntityType* type);
 ze_external void EntDebris_Register(EntityType* type);
 ze_external void EntPlayer_Register(EntityType* type);
+ze_external void EntPointProjectile_Register(EntityType* type);
+
+ze_external void Sim_SpawnPointProjectile(Vec2 pos, f32 radians);
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames);
 

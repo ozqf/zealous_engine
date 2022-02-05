@@ -36,7 +36,7 @@ struct FrameFooter
 
 ze_internal u32 g_restoreTick = 1;
 
-ze_internal EntityType g_types[ENT_TYPE__LAST];
+ze_internal EntityType g_types[ENT_TYPE__COUNT];
 
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
@@ -129,7 +129,7 @@ ze_external void Sim_RemoveEntity(Ent2d* ent)
 ze_external EntityType* Sim_GetEntityType(i32 typeId)
 {
 	ZE_ASSERT(typeId >= 0, "Type id < than zero")
-	ZE_ASSERT(typeId < ENT_TYPE__LAST, "Type Id > max")
+	ZE_ASSERT(typeId < ENT_TYPE__COUNT, "Type Id > max")
 	return &g_types[typeId];
 }
 
@@ -260,7 +260,8 @@ ze_external FrameHeader* Sim_WriteFrame(ZEBuffer* buf, i32 frameNumber)
 
 ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 {
-	printf("Find frame %d...", index);
+	// Note: Linear search
+	// printf("Find frame %d...", index);
 	i8* read = frames->start;
 	i8* end = frames->cursor;
 	while (read < end)
@@ -413,11 +414,10 @@ ze_external void Sim_TickBackward(f32 delta)
 
 ze_internal void InitEntityTypes()
 {
-	EntityType* entType;
-	
-	entType	= &g_types[ENT_TYPE_DEBRIS];
-	EntDebris_Register(entType);
+	EntNull_Register(&g_types[ENT_TYPE_NONE]);
+	EntDebris_Register(&g_types[ENT_TYPE_DEBRIS]);
 	EntPlayer_Register(&g_types[ENT_TYPE_PLAYER]);
+	EntPointProjectile_Register(&g_types[ENT_TYPE_POINT_PRJ]);
 }
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames)
