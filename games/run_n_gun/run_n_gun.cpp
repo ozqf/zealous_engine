@@ -195,10 +195,31 @@ internal void UpdateDebugText()
 	obj->data.UpdateText(str);
 }
 
+internal void SetInputBit(u32* flags, u32 bit, char* actionName)
+{
+	if (g_engine.input.GetActionValue(actionName) > 0)
+	{
+		*flags |= bit;
+	}
+	else
+	{
+		*flags &= ~bit;
+	}
+}
+
 internal void Tick(ZEFrameTimeInfo timing)
 {
-	f32 dt = (f32)timing.interval;
 	UpdateCursor();
+	
+	RNGTickInfo info = {};
+	SetInputBit(&info.buttons, INPUT_BIT_LEFT, MOVE_LEFT);
+	SetInputBit(&info.buttons, INPUT_BIT_RIGHT, MOVE_RIGHT);
+	SetInputBit(&info.buttons, INPUT_BIT_UP, MOVE_UP);
+	SetInputBit(&info.buttons, INPUT_BIT_DOWN, MOVE_DOWN);
+
+	info.cursorWorldPos = g_mouseWorldPos;
+	info.cursorScreenPos = g_mousePos;
+	info.delta = (f32)timing.interval;
 
 	switch (g_gameState)
 	{
@@ -210,11 +231,11 @@ internal void Tick(ZEFrameTimeInfo timing)
 		if (g_engine.input.GetActionValue("forward") > 0)
 		{
 			// tick
-			Sim_TickForward(dt);
+			Sim_TickForward(info);
 		}
 		else if (g_engine.input.GetActionValue("backward") > 0)
 		{
-			Sim_TickBackward(dt);
+			Sim_TickBackward(info);
 		}
 		break;
 
@@ -234,7 +255,7 @@ internal void Tick(ZEFrameTimeInfo timing)
 			Sim_SpawnDebris(pos);
 			break;
 		}
-		Sim_TickForward(dt);
+		Sim_TickForward(info);
 		break;
 	}
 

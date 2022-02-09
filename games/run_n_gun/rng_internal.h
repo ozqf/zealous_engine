@@ -15,10 +15,20 @@
 #define TEX_PLATFORM "platform_texture"
 #define TEX_CURSOR "cursor_texture"
 
+// actions
 #define MOVE_LEFT "move_left"
 #define MOVE_RIGHT "move_right"
 #define MOVE_UP "move_up"
 #define MOVE_DOWN "move_down"
+
+// button bits
+#define INPUT_BIT_LEFT (1 << 0)
+#define INPUT_BIT_RIGHT (1 << 1)
+#define INPUT_BIT_UP (1 << 2)
+#define INPUT_BIT_DOWN (1 << 3)
+#define INPUT_BIT_ATK_1 (1 << 4)
+#define INPUT_BIT_ATK_2 (1 << 5)
+#define INPUT_BIT_USE (1 << 6)
 
 #define ACCLE_FORCE 100
 #define MOVE_SPEED 8
@@ -142,13 +152,22 @@ struct RNGShared
 	ZEngine engine;
 	zeHandle scene;
 	
-};	
+};
+
+struct RNGTickInfo
+{
+	float delta;
+	u32 buttons;
+	Vec2 cursorWorldPos;
+	Vec2 cursorScreenPos;
+};
 
 ze_external void Sim_Init(ZEngine engine, zeHandle sceneId);
 ze_external char* Sim_GetDebugText();
 ze_external void Sim_SyncDrawObjects();
-ze_external void Sim_TickForward(f32 delta);
-ze_external void Sim_TickBackward(f32 delta);
+ze_external void Sim_TickForward(RNGTickInfo info);
+ze_external void Sim_TickBackward(RNGTickInfo info);
+ze_external RNGTickInfo* Sim_GetTickInfo();
 ze_external void Sim_SpawnDebris(Vec2 pos);
 
 ze_external ZEngine GetEngine();

@@ -10,6 +10,17 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 	if (ent != NULL)
 	{
 		// restore
+
+		// physics
+		BodyState body = {};
+		body.t.pos = state->pos;
+		body.velocity = state->velocity;
+		ZP_SetBodyState(ent->d.debris.physicsBodyId, body);
+
+		// other
+		ent->d.player.aimDegrees = state->aimDegrees;
+		ent->d.player.buttons = state->buttons;
+		ent->d.player.tick = state->tick;
 	}
 	else
 	{
@@ -36,7 +47,18 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 
 ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 {
+	PlayerEntState* state = (PlayerEntState*)buf->cursor;
+	buf->cursor += sizeof(PlayerEntState);
+
+	state->header.type = ent->type;
+	state->header.id = ent->id;
+	state->header.numBytes = sizeof(PlayerEntState);
+
+	state->aimDegrees = ent->d.player.aimDegrees;
 	
+	BodyState body = ZP_GetBodyState(ent->d.player.physicsBodyId);
+	state->pos = body.t.pos;
+	state->velocity = body.velocity;
 }
 
 ze_internal void Remove(Ent2d* ent)
@@ -46,6 +68,8 @@ ze_internal void Remove(Ent2d* ent)
 
 ze_internal void Tick(Ent2d* ent, f32 delta)
 {
+	ent->d.player.buttons = Sim_GetTickInfo()->buttons;
+
 	
 }
 

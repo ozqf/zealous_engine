@@ -40,6 +40,7 @@ ze_internal EntityType g_types[ENT_TYPE__COUNT];
 
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
+ze_internal RNGTickInfo g_tickInfo;
 
 // static world
 ze_internal i32 g_staticSceneIndex = -1;
@@ -67,6 +68,11 @@ ze_external ZEngine GetEngine()
 ze_external zeHandle GetGameScene()
 {
 	return g_scene;
+}
+
+ze_external RNGTickInfo* Sim_GetTickInfo()
+{
+	return &g_tickInfo;
 }
 
 ze_internal i32 ReserveDynamicIds(i32 count)
@@ -269,7 +275,7 @@ ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 		FrameHeader* header = (FrameHeader*)read;
 		if (header->sequence == index)
 		{
-			printf(" at %lld\n", (u64)header);
+			// printf(" at %lld\n", (u64)header);
 			return header;
 		}
 		read += header->size;
@@ -280,6 +286,7 @@ ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 
 ze_external void Sim_SpawnDebris(Vec2 pos)
 {
+	printf("Spawning debris at %.3f, %.3f\n", pos.x, pos.y);
 	DebrisEntState debris = {};
 	debris.header.type = ENT_TYPE_DEBRIS;
 	debris.header.numBytes = sizeof(DebrisEntState);
@@ -289,6 +296,21 @@ ze_external void Sim_SpawnDebris(Vec2 pos)
 	Sim_GetEntityType(ENT_TYPE_DEBRIS)->Restore(&debris.header, g_restoreTick);
 }
 
+ze_external void Sim_SpawnPlayer(Vec2 pos)
+{
+	pos.x = 0;
+	pos.y = 5;
+	PlayerEntState player = {};
+	player.header.type = ENT_TYPE_PLAYER;
+	player.header.numBytes = sizeof(PlayerEntState);
+	player.header.id = ReserveDynamicIds(1);
+	player.pos = pos;
+	Sim_GetEntityType(ENT_TYPE_PLAYER)->Restore(&player.header, g_restoreTick);
+}
+
+///////////////////////////////////////////////////////
+// start a new level
+///////////////////////////////////////////////////////
 ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 {
 	// --- clear frames array ---
@@ -299,7 +321,7 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	Sim_RestoreStaticScene(0);
 	
 	// add ents
-	for (i32 i = 0; i < 0; ++i)
+	for (i32 i = 0; i < 5; ++i)
 	{
 		Vec2 pos = {};
 		pos.x = RANDF_RANGE(-10, 10);
@@ -378,14 +400,15 @@ ze_internal void TickEntities(f32 delta)
 	}
 }
 
-ze_external void Sim_TickForward(f32 delta)
+ze_external void Sim_TickForward(RNGTickInfo info)
 {
+	g_tickInfo = info;
 	g_currentFrame += 1;
 	if (g_currentFrame > g_lastFrame)
 	{
 		// run a new frame
-		TickEntities(delta);
-		ZPhysicsTick(delta);
+		TickEntities(info.delta);
+		ZPhysicsTick(info.delta);
 		Sim_WriteFrame(&g_frames, g_currentFrame);
 		g_lastFrame += 1;
 	}
@@ -399,8 +422,9 @@ ze_external void Sim_TickForward(f32 delta)
 	UpdateDebugText();
 }
 
-ze_external void Sim_TickBackward(f32 delta)
+ze_external void Sim_TickBackward(RNGTickInfo info)
 {
+	g_tickInfo = info;
 	if (g_currentFrame == 0)
 	{
 		return;
