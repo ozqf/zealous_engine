@@ -60,7 +60,7 @@ static_assert(sizeof(f64) == 8, "Code requires f64 size == 8");
 // Yes, yes it is, eg:
 /* 
 #define log_message(guard,format,...) \
-if (guard) printf("%s:%d: " format "\n", __FILE__, __LINE__,__VA_ARGS_);
+if (guard) printf("%s:%d: " format "\n", __FILE__, __LINE__,__VA_ARGS__);
 
 log_message( foo == 7, "x %d", x)
 */

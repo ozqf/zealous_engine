@@ -229,6 +229,7 @@ internal void ZInput_BuildInputsTable()
 ze_internal i32 ZInput_HasActionToggledOn(char* actionName, frameInt frameNumber)
 {
 	InputAction* action = FindActionByName(actionName);
+	if (action == NULL) { return NO; }
 	// printf("Has %s toggled? %lld vs %lld\n", actionName, frameNumber, action->lastFrame);
 	return (action->value != 0 && action->lastFrame == frameNumber);
 	// return Input_CheckActionToggledOn(g_actionsByName, actionName, frameNumber);

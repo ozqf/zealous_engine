@@ -90,18 +90,17 @@ internal void Init()
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, MOVE_RIGHT);
 	g_engine.input.AddAction(Z_INPUT_CODE_W, Z_INPUT_CODE_SPACE, MOVE_UP);
     g_engine.input.AddAction(Z_INPUT_CODE_S, Z_INPUT_CODE_NULL, MOVE_DOWN);
-	g_engine.input.AddAction(Z_INPUT_CODE_LEFT_SHIFT, Z_INPUT_CODE_NULL, "special");
+	g_engine.input.AddAction(Z_INPUT_CODE_LEFT_SHIFT, Z_INPUT_CODE_NULL, ACTION_SPECIAL);
 	
-	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_1, Z_INPUT_CODE_NULL, "attack_1");
-	g_engine.input.AddAction(Z_INPUT_CODE_E, Z_INPUT_CODE_NULL, "use");
+	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_1, Z_INPUT_CODE_NULL, ACTION_ATTACK_1);
+	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_2, Z_INPUT_CODE_NULL, ACTION_ATTACK_2);
+	g_engine.input.AddAction(Z_INPUT_CODE_E, Z_INPUT_CODE_NULL, ACTION_USE);
 
 	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_POS_X, NULL, "mouseX");
 	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_POS_Y, NULL, "mouseY");
 
-	g_engine.input.AddAction(Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, "backward");
-	g_engine.input.AddAction(Z_INPUT_CODE_RIGHT, Z_INPUT_CODE_NULL, "forward");
-	g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, "stop");
-	g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, "play");
+	g_engine.input.AddAction(Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, ACTION_TIME_BACKWARD);
+	g_engine.input.AddAction(Z_INPUT_CODE_RIGHT, Z_INPUT_CODE_NULL, ACTION_TIME_FORWARD);
 }
 
 internal void Shutdown()
@@ -120,7 +119,7 @@ internal void Shutdown()
 	if (g_engine.input.GetActionValue(MOVE_LEFT) > 0) { dir.x -= 1; }
 	if (g_engine.input.GetActionValue(MOVE_RIGHT) > 0) { dir.x += 1; }
 
-	if (g_engine.input.GetActionValue("use") > 0)
+	if (g_engine.input.GetActionValue(ACTION_USE) > 0)
 	{
 		ZP_Raycast({-4, -4}, {4, 4});
 	}
@@ -185,11 +184,11 @@ internal void UpdateCursor()
 internal void UpdateDebugText()
 {
 	char* str = Sim_GetDebugText();
-	// printf("%s\n", str);
+	// RNGPRINT("%s\n", str);
 	ZRDrawObj* obj = g_engine.scenes.GetObject(g_uiScene, g_debugTextObj);
 	if (obj == NULL)
 	{
-		printf("UI text object is null\n");
+		RNGPRINT("UI text object is null\n");
 		return;
 	}
 	obj->data.UpdateText(str);
@@ -216,6 +215,7 @@ internal void Tick(ZEFrameTimeInfo timing)
 	SetInputBit(&info.buttons, INPUT_BIT_RIGHT, MOVE_RIGHT);
 	SetInputBit(&info.buttons, INPUT_BIT_UP, MOVE_UP);
 	SetInputBit(&info.buttons, INPUT_BIT_DOWN, MOVE_DOWN);
+	SetInputBit(&info.buttons, INPUT_BIT_ATK_1, ACTION_ATTACK_1);
 
 	info.cursorWorldPos = g_mouseWorldPos;
 	info.cursorScreenPos = g_mousePos;
@@ -224,30 +224,30 @@ internal void Tick(ZEFrameTimeInfo timing)
 	switch (g_gameState)
 	{
 		case GAME_STATE_PAUSED:
-		if (g_engine.input.HasActionToggledOn("special", timing.frameNumber))
+		if (g_engine.input.HasActionToggledOn(ACTION_SPECIAL, timing.frameNumber))
 		{
 			g_gameState = GAME_STATE_PLAYING;
 		}
-		if (g_engine.input.GetActionValue("forward") > 0)
+		if (g_engine.input.GetActionValue(ACTION_TIME_FORWARD) > 0)
 		{
 			// tick
 			Sim_TickForward(info);
 		}
-		else if (g_engine.input.GetActionValue("backward") > 0)
+		else if (g_engine.input.GetActionValue(ACTION_TIME_BACKWARD) > 0)
 		{
 			Sim_TickBackward(info);
 		}
 		break;
 
 		default:
-		if (g_engine.input.HasActionToggledOn("special", timing.frameNumber))
+		if (g_engine.input.HasActionToggledOn(ACTION_SPECIAL, timing.frameNumber))
 		{
 			g_gameState = GAME_STATE_PAUSED;
 			break;
 		}
-		if (g_engine.input.HasActionToggledOn("attack_1", timing.frameNumber))
+		if (g_engine.input.HasActionToggledOn(ACTION_ATTACK_2, timing.frameNumber))
 		{
-			printf("Spawn debris\n");
+			RNGPRINT("Spawn debris\n");
 			Vec2 pos = {};
 			// pos.x = RANDF_RANGE(-10, 10);
 			// pos.y = RANDF_RANGE(1, 5);

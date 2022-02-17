@@ -55,8 +55,13 @@ ze_internal u32 g_lastFrame = 0;
 ze_internal FrameHeader* g_currentHeader = NULL;
 
 ze_internal ZEBlobStore g_entities;
-ze_internal i32 g_nextDynamicId = 1;
-ze_internal i32 g_nextStaticId = -1;
+// dynamic Ids increment, and an initial block of Ids is reserved
+// for common stuff like the world or the player...
+ze_internal i32 g_nextDynamicId = ENT_FIRST_DYNAMIC_ID;
+
+// ...static Ids decrement. Static entities are created at
+// world load time and NEVER move or change in ANY WAY!
+ze_internal i32 g_nextStaticId = ENT_FIRST_STATIC_ID;
 
 ze_internal ZEBuffer g_debugText;
 
@@ -153,7 +158,7 @@ ze_internal void AddStatic(Vec2 pos, Vec2 size)
 	platform->t.pos = Vec3_FromVec2(pos, 0);
 	vol->drawObjId = platform->id;
 	vol->bodyId = ZP_AddStaticVolume(pos, size);
-	printf("Platform %d assigned body %d\n", platform->id, vol->bodyId);
+	RNGPRINT("Platform %d assigned body %d\n", platform->id, vol->bodyId);
 }
 
 ze_external void Sim_RestoreStaticScene(i32 index)
@@ -258,16 +263,16 @@ ze_external FrameHeader* Sim_WriteFrame(ZEBuffer* buf, i32 frameNumber)
 	i8* end = buf->cursor;
 	header->size = end - start;
 	footer->size = header->size;
-	// printf("Wrote %zd bytes to frame %d\n", header->size, header->sequence);
+	// RNGPRINT("Wrote %zd bytes to frame %d\n", header->size, header->sequence);
 	return header;
-	// printf("Wrote frame %d: %d ents, %.3fKB\n",
+	// RNGPRINT("Wrote frame %d: %d ents, %.3fKB\n",
 		// frameNumber, entsWritten, (f32)bytesWritten / 1024.f);
 }
 
 ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 {
 	// Note: Linear search
-	// printf("Find frame %d...", index);
+	// RNGPRINT("Find frame %d...", index);
 	i8* read = frames->start;
 	i8* end = frames->cursor;
 	while (read < end)
@@ -275,18 +280,18 @@ ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 		FrameHeader* header = (FrameHeader*)read;
 		if (header->sequence == index)
 		{
-			// printf(" at %lld\n", (u64)header);
+			// RNGPRINT(" at %lld\n", (u64)header);
 			return header;
 		}
 		read += header->size;
 	}
-	printf(" failed!\n");
+	RNGPRINT(" failed!\n");
 	return NULL;
 }
 
 ze_external void Sim_SpawnDebris(Vec2 pos)
 {
-	printf("Spawning debris at %.3f, %.3f\n", pos.x, pos.y);
+	RNGPRINT("Spawning debris at %.3f, %.3f\n", pos.x, pos.y);
 	DebrisEntState debris = {};
 	debris.header.type = ENT_TYPE_DEBRIS;
 	debris.header.numBytes = sizeof(DebrisEntState);
@@ -300,12 +305,26 @@ ze_external void Sim_SpawnPlayer(Vec2 pos)
 {
 	pos.x = 0;
 	pos.y = 5;
+	RNGPRINT("Spawn player at %.3f, %.3f\n", pos.x, pos.y);
 	PlayerEntState player = {};
 	player.header.type = ENT_TYPE_PLAYER;
 	player.header.numBytes = sizeof(PlayerEntState);
-	player.header.id = ReserveDynamicIds(1);
+	player.header.id = ENT_RESERVED_ID_PLAYER;
 	player.pos = pos;
 	Sim_GetEntityType(ENT_TYPE_PLAYER)->Restore(&player.header, g_restoreTick);
+}
+
+ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId)
+{
+	EntPointProjectileState prj = {};
+	prj.header.type = ENT_TYPE_POINT_PRJ;
+	prj.header.id = ReserveDynamicIds(1);
+	prj.header.numBytes = sizeof(EntPointProjectileState);
+	
+	prj.data.pos = pos;
+	prj.data.teamId = teamId;
+	prj.data.radians = degrees * DEG2RAD;
+	Sim_GetEntityType(ENT_TYPE_POINT_PRJ)->Restore(&prj.header, g_restoreTick);
 }
 
 ///////////////////////////////////////////////////////
@@ -328,6 +347,9 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 		pos.y = RANDF_RANGE(1, 5);
 		Sim_SpawnDebris(pos);
 	}
+
+	// spawn a player
+	Sim_SpawnPlayer({});
 	
 	FrameHeader* header = Sim_WriteFrame(frames, 0);
 	return header;
@@ -407,6 +429,11 @@ ze_external void Sim_TickForward(RNGTickInfo info)
 	if (g_currentFrame > g_lastFrame)
 	{
 		// run a new frame
+		
+		// read controls and feed to player
+		EntPlayer_SetInput(info);
+		
+		// tick logic and physics
 		TickEntities(info.delta);
 		ZPhysicsTick(info.delta);
 		Sim_WriteFrame(&g_frames, g_currentFrame);
@@ -438,10 +465,12 @@ ze_external void Sim_TickBackward(RNGTickInfo info)
 
 ze_internal void InitEntityTypes()
 {
+	RNGPRINT("Init entity types\n");
 	EntNull_Register(&g_types[ENT_TYPE_NONE]);
 	EntDebris_Register(&g_types[ENT_TYPE_DEBRIS]);
 	EntPlayer_Register(&g_types[ENT_TYPE_PLAYER]);
 	EntPointProjectile_Register(&g_types[ENT_TYPE_POINT_PRJ]);
+	RNGPRINT("Entity types initialised\n");
 }
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames)
@@ -456,7 +485,7 @@ ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames)
 	{
 		maxFrames = INT_MAX;
 	}
-	printf("--- Debug Scan Frames (%d max) ---\n", maxFrames);
+	RNGPRINT("--- Debug Scan Frames (%d max) ---\n", maxFrames);
 	i8* read = buf->start;
 	i8* end = buf->cursor;
 	while (read < end)
@@ -473,7 +502,7 @@ ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames)
 		read += fHead->size;
 		
 		// print header
-		printf("Frame %d. %.3fKB total. %.3fKB of ents.\n",
+		RNGPRINT("Frame %d. %.3fKB total. %.3fKB of ents.\n",
 			fHead->sequence, (f32)fHead->size / 1024.f, (f32)fHead->entBytes / 1024.f);
 		
 		// read entities within header.
@@ -481,7 +510,7 @@ ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames)
 		{
 			EntStateHeader* eHead = (EntStateHeader*)entsRead;
 			entsRead += eHead->numBytes;
-			printf("\tEnt %d. type %d. %dBytes\n",
+			RNGPRINT("\tEnt %d. type %d. %dBytes\n",
 				eHead->id, eHead->type, eHead->numBytes);
 		}
 	}

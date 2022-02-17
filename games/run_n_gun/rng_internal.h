@@ -6,6 +6,9 @@
 
 #include "tile_map.h"
 
+#define RNGPRINT(fmt, ...) \
+printf(fmt, __VA_ARGS__)
+
 // for RAND
 #include <stdlib.h>
 
@@ -20,6 +23,15 @@
 #define MOVE_RIGHT "move_right"
 #define MOVE_UP "move_up"
 #define MOVE_DOWN "move_down"
+
+#define ACTION_ATTACK_1 "attack_1"
+#define ACTION_ATTACK_2 "attack_2"
+#define ACTION_USE "use"
+#define ACTION_SPECIAL "special"
+#define ACTION_TIME_FORWARD "forward"
+#define ACTION_TIME_BACKWARD "backward"
+#define ACTION_TIME_STOP "stop"
+#define ACTION_TIME_PLAY "play"
 
 // button bits
 #define INPUT_BIT_LEFT (1 << 0)
@@ -36,12 +48,26 @@
 #define GAME_STATE_PLAYING 0
 #define GAME_STATE_PAUSED 1
 
+#define TEAM_ID_NONE 0
+#define TEAM_ID_PLAYER 1
+#define TEAM_ID_ENEMY 2
+#define TEAM_ID_NONCOMBATANT 3
+
 #define ENT_TYPE_NONE 0
 #define ENT_TYPE_STATIC 1
 #define ENT_TYPE_PLAYER 2
 #define ENT_TYPE_DEBRIS 3
 #define ENT_TYPE_POINT_PRJ 4
 #define ENT_TYPE__COUNT 5
+
+// dynamic Ids increment, and an initial block of Ids is reserved
+// for common stuff like the world or the player.
+#define ENT_FIRST_DYNAMIC_ID 3
+#define ENT_FIRST_STATIC_ID -1
+
+// reserved Ids for specific entities.
+#define ENT_RESERVED_ID_WORLD 1
+#define ENT_RESERVED_ID_PLAYER 2
 
 #define ENTITY_COUNT 4096
 
@@ -56,6 +82,9 @@ struct EntStateHeader
 	i32 numBytes;
 };
 
+////////////////////////////////////////////////
+// debris
+////////////////////////////////////////////////
 struct EntDebris
 {
 	Vec2 velocity;
@@ -80,6 +109,9 @@ struct DebrisEntState
 	f32 angularVelocity;
 };
 
+////////////////////////////////////////////////
+// player
+////////////////////////////////////////////////
 struct EntPlayer
 {
 	Vec2 velocity;
@@ -95,9 +127,9 @@ struct PlayerEntState
 {
 	EntStateHeader header;
 	// ent
+	f32 tick;
 	f32 aimDegrees;
 	u32 buttons;
-	f32 tick;
 
 	// Display
 	f32 depth;
@@ -107,19 +139,38 @@ struct PlayerEntState
 	Vec2 velocity;
 };
 
-struct EntPointProjectile
+////////////////////////////////////////////////
+// point projectile
+////////////////////////////////////////////////
+struct PointProjectileData
 {
 	Vec2 pos;
 	f32 depth;
 	f32 radians;
+	i32 teamId;
+	f32 tick;
+};
+
+struct PointProjectileComponents
+{
+	zeHandle drawId;
+};
+
+struct EntPointProjectile
+{
+	PointProjectileData data;
+	PointProjectileComponents comp;
 };
 
 struct EntPointProjectileState
 {
 	EntStateHeader header;
-	EntPointProjectile data;
+	PointProjectileData data;
 };
 
+////////////////////////////////////////////////
+// entity base
+////////////////////////////////////////////////
 union EntData
 {
 	EntPlayer player;
@@ -136,6 +187,9 @@ struct Ent2d
 	EntData d;
 };
 
+////////////////////////////////////////////////
+// misc
+////////////////////////////////////////////////
 struct EntityType
 {
 	i32 type;
@@ -169,6 +223,8 @@ ze_external void Sim_TickForward(RNGTickInfo info);
 ze_external void Sim_TickBackward(RNGTickInfo info);
 ze_external RNGTickInfo* Sim_GetTickInfo();
 ze_external void Sim_SpawnDebris(Vec2 pos);
+ze_external void Sim_SpawnPlayer(Vec2 pos);
+ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId);
 
 ze_external ZEngine GetEngine();
 ze_external zeHandle GetGameScene();
@@ -185,6 +241,7 @@ ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId);
 ze_external void EntNull_Register(EntityType* type);
 ze_external void EntDebris_Register(EntityType* type);
 ze_external void EntPlayer_Register(EntityType* type);
+ze_external void EntPlayer_SetInput(RNGTickInfo info);
 ze_external void EntPointProjectile_Register(EntityType* type);
 
 ze_external void Sim_SpawnPointProjectile(Vec2 pos, f32 radians);

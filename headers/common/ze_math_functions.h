@@ -171,6 +171,21 @@ inline Vec2 Vec2_FromVec3(Vec3 v)
 	return {v.x, v.y};
 }
 
+inline Vec2 Vec2_Add(Vec2 to, Vec2 amount)
+{
+	return { to.x + amount.x, to.y + amount.y };
+}
+
+inline Vec2 Vec2_Subtract(Vec2 from, Vec2 amount)
+{
+	return { from.x - amount.x, from.y - amount.y };
+}
+
+inline Vec2 Vec2_Mul(Vec2 v, f32 multiplier)
+{
+	return { v.x * multiplier, v.y * multiplier };
+}
+
 inline Vec2 Vec2_Divide(Vec2 v, f32 divider)
 {
 	return { v.x / divider, v.y / divider };
