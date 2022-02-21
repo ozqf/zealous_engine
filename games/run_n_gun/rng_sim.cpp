@@ -222,7 +222,7 @@ ze_external void Sim_RestoreFrame(FrameHeader* header)
 		Ent2d* ent = (Ent2d*)g_entities.GetByIndex(i);
 		if (ent == NULL) { continue; }
 
-		if (ent->lastRestoreTick != g_restoreTick)
+		if (ent->lastRestoreFrame != g_restoreTick)
 		{
 			Sim_RemoveEntity(ent);
 			// g_entities.MarkForRemoval(ent->id);
@@ -292,9 +292,9 @@ ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 ze_external void Sim_SpawnDebris(Vec2 pos)
 {
 	RNGPRINT("Spawning debris at %.3f, %.3f\n", pos.x, pos.y);
-	DebrisEntState debris = {};
+	DebrisEntSave debris = {};
 	debris.header.type = ENT_TYPE_DEBRIS;
-	debris.header.numBytes = sizeof(DebrisEntState);
+	debris.header.numBytes = sizeof(DebrisEntSave);
 	debris.header.id = ReserveDynamicIds(1);
 	debris.pos = pos;
 	debris.depth = 0;
@@ -306,9 +306,9 @@ ze_external void Sim_SpawnPlayer(Vec2 pos)
 	pos.x = 0;
 	pos.y = 5;
 	RNGPRINT("Spawn player at %.3f, %.3f\n", pos.x, pos.y);
-	PlayerEntState player = {};
+	PlayerEntSave player = {};
 	player.header.type = ENT_TYPE_PLAYER;
-	player.header.numBytes = sizeof(PlayerEntState);
+	player.header.numBytes = sizeof(PlayerEntSave);
 	player.header.id = ENT_RESERVED_ID_PLAYER;
 	player.pos = pos;
 	Sim_GetEntityType(ENT_TYPE_PLAYER)->Restore(&player.header, g_restoreTick);
@@ -316,10 +316,10 @@ ze_external void Sim_SpawnPlayer(Vec2 pos)
 
 ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId)
 {
-	EntPointProjectileState prj = {};
+	EntPointProjectileSave prj = {};
 	prj.header.type = ENT_TYPE_POINT_PRJ;
 	prj.header.id = ReserveDynamicIds(1);
-	prj.header.numBytes = sizeof(EntPointProjectileState);
+	prj.header.numBytes = sizeof(EntPointProjectileSave);
 	
 	prj.data.pos = pos;
 	prj.data.teamId = teamId;
@@ -469,6 +469,7 @@ ze_internal void InitEntityTypes()
 	EntNull_Register(&g_types[ENT_TYPE_NONE]);
 	EntDebris_Register(&g_types[ENT_TYPE_DEBRIS]);
 	EntPlayer_Register(&g_types[ENT_TYPE_PLAYER]);
+	EntGrunt_Register(&g_types[ENT_TYPE_ENEMY_GRUNT]);
 	EntPointProjectile_Register(&g_types[ENT_TYPE_POINT_PRJ]);
 	RNGPRINT("Entity types initialised\n");
 }
@@ -522,7 +523,7 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 	g_scene = sceneId;
 	
 	g_frames = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1024));
-	ZE_InitBlobStore(g_engine.system.Malloc, &g_entities, 1024, sizeof(Ent2d), 0);
+	ZE_InitBlobStore(g_engine.system.Malloc, &g_entities, ENTITY_COUNT, sizeof(Ent2d), 0);
 	
 	g_debugText = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));
 	

@@ -16,7 +16,7 @@ ze_internal EntPointProjectile* GetPointPrj(Ent2d* ent)
 
 ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 {
-	EntPointProjectileState* state = (EntPointProjectileState*)stateHeader;
+	EntPointProjectileSave* state = (EntPointProjectileSave*)stateHeader;
 	Ent2d* ent = Sim_GetEntById(state->header.id);
 	EntPointProjectile* prj = NULL;
 	if (ent != NULL)
@@ -53,17 +53,17 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 	}
 
 	// mark ent with latest restore tick
-	ent->lastRestoreTick = restoreTick;
+	ent->lastRestoreFrame = restoreTick;
 }
 
 ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 {
-	EntPointProjectileState* state = (EntPointProjectileState*)buf->cursor;
-	buf->cursor += sizeof(EntPointProjectileState);
+	EntPointProjectileSave* state = (EntPointProjectileSave*)buf->cursor;
+	buf->cursor += sizeof(EntPointProjectileSave);
 	
 	state->header.type = ent->type;
 	state->header.id = ent->id;
-	state->header.numBytes = sizeof(EntPointProjectileState);
+	state->header.numBytes = sizeof(EntPointProjectileSave);
 
 	state->data = ent->d.pointPrj.data;
 }

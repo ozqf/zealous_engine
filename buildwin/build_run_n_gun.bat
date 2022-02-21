@@ -27,7 +27,7 @@ set compilerDefines=/DPARANOID=1
 @rem === DLL ===
 @rem platform
 set compIn1=../games/run_n_gun/run_n_gun.cpp ../games/run_n_gun/rng_sim.cpp ../games/run_n_gun/rng_ent_null.cpp
-set compIn2=../games/run_n_gun/rng_ent_player.cpp ../games/run_n_gun/rng_ent_debris.cpp ../games/run_n_gun/rng_ent_point_projectile.cpp
+set compIn2=../games/run_n_gun/rng_ent_player.cpp ../games/run_n_gun/rng_ent_debris.cpp ../games/run_n_gun/rng_ent_enemy_grunt.cpp ../games/run_n_gun/rng_ent_point_projectile.cpp
 set compIn3=../plugins/physics2d/ze_physics2d.cpp ../games/run_n_gun/tile_map.cpp
 
 set linkInA=../lib/box2d/box2d.lib

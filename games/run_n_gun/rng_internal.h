@@ -18,6 +18,8 @@ printf(fmt, __VA_ARGS__)
 #define TEX_PLATFORM "platform_texture"
 #define TEX_CURSOR "cursor_texture"
 
+#define SERIALISED
+
 // actions
 #define MOVE_LEFT "move_left"
 #define MOVE_RIGHT "move_right"
@@ -58,7 +60,8 @@ printf(fmt, __VA_ARGS__)
 #define ENT_TYPE_PLAYER 2
 #define ENT_TYPE_DEBRIS 3
 #define ENT_TYPE_POINT_PRJ 4
-#define ENT_TYPE__COUNT 5
+#define ENT_TYPE_ENEMY_GRUNT 5
+#define ENT_TYPE__COUNT 6
 
 // dynamic Ids increment, and an initial block of Ids is reserved
 // for common stuff like the world or the player.
@@ -93,13 +96,13 @@ struct EntDebris
 	zeHandle physicsBodyId = 0;
 };
 
-struct DebrisEntState
+SERIALISED struct DebrisEntSave
 {
 	EntStateHeader header;
 	// Ent
 	f32 tick;
 
-	// Display
+	// Display - read from draw object z position
 	f32 depth;
 
 	// body
@@ -123,7 +126,7 @@ struct EntPlayer
 	zeHandle physicsBodyId = 0;
 };
 
-struct PlayerEntState
+struct PlayerEntSave
 {
 	EntStateHeader header;
 	// ent
@@ -136,6 +139,36 @@ struct PlayerEntState
 
 	// body
 	Vec2 pos;
+	Vec2 velocity;
+};
+
+////////////////////////////////////////////////
+// enemy grunt
+////////////////////////////////////////////////
+
+struct EntGrunt
+{
+	// state
+	f32 tick;
+	f32 aimDegrees;
+	i32 targetId;
+
+	// components
+	zeHandle physicsBodyId;
+	zeHandle bodyDrawId;
+	zeHandle gunDrawId;
+};
+
+struct EntGruntSave
+{
+	// state
+	f32 tick;
+	f32 aimDegrees;
+	i32 targetId;
+
+	// component data
+	Vec2 pos;
+	f32 depth;
 	Vec2 velocity;
 };
 
@@ -162,7 +195,7 @@ struct EntPointProjectile
 	PointProjectileComponents comp;
 };
 
-struct EntPointProjectileState
+struct EntPointProjectileSave
 {
 	EntStateHeader header;
 	PointProjectileData data;
@@ -171,19 +204,24 @@ struct EntPointProjectileState
 ////////////////////////////////////////////////
 // entity base
 ////////////////////////////////////////////////
+
+// Concrete entity types
 union EntData
 {
 	EntPlayer player;
 	EntDebris debris;
 	EntPointProjectile pointPrj;
+	EntGrunt grunt;
 };
 
+// base entity type
 struct Ent2d
 {
 	i32 id;
 	i32 type;
-	u32 lastRestoreTick;
-	f32 tick;
+	// used to detect if an object was not included in
+	// some restored frame data, and thus if it should be removed.
+	u32 lastRestoreFrame;
 	EntData d;
 };
 
@@ -238,13 +276,15 @@ ze_external void Sim_RemoveEntity(Ent2d* ent);
 ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId);
 
 // specific entities
+
+// registration
 ze_external void EntNull_Register(EntityType* type);
 ze_external void EntDebris_Register(EntityType* type);
 ze_external void EntPlayer_Register(EntityType* type);
-ze_external void EntPlayer_SetInput(RNGTickInfo info);
+ze_external void EntGrunt_Register(EntityType* type);
 ze_external void EntPointProjectile_Register(EntityType* type);
 
-ze_external void Sim_SpawnPointProjectile(Vec2 pos, f32 radians);
+ze_external void EntPlayer_SetInput(RNGTickInfo info);
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames);
 

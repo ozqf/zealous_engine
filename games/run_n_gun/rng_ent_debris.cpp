@@ -5,7 +5,7 @@ ze_internal zeHandle g_scene;
 
 ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 {
-	DebrisEntState* state = (DebrisEntState*)stateHeader;
+	DebrisEntSave* state = (DebrisEntSave*)stateHeader;
 	Ent2d* ent = Sim_GetEntById(state->header.id);
 	if (ent != NULL)
 	{
@@ -16,6 +16,8 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 		body.velocity = state->velocity;
 		body.angularVelocity = state->angularVelocity;
 		ZP_SetBodyState(ent->d.debris.physicsBodyId, body);
+
+		ent->d.debris.tick = state->tick;
 	}
 	else
 	{
@@ -40,23 +42,23 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 		
 		// restore state
 		def.shape.pos = state->pos;
+		ent->d.debris.tick = state->tick;
 		
 		ent->d.debris.physicsBodyId = ZP_AddBody(def);
 	}
 
 	// mark ent with latest restore tick
-	ent->lastRestoreTick = restoreTick;
-	ent->tick = state->tick;
+	ent->lastRestoreFrame = restoreTick;
 }
 
 ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
 {
-	DebrisEntState* state = (DebrisEntState*)buf->cursor;
-	buf->cursor += sizeof(DebrisEntState);
+	DebrisEntSave* state = (DebrisEntSave*)buf->cursor;
+	buf->cursor += sizeof(DebrisEntSave);
 	
 	state->header.type = ent->type;
 	state->header.id = ent->id;
-	state->header.numBytes = sizeof(DebrisEntState);
+	state->header.numBytes = sizeof(DebrisEntSave);
 	
 	BodyState body = ZP_GetBodyState(ent->d.debris.physicsBodyId);
 	
@@ -77,8 +79,8 @@ ze_internal void Remove(Ent2d* ent)
 
 ze_internal void Tick(Ent2d* ent, f32 delta)
 {
-	ent->tick += delta;
-	if (ent->tick > 5.f)
+	ent->d.debris.tick += delta;
+	if (ent->d.debris.tick > 5.f)
 	{
 		// printf("Tick end - debris\n");
 		Sim_RemoveEntity(ent);

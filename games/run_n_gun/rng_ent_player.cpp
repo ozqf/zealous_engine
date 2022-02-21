@@ -10,7 +10,7 @@ ze_internal EntPlayer* GetPlayer(Ent2d* ent)
 
 ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 {
-	PlayerEntState* state = (PlayerEntState*)stateHeader;
+	PlayerEntSave* state = (PlayerEntSave*)stateHeader;
 	Ent2d* ent = Sim_GetEntById(state->header.id);
 	if (ent != NULL)
 	{
@@ -48,6 +48,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		
 		// restore state
 		def.shape.pos = state->pos;
+		ent->d.player.tick = state->tick;
 		
 		ent->d.player.physicsBodyId = ZP_AddBody(def);
 		RNGPRINT("Player body Id: %d\n", ent->d.player.physicsBodyId);
@@ -63,24 +64,29 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		
 		ent->d.player.bodyDrawId = sprite->id;
 		ent->d.player.gunDrawId = weapon->id;
-		
-		
 	}
 	
-	ent->lastRestoreTick = restoreTick;
-	ent->tick = state->tick;
+	ent->lastRestoreFrame = restoreTick;
 }
 
 ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 {
-	PlayerEntState* state = (PlayerEntState*)buf->cursor;
-	buf->cursor += sizeof(PlayerEntState);
+	PlayerEntSave* state = (PlayerEntSave*)buf->cursor;
+	buf->cursor += sizeof(PlayerEntSave);
 
+	// header
 	state->header.type = ent->type;
 	state->header.id = ent->id;
-	state->header.numBytes = sizeof(PlayerEntState);
+	state->header.numBytes = sizeof(PlayerEntSave);
 
+	// data
+	state->tick = ent->d.player.tick;
 	state->aimDegrees = ent->d.player.aimDegrees;
+	state->buttons = ent->d.player.buttons;
+
+	// components
+	ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, ent->d.player.bodyDrawId);
+	state->depth = obj->t.pos.z;
 	
 	BodyState body = ZP_GetBodyState(ent->d.player.physicsBodyId);
 	state->pos = body.t.pos;
