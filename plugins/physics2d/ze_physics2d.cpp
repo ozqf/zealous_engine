@@ -3,6 +3,9 @@
 */
 #include "ze_physics2d_internal.h"
 
+#define MAX_DYNAMIC_BODIES 2048
+#define MAX_STATIC_BODIES 2048
+
 ze_internal b2Vec2 g_gravity(0.0f, -20.0f);
 ze_internal b2World g_world(g_gravity);
 ze_internal i32 g_velocityIterations = 6;
@@ -39,11 +42,15 @@ ze_external zErrorCode ZP_RemoveBody(zeHandle bodyId)
 	if (bodyId > 0)
 	{
 		g_dynamicBodies.MarkForRemoval(bodyId);
+		// TODO: This Truncate could break stuff if Remove is called during iteration
+		// of bodies. Consider flagging bodies and removing them before the next step
 		g_dynamicBodies.Truncate();
 	}
 	else
 	{
 		g_staticBodies.MarkForRemoval(bodyId);
+		// TODO: This Truncate could break stuff if Remove is called during iteration
+		// of bodies. Consider flagging bodies and removing them before the next world step
 		g_dynamicBodies.Truncate();
 	}
 	return ZE_ERROR_NONE;
@@ -189,9 +196,12 @@ ze_external void ZPhysicsInit(ZEngine engine)
 {
 	printf("ZPhysics2d - init\n");
 	g_engine = engine;
-
-	ZE_InitBlobStore(g_engine.system.Malloc, &g_dynamicBodies, 1024, sizeof(ZPVolume2d), 0);
-	ZE_InitBlobStore(g_engine.system.Malloc, &g_staticBodies, 1024, sizeof(ZPVolume2d), 0);
+	ZE_SetFatalError(g_engine.system.Fatal);
+	
+	size_t blobSize = sizeof(ZPVolume2d);
+	ZE_mallocFunction mallocFn = g_engine.system.Malloc;
+	ZE_InitBlobStore(mallocFn, &g_dynamicBodies, MAX_DYNAMIC_BODIES, blobSize, 0);
+	ZE_InitBlobStore(mallocFn, &g_staticBodies, MAX_STATIC_BODIES, blobSize, 0);
 }
 
 ze_external void ZPhysicsTick(f32 delta)

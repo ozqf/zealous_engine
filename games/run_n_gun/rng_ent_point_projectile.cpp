@@ -3,9 +3,6 @@ Most basic projectile type. moves as a ray every tick
 */
 #include "rng_internal.h"
 
-#define POINTPRJ_PLAYER_TEX "prj_player"
-#define POINTPRJ_ENEMY_TEX "prj_enemy"
-
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
 
@@ -28,9 +25,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 	else
 	{
 		// add entity and restore core entity info
-		ent = Sim_GetFreeEntity(state->header.id);
-		ent->type = ENT_TYPE_POINT_PRJ;
-		ent->id = state->header.id;
+		ent = Sim_GetFreeEntity(state->header.id, ENT_TYPE_POINT_PRJ);
 
 		prj = &ent->d.pointPrj;
 		// restore concrete data
@@ -84,11 +79,12 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	prj->data.tick += delta;
 	if (prj->data.tick > 2.0)
 	{
+		//RNGPRINT("prj timeout\n");
 		Remove(ent);
 	}
 	Vec2 move;
-	move.x = cosf(prj->data.radians) * 15.f;
-	move.y = sinf(prj->data.radians) * 15.f;
+	move.x = cosf(prj->data.radians) * 30.f;
+	move.y = sinf(prj->data.radians) * 30.f;
 	prj->data.pos = Vec2_Add(prj->data.pos, Vec2_Mul(move, delta));
 }
 

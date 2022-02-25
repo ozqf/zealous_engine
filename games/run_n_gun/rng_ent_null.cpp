@@ -20,9 +20,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 	else
 	{
 		// add entity and restore core entity info
-		ent = Sim_GetFreeEntity(stateHeader->id);
-		ent->type = ENT_TYPE_DEBRIS;
-		ent->id = stateHeader->id;
+		ent = Sim_GetFreeEntity(stateHeader->id, ENT_TYPE_DEBRIS);
 
 		// ...restore concrete data...
 	}

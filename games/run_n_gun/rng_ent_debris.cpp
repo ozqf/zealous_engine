@@ -22,9 +22,7 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 	else
 	{
 		// add entity and restore core entity info
-		ent = Sim_GetFreeEntity(state->header.id);
-		ent->type = ENT_TYPE_DEBRIS;
-		ent->id = state->header.id;
+		ent = Sim_GetFreeEntity(state->header.id, ENT_TYPE_DEBRIS);
 
 		// add sprite
 		ZRDrawObj *debris = g_engine.scenes.AddFullTextureQuad(
@@ -59,6 +57,8 @@ ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
 	state->header.type = ent->type;
 	state->header.id = ent->id;
 	state->header.numBytes = sizeof(DebrisEntSave);
+	
+	state->tick = ent->d.debris.tick;
 	
 	BodyState body = ZP_GetBodyState(ent->d.debris.physicsBodyId);
 	

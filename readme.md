@@ -14,10 +14,10 @@
 * Requires Visual C++ command line tools.
 * Requires Node.js to run a script to embed shader text.
 * Run buildall.bat to build everything. other build batch files build specific components, for example engine, engine libs, example games etc.
-* All libraries and asset data required to build the engine itself are embedded in the code or the repo, so it should be able to build and run in a 'stub' mode immediately (fingers crossed).
+* All libraries and asset data required to build the engine itself are embedded in the code or the repo, so it should be able to build and run in a 'stub' mode immediately (fingers crossed). Apologies if not.
 
 #### Running
-* Run r.bat to run the engine from the build directory. Other 'r' batch files run example projects.
+* Run r.bat to run the engine from the build directory. Other batch files can be found to run example games (eg r2d and r3d will run the 2D and 3D example games).
 * The game will look for a game dll in the 'base' directory by default. Change  ```-g MySpecificDirectory``` or ```--game MySpecificDirectory``` on the command line.
 * If no dll is found, the game will load a test game 'stub' so at least you see something...
 
@@ -27,6 +27,9 @@
 * GLAD for opengl
 * stb_image.h for textures.
 * OpenFBX for loading simple FBX model files.
+* Box2d - 2d physics
+* Bullet - 3d physics
+* fmod - sound
 
 #### Console Commands and variables
 

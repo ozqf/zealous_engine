@@ -46,7 +46,7 @@ internal void Init()
 	
 	// setup scene
 	g_scene = g_engine.scenes.AddScene(0, ENTITY_COUNT, sizeof(Ent2d));
-	g_engine.scenes.SetClearColour(COLOUR_F32_WHITE);
+	g_engine.scenes.SetClearColour(COLOUR_F32_BLACK);
 	M4x4_CREATE(prj)
 	ZE_SetupOrthoProjection(prj.cells, screenSize, 16.f / 9.f);
 	g_engine.scenes.SetProjection(g_scene, prj);
@@ -206,6 +206,44 @@ internal void SetInputBit(u32* flags, u32 bit, char* actionName)
 	}
 }
 
+ze_internal void PausedTick(ZEFrameTimeInfo timing, RNGTickInfo info)
+{
+	if (g_engine.input.HasActionToggledOn(ACTION_SPECIAL, timing.frameNumber))
+	{
+		g_gameState = GAME_STATE_PLAYING;
+		Sim_ClearFutureFrames();
+	}
+	if (g_engine.input.GetActionValue(MOVE_RIGHT) > 0)
+	{
+		// tick
+		Sim_TickForward(info, NO);
+	}
+	else if (g_engine.input.GetActionValue(MOVE_LEFT) > 0)
+	{
+		Sim_TickBackward(info);
+	}
+}
+
+ze_internal void PlayingTick(ZEFrameTimeInfo timing, RNGTickInfo info)
+{
+	if (g_engine.input.HasActionToggledOn(ACTION_SPECIAL, timing.frameNumber))
+	{
+		g_gameState = GAME_STATE_PAUSED;
+		return;
+	}
+	if (g_engine.input.HasActionToggledOn(ACTION_ATTACK_2, timing.frameNumber))
+	{
+		RNGPRINT("Spawn debris\n");
+		Vec2 pos = {};
+		// pos.x = RANDF_RANGE(-10, 10);
+		// pos.y = RANDF_RANGE(1, 5);
+		pos = g_mouseWorldPos;
+		// Sim_SpawnDebris(pos);
+		Sim_SpawnEnemyGrunt(pos);
+	}
+	Sim_TickForward(info, YES);
+}
+
 internal void Tick(ZEFrameTimeInfo timing)
 {
 	UpdateCursor();
@@ -224,38 +262,11 @@ internal void Tick(ZEFrameTimeInfo timing)
 	switch (g_gameState)
 	{
 		case GAME_STATE_PAUSED:
-		if (g_engine.input.HasActionToggledOn(ACTION_SPECIAL, timing.frameNumber))
-		{
-			g_gameState = GAME_STATE_PLAYING;
-		}
-		if (g_engine.input.GetActionValue(ACTION_TIME_FORWARD) > 0)
-		{
-			// tick
-			Sim_TickForward(info);
-		}
-		else if (g_engine.input.GetActionValue(ACTION_TIME_BACKWARD) > 0)
-		{
-			Sim_TickBackward(info);
-		}
+		PausedTick(timing, info);
 		break;
 
 		default:
-		if (g_engine.input.HasActionToggledOn(ACTION_SPECIAL, timing.frameNumber))
-		{
-			g_gameState = GAME_STATE_PAUSED;
-			break;
-		}
-		if (g_engine.input.HasActionToggledOn(ACTION_ATTACK_2, timing.frameNumber))
-		{
-			RNGPRINT("Spawn debris\n");
-			Vec2 pos = {};
-			// pos.x = RANDF_RANGE(-10, 10);
-			// pos.y = RANDF_RANGE(1, 5);
-			pos = g_mouseWorldPos;
-			Sim_SpawnDebris(pos);
-			break;
-		}
-		Sim_TickForward(info);
+		PlayingTick(timing, info);
 		break;
 	}
 

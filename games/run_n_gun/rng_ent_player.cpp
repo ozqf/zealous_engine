@@ -15,7 +15,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 	if (ent != NULL)
 	{
 		// restore
-		RNGPRINT("Restore player entId %d\n", ent->id);
+		// RNGPRINT("Restore player entId %d\n", ent->id);
 
 		// physics
 		BodyState body = {};
@@ -31,12 +31,10 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 	else
 	{
 		// Create
-		RNGPRINT("Create player entId %d\n", state->header.id);
+		// RNGPRINT("Create player entId %d\n", state->header.id);
 
 		// add entity and restore core entity info
-		ent = Sim_GetFreeEntity(state->header.id);
-		ent->type = ENT_TYPE_PLAYER;
-		ent->id = state->header.id;
+		ent = Sim_GetFreeEntity(state->header.id, ENT_TYPE_PLAYER);
 		
 		// add physics body
 		ZPBodyDef def = {};
@@ -54,10 +52,8 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		RNGPRINT("Player body Id: %d\n", ent->d.player.physicsBodyId);
 		
 		// add sprites
-		ZRTexture* tex = g_engine.assets.AllocTexture(16, 16, "player");
-		ZGen_FillTexture(tex, COLOUR_U32_GREEN);
 		ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
-			g_scene, "player", {0.5f, 0.5f});
+			g_scene, TEX_PLAYER, {0.5f, 0.5f});
 		
 		ZRDrawObj* weapon = g_engine.scenes.AddFullTextureQuad(
 			g_scene, FALLBACK_TEXTURE_NAME, {0.7f, 0.1f});
@@ -152,7 +148,6 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 			// shoot
 			player->tick = 0.1f;
 			Sim_SpawnProjectile(pos, player->aimDegrees, TEAM_ID_PLAYER);
-			RNGPRINT("Shoot\n");
 		}
 	}
 }
@@ -199,6 +194,10 @@ ze_external void EntPlayer_Register(EntityType* type)
 {
 	g_engine = GetEngine();
 	g_scene = GetGameScene();
+	
+	ZRTexture* tex = g_engine.assets.AllocTexture(16, 16, TEX_PLAYER);
+	ZGen_FillTexture(tex, COLOUR_U32_GREEN);
+	
 	type->type = ENT_TYPE_PLAYER;
 	type->label = "Player";
 	type->Restore = Restore;

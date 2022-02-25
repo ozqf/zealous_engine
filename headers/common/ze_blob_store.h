@@ -21,6 +21,11 @@ struct ZEBlobStore
     {
         return m_array->m_numBlobs;
     }
+	
+	i32 Capacity()
+	{
+		return m_array->m_maxBlobs;
+	}
 
     i32 FreeSlotCount()
     {

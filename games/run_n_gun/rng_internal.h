@@ -18,6 +18,13 @@ printf(fmt, __VA_ARGS__)
 #define TEX_PLATFORM "platform_texture"
 #define TEX_CURSOR "cursor_texture"
 
+#define TEX_PLAYER "player"
+#define TEX_ENEMY "enemy"
+#define TEX_WEAPON "weapon"
+#define POINTPRJ_PLAYER_TEX "prj_player"
+#define POINTPRJ_ENEMY_TEX "prj_enemy"
+
+
 #define SERIALISED
 
 // actions
@@ -161,6 +168,7 @@ struct EntGrunt
 
 struct EntGruntSave
 {
+	EntStateHeader header;
 	// state
 	f32 tick;
 	f32 aimDegrees;
@@ -222,6 +230,8 @@ struct Ent2d
 	// used to detect if an object was not included in
 	// some restored frame data, and thus if it should be removed.
 	u32 lastRestoreFrame;
+	// for debugging cleanup
+	i32 previousType;
 	EntData d;
 };
 
@@ -257,18 +267,20 @@ struct RNGTickInfo
 ze_external void Sim_Init(ZEngine engine, zeHandle sceneId);
 ze_external char* Sim_GetDebugText();
 ze_external void Sim_SyncDrawObjects();
-ze_external void Sim_TickForward(RNGTickInfo info);
+ze_external void Sim_TickForward(RNGTickInfo info, i32 bInteractive);
 ze_external void Sim_TickBackward(RNGTickInfo info);
+ze_external void Sim_ClearFutureFrames();
 ze_external RNGTickInfo* Sim_GetTickInfo();
-ze_external void Sim_SpawnDebris(Vec2 pos);
-ze_external void Sim_SpawnPlayer(Vec2 pos);
-ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId);
+ze_external i32 Sim_GetRestoreTick();
+
+ze_external i32 Sim_ReserveDynamicIds(i32 count);
+ze_external i32 Sim_ReserveStaticIds(i32 count);
 
 ze_external ZEngine GetEngine();
 ze_external zeHandle GetGameScene();
 
 // general entities
-ze_external Ent2d* Sim_GetFreeEntity(i32 id);
+ze_external Ent2d* Sim_GetFreeEntity(i32 id, i32 type);
 ze_external Ent2d* Sim_GetEntById(i32 id);
 ze_external EntityType* Sim_GetEntityType(i32 typeId);
 ze_external void Sim_RemoveEntityBase(Ent2d* ent);
@@ -276,6 +288,13 @@ ze_external void Sim_RemoveEntity(Ent2d* ent);
 ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId);
 
 // specific entities
+ze_external Ent2d* Sim_FindPlayer();
+
+// spawning
+ze_external void Sim_SpawnDebris(Vec2 pos);
+ze_external void Sim_SpawnPlayer(Vec2 pos);
+ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId);
+ze_external void Sim_SpawnEnemyGrunt(Vec2 pos);
 
 // registration
 ze_external void EntNull_Register(EntityType* type);

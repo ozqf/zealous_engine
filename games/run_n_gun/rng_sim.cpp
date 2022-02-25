@@ -75,12 +75,22 @@ ze_external zeHandle GetGameScene()
 	return g_scene;
 }
 
+ze_external i32 Sim_GetRestoreTick()
+{
+	return g_restoreTick;
+}
+
+ze_external Ent2d* Sim_FindPlayer()
+{
+	return (Ent2d*)g_entities.GetById(ENT_RESERVED_ID_PLAYER);
+}
+
 ze_external RNGTickInfo* Sim_GetTickInfo()
 {
 	return &g_tickInfo;
 }
 
-ze_internal i32 ReserveDynamicIds(i32 count)
+ze_external i32 Sim_ReserveDynamicIds(i32 count)
 {
 	ZE_ASSERT(count > 0, "Reserve Id count must be > 0")
 	i32 result = g_nextDynamicId;
@@ -88,7 +98,7 @@ ze_internal i32 ReserveDynamicIds(i32 count)
 	return result;
 }
 
-ze_internal i32 ReserveStaticIds(i32 count)
+ze_external i32 Sim_ReserveStaticIds(i32 count)
 {
 	ZE_ASSERT(count > 0, "Reserve Id count must be > 0")
 	i32 result = g_nextStaticId;
@@ -96,10 +106,16 @@ ze_internal i32 ReserveStaticIds(i32 count)
 	return result;
 }
 
-ze_external Ent2d* Sim_GetFreeEntity(i32 id)
+ze_external Ent2d* Sim_GetFreeEntity(i32 id, i32 type)
 {
-	Ent2d* ent = (Ent2d*)g_entities.GetFreeSlot(id);
+	Ent2d* ent;
+	ent = Sim_GetEntById(id);
+	ZE_ASSERT(ent == NULL, "Requested free ent already exists")
+	ent = (Ent2d*)g_entities.GetFreeSlot(id);
 	ZE_ASSERT(ent != NULL, "No free entities")
+	ent->id = id;
+	ent->type = type;
+	ent->previousType = type;
 	return ent;
 }
 
@@ -228,7 +244,6 @@ ze_external void Sim_RestoreFrame(FrameHeader* header)
 			// g_entities.MarkForRemoval(ent->id);
 		}
 	}
-	g_entities.Truncate();
 }
 
 /////////////////////////////////////////////////
@@ -285,7 +300,7 @@ ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 		}
 		read += header->size;
 	}
-	RNGPRINT(" failed!\n");
+	RNGPRINT("Find frame failed!\n");
 	return NULL;
 }
 
@@ -295,10 +310,10 @@ ze_external void Sim_SpawnDebris(Vec2 pos)
 	DebrisEntSave debris = {};
 	debris.header.type = ENT_TYPE_DEBRIS;
 	debris.header.numBytes = sizeof(DebrisEntSave);
-	debris.header.id = ReserveDynamicIds(1);
+	debris.header.id = Sim_ReserveDynamicIds(1);
 	debris.pos = pos;
 	debris.depth = 0;
-	Sim_GetEntityType(ENT_TYPE_DEBRIS)->Restore(&debris.header, g_restoreTick);
+	Sim_GetEntityType(ENT_TYPE_DEBRIS)->Restore(&debris.header, Sim_GetRestoreTick());
 }
 
 ze_external void Sim_SpawnPlayer(Vec2 pos)
@@ -311,20 +326,20 @@ ze_external void Sim_SpawnPlayer(Vec2 pos)
 	player.header.numBytes = sizeof(PlayerEntSave);
 	player.header.id = ENT_RESERVED_ID_PLAYER;
 	player.pos = pos;
-	Sim_GetEntityType(ENT_TYPE_PLAYER)->Restore(&player.header, g_restoreTick);
+	Sim_GetEntityType(ENT_TYPE_PLAYER)->Restore(&player.header, Sim_GetRestoreTick());
 }
 
 ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId)
 {
 	EntPointProjectileSave prj = {};
 	prj.header.type = ENT_TYPE_POINT_PRJ;
-	prj.header.id = ReserveDynamicIds(1);
+	prj.header.id = Sim_ReserveDynamicIds(1);
 	prj.header.numBytes = sizeof(EntPointProjectileSave);
 	
 	prj.data.pos = pos;
 	prj.data.teamId = teamId;
 	prj.data.radians = degrees * DEG2RAD;
-	Sim_GetEntityType(ENT_TYPE_POINT_PRJ)->Restore(&prj.header, g_restoreTick);
+	Sim_GetEntityType(ENT_TYPE_POINT_PRJ)->Restore(&prj.header, Sim_GetRestoreTick());
 }
 
 ///////////////////////////////////////////////////////
@@ -384,16 +399,23 @@ ze_external void Sim_SyncDrawObjects()
 ze_internal void UpdateDebugText()
 {
 	g_debugText.Clear(YES);
-	
+	i32 numEnts = g_entities.Count();
+	i32 maxEnts = g_entities.Capacity();
+	f32 secondsRecorded = g_lastFrame / 60.f;
+	f32 secondsToNow = g_currentFrame / 60.f;
 	i32 numChars = sprintf_s(
 		(char*)g_debugText.cursor,
 		g_debugText.Space(),
 		
-		"Frame %d. Last %d.\nFrame buffer capacity %zd of %zd (%.3f%%)",
+		"Ents %d of %d\nFrame %d. Last %d (%.3f of %.3f seconds).\nFrame buffer capacity %zdKB of %zdKB (%.3f%%)",
+		numEnts,
+		maxEnts,
 		g_currentFrame,
 		g_lastFrame,
-		g_frames.Written(),
-		g_frames.capacity,
+		secondsToNow,
+		secondsRecorded,
+		g_frames.Written() / 1024,
+		g_frames.capacity / 1024,
 		g_frames.PercentageUsed());
 	
 	g_debugText.cursor += numChars;
@@ -422,13 +444,26 @@ ze_internal void TickEntities(f32 delta)
 	}
 }
 
-ze_external void Sim_TickForward(RNGTickInfo info)
+ze_external void Sim_ClearFutureFrames()
+{
+	if (g_lastFrame > g_currentFrame)
+	{
+		g_lastFrame = g_currentFrame;
+	}
+	FrameHeader* frame = FindFrame(&g_frames, g_currentFrame);
+	g_frames.cursor = (i8*)frame + frame->size;
+}
+
+ze_external void Sim_TickForward(RNGTickInfo info, i32 bInteractive)
 {
 	g_tickInfo = info;
 	g_currentFrame += 1;
+	
 	if (g_currentFrame > g_lastFrame)
 	{
 		// run a new frame
+		// if not interactive, skip this part.
+		if (!bInteractive) { g_currentFrame--; return; }
 		
 		// read controls and feed to player
 		EntPlayer_SetInput(info);
@@ -446,6 +481,7 @@ ze_external void Sim_TickForward(RNGTickInfo info)
 		Sim_RestoreFrame(header);
 	}
 	Sim_SyncDrawObjects();
+	g_entities.Truncate();
 	UpdateDebugText();
 }
 
@@ -460,6 +496,7 @@ ze_external void Sim_TickBackward(RNGTickInfo info)
 	FrameHeader* frame = FindFrame(&g_frames, g_currentFrame);
 	Sim_RestoreFrame(frame);
 	Sim_SyncDrawObjects();
+	g_entities.Truncate();
 	UpdateDebugText();
 }
 
@@ -521,6 +558,7 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 {
 	g_engine = engine;
 	g_scene = sceneId;
+	ZE_SetFatalError(g_engine.system.Fatal);
 	
 	g_frames = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1024));
 	ZE_InitBlobStore(g_engine.system.Malloc, &g_entities, ENTITY_COUNT, sizeof(Ent2d), 0);
