@@ -164,13 +164,15 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 	}
 	ZE_ASSERT(vol != NULL, "ZP_AddBody got no free volume")
 	vol->radius = def.shape.radius;
+	vol->externalId = def.externalId;
 
 	b2BodyDef bodyDef;
 	bodyDef.fixedRotation = def.bLockRotation;
 	bodyDef.type = def.bIsStatic ? b2_staticBody : b2_dynamicBody;
 	bodyDef.position.Set(def.shape.pos.x, def.shape.pos.y);
+	bodyDef.userData.pointer = (uintptr_t)vol;
 	vol->body = g_world.CreateBody(&bodyDef);
-
+	
 	b2PolygonShape box;
 	box.SetAsBox(def.shape.radius.x, def.shape.radius.y);
 
@@ -184,12 +186,14 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 	return vol->id;
 }
 
-ze_external void ZP_Raycast(Vec2 from, Vec2 to)
+ze_external i32 ZP_Raycast(Vec2 from, Vec2 to, ZPRaycastResult* results, i32 maxResults)
 {
 	RaycastCallback cb;
 	b2Vec2 b2From = b2Vec2_FromVec2(from);
 	b2Vec2 b2To = b2Vec2_FromVec2(to);
+	cb.SetResultsArray(results, maxResults);
 	g_world.RayCast(&cb, b2From, b2To);
+	return cb.numResults;
 }
 
 ze_external void ZPhysicsInit(ZEngine engine)

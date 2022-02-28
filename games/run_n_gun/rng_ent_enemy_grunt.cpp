@@ -48,6 +48,8 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		def.resitition = 0;
 		def.shape.radius = { 0.5f, 0.5f, };
 		def.shape.pos = save->pos;
+		def.externalId = ent->id;
+		
 		//RNGPRINT("Create grunt body at %.3f, %.3f\n", def.shape.pos.x, def.shape.pos.y);
 		grunt->physicsBodyId = ZP_AddBody(def);
 		
@@ -128,7 +130,8 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 		if (grunt->tick <= 0)
 		{
 			grunt->tick = 0.5f;
-			Sim_SpawnProjectile(pos, grunt->aimDegrees, TEAM_ID_ENEMY);
+			Sim_SpawnProjectile(
+				pos, grunt->aimDegrees, TEAM_ID_ENEMY, PRJ_TEMPLATE_ENEMY_DEFAULT);
 		}
 		else
 		{

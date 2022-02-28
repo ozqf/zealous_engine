@@ -43,6 +43,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		def.friction = 0;
 		def.resitition = 0;
 		def.shape.radius = { 0.5f, 0.5f, };
+		def.externalId = ent->id;
 		
 		// restore state
 		def.shape.pos = state->pos;
@@ -126,7 +127,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 
 	if (inputDir.y > 0)
 	{
-		v.y = 11.f;
+		v.y = 8.f;
 	}
 	else if (inputDir.y < 0 && v.y > 1.0f)
 	{
@@ -147,7 +148,8 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 		{
 			// shoot
 			player->tick = 0.1f;
-			Sim_SpawnProjectile(pos, player->aimDegrees, TEAM_ID_PLAYER);
+			Sim_SpawnProjectile(
+				pos, player->aimDegrees, TEAM_ID_PLAYER, PRJ_TEMPLATE_PLAYER_DEFAULT);
 		}
 	}
 }

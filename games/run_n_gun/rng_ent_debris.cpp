@@ -37,6 +37,7 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 		def.friction = 0.5f;
 		def.resitition = 0.5f;
 		def.shape.radius = { 0.5f, 0.5f };
+		def.externalId = ent->id;
 		
 		// restore state
 		def.shape.pos = state->pos;

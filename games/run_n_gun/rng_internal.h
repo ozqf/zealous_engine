@@ -24,6 +24,8 @@ printf(fmt, __VA_ARGS__)
 #define POINTPRJ_PLAYER_TEX "prj_player"
 #define POINTPRJ_ENEMY_TEX "prj_enemy"
 
+#define PRJ_TEMPLATE_ENEMY_DEFAULT 0
+#define PRJ_TEMPLATE_PLAYER_DEFAULT 1
 
 #define SERIALISED
 
@@ -190,6 +192,7 @@ struct PointProjectileData
 	f32 radians;
 	i32 teamId;
 	f32 tick;
+	i32 templateId;
 };
 
 struct PointProjectileComponents
@@ -293,8 +296,12 @@ ze_external Ent2d* Sim_FindPlayer();
 // spawning
 ze_external void Sim_SpawnDebris(Vec2 pos);
 ze_external void Sim_SpawnPlayer(Vec2 pos);
-ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId);
+ze_external void Sim_SpawnProjectile(
+	Vec2 pos, f32 degrees, i32 teamId, i32 templateId);
 ze_external void Sim_SpawnEnemyGrunt(Vec2 pos);
+
+// interactions
+ze_external void MediateRayhit(Ent2d* attacker, Ent2d* victim, ZPRaycastResult* hit);
 
 // registration
 ze_external void EntNull_Register(EntityType* type);

@@ -83,9 +83,31 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 		Remove(ent);
 	}
 	Vec2 move;
-	move.x = cosf(prj->data.radians) * 30.f;
-	move.y = sinf(prj->data.radians) * 30.f;
-	prj->data.pos = Vec2_Add(prj->data.pos, Vec2_Mul(move, delta));
+	f32 speed = 30.f;
+	switch (prj->data.templateId)
+	{
+		case PRJ_TEMPLATE_ENEMY_DEFAULT:
+		speed = 10.f;
+		break;
+	}
+	move.x = cosf(prj->data.radians) * speed;
+	move.y = sinf(prj->data.radians) * speed;
+	Vec2 dest = Vec2_Add(prj->data.pos, Vec2_Mul(move, delta));
+	ZPRaycastResult results[16];
+	i32 numResults = ZP_Raycast(prj->data.pos, dest, results, 16);
+	if (numResults > 0)
+	{
+		ZPRaycastResult* hit = &results[numResults - 1];
+		printf("Prj raycast got %d result, hit volumeId %d (external %d)\n",
+			numResults,
+			hit->volumeId,
+			hit->externalId);
+		Ent2d* victim = Sim_GetEntById(hit->externalId);
+		MediateRayhit(ent, victim, hit);
+		Remove(ent);
+		return;
+	}
+	prj->data.pos = dest;
 }
 
 ze_internal void Sync(Ent2d* ent)

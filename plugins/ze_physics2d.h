@@ -31,11 +31,21 @@ struct ZPShapeDef
 
 struct ZPBodyDef
 {
+    i32 externalId;
     i32 bIsStatic;
     i32 bLockRotation;
     f32 resitition;
     f32 friction;
     ZPShapeDef shape;
+};
+
+struct ZPRaycastResult
+{
+    Vec2 pos;
+    Vec2 normal;
+    f32 fraction;
+    i32 volumeId;
+    i32 externalId;
 };
 
 // construct
@@ -53,7 +63,9 @@ ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state);
 // query
 ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId);
 ze_external BodyState ZP_GetBodyState(zeHandle bodyId);
-ze_external void ZP_Raycast(Vec2 from, Vec2 to);
+// returns number of results.
+ze_external i32 ZP_Raycast(
+    Vec2 from, Vec2 to, ZPRaycastResult* results, i32 maxResults);
 
 // lifetime
 ze_external void ZPhysicsInit(ZEngine engine);

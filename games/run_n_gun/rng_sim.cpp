@@ -329,13 +329,17 @@ ze_external void Sim_SpawnPlayer(Vec2 pos)
 	Sim_GetEntityType(ENT_TYPE_PLAYER)->Restore(&player.header, Sim_GetRestoreTick());
 }
 
-ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId)
+ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId, i32 templateId)
 {
 	EntPointProjectileSave prj = {};
 	prj.header.type = ENT_TYPE_POINT_PRJ;
 	prj.header.id = Sim_ReserveDynamicIds(1);
 	prj.header.numBytes = sizeof(EntPointProjectileSave);
 	
+	// apply projectile template
+	prj.data.templateId = templateId;
+
+	// instance info
 	prj.data.pos = pos;
 	prj.data.teamId = teamId;
 	prj.data.radians = degrees * DEG2RAD;
