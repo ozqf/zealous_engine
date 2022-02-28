@@ -507,6 +507,10 @@ ze_external void Sim_TickBackward(RNGTickInfo info)
 ze_internal void InitEntityTypes()
 {
 	RNGPRINT("Init entity types\n");
+	for (i32 i = 0; i < ENT_TYPE__COUNT; ++i)
+	{
+		g_types[i] = {};
+	}
 	EntNull_Register(&g_types[ENT_TYPE_NONE]);
 	EntDebris_Register(&g_types[ENT_TYPE_DEBRIS]);
 	EntPlayer_Register(&g_types[ENT_TYPE_PLAYER]);

@@ -94,20 +94,48 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	move.y = sinf(prj->data.radians) * speed;
 	Vec2 dest = Vec2_Add(prj->data.pos, Vec2_Mul(move, delta));
 	ZPRaycastResult results[16];
+	i32 bCull = NO;
 	i32 numResults = ZP_Raycast(prj->data.pos, dest, results, 16);
 	if (numResults > 0)
 	{
 		ZPRaycastResult* hit = &results[numResults - 1];
-		printf("Prj raycast got %d result, hit volumeId %d (external %d)\n",
-			numResults,
-			hit->volumeId,
-			hit->externalId);
+		// printf("Prj raycast got %d result, hit volumeId %d (external %d)\n",
+		// 	numResults,
+		// 	hit->volumeId,
+		// 	hit->externalId);
 		Ent2d* victim = Sim_GetEntById(hit->externalId);
-		MediateRayhit(ent, victim, hit);
+		if (victim == NULL)
+		{
+			BodyState hitBody = ZP_GetBodyState(hit->volumeId);
+			RNGPRINT("PRJ on team %d hit volume %d with no ent. External Id %d\n",
+				prj->data.teamId, hit->volumeId, hitBody.externalId);
+			bCull = YES;
+		}
+		else
+		{
+			DamageHit dmg = {};
+			dmg.damage = 10;
+			dmg.teamId = prj->data.teamId;
+			dmg.pos = hit->pos;
+			dmg.normal = hit->normal;
+			EntHitResponse response = HitEntity(ent, victim, &dmg);
+			RNGPRINT("PRJ on team %d hit ent %d: response %d\n",
+				prj->data.teamId, victim->id, response.responseType);
+			if (response.responseType != ENT_HIT_RESPONSE_NONE)
+			{
+				bCull = YES;
+			}
+		}
+	}
+	if (bCull)
+	{
 		Remove(ent);
 		return;
 	}
-	prj->data.pos = dest;
+	else
+	{
+		prj->data.pos = dest;
+	}
 }
 
 ze_internal void Sync(Ent2d* ent)

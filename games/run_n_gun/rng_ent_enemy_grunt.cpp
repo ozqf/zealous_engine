@@ -30,6 +30,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		grunt->aimDegrees = save->aimDegrees;
 		grunt->targetId = save->targetId;
 		grunt->tick = save->tick;
+		grunt->health = save->health;
 	}
 	else
 	{
@@ -57,6 +58,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		grunt->aimDegrees = save->aimDegrees;
 		grunt->targetId = save->targetId;
 		grunt->tick = save->tick;
+		grunt->health = save->health;
 
 		// add sprites
 		ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
@@ -89,6 +91,7 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	save->aimDegrees = grunt->aimDegrees;
 	save->tick = grunt->tick;
 	save->targetId = grunt->targetId;
+	save->health = grunt->health;
 	
 	// components
 	ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, grunt->bodyDrawId);
@@ -164,6 +167,32 @@ ze_internal void Sync(Ent2d* ent)
 	M3x3_RotateZ(obj->t.rotation.cells, radians);
 }
 
+ze_external EntHitResponse GruntHit(Ent2d* victim, DamageHit* hit)
+{
+	EntHitResponse response = {};
+	if (hit->teamId == TEAM_ID_ENEMY)
+	{
+		response.responseType = ENT_HIT_RESPONSE_NONE;
+	}
+	else
+	{
+		EntGrunt* grunt = &victim->d.grunt;
+		grunt->health -= hit->damage;
+		if (grunt->health <= 0)
+		{
+			response.damageDone = hit->damage + grunt->health;
+			response.responseType = ENT_HIT_RESPONSE_KILLED;
+			Remove(victim);
+		}
+		else
+		{
+			response.damageDone = hit->damage;
+			response.responseType = ENT_HIT_RESPONSE_DAMAGED;
+		}
+	}
+	return response;
+}
+
 ze_external void Sim_SpawnEnemyGrunt(Vec2 pos)
 {
 	// pos.x = 0;
@@ -174,6 +203,8 @@ ze_external void Sim_SpawnEnemyGrunt(Vec2 pos)
 	grunt.header.numBytes = sizeof(EntGruntSave);
 	grunt.header.id = Sim_ReserveDynamicIds(1);
 	grunt.pos = pos;
+	grunt.health = 70;
+	grunt.state = 0;
 	Sim_GetEntityType(ENT_TYPE_ENEMY_GRUNT)->Restore(&grunt.header, Sim_GetRestoreTick());
 }
 
@@ -192,4 +223,5 @@ ze_external void EntGrunt_Register(EntityType* type)
 	type->Remove = Remove;
 	type->Tick = Tick;
 	type->Sync = Sync;
+	type->Hit = GruntHit;
 }

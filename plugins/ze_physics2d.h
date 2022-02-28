@@ -19,6 +19,7 @@ struct BodyState
     Transform2d t;
     Vec2 velocity;
     f32 angularVelocity;
+    i32 externalId;
 };
 
 struct ZPShapeDef

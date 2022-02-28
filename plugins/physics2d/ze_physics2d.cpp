@@ -104,6 +104,7 @@ ze_external BodyState ZP_GetBodyState(zeHandle bodyId)
 	b2Vec2 v = vol->body->GetLinearVelocity();
 	state.velocity = Vec2_FromB2Vec2(v);
 	state.angularVelocity = vol->body->GetAngularVelocity();
+	state.externalId = vol->externalId;
 	return state;
 }
 

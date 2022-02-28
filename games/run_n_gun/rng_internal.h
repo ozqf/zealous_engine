@@ -72,6 +72,11 @@ printf(fmt, __VA_ARGS__)
 #define ENT_TYPE_ENEMY_GRUNT 5
 #define ENT_TYPE__COUNT 6
 
+#define ENT_HIT_RESPONSE_SOLID 0
+#define ENT_HIT_RESPONSE_DAMAGED 1
+#define ENT_HIT_RESPONSE_KILLED 2
+#define ENT_HIT_RESPONSE_NONE 3
+
 // dynamic Ids increment, and an initial block of Ids is reserved
 // for common stuff like the world or the player.
 #define ENT_FIRST_DYNAMIC_ID 3
@@ -158,9 +163,11 @@ struct PlayerEntSave
 struct EntGrunt
 {
 	// state
+	i32 state;
 	f32 tick;
 	f32 aimDegrees;
 	i32 targetId;
+	i32 health;
 
 	// components
 	zeHandle physicsBodyId;
@@ -172,9 +179,11 @@ struct EntGruntSave
 {
 	EntStateHeader header;
 	// state
+	i32 state;
 	f32 tick;
 	f32 aimDegrees;
 	i32 targetId;
+	i32 health;
 
 	// component data
 	Vec2 pos;
@@ -241,6 +250,21 @@ struct Ent2d
 ////////////////////////////////////////////////
 // misc
 ////////////////////////////////////////////////
+
+struct DamageHit
+{
+	i32 damage;
+	i32 teamId;
+	Vec2 pos;
+	Vec2 normal;
+};
+
+struct EntHitResponse
+{
+	i32 responseType;
+	i32 damageDone;
+};
+
 struct EntityType
 {
 	i32 type;
@@ -250,13 +274,13 @@ struct EntityType
 	void (*Remove)(Ent2d* ent);
 	void (*Tick)(Ent2d* ent, f32 delta);
 	void (*Sync)(Ent2d* ent);
+	EntHitResponse (*Hit)(Ent2d* victim, DamageHit* hit);
 };
 
 struct RNGShared
 {
 	ZEngine engine;
 	zeHandle scene;
-	
 };
 
 struct RNGTickInfo
@@ -301,7 +325,8 @@ ze_external void Sim_SpawnProjectile(
 ze_external void Sim_SpawnEnemyGrunt(Vec2 pos);
 
 // interactions
-ze_external void MediateRayhit(Ent2d* attacker, Ent2d* victim, ZPRaycastResult* hit);
+ze_external EntHitResponse HitEntity(
+	Ent2d* attacker, Ent2d* victim, DamageHit* hit);
 
 // registration
 ze_external void EntNull_Register(EntityType* type);
