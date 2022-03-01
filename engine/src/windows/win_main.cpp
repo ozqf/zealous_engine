@@ -29,9 +29,16 @@ static LARGE_INTEGER g_timerFrequency;
 // NEVER change once set!
 static i64 g_clockBase;
 
+#define MAX_CRASH_DUMP_FUNCTIONS 32
+ze_internal ZE_CrashDumpFunction g_crashDumpFunctions[MAX_CRASH_DUMP_FUNCTIONS];
+ze_internal i32 g_numCrashDumpFunctions = 0;
+
 // read in pre-tokenised command line
 extern int __argc;
 extern char** __argv;
+
+ze_external void Platform_Fatal(const char *msg);
+static void Win_Warning(const char *msg);
 
 ze_external void *Platform_Alloc(zeSize size)
 {
@@ -51,9 +58,34 @@ ze_external void Platform_Free(void *ptr)
 ////////////////////////////////////////////////////////
 // Error handling
 ////////////////////////////////////////////////////////
+
+ze_internal void RegisterCrashDumpFunction(ZE_CrashDumpFunction fn)
+{
+	if (g_numCrashDumpFunctions >= MAX_CRASH_DUMP_FUNCTIONS)
+	{
+		// oops
+		Win_Warning("No capacity for crash dump function");
+		return;
+	}
+	g_crashDumpFunctions[g_numCrashDumpFunctions] = fn;
+	g_numCrashDumpFunctions++;
+}
+
+ze_internal void CrashDump()
+{
+	printf("Begin crash dump\n");
+	for (i32 i = 0; i < g_numCrashDumpFunctions; ++i)
+	{
+		g_crashDumpFunctions[i]();
+	}
+}
+
 ze_external void Platform_Fatal(const char *msg)
 {
 	printf("FATAL: %s\n", msg);
+	// so crash dump might err... crash, so pop up an error box first
+	MessageBoxA(0, (LPCSTR)msg, (LPCSTR) "Error - pending crash dump", MB_OK | MB_ICONINFORMATION);
+	CrashDump();
 	MessageBoxA(0, (LPCSTR)msg, (LPCSTR) "Error", MB_OK | MB_ICONINFORMATION);
 	DebugBreak();
 }
@@ -235,6 +267,7 @@ int CALLBACK WinMain(
 	sys.Free = Platform_Free;
 	sys.QueryClock = Platform_QueryClock;
 	sys.Fatal = Platform_Fatal;
+	sys.RegisterCrashDumpFunction = RegisterCrashDumpFunction;
 	
 	ZEngine_Init(sys, Win_LinkToGameDLL(gameDirectory));
 	ZWindow_Init();

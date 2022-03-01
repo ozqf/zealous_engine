@@ -70,6 +70,10 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		
 		grunt->bodyDrawId = sprite->id;
 		grunt->gunDrawId = weapon->id;
+
+		BodyState bodyState = ZP_GetBodyState(grunt->physicsBodyId);
+		RNGPRINT("Created fresh grunt. entId %d, bodyId %d, externalId %d\n",
+			ent->id, grunt->physicsBodyId, bodyState.externalId);
 	}
 
 	// mark ent with latest restore tick
@@ -182,6 +186,8 @@ ze_external EntHitResponse GruntHit(Ent2d* victim, DamageHit* hit)
 		{
 			response.damageDone = hit->damage + grunt->health;
 			response.responseType = ENT_HIT_RESPONSE_KILLED;
+			RNGPRINT("Grunt %d, bodyId %d dying\n",
+				victim->id, grunt->physicsBodyId);
 			Remove(victim);
 		}
 		else
@@ -191,6 +197,11 @@ ze_external EntHitResponse GruntHit(Ent2d* victim, DamageHit* hit)
 		}
 	}
 	return response;
+}
+
+ze_internal void GruntPrint(Ent2d* ent)
+{
+	RNGPRINT("BodyId %d ", ent->d.grunt.physicsBodyId);
 }
 
 ze_external void Sim_SpawnEnemyGrunt(Vec2 pos)
@@ -224,4 +235,5 @@ ze_external void EntGrunt_Register(EntityType* type)
 	type->Tick = Tick;
 	type->Sync = Sync;
 	type->Hit = GruntHit;
+	type->Print = GruntPrint;
 }

@@ -17,6 +17,27 @@ ze_internal ZEBlobStore g_staticBodies;
 ze_internal i32 g_nextDynamicId = 1;
 ze_internal i32 g_nextStaticId = -1;
 
+ze_internal void ZP_CrashDump()
+{
+	
+	printf("--- ZPhysics crash dump ---\n");
+	i32 numDynamic = g_dynamicBodies.Count();
+	i32 numStatic = g_staticBodies.Count();
+	printf("Dynamic bodies:\n");
+	for (i32 i = 0; i < numDynamic; ++i)
+	{
+		ZPVolume2d* vol = (ZPVolume2d*)g_dynamicBodies.GetByIndex(i);
+		printf("%d: bodyId %d, external Id %d.\n",
+			i, vol->id, vol->externalId);
+	}
+	// for (i32 i = 0; i < numStatic; ++i)
+	// {
+	// 	ZPVolume2d* vol = (ZPVolume2d*)g_dynamicBodies.GetByIndex(i);
+	// 	printf("%d: bodyId %d, external Id %d.\n",
+	// 		i, vol->id, vol->externalId);
+	// }
+}
+
 ze_internal ZPVolume2d* GetVolume(zeHandle id)
 {
 	if (id == 0)
@@ -95,7 +116,12 @@ ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state)
 ze_external BodyState ZP_GetBodyState(zeHandle bodyId)
 {
 	ZPVolume2d* vol = GetVolume(bodyId);
-	ZE_ASSERT(vol != NULL, "Body is null")
+	//ZE_ASSERT(vol != NULL, "Body is null")
+	if (vol == NULL)
+	{
+		ZE_BUILD_STRING(msg, 256, "Body %d not found", bodyId);
+		ZE_ASSERT(NO, msg)
+	}
 
 	b2Vec2 p = vol->body->GetPosition();
 	BodyState state = {};
@@ -182,6 +208,8 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 	fixtureDef.density = 1.0f;
 	fixtureDef.restitution = def.resitition;
 	fixtureDef.friction = def.friction;
+	printf("Create body %d: mask %d category %d\n",
+		vol->id, fixtureDef.filter.maskBits, fixtureDef.filter.categoryBits);
 
 	b2Fixture* fixture = vol->body->CreateFixture(&fixtureDef);
 	return vol->id;
@@ -202,6 +230,7 @@ ze_external void ZPhysicsInit(ZEngine engine)
 	printf("ZPhysics2d - init\n");
 	g_engine = engine;
 	ZE_SetFatalError(g_engine.system.Fatal);
+	g_engine.system.RegisterCrashDumpFunction(ZP_CrashDump);
 	
 	size_t blobSize = sizeof(ZPVolume2d);
 	ZE_mallocFunction mallocFn = g_engine.system.Malloc;

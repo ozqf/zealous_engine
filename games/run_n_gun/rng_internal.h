@@ -24,6 +24,12 @@ printf(fmt, __VA_ARGS__)
 #define POINTPRJ_PLAYER_TEX "prj_player"
 #define POINTPRJ_ENEMY_TEX "prj_enemy"
 
+#define PHYSICS_LAYER_BIT_WORLD (1 << 0)
+#define PHYSICS_LAYER_BIT_PLATFORM (1 << 1)
+#define PHYSICS_LAYER_BIT_MOBS (1 << 2)
+#define PHYSICS_LAYER_BIT_PLAYER (1 << 3)
+#define PHYSICS_LAYER_BIT_DEBRIS (1 << 4)
+
 #define PRJ_TEMPLATE_ENEMY_DEFAULT 0
 #define PRJ_TEMPLATE_PLAYER_DEFAULT 1
 
@@ -275,6 +281,7 @@ struct EntityType
 	void (*Tick)(Ent2d* ent, f32 delta);
 	void (*Sync)(Ent2d* ent);
 	EntHitResponse (*Hit)(Ent2d* victim, DamageHit* hit);
+	void (*Print)(Ent2d* ent);
 };
 
 struct RNGShared

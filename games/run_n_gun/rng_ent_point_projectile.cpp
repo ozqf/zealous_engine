@@ -119,8 +119,8 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 			dmg.pos = hit->pos;
 			dmg.normal = hit->normal;
 			EntHitResponse response = HitEntity(ent, victim, &dmg);
-			RNGPRINT("PRJ on team %d hit ent %d: response %d\n",
-				prj->data.teamId, victim->id, response.responseType);
+			//RNGPRINT("PRJ on team %d hit ent %d: response %d\n",
+			//	prj->data.teamId, victim->id, response.responseType);
 			if (response.responseType != ENT_HIT_RESPONSE_NONE)
 			{
 				bCull = YES;

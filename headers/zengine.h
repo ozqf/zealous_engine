@@ -174,6 +174,7 @@ struct ZSystem
     void (*Free)(void* ptr);
     f64 (*QueryClock)();
     void (*Fatal)(const char *msg);
+    void (*RegisterCrashDumpFunction)(ZE_CrashDumpFunction fn);
 };
 
 // engine functions provided to game

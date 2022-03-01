@@ -229,6 +229,7 @@ newPtrStructType* newPtrName = (newPtrStructType*)ptr;
 typedef void (*ZE_FatalErrorFunction)(const char *message);
 typedef void* (*ZE_mallocFunction)(const zeSize numBytes);
 typedef void (*ZE_freeFunction)(const void * memory);
+typedef void (*ZE_CrashDumpFunction)();
 
 static ZE_FatalErrorFunction ze_fatalErrorFunc = NULL;
 

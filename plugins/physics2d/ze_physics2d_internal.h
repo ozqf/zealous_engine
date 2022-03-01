@@ -8,6 +8,17 @@
 // Box2d must be built in 64 bit, using embedded standard library and exception disabled.
 #include "../../lib/box2d/box2d.h"
 
+/*#ifndef ZP_ASSERT
+#define ZP_ASSERT(expression, msg)											\
+	if (!(expression))														\
+	{																		\
+		char assertBuf[512];												\
+		ZP_CrashDump();														\
+		snprintf(assertBuf, 512, "%s, %d: %s\n", __FILE__, __LINE__, msg);	\
+		ZE_Fatal(assertBuf);												\
+	}
+#endif*/
+
 struct ZPVolume2d
 {
 	// internally managed reference to this volume

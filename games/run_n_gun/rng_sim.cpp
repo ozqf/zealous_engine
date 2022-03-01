@@ -358,8 +358,9 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	// static scene
 	Sim_RestoreStaticScene(0);
 	
+	const i32 numDebris = 0;
 	// add ents
-	for (i32 i = 0; i < 5; ++i)
+	for (i32 i = 0; i < numDebris; ++i)
 	{
 		Vec2 pos = {};
 		pos.x = RANDF_RANGE(-10, 10);
@@ -562,11 +563,36 @@ ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames)
 	}
 }
 
+ze_internal void Sim_CrashDump()
+{
+	RNGPRINT("--- RNG Sim crash dump ---\n");
+	i32 numEnts = g_entities.Count();
+	for (i32 i = 0; i < numEnts; ++i)
+	{
+		Ent2d* ent = (Ent2d*)g_entities.GetByIndex(i);
+		RNGPRINT("%d: id %d, type %d ",
+			i, ent->id, ent->type);
+		EntityType* type = Sim_GetEntityType(ent->type);
+		if (type == NULL)
+		{
+			RNGPRINT("No type data!\n");
+			continue;
+		}
+		RNGPRINT("(%s) ", type->label);
+		if (type->Print != NULL)
+		{
+			type->Print(ent);
+		}
+		RNGPRINT("\n");
+	}
+}
+
 ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 {
 	g_engine = engine;
 	g_scene = sceneId;
 	ZE_SetFatalError(g_engine.system.Fatal);
+	g_engine.system.RegisterCrashDumpFunction(Sim_CrashDump);
 	
 	g_frames = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1024));
 	ZE_InitBlobStore(g_engine.system.Malloc, &g_entities, ENTITY_COUNT, sizeof(Ent2d), 0);
