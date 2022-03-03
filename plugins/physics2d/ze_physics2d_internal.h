@@ -30,6 +30,8 @@ struct ZPVolume2d
 	b2Body* body;
 };
 
+ze_internal ZPVolume2d* ZP_GetVolume(zeHandle id);
+
 ze_internal Vec2 Vec2_FromB2Vec2(b2Vec2 b2v)
 {
 	return { b2v.x, b2v.y };
@@ -70,7 +72,8 @@ class RaycastCallback: public b2RayCastCallback
 		r->pos = Vec2_FromB2Vec2(point);
 		r->normal = Vec2_FromB2Vec2(normal);
 		r->fraction = fraction;
-		ZPVolume2d* vol = (ZPVolume2d*)fixture->GetBody()->GetUserData().pointer;
+		zeHandle volId = (zeHandle)fixture->GetBody()->GetUserData().pointer;
+		ZPVolume2d* vol = (ZPVolume2d*)ZP_GetVolume(volId);
 		if (vol != NULL)
 		{
 			r->volumeId = vol->id;

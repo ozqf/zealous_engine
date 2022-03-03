@@ -38,7 +38,7 @@ ze_internal void ZP_CrashDump()
 	// }
 }
 
-ze_internal ZPVolume2d* GetVolume(zeHandle id)
+ze_internal ZPVolume2d* ZP_GetVolume(zeHandle id)
 {
 	if (id == 0)
 	{
@@ -58,7 +58,7 @@ ze_external zErrorCode ZP_RemoveBody(zeHandle bodyId)
 {
 	if (bodyId == 0) { return ZE_ERROR_NOT_FOUND; }
 
-	ZPVolume2d* vol = GetVolume(bodyId);
+	ZPVolume2d* vol = ZP_GetVolume(bodyId);
 	g_world.DestroyBody(vol->body);
 	if (bodyId > 0)
 	{
@@ -79,7 +79,7 @@ ze_external zErrorCode ZP_RemoveBody(zeHandle bodyId)
 
 ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId)
 {
-	ZPVolume2d* vol = GetVolume(bodyId);
+	ZPVolume2d* vol = ZP_GetVolume(bodyId);
 	ZE_ASSERT(vol != NULL, "Body is null")
 
 	b2Vec2 p = vol->body->GetPosition();
@@ -88,7 +88,7 @@ ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId)
 
 ze_external void ZP_SetBodyPosition(zeHandle bodyId, Vec2 pos)
 {
-	ZPVolume2d* vol = GetVolume(bodyId);
+	ZPVolume2d* vol = ZP_GetVolume(bodyId);
 	ZE_ASSERT(vol != NULL, "Body is null")
 
 	b2Vec2 p = b2Vec2_FromVec2(pos);
@@ -98,14 +98,14 @@ ze_external void ZP_SetBodyPosition(zeHandle bodyId, Vec2 pos)
 
 ze_external void ZP_SetLinearVelocity(zeHandle bodyId, Vec2 v)
 {
-	ZPVolume2d* vol = GetVolume(bodyId);
+	ZPVolume2d* vol = ZP_GetVolume(bodyId);
 	ZE_ASSERT(vol != NULL, "Body is null")
 	vol->body->SetLinearVelocity(b2Vec2_FromVec2(v));
 }
 
 ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state)
 {
-	ZPVolume2d* vol = GetVolume(bodyId);
+	ZPVolume2d* vol = ZP_GetVolume(bodyId);
 	ZE_ASSERT(vol != NULL, "Body is null")
 
 	vol->body->SetTransform(b2Vec2_FromVec2(state.t.pos), state.t.radians);
@@ -115,7 +115,7 @@ ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state)
 
 ze_external BodyState ZP_GetBodyState(zeHandle bodyId)
 {
-	ZPVolume2d* vol = GetVolume(bodyId);
+	ZPVolume2d* vol = ZP_GetVolume(bodyId);
 	//ZE_ASSERT(vol != NULL, "Body is null")
 	if (vol == NULL)
 	{
@@ -136,7 +136,7 @@ ze_external BodyState ZP_GetBodyState(zeHandle bodyId)
 
 ze_external void ZP_ApplyForce(zeHandle bodyId, Vec2 force)
 {
-	ZPVolume2d* vol = GetVolume(bodyId);
+	ZPVolume2d* vol = ZP_GetVolume(bodyId);
 	ZE_ASSERT(vol != NULL, "Body is null")
 
 	b2Vec2 b2Force;
@@ -197,7 +197,7 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 	bodyDef.fixedRotation = def.bLockRotation;
 	bodyDef.type = def.bIsStatic ? b2_staticBody : b2_dynamicBody;
 	bodyDef.position.Set(def.shape.pos.x, def.shape.pos.y);
-	bodyDef.userData.pointer = (uintptr_t)vol;
+	bodyDef.userData.pointer = (uintptr_t)vol->id;
 	vol->body = g_world.CreateBody(&bodyDef);
 	
 	b2PolygonShape box;
