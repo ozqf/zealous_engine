@@ -87,7 +87,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	switch (prj->data.templateId)
 	{
 		case PRJ_TEMPLATE_ENEMY_DEFAULT:
-		speed = 10.f;
+		speed = 7.5f;
 		break;
 	}
 	move.x = cosf(prj->data.radians) * speed;
