@@ -517,6 +517,7 @@ ze_internal void InitEntityTypes()
 	EntPlayer_Register(&g_types[ENT_TYPE_PLAYER]);
 	EntGrunt_Register(&g_types[ENT_TYPE_ENEMY_GRUNT]);
 	EntPointProjectile_Register(&g_types[ENT_TYPE_POINT_PRJ]);
+	EntGfxSprite_Register(&g_types[ENT_TYPE_GFX_SPRITE]);
 	RNGPRINT("Entity types initialised\n");
 }
 

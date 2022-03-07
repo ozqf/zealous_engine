@@ -229,6 +229,29 @@ struct EntPointProjectileSave
 };
 
 ////////////////////////////////////////////////
+// GFX Sprite
+////////////////////////////////////////////////
+struct GfxSpriteData
+{
+	Vec2 pos;
+	f32 depth;
+	f32 radians;
+	f32 tick;
+};
+
+struct GfxSpriteSave
+{
+	EntStateHeader header;
+	GfxSpriteData data;
+};
+
+struct EntGfxSprite
+{
+	GfxSpriteData data;
+	zeHandle drawId;
+};
+
+////////////////////////////////////////////////
 // entity base
 ////////////////////////////////////////////////
 
@@ -239,6 +262,7 @@ union EntData
 	EntDebris debris;
 	EntPointProjectile pointPrj;
 	EntGrunt grunt;
+	EntGfxSprite gfxSprite;
 };
 
 // base entity type
@@ -331,6 +355,7 @@ ze_external void Sim_SpawnPlayer(Vec2 pos);
 ze_external void Sim_SpawnProjectile(
 	Vec2 pos, f32 degrees, i32 teamId, i32 templateId);
 ze_external void Sim_SpawnEnemyGrunt(Vec2 pos);
+ze_external void Sim_SpawnGfx(Vec2 pos, i32 subType);
 
 // interactions
 ze_external EntHitResponse HitEntity(
@@ -342,10 +367,10 @@ ze_external void EntDebris_Register(EntityType* type);
 ze_external void EntPlayer_Register(EntityType* type);
 ze_external void EntGrunt_Register(EntityType* type);
 ze_external void EntPointProjectile_Register(EntityType* type);
+ze_external void EntGfxSprite_Register(EntityType* type);
 
 ze_external void EntPlayer_SetInput(RNGTickInfo info);
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames);
 
 #endif // RNG_INTERNAL_H
- 

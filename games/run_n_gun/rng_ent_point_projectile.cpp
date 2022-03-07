@@ -123,6 +123,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 			//	prj->data.teamId, victim->id, response.responseType);
 			if (response.responseType != ENT_HIT_RESPONSE_NONE)
 			{
+				Sim_SpawnGfx(hit->pos, 0);
 				bCull = YES;
 			}
 		}
