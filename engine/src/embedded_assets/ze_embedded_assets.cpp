@@ -17,6 +17,9 @@ ze_external zErrorCode ZEmbedded_Init()
 	tex = ZAssets_AllocTex(64, 64, FALLBACK_TEXTURE_NAME);
 	ZGen_FillTexture(tex, { 255, 0, 255, 255 });
 
+	tex = ZAssets_AllocTex(64, 64, FALLBACK_TEXTURE_WHITE);
+	ZGen_FillTexture(tex, COLOUR_U32_WHITE);
+
 	ZRMaterial* mat;
 	mat = ZAssets_BuildMaterial(FALLBACK_MATERIAL_NAME, FALLBACK_TEXTURE_NAME, NULL);
 

@@ -61,7 +61,8 @@ inline void WriteTextCommand(ZEBuffer *buf, ZRDrawObj *textObj)
         }
         Vec2 uvMin, uvMax;
         ZEAsciToCharsheetUVs(c, &uvMin, &uvMax);
-        spriteBatch->AddItem(drawPos, charSize, uvMin, uvMax, 0);
+        spriteBatch->AddItem(
+            drawPos, charSize, uvMin, uvMax, 0, ColourF32FromU32(textObj->data.text.colour));
         drawPos.x += step;
     }
 
@@ -88,7 +89,8 @@ inline void WriteSingleQuadCommand(ZEBuffer *buf, ZRDrawObj *quadObj)
         { quadObj->t.scale.x, quadObj->t.scale.y },
         quad->uvMin,
         quad->uvMax,
-        radians);
+        radians,
+        quad->colour);
     
     // complete batch command
     spriteBatch->Finish(buf);

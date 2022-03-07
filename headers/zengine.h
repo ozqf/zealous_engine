@@ -23,6 +23,7 @@ Zealous Engine public header
 #define FALLBACK_CHEQUER_MATERIAL "debug_chequer"
 
 #define FALLBACK_TEXTURE_NAME "fallback_texture"
+#define FALLBACK_TEXTURE_WHITE "fallback_texture_white"
 #define FALLBACK_CHARSET_TEXTURE_NAME "fallback_charset"
 #define FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME "fallback_charset_semi_transparent"
 
@@ -44,15 +45,15 @@ Zealous Engine public header
 #define COLOUR_U32_SEMI_GREY_DARK { 200, 200, 200, 200 }
 
 // colors as Vec4s
-#define COLOUR_F32_EMPTY { 0, 0, 0, 0 }
+#define COLOUR_F32_EMPTY { 0.f, 0.f, 0.f, 0.f }
 #define COLOUR_F32_WHITE { 1.f, 1.f, 1.f, 1.f }
-#define COLOUR_F32_BLACK { 0, 0, 0, 1.f }
-#define COLOUR_F32_RED { 1.f, 0, 0, 1.f }
-#define COLOUR_F32_GREEN { 0, 1.f, 0, 1.f }
-#define COLOUR_F32_BLUE { 0, 0, 1.f, 1.f }
-#define COLOUR_F32_YELLOW { 1.f, 1.f, 0, 1.f }
-#define COLOUR_F32_CYAN { 0, 1.f, 1.f, 1.f }
-#define COLOUR_F32_PURPLE { 1.f, 0, 1.f, 1.f }
+#define COLOUR_F32_BLACK { 0.f, 0.f, 0.f, 1.f }
+#define COLOUR_F32_RED { 1.f, 0.f, 0.f, 1.f }
+#define COLOUR_F32_GREEN { 0.f, 1.f, 0.f, 1.f }
+#define COLOUR_F32_BLUE { 0.f, 0.f, 1.f, 1.f }
+#define COLOUR_F32_YELLOW { 1.f, 1.f, 0.f, 1.f }
+#define COLOUR_F32_CYAN { 0.f, 1.f, 1.f, 1.f }
+#define COLOUR_F32_PURPLE { 1.f, 0.f, 1.f, 1.f }
 
 #define ZR_TEX_SAMPLER_DEFAULT 0
 

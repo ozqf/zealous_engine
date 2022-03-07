@@ -47,6 +47,7 @@ static const char *world_sprite_frag_text =
     "{\n"
     "   // Output colour * depth - not using UVs or normals yet\n"
     "   vec4 diffuse = texture2D(u_diffuseTex, m_texCoord) * u_colour;\n"
+    "   // vec4 diffuse = u_colour;\n"
     "   if (diffuse.w < 0.5) { discard; }\n"
     "   outputColor = diffuse;\n"
     "}\n";
@@ -93,14 +94,18 @@ ze_external void ZRDraw_SpriteBatch(
     ZE_PRINTF("Draw sprite batch - %d objects\n", batch->numItems);
     g_mesh->data.Clear();
     
+    ColourF32 colour = COLOUR_F32_WHITE;
     f32 lerp = 0;
     for (i32 i = 0; i < batch->numItems; ++i)
     {
         ZRSpriteBatchItem* item = &batch->items[i];
-
+        colour = item->colour;
         ZGen_AddSriteGeoXY(&(g_mesh->data), item->pos, item->size, item->uvMin, item->uvMax, item->radians);
     }
-    
+    Vec4 vecColour = ColourF32ToVec4(colour);
+    printf("Draw quad colour from %.3f, %.3f, %.3f to %.3f, %.3f, %.3f\n",
+        colour.r, colour.g, colour.b,
+        vecColour.x, vecColour.y, vecColour.z);
     glUseProgram(g_shader.handle);
 
     // upload
@@ -111,9 +116,10 @@ ze_external void ZRDraw_SpriteBatch(
 
     M4x4_Multiply(modelView.cells, view->cells, modelView.cells);
     M4x4_Multiply(modelView.cells, model.cells, modelView.cells);
-    
+
     ZR_SetProgM4x4(g_shader.handle, "u_modelView", modelView.cells);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection->cells);
+    ZR_SetProgVec4f(g_shader.handle, "u_colour", vecColour);
 
     u32 texHandle = ZRGL_GetTextureHandle(batch->textureId);
 
@@ -121,7 +127,7 @@ ze_external void ZRDraw_SpriteBatch(
     CHECK_GL_ERR
 
     // set frag output colour
-    ZR_SetProgVec4f(g_shader.handle, "u_colour", { 1, 1, 1, 1});
+    // ZR_SetProgVec4f(g_shader.handle, "u_colour", { 1, 1, 1, 1});
     CHECK_GL_ERR
 
     glBindVertexArray(g_meshHandles.vao);

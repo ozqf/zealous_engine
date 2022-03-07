@@ -54,10 +54,17 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		
 		// add sprites
 		ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
-			g_scene, TEX_PLAYER, {0.5f, 0.5f});
+			g_scene, FALLBACK_TEXTURE_WHITE, {0.5f, 0.5f});
+		sprite->data.quad.colour = COLOUR_F32_GREEN;
+
+		printf("Player sprite colour: %.3f, %.3f, %.3f\n",
+			sprite->data.quad.colour.r,
+			sprite->data.quad.colour.g,
+			sprite->data.quad.colour.b);
 		
 		ZRDrawObj* weapon = g_engine.scenes.AddFullTextureQuad(
-			g_scene, FALLBACK_TEXTURE_NAME, {0.7f, 0.1f});
+			g_scene, FALLBACK_TEXTURE_WHITE, {0.7f, 0.1f});
+		weapon->data.quad.colour = { 0.5f, 0.5f, 0.5f, 1.f };
 		
 		ent->d.player.bodyDrawId = sprite->id;
 		ent->d.player.gunDrawId = weapon->id;

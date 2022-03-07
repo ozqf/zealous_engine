@@ -52,6 +52,36 @@ union ColourF32
 	};
 };
 
+inline Vec4 ColourF32ToVec4(ColourF32 c)
+{
+	Vec4 v;
+	v.x = c.r;
+	v.y = c.g;
+	v.z = c.b;
+	v.w = c.a;
+	return v;
+}
+
+inline ColourU32 ColourU32FromF32(ColourF32 c)
+{
+	ColourU32 result;
+	result.r = (u8)(c.r * 255.f);
+	result.g = (u8)(c.g * 255.f);
+	result.b = (u8)(c.b * 255.f);
+	result.a = (u8)(c.a * 255.f);
+	return result;
+}
+
+inline ColourF32 ColourF32FromU32(ColourU32 c)
+{
+	ColourF32 result;
+	result.r = 255.f / c.r;
+	result.g = 255.f / c.g;
+	result.b = 255.f / c.b;
+	result.a = 255.f / c.a;
+	return result;
+}
+
 ///////////////////////////////////////////////////////////
 // Asset data types
 ///////////////////////////////////////////////////////////
@@ -106,6 +136,7 @@ struct ZRQuad
 	Vec2 uvMin;
 	Vec2 uvMax;
 	f32 radians;
+	ColourF32 colour;
 };
 
 struct ZRLineVertex

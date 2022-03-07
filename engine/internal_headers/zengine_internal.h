@@ -79,6 +79,7 @@ struct ZRSpriteBatchItem
     Vec2 uvMin;
     Vec2 uvMax;
     f32 radians;
+    ColourF32 colour;
 };
 
 struct ZRDrawCmdSpriteBatch
@@ -88,13 +89,14 @@ struct ZRDrawCmdSpriteBatch
     i32 numItems;
     ZRSpriteBatchItem* items;
 
-    void AddItem(Vec3 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax, f32 radians)
+    void AddItem(Vec3 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax, f32 radians, ColourF32 colour)
     {
         items[numItems].pos = pos;
         items[numItems].size = size;
         items[numItems].uvMin = uvMin;
         items[numItems].uvMax = uvMax;
         items[numItems].radians = radians;
+        items[numItems].colour = colour;
         numItems++;
     }
 

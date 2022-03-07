@@ -180,6 +180,7 @@ ze_internal ZRDrawObj* ZScene_AddFullTextureQuad(zeHandle scene, char* textureNa
     obj->data.quad.uvMax = { 1, 1 };
     obj->data.quad.offset = { };
     obj->t.scale = { size.x, size.y, 1 };
+    obj->data.quad.colour = COLOUR_F32_WHITE;
     return obj;
 }
 
