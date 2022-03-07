@@ -62,11 +62,12 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 
 		// add sprites
 		ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
-			g_scene, TEX_ENEMY, {0.5f, 0.5f});
+			g_scene, FALLBACK_TEXTURE_WHITE, {0.5f, 0.5f}, COLOUR_F32_RED);
+		
 		sprite->t.pos.z = save->depth;
 		
 		ZRDrawObj* weapon = g_engine.scenes.AddFullTextureQuad(
-			g_scene, FALLBACK_TEXTURE_NAME, {0.7f, 0.1f});
+			g_scene, FALLBACK_TEXTURE_WHITE, {0.7f, 0.1f}, COLOUR_F32_WHITE);
 		
 		grunt->bodyDrawId = sprite->id;
 		grunt->gunDrawId = weapon->id;
@@ -186,8 +187,13 @@ ze_external EntHitResponse GruntHit(Ent2d* victim, DamageHit* hit)
 		{
 			response.damageDone = hit->damage + grunt->health;
 			response.responseType = ENT_HIT_RESPONSE_KILLED;
-			RNGPRINT("Grunt %d, bodyId %d dying\n",
-				victim->id, grunt->physicsBodyId);
+			RNGPRINT("Grunt %d, bodyId %d dying. Normal %.3f, %.3f\n",
+				victim->id, grunt->physicsBodyId, hit->normal.x, hit->normal.y);
+			Transform2d bodyT = ZP_GetBodyPosition(grunt->physicsBodyId);
+			Vec2 vel = Vec2_Mul(Vec2_Mul(hit->normal, -1.f), 6.f);
+			// kick off the ground regardless of direction of hit
+			vel.y += 5.f;
+			Sim_SpawnDebris(bodyT.pos, vel, 0.f);
 			Remove(victim);
 		}
 		else
@@ -223,9 +229,6 @@ ze_external void EntGrunt_Register(EntityType* type)
 {
 	g_engine = GetEngine();
 	g_scene = GetGameScene();
-
-	ZRTexture* tex = g_engine.assets.AllocTexture(16, 16, TEX_ENEMY);
-	ZGen_FillTexture(tex, COLOUR_U32_RED);
 
 	type->type = ENT_TYPE_ENEMY_GRUNT;
 	type->label = "null";

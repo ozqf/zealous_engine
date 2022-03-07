@@ -76,7 +76,11 @@ internal void Init()
 	// cursor
 	ZRTexture* cursorTex = g_engine.assets.AllocTexture(8, 8, TEX_CURSOR);
 	ZGen_FillTexture(cursorTex, COLOUR_U32_GREEN);
-	ZRDrawObj *cursor = g_engine.scenes.AddFullTextureQuad(g_scene, TEX_CURSOR, {0.2f, 0.2f});
+	ZRDrawObj *cursor = g_engine.scenes.AddFullTextureQuad(
+		g_scene,
+		FALLBACK_TEXTURE_WHITE,
+		{0.2f, 0.2f},
+		COLOUR_F32_GREEN);
 	g_cursorId = cursor->id;
 	
 	// init sim module
@@ -171,6 +175,11 @@ internal void UpdateCursor()
 	f32 aspectRatio = (16.f / 9.f);
 	g_mousePos.x *= screenSize * aspectRatio;
 	g_mousePos.y *= screenSize;
+
+	// offset by camera position
+	Transform camera = g_engine.scenes.GetCamera(g_scene);
+	g_mousePos.x += camera.pos.x;
+	g_mousePos.y += camera.pos.y;
 
 	ZRDrawObj *cursor = g_engine.scenes.GetObject(g_scene, g_cursorId);
 	if (cursor == NULL) { return; }

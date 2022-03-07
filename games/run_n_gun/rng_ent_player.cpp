@@ -54,8 +54,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		
 		// add sprites
 		ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
-			g_scene, FALLBACK_TEXTURE_WHITE, {0.5f, 0.5f});
-		sprite->data.quad.colour = COLOUR_F32_GREEN;
+			g_scene, FALLBACK_TEXTURE_WHITE, {0.5f, 0.5f}, COLOUR_F32_GREEN);
 
 		printf("Player sprite colour: %.3f, %.3f, %.3f\n",
 			sprite->data.quad.colour.r,
@@ -63,8 +62,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 			sprite->data.quad.colour.b);
 		
 		ZRDrawObj* weapon = g_engine.scenes.AddFullTextureQuad(
-			g_scene, FALLBACK_TEXTURE_WHITE, {0.7f, 0.1f});
-		weapon->data.quad.colour = { 0.5f, 0.5f, 0.5f, 1.f };
+			g_scene, FALLBACK_TEXTURE_WHITE, {0.7f, 0.1f}, COLOUR_F32_LIGHT_GREY);
 		
 		ent->d.player.bodyDrawId = sprite->id;
 		ent->d.player.gunDrawId = weapon->id;
@@ -179,6 +177,11 @@ ze_internal void Sync(Ent2d* ent)
 	M3x3_RotateZ(obj->t.rotation.cells, radians);
 	
 	// Sim_SyncDrawObjToPhysicsObj(player->gunDrawId, player->physicsBodyId);
+	// camera
+	Transform camera = g_engine.scenes.GetCamera(g_scene);
+	camera.pos.x = body.t.pos.x;
+	camera.pos.y = body.t.pos.y;
+	g_engine.scenes.SetCamera(g_scene, camera);
 }
 
 ze_external void EntPlayer_SetInput(RNGTickInfo info)
@@ -203,9 +206,6 @@ ze_external void EntPlayer_Register(EntityType* type)
 {
 	g_engine = GetEngine();
 	g_scene = GetGameScene();
-	
-	ZRTexture* tex = g_engine.assets.AllocTexture(16, 16, TEX_PLAYER);
-	ZGen_FillTexture(tex, COLOUR_U32_GREEN);
 	
 	type->type = ENT_TYPE_PLAYER;
 	type->label = "Player";

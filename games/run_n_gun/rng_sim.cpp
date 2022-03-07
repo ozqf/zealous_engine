@@ -170,8 +170,12 @@ ze_internal WorldVolume* GetFreeWorldVolume()
 ze_internal void AddStatic(Vec2 pos, Vec2 size)
 {
 	WorldVolume* vol = GetFreeWorldVolume();
-	ZRDrawObj *platform = g_engine.scenes.AddFullTextureQuad(g_scene, TEX_PLATFORM, {size.x * 0.5f, size.y * 0.5f});
-	platform->t.pos = Vec3_FromVec2(pos, 0);
+	ZRDrawObj *platform = g_engine.scenes.AddFullTextureQuad(
+		g_scene,
+		FALLBACK_TEXTURE_WHITE,
+		{size.x * 0.5f, size.y * 0.5f},
+		COLOUR_F32_LIGHT_GREY);
+	platform->t.pos = Vec3_FromVec2(pos, -0.1f);
 	vol->drawObjId = platform->id;
 	vol->bodyId = ZP_AddStaticVolume(pos, size);
 	RNGPRINT("Platform %d assigned body %d\n", platform->id, vol->bodyId);
@@ -304,15 +308,17 @@ ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 	return NULL;
 }
 
-ze_external void Sim_SpawnDebris(Vec2 pos)
+ze_external void Sim_SpawnDebris(Vec2 pos, Vec2 velocity, f32 spin)
 {
-	RNGPRINT("Spawning debris at %.3f, %.3f\n", pos.x, pos.y);
+	// RNGPRINT("Spawning debris at %.3f, %.3f\n", pos.x, pos.y);
 	DebrisEntSave debris = {};
 	debris.header.type = ENT_TYPE_DEBRIS;
 	debris.header.numBytes = sizeof(DebrisEntSave);
 	debris.header.id = Sim_ReserveDynamicIds(1);
 	debris.pos = pos;
 	debris.depth = 0;
+	debris.velocity = velocity;
+	debris.angularVelocity = spin;
 	Sim_GetEntityType(ENT_TYPE_DEBRIS)->Restore(&debris.header, Sim_GetRestoreTick());
 }
 
@@ -365,7 +371,7 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 		Vec2 pos = {};
 		pos.x = RANDF_RANGE(-10, 10);
 		pos.y = RANDF_RANGE(1, 5);
-		Sim_SpawnDebris(pos);
+		Sim_SpawnDebris(pos, {}, 0.f);
 	}
 
 	// spawn a player

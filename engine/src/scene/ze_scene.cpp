@@ -165,11 +165,12 @@ ze_internal ZRDrawObj* ZScene_GetObjectByIndex(zeHandle sceneHandle, i32 i)
 // scene object utility functions
 ///////////////////////////////////////////////////////////
 
-ze_internal ZRDrawObj* ZScene_AddFullTextureQuad(zeHandle scene, char* textureName, Vec2 size)
+ze_internal ZRDrawObj* ZScene_AddFullTextureQuad(
+    zeHandle scene, char* textureName, Vec2 size, ColourF32 colour)
 {
 	if (textureName == NULL)
 	{
-		textureName = FALLBACK_TEXTURE_NAME;
+		textureName = FALLBACK_TEXTURE_WHITE;
 	}
 	
     ZRDrawObj* obj = ZScene_AddObject(scene);
@@ -180,7 +181,7 @@ ze_internal ZRDrawObj* ZScene_AddFullTextureQuad(zeHandle scene, char* textureNa
     obj->data.quad.uvMax = { 1, 1 };
     obj->data.quad.offset = { };
     obj->t.scale = { size.x, size.y, 1 };
-    obj->data.quad.colour = COLOUR_F32_WHITE;
+    obj->data.quad.colour = colour;
     return obj;
 }
 

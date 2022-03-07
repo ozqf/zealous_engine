@@ -103,9 +103,9 @@ ze_external void ZRDraw_SpriteBatch(
         ZGen_AddSriteGeoXY(&(g_mesh->data), item->pos, item->size, item->uvMin, item->uvMax, item->radians);
     }
     Vec4 vecColour = ColourF32ToVec4(colour);
-    printf("Draw quad colour from %.3f, %.3f, %.3f to %.3f, %.3f, %.3f\n",
-        colour.r, colour.g, colour.b,
-        vecColour.x, vecColour.y, vecColour.z);
+    //printf("Draw quad colour from %.3f, %.3f, %.3f to %.3f, %.3f, %.3f\n",
+    //    colour.r, colour.g, colour.b,
+    //    vecColour.x, vecColour.y, vecColour.z);
     glUseProgram(g_shader.handle);
 
     // upload

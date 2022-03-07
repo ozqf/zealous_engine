@@ -18,12 +18,6 @@ printf(fmt, __VA_ARGS__)
 #define TEX_PLATFORM "platform_texture"
 #define TEX_CURSOR "cursor_texture"
 
-#define TEX_PLAYER "player"
-#define TEX_ENEMY "enemy"
-#define TEX_WEAPON "weapon"
-#define POINTPRJ_PLAYER_TEX "prj_player"
-#define POINTPRJ_ENEMY_TEX "prj_enemy"
-
 #define PHYSICS_LAYER_BIT_WORLD (1 << 0)
 #define PHYSICS_LAYER_BIT_PLATFORM (1 << 1)
 #define PHYSICS_LAYER_BIT_MOBS (1 << 2)
@@ -350,7 +344,7 @@ ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId);
 ze_external Ent2d* Sim_FindPlayer();
 
 // spawning
-ze_external void Sim_SpawnDebris(Vec2 pos);
+ze_external void Sim_SpawnDebris(Vec2 pos, Vec2 velocity, f32 spin);
 ze_external void Sim_SpawnPlayer(Vec2 pos);
 ze_external void Sim_SpawnProjectile(
 	Vec2 pos, f32 degrees, i32 teamId, i32 templateId);

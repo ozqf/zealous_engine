@@ -36,12 +36,12 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		if (ent->d.pointPrj.data.teamId == TEAM_ID_PLAYER)
 		{
 			sprite = g_engine.scenes.AddFullTextureQuad(
-				g_scene, POINTPRJ_PLAYER_TEX, {0.25f, 0.25f});
+				g_scene, FALLBACK_TEXTURE_WHITE, {0.25f, 0.25f}, COLOUR_F32_YELLOW);
 		}
 		else
 		{
 			sprite = g_engine.scenes.AddFullTextureQuad(
-				g_scene, POINTPRJ_ENEMY_TEX, {0.25f, 0.25f});
+				g_scene, FALLBACK_TEXTURE_WHITE, {0.25f, 0.25f}, COLOUR_F32_RED);
 		}
 		ent->d.pointPrj.comp.drawId = sprite->id;
 		sprite->t.pos = { prj->data.pos.x, prj->data.pos.y, prj->data.depth };
@@ -77,7 +77,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 {
 	EntPointProjectile* prj = GetPointPrj(ent);
 	prj->data.tick += delta;
-	if (prj->data.tick > 2.0)
+	if (prj->data.tick > 10.0)
 	{
 		//RNGPRINT("prj timeout\n");
 		Remove(ent);
@@ -158,10 +158,4 @@ ze_external void EntPointProjectile_Register(EntityType* type)
 	type->Remove = Remove;
 	type->Tick = Tick;
 	type->Sync = Sync;
-
-	ZRTexture* tex = g_engine.assets.AllocTexture(16, 16, POINTPRJ_PLAYER_TEX);
-		ZGen_FillTexture(tex, COLOUR_U32_YELLOW);
-	
-	tex = g_engine.assets.AllocTexture(16, 16, POINTPRJ_ENEMY_TEX);
-		ZGen_FillTexture(tex, COLOUR_U32_RED);
 }

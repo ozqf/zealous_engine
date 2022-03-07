@@ -3,20 +3,24 @@
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
 
+ze_internal void RestoreBodyState(DebrisEntSave* state, zeHandle physicsBodyId)
+{
+	// restore state
+	BodyState body = {};
+	body.t.pos = state->pos;
+	body.t.radians = state->degrees * DEG2RAD;
+	body.velocity = state->velocity;
+	body.angularVelocity = state->angularVelocity;
+	ZP_SetBodyState(physicsBodyId, body);
+}
+
 ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 {
 	DebrisEntSave* state = (DebrisEntSave*)stateHeader;
 	Ent2d* ent = Sim_GetEntById(state->header.id);
 	if (ent != NULL)
 	{
-		// restore state
-		BodyState body = {};
-		body.t.pos = state->pos;
-		body.t.radians = state->degrees * DEG2RAD;
-		body.velocity = state->velocity;
-		body.angularVelocity = state->angularVelocity;
-		ZP_SetBodyState(ent->d.debris.physicsBodyId, body);
-
+		RestoreBodyState(state, ent->d.debris.physicsBodyId);
 		ent->d.debris.tick = state->tick;
 	}
 	else
@@ -26,7 +30,7 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 
 		// add sprite
 		ZRDrawObj *debris = g_engine.scenes.AddFullTextureQuad(
-			g_scene, FALLBACK_TEXTURE_NAME, {0.5f, 0.5f});
+			g_scene, FALLBACK_TEXTURE_WHITE, {0.5f, 0.5f}, COLOUR_F32_PURPLE);
 		ent->d.debris.drawId = debris->id;
 		debris->t.pos = Vec3_FromVec2(state->pos, state->depth);
 
@@ -44,6 +48,7 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 		ent->d.debris.tick = state->tick;
 		
 		ent->d.debris.physicsBodyId = ZP_AddBody(def);
+		RestoreBodyState(state, ent->d.debris.physicsBodyId);
 	}
 
 	// mark ent with latest restore tick

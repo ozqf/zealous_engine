@@ -55,6 +55,9 @@ Zealous Engine public header
 #define COLOUR_F32_CYAN { 0.f, 1.f, 1.f, 1.f }
 #define COLOUR_F32_PURPLE { 1.f, 0.f, 1.f, 1.f }
 
+#define COLOUR_F32_ORANGE { 1.f, 0.5f, 0.f, 1.f }
+#define COLOUR_F32_LIGHT_GREY { 0.5f, 0.5f, 0.5f, 1.f }
+
 #define ZR_TEX_SAMPLER_DEFAULT 0
 
 struct ZGameDef
@@ -141,7 +144,7 @@ struct ZSceneManager
 
     // utilities
     ZRDrawObj* (*AddCube)(zeHandle scene, char* materialName);
-    ZRDrawObj* (*AddFullTextureQuad)(zeHandle scene, char *textureName, Vec2 size);
+    ZRDrawObj* (*AddFullTextureQuad)(zeHandle scene, char *textureName, Vec2 size, ColourF32 colour);
     ZRDrawObj *(*AddLinesObj)(zeHandle scene, i32 maxVerts);
 };
 

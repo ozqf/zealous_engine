@@ -2,6 +2,8 @@
 
 #define GFX_IMPACT_DURATION 0.5f
 
+#define GFX_IMPACT_SIZE 0.4f
+
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
 
@@ -32,7 +34,10 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 
 		Vec3 pos = Vec3_FromVec2(save->data.pos, save->data.depth);
 		ZRDrawObj* obj = g_engine.scenes.AddFullTextureQuad(
-			g_scene, FALLBACK_TEXTURE_NAME, { 0.25f, 0.25f });
+			g_scene,
+			FALLBACK_TEXTURE_WHITE,
+			{ GFX_IMPACT_SIZE, GFX_IMPACT_SIZE },
+			COLOUR_F32_ORANGE);
 		gfx->drawId = obj->id;
 
 	}
@@ -83,7 +88,7 @@ ze_internal void Sync(Ent2d* ent)
 	M3x3_RotateZ(obj->t.rotation.cells, gfx->data.radians);
 	obj->t.pos = Vec3_FromVec2(gfx->data.pos, gfx->data.depth);
 	f32 weight = gfx->data.tick / GFX_IMPACT_DURATION;
-	f32 size = 0.25f;
+	f32 size = GFX_IMPACT_SIZE;
 	obj->t.scale = { size * weight, size * weight, 1.f };
 }
 
