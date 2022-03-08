@@ -211,12 +211,15 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 	g_staticSceneIndex = index;
 	
 	AddStatic({ 0, -1 }, { 8, 1 });
-	
-	AddStatic({ 0, -4 }, { 8, 1 });
+	// AddStatic({ 0, -4 }, { 8, 1 });
+	AddStatic({ -9.5, -4 }, { 4, 1 });
+	AddStatic({ 9.5, -4 }, { 4, 1 });
 
+	// top and bottom border
 	AddStatic({ 0, -8 }, { 24, 1 });
 	AddStatic({ 0, 8 }, { 24, 1 });
 	
+	// left and right border
 	AddStatic({ -12, 0 }, { 1, 16 });
 	AddStatic({ 12, 0 }, { 1, 16 });
 }
@@ -330,9 +333,12 @@ ze_external void Sim_SpawnDebris(Vec2 pos, Vec2 velocity, f32 spin)
 {
 	// RNGPRINT("Spawning debris at %.3f, %.3f\n", pos.x, pos.y);
 	DebrisEntSave debris = {};
-	debris.header.type = ENT_TYPE_DEBRIS;
-	debris.header.numBytes = sizeof(DebrisEntSave);
-	debris.header.id = Sim_ReserveDynamicIds(1);
+	debris.header = Ent_SaveHeaderFromRaw(
+		Sim_ReserveDynamicIds(1),
+		ENT_EMPTY_TAG,
+		ENT_TYPE_DEBRIS,
+		sizeof(DebrisEntSave)
+	);
 	debris.pos = pos;
 	debris.depth = 0;
 	debris.velocity = velocity;
@@ -346,9 +352,13 @@ ze_external void Sim_SpawnPlayer(Vec2 pos)
 	pos.y = 5;
 	RNGPRINT("Spawn player at %.3f, %.3f\n", pos.x, pos.y);
 	PlayerEntSave player = {};
-	player.header.type = ENT_TYPE_PLAYER;
-	player.header.numBytes = sizeof(PlayerEntSave);
-	player.header.id = ENT_RESERVED_ID_PLAYER;
+	player.header = Ent_SaveHeaderFromRaw(
+		ENT_RESERVED_ID_PLAYER,
+		ENT_EMPTY_TAG,
+		ENT_TYPE_PLAYER,
+		sizeof(PlayerEntSave)
+	);
+	
 	player.pos = pos;
 	player.status = PLAYER_STATUS_PLAYING;
 	Sim_GetEntityType(ENT_TYPE_PLAYER)->Restore(&player.header, Sim_GetRestoreTick());
@@ -357,9 +367,12 @@ ze_external void Sim_SpawnPlayer(Vec2 pos)
 ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId, i32 templateId)
 {
 	EntPointProjectileSave prj = {};
-	prj.header.type = ENT_TYPE_POINT_PRJ;
-	prj.header.id = Sim_ReserveDynamicIds(1);
-	prj.header.numBytes = sizeof(EntPointProjectileSave);
+	prj.header = Ent_SaveHeaderFromRaw(
+		Sim_ReserveDynamicIds(1),
+		ENT_EMPTY_TAG,
+		ENT_TYPE_POINT_PRJ,
+		sizeof(EntPointProjectileSave)
+	);
 	
 	// apply projectile template
 	prj.data.templateId = templateId;
@@ -428,6 +441,7 @@ ze_external void Sim_SyncDrawObjects()
 
 ze_internal void UpdateDebugText()
 {
+	const char* controlsTxt = "WASD move. mouse aim/shoot. Shift stop/start.\nQ/E rewind/fastforward. Esc quit.";
 	g_debugText.Clear(YES);
 	i32 numEnts = g_entities.Count();
 	i32 maxEnts = g_entities.Capacity();
@@ -438,7 +452,8 @@ ze_internal void UpdateDebugText()
 		(char*)g_debugText.cursor,
 		g_debugText.Space(),
 		
-		"Player status %d\nEnts %d of %d\nFrame %d. Last %d (%.3f of %.3f seconds).\nFrame buffer capacity %zdKB of %zdKB (%.3f%%)",
+		"%s\nPlayer status %d. Ents %d of %d\nFrame %d. Last %d (%.3f of %.3f seconds).\nFrame buffer capacity %zdKB of %zdKB (%.3f%%)",
+		controlsTxt,
 		playerStatus,
 		numEnts,
 		maxEnts,

@@ -18,7 +18,8 @@ struct TileMaterial
 
 struct TileCell
 {
-	i32 bUsed;
+	i32 materialId;
+	// for randomised tile decoration, seed allows randomness to be stored
 	i32 seed;
 };
 

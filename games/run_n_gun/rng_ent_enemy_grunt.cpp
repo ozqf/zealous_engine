@@ -88,10 +88,8 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	buf->cursor += sizeof(EntGruntSave);
 
 	// header
-	save->header.type = ent->type;
-	save->header.id = ent->id;
-	save->header.numBytes = sizeof(EntGruntSave);
-
+	save->header = Ent_SaveHeaderFromEnt(ent, sizeof(EntGruntSave));
+	
 	// logic
 	save->aimDegrees = grunt->aimDegrees;
 	save->tick = grunt->tick;
@@ -216,9 +214,12 @@ ze_external void Sim_SpawnEnemyGrunt(Vec2 pos)
 	// pos.y = 5;
 	//RNGPRINT("Spawn player at %.3f, %.3f\n", pos.x, pos.y);
 	EntGruntSave grunt = {};
-	grunt.header.type = ENT_TYPE_ENEMY_GRUNT;
-	grunt.header.numBytes = sizeof(EntGruntSave);
-	grunt.header.id = Sim_ReserveDynamicIds(1);
+	grunt.header = Ent_SaveHeaderFromRaw(
+		Sim_ReserveDynamicIds(1),
+		ENT_EMPTY_TAG,
+		ENT_TYPE_ENEMY_GRUNT,
+		sizeof(EntGruntSave)
+	);
 	grunt.pos = pos;
 	grunt.health = 70;
 	grunt.state = 0;

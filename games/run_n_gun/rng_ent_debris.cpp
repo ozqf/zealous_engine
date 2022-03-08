@@ -3,6 +3,8 @@
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
 
+#define DEBRIS_LIFE_TIME 10.f
+
 ze_internal void RestoreBodyState(DebrisEntSave* state, zeHandle physicsBodyId)
 {
 	// restore state
@@ -60,9 +62,7 @@ ze_internal void WriteDebris(Ent2d* ent, ZEBuffer* buf)
 	DebrisEntSave* state = (DebrisEntSave*)buf->cursor;
 	buf->cursor += sizeof(DebrisEntSave);
 	
-	state->header.type = ent->type;
-	state->header.id = ent->id;
-	state->header.numBytes = sizeof(DebrisEntSave);
+	state->header = Ent_SaveHeaderFromEnt(ent, sizeof(DebrisEntSave));
 	
 	state->tick = ent->d.debris.tick;
 	
@@ -85,15 +85,13 @@ ze_internal void Remove(Ent2d* ent)
 
 ze_internal void Tick(Ent2d* ent, f32 delta)
 {
-	ent->d.debris.tick += delta;
-	if (ent->d.debris.tick > 5.f)
+	if (ent->d.debris.tick >= DEBRIS_LIFE_TIME)
 	{
-		// printf("Tick end - debris\n");
 		Sim_RemoveEntity(ent);
 	}
 	else
 	{
-		// printf("Tick debris\n");
+		ent->d.debris.tick += delta;
 	}
 }
 
@@ -101,6 +99,12 @@ ze_internal void Sync(Ent2d* ent)
 {
 	EntDebris* debris = &ent->d.debris;
 	Sim_SyncDrawObjToPhysicsObj(debris->drawId, debris->physicsBodyId);
+
+	ColourF32 full = { 0.5f, 0.f, 0.f, 1.f };
+	ColourF32 fade = { 0.1f, 0.1f, 0.1f, 1.f };
+	ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, debris->drawId);
+	f32 weight = (debris->tick / DEBRIS_LIFE_TIME);
+	obj->data.quad.colour = ColourF32Lerp(full, fade, weight);
 }
 
 ze_external void EntDebris_Register(EntityType* type)

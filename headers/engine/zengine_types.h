@@ -82,6 +82,16 @@ inline ColourF32 ColourF32FromU32(ColourU32 c)
 	return result;
 }
 
+inline ColourF32 ColourF32Lerp(ColourF32 a, ColourF32 b, f32 weight)
+{
+	ColourF32 c;
+	c.r = ZE_LerpF32(a.r, b.r, weight);
+	c.g = ZE_LerpF32(a.g, b.g, weight);
+	c.b = ZE_LerpF32(a.b, b.b, weight);
+	c.a = ZE_LerpF32(a.a, b.a, weight);
+	return c;
+}
+
 ///////////////////////////////////////////////////////////
 // Asset data types
 ///////////////////////////////////////////////////////////

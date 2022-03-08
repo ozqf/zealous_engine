@@ -14,29 +14,6 @@ ze_internal i32 g_platformTexture;
 
 ze_internal i32 g_gameState = GAME_STATE_PLAYING;
 
-/*internal void AddPlayer(Vec3 pos)
-{
-	// player avatar
-	ZRDrawObj *player = g_engine.scenes.AddFullTextureQuad(g_scene, FALLBACK_TEXTURE_NAME, {0.5f, 0.5f});
-	g_playerId = player->id;
-	player->t.pos = pos;
-	CREATE_ENT_PTR(ent, player)
-	ent->type = ENT_TYPE_PLAYER;
-	ZPShapeDef def = {};
-	def.pos = Vec2_FromVec3(pos);
-	def.size = { 1, 1, };
-	def.friction = 0;
-	def.resitition = 0;
-	ent->bodyId = ZP_AddDynamicVolume(def);
-
-	// gun
-	ZRDrawObj *gun = g_engine.scenes.AddFullTextureQuad(g_scene, FALLBACK_TEXTURE_NAME, {0.75f, 0.1f});
-	g_playerGunId = gun->id;
-	gun->t.pos = pos;
-	gun->t.pos.z += 0.1f;
-
-}*/
-
 internal void Init()
 {
 	// init physics plugin
@@ -103,68 +80,17 @@ internal void Init()
 	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_POS_X, NULL, "mouseX");
 	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_POS_Y, NULL, "mouseY");
 
-	g_engine.input.AddAction(Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, ACTION_TIME_BACKWARD);
-	g_engine.input.AddAction(Z_INPUT_CODE_RIGHT, Z_INPUT_CODE_NULL, ACTION_TIME_FORWARD);
+	g_engine.input.AddAction(Z_INPUT_CODE_Q, Z_INPUT_CODE_NULL, ACTION_TIME_BACKWARD);
+	g_engine.input.AddAction(Z_INPUT_CODE_E, Z_INPUT_CODE_NULL, ACTION_TIME_FORWARD);
+
+	g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, ACTION_TIME_FAST_FORWARD);
+	g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, ACTION_TIME_FAST_REWIND);
 }
 
 internal void Shutdown()
 {
 
 }
-
-/*internal void TickPlayer(float delta)
-{
-	ZRDrawObj *player = g_engine.scenes.GetObject(g_scene, g_playerId);
-	if (player == NULL) { return; }
-	CREATE_ENT_PTR(ent, player)
-	if (ent == NULL) { return; }
-	
-	Vec2 dir = {};
-	if (g_engine.input.GetActionValue(MOVE_LEFT) > 0) { dir.x -= 1; }
-	if (g_engine.input.GetActionValue(MOVE_RIGHT) > 0) { dir.x += 1; }
-
-	if (g_engine.input.GetActionValue(ACTION_USE) > 0)
-	{
-		ZP_Raycast({-4, -4}, {4, 4});
-	}
-
-	// grab body
-	BodyState state = ZP_GetBodyState(ent->bodyId);
-
-	// update sprite to follow body
-	player->t.pos = Vec3_FromVec2(state.t.pos, player->t.pos.z);
-	Transform_SetRotation(&player->t, 0, 0, state.t.radians);
-	
-	// apply velocity changes from input
-	Vec2 v = state.velocity;
-	if (dir.x != 0)
-	{
-		v.x += (ACCLE_FORCE * delta) * dir.x;
-	}
-	else
-	{
-		// friction and stop
-		v.x *= 0.9f;
-	}
-
-	if (g_engine.input.GetActionValue(MOVE_UP) > 0)
-	{
-		v.y = 10.f;
-	}
-	// v.y += -20.f * delta;
-
-	if (v.x > MOVE_SPEED) { v.x = MOVE_SPEED; }
-	if (v.x < -MOVE_SPEED) { v.x = -MOVE_SPEED; }
-	// state.velocity.y += dir.y;
-	ZP_SetLinearVelocity(ent->bodyId, v);
-	
-	// point gun at cursor
-	ZRDrawObj* gun = g_engine.scenes.GetObject(g_scene, g_playerGunId);
-	ZE_ASSERT(gun != NULL, "Player gun obj not found")
-	gun->t.pos = player->t.pos;
-	
-	Transform_SetRotation(&gun->t, 0, 0, Vec2_AngleTo(Vec2_FromVec3(gun->t.pos), g_mousePos));
-}*/
 
 internal void UpdateCursor()
 {
@@ -176,18 +102,22 @@ internal void UpdateCursor()
 	g_mousePos.x *= screenSize * aspectRatio;
 	g_mousePos.y *= screenSize;
 
-	// offset by camera position
-	Transform camera = g_engine.scenes.GetCamera(g_scene);
-	g_mousePos.x += camera.pos.x;
-	g_mousePos.y += camera.pos.y;
+	// g_mousePos.x += camera.pos.x;
+	// g_mousePos.y += camera.pos.y;
 
 	ZRDrawObj *cursor = g_engine.scenes.GetObject(g_scene, g_cursorId);
 	if (cursor == NULL) { return; }
 
-	cursor->t.pos.x = g_mousePos.x;
-	cursor->t.pos.y = g_mousePos.y;
-	// update with scroll position when that's implemented...
 	g_mouseWorldPos = g_mousePos;
+	
+	// offset by camera position
+	Transform camera = g_engine.scenes.GetCamera(g_scene);
+	g_mouseWorldPos.x += camera.pos.x;
+	g_mouseWorldPos.y += camera.pos.y;
+
+	// position crosshair
+	cursor->t.pos.x = g_mouseWorldPos.x;
+	cursor->t.pos.y = g_mouseWorldPos.y;
 }
 
 internal void UpdateDebugText()
@@ -222,14 +152,64 @@ ze_internal void PausedTick(ZEFrameTimeInfo timing, RNGTickInfo info)
 		g_gameState = GAME_STATE_PLAYING;
 		Sim_ClearFutureFrames();
 	}
-	if (g_engine.input.GetActionValue(MOVE_RIGHT) > 0)
+
+	i32 speed = 1;
+	if (g_engine.input.GetActionValue(ACTION_ATTACK_1) > 0)
+	{
+		speed = 0;
+	}
+	else if (g_engine.input.GetActionValue(ACTION_ATTACK_2) > 0)
+	{
+		speed = 2;
+	}
+
+	if (g_engine.input.GetActionValue(ACTION_TIME_FORWARD) > 0)
 	{
 		// tick
-		Sim_TickForward(info, NO);
+		switch (speed)
+		{
+			case 0:
+			if (timing.frameNumber % 2 == 0)
+			{
+				Sim_TickForward(info, NO);
+			}
+			break;
+			
+			case 2:
+			for (i32 i = 0; i < 3; ++i)
+			{
+				Sim_TickForward(info, NO);
+			}
+			break;
+
+			default:
+			Sim_TickForward(info, NO);
+			break;
+		}
 	}
-	else if (g_engine.input.GetActionValue(MOVE_LEFT) > 0)
+	else if (g_engine.input.GetActionValue(ACTION_TIME_BACKWARD) > 0)
 	{
-		Sim_TickBackward(info);
+		// tick
+		switch (speed)
+		{
+			case 0:
+			if (timing.frameNumber % 2 == 0)
+			{
+				Sim_TickBackward(info);
+			}
+			break;
+			
+			case 2:
+			for (i32 i = 0; i < 3; ++i)
+			{
+				Sim_TickBackward(info);
+			}
+			break;
+
+			default:
+			Sim_TickBackward(info);
+			break;
+		}
 	}
 }
 
@@ -242,7 +222,7 @@ ze_internal void PlayingTick(ZEFrameTimeInfo timing, RNGTickInfo info)
 	}
 	if (g_engine.input.HasActionToggledOn(ACTION_ATTACK_2, timing.frameNumber))
 	{
-		RNGPRINT("Spawn debris\n");
+		RNGPRINT("Spawn Grunt\n");
 		Vec2 pos = {};
 		// pos.x = RANDF_RANGE(-10, 10);
 		// pos.y = RANDF_RANGE(1, 5);
@@ -266,7 +246,10 @@ internal void Tick(ZEFrameTimeInfo timing)
 
 	info.cursorWorldPos = g_mouseWorldPos;
 	info.cursorScreenPos = g_mousePos;
-	info.delta = (f32)timing.interval;
+	// force sim to run at ticks of 60fps!
+	// otherwise jitters in frame timing create jitters in playback.
+	// info.delta = (f32)timing.interval;
+	info.delta = 1.f / 60.f;
 
 	if (Sim_GetPlayerStatus() == PLAYER_STATUS_DEAD && g_gameState == GAME_STATE_PLAYING)
 	{
@@ -285,17 +268,6 @@ internal void Tick(ZEFrameTimeInfo timing)
 	}
 
 	UpdateDebugText();
-	
-	// TickPlayer(dt);
-	// Sim_SyncDrawObjects();
-
-	/*i32 numObjects = g_engine.scenes.GetObjectCount(g_scene);
-	for (i32 i = 0; i < numObjects; ++i)
-	{
-		ZRDrawObj* obj = g_engine.scenes.GetObjectByIndex(g_scene, i);
-		if (obj == NULL) { continue; }
-		
-	}*/
 }
 
 Z_GAME_WINDOWS_LINK_FUNCTION

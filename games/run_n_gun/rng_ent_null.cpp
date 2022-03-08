@@ -66,9 +66,7 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	EntStateHeader* state = (EntStateHeader*)buf->cursor;
 	buf->cursor += sizeof(EntStateHeader);
 	
-	state->type = ent->type;
-	state->id = ent->id;
-	state->numBytes = sizeof(EntStateHeader);
+	*state = Ent_SaveHeaderFromEnt(ent, sizeof(EntStateHeader));
 }
 
 ze_internal void Remove(Ent2d* ent)

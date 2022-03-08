@@ -43,6 +43,8 @@ printf(fmt, __VA_ARGS__)
 #define ACTION_TIME_BACKWARD "backward"
 #define ACTION_TIME_STOP "stop"
 #define ACTION_TIME_PLAY "play"
+#define ACTION_TIME_FAST_FORWARD "fast_forward"
+#define ACTION_TIME_FAST_REWIND "fast_rewind"
 
 // button bits
 #define INPUT_BIT_LEFT (1 << 0)
@@ -63,6 +65,8 @@ printf(fmt, __VA_ARGS__)
 #define TEAM_ID_PLAYER 1
 #define TEAM_ID_ENEMY 2
 #define TEAM_ID_NONCOMBATANT 3
+
+#define ENT_EMPTY_TAG 0
 
 #define ENT_TYPE_NONE 0
 #define ENT_TYPE_STATIC 1
@@ -101,6 +105,7 @@ printf(fmt, __VA_ARGS__)
 struct EntStateHeader
 {
 	i32 id;
+	i32 tag;
 	i32 type;
 	i32 numBytes;
 };
@@ -271,6 +276,7 @@ struct Ent2d
 {
 	i32 id;
 	i32 type;
+	i32 tag;
 	// used to detect if an object was not included in
 	// some restored frame data, and thus if it should be removed.
 	u32 lastRestoreFrame;
@@ -278,6 +284,32 @@ struct Ent2d
 	i32 previousType;
 	EntData d;
 };
+
+ze_internal EntStateHeader Ent_SaveHeaderFromEnt(
+	Ent2d* ent,
+	i32 numBytes)
+{
+	EntStateHeader h;
+	h.id = ent->id;
+	h.tag = ent->tag;
+	h.type = ent->type;
+	h.numBytes = numBytes;
+	return h;
+}
+
+ze_internal EntStateHeader Ent_SaveHeaderFromRaw(
+	i32 id,
+	i32 tag,
+	i32 type,
+	i32 numBytes)
+{
+	EntStateHeader h;
+	h.id = id;
+	h.tag = tag;
+	h.type = type;
+	h.numBytes = numBytes;
+	return h;
+}
 
 ////////////////////////////////////////////////
 // misc

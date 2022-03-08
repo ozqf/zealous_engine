@@ -56,10 +56,7 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	EntPointProjectileSave* state = (EntPointProjectileSave*)buf->cursor;
 	buf->cursor += sizeof(EntPointProjectileSave);
 	
-	state->header.type = ent->type;
-	state->header.id = ent->id;
-	state->header.numBytes = sizeof(EntPointProjectileSave);
-
+	state->header = Ent_SaveHeaderFromEnt(ent, sizeof(EntPointProjectileSave));
 	state->data = ent->d.pointPrj.data;
 }
 
@@ -99,10 +96,10 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	if (numResults > 0)
 	{
 		ZPRaycastResult* hit = &results[numResults - 1];
-		printf("Prj raycast got %d result, hit volumeId %d (external %d)\n",
-			numResults,
-			hit->volumeId,
-			hit->externalId);
+		// RNGPRINT("Prj raycast got %d result, hit volumeId %d (external %d)\n",
+		// 	numResults,
+		// 	hit->volumeId,
+		// 	hit->externalId);
 		Ent2d* victim = Sim_GetEntById(hit->externalId);
 		if (victim == NULL)
 		{

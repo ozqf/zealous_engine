@@ -79,9 +79,7 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	buf->cursor += sizeof(PlayerEntSave);
 
 	// header
-	state->header.type = ent->type;
-	state->header.id = ent->id;
-	state->header.numBytes = sizeof(PlayerEntSave);
+	state->header = Ent_SaveHeaderFromEnt(ent, sizeof(PlayerEntSave));
 
 	// data
 	state->tick = ent->d.player.tick;

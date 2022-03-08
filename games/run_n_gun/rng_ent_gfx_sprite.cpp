@@ -50,9 +50,7 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	ZE_BUF_INIT_PTR_IN_PLACE(save, GfxSpriteSave, buf);
 	
 	// header
-	save->header.type = ent->type;
-	save->header.id = ent->id;
-	save->header.numBytes = sizeof(GfxSpriteSave);
+	save->header = Ent_SaveHeaderFromEnt(ent, sizeof(GfxSpriteSave));
 
 	// logic
 	save->data = gfx->data;
@@ -98,10 +96,13 @@ ze_internal void Print(Ent2d* ent){}
 ze_external void Sim_SpawnGfx(Vec2 pos, i32 subType)
 {
 	GfxSpriteSave save = {};
-	save.header.id = Sim_ReserveDynamicIds(1);
-	save.header.numBytes = sizeof(GfxSpriteSave);
-	save.header.type = ENT_TYPE_GFX_SPRITE;
-
+	save.header = Ent_SaveHeaderFromRaw(
+		Sim_ReserveDynamicIds(1),
+		ENT_EMPTY_TAG,
+		ENT_TYPE_GFX_SPRITE,
+		sizeof(GfxSpriteSave)
+	);
+	
 	save.data.pos = pos;
 	save.data.radians = RANDF_RANGE(0, 360) * DEG2RAD;
 	save.data.tick = GFX_IMPACT_DURATION;
