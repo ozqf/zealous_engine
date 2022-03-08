@@ -148,6 +148,26 @@ ze_internal void Sync(Ent2d* ent)
 	sprite->t.pos = pos;
 }
 
+ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId, i32 templateId)
+{
+	EntPointProjectileSave prj = {};
+	prj.header = Ent_SaveHeaderFromRaw(
+		Sim_ReserveDynamicIds(1),
+		ENT_EMPTY_TAG,
+		ENT_TYPE_POINT_PRJ,
+		sizeof(EntPointProjectileSave)
+	);
+	
+	// apply projectile template
+	prj.data.templateId = templateId;
+
+	// instance info
+	prj.data.pos = pos;
+	prj.data.teamId = teamId;
+	prj.data.radians = degrees * DEG2RAD;
+	Sim_GetEntityType(ENT_TYPE_POINT_PRJ)->Restore(&prj.header, Sim_GetRestoreTick());
+}
+
 ze_external void EntPointProjectile_Register(EntityType* type)
 {
 	g_engine = GetEngine();

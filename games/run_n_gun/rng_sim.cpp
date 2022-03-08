@@ -228,10 +228,10 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 // read frame data
 /////////////////////////////////////////////////
 
-ze_internal void Sim_RestoreEntity(EntStateHeader* header, u32 restoreTick)
+ze_external void Sim_RestoreEntity(EntStateHeader* header)
 {
 	EntityType* entType = &g_types[header->type];
-	entType->Restore(header, restoreTick);
+	entType->Restore(header, g_restoreTick);
 }
 
 ze_external void Sim_RestoreFrame(FrameHeader* header)
@@ -252,7 +252,7 @@ ze_external void Sim_RestoreFrame(FrameHeader* header)
 	{
 		EntStateHeader* entHeader = (EntStateHeader*)read;
 		read += entHeader->numBytes;
-		Sim_RestoreEntity(entHeader, g_restoreTick);
+		Sim_RestoreEntity(entHeader);
 	}
 
 	// iterate ents list and remove any entities not marked
@@ -329,61 +329,6 @@ ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 	return NULL;
 }
 
-ze_external void Sim_SpawnDebris(Vec2 pos, Vec2 velocity, f32 spin)
-{
-	// RNGPRINT("Spawning debris at %.3f, %.3f\n", pos.x, pos.y);
-	DebrisEntSave debris = {};
-	debris.header = Ent_SaveHeaderFromRaw(
-		Sim_ReserveDynamicIds(1),
-		ENT_EMPTY_TAG,
-		ENT_TYPE_DEBRIS,
-		sizeof(DebrisEntSave)
-	);
-	debris.pos = pos;
-	debris.depth = 0;
-	debris.velocity = velocity;
-	debris.angularVelocity = spin;
-	Sim_GetEntityType(ENT_TYPE_DEBRIS)->Restore(&debris.header, Sim_GetRestoreTick());
-}
-
-ze_external void Sim_SpawnPlayer(Vec2 pos)
-{
-	pos.x = 0;
-	pos.y = 5;
-	RNGPRINT("Spawn player at %.3f, %.3f\n", pos.x, pos.y);
-	PlayerEntSave player = {};
-	player.header = Ent_SaveHeaderFromRaw(
-		ENT_RESERVED_ID_PLAYER,
-		ENT_EMPTY_TAG,
-		ENT_TYPE_PLAYER,
-		sizeof(PlayerEntSave)
-	);
-	
-	player.pos = pos;
-	player.status = PLAYER_STATUS_PLAYING;
-	Sim_GetEntityType(ENT_TYPE_PLAYER)->Restore(&player.header, Sim_GetRestoreTick());
-}
-
-ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId, i32 templateId)
-{
-	EntPointProjectileSave prj = {};
-	prj.header = Ent_SaveHeaderFromRaw(
-		Sim_ReserveDynamicIds(1),
-		ENT_EMPTY_TAG,
-		ENT_TYPE_POINT_PRJ,
-		sizeof(EntPointProjectileSave)
-	);
-	
-	// apply projectile template
-	prj.data.templateId = templateId;
-
-	// instance info
-	prj.data.pos = pos;
-	prj.data.teamId = teamId;
-	prj.data.radians = degrees * DEG2RAD;
-	Sim_GetEntityType(ENT_TYPE_POINT_PRJ)->Restore(&prj.header, Sim_GetRestoreTick());
-}
-
 ///////////////////////////////////////////////////////
 // start a new level
 ///////////////////////////////////////////////////////
@@ -407,7 +352,9 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	}
 
 	// spawn a player
-	Sim_SpawnPlayer({});
+	Sim_SpawnPlayer({0, 0});
+
+	Sim_SpawnSpawner({0, 4});
 	
 	FrameHeader* header = Sim_WriteFrame(frames, 0);
 	return header;
@@ -522,9 +469,15 @@ ze_external void Sim_TickForward(RNGTickInfo info, i32 bInteractive)
 	
 	if (g_currentFrame > g_lastFrame)
 	{
-		// run a new frame
-		// if not interactive, skip this part.
-		if (!bInteractive) { g_currentFrame--; return; }
+		// run a new frame?
+		// if not interactive (ie, playing), skip this part, we are
+		// at the end of the frames stored.
+		// undo the frame progression and quit out.
+		if (!bInteractive)
+		{
+			g_currentFrame--;
+			return;
+		}
 		
 		// read controls and feed to player
 		EntPlayer_SetInput(info);
@@ -532,7 +485,9 @@ ze_external void Sim_TickForward(RNGTickInfo info, i32 bInteractive)
 		// tick logic and physics
 		TickEntities(info.delta);
 		ZPhysicsTick(info.delta);
+		// write output
 		Sim_WriteFrame(&g_frames, g_currentFrame);
+		// advance the count of the last frame stored
 		g_lastFrame += 1;
 	}
 	else
@@ -547,6 +502,7 @@ ze_external void Sim_TickForward(RNGTickInfo info, i32 bInteractive)
 ze_external void Sim_TickBackward(RNGTickInfo info)
 {
 	g_tickInfo = info;
+	// can't go further back if we're at the start...
 	if (g_currentFrame == 0)
 	{
 		return;
@@ -570,6 +526,7 @@ ze_internal void InitEntityTypes()
 	EntGrunt_Register(&g_types[ENT_TYPE_ENEMY_GRUNT]);
 	EntPointProjectile_Register(&g_types[ENT_TYPE_POINT_PRJ]);
 	EntGfxSprite_Register(&g_types[ENT_TYPE_GFX_SPRITE]);
+	EntSpawner_Register(&g_types[ENT_TYPE_SPAWNER]);
 	RNGPRINT("Entity types initialised\n");
 }
 

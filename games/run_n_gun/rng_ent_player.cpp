@@ -219,6 +219,24 @@ ze_external void EntPlayer_SetInput(RNGTickInfo info)
 	// ent->d.player.aimDegrees = info.aimDegrees;
 }
 
+ze_external void Sim_SpawnPlayer(Vec2 pos)
+{
+	// pos.x = 0;
+	// pos.y = 5;
+	RNGPRINT("Spawn player at %.3f, %.3f\n", pos.x, pos.y);
+	PlayerEntSave player = {};
+	player.header = Ent_SaveHeaderFromRaw(
+		ENT_RESERVED_ID_PLAYER,
+		ENT_EMPTY_TAG,
+		ENT_TYPE_PLAYER,
+		sizeof(PlayerEntSave)
+	);
+	
+	player.pos = pos;
+	player.status = PLAYER_STATUS_PLAYING;
+	Sim_GetEntityType(ENT_TYPE_PLAYER)->Restore(&player.header, Sim_GetRestoreTick());
+}
+
 ze_external void EntPlayer_Register(EntityType* type)
 {
 	g_engine = GetEngine();

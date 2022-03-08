@@ -107,6 +107,23 @@ ze_internal void Sync(Ent2d* ent)
 	obj->data.quad.colour = ColourF32Lerp(full, fade, weight);
 }
 
+ze_external void Sim_SpawnDebris(Vec2 pos, Vec2 velocity, f32 spin)
+{
+	// RNGPRINT("Spawning debris at %.3f, %.3f\n", pos.x, pos.y);
+	DebrisEntSave debris = {};
+	debris.header = Ent_SaveHeaderFromRaw(
+		Sim_ReserveDynamicIds(1),
+		ENT_EMPTY_TAG,
+		ENT_TYPE_DEBRIS,
+		sizeof(DebrisEntSave)
+	);
+	debris.pos = pos;
+	debris.depth = 0;
+	debris.velocity = velocity;
+	debris.angularVelocity = spin;
+	Sim_GetEntityType(ENT_TYPE_DEBRIS)->Restore(&debris.header, Sim_GetRestoreTick());
+}
+
 ze_external void EntDebris_Register(EntityType* type)
 {
 	g_engine = GetEngine();

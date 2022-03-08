@@ -75,7 +75,8 @@ printf(fmt, __VA_ARGS__)
 #define ENT_TYPE_POINT_PRJ 4
 #define ENT_TYPE_ENEMY_GRUNT 5
 #define ENT_TYPE_GFX_SPRITE 6
-#define ENT_TYPE__COUNT 7
+#define ENT_TYPE_SPAWNER 7
+#define ENT_TYPE__COUNT 8
 
 #define ENT_HIT_RESPONSE_SOLID 0
 #define ENT_HIT_RESPONSE_DAMAGED 1
@@ -180,6 +181,7 @@ struct EntGrunt
 	f32 tick;
 	f32 aimDegrees;
 	i32 targetId;
+	i32 sourceId;
 	i32 health;
 
 	// components
@@ -196,6 +198,7 @@ struct EntGruntSave
 	f32 tick;
 	f32 aimDegrees;
 	i32 targetId;
+	i32 sourceId;
 	i32 health;
 
 	// component data
@@ -215,6 +218,7 @@ struct PointProjectileData
 	i32 teamId;
 	f32 tick;
 	i32 templateId;
+	i32 sourceId;
 };
 
 struct PointProjectileComponents
@@ -257,6 +261,27 @@ struct EntGfxSprite
 	zeHandle drawId;
 };
 
+
+////////////////////////////////////////////////
+// Spawner
+////////////////////////////////////////////////
+struct EntSpawner
+{
+	Vec2 pos;
+	i32 spawnType;
+	f32 tick;
+	i32 totalSpawns;
+	i32 maxAlive;
+	i32 alive;
+	f32 delay;
+};
+
+struct SpawnerSave
+{
+	EntStateHeader header;
+	EntSpawner data;
+};
+
 ////////////////////////////////////////////////
 // entity base
 ////////////////////////////////////////////////
@@ -269,6 +294,7 @@ union EntData
 	EntPointProjectile pointPrj;
 	EntGrunt grunt;
 	EntGfxSprite gfxSprite;
+	EntSpawner spawner;
 };
 
 // base entity type
@@ -375,6 +401,7 @@ ze_external zeHandle GetGameScene();
 ze_external Ent2d* Sim_GetFreeEntity(i32 id, i32 type);
 ze_external Ent2d* Sim_GetEntById(i32 id);
 ze_external EntityType* Sim_GetEntityType(i32 typeId);
+ze_external void Sim_RestoreEntity(EntStateHeader* header);
 ze_external void Sim_RemoveEntityBase(Ent2d* ent);
 ze_external void Sim_RemoveEntity(Ent2d* ent);
 ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId);
@@ -391,6 +418,7 @@ ze_external void Sim_SpawnProjectile(
 	Vec2 pos, f32 degrees, i32 teamId, i32 templateId);
 ze_external void Sim_SpawnEnemyGrunt(Vec2 pos);
 ze_external void Sim_SpawnGfx(Vec2 pos, i32 subType);
+ze_external void Sim_SpawnSpawner(Vec2 pos);
 
 // interactions
 ze_external EntHitResponse HitEntity(
@@ -403,6 +431,7 @@ ze_external void EntPlayer_Register(EntityType* type);
 ze_external void EntGrunt_Register(EntityType* type);
 ze_external void EntPointProjectile_Register(EntityType* type);
 ze_external void EntGfxSprite_Register(EntityType* type);
+ze_external void EntSpawner_Register(EntityType* type);
 
 ze_external void EntPlayer_SetInput(RNGTickInfo info);
 
