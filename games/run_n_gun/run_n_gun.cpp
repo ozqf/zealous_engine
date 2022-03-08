@@ -268,6 +268,11 @@ internal void Tick(ZEFrameTimeInfo timing)
 	info.cursorScreenPos = g_mousePos;
 	info.delta = (f32)timing.interval;
 
+	if (Sim_GetPlayerStatus() == PLAYER_STATUS_DEAD && g_gameState == GAME_STATE_PLAYING)
+	{
+		g_gameState = GAME_STATE_PAUSED;
+	}
+
 	switch (g_gameState)
 	{
 		case GAME_STATE_PAUSED:

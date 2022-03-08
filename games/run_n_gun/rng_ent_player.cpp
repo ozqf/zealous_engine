@@ -27,6 +27,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		ent->d.player.aimDegrees = state->aimDegrees;
 		ent->d.player.buttons = state->buttons;
 		ent->d.player.tick = state->tick;
+		ent->d.player.status = state->status;
 	}
 	else
 	{
@@ -48,6 +49,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		// restore state
 		def.shape.pos = state->pos;
 		ent->d.player.tick = state->tick;
+		ent->d.player.status = state->status;
 		
 		ent->d.player.physicsBodyId = ZP_AddBody(def);
 		RNGPRINT("Player body Id: %d\n", ent->d.player.physicsBodyId);
@@ -85,6 +87,7 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	state->tick = ent->d.player.tick;
 	state->aimDegrees = ent->d.player.aimDegrees;
 	state->buttons = ent->d.player.buttons;
+	state->status = ent->d.player.status;
 
 	// components
 	ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, ent->d.player.bodyDrawId);
@@ -184,6 +187,22 @@ ze_internal void Sync(Ent2d* ent)
 	g_engine.scenes.SetCamera(g_scene, camera);
 }
 
+ze_internal EntHitResponse PlayerHit(Ent2d* victim, DamageHit* hit)
+{
+	EntHitResponse response = {};
+	if (hit->teamId == TEAM_ID_PLAYER)
+	{
+		response.responseType = ENT_HIT_RESPONSE_NONE;
+	}
+	else
+	{
+		RNGPRINT("Player hit by %d!\n", hit->teamId);
+		response.responseType = ENT_HIT_RESPONSE_DAMAGED;
+		victim->d.player.status = PLAYER_STATUS_DEAD;
+	}
+	return response;
+}
+
 ze_external void EntPlayer_SetInput(RNGTickInfo info)
 {
 	Ent2d* ent = Sim_GetEntById(ENT_RESERVED_ID_PLAYER);
@@ -214,4 +233,5 @@ ze_external void EntPlayer_Register(EntityType* type)
 	type->Remove = Remove;
 	type->Tick = Tick;
 	type->Sync = Sync;
+	type->Hit = PlayerHit;
 }

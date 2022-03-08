@@ -82,7 +82,24 @@ ze_external i32 Sim_GetRestoreTick()
 
 ze_external Ent2d* Sim_FindPlayer()
 {
-	return (Ent2d*)g_entities.GetById(ENT_RESERVED_ID_PLAYER);
+	Ent2d* plyr = (Ent2d*)g_entities.GetById(ENT_RESERVED_ID_PLAYER);
+	if (plyr == NULL) { return NULL; }
+	ZE_ASSERT(plyr->type == ENT_TYPE_PLAYER, "Player entity is wrong type!")
+	return plyr;
+}
+
+ze_external i32 Sim_GetPlayerStatus()
+{
+	Ent2d* plyr = Sim_FindPlayer();
+	if (plyr == NULL)
+	{
+		return PLAYER_STATUS_NONE;
+	}
+	if (plyr->d.player.status < 0 || plyr->d.player.status > PLAYER_STATUS__LAST)
+	{
+		g_engine.system.Fatal("Invalid player status");
+	}
+	return plyr->d.player.status;
 }
 
 ze_external RNGTickInfo* Sim_GetTickInfo()
@@ -121,6 +138,7 @@ ze_external Ent2d* Sim_GetFreeEntity(i32 id, i32 type)
 
 ze_external Ent2d* Sim_GetEntById(i32 id)
 {
+	if (id == 0) { return NULL; }
 	return (Ent2d*)g_entities.GetById(id);
 }
 
@@ -332,6 +350,7 @@ ze_external void Sim_SpawnPlayer(Vec2 pos)
 	player.header.numBytes = sizeof(PlayerEntSave);
 	player.header.id = ENT_RESERVED_ID_PLAYER;
 	player.pos = pos;
+	player.status = PLAYER_STATUS_PLAYING;
 	Sim_GetEntityType(ENT_TYPE_PLAYER)->Restore(&player.header, Sim_GetRestoreTick());
 }
 
@@ -414,11 +433,13 @@ ze_internal void UpdateDebugText()
 	i32 maxEnts = g_entities.Capacity();
 	f32 secondsRecorded = g_lastFrame / 60.f;
 	f32 secondsToNow = g_currentFrame / 60.f;
+	i32 playerStatus = Sim_GetPlayerStatus();
 	i32 numChars = sprintf_s(
 		(char*)g_debugText.cursor,
 		g_debugText.Space(),
 		
-		"Ents %d of %d\nFrame %d. Last %d (%.3f of %.3f seconds).\nFrame buffer capacity %zdKB of %zdKB (%.3f%%)",
+		"Player status %d\nEnts %d of %d\nFrame %d. Last %d (%.3f of %.3f seconds).\nFrame buffer capacity %zdKB of %zdKB (%.3f%%)",
+		playerStatus,
 		numEnts,
 		maxEnts,
 		g_currentFrame,
@@ -465,8 +486,22 @@ ze_external void Sim_ClearFutureFrames()
 	g_frames.cursor = (i8*)frame + frame->size;
 }
 
+ze_internal void PostTick()
+{
+	Sim_SyncDrawObjects();
+	g_entities.Truncate();
+	UpdateDebugText();
+}
+
 ze_external void Sim_TickForward(RNGTickInfo info, i32 bInteractive)
 {
+	// No ticking if player is dead!
+	if (Sim_GetPlayerStatus() == PLAYER_STATUS_DEAD)
+	{
+		// g_entities.Truncate();
+		PostTick();
+		return;
+	}
 	g_tickInfo = info;
 	g_currentFrame += 1;
 	
@@ -491,9 +526,7 @@ ze_external void Sim_TickForward(RNGTickInfo info, i32 bInteractive)
 		FrameHeader* header = FindFrame(&g_frames, g_currentFrame);
 		Sim_RestoreFrame(header);
 	}
-	Sim_SyncDrawObjects();
-	g_entities.Truncate();
-	UpdateDebugText();
+	PostTick();
 }
 
 ze_external void Sim_TickBackward(RNGTickInfo info)
@@ -506,9 +539,7 @@ ze_external void Sim_TickBackward(RNGTickInfo info)
 	g_currentFrame -= 1;
 	FrameHeader* frame = FindFrame(&g_frames, g_currentFrame);
 	Sim_RestoreFrame(frame);
-	Sim_SyncDrawObjects();
-	g_entities.Truncate();
-	UpdateDebugText();
+	PostTick();
 }
 
 ze_internal void InitEntityTypes()

@@ -167,6 +167,7 @@ ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size)
 	size = Vec2_Divide(size, 2);
 	ZPVolume2d* vol = GetFreeStaticVolume();
 	vol->radius = size;
+	vol->externalId = 0;
 
 	b2BodyDef groundBodyDef;
 	groundBodyDef.position.Set(pos.x, pos.y);

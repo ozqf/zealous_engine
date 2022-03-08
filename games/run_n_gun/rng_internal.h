@@ -89,6 +89,11 @@ printf(fmt, __VA_ARGS__)
 
 #define ENTITY_COUNT 4096
 
+#define PLAYER_STATUS_NONE 0
+#define PLAYER_STATUS_PLAYING 1
+#define PLAYER_STATUS_DEAD 2
+#define PLAYER_STATUS__LAST 2
+
 // #define CREATE_ENT_PTR(entPtrName, drawObjPtr) \
 // Ent2d* entPtrName = NULL; \
 // if (drawObjPtr != NULL) { entPtrName = (Ent2d*)drawObjPtr->userData; }
@@ -136,6 +141,7 @@ struct EntPlayer
 	f32 tick;
 	f32 aimDegrees;
 	u32 buttons;
+	i32 status;
 	zeHandle bodyDrawId = 0;
 	zeHandle gunDrawId = 0;
 	zeHandle physicsBodyId = 0;
@@ -148,6 +154,7 @@ struct PlayerEntSave
 	f32 tick;
 	f32 aimDegrees;
 	u32 buttons;
+	i32 status;
 
 	// Display
 	f32 depth;
@@ -342,6 +349,8 @@ ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId);
 
 // specific entities
 ze_external Ent2d* Sim_FindPlayer();
+ze_external i32 Sim_GetPlayerStatus();
+ze_external void Sim_PlayerDied(Ent2d* player);
 
 // spawning
 ze_external void Sim_SpawnDebris(Vec2 pos, Vec2 velocity, f32 spin);

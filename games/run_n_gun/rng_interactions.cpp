@@ -10,7 +10,7 @@ ze_external EntHitResponse HitEntity(
     {
         return {};
     }
-
+    RNGPRINT("Hit ent type %s\n", victimType->label);
     EntHitResponse response = victimType->Hit(victim, hit);
     return response;
 }

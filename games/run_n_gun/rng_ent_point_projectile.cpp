@@ -99,16 +99,20 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	if (numResults > 0)
 	{
 		ZPRaycastResult* hit = &results[numResults - 1];
-		// printf("Prj raycast got %d result, hit volumeId %d (external %d)\n",
-		// 	numResults,
-		// 	hit->volumeId,
-		// 	hit->externalId);
+		printf("Prj raycast got %d result, hit volumeId %d (external %d)\n",
+			numResults,
+			hit->volumeId,
+			hit->externalId);
 		Ent2d* victim = Sim_GetEntById(hit->externalId);
 		if (victim == NULL)
 		{
-			BodyState hitBody = ZP_GetBodyState(hit->volumeId);
-			RNGPRINT("PRJ on team %d hit volume %d with no ent. External Id %d\n",
-				prj->data.teamId, hit->volumeId, hitBody.externalId);
+			if (hit->volumeId != 0)
+			{
+				BodyState hitBody = ZP_GetBodyState(hit->volumeId);
+				RNGPRINT("PRJ on team %d hit volume %d with no ent. External Id %d\n",
+					prj->data.teamId, hit->volumeId, hitBody.externalId);
+			}
+			Sim_SpawnGfx(hit->pos, 0);
 			bCull = YES;
 		}
 		else
