@@ -158,6 +158,24 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 				pos, player->aimDegrees, TEAM_ID_PLAYER, PRJ_TEMPLATE_PLAYER_DEFAULT);
 		}
 	}
+	else if (IF_BIT(player->buttons, INPUT_BIT_ATK_2))
+	{
+		if (player->tick <= 0)
+		{
+			// shoot
+			player->tick = 0.5f;
+			Sim_SpawnProjectile(
+				pos, player->aimDegrees, TEAM_ID_PLAYER, PRJ_TEMPLATE_PLAYER_DEFAULT);
+			Sim_SpawnProjectile(
+				pos, player->aimDegrees - 7.5f, TEAM_ID_PLAYER, PRJ_TEMPLATE_PLAYER_DEFAULT);
+			Sim_SpawnProjectile(
+				pos, player->aimDegrees - 15.f, TEAM_ID_PLAYER, PRJ_TEMPLATE_PLAYER_DEFAULT);
+			Sim_SpawnProjectile(
+				pos, player->aimDegrees + 7.5f, TEAM_ID_PLAYER, PRJ_TEMPLATE_PLAYER_DEFAULT);
+			Sim_SpawnProjectile(
+				pos, player->aimDegrees + 15.f, TEAM_ID_PLAYER, PRJ_TEMPLATE_PLAYER_DEFAULT);
+		}
+	}
 }
 
 ze_internal void Sync(Ent2d* ent)
@@ -177,12 +195,13 @@ ze_internal void Sync(Ent2d* ent)
 	M3x3_SetToIdentity(obj->t.rotation.cells);
 	M3x3_RotateZ(obj->t.rotation.cells, radians);
 	
-	// Sim_SyncDrawObjToPhysicsObj(player->gunDrawId, player->physicsBodyId);
 	// camera
+	#if 0
 	Transform camera = g_engine.scenes.GetCamera(g_scene);
 	camera.pos.x = body.t.pos.x;
 	camera.pos.y = body.t.pos.y;
 	g_engine.scenes.SetCamera(g_scene, camera);
+	#endif
 }
 
 ze_internal EntHitResponse PlayerHit(Ent2d* victim, DamageHit* hit)
@@ -194,7 +213,7 @@ ze_internal EntHitResponse PlayerHit(Ent2d* victim, DamageHit* hit)
 	}
 	else
 	{
-		RNGPRINT("Player hit by %d!\n", hit->teamId);
+		// RNGPRINT("Player hit by %d!\n", hit->teamId);
 		response.responseType = ENT_HIT_RESPONSE_DAMAGED;
 		victim->d.player.status = PLAYER_STATUS_DEAD;
 	}

@@ -79,6 +79,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 		//RNGPRINT("prj timeout\n");
 		Remove(ent);
 	}
+	Vec2 dir;
 	Vec2 move;
 	f32 speed = 30.f;
 	switch (prj->data.templateId)
@@ -87,8 +88,11 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 		speed = 7.5f;
 		break;
 	}
-	move.x = cosf(prj->data.radians) * speed;
-	move.y = sinf(prj->data.radians) * speed;
+	dir.x = cosf(prj->data.radians);
+	dir.y = sinf(prj->data.radians);
+	move = Vec2_Mul(dir, speed);
+	// move.x = cosf(prj->data.radians) * speed;
+	// move.y = sinf(prj->data.radians) * speed;
 	Vec2 dest = Vec2_Add(prj->data.pos, Vec2_Mul(move, delta));
 	ZPRaycastResult results[16];
 	i32 bCull = NO;
@@ -120,6 +124,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 			dmg.teamId = prj->data.teamId;
 			dmg.pos = hit->pos;
 			dmg.normal = hit->normal;
+			dmg.dir = dir;
 			
 			EntHitResponse response = Ent_Hit(ent, victim, &dmg);
 			//RNGPRINT("PRJ on team %d hit ent %d: response %d\n",

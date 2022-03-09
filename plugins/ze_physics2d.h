@@ -63,6 +63,7 @@ ze_external zErrorCode ZP_RemoveBody(zeHandle bodyId);
 
 // affect
 ze_external void ZP_ApplyForce(zeHandle bodyId, Vec2 force);
+ze_external void ZP_ApplyForceAtPoint(zeHandle bodyId, Vec2 force, Vec2 point);
 ze_external void ZP_SetBodyPosition(zeHandle bodyId, Vec2 pos);
 ze_external void ZP_SetLinearVelocity(zeHandle bodyId, Vec2 v);
 ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state);

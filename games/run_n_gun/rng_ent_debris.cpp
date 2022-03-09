@@ -44,6 +44,8 @@ ze_internal void RestoreDebris(EntStateHeader* stateHeader, u32 restoreTick)
 		def.resitition = 0.5f;
 		def.shape.radius = { 0.5f, 0.5f };
 		def.externalId = ent->id;
+		def.categoryBits = PHYSICS_LAYER_BIT_DEBRIS;
+		def.maskBits = PHYSICS_LAYER_BIT_DEBRIS | PHYSICS_LAYER_BIT_WORLD;
 		
 		// restore state
 		def.shape.pos = state->pos;
@@ -110,7 +112,13 @@ ze_internal void Sync(Ent2d* ent)
 ze_external EntHitResponse DebrisHit(Ent2d* victim, DamageHit* hit)
 {
 	// TODO: Push debris a bit from hit.
-	return {};
+	// RNGPRINT("Hit debris\n");
+	Vec2 force = Vec2_Mul(hit->dir, 100.f);
+	// ZP_ApplyForce(victim->d.debris.physicsBodyId, force);
+	ZP_ApplyForceAtPoint(victim->d.debris.physicsBodyId, force, hit->pos);
+	EntHitResponse response = {};
+	response.responseType = ENT_HIT_RESPONSE_NONE;
+	return response;
 }
 
 ze_external void Sim_SpawnDebris(Vec2 pos, Vec2 velocity, f32 spin)

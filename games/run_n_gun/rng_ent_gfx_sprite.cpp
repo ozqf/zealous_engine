@@ -2,7 +2,7 @@
 
 #define GFX_IMPACT_DURATION 0.5f
 
-#define GFX_IMPACT_SIZE 0.4f
+#define GFX_IMPACT_SIZE 0.8f
 
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
@@ -88,6 +88,9 @@ ze_internal void Sync(Ent2d* ent)
 	f32 weight = gfx->data.tick / GFX_IMPACT_DURATION;
 	f32 size = GFX_IMPACT_SIZE;
 	obj->t.scale = { size * weight, size * weight, 1.f };
+
+	obj->data.quad.colour = ColourF32Lerp(
+		COLOUR_F32_ORANGE, COLOUR_F32_BLACK, 1.f - weight);
 }
 
 ze_internal EntHitResponse Hit(Ent2d* victim, DamageHit* hit){ return {};}

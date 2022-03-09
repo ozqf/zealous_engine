@@ -355,7 +355,8 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	// spawn a player
 	Sim_SpawnPlayer({0, -2});
 
-	Sim_SpawnSpawner({0, 4});
+	Sim_SpawnSpawner({-10, 4});
+	Sim_SpawnSpawner({10, 4});
 	
 	FrameHeader* header = Sim_WriteFrame(frames, 0);
 	return header;

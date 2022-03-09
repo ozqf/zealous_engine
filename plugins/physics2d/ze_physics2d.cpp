@@ -6,6 +6,31 @@
 #define MAX_DYNAMIC_BODIES 2048
 #define MAX_STATIC_BODIES 2048
 
+struct ZPVolume2d
+{
+	// internally managed reference to this volume
+	i32 id;
+	// externally provided Id - purely for external user
+	i32 externalId;
+	// zeHandle handle;
+	Vec2 radius;
+	b2Body* body;
+};
+
+ze_internal ZPVolume2d* ZP_GetVolume(zeHandle id);
+
+ze_internal Vec2 Vec2_FromB2Vec2(b2Vec2 b2v)
+{
+	return { b2v.x, b2v.y };
+}
+
+ze_internal b2Vec2 b2Vec2_FromVec2(Vec2 v)
+{
+	return b2Vec2(v.x, v.y);
+}
+
+ze_internal ZEngine g_engine;
+
 ze_internal b2Vec2 g_gravity(0.0f, -20.0f);
 ze_internal b2World g_world(g_gravity);
 ze_internal i32 g_velocityIterations = 6;
@@ -16,6 +41,73 @@ ze_internal ZEBlobStore g_staticBodies;
 
 ze_internal i32 g_nextDynamicId = 1;
 ze_internal i32 g_nextStaticId = -1;
+
+// b2QueryCallback implementation
+/*class AAABCallback: public b2QueryCallback
+{
+	public:
+	u16 mask;
+	bool ReportFixture(b2Fixture* fixture)
+	{
+		b2Body* body = fixture->GetBody();
+
+	}
+};*/
+
+// b2RayCastCallback implementation
+// Returns
+// -1 to filter, 0 to terminate, fraction to clip the ray for closest hit, 1 to continue 
+class RaycastCallback: public b2RayCastCallback
+{
+	public:
+	// b2Fixture* closest;
+	// this stuff is externally allocated!
+	ZPRaycastResult* results;
+	i32 maxResults;
+	i32 numResults;
+	u16 mask;
+	// f32 fraction;
+
+	void SetResultsArray(ZPRaycastResult* newResults, i32 max)
+	{
+		results = newResults;
+		maxResults = max;
+		numResults = 0;
+	}
+
+	f32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, f32 fraction)
+	{
+		// printf("Ray hit, fraction %.3f\n", fraction);
+		if (numResults == maxResults) { return fraction; }
+
+		// filter
+		if ((fixture->GetFilterData().maskBits & this->mask) == 0)
+		{
+			return fraction;
+		}
+
+		ZPRaycastResult* r = &results[numResults];
+		*r = {};
+		numResults += 1;
+		r->pos = Vec2_FromB2Vec2(point);
+		r->normal = Vec2_FromB2Vec2(normal);
+		r->fraction = fraction;
+		r->categoryBits = fixture->GetFilterData().categoryBits;
+		zeHandle volId = (zeHandle)fixture->GetBody()->GetUserData().pointer;
+		ZPVolume2d* vol = (ZPVolume2d*)ZP_GetVolume(volId);
+		if (vol != NULL)
+		{
+			r->volumeId = vol->id;
+			r->externalId = vol->externalId;
+		}
+		else
+		{
+			r->volumeId = 0;
+			r->externalId = 0;
+		}
+		return fraction;
+	}
+};
 
 ze_internal void ZP_CrashDump()
 {
@@ -134,7 +226,7 @@ ze_external BodyState ZP_GetBodyState(zeHandle bodyId)
 	return state;
 }
 
-ze_external void ZP_ApplyForce(zeHandle bodyId, Vec2 force)
+ze_external void ZP_ApplyForceAtPoint(zeHandle bodyId, Vec2 force, Vec2 point)
 {
 	ZPVolume2d* vol = ZP_GetVolume(bodyId);
 	ZE_ASSERT(vol != NULL, "Body is null")
@@ -142,8 +234,18 @@ ze_external void ZP_ApplyForce(zeHandle bodyId, Vec2 force)
 	b2Vec2 b2Force;
 	b2Force.x = force.x;
 	b2Force.y = force.y;
+	b2Vec2 b2Point = b2Vec2_FromVec2(point);
+	vol->body->ApplyForce(b2Force, b2Point, true);
+}
+
+ze_external void ZP_ApplyForce(zeHandle bodyId, Vec2 force)
+{
+	ZPVolume2d* vol = ZP_GetVolume(bodyId);
+	ZE_ASSERT(vol != NULL, "Body is null")
+
+	b2Vec2 b2Force = b2Vec2_FromVec2(force);
 	b2Vec2 point = vol->body->GetPosition();
-	vol->body->ApplyForce(b2Force, point, true);
+	vol->body->ApplyForceToCenter(b2Force, true);
 }
 
 internal ZPVolume2d* GetFreeStaticVolume()
@@ -222,8 +324,10 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 	fixtureDef.density = 1.0f;
 	fixtureDef.restitution = def.resitition;
 	fixtureDef.friction = def.friction;
+	#if 0 // verbose
 	printf("Create body %d: mask %d category %d\n",
 		vol->id, fixtureDef.filter.maskBits, fixtureDef.filter.categoryBits);
+	#endif
 
 	b2Fixture* fixture = vol->body->CreateFixture(&fixtureDef);
 	return vol->id;
@@ -243,6 +347,13 @@ ze_external i32 ZP_Raycast(
 	cb.mask = mask;
 	g_world.RayCast(&cb, b2From, b2To);
 	return cb.numResults;
+}
+
+ze_external i32 ZP_AabbCast(
+	Vec2 min, Vec2 max, i32 maxResults, u16 mask)
+{
+
+	return 0;
 }
 
 ze_external void ZPhysicsInit(ZEngine engine)

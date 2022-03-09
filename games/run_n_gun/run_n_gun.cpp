@@ -245,6 +245,7 @@ internal void Tick(ZEFrameTimeInfo timing)
 	SetInputBit(&info.buttons, INPUT_BIT_UP, MOVE_UP);
 	SetInputBit(&info.buttons, INPUT_BIT_DOWN, MOVE_DOWN);
 	SetInputBit(&info.buttons, INPUT_BIT_ATK_1, ACTION_ATTACK_1);
+	SetInputBit(&info.buttons, INPUT_BIT_ATK_2, ACTION_ATTACK_2);
 
 	info.cursorWorldPos = g_mouseWorldPos;
 	info.cursorScreenPos = g_mousePos;

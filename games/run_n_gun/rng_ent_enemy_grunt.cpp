@@ -75,8 +75,6 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		grunt->gunDrawId = weapon->id;
 
 		BodyState bodyState = ZP_GetBodyState(grunt->physicsBodyId);
-		RNGPRINT("Created fresh grunt. entId %d, bodyId %d, externalId %d\n",
-			ent->id, grunt->physicsBodyId, bodyState.externalId);
 	}
 
 	// mark ent with latest restore tick
@@ -188,8 +186,6 @@ ze_external EntHitResponse GruntHit(Ent2d* victim, DamageHit* hit)
 		{
 			response.damageDone = hit->damage + grunt->health;
 			response.responseType = ENT_HIT_RESPONSE_KILLED;
-			RNGPRINT("Grunt %d, bodyId %d dying. Normal %.3f, %.3f\n",
-				victim->id, grunt->physicsBodyId, hit->normal.x, hit->normal.y);
 			Transform2d bodyT = ZP_GetBodyPosition(grunt->physicsBodyId);
 			Vec2 vel = Vec2_Mul(Vec2_Mul(hit->normal, -1.f), 6.f);
 			// kick off the ground regardless of direction of hit

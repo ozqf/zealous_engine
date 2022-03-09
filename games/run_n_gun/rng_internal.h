@@ -348,6 +348,7 @@ struct DamageHit
 	i32 teamId;
 	Vec2 pos;
 	Vec2 normal;
+	Vec2 dir;
 };
 
 struct EntHitResponse
