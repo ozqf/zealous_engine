@@ -162,7 +162,7 @@ internal ZPVolume2d* GetFreeDynamicVolume()
 	return volume;
 }
 
-ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size)
+ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size, u16 categoryBits, u16 maskBits)
 {
 	size = Vec2_Divide(size, 2);
 	ZPVolume2d* vol = GetFreeStaticVolume();
@@ -175,6 +175,10 @@ ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size)
 	b2PolygonShape groundBox;
 	groundBox.SetAsBox(size.x, size.y);
 	b2Fixture* fixture = vol->body->CreateFixture(&groundBox, 0.0f);
+	b2Filter filter;
+	filter.categoryBits = categoryBits;
+	filter.maskBits = maskBits;
+	fixture->SetFilterData(filter);
 	return vol->id;
 }
 
@@ -193,6 +197,15 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 	ZE_ASSERT(vol != NULL, "ZP_AddBody got no free volume")
 	vol->radius = def.shape.radius;
 	vol->externalId = def.externalId;
+
+	if (def.categoryBits == 0)
+	{
+		def.categoryBits = 1;
+	}
+	if (def.maskBits == 0)
+	{
+		def.maskBits = 65535;
+	}
 
 	b2BodyDef bodyDef;
 	bodyDef.fixedRotation = def.bLockRotation;
@@ -216,12 +229,18 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 	return vol->id;
 }
 
-ze_external i32 ZP_Raycast(Vec2 from, Vec2 to, ZPRaycastResult* results, i32 maxResults)
+ze_external i32 ZP_Raycast(
+	Vec2 from, Vec2 to, ZPRaycastResult* results, i32 maxResults, u16 mask)
 {
+	if (mask == 0)
+	{
+		mask = ZP_MASK_ALL;
+	}
 	RaycastCallback cb;
 	b2Vec2 b2From = b2Vec2_FromVec2(from);
 	b2Vec2 b2To = b2Vec2_FromVec2(to);
 	cb.SetResultsArray(results, maxResults);
+	cb.mask = mask;
 	g_world.RayCast(&cb, b2From, b2To);
 	return cb.numResults;
 }

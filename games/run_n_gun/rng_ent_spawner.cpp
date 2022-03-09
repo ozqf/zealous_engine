@@ -55,7 +55,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	{
 		spawner->tick = spawner->delay;
 		RNGPRINT("Spawner - tick!\n");
-		Sim_SpawnEnemyGrunt(spawner->pos);
+		Sim_SpawnEnemyGrunt(spawner->pos, ent->id);
 		spawner->alive += 1;
 	}
 	else

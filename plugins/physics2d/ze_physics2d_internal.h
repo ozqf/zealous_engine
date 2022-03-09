@@ -53,6 +53,7 @@ class RaycastCallback: public b2RayCastCallback
 	ZPRaycastResult* results;
 	i32 maxResults;
 	i32 numResults;
+	u16 mask;
 	// f32 fraction;
 
 	void SetResultsArray(ZPRaycastResult* newResults, i32 max)
@@ -66,12 +67,20 @@ class RaycastCallback: public b2RayCastCallback
 	{
 		// printf("Ray hit, fraction %.3f\n", fraction);
 		if (numResults == maxResults) { return fraction; }
+
+		// filter
+		if ((fixture->GetFilterData().maskBits & this->mask) == 0)
+		{
+			return fraction;
+		}
+
 		ZPRaycastResult* r = &results[numResults];
 		*r = {};
 		numResults += 1;
 		r->pos = Vec2_FromB2Vec2(point);
 		r->normal = Vec2_FromB2Vec2(normal);
 		r->fraction = fraction;
+		r->categoryBits = fixture->GetFilterData().categoryBits;
 		zeHandle volId = (zeHandle)fixture->GetBody()->GetUserData().pointer;
 		ZPVolume2d* vol = (ZPVolume2d*)ZP_GetVolume(volId);
 		if (vol != NULL)

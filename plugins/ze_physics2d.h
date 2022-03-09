@@ -6,6 +6,8 @@
 #define ZP_SHAPE_TYPE_BOX 0
 #define ZP_SHAPE_TYPE_CIRCLE 1
 
+#define ZP_MASK_ALL 65535
+
 #include "../headers/zengine.h"
 
 struct Transform2d
@@ -37,6 +39,8 @@ struct ZPBodyDef
     i32 bLockRotation;
     f32 resitition;
     f32 friction;
+    u16 categoryBits;
+    u16 maskBits;
     ZPShapeDef shape;
 };
 
@@ -47,11 +51,13 @@ struct ZPRaycastResult
     f32 fraction;
     i32 volumeId;
     i32 externalId;
+    u16 categoryBits;
 };
 
 // construct
 // ze_external zeHandle ZP_AddDynamicVolume(ZPShapeDef def);
-ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size);
+ze_external zeHandle ZP_AddStaticVolume(
+    Vec2 pos, Vec2 size, u16 categoryBits, u16 maskBits);
 ze_external zeHandle ZP_AddBody(ZPBodyDef def);
 ze_external zErrorCode ZP_RemoveBody(zeHandle bodyId);
 
@@ -66,7 +72,7 @@ ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId);
 ze_external BodyState ZP_GetBodyState(zeHandle bodyId);
 // returns number of results.
 ze_external i32 ZP_Raycast(
-    Vec2 from, Vec2 to, ZPRaycastResult* results, i32 maxResults);
+    Vec2 from, Vec2 to, ZPRaycastResult* results, i32 maxResults, u16 mask);
 
 // lifetime
 ze_external void ZPhysicsInit(ZEngine engine);

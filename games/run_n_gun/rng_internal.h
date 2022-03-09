@@ -83,6 +83,7 @@ printf(fmt, __VA_ARGS__)
 #define ENT_HIT_RESPONSE_KILLED 2
 #define ENT_HIT_RESPONSE_NONE 3
 
+#define ENT_EMPTY_ID 0
 // dynamic Ids increment, and an initial block of Ids is reserved
 // for common stuff like the world or the player.
 #define ENT_FIRST_DYNAMIC_ID 3
@@ -416,13 +417,14 @@ ze_external void Sim_SpawnDebris(Vec2 pos, Vec2 velocity, f32 spin);
 ze_external void Sim_SpawnPlayer(Vec2 pos);
 ze_external void Sim_SpawnProjectile(
 	Vec2 pos, f32 degrees, i32 teamId, i32 templateId);
-ze_external void Sim_SpawnEnemyGrunt(Vec2 pos);
+ze_external void Sim_SpawnEnemyGrunt(Vec2 pos, i32 sourceId);
 ze_external void Sim_SpawnGfx(Vec2 pos, i32 subType);
 ze_external void Sim_SpawnSpawner(Vec2 pos);
 
 // interactions
-ze_external EntHitResponse HitEntity(
+ze_external EntHitResponse Ent_Hit(
 	Ent2d* attacker, Ent2d* victim, DamageHit* hit);
+ze_external void Ent_MessageOnDeathById(i32 targetId, i32 victimId);
 
 // registration
 ze_external void EntNull_Register(EntityType* type);

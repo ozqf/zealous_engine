@@ -92,7 +92,8 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	Vec2 dest = Vec2_Add(prj->data.pos, Vec2_Mul(move, delta));
 	ZPRaycastResult results[16];
 	i32 bCull = NO;
-	i32 numResults = ZP_Raycast(prj->data.pos, dest, results, 16);
+	u16 mask = PHYSICS_LAYER_BIT_WORLD | PHYSICS_LAYER_BIT_MOBS | PHYSICS_LAYER_BIT_PLAYER | PHYSICS_LAYER_BIT_DEBRIS;
+	i32 numResults = ZP_Raycast(prj->data.pos, dest, results, 16, mask);
 	if (numResults > 0)
 	{
 		ZPRaycastResult* hit = &results[numResults - 1];
@@ -119,7 +120,8 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 			dmg.teamId = prj->data.teamId;
 			dmg.pos = hit->pos;
 			dmg.normal = hit->normal;
-			EntHitResponse response = HitEntity(ent, victim, &dmg);
+			
+			EntHitResponse response = Ent_Hit(ent, victim, &dmg);
 			//RNGPRINT("PRJ on team %d hit ent %d: response %d\n",
 			//	prj->data.teamId, victim->id, response.responseType);
 			if (response.responseType != ENT_HIT_RESPONSE_NONE)

@@ -107,6 +107,12 @@ ze_internal void Sync(Ent2d* ent)
 	obj->data.quad.colour = ColourF32Lerp(full, fade, weight);
 }
 
+ze_external EntHitResponse DebrisHit(Ent2d* victim, DamageHit* hit)
+{
+	// TODO: Push debris a bit from hit.
+	return {};
+}
+
 ze_external void Sim_SpawnDebris(Vec2 pos, Vec2 velocity, f32 spin)
 {
 	// RNGPRINT("Spawning debris at %.3f, %.3f\n", pos.x, pos.y);
@@ -135,4 +141,5 @@ ze_external void EntDebris_Register(EntityType* type)
 	type->Remove = Remove;
 	type->Tick = Tick;
 	type->Sync = Sync;
+	type->Hit = DebrisHit;
 }

@@ -138,7 +138,7 @@ ze_external Ent2d* Sim_GetFreeEntity(i32 id, i32 type)
 
 ze_external Ent2d* Sim_GetEntById(i32 id)
 {
-	if (id == 0) { return NULL; }
+	if (id == ENT_EMPTY_ID) { return NULL; }
 	return (Ent2d*)g_entities.GetById(id);
 }
 
@@ -195,7 +195,8 @@ ze_internal void AddStatic(Vec2 pos, Vec2 size)
 		COLOUR_F32_LIGHT_GREY);
 	platform->t.pos = Vec3_FromVec2(pos, -0.1f);
 	vol->drawObjId = platform->id;
-	vol->bodyId = ZP_AddStaticVolume(pos, size);
+	vol->bodyId = ZP_AddStaticVolume(
+		pos, size, PHYSICS_LAYER_BIT_WORLD, PHYSICS_LAYER_BIT_WORLD);
 	RNGPRINT("Platform %d assigned body %d\n", platform->id, vol->bodyId);
 }
 
@@ -352,7 +353,7 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	}
 
 	// spawn a player
-	Sim_SpawnPlayer({0, 0});
+	Sim_SpawnPlayer({0, -2});
 
 	Sim_SpawnSpawner({0, 4});
 	

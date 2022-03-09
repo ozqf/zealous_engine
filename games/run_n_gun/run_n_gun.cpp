@@ -220,6 +220,7 @@ ze_internal void PlayingTick(ZEFrameTimeInfo timing, RNGTickInfo info)
 		g_gameState = GAME_STATE_PAUSED;
 		return;
 	}
+	#if 0
 	if (g_engine.input.HasActionToggledOn(ACTION_ATTACK_2, timing.frameNumber))
 	{
 		RNGPRINT("Spawn Grunt\n");
@@ -228,8 +229,9 @@ ze_internal void PlayingTick(ZEFrameTimeInfo timing, RNGTickInfo info)
 		// pos.y = RANDF_RANGE(1, 5);
 		pos = g_mouseWorldPos;
 		// Sim_SpawnDebris(pos);
-		Sim_SpawnEnemyGrunt(pos);
+		Sim_SpawnEnemyGrunt(pos, ENT_EMPTY_ID);
 	}
+	#endif
 	Sim_TickForward(info, YES);
 }
 
@@ -247,7 +249,8 @@ internal void Tick(ZEFrameTimeInfo timing)
 	info.cursorWorldPos = g_mouseWorldPos;
 	info.cursorScreenPos = g_mousePos;
 	// force sim to run at ticks of 60fps!
-	// otherwise jitters in frame timing create jitters in playback.
+	// otherwise jitters in system frame timing create
+	// jitters in playback.
 	// info.delta = (f32)timing.interval;
 	info.delta = 1.f / 60.f;
 

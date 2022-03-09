@@ -31,6 +31,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		grunt->targetId = save->targetId;
 		grunt->tick = save->tick;
 		grunt->health = save->health;
+		grunt->sourceId = save->sourceId;
 	}
 	else
 	{
@@ -59,6 +60,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		grunt->targetId = save->targetId;
 		grunt->tick = save->tick;
 		grunt->health = save->health;
+		grunt->sourceId = save->sourceId;
 
 		// add sprites
 		ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
@@ -95,6 +97,7 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	save->tick = grunt->tick;
 	save->targetId = grunt->targetId;
 	save->health = grunt->health;
+	save->sourceId = grunt->sourceId;
 	
 	// components
 	ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, grunt->bodyDrawId);
@@ -192,6 +195,7 @@ ze_external EntHitResponse GruntHit(Ent2d* victim, DamageHit* hit)
 			// kick off the ground regardless of direction of hit
 			vel.y += 5.f;
 			Sim_SpawnDebris(bodyT.pos, vel, 0.f);
+			Ent_MessageOnDeathById(grunt->sourceId, victim->id);
 			Remove(victim);
 		}
 		else
@@ -208,7 +212,7 @@ ze_internal void GruntPrint(Ent2d* ent)
 	RNGPRINT("BodyId %d ", ent->d.grunt.physicsBodyId);
 }
 
-ze_external void Sim_SpawnEnemyGrunt(Vec2 pos)
+ze_external void Sim_SpawnEnemyGrunt(Vec2 pos, i32 sourceId)
 {
 	// pos.x = 0;
 	// pos.y = 5;
@@ -223,6 +227,7 @@ ze_external void Sim_SpawnEnemyGrunt(Vec2 pos)
 	grunt.pos = pos;
 	grunt.health = 70;
 	grunt.state = 0;
+	grunt.sourceId = sourceId;
 	Sim_GetEntityType(ENT_TYPE_ENEMY_GRUNT)->Restore(&grunt.header, Sim_GetRestoreTick());
 }
 
