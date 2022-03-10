@@ -190,6 +190,27 @@ ze_internal WorldVolume* GetFreeWorldVolume()
 	return vol;
 }
 
+ze_internal void AddPlatform(Vec2 pos, f32 width)
+{
+	const f32 height = 0.2f;
+	pos.y -= (height * 0.5f);
+
+	WorldVolume* vol = GetFreeWorldVolume();
+	ZRDrawObj *platform = g_engine.scenes.AddFullTextureQuad(
+		g_scene,
+		FALLBACK_TEXTURE_WHITE,
+		{width * 0.5f, height * 0.5f},
+		COLOUR_F32_LIGHT_GREY);
+	platform->t.pos = Vec3_FromVec2(pos, -0.1f);
+	vol->drawObjId = platform->id;
+	u16 mask =
+		PHYSICS_LAYER_BIT_PLATFORM |
+		PHYSICS_LAYER_BIT_PLAYER |
+		PHYSICS_LAYER_BIT_MOBS;
+	vol->bodyId = ZP_AddStaticVolume(
+		pos, { width, height }, PHYSICS_LAYER_BIT_PLATFORM, mask);
+}
+
 ze_internal void AddStatic(Vec2 pos, Vec2 size)
 {
 	WorldVolume* vol = GetFreeWorldVolume();
@@ -200,8 +221,13 @@ ze_internal void AddStatic(Vec2 pos, Vec2 size)
 		COLOUR_F32_LIGHT_GREY);
 	platform->t.pos = Vec3_FromVec2(pos, -0.1f);
 	vol->drawObjId = platform->id;
+	u16 mask = 
+		PHYSICS_LAYER_BIT_WORLD |
+		PHYSICS_LAYER_BIT_PLAYER |
+		PHYSICS_LAYER_BIT_MOBS |
+		PHYSICS_LAYER_BIT_DEBRIS;
 	vol->bodyId = ZP_AddStaticVolume(
-		pos, size, PHYSICS_LAYER_BIT_WORLD, PHYSICS_LAYER_BIT_WORLD | PHYSICS_LAYER_BIT_PLAYER | PHYSICS_LAYER_BIT_MOBS);
+		pos, size, PHYSICS_LAYER_BIT_WORLD, mask);
 	RNGPRINT("Platform %d assigned body %d\n", platform->id, vol->bodyId);
 }
 
@@ -220,6 +246,9 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 	// AddStatic({ 0, -4 }, { 8, 1 });
 	AddStatic({ -9.5, -4 }, { 4, 1 });
 	AddStatic({ 9.5, -4 }, { 4, 1 });
+
+	AddPlatform({ 0, -4.5 }, 16);
+	AddPlatform({ 0, -0.5 }, 16);
 
 	// top and bottom border
 	AddStatic({ 0, -8 }, { 24, 1 });

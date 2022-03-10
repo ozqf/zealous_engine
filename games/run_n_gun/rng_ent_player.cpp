@@ -6,6 +6,8 @@
 #define TOUCH_BIT_RIGHT (1 << 3)
 #define TOUCH_BIT_DOUBLE_JUMP (1 << 4)
 
+#define JUMP_VELOCITY 9.f
+
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
 
@@ -98,6 +100,7 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	state->aimDegrees = ent->d.player.aimDegrees;
 	state->buttons = ent->d.player.buttons;
 	state->status = ent->d.player.status;
+	state->touchFlags = ent->d.player.touchFlags;
 
 	// components
 	ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, ent->d.player.bodyDrawId);
@@ -145,7 +148,9 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	//ZPShapeDef shape = ZP_GetBodyShape(player->physicsBodyId);
 	//Vec2 groundQuery = Vec2_Add(body.t.pos, { 0, shape.radius.y - 0.01f });
 	
-	i32 bGrounded = ZP_GroundTest(player->physicsBodyId, PHYSICS_LAYER_BIT_WORLD);
+	i32 bGrounded = ZP_GroundTest(
+		player->physicsBodyId,
+		GROUND_CHECK_MASK);
 	if (bGrounded)
 	{
 		player->touchFlags |= TOUCH_BIT_GROUND;
@@ -155,21 +160,32 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	{
 		player->touchFlags &= ~TOUCH_BIT_GROUND;
 	}
-
+	
 	Vec2 v = body.velocity;
+
+	// if holding down or moving up, disable platform collisions
+	if (inputDir.y < 0 || v.y > 0.f)
+	{
+		ZP_SetBodyMaskBit(player->physicsBodyId, PHYSICS_LAYER_BIT_PLATFORM, NO);
+	}
+	else
+	{
+		ZP_SetBodyMaskBit(player->physicsBodyId, PHYSICS_LAYER_BIT_PLATFORM, YES);
+	}
+
 	v.x = 8.f * inputDir.x;
 
 	if (inputDir.y > 0 && v.y <= 0)
 	{
 		if (bGrounded)
 		{
-			v.y = 8.f;
+			v.y = JUMP_VELOCITY;
 		}
 		else
 		{
 			if ((player->touchFlags & TOUCH_BIT_DOUBLE_JUMP) == 0)
 			{
-				v.y = 8.f;
+				v.y = JUMP_VELOCITY;
 				player->touchFlags |= TOUCH_BIT_DOUBLE_JUMP;
 			}
 			

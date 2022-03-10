@@ -12,7 +12,7 @@ struct ZPVolume2d
 	i32 id;
 	// externally provided Id - purely for external user
 	i32 externalId;
-	ZPShapeDef shape;
+	ZPBodyDef def;
 	b2Body* body;
 };
 
@@ -97,7 +97,7 @@ class RaycastCallback: public b2RayCastCallback
 		if (numResults == maxResults) { return fraction; }
 
 		// filter
-		if ((fixture->GetFilterData().maskBits & this->mask) == 0)
+		if ((fixture->GetFilterData().categoryBits & this->mask) == 0)
 		{
 			return fraction;
 		}
@@ -185,11 +185,28 @@ ze_external zErrorCode ZP_RemoveBody(zeHandle bodyId)
 	return ZE_ERROR_NONE;
 }
 
+ze_external void ZP_SetBodyMaskBit(zeHandle bodyId, u16 maskBit, i32 bOn)
+{
+	ZPVolume2d* vol = ZP_GetVolume(bodyId);
+	if (vol == NULL) { return; }
+	if (bOn)
+	{
+		vol->def.maskBits |= maskBit;
+	}
+	else
+	{
+		vol->def.maskBits &= ~maskBit;
+	}
+	b2Filter filter = vol->body->GetFixtureList()->GetFilterData();
+	filter.maskBits = vol->def.maskBits;
+	vol->body->GetFixtureList()->SetFilterData(filter);
+}
+
 ze_external ZPShapeDef ZP_GetBodyShape(zeHandle bodyId)
 {
 	ZPVolume2d* vol = ZP_GetVolume(bodyId);
 	ZE_ASSERT(vol != NULL, "Body is null")
-	return vol->shape;
+	return vol->def.shape;
 }
 
 ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId)
@@ -267,7 +284,6 @@ ze_external void ZP_ApplyForce(zeHandle bodyId, Vec2 force)
 	ZE_ASSERT(vol != NULL, "Body is null")
 
 	b2Vec2 b2Force = b2Vec2_FromVec2(force);
-	b2Vec2 point = vol->body->GetPosition();
 	vol->body->ApplyForceToCenter(b2Force, true);
 }
 
@@ -292,8 +308,8 @@ ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size, u16 categoryBits, u
 	size = Vec2_Divide(size, 2);
 	ZPVolume2d* vol = GetFreeStaticVolume();
 	vol->externalId = 0;
-	vol->shape.radius = size;
-	vol->shape.shapeType = 0;
+	vol->def.shape.radius = size;
+	vol->def.shape.shapeType = 0;
 	// todo: setup volume's shape def?
 
 	b2BodyDef groundBodyDef;
@@ -323,7 +339,7 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 	}
 	ZE_ASSERT(vol != NULL, "ZP_AddBody got no free volume")
 	vol->externalId = def.externalId;
-	vol->shape = def.shape;
+	vol->def = def;
 
 	if (def.categoryBits == 0)
 	{
@@ -393,7 +409,7 @@ ze_external i32 ZP_AABBCast(
 
 ze_external i32 ZP_GroundTest(zeHandle physicsBody, u16 mask)
 {
-	const f32 tolerance = 0.01f;
+	const f32 tolerance = 0.1f;
     Transform2d t = ZP_GetBodyPosition(physicsBody);
 	ZPShapeDef shape = ZP_GetBodyShape(physicsBody);
 	Vec2 groundQuery = Vec2_Add(t.pos, { 0, -shape.radius.y });

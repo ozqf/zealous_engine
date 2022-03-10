@@ -100,6 +100,8 @@ printf(fmt, __VA_ARGS__)
 #define PLAYER_STATUS_DEAD 2
 #define PLAYER_STATUS__LAST 2
 
+#define GROUND_CHECK_MASK (PHYSICS_LAYER_BIT_WORLD | PHYSICS_LAYER_BIT_PLATFORM)
+
 // #define CREATE_ENT_PTR(entPtrName, drawObjPtr) \
 // Ent2d* entPtrName = NULL; \
 // if (drawObjPtr != NULL) { entPtrName = (Ent2d*)drawObjPtr->userData; }

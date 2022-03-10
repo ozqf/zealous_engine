@@ -73,6 +73,7 @@ ze_external void ZP_ApplyForceAtPoint(zeHandle bodyId, Vec2 force, Vec2 point);
 ze_external void ZP_SetBodyPosition(zeHandle bodyId, Vec2 pos);
 ze_external void ZP_SetLinearVelocity(zeHandle bodyId, Vec2 v);
 ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state);
+ze_external void ZP_SetBodyMaskBit(zeHandle bodyId, u16 maskBit, i32 bOn);
 
 // query
 ze_external ZPShapeDef ZP_GetBodyShape(zeHandle bodyId);
