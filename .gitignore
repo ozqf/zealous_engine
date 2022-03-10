@@ -41,6 +41,7 @@
 *.i
 *.sln
 *.vcxproj*
+.dropbox.device
 
 # Compiles
 *.out
