@@ -44,6 +44,12 @@ struct ZPBodyDef
     ZPShapeDef shape;
 };
 
+struct ZAABBResult
+{
+    i32 volumeId;
+    i32 externalId;
+};
+
 struct ZPRaycastResult
 {
     Vec2 pos;
@@ -69,11 +75,16 @@ ze_external void ZP_SetLinearVelocity(zeHandle bodyId, Vec2 v);
 ze_external void ZP_SetBodyState(zeHandle bodyId, BodyState state);
 
 // query
+ze_external ZPShapeDef ZP_GetBodyShape(zeHandle bodyId);
 ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId);
 ze_external BodyState ZP_GetBodyState(zeHandle bodyId);
-// returns number of results.
+// returns number of results
 ze_external i32 ZP_Raycast(
     Vec2 from, Vec2 to, ZPRaycastResult* results, i32 maxResults, u16 mask);
+// returns number of results.
+ze_external i32 ZP_AABBCast(
+	Vec2 min, Vec2 max, ZAABBResult* results, i32 maxResults, u16 mask);
+ze_external i32 ZP_GroundTest(zeHandle physicsBody, u16 mask);
 
 // lifetime
 ze_external void ZPhysicsInit(ZEngine engine);

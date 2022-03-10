@@ -126,12 +126,18 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	if (IF_BIT(player->buttons, INPUT_BIT_RIGHT)) { inputDir.x++; }
 	if (IF_BIT(player->buttons, INPUT_BIT_DOWN)) { inputDir.y--; }
 	if (IF_BIT(player->buttons, INPUT_BIT_UP)) { inputDir.y++; }
-	
+
 	BodyState body = ZP_GetBodyState(player->physicsBodyId);
+
+	// query ground
+	//ZPShapeDef shape = ZP_GetBodyShape(player->physicsBodyId);
+	//Vec2 groundQuery = Vec2_Add(body.t.pos, { 0, shape.radius.y - 0.01f });
+	i32 bGrounded = ZP_GroundTest(player->physicsBodyId, PHYSICS_LAYER_BIT_WORLD);
+
 	Vec2 v = body.velocity;
 	v.x = 8.f * inputDir.x;
 
-	if (inputDir.y > 0)
+	if (inputDir.y > 0 && v.y <= 0 && bGrounded)
 	{
 		v.y = 8.f;
 	}

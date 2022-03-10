@@ -14,6 +14,7 @@ struct ZPVolume2d
 	i32 externalId;
 	// zeHandle handle;
 	Vec2 radius;
+	ZPShapeDef shape;
 	b2Body* body;
 };
 
@@ -43,16 +44,33 @@ ze_internal i32 g_nextDynamicId = 1;
 ze_internal i32 g_nextStaticId = -1;
 
 // b2QueryCallback implementation
-/*class AAABCallback: public b2QueryCallback
+class AABBCallback: public b2QueryCallback
 {
 	public:
 	u16 mask;
+	// this stuff is externally allocated!
+	ZAABBResult* results;
+	i32 numResults;
+	i32 maxResults;
+
 	bool ReportFixture(b2Fixture* fixture)
 	{
 		b2Body* body = fixture->GetBody();
+		if ((fixture->GetFilterData().maskBits & this->mask) == 0)
+		{
+			return true;
+		}
+		zeHandle volId = (zeHandle)body->GetUserData().pointer;
 
+		results[numResults].volumeId = volId;
+		numResults += 1;
+		if (numResults >= maxResults)
+		{
+			return false;
+		}
+		return true;
 	}
-};*/
+};
 
 // b2RayCastCallback implementation
 // Returns
@@ -169,6 +187,13 @@ ze_external zErrorCode ZP_RemoveBody(zeHandle bodyId)
 	return ZE_ERROR_NONE;
 }
 
+ze_external ZPShapeDef ZP_GetBodyShape(zeHandle bodyId)
+{
+	ZPVolume2d* vol = ZP_GetVolume(bodyId);
+	ZE_ASSERT(vol != NULL, "Body is null")
+	return vol->shape;
+}
+
 ze_external Transform2d ZP_GetBodyPosition(zeHandle bodyId)
 {
 	ZPVolume2d* vol = ZP_GetVolume(bodyId);
@@ -270,6 +295,7 @@ ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size, u16 categoryBits, u
 	ZPVolume2d* vol = GetFreeStaticVolume();
 	vol->radius = size;
 	vol->externalId = 0;
+	// todo: setup volume's shape def?
 
 	b2BodyDef groundBodyDef;
 	groundBodyDef.position.Set(pos.x, pos.y);
@@ -299,6 +325,7 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 	ZE_ASSERT(vol != NULL, "ZP_AddBody got no free volume")
 	vol->radius = def.shape.radius;
 	vol->externalId = def.externalId;
+	vol->shape = def.shape;
 
 	if (def.categoryBits == 0)
 	{
@@ -349,11 +376,37 @@ ze_external i32 ZP_Raycast(
 	return cb.numResults;
 }
 
-ze_external i32 ZP_AabbCast(
-	Vec2 min, Vec2 max, i32 maxResults, u16 mask)
+ze_external i32 ZP_AABBCast(
+	Vec2 min, Vec2 max, ZAABBResult* results, i32 maxResults, u16 mask)
 {
+	b2AABB aabb;
+	aabb.lowerBound.Set(min.x, min.y);
+	aabb.upperBound.Set(max.x, max.y);
+	AABBCallback cb;
+	cb.results = results;
+	cb.numResults = 0;
+	cb.maxResults = maxResults;
+	cb.mask = mask;
+	g_world.QueryAABB(&cb, aabb);
+	return cb.numResults;
+}
 
-	return 0;
+ze_external i32 ZP_GroundTest(zeHandle physicsBody, u16 mask)
+{
+	const f32 tolerance = 0.01f;
+    Transform2d t = ZP_GetBodyPosition(physicsBody);
+	ZPShapeDef shape = ZP_GetBodyShape(physicsBody);
+	Vec2 groundQuery = Vec2_Add(t.pos, { 0, shape.radius.y - tolerance });
+	Vec2 min = groundQuery, max = groundQuery;
+	min.x -= shape.radius.x - tolerance;
+	min.y -= tolerance;
+	max.x += shape.radius.x + tolerance;
+	max.y += tolerance;
+
+	const i32 numResults = 16;
+	ZAABBResult results[numResults];
+	i32 count = ZP_AABBCast(min, max, results, numResults, mask);
+	return (count > 0);
 }
 
 ze_external void ZPhysicsInit(ZEngine engine)
