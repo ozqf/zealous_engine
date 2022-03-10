@@ -3,6 +3,8 @@ Basic ground based enemy with simple projectile attack.
 */
 #include "rng_internal.h"
 
+#define GRUNT_THINK_TIME 1.f
+
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
 
@@ -136,7 +138,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 		grunt->aimDegrees = Vec2_AngleTo(pos, aimPos) * RAD2DEG;
 		if (grunt->tick <= 0)
 		{
-			grunt->tick = 0.5f;
+			grunt->tick = GRUNT_THINK_TIME;
 			Sim_SpawnProjectile(
 				pos, grunt->aimDegrees, TEAM_ID_ENEMY, PRJ_TEMPLATE_ENEMY_DEFAULT);
 		}
@@ -224,6 +226,7 @@ ze_external void Sim_SpawnEnemyGrunt(Vec2 pos, i32 sourceId)
 	grunt.health = 70;
 	grunt.state = 0;
 	grunt.sourceId = sourceId;
+	grunt.tick = GRUNT_THINK_TIME;
 	Sim_GetEntityType(ENT_TYPE_ENEMY_GRUNT)->Restore(&grunt.header, Sim_GetRestoreTick());
 }
 

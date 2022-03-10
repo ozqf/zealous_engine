@@ -1,5 +1,11 @@
 #include "rng_internal.h"
 
+#define TOUCH_BIT_GROUND (1 << 0)
+#define TOUCH_BIT_CEILING (1 << 1)
+#define TOUCH_BIT_LEFT (1 << 2)
+#define TOUCH_BIT_RIGHT (1 << 3)
+#define TOUCH_BIT_DOUBLE_JUMP (1 << 4)
+
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
 
@@ -28,6 +34,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		ent->d.player.buttons = state->buttons;
 		ent->d.player.tick = state->tick;
 		ent->d.player.status = state->status;
+		ent->d.player.touchFlags = state->touchFlags;
 	}
 	else
 	{
@@ -43,16 +50,21 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		def.bLockRotation = YES;
 		def.friction = 0;
 		def.resitition = 0;
-		def.shape.radius = { 0.5f, 0.5f, };
 		def.externalId = ent->id;
-		
-		// restore state
+		def.categoryBits = PHYSICS_LAYER_BIT_PLAYER;
+		def.maskBits = PHYSICS_LAYER_BIT_WORLD | PHYSICS_LAYER_BIT_MOBS | PHYSICS_LAYER_BIT_PLATFORM;
+		def.shape.radius = { 0.5f, 0.5f, };
 		def.shape.pos = state->pos;
-		ent->d.player.tick = state->tick;
-		ent->d.player.status = state->status;
 		
 		ent->d.player.physicsBodyId = ZP_AddBody(def);
 		RNGPRINT("Player body Id: %d\n", ent->d.player.physicsBodyId);
+		
+		// restore state
+		ent->d.player.aimDegrees = state->aimDegrees;
+		ent->d.player.buttons = state->buttons;
+		ent->d.player.tick = state->tick;
+		ent->d.player.status = state->status;
+		ent->d.player.touchFlags = state->touchFlags;
 		
 		// add sprites
 		ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
@@ -132,18 +144,40 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	// query ground
 	//ZPShapeDef shape = ZP_GetBodyShape(player->physicsBodyId);
 	//Vec2 groundQuery = Vec2_Add(body.t.pos, { 0, shape.radius.y - 0.01f });
+	
 	i32 bGrounded = ZP_GroundTest(player->physicsBodyId, PHYSICS_LAYER_BIT_WORLD);
+	if (bGrounded)
+	{
+		player->touchFlags |= TOUCH_BIT_GROUND;
+		player->touchFlags &= ~TOUCH_BIT_DOUBLE_JUMP;
+	}
+	else
+	{
+		player->touchFlags &= ~TOUCH_BIT_GROUND;
+	}
 
 	Vec2 v = body.velocity;
 	v.x = 8.f * inputDir.x;
 
-	if (inputDir.y > 0 && v.y <= 0 && bGrounded)
+	if (inputDir.y > 0 && v.y <= 0)
 	{
-		v.y = 8.f;
+		if (bGrounded)
+		{
+			v.y = 8.f;
+		}
+		else
+		{
+			if ((player->touchFlags & TOUCH_BIT_DOUBLE_JUMP) == 0)
+			{
+				v.y = 8.f;
+				player->touchFlags |= TOUCH_BIT_DOUBLE_JUMP;
+			}
+			
+		}
 	}
-	else if (inputDir.y < 0 && v.y > 1.0f)
+	else if (inputDir.y < 0 && v.y > -3.f)
 	{
-		v.y = -2;
+		v.y = -3.f;
 	}
 
 	ZP_SetLinearVelocity(player->physicsBodyId, v);
@@ -200,6 +234,14 @@ ze_internal void Sync(Ent2d* ent)
 	obj->t.pos = pos;
 	M3x3_SetToIdentity(obj->t.rotation.cells);
 	M3x3_RotateZ(obj->t.rotation.cells, radians);
+	
+	// debug - change gun colour to ground bit
+	ColourF32 c = COLOUR_F32_LIGHT_GREY;
+	if (IF_BIT(player->touchFlags, TOUCH_BIT_GROUND))
+	{
+		c = { 0.f, 1.f, 1.f, 1.f };
+	}
+	obj->data.quad.colour = c;
 	
 	// camera
 	#if 0

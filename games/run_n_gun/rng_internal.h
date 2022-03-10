@@ -144,11 +144,15 @@ SERIALISED struct DebrisEntSave
 ////////////////////////////////////////////////
 struct EntPlayer
 {
+	// state
 	Vec2 velocity;
 	f32 tick;
 	f32 aimDegrees;
 	u32 buttons;
 	i32 status;
+	i32 touchFlags;
+
+	// components
 	zeHandle bodyDrawId = 0;
 	zeHandle gunDrawId = 0;
 	zeHandle physicsBodyId = 0;
@@ -162,6 +166,7 @@ struct PlayerEntSave
 	f32 aimDegrees;
 	u32 buttons;
 	i32 status;
+	i32 touchFlags;
 
 	// Display
 	f32 depth;

@@ -12,8 +12,6 @@ struct ZPVolume2d
 	i32 id;
 	// externally provided Id - purely for external user
 	i32 externalId;
-	// zeHandle handle;
-	Vec2 radius;
 	ZPShapeDef shape;
 	b2Body* body;
 };
@@ -56,12 +54,12 @@ class AABBCallback: public b2QueryCallback
 	bool ReportFixture(b2Fixture* fixture)
 	{
 		b2Body* body = fixture->GetBody();
-		if ((fixture->GetFilterData().maskBits & this->mask) == 0)
+		u16 bodyCategory = fixture->GetFilterData().categoryBits;
+		if ((bodyCategory & this->mask) == 0)
 		{
 			return true;
 		}
 		zeHandle volId = (zeHandle)body->GetUserData().pointer;
-
 		results[numResults].volumeId = volId;
 		numResults += 1;
 		if (numResults >= maxResults)
@@ -293,8 +291,9 @@ ze_external zeHandle ZP_AddStaticVolume(Vec2 pos, Vec2 size, u16 categoryBits, u
 {
 	size = Vec2_Divide(size, 2);
 	ZPVolume2d* vol = GetFreeStaticVolume();
-	vol->radius = size;
 	vol->externalId = 0;
+	vol->shape.radius = size;
+	vol->shape.shapeType = 0;
 	// todo: setup volume's shape def?
 
 	b2BodyDef groundBodyDef;
@@ -323,7 +322,6 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 		vol = GetFreeDynamicVolume();
 	}
 	ZE_ASSERT(vol != NULL, "ZP_AddBody got no free volume")
-	vol->radius = def.shape.radius;
 	vol->externalId = def.externalId;
 	vol->shape = def.shape;
 
@@ -351,6 +349,8 @@ ze_external zeHandle ZP_AddBody(ZPBodyDef def)
 	fixtureDef.density = 1.0f;
 	fixtureDef.restitution = def.resitition;
 	fixtureDef.friction = def.friction;
+	fixtureDef.filter.categoryBits = def.categoryBits;
+	fixtureDef.filter.maskBits = def.maskBits;
 	#if 0 // verbose
 	printf("Create body %d: mask %d category %d\n",
 		vol->id, fixtureDef.filter.maskBits, fixtureDef.filter.categoryBits);
@@ -396,12 +396,16 @@ ze_external i32 ZP_GroundTest(zeHandle physicsBody, u16 mask)
 	const f32 tolerance = 0.01f;
     Transform2d t = ZP_GetBodyPosition(physicsBody);
 	ZPShapeDef shape = ZP_GetBodyShape(physicsBody);
-	Vec2 groundQuery = Vec2_Add(t.pos, { 0, shape.radius.y - tolerance });
+	Vec2 groundQuery = Vec2_Add(t.pos, { 0, -shape.radius.y });
 	Vec2 min = groundQuery, max = groundQuery;
-	min.x -= shape.radius.x - tolerance;
+	min = groundQuery;
+	max = groundQuery;
+	min.x -= (shape.radius.x - tolerance);
 	min.y -= tolerance;
-	max.x += shape.radius.x + tolerance;
+	max.x += (shape.radius.x - tolerance);
 	max.y += tolerance;
+	// printf("Ground check. Mask %d, body at %.3f, %.3f. Area: %.3f, %.3f to %.3f, %.3f\n",
+	// 	mask, t.pos.x, t.pos.y, min.x, min.y, max.x, max.y);
 
 	const i32 numResults = 16;
 	ZAABBResult results[numResults];

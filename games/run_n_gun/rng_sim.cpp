@@ -65,6 +65,8 @@ ze_internal i32 g_nextStaticId = ENT_FIRST_STATIC_ID;
 
 ze_internal ZEBuffer g_debugText;
 
+ze_external FrameHeader* Sim_WriteFrame(ZEBuffer* buf, i32 frameNumber);
+
 ze_external ZEngine GetEngine()
 {
 	return g_engine;
@@ -178,6 +180,9 @@ ze_external EntityType* Sim_GetEntityType(i32 typeId)
 	return &g_types[typeId];
 }
 
+///////////////////////////////////////////////////////
+// static geometry creation
+///////////////////////////////////////////////////////
 ze_internal WorldVolume* GetFreeWorldVolume()
 {
 	WorldVolume* vol = &g_worldVolumes[g_numWorldVolumes];
@@ -196,7 +201,7 @@ ze_internal void AddStatic(Vec2 pos, Vec2 size)
 	platform->t.pos = Vec3_FromVec2(pos, -0.1f);
 	vol->drawObjId = platform->id;
 	vol->bodyId = ZP_AddStaticVolume(
-		pos, size, PHYSICS_LAYER_BIT_WORLD, PHYSICS_LAYER_BIT_WORLD);
+		pos, size, PHYSICS_LAYER_BIT_WORLD, PHYSICS_LAYER_BIT_WORLD | PHYSICS_LAYER_BIT_PLAYER | PHYSICS_LAYER_BIT_MOBS);
 	RNGPRINT("Platform %d assigned body %d\n", platform->id, vol->bodyId);
 }
 
@@ -207,7 +212,7 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 		return;
 	}
 	
-	// cleanup previous scene here!
+	// TODO: cleanup previous scene here!
 	
 	g_staticSceneIndex = index;
 	
@@ -223,6 +228,38 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 	// left and right border
 	AddStatic({ -12, 0 }, { 1, 16 });
 	AddStatic({ 12, 0 }, { 1, 16 });
+}
+
+///////////////////////////////////////////////////////
+// start a new level
+///////////////////////////////////////////////////////
+ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
+{
+	// --- clear frames array ---
+	frames->Clear(NO);
+	// --- setup sim state ---
+	
+	// static scene
+	Sim_RestoreStaticScene(0);
+	
+	const i32 numDebris = 0;
+	// add ents
+	for (i32 i = 0; i < numDebris; ++i)
+	{
+		Vec2 pos = {};
+		pos.x = RANDF_RANGE(-10, 10);
+		pos.y = RANDF_RANGE(1, 5);
+		Sim_SpawnDebris(pos, {}, 0.f);
+	}
+
+	// spawn a player
+	Sim_SpawnPlayer({0, -2});
+
+	Sim_SpawnSpawner({-10, 4});
+	Sim_SpawnSpawner({10, 4});
+	
+	FrameHeader* header = Sim_WriteFrame(frames, 0);
+	return header;
 }
 
 /////////////////////////////////////////////////
@@ -328,38 +365,6 @@ ze_internal FrameHeader* FindFrame(ZEBuffer* frames, i32 index)
 	}
 	RNGPRINT("Find frame failed!\n");
 	return NULL;
-}
-
-///////////////////////////////////////////////////////
-// start a new level
-///////////////////////////////////////////////////////
-ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
-{
-	// --- clear frames array ---
-	frames->Clear(NO);
-	// --- setup sim state ---
-	
-	// static scene
-	Sim_RestoreStaticScene(0);
-	
-	const i32 numDebris = 0;
-	// add ents
-	for (i32 i = 0; i < numDebris; ++i)
-	{
-		Vec2 pos = {};
-		pos.x = RANDF_RANGE(-10, 10);
-		pos.y = RANDF_RANGE(1, 5);
-		Sim_SpawnDebris(pos, {}, 0.f);
-	}
-
-	// spawn a player
-	Sim_SpawnPlayer({0, -2});
-
-	Sim_SpawnSpawner({-10, 4});
-	Sim_SpawnSpawner({10, 4});
-	
-	FrameHeader* header = Sim_WriteFrame(frames, 0);
-	return header;
 }
 
 ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId)
