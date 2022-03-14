@@ -66,6 +66,7 @@ ze_internal i32 g_nextStaticId = ENT_FIRST_STATIC_ID;
 ze_internal ZEBuffer g_debugText;
 
 ze_external FrameHeader* Sim_WriteFrame(ZEBuffer* buf, i32 frameNumber);
+ze_external void Sim_RestoreFrame(FrameHeader* header);
 
 ze_external ZEngine GetEngine()
 {
@@ -267,6 +268,14 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	// --- clear frames array ---
 	frames->Clear(NO);
 	// --- setup sim state ---
+	i32 numEnts = g_entities.Count();
+	for (i32 i = 0; i < numEnts; ++i)
+	{
+		Ent2d* ent = (Ent2d*)g_entities.GetByIndex(i);
+		if (ent == NULL) { continue; }
+		Sim_GetEntityType(ent->type)->Remove(ent);
+	}
+	g_entities.Truncate();
 	
 	// static scene
 	Sim_RestoreStaticScene(0);
@@ -289,6 +298,16 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	
 	FrameHeader* header = Sim_WriteFrame(frames, 0);
 	return header;
+}
+
+ze_external void Sim_StartNewGame()
+{
+	FrameHeader* frame = WriteNewSession(&g_frames);
+	Sim_DebugScanFrameData(0, 0);
+	Sim_RestoreFrame(frame);
+	
+	g_currentFrame = 0;
+	g_lastFrame = 0;
 }
 
 /////////////////////////////////////////////////
@@ -647,12 +666,7 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 	
 	InitEntityTypes();
 
-	FrameHeader* frame = WriteNewSession(&g_frames);
-	Sim_DebugScanFrameData(0, 0);
-	Sim_RestoreFrame(frame);
-	
-	g_currentFrame = 0;
-	g_lastFrame = 0;
-	
+	Sim_StartNewGame();
+
 	UpdateDebugText();
 }

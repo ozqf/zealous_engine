@@ -29,7 +29,7 @@ set compilerDefines=/DPARANOID=1
 set compIn1=../games/example2d/example2d.cpp
 
 @echo on
-cl %compilerFlags% %compilerDefines% %outputExe% %compIn1%
+@cl %compilerFlags% %compilerDefines% %outputExe% %compIn1%
 @echo off
 
 set compIn1=

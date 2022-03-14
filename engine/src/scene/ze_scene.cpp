@@ -58,7 +58,7 @@ ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity, zeSize userData
 
 ze_external void ZScene_RemoveScene(zeHandle handle)
 {
-
+    // TODO - err, implement this. not needed it so far...
 }
 
 ze_external void ZScene_SetFlags(zeHandle handle, u32 flags)
@@ -212,6 +212,9 @@ ze_internal ZRDrawObj* ZScene_AddCube(zeHandle scene, char* materialName)
 // service
 ///////////////////////////////////////////////////////////
 
+/*
+TODO: scene order value is not implemented, scenes draw in order they were created
+*/
 ze_external void ZScene_Draw()
 {
     // ZE_PRINTF("=== FRAME ===\n");
@@ -277,6 +280,8 @@ ze_external ZSceneManager ZScene_RegisterFunctions()
     result.SetCamera = ZScene_SetCamera;
     result.SetProjection = ZScene_SetProjection;
 	result.SetClearColour = SetClearColour;
+    result.GetSceneFlags = ZScene_GetFlags;
+    result.SetSceneFlags = ZScene_SetFlags;
 
     // utility
     result.AddCube = ZScene_AddCube;

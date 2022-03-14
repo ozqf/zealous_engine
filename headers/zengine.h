@@ -141,6 +141,9 @@ struct ZSceneManager
     void (*SetCamera)(zeHandle sceneHandle, Transform t);
     void (*SetProjection)(zeHandle sceneHandle, M4x4 projection);
 	void (*SetClearColour)(ColourF32 colour);
+    u32 (*GetSceneFlags)(zeHandle sceneHandle);
+    void (*SetSceneFlags)(zeHandle sceneHandle, u32 flags);
+
 
     // utilities
     ZRDrawObj* (*AddCube)(zeHandle scene, char* materialName);

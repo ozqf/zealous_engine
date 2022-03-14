@@ -33,7 +33,7 @@ set compIn3=../plugins/physics2d/*.cpp
 set linkInA=../lib/box2d/box2d.lib
 
 @echo on
-cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% %compIn3% /link %linkInA%
+@cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% %compIn3% /link %linkInA%
 @echo off
 
 set compIn1=

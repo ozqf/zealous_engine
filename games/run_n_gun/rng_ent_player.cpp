@@ -6,7 +6,7 @@
 #define TOUCH_BIT_RIGHT (1 << 3)
 #define TOUCH_BIT_DOUBLE_JUMP (1 << 4)
 
-#define JUMP_VELOCITY 9.f
+#define JUMP_VELOCITY 9.5f
 
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;

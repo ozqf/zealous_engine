@@ -41,7 +41,13 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	save->data = *spawner;
 }
 
-ze_internal void Remove(Ent2d* ent){}
+ze_internal void Remove(Ent2d* ent)
+{
+	EntSpawner* spawner = GetSpawner(ent);
+	// ...no concrete stuff yet.
+	ent->type = ENT_TYPE_NONE;
+	Sim_RemoveEntityBase(ent);
+}
 
 ze_internal void Tick(Ent2d* ent, f32 delta)
 {

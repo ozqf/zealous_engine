@@ -15,6 +15,17 @@ printf(fmt, __VA_ARGS__)
 #define RANDF ((f32)rand() / RAND_MAX)
 #define RANDF_RANGE(minValueF, maxValueF) (RANDF * (maxValueF - minValueF) + minValueF)
 
+#define GAME_STATE_PLAYING 0
+#define GAME_STATE_PAUSED 1
+
+#define APPLICATION_STATE_GAME 0
+#define APPLICATION_STATE_EDITOR 1
+#define APPLICATION_STATE_PAUSED 2
+
+#define SCENE_ORDER_GAME 0
+#define SCENE_ORDER_UI 1
+#define SCENE_ORDER_MENU 2
+
 #define TEX_PLATFORM "platform_texture"
 #define TEX_CURSOR "cursor_texture"
 
@@ -46,6 +57,8 @@ printf(fmt, __VA_ARGS__)
 #define ACTION_TIME_FAST_FORWARD "fast_forward"
 #define ACTION_TIME_FAST_REWIND "fast_rewind"
 
+#define ACTION_MENU "menu"
+
 // button bits
 #define INPUT_BIT_LEFT (1 << 0)
 #define INPUT_BIT_RIGHT (1 << 1)
@@ -57,9 +70,6 @@ printf(fmt, __VA_ARGS__)
 
 #define ACCLE_FORCE 100
 #define MOVE_SPEED 8
-
-#define GAME_STATE_PLAYING 0
-#define GAME_STATE_PAUSED 1
 
 #define TEAM_ID_NONE 0
 #define TEAM_ID_PLAYER 1
@@ -399,6 +409,7 @@ ze_external void Sim_TickBackward(RNGTickInfo info);
 ze_external void Sim_ClearFutureFrames();
 ze_external RNGTickInfo* Sim_GetTickInfo();
 ze_external i32 Sim_GetRestoreTick();
+ze_external void Sim_StartNewGame();
 
 ze_external i32 Sim_ReserveDynamicIds(i32 count);
 ze_external i32 Sim_ReserveStaticIds(i32 count);
@@ -446,5 +457,12 @@ ze_external void EntSpawner_Register(EntityType* type);
 ze_external void EntPlayer_SetInput(RNGTickInfo info);
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames);
+
+// application
+ze_external void App_SetApplicationState(int newState);
+ze_external void Menu_Init(ZEngine engine);
+ze_external void Menu_Show(int pageOverride);
+ze_external void Menu_Hide();
+ze_external void Menu_Tick(ZEFrameTimeInfo timing);
 
 #endif // RNG_INTERNAL_H

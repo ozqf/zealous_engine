@@ -45,7 +45,7 @@ set linkInputA=user32.lib opengl32.lib Gdi32.lib shell32.lib
 set linkInputB=
 set linkInputC=../lib/glfw3_vc2019/glfw3_mt.lib ../buildwin_platform_libs/platlibs.lib
 @echo on
-cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% %compIn3% %compIn4% %compIn5% %linkStr% %linkInputA%  %linkInputB% %linkInputC%
+@cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% %compIn3% %compIn4% %compIn5% %linkStr% %linkInputA%  %linkInputB% %linkInputC%
 @echo off
 set outputExe=
 set compilerFlags=

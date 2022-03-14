@@ -12,7 +12,22 @@ ze_internal Vec2 g_mousePos;
 ze_internal Vec2 g_mouseWorldPos;
 ze_internal i32 g_platformTexture;
 
+
+ze_internal i32 g_applicationState = APPLICATION_STATE_GAME;
 ze_internal i32 g_gameState = GAME_STATE_PLAYING;
+
+internal void MapCommand(char* fullText, char** tokens, i32 numTokens)
+{
+	if (numTokens < 2)
+	{
+		RNGPRINT("Map: must specify a map name!\n");
+		return;
+	}
+	RNGPRINT("New map: %s\n", tokens[1]);
+	g_gameState = GAME_STATE_PLAYING;
+	App_SetApplicationState(APPLICATION_STATE_GAME);
+	Sim_StartNewGame();
+}
 
 internal void Init()
 {
@@ -20,16 +35,18 @@ internal void Init()
 	ZPhysicsInit(g_engine);
 
 	TilesInit(g_engine);
+
+	g_engine.textCommands.RegisterCommand("map", "Start a new game, eg 'map e1m1'", MapCommand);
 	
 	// setup scene
-	g_scene = g_engine.scenes.AddScene(0, ENTITY_COUNT, sizeof(Ent2d));
+	g_scene = g_engine.scenes.AddScene(SCENE_ORDER_GAME, ENTITY_COUNT, sizeof(Ent2d));
 	g_engine.scenes.SetClearColour(COLOUR_F32_BLACK);
 	M4x4_CREATE(prj)
 	ZE_SetupOrthoProjection(prj.cells, screenSize, 16.f / 9.f);
 	g_engine.scenes.SetProjection(g_scene, prj);
 	
 	// setup UI scene
-	g_uiScene = g_engine.scenes.AddScene(0, 1024, 0);
+	g_uiScene = g_engine.scenes.AddScene(SCENE_ORDER_UI, 1024, 0);
     M4x4_CREATE(uiPrj)
     ZE_SetupOrthoProjection(uiPrj.cells, 8, 16.f / 9.f);
     g_engine.scenes.SetProjection(g_uiScene, uiPrj);
@@ -85,6 +102,10 @@ internal void Init()
 
 	g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, ACTION_TIME_FAST_FORWARD);
 	g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, ACTION_TIME_FAST_REWIND);
+
+	g_engine.input.AddAction(Z_INPUT_CODE_ESCAPE, Z_INPUT_CODE_NULL, ACTION_MENU);
+
+	Menu_Init(g_engine);
 }
 
 internal void Shutdown()
@@ -92,7 +113,7 @@ internal void Shutdown()
 
 }
 
-internal void UpdateCursor()
+internal void UpdateCursor(zeHandle worldSceneId)
 {
 	g_mousePos.x = g_engine.input.GetActionValueNormalised("mouseX");
 	g_mousePos.y = -g_engine.input.GetActionValueNormalised("mouseY");
@@ -105,7 +126,7 @@ internal void UpdateCursor()
 	// g_mousePos.x += camera.pos.x;
 	// g_mousePos.y += camera.pos.y;
 
-	ZRDrawObj *cursor = g_engine.scenes.GetObject(g_scene, g_cursorId);
+	ZRDrawObj *cursor = g_engine.scenes.GetObject(worldSceneId, g_cursorId);
 	if (cursor == NULL) { return; }
 
 	g_mouseWorldPos = g_mousePos;
@@ -235,9 +256,30 @@ ze_internal void PlayingTick(ZEFrameTimeInfo timing, RNGTickInfo info)
 	Sim_TickForward(info, YES);
 }
 
-internal void Tick(ZEFrameTimeInfo timing)
+ze_external void App_SetApplicationState(int newState)
 {
-	UpdateCursor();
+	if (g_applicationState == newState) { return; }
+	i32 previous = g_applicationState;
+	g_applicationState = newState;
+	switch (g_applicationState)
+	{
+		case APPLICATION_STATE_GAME:
+		Menu_Hide();
+		break;
+		case APPLICATION_STATE_PAUSED:
+		Menu_Show(-1);
+		break;
+	}
+}
+
+internal void Game_Tick(ZEFrameTimeInfo timing)
+{
+	if (g_engine.input.HasActionToggledOn(ACTION_MENU, timing.frameNumber))
+	{
+		App_SetApplicationState(APPLICATION_STATE_PAUSED);
+		return;
+	}
+	UpdateCursor(g_scene);
 	
 	RNGTickInfo info = {};
 	SetInputBit(&info.buttons, INPUT_BIT_LEFT, MOVE_LEFT);
@@ -274,11 +316,35 @@ internal void Tick(ZEFrameTimeInfo timing)
 	UpdateDebugText();
 }
 
+internal void Tick(ZEFrameTimeInfo timing)
+{
+	switch (g_applicationState)
+	{
+		case APPLICATION_STATE_GAME:
+		Game_Tick(timing);
+		break;
+
+		case APPLICATION_STATE_EDITOR:
+
+		break;
+
+		case APPLICATION_STATE_PAUSED:
+		Menu_Tick(timing);
+		break;
+
+		default:
+		RNGPRINT("Unknown app state %d\n", g_applicationState);
+		App_SetApplicationState(APPLICATION_STATE_GAME);
+		break;
+	}
+}
+
 Z_GAME_WINDOWS_LINK_FUNCTION
 {
     g_engine = engineImport;
 	gameDef->targetFramerate = 60;
 	gameDef->windowTitle = "Run N Gun";
+	gameDef->bOverrideEscapeKey = YES;
     gameExport->Init = Init;
     gameExport->Tick = Tick;
     gameExport->Shutdown = Shutdown;
