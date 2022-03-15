@@ -85,7 +85,7 @@ ze_internal void Init()
     // i32 count = (ENTITY_COUNT - 16);
     for (i32 i = 0; i < count; ++i)
     {
-        ZRDrawObj *mover = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1});
+        ZRDrawObj *mover = g_engine.scenes.AddFullTextureQuad(g_scene, TILE_SET_NAME, {1, 1}, COLOUR_U32_WHITE);
         mover->t.pos = { RANDF_RANGE(-4, 4), RANDF_RANGE(-4, 4), -2};
         mover->userTag = BOUNCER_TAG;
         mover->t.scale = { RANDF_RANGE(0.1f, 1.5f), RANDF_RANGE(0.1f, 1.5f), 1 };
