@@ -322,7 +322,10 @@ ze_internal void ZScene_WriteSceneNoGrouping(ZEBuffer *buf, ZRScene *scene)
             WriteTextCommand(buf, obj);
             break;
         }
-    }   
+    }
+    // clear depth for next scene
+    BUF_BLOCK_BEGIN_STRUCT(clearCmd, ZRDrawCmdClearBuffer, buf, ZR_DRAW_CMD_CLEAR_BUFFER);
+    
 }
 
 
@@ -333,7 +336,7 @@ ze_internal void ZScene_WriteSceneNoGrouping(ZEBuffer *buf, ZRScene *scene)
 ze_external void ZScene_WriteDrawCommands(ZEBuffer *buf, ZRScene *scene)
 {
     ZScene_WriteSceneNoGrouping(buf, scene);
-    ZScene_WriteSceneWithGrouping(buf, scene);
+    //ZScene_WriteSceneWithGrouping(buf, scene);
 }
 
 ze_external void ZScene_InitGrouping()

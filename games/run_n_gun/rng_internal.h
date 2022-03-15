@@ -409,7 +409,7 @@ ze_external void Sim_TickBackward(RNGTickInfo info);
 ze_external void Sim_ClearFutureFrames();
 ze_external RNGTickInfo* Sim_GetTickInfo();
 ze_external i32 Sim_GetRestoreTick();
-ze_external void Sim_StartNewGame();
+ze_external void Sim_StartNewGame(char* mapName);
 
 ze_external i32 Sim_ReserveDynamicIds(i32 count);
 ze_external i32 Sim_ReserveStaticIds(i32 count);

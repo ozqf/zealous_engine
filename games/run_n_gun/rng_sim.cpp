@@ -214,6 +214,8 @@ ze_internal void AddPlatform(Vec2 pos, f32 width)
 
 ze_internal void AddStatic(Vec2 pos, Vec2 size)
 {
+	RNGPRINT("Create world vol at %.3f, %.3f - %.3f by %.3f\n",
+		pos.x, pos.y, size.x, size.y);
 	WorldVolume* vol = GetFreeWorldVolume();
 	ZRDrawObj *platform = g_engine.scenes.AddFullTextureQuad(
 		g_scene,
@@ -232,6 +234,18 @@ ze_internal void AddStatic(Vec2 pos, Vec2 size)
 	RNGPRINT("Platform %d assigned body %d\n", platform->id, vol->bodyId);
 }
 
+ze_internal void AddStaticAABB(Point2 topLeftTile, Point2 size)
+{
+	if (size.x <= 0) { size.x = 1; }
+	if (size.y <= 0) { size.y = 1; }
+	Vec2 sizef = { f32(size.x), f32(size.y) };
+	Vec2 pos;
+	pos.x = f32(topLeftTile.x) + (sizef.x * 0.5f);
+	pos.y = f32(topLeftTile.y) + (sizef.y * 0.5f);
+	RNGPRINT("Create static AABB at %.3f, %.3f\n", pos.x, pos.y);
+	AddStatic(pos, sizef);
+}
+
 ze_external void Sim_RestoreStaticScene(i32 index)
 {
 	if (index == g_staticSceneIndex)
@@ -243,13 +257,14 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 	
 	g_staticSceneIndex = index;
 	
-	AddStatic({ 0, -1 }, { 8, 1 });
+	// AddStatic({ 0, -1 }, { 8, 1 });
+	AddStaticAABB({ -4, -1 }, { 8, 1});
 	// AddStatic({ 0, -4 }, { 8, 1 });
 	AddStatic({ -9.5, -4 }, { 4, 1 });
 	AddStatic({ 9.5, -4 }, { 4, 1 });
 
-	AddPlatform({ 0, -4.5 }, 16);
-	AddPlatform({ 0, -0.5 }, 16);
+	AddPlatform({ 0, -4.5 }, 15);
+	AddPlatform({ 0, -0.5 }, 15);
 
 	// top and bottom border
 	AddStatic({ 0, -8 }, { 24, 1 });
@@ -300,7 +315,7 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	return header;
 }
 
-ze_external void Sim_StartNewGame()
+ze_external void Sim_StartNewGame(char* map)
 {
 	FrameHeader* frame = WriteNewSession(&g_frames);
 	Sim_DebugScanFrameData(0, 0);
@@ -444,16 +459,37 @@ ze_external void Sim_SyncDrawObjects()
 ze_internal void UpdateDebugText()
 {
 	const char* controlsTxt = "WASD move. mouse aim/shoot. Shift stop/start.\nQ/E rewind/fastforward. Esc quit.";
-	g_debugText.Clear(YES);
+	Vec2 playerPos = {};
+	Ent2d* playerEnt = Sim_FindPlayer();
+	if (playerEnt != NULL)
+	{
+		BodyState body = ZP_GetBodyState(playerEnt->d.player.physicsBodyId);
+		playerPos = body.t.pos;
+	}
+	Vec2 aimPos = Sim_GetTickInfo()->cursorWorldPos;
+	Point2 cursorTile = {};
+	// cursorTile.x = int(aimPos.x);
+	// cursorTile.y = int(aimPos.y);
+	cursorTile.x = int(ZFLOORF(aimPos.x));
+	cursorTile.y = int(ZFLOORF(aimPos.y));
+
 	i32 numEnts = g_entities.Count();
 	i32 maxEnts = g_entities.Capacity();
 	f32 secondsRecorded = g_lastFrame / 60.f;
 	f32 secondsToNow = g_currentFrame / 60.f;
 	i32 playerStatus = Sim_GetPlayerStatus();
-	i32 numChars = sprintf_s(
-		(char*)g_debugText.cursor,
-		g_debugText.Space(),
-		
+
+	g_debugText.Clear(YES);
+	char* write = (char*)g_debugText.cursor;
+	char* end = write + g_debugText.Space();
+	write += sprintf_s(
+		write,
+		end - write,
+		"Cursor tile %d,%d. Player pos %.3f, %.3f\n",
+		cursorTile.x, cursorTile.y, playerPos.x, playerPos.y );
+	write += sprintf_s(
+		write,
+		end - write,
 		"%s\nPlayer status %d. Ents %d of %d\nFrame %d. Last %d (%.3f of %.3f seconds).\nFrame buffer capacity %zdKB of %zdKB (%.3f%%)",
 		controlsTxt,
 		playerStatus,
@@ -467,7 +503,7 @@ ze_internal void UpdateDebugText()
 		g_frames.capacity / 1024,
 		g_frames.PercentageUsed());
 	
-	g_debugText.cursor += numChars;
+	g_debugText.cursor = (i8*)write;
 	// null terminate
 	*g_debugText.cursor = '\0';
 }
@@ -666,7 +702,7 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 	
 	InitEntityTypes();
 
-	Sim_StartNewGame();
+	Sim_StartNewGame("e1m1");
 
 	UpdateDebugText();
 }

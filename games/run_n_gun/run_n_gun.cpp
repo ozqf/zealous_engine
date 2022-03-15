@@ -12,11 +12,10 @@ ze_internal Vec2 g_mousePos;
 ze_internal Vec2 g_mouseWorldPos;
 ze_internal i32 g_platformTexture;
 
-
 ze_internal i32 g_applicationState = APPLICATION_STATE_GAME;
 ze_internal i32 g_gameState = GAME_STATE_PLAYING;
 
-internal void MapCommand(char* fullText, char** tokens, i32 numTokens)
+ZCMD_CALLBACK(Exec_MapCommand)
 {
 	if (numTokens < 2)
 	{
@@ -26,7 +25,47 @@ internal void MapCommand(char* fullText, char** tokens, i32 numTokens)
 	RNGPRINT("New map: %s\n", tokens[1]);
 	g_gameState = GAME_STATE_PLAYING;
 	App_SetApplicationState(APPLICATION_STATE_GAME);
-	Sim_StartNewGame();
+	Sim_StartNewGame(tokens[1]);
+}
+
+ze_internal void BuildGrid()
+{
+	i32 gridLines = 24;
+	i32 gridVertCount = gridLines * gridLines * 3;
+	ZRMeshAsset* grid = g_engine.assets.AllocEmptyMesh("grid", gridVertCount);
+	const f32 lineSize = 0.02f;
+
+	// vertical
+	Vec3 bl = { -lineSize, -8, 0 };
+	Vec3 br = { lineSize, -8, 0 }; 
+	Vec3 tl = { -lineSize, 8, 0 }; 
+	Vec3 tr = { lineSize, 8, 0 };
+	Vec3 n = { 0, 0, -1 };
+	Vec3 origin = { -12.f, 0.f };
+	for (i32 i = 0; i < gridLines; ++i)
+	{
+		grid->data.AddTri(Vec3_Add(bl, origin), Vec3_Add(br, origin), Vec3_Add(tr, origin), {}, {}, {}, n, n, n);
+		grid->data.AddTri(Vec3_Add(bl, origin), Vec3_Add(tr, origin), Vec3_Add(tl, origin), {}, {}, {}, n, n, n);
+		origin.x += 1.f;
+	}
+	// horizontal
+	bl = { -12, -lineSize, 0 };
+	br = { 12, -lineSize, 0 }; 
+	tl = { -12, lineSize, 0 }; 
+	tr = { 12, lineSize, 0 };
+	origin = { 0.f, -12.f };
+	for (i32 i = 0; i < gridLines; ++i)
+	{
+		grid->data.AddTri(Vec3_Add(bl, origin), Vec3_Add(br, origin), Vec3_Add(tr, origin), {}, {}, {}, n, n, n);
+		grid->data.AddTri(Vec3_Add(bl, origin), Vec3_Add(tr, origin), Vec3_Add(tl, origin), {}, {}, {}, n, n, n);
+		origin.y += 1.f;
+	}
+	
+	ZRDrawObj* gridObj = g_engine.scenes.AddObject(g_scene);
+	Transform_SetToIdentity(&gridObj->t);
+	i32 matId = g_engine.assets.GetMaterialByName(FALLBACK_MATERIAL_NAME)->header.id;
+	gridObj->data.SetAsMesh(grid->header.id, matId);
+	RNGPRINT("Grid draw obj Id %d, mat Id %d\n", gridObj->id, matId);
 }
 
 internal void Init()
@@ -36,7 +75,8 @@ internal void Init()
 
 	TilesInit(g_engine);
 
-	g_engine.textCommands.RegisterCommand("map", "Start a new game, eg 'map e1m1'", MapCommand);
+	g_engine.textCommands.RegisterCommand(
+		"map", "Start a new game, eg 'map e1m1'", Exec_MapCommand);
 	
 	// setup scene
 	g_scene = g_engine.scenes.AddScene(SCENE_ORDER_GAME, ENTITY_COUNT, sizeof(Ent2d));
@@ -76,12 +116,11 @@ internal void Init()
 		{0.2f, 0.2f},
 		COLOUR_F32_GREEN);
 	g_cursorId = cursor->id;
-	
+
+	BuildGrid();
+
 	// init sim module
 	Sim_Init(g_engine, g_scene);
-	
-	// Create player placeholder
-	// AddPlayer({0, 2, 0});
 	
 	// register inputs
 	g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, MOVE_LEFT);

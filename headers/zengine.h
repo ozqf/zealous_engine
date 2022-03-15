@@ -88,6 +88,10 @@ typedef void (*ZCommand_Callback)(char* fullString, char** tokens, i32 numTokens
 #define ZCMD_CALLBACK(functionName) \
 internal void functionName(char* fullString, char** tokens, i32 numTokens)
 
+/*
+Stores commanad line parameters.
+In future will store saved key/value pairs for configuration
+*/
 struct ZConfig
 {
     i32 (*FindParamIndex)(const char *shortQuery, const char *longQuery, i32 extraTokens);
@@ -95,6 +99,9 @@ struct ZConfig
     i32 (*FindIntParam)(const char *shortQuery, const char *longQuery, i32 failResponse);
 };
 
+/*
+Text commands are queued and executed at the start of every frame.
+*/
 struct ZTextCommand
 {
     zErrorCode (*RegisterCommand)(
@@ -119,6 +126,7 @@ struct ZInput
     i32 (*GetActionValue)(char *actionName);
     f32 (*GetActionValueNormalised)(char *actionName);
 
+    // TODO: Remove janky need to pass in the current framenumber!
     i32 (*HasActionToggledOn)(char* actionName, frameInt frameNumber);
     // i32 (*HasActionToggledOff)(char* actionName);
 	
@@ -126,17 +134,20 @@ struct ZInput
 	const char* (*GetInputShortLabel)(i32 code);
 };
 
-// Services
 struct ZSceneManager
 {
+    // add/remove scenes and objects within them
+    // removing scenes not supported yet... not needed it
     zeHandle (*AddScene)(i32 order, i32 capacity, zeSize userDataBytesPerObject);
     ZRDrawObj *(*AddObject)(zeHandle scene);
     ZRDrawObj *(*GetObject)(zeHandle scene, zeHandle objectId);
     void (*RemoveObject)(zeHandle scene, zeHandle objectId);
 
+    // for iteration
     i32 (*GetObjectCount)(zeHandle sceneHandle);
     ZRDrawObj *(*GetObjectByIndex)(zeHandle sceneHandle, i32 i);
 
+    // scene properties
     Transform (*GetCamera)(zeHandle sceneHandle);
     void (*SetCamera)(zeHandle sceneHandle, Transform t);
     void (*SetProjection)(zeHandle sceneHandle, M4x4 projection);
@@ -144,13 +155,16 @@ struct ZSceneManager
     u32 (*GetSceneFlags)(zeHandle sceneHandle);
     void (*SetSceneFlags)(zeHandle sceneHandle, u32 flags);
 
-
-    // utilities
+    // utilities for creating basic draw objects
     ZRDrawObj* (*AddCube)(zeHandle scene, char* materialName);
     ZRDrawObj* (*AddFullTextureQuad)(zeHandle scene, char *textureName, Vec2 size, ColourF32 colour);
     ZRDrawObj *(*AddLinesObj)(zeHandle scene, i32 maxVerts);
 };
 
+/*
+TODO: Assets current do not store their original name, only the has of the name
+it uses to look the asset up.
+*/
 struct ZAssetManager
 {
     ZRTexture *(*GetTexByName)(char *name);
@@ -162,6 +176,7 @@ struct ZAssetManager
     ZRMaterial *(*GetMaterialById)(i32 id);
     ZRMaterial *(*GetMaterialByName)(char *name);
 
+    // TODO: ZRBlobAsset - not actually used now?
     ZRBlobAsset* (*GetBlobByName)(char* name);
     ZRBlobAsset* (*GetBlobById)(i32 id);
 
@@ -180,7 +195,11 @@ struct ZSystem
     void* (*Realloc)(void* ptr, zeSize size);
     void (*Free)(void* ptr);
     f64 (*QueryClock)();
+
+    // When something unrecoverable has happened
     void (*Fatal)(const char *msg);
+    // Crash functions are called after a call to 'Fatal' to allow
+    // writing out debug info.
     void (*RegisterCrashDumpFunction)(ZE_CrashDumpFunction fn);
 };
 
@@ -197,8 +216,9 @@ struct ZEngine
     i32 sentinel;
 };
 
-#define ZGAME_DLL_NAME "game.dll"
+// if no game directory parameter is provided, look in this dir for a game dll
 #define ZGAME_BASE_DIRECTORY "base"
+#define ZGAME_DLL_NAME "game.dll"
 #define ZGAME_LINKUP_FUNCTION_NAME "ZGameLinkUp"
 
 #define ZSCENE_FLAG_NO_DRAW (1 << 0)

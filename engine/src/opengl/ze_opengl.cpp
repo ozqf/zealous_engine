@@ -166,8 +166,17 @@ ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
             }
             break;
             case ZR_DRAW_CMD_SPRITE_BATCH:
-            ZE_CAST_PTR(header, ZRDrawCmdSpriteBatch, batch);
-            ZRDraw_SpriteBatch(batch, &view, &projection);
+            {
+                ZE_CAST_PTR(header, ZRDrawCmdSpriteBatch, batch);
+                ZRDraw_SpriteBatch(batch, &view, &projection);
+            }
+            break;
+            case ZR_DRAW_CMD_CLEAR_BUFFER:
+            glClear(GL_DEPTH_BUFFER_BIT);
+            CHECK_GL_ERR
+            break;
+            default:
+            printf("Unknown draw cmd type %d\n", header->type);
             break;
         }
     BUF_BLOCK_END_READ

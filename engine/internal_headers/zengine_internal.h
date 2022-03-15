@@ -46,6 +46,7 @@ extern "C" void Platform_Fatal(const char *msg);
 #define ZR_DRAW_CMD_SPRITE_BATCH 2
 #define ZR_DRAW_CMD_MESH 3
 #define ZR_DRAW_CMD_DEBUG_LINES 4
+#define ZR_DRAW_CMD_CLEAR_BUFFER 5
 
 struct ZRDrawCmdSetCamera
 {
@@ -70,6 +71,11 @@ struct ZRDrawCmdDebugLines
 	i32 bChained;
 	i32 numVerts;
 	ZRLineVertex* verts;
+};
+
+struct ZRDrawCmdClearBuffer
+{
+    BufferBlock header;
 };
 
 struct ZRSpriteBatchItem

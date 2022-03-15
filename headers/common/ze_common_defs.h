@@ -88,6 +88,8 @@ log_message( foo == 7, "x %d", x)
 #define F32_EPSILON 1.19209290E-07F // decimal constant
 #define ZALMOST_ZERO(value) (value < F32_EPSILON && value > -F32_EPSILON)
 
+#define ZFLOORF(f) floorf(f)
+
 // shorten some bitwise stuff
 #define IF_BIT(uintFlags, uintBit) ((uintFlags & uintBit) != 0)
 #define IF_TO_BIT(bitCondition, uintFlags, uintBit) \

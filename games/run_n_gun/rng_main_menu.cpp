@@ -3,7 +3,8 @@
 struct TextMenu
 {
 	char* header;
-	char** items;
+	char** itemLabels;
+	char** itemTags;
 	i32 itemCount;
 	i32 itemMax;
 	i32 index;
@@ -12,22 +13,17 @@ struct TextMenu
 	zeHandle drawId;
 };
 
+#define MAIN_MENU_BUF_SIZE 1024
+#define MAIN_MENU_HEADER "---MAIN MENU---\n W/S - Navigate\nSpace - Select\n";
+
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_menuScene;
-
-#define MAIN_MENU_BUF_SIZE 1024
-ze_internal char* g_mainHeader = "---MAIN MENU---\n W/S - Navigate\nSpace - Select\n";
-ze_internal char* g_mainItems[16];
-ze_internal i32 g_mainCount = 0;
-ze_internal i32 g_mainIndex = -1;
-ze_internal char g_mainBuf[MAIN_MENU_BUF_SIZE];
-ze_internal zeHandle g_mainTxtDrawId;
-
 ze_internal TextMenu g_mainMenu;
 
 ze_internal void AllocTextMenu(TextMenu* menu, i32 maxItems, i32 textBufferSize)
 {
-	menu->items = (char**)g_engine.system.Malloc(sizeof(char*) * maxItems);
+	menu->itemLabels = (char**)g_engine.system.Malloc(sizeof(char*) * maxItems);
+	menu->itemTags = (char**)g_engine.system.Malloc(sizeof(char*) * maxItems);
 	menu->itemCount = 0;
 	menu->itemMax = maxItems;
 	menu->index = -1;
@@ -36,45 +32,36 @@ ze_internal void AllocTextMenu(TextMenu* menu, i32 maxItems, i32 textBufferSize)
 	menu->drawId = g_engine.scenes.AddObject(g_menuScene)->id;
 }
 
-ze_internal void AddMenuItem(TextMenu* menu, char* txt)
+ze_internal void AddMenuItem(TextMenu* menu, char* txt, char* tag)
 {
 	i32 newIndex = menu->itemCount++;
 	if (menu->index < 0)
 	{
 		menu->index = 0;
 	}
-	menu->items[newIndex] = txt;
+	menu->itemLabels[newIndex] = txt;
+	menu->itemTags[newIndex] = tag;
 }
 
-ze_internal void AddMainItem(char* txt)
+ze_internal void RefreshMenu(TextMenu* menu)
 {
-	i32 newIndex = g_mainCount++;
-	if (g_mainIndex < 0)
+	char* end = menu->buf + MAIN_MENU_BUF_SIZE;
+	char* write = menu->buf;
+	write += sprintf_s(write, end - write, "%s\n", menu->header);
+	for (i32 i = 0; i < menu->itemCount; ++i)
 	{
-		g_mainIndex = 0;
-	}
-	g_mainItems[newIndex] = txt;
-}
-
-ze_internal void RefreshMainTextMenu()
-{
-	char* end = g_mainBuf + MAIN_MENU_BUF_SIZE;
-	char* write = g_mainBuf;
-	write += sprintf_s(write, end - write, "%s\n", g_mainHeader);
-	for (i32 i = 0; i < g_mainCount; ++i)
-	{
-		if (g_mainIndex == i)
+		if (menu->index == i)
 		{
 			write += sprintf_s(write, end - write, "> ");
 		}
-		write += sprintf_s(write, end - write, "%s\n", g_mainItems[i]);
+		write += sprintf_s(write, end - write, "%s\n", menu->itemLabels[i]);
 	}
 
 	i32 charSettextureId = g_engine.assets.GetTexByName(
         FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME)->header.id;
-	ZRDrawObj* txt = g_engine.scenes.GetObject(g_menuScene, g_mainTxtDrawId);
+	ZRDrawObj* txt = g_engine.scenes.GetObject(g_menuScene, menu->drawId);
 	txt->data.SetAsText(
-		g_mainBuf,
+		menu->buf,
 		charSettextureId,
 		COLOUR_U32_BLACK,
 		COLOUR_U32_WHITE,
@@ -83,7 +70,7 @@ ze_internal void RefreshMainTextMenu()
 	txt->t.scale = { 0.2f, 0.2f, 0.2f };
 }
 
-ze_internal i32 MoveInMenu(i32 currentIndex,i32 dir, i32 numItems)
+ze_internal i32 MoveInMenu2(i32 currentIndex,i32 dir, i32 numItems)
 {
 	currentIndex += dir;
 	if (currentIndex >= numItems)
@@ -97,9 +84,30 @@ ze_internal i32 MoveInMenu(i32 currentIndex,i32 dir, i32 numItems)
 	return currentIndex;
 }
 
+ze_internal void MoveInMenu(TextMenu* menu,i32 dir)
+{
+	menu->index += dir;
+	if (menu->index >= menu->itemCount)
+	{
+		menu->index = 0;
+	}
+	if (menu->index < 0)
+	{
+		menu->index = menu->itemCount - 1;
+	}
+}
+
+ze_internal char* GetMenuTag(TextMenu* menu)
+{
+	if (menu->index < 0)
+	{
+		return "";
+	}
+	return menu->itemTags[menu->index];
+}
+
 ze_external void Menu_Show(int pageOverride)
 {
-	RNGPRINT("Show menu\n");
 	u32 sceneFlags = g_engine.scenes.GetSceneFlags(g_menuScene);
 	sceneFlags &= ~ZSCENE_FLAG_NO_DRAW;
 	g_engine.scenes.SetSceneFlags(g_menuScene, sceneFlags);
@@ -107,7 +115,6 @@ ze_external void Menu_Show(int pageOverride)
 
 ze_external void Menu_Hide()
 {
-	RNGPRINT("Hide menu\n");
 	u32 sceneFlags = g_engine.scenes.GetSceneFlags(g_menuScene);
 	sceneFlags |= ZSCENE_FLAG_NO_DRAW;
 	g_engine.scenes.SetSceneFlags(g_menuScene, sceneFlags);
@@ -122,28 +129,32 @@ ze_external void Menu_Tick(ZEFrameTimeInfo timing)
 		return;
 	}
 
+	TextMenu* menu = &g_mainMenu;
 	if (g_engine.input.HasActionToggledOn("menu_down", timing.frameNumber))
 	{
-		g_mainIndex = MoveInMenu(g_mainIndex, 1, g_mainCount);
+		MoveInMenu(menu, 1);
 		bDirty = YES;
 	}
 
 	if (g_engine.input.HasActionToggledOn("menu_up", timing.frameNumber))
 	{
-		g_mainIndex = MoveInMenu(g_mainIndex, -1, g_mainCount);
+		MoveInMenu(menu, -1);
 		bDirty = YES;
 	}
 
 	if (g_engine.input.HasActionToggledOn("menu_select", timing.frameNumber))
 	{
 		bDirty = YES;
-		char* item = g_mainItems[g_mainIndex];
-		RNGPRINT("Menu select %d: %s\n", g_mainIndex, item);
-		if (ZStr_Compare(item, "QUIT") == 0)
+		char* item = GetMenuTag(menu);
+		if (ZStr_Compare(item, "quit") == 0)
 		{
 			g_engine.textCommands.QueueCommand("quit");
 		}
-		else if (ZStr_Compare(item, "START") == 0)
+		else if (ZStr_Compare(item, "options") == 0)
+		{
+			RNGPRINT("Open options menu\n");
+		}
+		else if (ZStr_Compare(item, "start") == 0)
 		{
 			g_engine.textCommands.QueueCommand("map e1m1");
 		}
@@ -151,7 +162,7 @@ ze_external void Menu_Tick(ZEFrameTimeInfo timing)
 
 	if (bDirty)
 	{
-		RefreshMainTextMenu();
+		RefreshMenu(&g_mainMenu);
 	}
 }
 
@@ -164,22 +175,16 @@ ze_external void Menu_Init(ZEngine engine)
     ZE_SetupOrthoProjection(uiPrj.cells, 8, 16.f / 9.f);
     g_engine.scenes.SetProjection(g_menuScene, uiPrj);
 
-	ZRDrawObj* txt = g_engine.scenes.AddObject(g_menuScene);
-	g_mainTxtDrawId = txt->id;
-	
 	g_engine.input.AddAction(Z_INPUT_CODE_W, Z_INPUT_CODE_NULL, "menu_up");
 	g_engine.input.AddAction(Z_INPUT_CODE_S , Z_INPUT_CODE_NULL, "menu_down");
 	g_engine.input.AddAction(Z_INPUT_CODE_SPACE, Z_INPUT_CODE_NULL, "menu_select");
 
-	AllocTextMenu(&g_mainMenu, 16, 256);
-	AddMenuItem(&g_mainMenu, "START");
-	AddMenuItem(&g_mainMenu, "OPTIONS");
-	AddMenuItem(&g_mainMenu, "QUIT");
-
-	AddMainItem("START");
-	AddMainItem("OPTIONS");
-	AddMainItem("QUIT");
-	RefreshMainTextMenu();
+	AllocTextMenu(&g_mainMenu, 16, MAIN_MENU_BUF_SIZE);
+	g_mainMenu.header = MAIN_MENU_HEADER;
+	AddMenuItem(&g_mainMenu, "START", "start");
+	AddMenuItem(&g_mainMenu, "OPTIONS", "options");
+	AddMenuItem(&g_mainMenu, "QUIT", "quit");
+	RefreshMenu(&g_mainMenu);
 
 	Menu_Hide();
 }

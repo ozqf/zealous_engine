@@ -188,7 +188,7 @@ struct ZRMeshData
 		Vec3 n0, Vec3 n1, Vec3 n2)
 	{
 		i32 i = this->numVerts;
-		this->numVerts += 1;
+		this->numVerts += 3;
 		// step to
 		i32 vertStride = sizeof(f32) * 3 * i;
 		i32 uvStride = sizeof(f32) * 2 * i;
