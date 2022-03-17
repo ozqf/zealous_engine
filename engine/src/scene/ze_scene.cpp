@@ -75,6 +75,28 @@ ze_external u32 ZScene_GetFlags(zeHandle handle)
     return scene->flags;
 }
 
+ze_internal void ZScene_SetFlag(zeHandle handle, i32 mask, i32 bValue)
+{
+    ZRScene *scene = GetSceneByHandle(handle);
+    ZE_ASSERT(scene != NULL, "Set flag - no scene found")
+    if (bValue)
+    {
+        scene->flags |= mask;
+    }
+    else
+    {
+        scene->flags &= ~mask;
+    }
+}
+
+ze_internal void ZScene_ApplyDefaultOrthoProjection(
+    zeHandle handle, f32 verticalExtent, f32 aspectRatio)
+{
+    M4x4_CREATE(prj)
+	ZE_SetupOrthoProjection(prj.cells, verticalExtent, aspectRatio);
+	ZScene_SetProjection(handle, prj);
+}
+
 ze_external Transform ZScene_GetCamera(zeHandle sceneHandle)
 {
     ZRScene *scene = GetSceneByHandle(sceneHandle);
@@ -95,8 +117,8 @@ ze_external void ZScene_SetCamera(zeHandle sceneHandle, Transform t)
 
 ze_external void ZScene_SetProjection(zeHandle sceneHandle, M4x4 projection)
 {
-    ZRScene* scene = GetSceneByHandle(sceneHandle);
-    if (scene == NULL) { return; }
+    ZRScene *scene = GetSceneByHandle(sceneHandle);
+    ZE_ASSERT(scene != NULL, "SetProjection - no scene found")
     scene->projection = projection;
 }
 
@@ -282,6 +304,8 @@ ze_external ZSceneManager ZScene_RegisterFunctions()
 	result.SetClearColour = SetClearColour;
     result.GetSceneFlags = ZScene_GetFlags;
     result.SetSceneFlags = ZScene_SetFlags;
+    result.SetSceneFlag = ZScene_SetFlag;
+    result.ApplyDefaultOrthoProjection = ZScene_ApplyDefaultOrthoProjection;
 
     // utility
     result.AddCube = ZScene_AddCube;

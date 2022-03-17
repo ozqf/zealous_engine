@@ -12,8 +12,11 @@ ze_internal Vec2 g_mousePos;
 ze_internal Vec2 g_mouseWorldPos;
 ze_internal i32 g_platformTexture;
 
-ze_internal i32 g_applicationState = APPLICATION_STATE_GAME;
+ze_internal i32 g_applicationState = -1;
+ze_internal i32 g_bAppMenuOpen = NO;
 ze_internal i32 g_gameState = GAME_STATE_PLAYING;
+
+ze_internal void App_SetAppState(int newState);
 
 ZCMD_CALLBACK(Exec_MapCommand)
 {
@@ -24,8 +27,45 @@ ZCMD_CALLBACK(Exec_MapCommand)
 	}
 	RNGPRINT("New map: %s\n", tokens[1]);
 	g_gameState = GAME_STATE_PLAYING;
-	App_SetApplicationState(APPLICATION_STATE_GAME);
+	App_SetAppState(APP_STATE_GAME);
 	Sim_StartNewGame(tokens[1]);
+}
+
+ZCMD_CALLBACK(Exec_RNGCommand)
+{
+	if (numTokens < 2)
+	{
+		RNGPRINT("Missing second parameter");
+		return;
+	}
+	if (ZStr_Equal(fullString, RNG_CMD_GAME))
+	{
+		App_SetAppState(APP_STATE_GAME);
+	}
+	else if (ZStr_Equal(fullString, RNG_CMD_EDITOR))
+	{
+		App_SetAppState(APP_STATE_EDITOR);
+	}
+	else if (ZStr_Equal(fullString, RNG_CMD_MENU_ON))
+	{
+		g_bAppMenuOpen = YES;
+		Menu_Show(-1);
+	}
+	else if (ZStr_Equal(fullString, RNG_CMD_MENU_OFF))
+	{
+		g_bAppMenuOpen = NO;
+		Menu_Hide();
+	}
+	else if (ZStr_Equal(fullString, RNG_CMD_APP_TOGGLE))
+	{
+		g_applicationState == APP_STATE_GAME
+			? App_SetAppState(APP_STATE_EDITOR)
+			: App_SetAppState(APP_STATE_GAME);
+	}
+	else
+	{
+		RNGPRINT("Unknown rng parameter %s\n", tokens[1]);
+	}
 }
 
 ze_internal void BuildGrid()
@@ -77,19 +117,23 @@ internal void Init()
 
 	g_engine.textCommands.RegisterCommand(
 		"map", "Start a new game, eg 'map e1m1'", Exec_MapCommand);
+	g_engine.textCommands.RegisterCommand(
+		"rng", "rng <command> - switch app states", Exec_RNGCommand);
 	
 	// setup scene
 	g_scene = g_engine.scenes.AddScene(SCENE_ORDER_GAME, ENTITY_COUNT, sizeof(Ent2d));
 	g_engine.scenes.SetClearColour(COLOUR_F32_BLACK);
-	M4x4_CREATE(prj)
-	ZE_SetupOrthoProjection(prj.cells, screenSize, 16.f / 9.f);
-	g_engine.scenes.SetProjection(g_scene, prj);
+	g_engine.scenes.ApplyDefaultOrthoProjection(g_scene, screenSize, 16.f / 9.f);
+	// M4x4_CREATE(prj)
+	// ZE_SetupOrthoProjection(prj.cells, screenSize, 16.f / 9.f);
+	// g_engine.scenes.SetProjection(g_scene, prj);
 	
 	// setup UI scene
 	g_uiScene = g_engine.scenes.AddScene(SCENE_ORDER_UI, 1024, 0);
-    M4x4_CREATE(uiPrj)
-    ZE_SetupOrthoProjection(uiPrj.cells, 8, 16.f / 9.f);
-    g_engine.scenes.SetProjection(g_uiScene, uiPrj);
+	g_engine.scenes.ApplyDefaultOrthoProjection(g_uiScene, 8, 16.f / 9.f);
+    // M4x4_CREATE(uiPrj)
+    // ZE_SetupOrthoProjection(uiPrj.cells, 8, 16.f / 9.f);
+    // g_engine.scenes.SetProjection(g_uiScene, uiPrj);
 	
 	// create debug text object in ui scene
 	i32 charSettextureId = g_engine.assets.GetTexByName(
@@ -117,11 +161,8 @@ internal void Init()
 		COLOUR_F32_GREEN);
 	g_cursorId = cursor->id;
 
-	BuildGrid();
+	// BuildGrid();
 
-	// init sim module
-	Sim_Init(g_engine, g_scene);
-	
 	// register inputs
 	g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, MOVE_LEFT);
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, MOVE_RIGHT);
@@ -144,6 +185,9 @@ internal void Init()
 
 	g_engine.input.AddAction(Z_INPUT_CODE_ESCAPE, Z_INPUT_CODE_NULL, ACTION_MENU);
 
+	// init sub-state module
+	Ed_Init(g_engine);
+	Sim_Init(g_engine, g_scene);
 	Menu_Init(g_engine);
 }
 
@@ -260,7 +304,7 @@ ze_internal void PausedTick(ZEFrameTimeInfo timing, RNGTickInfo info)
 			break;
 			
 			case 2:
-			for (i32 i = 0; i < 3; ++i)
+			for (i32 i = 0; i < 5; ++i)
 			{
 				Sim_TickBackward(info);
 			}
@@ -295,29 +339,46 @@ ze_internal void PlayingTick(ZEFrameTimeInfo timing, RNGTickInfo info)
 	Sim_TickForward(info, YES);
 }
 
-ze_external void App_SetApplicationState(int newState)
+ze_internal void App_SetAppState(int newState)
 {
 	if (g_applicationState == newState) { return; }
 	i32 previous = g_applicationState;
-	g_applicationState = newState;
-	switch (g_applicationState)
+	
+	switch (newState)
 	{
-		case APPLICATION_STATE_GAME:
-		Menu_Hide();
+		case APP_STATE_GAME:
+		RNGPRINT("App - game\n");
+		g_applicationState = newState;
+		Ed_Disable();
 		break;
-		case APPLICATION_STATE_PAUSED:
-		Menu_Show(-1);
+
+		case APP_STATE_EDITOR:
+		RNGPRINT("App - editor\n");
+		g_applicationState = newState;
+		Ed_Enable();
+		break;
+
+		default:
+		RNGPRINT("Unknown app state %d\n", newState);
 		break;
 	}
 }
 
+internal i32 CheckMainMenuOn(frameInt frameNumber)
+{
+	if (g_engine.input.HasActionToggledOn(ACTION_MENU, frameNumber))
+	{
+		// App_SetAppState(APP_STATE_PAUSED);
+		RNGPRINT("Main Menu On\n");
+		g_engine.textCommands.QueueCommand(RNG_CMD_MENU_ON);
+		return YES;
+	}
+	return NO;
+}
+
 internal void Game_Tick(ZEFrameTimeInfo timing)
 {
-	if (g_engine.input.HasActionToggledOn(ACTION_MENU, timing.frameNumber))
-	{
-		App_SetApplicationState(APPLICATION_STATE_PAUSED);
-		return;
-	}
+	if (CheckMainMenuOn(timing.frameNumber)) { return; }
 	UpdateCursor(g_scene);
 	
 	RNGTickInfo info = {};
@@ -357,23 +418,25 @@ internal void Game_Tick(ZEFrameTimeInfo timing)
 
 internal void Tick(ZEFrameTimeInfo timing)
 {
+	if (g_bAppMenuOpen == YES)
+	{
+		Menu_Tick(timing);
+		return;
+	}
 	switch (g_applicationState)
 	{
-		case APPLICATION_STATE_GAME:
+		case APP_STATE_GAME:
 		Game_Tick(timing);
 		break;
 
-		case APPLICATION_STATE_EDITOR:
-
-		break;
-
-		case APPLICATION_STATE_PAUSED:
-		Menu_Tick(timing);
+		case APP_STATE_EDITOR:
+		if (CheckMainMenuOn(timing.frameNumber)) { return; }
+		Ed_Tick(timing);
 		break;
 
 		default:
-		RNGPRINT("Unknown app state %d\n", g_applicationState);
-		App_SetApplicationState(APPLICATION_STATE_GAME);
+		RNGPRINT("Unknown app state %d - switching to game\n", g_applicationState);
+		App_SetAppState(APP_STATE_GAME);
 		break;
 	}
 }

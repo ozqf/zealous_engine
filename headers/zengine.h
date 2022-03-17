@@ -154,6 +154,8 @@ struct ZSceneManager
 	void (*SetClearColour)(ColourF32 colour);
     u32 (*GetSceneFlags)(zeHandle sceneHandle);
     void (*SetSceneFlags)(zeHandle sceneHandle, u32 flags);
+    void (*SetSceneFlag)(zeHandle sceneHandle, i32 mask, i32 bValue);
+    void (*ApplyDefaultOrthoProjection)(zeHandle handle, f32 verticalExtent, f32 aspectRatio);
 
     // utilities for creating basic draw objects
     ZRDrawObj* (*AddCube)(zeHandle scene, char* materialName);

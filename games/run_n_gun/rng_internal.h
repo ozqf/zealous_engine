@@ -18,9 +18,14 @@ printf(fmt, __VA_ARGS__)
 #define GAME_STATE_PLAYING 0
 #define GAME_STATE_PAUSED 1
 
-#define APPLICATION_STATE_GAME 0
-#define APPLICATION_STATE_EDITOR 1
-#define APPLICATION_STATE_PAUSED 2
+#define APP_STATE_GAME 0
+#define APP_STATE_EDITOR 1
+
+#define RNG_CMD_MENU_ON "rng main-menu-on"
+#define RNG_CMD_MENU_OFF "rng main-menu-off"
+#define RNG_CMD_GAME "rng game"
+#define RNG_CMD_EDITOR "rng editor"
+#define RNG_CMD_APP_TOGGLE "rng app-toggle"
 
 #define SCENE_ORDER_GAME 0
 #define SCENE_ORDER_UI 1
@@ -458,8 +463,13 @@ ze_external void EntPlayer_SetInput(RNGTickInfo info);
 
 ze_external void Sim_DebugScanFrameData(i32 firstFrame, i32 maxFrames);
 
+// editor
+ze_external void Ed_Init(ZEngine engine);
+ze_external void Ed_Enable();
+ze_external void Ed_Disable();
+ze_external void Ed_Tick(ZEFrameTimeInfo timing);
+
 // application
-ze_external void App_SetApplicationState(int newState);
 ze_external void Menu_Init(ZEngine engine);
 ze_external void Menu_Show(int pageOverride);
 ze_external void Menu_Hide();

@@ -125,7 +125,7 @@ ze_external void Menu_Tick(ZEFrameTimeInfo timing)
 	i32 bDirty = NO;
 	if (g_engine.input.HasActionToggledOn(ACTION_MENU, timing.frameNumber))
 	{
-		App_SetApplicationState(APPLICATION_STATE_GAME);
+		g_engine.textCommands.QueueCommand(RNG_CMD_MENU_OFF);
 		return;
 	}
 
@@ -150,9 +150,10 @@ ze_external void Menu_Tick(ZEFrameTimeInfo timing)
 		{
 			g_engine.textCommands.QueueCommand("quit");
 		}
-		else if (ZStr_Compare(item, "options") == 0)
+		else if (ZStr_Compare(item, "toggle_mode") == 0)
 		{
-			RNGPRINT("Open options menu\n");
+			RNGPRINT("Toggle game/editor mode\n");
+			g_engine.textCommands.QueueCommand(RNG_CMD_APP_TOGGLE);
 		}
 		else if (ZStr_Compare(item, "start") == 0)
 		{
@@ -182,7 +183,7 @@ ze_external void Menu_Init(ZEngine engine)
 	AllocTextMenu(&g_mainMenu, 16, MAIN_MENU_BUF_SIZE);
 	g_mainMenu.header = MAIN_MENU_HEADER;
 	AddMenuItem(&g_mainMenu, "START", "start");
-	AddMenuItem(&g_mainMenu, "OPTIONS", "options");
+	AddMenuItem(&g_mainMenu, "GAME/EDITOR", "toggle_mode");
 	AddMenuItem(&g_mainMenu, "QUIT", "quit");
 	RefreshMenu(&g_mainMenu);
 

@@ -41,6 +41,22 @@ static void ZStr_ToLower(char* str)
     }
 }
 #endif
+
+internal i32 ZStr_Equal(const char *a, const char *b)
+{
+    while (*a == *b)
+    {
+        // End of string
+        if (*a == '\0')
+        {
+            return YES;
+        }
+        ++a;
+        ++b;
+    }
+    return NO;
+}
+
 /**
  * if strings are equal, return 0
  * if a is first alphabetically, return -1
