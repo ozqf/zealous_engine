@@ -249,7 +249,6 @@ ze_internal void TickWorldEdit(f32 delta, Vec2 mouseWorldPos, frameInt frameNumb
 	{
 		if (g_engine.input.HasActionToggledOn(ED_MOUSE_2, frameNumber))
 		{
-			RNGPRINT("Clear selection\n");
 			SetSelectedVolume(0);
 			vol = NULL;
 		}
@@ -295,17 +294,14 @@ ze_internal void TickWorldEdit(f32 delta, Vec2 mouseWorldPos, frameInt frameNumb
 			if (g_engine.input.HasActionToggledOn(ED_MOUSE_1, frameNumber))
 			{
 				g_dragCorner = SelectDragCorner(mouseWorldPos, g, vol);
-				RNGPRINT("Drag start corner %d\n", g_dragCorner);
 			}
 		}
 		else if (g_engine.input.GetActionValue(ED_MOUSE_1) != 0)
 		{
-			RNGPRINT("Drag corner %d\n", g_dragCorner);
 			MouseDragVolume(mouseWorldPos, g, vol);
 		}
 		else
 		{
-			RNGPRINT("Drag stop\n");
 			g_dragCorner = DRAG_CORNER_NONE;
 		}
 	}

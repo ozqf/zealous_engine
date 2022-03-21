@@ -260,7 +260,7 @@ ze_internal void Sync(Ent2d* ent)
 	obj->data.quad.colour = c;
 	
 	// camera
-	#if 0
+	#if 1
 	Transform camera = g_engine.scenes.GetCamera(g_scene);
 	camera.pos.x = body.t.pos.x;
 	camera.pos.y = body.t.pos.y;

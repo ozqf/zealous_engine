@@ -1,4 +1,5 @@
 #include "rng_internal.h"
+#include "../../plugins/ze_map2d.h"
 
 struct WorldVolume
 {
@@ -293,7 +294,39 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	g_entities.Truncate();
 	
 	// static scene
-	Sim_RestoreStaticScene(0);
+	// test read mapfile
+	Map2d* mapData = Map2d_ReadEmbedded();
+	RNGPRINT("Sim - read map with %d aabbs\n", mapData->numAABBs);
+	Map2dAABB* aabbs = (Map2dAABB*)((i8*)mapData + mapData->offsetAABBs);
+
+	for (i32 i = 0; i < mapData->numAABBs; ++i)
+	{
+		Map2dAABB* aabb = &aabbs[i];
+		Point2 min, max;
+		min.x = (i32)aabb->min.x;
+		min.y = (i32)aabb->min.y;
+		max.x = (i32)aabb->max.x;
+		max.y = (i32)aabb->max.y;
+		Point2 size;
+		size.x = max.x - min.x + 1;
+		size.y = max.y - min.y + 1;
+		if (aabb->type == 1)
+		{
+			f32 halfWidth = (f32)size.x * 0.5f;
+			Vec2 pos = { (f32)min.x + halfWidth, (f32)max.y };
+			AddPlatform(pos, (f32)size.x);
+		}
+		else
+		{
+			AddStaticAABB(min, size);
+		}
+	}
+
+	// free map
+	Map2d_Free(mapData);
+
+	// Sim_RestoreStaticScene(0);
+
 	
 	const i32 numDebris = 0;
 	// add ents
@@ -307,9 +340,10 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 
 	// spawn a player
 	Sim_SpawnPlayer({0, -2});
-
+	#if 0
 	Sim_SpawnSpawner({-10, 4});
 	Sim_SpawnSpawner({10, 4});
+	#endif
 	
 	FrameHeader* header = Sim_WriteFrame(frames, 0);
 	return header;
@@ -701,6 +735,7 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 	g_debugText = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));
 	
 	InitEntityTypes();
+	Map2d_Init(engine);
 
 	Sim_StartNewGame("e1m1");
 

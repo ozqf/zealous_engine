@@ -27,7 +27,7 @@ set compilerDefines=/DPARANOID=1
 @rem === DLL ===
 @rem platform
 set compIn1=../games/run_n_gun/*.cpp
-set compIn2=
+set compIn2=../plugins/map2d/*.cpp
 set compIn3=../plugins/physics2d/*.cpp
 
 set linkInA=../lib/box2d/box2d.lib
