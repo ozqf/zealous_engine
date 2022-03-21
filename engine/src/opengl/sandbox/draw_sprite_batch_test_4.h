@@ -493,8 +493,8 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     { g_orthographicSize += 1.f * delta; }
 
     M4x4_CREATE(projection)
-    ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
-    ZE_SetupOrthoProjection(projection.cells, g_orthographicSize, 16.f / 9.f);
+    ZE_SetupDefault3DProjection(projection.cells, Window_GetInfo().aspect);
+    ZE_SetupOrthoProjection(projection.cells, g_orthographicSize, Window_GetInfo().aspect);
     ZR_SetProgM4x4(g_batchDrawShader.handle, "u_projection", projection.cells);
 
     M4x4_CREATE(view)

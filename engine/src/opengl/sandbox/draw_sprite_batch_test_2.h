@@ -249,7 +249,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_2()
     ZR_SetProg1i(g_shader.handle, "u_isBillboard", 1);
 
     M4x4_CREATE(projection)
-        ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
+        ZE_SetupDefault3DProjection(projection.cells, Window_GetInfo().aspect);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
 
     // rotate camera

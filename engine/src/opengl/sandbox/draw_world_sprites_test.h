@@ -225,8 +225,8 @@ ze_external void ZRGL_Debug_DrawWorldSprites()
         M4x4_SetToIdentity(modelView.cells);
         M4x4_RotateByAxis(modelView.cells, 45.f * DEG2RAD, 1, 0, 0);
         M4x4_SetToIdentity(prjMatrix.cells);
-
-        ZE_SetupDefault3DProjection(prjMatrix.cells, 16.f / 9.f);
+        
+        ZE_SetupDefault3DProjection(prjMatrix.cells, Window_GetInfo().aspect);
 
         // allocate memory for mesh - we will build it at draw time
         g_mesh = ZAssets_AllocEmptyMesh("draw_world_sprites_test", 1024 * 3);

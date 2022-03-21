@@ -59,6 +59,7 @@ Zealous Engine public header
 #define COLOUR_F32_LIGHT_GREY { 0.5f, 0.5f, 0.5f, 1.f }
 
 #define ZR_TEX_SAMPLER_DEFAULT 0
+#define ZR_DEFAULT_FOV 100.f
 
 struct ZGameDef
 {
@@ -150,7 +151,9 @@ struct ZSceneManager
     // scene properties
     Transform (*GetCamera)(zeHandle sceneHandle);
     void (*SetCamera)(zeHandle sceneHandle, Transform t);
-    void (*SetProjection)(zeHandle sceneHandle, M4x4 projection);
+    void (*SetProjectionManual)(zeHandle sceneHandle, M4x4 projection);
+    void (*SetProjection3D)(zeHandle sceneHandle, f32 fov);
+    void (*SetProjectionOrtho)(zeHandle sceneHandle, f32 verticalExtent);
 	void (*SetClearColour)(ColourF32 colour);
     u32 (*GetSceneFlags)(zeHandle sceneHandle);
     void (*SetSceneFlags)(zeHandle sceneHandle, u32 flags);
@@ -197,6 +200,7 @@ struct ZSystem
     void* (*Realloc)(void* ptr, zeSize size);
     void (*Free)(void* ptr);
     f64 (*QueryClock)();
+    ZScreenInfo (*GetScreenInfo)();
 
     // When something unrecoverable has happened
     void (*Fatal)(const char *msg);

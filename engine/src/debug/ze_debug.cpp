@@ -31,6 +31,6 @@ ze_external zErrorCode ZDebug_Init_2()
 	TRANSFORM_CREATE(camera)
 	M4x4_CREATE(projection)
 	engine.scenes.SetCamera(g_scene, camera);
-	engine.scenes.SetProjection(g_scene, projection);
+	engine.scenes.SetProjectionManual(g_scene, projection);
 	return ZE_ERROR_NONE;
 }

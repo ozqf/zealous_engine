@@ -171,6 +171,11 @@ inline Vec2 Vec2_FromVec3(Vec3 v)
 	return {v.x, v.y};
 }
 
+inline Vec2 Vec2_FromPoint2(Point2 p)
+{
+	return { (f32)p.x, (f32)p.y };
+}
+
 inline Vec2 Vec2_Add(Vec2 to, Vec2 amount)
 {
 	return { to.x + amount.x, to.y + amount.y };

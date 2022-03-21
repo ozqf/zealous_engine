@@ -416,26 +416,21 @@ internal void Init()
     g_gameScene = g_engine.scenes.AddScene(0, 1024, 0);
 
     // setup camera and projection
-    M4x4_CREATE(projection)
-    ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
+    g_engine.scenes.SetProjection3D(g_gameScene, ZR_DEFAULT_FOV);
     Transform_SetToIdentity(&g_camera);
     Transform_SetRotationDegrees(&g_camera, -75, 0, 0);
     g_camera.pos.y = 6.f;
     g_camera.pos.z = 2.5f;
 
     g_engine.scenes.SetCamera(g_gameScene, g_camera);
-    g_engine.scenes.SetProjection(g_gameScene, projection);
 
     //////////////////////////////////////////////////////////////
     // Create UI scene
     //////////////////////////////////////////////////////////////
 
 	g_uiScene = g_engine.scenes.AddScene(0, 1024, 0);
-
-    M4x4_CREATE(prj)
-    ZE_SetupOrthoProjection(prj.cells, 8, 16.f / 9.f);
-    g_engine.scenes.SetProjection(g_uiScene, prj);
-
+    g_engine.scenes.SetProjectionOrtho(g_uiScene, 8);
+    
 	// find charsheet texture
 	i32 textureId = g_engine.assets.GetTexByName(
         FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME)->header.id;

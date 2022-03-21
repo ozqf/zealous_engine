@@ -121,12 +121,7 @@ internal void Stub_Init()
     g_debugCam = g_engine.scenes.GetCamera(g_gameScene);
     g_debugOrigin = g_debugCam;
 
-    M4x4_CREATE(projection)
-    ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
-
-    
-    // g_engine.scenes.SetCamera(g_gameScene, camera);
-    g_engine.scenes.SetProjection(g_gameScene, projection);
+    g_engine.scenes.SetProjection3D(g_gameScene, 100.f);
 }
 
 internal void Stub_Shutdown()

@@ -266,6 +266,7 @@ int CALLBACK WinMain(
 	sys.Realloc = Platform_Realloc;
 	sys.Free = Platform_Free;
 	sys.QueryClock = Platform_QueryClock;
+	sys.GetScreenInfo = Window_GetInfo;
 	sys.Fatal = Platform_Fatal;
 	sys.RegisterCrashDumpFunction = RegisterCrashDumpFunction;
 	

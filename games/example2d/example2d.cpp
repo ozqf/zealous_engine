@@ -74,11 +74,9 @@ ze_internal void Init()
     BuildTileAtlas();
 
     g_scene = g_engine.scenes.AddScene(0, ENTITY_COUNT, sizeof(Ent2d));
+    g_engine.scenes.SetProjectionOrtho(g_scene, screenSize);
 
-    M4x4_CREATE(prj)
-    ZE_SetupOrthoProjection(prj.cells, screenSize, 16.f / 9.f);
-    g_engine.scenes.SetProjection(g_scene, prj);
-    
+
     #if 1// create some random objects
     i32 count = ENTITY_COUNT;
     // i32 count = 1024;
@@ -163,8 +161,9 @@ ze_internal void Tick(ZEFrameTimeInfo timing)
         pos->x += ent->velocity.x * (f32)timing.interval;
         pos->y += ent->velocity.y * (f32)timing.interval;
 
+        f32 aspectRatio = g_engine.system.GetScreenInfo().aspect;
         f32 screenSizeY = screenSize;
-        f32 screenSizeX = screenSizeY * (16.f / 9.f);
+        f32 screenSizeX = screenSizeY * aspectRatio;
 
         if (pos->x > screenSizeX) { pos->x = -screenSizeX; }
         if (pos->x < -screenSizeX) { pos->x = screenSizeX; }

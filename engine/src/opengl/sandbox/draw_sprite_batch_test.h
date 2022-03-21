@@ -239,7 +239,7 @@ ze_external void ZRSandbox_DrawSpriteBatch()
     ZR_SetProg1i(g_shader.handle, "u_dataTexSize", dataTextureSize);
 
     M4x4_CREATE(projection)
-    ZE_SetupDefault3DProjection(projection.cells, 16.f / 9.f);
+    ZE_SetupDefault3DProjection(projection.cells, Window_GetInfo().aspect);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection.cells);
 
     M4x4_CREATE(view)

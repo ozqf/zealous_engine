@@ -422,6 +422,9 @@ ze_external i32 Sim_ReserveStaticIds(i32 count);
 ze_external ZEngine GetEngine();
 ze_external zeHandle GetGameScene();
 
+ze_external Vec2 App_GetCursorScreenPos();
+
+
 // general entities
 ze_external Ent2d* Sim_GetFreeEntity(i32 id, i32 type);
 ze_external Ent2d* Sim_GetEntById(i32 id);
@@ -468,6 +471,7 @@ ze_external void Ed_Init(ZEngine engine);
 ze_external void Ed_Enable();
 ze_external void Ed_Disable();
 ze_external void Ed_Tick(ZEFrameTimeInfo timing);
+ze_external char* Ed_GetDebugText();
 
 // application
 ze_external void Menu_Init(ZEngine engine);

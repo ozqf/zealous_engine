@@ -46,6 +46,11 @@ struct ZEBuffer
     {
         return capacity - (cursor - start);
     }
+
+    i8* End()
+    {
+        return start + capacity;
+    }
 	
 	f32 PercentageUsed()
 	{

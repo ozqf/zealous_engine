@@ -90,6 +90,7 @@ typedef u32 zeInputCode;
 #define Z_INPUT_CODE_F12 71
 #define Z_INPUT_CODE_BACKSLASH 72
 #define Z_INPUT_CODE_FORWARDSLASH 73
+#define Z_INPUT_CODE_DELETE 74
 
 #define Z_INPUT_CODE__COUNT__ 74
 

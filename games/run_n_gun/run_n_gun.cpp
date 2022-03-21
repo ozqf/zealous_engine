@@ -68,46 +68,6 @@ ZCMD_CALLBACK(Exec_RNGCommand)
 	}
 }
 
-ze_internal void BuildGrid()
-{
-	i32 gridLines = 24;
-	i32 gridVertCount = gridLines * gridLines * 3;
-	ZRMeshAsset* grid = g_engine.assets.AllocEmptyMesh("grid", gridVertCount);
-	const f32 lineSize = 0.02f;
-
-	// vertical
-	Vec3 bl = { -lineSize, -8, 0 };
-	Vec3 br = { lineSize, -8, 0 }; 
-	Vec3 tl = { -lineSize, 8, 0 }; 
-	Vec3 tr = { lineSize, 8, 0 };
-	Vec3 n = { 0, 0, -1 };
-	Vec3 origin = { -12.f, 0.f };
-	for (i32 i = 0; i < gridLines; ++i)
-	{
-		grid->data.AddTri(Vec3_Add(bl, origin), Vec3_Add(br, origin), Vec3_Add(tr, origin), {}, {}, {}, n, n, n);
-		grid->data.AddTri(Vec3_Add(bl, origin), Vec3_Add(tr, origin), Vec3_Add(tl, origin), {}, {}, {}, n, n, n);
-		origin.x += 1.f;
-	}
-	// horizontal
-	bl = { -12, -lineSize, 0 };
-	br = { 12, -lineSize, 0 }; 
-	tl = { -12, lineSize, 0 }; 
-	tr = { 12, lineSize, 0 };
-	origin = { 0.f, -12.f };
-	for (i32 i = 0; i < gridLines; ++i)
-	{
-		grid->data.AddTri(Vec3_Add(bl, origin), Vec3_Add(br, origin), Vec3_Add(tr, origin), {}, {}, {}, n, n, n);
-		grid->data.AddTri(Vec3_Add(bl, origin), Vec3_Add(tr, origin), Vec3_Add(tl, origin), {}, {}, {}, n, n, n);
-		origin.y += 1.f;
-	}
-	
-	ZRDrawObj* gridObj = g_engine.scenes.AddObject(g_scene);
-	Transform_SetToIdentity(&gridObj->t);
-	i32 matId = g_engine.assets.GetMaterialByName(FALLBACK_MATERIAL_NAME)->header.id;
-	gridObj->data.SetAsMesh(grid->header.id, matId);
-	RNGPRINT("Grid draw obj Id %d, mat Id %d\n", gridObj->id, matId);
-}
-
 internal void Init()
 {
 	// init physics plugin
@@ -123,18 +83,12 @@ internal void Init()
 	// setup scene
 	g_scene = g_engine.scenes.AddScene(SCENE_ORDER_GAME, ENTITY_COUNT, sizeof(Ent2d));
 	g_engine.scenes.SetClearColour(COLOUR_F32_BLACK);
-	g_engine.scenes.ApplyDefaultOrthoProjection(g_scene, screenSize, 16.f / 9.f);
-	// M4x4_CREATE(prj)
-	// ZE_SetupOrthoProjection(prj.cells, screenSize, 16.f / 9.f);
-	// g_engine.scenes.SetProjection(g_scene, prj);
+	g_engine.scenes.SetProjectionOrtho(g_scene, 8);
 	
 	// setup UI scene
 	g_uiScene = g_engine.scenes.AddScene(SCENE_ORDER_UI, 1024, 0);
-	g_engine.scenes.ApplyDefaultOrthoProjection(g_uiScene, 8, 16.f / 9.f);
-    // M4x4_CREATE(uiPrj)
-    // ZE_SetupOrthoProjection(uiPrj.cells, 8, 16.f / 9.f);
-    // g_engine.scenes.SetProjection(g_uiScene, uiPrj);
-	
+	g_engine.scenes.SetProjectionOrtho(g_uiScene, 8);
+    
 	// create debug text object in ui scene
 	i32 charSettextureId = g_engine.assets.GetTexByName(
         FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME)->header.id;
@@ -160,8 +114,6 @@ internal void Init()
 		{0.2f, 0.2f},
 		COLOUR_F32_GREEN);
 	g_cursorId = cursor->id;
-
-	// BuildGrid();
 
 	// register inputs
 	g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, MOVE_LEFT);
@@ -189,6 +141,8 @@ internal void Init()
 	Ed_Init(g_engine);
 	Sim_Init(g_engine, g_scene);
 	Menu_Init(g_engine);
+
+	App_SetAppState(APP_STATE_EDITOR);
 }
 
 internal void Shutdown()
@@ -196,22 +150,21 @@ internal void Shutdown()
 
 }
 
-internal void UpdateCursor(zeHandle worldSceneId)
+internal void UpdateCursor()
 {
 	g_mousePos.x = g_engine.input.GetActionValueNormalised("mouseX");
 	g_mousePos.y = -g_engine.input.GetActionValueNormalised("mouseY");
 	// mouse is range -1 to 1, scale up mouse by screen size
-	// TODO: replace hard-coded aspect ratio!
-	f32 aspectRatio = (16.f / 9.f);
+	
+	f32 aspectRatio = g_engine.system.GetScreenInfo().aspect;
 	g_mousePos.x *= screenSize * aspectRatio;
 	g_mousePos.y *= screenSize;
+}
 
-	// g_mousePos.x += camera.pos.x;
-	// g_mousePos.y += camera.pos.y;
-
+internal void UpdateGameCursor(zeHandle worldSceneId)
+{
 	ZRDrawObj *cursor = g_engine.scenes.GetObject(worldSceneId, g_cursorId);
 	if (cursor == NULL) { return; }
-
 	g_mouseWorldPos = g_mousePos;
 	
 	// offset by camera position
@@ -224,9 +177,22 @@ internal void UpdateCursor(zeHandle worldSceneId)
 	cursor->t.pos.y = g_mouseWorldPos.y;
 }
 
+ze_external Vec2 App_GetCursorScreenPos()
+{
+	return g_mousePos;
+}
+
 internal void UpdateDebugText()
 {
-	char* str = Sim_GetDebugText();
+	char* str = "";
+	if (g_applicationState == APP_STATE_GAME)
+	{
+		str = Sim_GetDebugText();
+	}
+	else if (g_applicationState == APP_STATE_EDITOR)
+	{
+		str = Ed_GetDebugText();
+	}
 	// RNGPRINT("%s\n", str);
 	ZRDrawObj* obj = g_engine.scenes.GetObject(g_uiScene, g_debugTextObj);
 	if (obj == NULL)
@@ -349,12 +315,14 @@ ze_internal void App_SetAppState(int newState)
 		case APP_STATE_GAME:
 		RNGPRINT("App - game\n");
 		g_applicationState = newState;
+		g_engine.scenes.SetSceneFlag(g_scene, ZSCENE_FLAG_NO_DRAW, NO);
 		Ed_Disable();
 		break;
 
 		case APP_STATE_EDITOR:
 		RNGPRINT("App - editor\n");
 		g_applicationState = newState;
+		g_engine.scenes.SetSceneFlag(g_scene, ZSCENE_FLAG_NO_DRAW, YES);
 		Ed_Enable();
 		break;
 
@@ -379,7 +347,7 @@ internal i32 CheckMainMenuOn(frameInt frameNumber)
 internal void Game_Tick(ZEFrameTimeInfo timing)
 {
 	if (CheckMainMenuOn(timing.frameNumber)) { return; }
-	UpdateCursor(g_scene);
+	UpdateGameCursor(g_scene);
 	
 	RNGTickInfo info = {};
 	SetInputBit(&info.buttons, INPUT_BIT_LEFT, MOVE_LEFT);
@@ -412,12 +380,11 @@ internal void Game_Tick(ZEFrameTimeInfo timing)
 		PlayingTick(timing, info);
 		break;
 	}
-
-	UpdateDebugText();
 }
 
 internal void Tick(ZEFrameTimeInfo timing)
 {
+	UpdateCursor();
 	if (g_bAppMenuOpen == YES)
 	{
 		Menu_Tick(timing);
@@ -439,6 +406,7 @@ internal void Tick(ZEFrameTimeInfo timing)
 		App_SetAppState(APP_STATE_GAME);
 		break;
 	}
+	UpdateDebugText();
 }
 
 Z_GAME_WINDOWS_LINK_FUNCTION

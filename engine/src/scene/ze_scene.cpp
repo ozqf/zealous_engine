@@ -8,6 +8,8 @@ ze_internal ZEBuffer g_drawCommands;
 ze_internal zeHandle g_drawOrderList[MAX_SCENES];
 ze_internal ColourF32 g_clearColour = { 0.1f, 0.1f, 0.1f, 1 };
 
+ze_external void ZScene_SetProjection3D(zeHandle sceneHandle, f32 fov);
+
 ///////////////////////////////////////////////////////////
 // Scenes
 ///////////////////////////////////////////////////////////
@@ -48,10 +50,9 @@ ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity, zeSize userData
 
     // set defaults
     Transform_SetToIdentity(&scene->camera);
-    // Transform_SetRotationDegrees(&scene->camera, 45.f, 0, 0);
     scene->camera.pos.z = 4.f;
-    ZE_SetupDefault3DProjection(scene->projection.cells, 16.f / 9.f);
-
+    ZScene_SetProjection3D(scene->id, 100.f);
+    
     printf("added scene %d - capacity %d\n", result, capacity);
     return result;
 }
@@ -115,11 +116,28 @@ ze_external void ZScene_SetCamera(zeHandle sceneHandle, Transform t)
     scene->camera = t;
 }
 
+ze_external void ZScene_SetProjection3D(zeHandle sceneHandle, f32 fov)
+{
+    ZRScene *scene = GetSceneByHandle(sceneHandle);
+    ZE_ASSERT(scene != NULL, "SetProjectionManual - no scene found")
+    scene->projectionMode = ZSCENE_PROJECTION_MODE_3D;
+    scene->projectionInfo.preset3d.fov = fov;
+}
+
+ze_external void Zscene_SetProjectionOrtho(zeHandle sceneHandle, f32 verticalExtent)
+{
+    ZRScene *scene = GetSceneByHandle(sceneHandle);
+    ZE_ASSERT(scene != NULL, "SetProjectionManual - no scene found")
+    scene->projectionMode = ZSCENE_PROJECTION_MODE_ORTHO;
+    scene->projectionInfo.presetOrth.verticalExtent = verticalExtent;
+}
+
 ze_external void ZScene_SetProjection(zeHandle sceneHandle, M4x4 projection)
 {
     ZRScene *scene = GetSceneByHandle(sceneHandle);
-    ZE_ASSERT(scene != NULL, "SetProjection - no scene found")
-    scene->projection = projection;
+    ZE_ASSERT(scene != NULL, "SetProjectionManual - no scene found")
+    scene->projectionMode = ZSCENE_PROJECTION_MODE_MANUAL;
+    scene->projectionInfo.custom.projection = projection;
 }
 
 internal void SetClearColour(ColourF32 colour)
@@ -300,7 +318,9 @@ ze_external ZSceneManager ZScene_RegisterFunctions()
     result.GetObjectByIndex = ZScene_GetObjectByIndex;
     
     result.SetCamera = ZScene_SetCamera;
-    result.SetProjection = ZScene_SetProjection;
+    result.SetProjectionManual = ZScene_SetProjection;
+    result.SetProjection3D = ZScene_SetProjection3D;
+    result.SetProjectionOrtho = Zscene_SetProjectionOrtho;
 	result.SetClearColour = SetClearColour;
     result.GetSceneFlags = ZScene_GetFlags;
     result.SetSceneFlags = ZScene_SetFlags;

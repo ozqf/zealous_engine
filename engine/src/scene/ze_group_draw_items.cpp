@@ -276,6 +276,30 @@ ze_internal void ZScene_BuildDrawGroups(ZEBuffer* scratch, ZRScene* scene)
     #endif
 }
 
+ze_internal void SetupSceneProjection(ZRScene* scene, M4x4* target)
+{
+    ZE_ASSERT(scene != NULL, "Target scene is null")
+    ZE_ASSERT(target != NULL, "Target matrix is null")
+    f32 aspectRatio = Window_GetInfo().aspect;
+    switch (scene->projectionMode)
+    {
+        case ZSCENE_PROJECTION_MODE_3D:
+        ZE_SetupDefault3DProjection(target->cells, aspectRatio);
+        break;
+
+        case ZSCENE_PROJECTION_MODE_ORTHO:
+        {
+            f32 extent = scene->projectionInfo.presetOrth.verticalExtent;
+            ZE_SetupOrthoProjection(target->cells, extent, aspectRatio);
+        }
+        break;
+
+        default:
+        *target = scene->projectionInfo.custom.projection;
+        break;
+    }
+}
+
 ze_internal void ZScene_WriteSceneWithGrouping(ZEBuffer *buf, ZRScene *scene)
 {
     g_scratch.Clear(NO);
@@ -283,7 +307,8 @@ ze_internal void ZScene_WriteSceneWithGrouping(ZEBuffer *buf, ZRScene *scene)
     // setup camera/projection
     BUF_BLOCK_BEGIN_STRUCT(setCamera, ZRDrawCmdSetCamera, buf, ZR_DRAW_CMD_SET_CAMERA);
     setCamera->camera = scene->camera;
-    setCamera->projection = scene->projection;
+    SetupSceneProjection(scene, &setCamera->projection);
+    //setCamera->projection = scene->projection;
 
     ZScene_BuildDrawGroups(&g_scratch, scene);
 }
@@ -295,7 +320,7 @@ ze_internal void ZScene_WriteSceneNoGrouping(ZEBuffer *buf, ZRScene *scene)
     // setup camera/projection
     BUF_BLOCK_BEGIN_STRUCT(setCamera, ZRDrawCmdSetCamera, buf, ZR_DRAW_CMD_SET_CAMERA);
     setCamera->camera = scene->camera;
-    setCamera->projection = scene->projection;
+    SetupSceneProjection(scene, &setCamera->projection);
 
     for (i32 i = 0; i < len; ++i)
     {

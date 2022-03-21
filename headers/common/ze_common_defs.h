@@ -34,6 +34,7 @@ typedef f64 timeFloat;
 typedef i32 zErrorCode;
 typedef int ErrorCode; // TODO - replace uses of this typedef
 typedef i32 zeHandle;
+#define ZE_EMPTY_HANDLE 0
 
 static_assert(sizeof(char) == 1, "Code requires char size == 1");
 static_assert(sizeof(i8) == 1, "Code requires i8 size == 1");

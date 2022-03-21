@@ -172,10 +172,8 @@ ze_external void Menu_Init(ZEngine engine)
 	RNGPRINT("Init menus\n");
 	g_engine = engine;
 	g_menuScene = g_engine.scenes.AddScene(SCENE_ORDER_MENU, 1024, 0);
-	M4x4_CREATE(uiPrj)
-    ZE_SetupOrthoProjection(uiPrj.cells, 8, 16.f / 9.f);
-    g_engine.scenes.SetProjection(g_menuScene, uiPrj);
-
+	g_engine.scenes.SetProjectionOrtho(g_menuScene, 8);
+	
 	g_engine.input.AddAction(Z_INPUT_CODE_W, Z_INPUT_CODE_NULL, "menu_up");
 	g_engine.input.AddAction(Z_INPUT_CODE_S , Z_INPUT_CODE_NULL, "menu_down");
 	g_engine.input.AddAction(Z_INPUT_CODE_SPACE, Z_INPUT_CODE_NULL, "menu_select");

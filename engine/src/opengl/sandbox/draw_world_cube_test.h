@@ -225,7 +225,7 @@ ze_external void ZRGL_Debug_DrawWorldCubeTest()
         M4x4_RotateByAxis(modelView.cells, 45.f * DEG2RAD, 1, 0, 0);
         M4x4_SetToIdentity(prjMatrix.cells);
 
-        ZE_SetupDefault3DProjection(prjMatrix.cells, 16.f / 9.f);
+        ZE_SetupDefault3DProjection(prjMatrix.cells, Window_GetInfo().aspect);
 
         glGenVertexArrays(1, &g_quadVAO);
         glGenBuffers(1, &g_quadVBO);
