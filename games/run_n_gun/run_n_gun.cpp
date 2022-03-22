@@ -142,7 +142,8 @@ internal void Init()
 	Sim_Init(g_engine, g_scene);
 	Menu_Init(g_engine);
 
-	App_SetAppState(APP_STATE_EDITOR);
+	// sometimes want to start in the editor
+	// App_SetAppState(APP_STATE_EDITOR);
 }
 
 internal void Shutdown()

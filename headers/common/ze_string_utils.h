@@ -22,6 +22,44 @@ static i32 ZStr_Len(const char* str)
     return count + 1;
 }
 
+static Point2 ZStr_FindToken(const char* str, i32 tokenIndex, char separator)
+{
+    Point2 p = {};
+    i32 currentTokenIndex = 0;
+    i32 i = 0;
+    i32 bInToken = NO;
+    char c;
+    while ((c = str[i++]) != '\0')
+    {
+        if (bInToken)
+        {
+            if (c == separator)
+            {
+                bInToken = NO;
+                if (currentTokenIndex == tokenIndex)
+                {
+                    p.y = i - 1;
+                    return p;
+                }
+                currentTokenIndex += 1;
+            }
+            continue;
+        }
+        else
+        {
+            if (c != separator)
+            {
+                bInToken = YES;
+                if (currentTokenIndex == tokenIndex)
+                {
+                    p.x = i - 1;
+                }
+            }
+        }
+    }
+    return p;
+}
+
 static char ZStr_CharToLower(char c)
 {
     if (c >= 65 && c <= 90)

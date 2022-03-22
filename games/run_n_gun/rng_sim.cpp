@@ -296,7 +296,9 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	// static scene
 	// test read mapfile
 	Map2d* mapData = Map2d_ReadEmbedded();
-	RNGPRINT("Sim - read map with %d aabbs\n", mapData->numAABBs);
+	Map2d_DebugDump(mapData);
+
+	// RNGPRINT("Sim - read map with %d aabbs\n", mapData->numAABBs);
 	Map2dAABB* aabbs = (Map2dAABB*)((i8*)mapData + mapData->offsetAABBs);
 
 	for (i32 i = 0; i < mapData->numAABBs; ++i)
@@ -313,7 +315,7 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 		if (aabb->type == 1)
 		{
 			f32 halfWidth = (f32)size.x * 0.5f;
-			Vec2 pos = { (f32)min.x + halfWidth, (f32)max.y };
+			Vec2 pos = { (f32)min.x + halfWidth, (f32)max.y + 1.f };
 			AddPlatform(pos, (f32)size.x);
 		}
 		else
