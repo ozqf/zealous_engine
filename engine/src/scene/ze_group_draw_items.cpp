@@ -46,17 +46,57 @@ inline void WriteTextCommand(ZEBuffer *buf, ZRDrawObj *textObj)
     spriteBatch->items = (ZRSpriteBatchItem *)buf->cursor;
     Vec2 charSize = Vec2_FromVec3(textObj->t.scale);
     f32 step = charSize.x * 2.f;
+
+    // measure whole string for alignment
+    // debugging - force alignment
+    i32 alignment = textObj->data.text.alignment;
+    // alignment = ZR_ALIGNMENT_CENTRE;
+    i32 width = 0;
+    i32 height = 0;
+    ZStr_Measure2D(str, &width, &height);
+
     Vec3 origin = textObj->t.pos;
-    origin.x += charSize.x;
-    origin.y -= charSize.x;
+    switch (alignment)
+    {
+        case ZR_ALIGNMENT_CENTRE:
+        {
+            i32 firstLineLen = ZStr_MeasureLine(str);
+            //printf("First line len %d\n", firstLineLen);
+            // quad renders at centre point
+            origin.x += charSize.x;
+            origin.y -= charSize.x;
+            origin.x -= step * (firstLineLen / 2);
+            origin.y += step * (height / 2);
+        }
+        break;
+        default: // NW
+        origin.x += charSize.x;
+        origin.y -= charSize.x;
+        break;
+    }
+    
     Vec3 drawPos = origin;
     for (i32 i = 0; i < len; ++i)
     {
         char c = str[i];
         if (c == '\n')
         {
-            drawPos.x = origin.x;
-            drawPos.y -= step;
+            switch (alignment)
+            {
+                case ZR_ALIGNMENT_CENTRE:
+                {
+                    i32 lineLen = ZStr_MeasureLine(&str[i + 1]);
+                    //printf("Line len from %d (%c): %d\n", i, str[i + 1], lineLen);
+                    drawPos.x = textObj->t.pos.x;
+                    drawPos.x -= step * (lineLen / 2);
+                    drawPos.y -= step;
+                }
+                break;
+                default: // NW
+                drawPos.x = origin.x;
+                drawPos.y -= step;
+                break;
+            }
             continue;
         }
         Vec2 uvMin, uvMax;

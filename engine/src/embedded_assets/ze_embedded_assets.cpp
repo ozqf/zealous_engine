@@ -39,7 +39,7 @@ ze_external zErrorCode ZEmbedded_Init()
 		tex->data,
 		bw_charset_width,
 		bw_charset_height,
-		COLOUR_U32_GREEN, COLOUR_U32_BLACK);
+		COLOUR_U32_WHITE, COLOUR_U32_BLACK);
 
 	// embedded black and white charset
 	tex = ZAssets_AllocTex(
@@ -50,7 +50,7 @@ ze_external zErrorCode ZEmbedded_Init()
 		tex->data,
 		bw_charset_width,
 		bw_charset_height,
-		COLOUR_U32_GREEN, COLOUR_U32_EMPTY);
+		COLOUR_U32_WHITE, COLOUR_U32_EMPTY);
 	// printf("Assigned %s to %d\n", FALLBACK_CHARSET_TEXTURE_NAME, tex->header.id);
 
 	////////////////////////////////////////////////

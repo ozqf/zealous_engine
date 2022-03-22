@@ -54,7 +54,15 @@ ze_internal void RefreshMenu(TextMenu* menu)
 		{
 			write += sprintf_s(write, end - write, "> ");
 		}
-		write += sprintf_s(write, end - write, "%s\n", menu->itemLabels[i]);
+		write += sprintf_s(write, end - write, "%s", menu->itemLabels[i]);
+		if (menu->index == i)
+		{
+			write += sprintf_s(write, end - write, " <\n");
+		}
+		else
+		{
+			write += sprintf_s(write, end - write, "\n");
+		}
 	}
 
 	i32 charSettextureId = g_engine.assets.GetTexByName(
@@ -63,14 +71,14 @@ ze_internal void RefreshMenu(TextMenu* menu)
 	txt->data.SetAsText(
 		menu->buf,
 		charSettextureId,
-		COLOUR_U32_BLACK,
 		COLOUR_U32_WHITE,
-		0);
-	txt->t.pos.y = 3.f;
+		COLOUR_U32_BLACK,
+		ZR_ALIGNMENT_CENTRE);
+	// txt->t.pos.y = 3.f;
 	txt->t.scale = { 0.2f, 0.2f, 0.2f };
 }
 
-ze_internal i32 MoveInMenu2(i32 currentIndex,i32 dir, i32 numItems)
+/*ze_internal i32 MoveInMenu2(i32 currentIndex,i32 dir, i32 numItems)
 {
 	currentIndex += dir;
 	if (currentIndex >= numItems)
@@ -82,7 +90,7 @@ ze_internal i32 MoveInMenu2(i32 currentIndex,i32 dir, i32 numItems)
 		currentIndex = numItems - 1;
 	}
 	return currentIndex;
-}
+}*/
 
 ze_internal void MoveInMenu(TextMenu* menu,i32 dir)
 {

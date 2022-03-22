@@ -93,7 +93,12 @@ internal void Init()
 	i32 charSettextureId = g_engine.assets.GetTexByName(
         FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME)->header.id;
 	ZRDrawObj* textObj = g_engine.scenes.AddObject(g_uiScene);
-	textObj->data.SetAsText("Test Text.", charSettextureId, COLOUR_U32_GREEN, COLOUR_U32_EMPTY, 0);
+	textObj->data.SetAsText(
+		"Test Text.",
+		charSettextureId,
+		COLOUR_U32_GREEN,
+		COLOUR_U32_EMPTY,
+		ZR_ALIGNMENT_NW);
 	textObj->t.scale = { 0.2f, 0.2f, 0.2f };
 	textObj->t.pos = { -10, 7.5f, 0 };
 
@@ -141,6 +146,7 @@ internal void Init()
 	Ed_Init(g_engine);
 	Sim_Init(g_engine, g_scene);
 	Menu_Init(g_engine);
+	g_engine.textCommands.QueueCommand(RNG_CMD_MENU_ON);
 
 	// sometimes want to start in the editor
 	// App_SetAppState(APP_STATE_EDITOR);

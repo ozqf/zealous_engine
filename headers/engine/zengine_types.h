@@ -333,6 +333,16 @@ struct ZRVec4Texture
 #define ZR_DRAWOBJ_STATUS_ASSIGNED 1
 #define ZR_DRAWOBJ_STATUS_DELETED 2
 
+#define ZR_ALIGNMENT_NW 0
+#define ZR_ALIGNMENT_N 1
+#define ZR_ALIGNMENT_NE 2
+#define ZR_ALIGNMENT_E 3
+#define ZR_ALIGNMENT_SE 4
+#define ZR_ALIGNMENT_S 5
+#define ZR_ALIGNMENT_SW 6
+#define ZR_ALIGNMENT_W 7
+#define ZR_ALIGNMENT_CENTRE 8
+
 struct ZRMeshObjData
 {
 	i32 meshId;

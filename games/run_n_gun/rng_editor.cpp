@@ -361,7 +361,7 @@ ze_internal void Ed_UpdateDebugText()
 ze_external void Ed_Tick(ZEFrameTimeInfo timing)
 {
 	// move camera
-	f32 camSpeed = 6.f;
+	f32 camSpeed = 15.f;
 	f32 camStep = camSpeed * (f32)timing.interval;
 	Transform camera = g_engine.scenes.GetCamera(g_edScene);
 	if (g_engine.input.GetActionValue(ED_MOVE_UP) > 0) { camera.pos.y += camStep; }
