@@ -297,13 +297,12 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	// test read mapfile
 	Map2d* mapData = Map2d_ReadEmbedded();
 	Map2d_DebugDump(mapData);
+	Map2dReader reader = Map2d_CreateReader(mapData);
 
-	// RNGPRINT("Sim - read map with %d aabbs\n", mapData->numAABBs);
-	Map2dAABB* aabbs = (Map2dAABB*)((i8*)mapData + mapData->offsetAABBs);
-
-	for (i32 i = 0; i < mapData->numAABBs; ++i)
+	// volumes
+	for (i32 i = 0; i < reader.numAABBs; ++i)
 	{
-		Map2dAABB* aabb = &aabbs[i];
+		Map2dAABB* aabb = &reader.aabbs[i];
 		Point2 min, max;
 		min.x = (i32)aabb->min.x;
 		min.y = (i32)aabb->min.y;
@@ -314,9 +313,10 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 		size.y = max.y - min.y + 1;
 		if (aabb->type == 1)
 		{
-			f32 halfWidth = (f32)size.x * 0.5f;
-			Vec2 pos = { (f32)min.x + halfWidth, (f32)max.y + 1.f };
-			AddPlatform(pos, (f32)size.x);
+			// f32 halfWidth = (f32)size.x * 0.5f;
+			// Vec2 pos = { (f32)min.x + halfWidth, (f32)max.y + 1.f };
+			// AddPlatform(pos, (f32)size.x);
+			continue;
 		}
 		else
 		{
@@ -324,7 +324,29 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 		}
 	}
 
+	// lines
+	for (i32 i = 0; i < reader.numLines; ++i)
+	{
+		Map2dLine* line = &reader.lines[i];
+		f32 halfWidth = line->b.x - line->a.x;
+		Vec2 pos = line->a;
+		pos.x += halfWidth;
+		RNGPRINT("Add platform at %.3f, %3f, width %.3f\n",
+			pos.x, pos.y, (halfWidth * 2.f));
+		AddPlatform(pos, halfWidth * 2.f);
+
+	}
+
+	// ents
+	for (i32 i = 0; i < reader.numEnts; ++i)
+	{
+		Map2dEntity* ent = &reader.ents[i];
+		RNGPRINT("Read ent type %s pos %.3f, %.3f\n",
+			(reader.chars + ent->typeStrOffset), ent->pos.x, ent->pos.y);
+	}
+
 	// free map
+	reader = {};
 	Map2d_Free(mapData);
 
 	// Sim_RestoreStaticScene(0);

@@ -1,5 +1,10 @@
 #include "../ze_map2d.h"
 
+#define READ_MODE_NONE 0
+#define READ_MODE_AABBS 1
+#define READ_MODE_LINES 2
+#define READ_MODE_ENTS 3
+
 #define TOKENISE_STR(charPtrToTokenise) \
 const i32 bufSize = 128; \
 const i32 maxTokens = 32; \
@@ -9,6 +14,23 @@ i32 numTokens = ZStr_Tokenise(charPtrToTokenise, buf, tokens, maxTokens);
 
 static const char* g_map_1 =
 "aabbs\n"
+"0 0 -13 7 13 7\n"      // top
+"0 0 -13 -8 13 -8\n"    // bottom
+"0 0 -14 -8 -14 7\n"    // left
+"0 0 14 -8 14 7\n"      // right
+"\n"
+"lines\n"
+"0 0 -9 -5 9 -5\n"      // platform
+"\n"
+"ents\n"
+"spawner 100 -10 4\n"
+"spawner 101 10 4\n"
+"start 102 0 -2\n"
+"\n"
+;
+
+static const char* g_map_2 =
+"aabbs\n"
 "0 0 -13 7 13 7\n"
 "0 0 -13 -8 13 -8\n"
 "0 0 -14 -8 -14 7\n"
@@ -16,17 +38,21 @@ static const char* g_map_1 =
 "0 0 -13 -5 -10 -5\n"
 "0 0 10 -5 13 -5\n"
 "0 0 -3 -5 3 -5\n"
-"0 1 -9 -5 9 -5\n"
+"\n"
+"lines\n"
+"0 0 -9 -5 9 -5\n"
 "\n"
 "ents\n"
 "spawner 100 -10 4\n"
-"spawner 100 10 4\n"
+"spawner 101 10 4\n"
+"start 102 0 -2\n"
 "\n"
 ;
 
 struct Map2dCounts
 {
     i32 numAABBs;
+    i32 numLines;
     i32 numEnts;
     zeSize totalStringChars;
 };
@@ -34,12 +60,12 @@ struct Map2dCounts
 static i32 g_bInitialised = NO;
 static ZEngine g_ze;
 
-ze_internal Map2dCounts Map2d_CountAABBsInAscii(char* txt)
+ze_internal Map2dCounts Map2d_CountMapComponentsInAscii(char* txt)
 {
     const i32 bufSize = 64;
     char buf[bufSize];
     char* cursor = txt;
-    i32 reading = 0;
+    i32 reading = READ_MODE_NONE;
     Map2dCounts counts = {};
     while (ZStr_ReadLine(&cursor, buf, bufSize))
     {
@@ -50,14 +76,18 @@ ze_internal Map2dCounts Map2d_CountAABBsInAscii(char* txt)
         }
         if (buf[0] == '\0')
         {
-            reading = 0;
+            reading = READ_MODE_NONE;
             continue;
         }
-        if (reading == 1)
+        if (reading == READ_MODE_AABBS)
         {
             counts.numAABBs++;
         }
-        else if (reading == 2)
+        else if (reading == READ_MODE_LINES)
+        {
+            counts.numLines++;
+        }
+        else if (reading == READ_MODE_ENTS)
         {
             counts.numEnts++;
             // read the first token as this will be a string we want to store later.
@@ -72,11 +102,15 @@ ze_internal Map2dCounts Map2d_CountAABBsInAscii(char* txt)
         {
             if (ZStr_Equal(buf, "aabbs"))
             {
-                reading = 1;
+                reading = READ_MODE_AABBS;
+            }
+            else if (ZStr_Equal(buf, "lines"))
+            {
+                reading = READ_MODE_LINES;
             }
             else if (ZStr_Equal(buf, "ents"))
             {
-                reading = 2;
+                reading = READ_MODE_ENTS;
             }
         }
     }
@@ -100,6 +134,23 @@ ze_internal void Map2d_AABBFromAscii(Map2dAABB* aabb, char* txt)
     aabb->max.y = (f32)atof(tokens[5]);
 }
 
+ze_internal void Map2d_LineFromAscii(Map2dLine* line, char* txt)
+{
+    TOKENISE_STR(txt)
+    if (numTokens != 6)
+    {
+        printf("\tToken count mismatch for aabb. Expected %d got %d\n", 6, numTokens);
+        *line = {};
+        return;
+    }
+    line->id = ZStr_AsciToInt32(tokens[0]);
+    line->type = ZStr_AsciToInt32(tokens[1]);
+    line->a.x = (f32)atof(tokens[2]);
+    line->a.y = (f32)atof(tokens[3]);
+    line->b.x = (f32)atof(tokens[4]);
+    line->b.y = (f32)atof(tokens[5]);
+}
+
 ze_internal void Map2d_EntFromAscii(
     Map2d* map, Map2dEntity* ent, char* txt, zeSize* cursorOffset)
 {
@@ -121,87 +172,108 @@ ze_internal void Map2d_EntFromAscii(
     ent->pos.y = (f32)atof(tokens[3]);
 }
 
-/*
-Header|aabbs|ents|strings
-*/
 ze_internal zErrorCode Map2d_FromAscii(char* txt, Map2d** result)
 {
-	Map2dCounts counts = Map2d_CountAABBsInAscii(txt);
-    printf("Map2d: Read %d AABBs, %d ents, %zd chars\n",
-        counts.numAABBs, counts.numEnts, counts.totalStringChars);
+	Map2dCounts counts = Map2d_CountMapComponentsInAscii(txt);
+    printf("Map2d: Read %d AABBs, %d lines, %d ents, %zd chars\n",
+        counts.numAABBs, counts.numLines, counts.numEnts, counts.totalStringChars);
+    
     i32 headerBytes = sizeof(Map2d);
     i32 aabbBytes = sizeof(Map2dAABB) * counts.numAABBs;
+    i32 lineBytes = sizeof(Map2dLine) * counts.numLines;
     i32 entBytes = sizeof(Map2dEntity) * counts.numEnts;
     zeSize stringBytes = counts.totalStringChars;
-    // zeSize total = sizeof(Map2d) + (sizeof(Map2dAABB) * counts.numAABBs);
-    zeSize total = headerBytes + aabbBytes + entBytes + stringBytes;
-    void* start = g_ze.system.Malloc(total);
+    
+    zeSize total =
+        headerBytes
+        + aabbBytes
+        + lineBytes
+        + entBytes
+        + stringBytes;
+    i8* start = (i8*)g_ze.system.Malloc(total);
     Map2d* map = (Map2d*)start;
     map->totalBytes = total;
 
     // offsets to file sections
     map->offsetAABBs = sizeof(Map2d);
-    map->offsetEnts = map->offsetAABBs + aabbBytes;
+    map->offsetLines = map->offsetAABBs + aabbBytes;
+    map->offsetEnts = map->offsetLines + lineBytes;
     map->offsetChars = map->offsetEnts + entBytes;
 
     // setup pointers to sections to write to
     // aabbs
     map->numAABBs = 0;
-    Map2dAABB* aabbs = (Map2dAABB*)((i8*)start + sizeof(Map2d));
+    Map2dAABB* aabbs = (Map2dAABB*)(start + map->offsetAABBs);
+
+    // liens
+    map->numLines = 0;
+    Map2dLine* lines = (Map2dLine*)(start + map->offsetLines);
 
     // ents
     map->numEnts = 0;
-    Map2dEntity* ents = (Map2dEntity*)(i8*)start + map->offsetEnts;
+    Map2dEntity* ents = (Map2dEntity*)start + map->offsetEnts;
 
     // strings
+    
     map->numChars = (i32)counts.totalStringChars;
     zeSize cursorOffset = (zeSize)((i8*)start + map->offsetChars);
     char* charsCursor = (char*)((i8*)start + map->offsetChars);
     cursorOffset += ZStr_CopyLimited("none", charsCursor, ZStr_Len("none"));
+    /*
+    */
     // charsCursor += ZStr_CopyLimited("none", charsCursor, ZStr_Len("none"));
 
     // iterate file
     const i32 bufSize = 64;
-    char buf[bufSize];
+    char lineBuf[bufSize];
     char* cursor = txt;
-    i32 readingMode = 0;
+    i32 readingMode = READ_MODE_NONE;
     i32 aabbsWritten = 0;
-    while (ZStr_ReadLine(&cursor, buf, bufSize))
+    while (ZStr_ReadLine(&cursor, lineBuf, bufSize))
     {
-        i32 i = ZStr_FindFirstCharMatch(buf, '\n');
+        i32 i = ZStr_FindFirstCharMatch(lineBuf, '\n');
         if (i != -1)
         {
-            buf[i] = '\0';
+            lineBuf[i] = '\0';
         }
-        if (buf[0] == '\0')
+        if (lineBuf[0] == '\0')
         {
-            readingMode = 0;
+            readingMode = READ_MODE_NONE;
             continue;
         }
-        if (readingMode == 1)
+        if (readingMode == READ_MODE_AABBS)
         {
             // read aabb
             Map2dAABB* aabb = &aabbs[map->numAABBs++];
-            Map2d_AABBFromAscii(aabb, buf);
-            printf("\tRead aabb %d: %.3f, %.3f to %.3f, %.3f\n",
-                aabb->id, aabb->min.x, aabb->min.y, aabb->max.x, aabb->max.y);
+            Map2d_AABBFromAscii(aabb, lineBuf);
+            // printf("\tRead aabb %d: %.3f, %.3f to %.3f, %.3f\n",
+            //     aabb->id, aabb->min.x, aabb->min.y, aabb->max.x, aabb->max.y);
         }
-        else if (readingMode == 2)
+        else if (readingMode == READ_MODE_LINES)
+        {
+            Map2dLine* line = &lines[map->numLines++];
+            Map2d_LineFromAscii(line, lineBuf);
+        }
+        else if (readingMode == READ_MODE_ENTS)
         {
             // read ent
             // TODO - WIP - broken, causing weird behaviour. most likely memory out of bounds
             // Map2dEntity* ent = &ents[map->numEnts++];
-            //Map2d_EntFromAscii(map, ent, buf, &cursorOffset);
+            // Map2d_EntFromAscii(map, ent, lineBuf, &cursorOffset);
         }
         else
         {
-            if (ZStr_Equal(buf, "aabbs"))
+            if (ZStr_Equal(lineBuf, "aabbs"))
             {
-                readingMode = 1;
+                readingMode = READ_MODE_AABBS;
             }
-            else if (ZStr_Equal(buf, "ents"))
+            else if (ZStr_Equal(lineBuf, "lines"))
             {
-                readingMode = 2;
+                readingMode = READ_MODE_LINES;
+            }
+            else if (ZStr_Equal(lineBuf, "ents"))
+            {
+                readingMode = READ_MODE_ENTS;
             }
         }
     }
@@ -218,6 +290,22 @@ ze_external Map2d* Map2d_ReadEmbedded()
     return map;
 }
 
+ze_external Map2dReader Map2d_CreateReader(Map2d* map)
+{
+    ZE_ASSERT(map != NULL, "Map2d is null")
+    Map2dReader r = {};
+    i8* start = (i8*)map;
+    r.aabbs = (Map2dAABB*)(start + map->offsetAABBs);
+    r.numAABBs = map->numAABBs;
+    r.lines = (Map2dLine*)(start + map->offsetLines);
+    r.numLines = map->numLines;
+    r.ents = (Map2dEntity*)(start + map->offsetEnts);
+    r.numEnts = map->numEnts;
+    r.chars = (char*)(start + map->offsetChars);
+    r.numChars = map->numChars;
+    return r;
+}
+
 ze_external void Map2d_Free(Map2d* map)
 {
     g_ze.system.Free(map);
@@ -229,10 +317,11 @@ ze_external void Map2d_DebugDump(Map2d* map)
     printf("\n=== Map2d ===\n");
     printf("Counts: AABBs %d, Ents %d, chars %d\n",
         map->numAABBs, map->numEnts, map->numChars);
-    printf("Offsets: AABBs %zd, Ents %zd, chars %zd\n",
-        map->offsetAABBs, map->offsetEnts, map->offsetChars);
-    printf("--- AABBS (%d) ---\n", map->numAABBs);
+    printf("Offsets: AABBs %zd, Lines %zd, Ents %zd, chars %zd\n",
+        map->offsetAABBs, map->offsetLines, map->offsetEnts, map->offsetChars);
     i8* start = (i8*)map;
+
+    printf("--- AABBS (%d) ---\n", map->numAABBs);
     Map2dAABB* aabbs = (Map2dAABB*)(start + map->offsetAABBs);
     for (i32 i = 0; i < map->numAABBs; ++i)
     {
@@ -240,6 +329,16 @@ ze_external void Map2d_DebugDump(Map2d* map)
         printf("%d, type %d: %.3f, %.3f to %.3f, %.3f\n",
             aabb->id, aabb->type, aabb->min.x, aabb->min.y, aabb->max.x, aabb->max.y);
     }
+
+    printf("--- Lines (%d) ---\n", map->numLines);
+    Map2dLine* lines = (Map2dLine*)(start + map->offsetLines);
+    for (i32 i = 0; i < map->numLines; ++i)
+    {
+        Map2dLine* line = &lines[i];
+        printf("%d, type %d: %.3f, %.3f to %.3f, %.3f\n",
+            line->id, line->type, line->a.x, line->a.y, line->b.x, line->b.y);
+    }
+
     printf("--- Ents (%d) ---\n", map->numEnts);
     Map2dEntity* ents = (Map2dEntity*)start + map->offsetEnts;
     for (i32 i = 0; i < map->numEnts; ++i)
