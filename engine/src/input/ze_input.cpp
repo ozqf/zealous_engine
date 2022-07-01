@@ -51,6 +51,11 @@ internal void DebugListActions()
     }
 }
 
+internal void SetCursorLocked(i32 bCursorLocked)
+{
+	Window_SetCursorLock(bCursorLocked);
+}
+
 ZCMD_CALLBACK(Exec_ListActions)
 {
     DebugListActions();
@@ -245,6 +250,7 @@ ze_external ZInput ZInput_RegisterFunctions()
 
     // setup game interface
     ZInput inputExport;
+	inputExport.SetCursorLocked = SetCursorLocked;
     inputExport.AddAction = ZInput_AddAction;
     inputExport.GetActionValue = ZInput_GetActionValue;
 	inputExport.GetActionValueNormalised = GetActionValueNormalised;

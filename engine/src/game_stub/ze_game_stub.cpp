@@ -18,7 +18,10 @@ internal void Stub_Init()
 {
     printf("Stub init\n");
     Transform_SetToIdentity(&g_debugCam);
-
+	
+	// window is not ready yet, and this call will silently fail...
+	g_engine.input.SetCursorLocked(YES);
+	
     // register inputs
     g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, "move_left");
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, "move_right");
@@ -33,6 +36,9 @@ internal void Stub_Init()
     g_engine.input.AddAction(Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, "look_left");
     g_engine.input.AddAction(Z_INPUT_CODE_RIGHT, Z_INPUT_CODE_NULL, "look_right");
 
+	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_MOVE_X, Z_INPUT_CODE_NULL, "mouse_x");
+	g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_MOVE_Y, Z_INPUT_CODE_NULL, "mouse_y");
+	
     g_engine.input.AddAction(Z_INPUT_CODE_Q, Z_INPUT_CODE_NULL, "roll_left");
     g_engine.input.AddAction(Z_INPUT_CODE_E, Z_INPUT_CODE_NULL, "roll_right");
 
@@ -131,6 +137,7 @@ internal void Stub_Shutdown()
 
 internal void Stub_Tick(ZEFrameTimeInfo timing)
 {
+	// g_engine.input.SetCursorLocked(YES);
     f32 delta = (f32)timing.interval;
     // printf("Game tick interval: %.8f\n", delta);
     i32 bMoved = NO;

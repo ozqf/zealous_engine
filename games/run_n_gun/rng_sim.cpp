@@ -276,6 +276,20 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 	AddStatic({ 12, 0 }, { 1, 16 });
 }
 
+ze_internal void ReadMap2dEnt(Map2dReader* reader, Map2dEntity* mapEnt)
+{
+	char* typeStr = (char*)(reader->chars + mapEnt->typeStrOffset);
+	printf("Read typestr %s\n", typeStr);
+	if (ZStr_Equal(typeStr, "start"))
+	{
+		Sim_SpawnPlayer({mapEnt->pos.x, mapEnt->pos.y});
+	}
+	else if (ZStr_Equal(typeStr, "spawner"))
+	{
+		Sim_SpawnSpawner({mapEnt->pos.x, mapEnt->pos.y});
+	}
+}
+
 ///////////////////////////////////////////////////////
 // start a new level
 ///////////////////////////////////////////////////////
@@ -295,7 +309,7 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	
 	// static scene
 	// test read mapfile
-	Map2d* mapData = Map2d_ReadEmbedded();
+	Map2d* mapData = Map2d_ReadEmbedded(0);
 	Map2d_DebugDump(mapData);
 	Map2dReader reader = Map2d_CreateReader(mapData);
 
@@ -328,7 +342,7 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	for (i32 i = 0; i < reader.numLines; ++i)
 	{
 		Map2dLine* line = &reader.lines[i];
-		f32 halfWidth = line->b.x - line->a.x;
+		f32 halfWidth = (line->b.x - line->a.x) / 2.f;
 		Vec2 pos = line->a;
 		pos.x += halfWidth;
 		RNGPRINT("Add platform at %.3f, %3f, width %.3f\n",
@@ -343,6 +357,7 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 		Map2dEntity* ent = &reader.ents[i];
 		RNGPRINT("Read ent type %s pos %.3f, %.3f\n",
 			(reader.chars + ent->typeStrOffset), ent->pos.x, ent->pos.y);
+		ReadMap2dEnt(&reader, ent);
 	}
 
 	// free map
@@ -363,8 +378,8 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	}
 
 	// spawn a player
-	Sim_SpawnPlayer({0, -2});
 	#if 0
+	Sim_SpawnPlayer({0, -2});
 	Sim_SpawnSpawner({-10, 4});
 	Sim_SpawnSpawner({10, 4});
 	#endif

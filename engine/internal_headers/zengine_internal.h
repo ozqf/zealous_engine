@@ -205,6 +205,11 @@ ze_external ZEBuffer Platform_StageFile(char *path);
 ze_external f64 Platform_QueryClock();
 ze_external void Platform_Sleep(i32 milliSeconds);
 
+
+//////////////////////////////////
+// window
+ze_external zErrorCode ZWindow_Init();
+ze_external void Window_SetCursorLock(i32 bLocked);
 ze_external void Window_Shutdown();
 ze_external ZScreenInfo Window_GetInfo();
 

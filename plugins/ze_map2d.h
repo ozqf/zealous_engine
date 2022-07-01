@@ -23,13 +23,6 @@ struct Map2dEntity
     zeSize typeStrOffset;
 };
 
-/*struct Map2dPlatform
-{
-    i32 minX;
-    i32 maxX;
-    i32 y;
-};*/
-
 /*
 Header|aabbs|lines|ents|strings
 */
@@ -49,6 +42,7 @@ struct Map2d
     
     zeSize offsetChars;
     i32 numChars;
+    zeSize offsetCursorChars;
 };
 
 // helper struct when reading from a Map2d
@@ -64,7 +58,7 @@ struct Map2dReader
     i32 numChars;
 };
 
-ze_external Map2d* Map2d_ReadEmbedded();
+ze_external Map2d* Map2d_ReadEmbedded(i32 index);
 ze_external Map2dReader Map2d_CreateReader(Map2d* map);
 ze_external void Map2d_Free(Map2d* map);
 ze_external void Map2d_Init(ZEngine engine);

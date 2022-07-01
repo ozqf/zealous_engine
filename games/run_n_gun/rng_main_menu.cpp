@@ -14,7 +14,7 @@ struct TextMenu
 };
 
 #define MAIN_MENU_BUF_SIZE 1024
-#define MAIN_MENU_HEADER "---MAIN MENU---\n W/S - Navigate\nSpace - Select\n";
+#define MAIN_MENU_HEADER "---MAIN MENU---\n W/S - Navigate\nSpace - Select\nEscape - Toggle\n";
 
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_menuScene;

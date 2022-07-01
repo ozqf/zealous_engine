@@ -7,5 +7,3 @@
 #include <stdlib.h>
 
 #include "../../internal_headers/zengine_internal.h"
-
-ze_external zErrorCode ZWindow_Init();

@@ -20,6 +20,8 @@ internal void Tick(ZEFrameTimeInfo timing)
 Z_GAME_WINDOWS_LINK_FUNCTION
 {
     g_engine = engineImport;
+	gameDef->targetFramerate = 60;
+	gameDef->windowTitle = "Blank Zealous Engine Application";
     gameExport->Init = Init;
     gameExport->Tick = Tick;
     gameExport->Shutdown = Shutdown;

@@ -133,6 +133,8 @@ struct ZInput
 	
 	const char* (*GetInputLongLabel)(i32 code);
 	const char* (*GetInputShortLabel)(i32 code);
+	
+	void (*SetCursorLocked)(i32 bCursorLocked);
 };
 
 struct ZSceneManager

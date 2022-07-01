@@ -23,6 +23,7 @@ internal i32 g_pendingWidth = 1366; //1024;
 internal i32 g_pendingHeight = 768; //576;
 
 internal i32 g_bWindowed = FALSE;
+internal i32 g_bCursorLocked = NO;
 
 internal i32 g_monitorSize[2];
 internal f32 g_monitorAspect;
@@ -371,6 +372,25 @@ static GLFWmonitor *SelectMonitor()
     #endif
 }
 
+ze_external void Window_SetCursorLock(i32 bLocked)
+{
+    g_bCursorLocked = bLocked;
+    if (g_window == NULL)
+    {
+        return;
+    }
+	if (g_bCursorLocked)
+    {
+		printf("Window - Set cursor disabled\n"); 
+        glfwSetInputMode(g_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+    else
+    {
+		printf("Window - Set cursor enabled\n");
+        glfwSetInputMode(g_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+}
+
 //////////////////////////////////////////////////////////////////
 // Create Window, gl context and renderer
 //////////////////////////////////////////////////////////////////
@@ -475,6 +495,9 @@ ze_external zErrorCode SpawnWindow()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glfwSwapBuffers(g_window);
+
+    // check mouse state that may have been set by app before this point
+    Window_SetCursorLock(g_bCursorLocked);
 
     #if 0
     // Initialise the renderer itself
