@@ -1,3 +1,8 @@
+/*
+TODO - work on or abandon .map file converted...?
+Trenchbroom can output maps as .obj files so this is far less necessary
+if we want to go that route for simple world geometry.
+*/
 #ifndef ZT_MAP_CONVERTER_H
 #define ZT_MAP_CONVERTER_H
 

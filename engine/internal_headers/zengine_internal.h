@@ -201,7 +201,7 @@ ze_external void *Platform_Alloc(zeSize size);
 ze_external void *Platform_Realloc(void* ptr, zeSize size);
 ze_external void Platform_Free(void* ptr);
 ze_external void Platform_DebugBreak();
-ze_external ZEBuffer Platform_StageFile(char *path);
+ze_external ZEBuffer Platform_StageFile(const char *path);
 ze_external f64 Platform_QueryClock();
 ze_external void Platform_Sleep(i32 milliSeconds);
 
@@ -217,7 +217,10 @@ ze_external ZScreenInfo Window_GetInfo();
 // game module linkup
 ze_external zErrorCode ZGame_StubLinkup(
     ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
-ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunction gameLink);
+ze_external zErrorCode ZEngine_Init(
+    ZSystem systemFunctions,
+    ZFileIO ioFunctions,
+    ZGame_LinkupFunction gameLink);
 
 //////////////////////////////////
 // debug

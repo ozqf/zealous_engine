@@ -206,6 +206,7 @@ struct EntGrunt
 	i32 targetId;
 	i32 sourceId;
 	i32 health;
+	i32 dirX;
 
 	// components
 	zeHandle physicsBodyId;
@@ -223,6 +224,7 @@ struct EntGruntSave
 	i32 targetId;
 	i32 sourceId;
 	i32 health;
+	i32 dirX;
 
 	// component data
 	Vec2 pos;

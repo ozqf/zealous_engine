@@ -2,11 +2,14 @@
 #define ZE_PHYSICS2D_H
 /*
 2D physics public interface
+Any 2D physics implementations should use this interface
 */
 #define ZP_SHAPE_TYPE_BOX 0
 #define ZP_SHAPE_TYPE_CIRCLE 1
 
 #define ZP_MASK_ALL 65535
+
+#define ZP_EMPTY_ID 0
 
 #include "../headers/zengine.h"
 

@@ -308,6 +308,72 @@ ze_internal void TickWorldEdit(f32 delta, Vec2 mouseWorldPos, frameInt frameNumb
 }
 
 ////////////////////////////////////////////////////////////////////
+// commands
+////////////////////////////////////////////////////////////////////
+ze_internal void Ed_SaveMap(const char* fileName)
+{
+	RNGPRINT("Editor - save map %s\n", fileName);
+	// alloc staging buffer
+	zeSize capacity = MegaBytes(1);
+	char* buf = (char*)g_engine.system.Malloc(capacity);
+	ZE_SET_ZERO(buf, capacity);
+	char* write = buf;
+	char* end = buf + capacity;
+
+	write += sprintf_s(write, end - write, "aabbs\n");
+	i32 numVolumes = g_volumes.Count();
+	for (i32 i = 0; i < numVolumes; ++i)
+	{
+		WorldVolume* vol = (WorldVolume*)g_volumes.GetByIndex(i);
+		write += sprintf_s(write, end - write, "%d %d %d %d %d %d\n",
+			vol->id, 0, vol->gridMin.x, vol->gridMin.y, vol->gridMax.x, vol->gridMax.y);
+	}
+	RNGPRINT("-- Save ASCII (%lld chars)--\n", end - write);
+	RNGPRINT(buf);
+	RNGPRINT("\n");
+	g_engine.io.WriteFile(fileName, buf, write - buf);
+	g_engine.system.Free(buf);
+}
+
+ze_internal void Ed_LoadMap(const char* fileName)
+{
+	RNGPRINT("Editor - load map %s\n", fileName);
+}
+
+ZCMD_CALLBACK(Ed_ExecCommand)
+{
+	if (numTokens == 1)
+	{
+		RNGPRINT("Editor command help\n");
+		RNGPRINT("Ed save <fileName>\n");
+		RNGPRINT("Ed load <fileName>\n");
+		return;
+	}
+	char* subCommand = tokens[1];
+	if (numTokens >= 2)
+	{
+		char* fileName = "temp.txt";
+		if (numTokens >= 3)
+		{
+			fileName = tokens[2];
+		}
+		
+		if (ZStr_Equal(subCommand, "save"))
+		{
+			Ed_SaveMap(fileName);
+		}
+		else if (ZStr_Equal(subCommand, "load"))
+		{
+			Ed_LoadMap(fileName);
+		}
+		else
+		{
+			RNGPRINT("Unrecognised option \"%s\"\n", subCommand);
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////
 // lifecycle
 ////////////////////////////////////////////////////////////////////
 
@@ -433,6 +499,8 @@ ze_external void Ed_Init(ZEngine engine)
     g_engine = engine;
     g_edScene = g_engine.scenes.AddScene(0, 4096, 0);
 	g_engine.scenes.SetProjectionOrtho(g_edScene, 8);
+	
+	g_engine.textCommands.RegisterCommand("ed", "rng level editor commands. run with no params for help", Ed_ExecCommand);
 
 	// register inputs
 	g_engine.input.AddAction(Z_INPUT_CODE_W, Z_INPUT_CODE_NULL, ED_MOVE_UP);

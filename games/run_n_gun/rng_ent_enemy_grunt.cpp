@@ -5,6 +5,11 @@ Basic ground based enemy with simple projectile attack.
 
 #define GRUNT_THINK_TIME 1.f
 
+#define OVERLAP_LEFT (1 << 0)
+#define OVERLAP_RIGHT (1 << 1)
+#define OVERLAP_UP (1 << 2)
+#define OVERLAP_DOWN (1 << 3)
+
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
 
@@ -34,6 +39,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		grunt->tick = save->tick;
 		grunt->health = save->health;
 		grunt->sourceId = save->sourceId;
+		grunt->dirX = save->dirX;
 	}
 	else
 	{
@@ -53,6 +59,8 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		def.shape.radius = { 0.5f, 0.5f, };
 		def.shape.pos = save->pos;
 		def.externalId = ent->id;
+		def.categoryBits = PHYSICS_LAYER_BIT_MOBS;
+		def.maskBits = PHYSICS_LAYER_BIT_WORLD;
 		
 		//RNGPRINT("Create grunt body at %.3f, %.3f\n", def.shape.pos.x, def.shape.pos.y);
 		grunt->physicsBodyId = ZP_AddBody(def);
@@ -63,6 +71,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		grunt->tick = save->tick;
 		grunt->health = save->health;
 		grunt->sourceId = save->sourceId;
+		grunt->dirX = 1;
 
 		// add sprites
 		ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
@@ -98,6 +107,7 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	save->targetId = grunt->targetId;
 	save->health = grunt->health;
 	save->sourceId = grunt->sourceId;
+	save->dirX = grunt->dirX;
 	
 	// components
 	ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, grunt->bodyDrawId);
@@ -121,6 +131,67 @@ ze_internal void Remove(Ent2d* ent)
 	Sim_RemoveEntityBase(ent);
 }
 
+ze_internal i32 RefreshSensorFlags(BodyState body)
+{
+	i32 flags = 0;
+	u16 mask = PHYSICS_LAYER_BIT_WORLD;
+	const i32 maxResults = 16;
+	ZAABBResult results[maxResults];
+	Vec2 min = body.t.pos;
+	min.x -= 0.5f;
+	min.x -= 0.1f;
+	min.y -= 0.1f;
+	Vec2 max = body.t.pos;
+	max.x -= 0.5f;
+	max.x += 0.1f;
+	max.y += 0.1f;
+	i32 numHits = ZP_AABBCast(min, max, results, maxResults, mask);
+	if (numHits > 0)
+	{
+		flags |= OVERLAP_LEFT;
+	}
+	min.x += 1.f;
+	max.x += 1.f;
+	numHits = ZP_AABBCast(min, max, results, maxResults, mask);
+	if (numHits > 0)
+	{
+		flags |= OVERLAP_RIGHT;
+	}
+	return flags;
+}
+
+ze_internal void WalkTick(EntGrunt* grunt, f32 delta)
+{
+	BodyState body = ZP_GetBodyState(grunt->physicsBodyId);
+	Vec2 vel = body.velocity;
+	i32 flags = RefreshSensorFlags(body);
+	if (grunt->dirX == 1)
+	{
+		// moving right
+		if (!IF_BIT(flags, OVERLAP_RIGHT))
+		{
+			vel.x = 5.f;
+		}
+		else
+		{
+			grunt->dirX = -1;
+		}
+	}
+	else
+	{
+		if (!IF_BIT(flags, OVERLAP_LEFT))
+		{
+			vel.x = -5.f;
+		}
+		else
+		{
+			grunt->dirX = 1;
+		}
+		// moving left
+	}
+	ZP_SetLinearVelocity(grunt->physicsBodyId, vel);
+}
+
 ze_internal void Tick(Ent2d* ent, f32 delta)
 {
 	EntGrunt* grunt = &ent->d.grunt;
@@ -131,6 +202,8 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	// tick attacking
 	if (playerEnt != NULL)
 	{
+		// try and walk
+		WalkTick(grunt, delta);
 		// look at player
 		Vec2 pos = body.t.pos;
 		BodyState playerBody = ZP_GetBodyState(playerEnt->d.player.physicsBodyId);

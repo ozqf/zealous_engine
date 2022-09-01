@@ -55,6 +55,13 @@ ze_external void Platform_Free(void *ptr)
 	free(ptr);
 }
 
+ze_internal void PrintExecutablePath()
+{
+	WCHAR path[MAX_PATH];
+	GetModuleFileNameW(NULL, path, MAX_PATH);
+	printf("%ls\n", path);
+}
+
 ////////////////////////////////////////////////////////
 // Error handling
 ////////////////////////////////////////////////////////
@@ -159,7 +166,7 @@ ze_external void Platform_Sleep(i32 milliSeconds)
 ////////////////////////////////////////////////////////
 // I/O
 ////////////////////////////////////////////////////////
-ze_external ZEBuffer Platform_StageFile(char* path)
+ze_external ZEBuffer Platform_StageFile(const char* path)
 {
 	FILE* f;
 	errno_t err = fopen_s(&f, path, "rb");
@@ -177,6 +184,23 @@ ze_external ZEBuffer Platform_StageFile(char* path)
 	fclose(f);
 	printf("Read %.3fKB from %s\n", (f32)size / 1024.f, path);
 	return buf;
+}
+
+ze_internal zErrorCode Platform_WriteFile(
+	const char* path,
+	void* data,
+	zeSize numBytes)
+{
+	FILE* f;
+	errno_t err = fopen_s(&f, path, "wb");
+	if (err != 0)
+	{
+		printf("!Couldn't open file at %s\n", path);
+		return ZE_ERROR_UNKNOWN;
+	}
+	fwrite(data, numBytes, 1, f);
+	fclose(f);
+	return ZE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////
@@ -247,6 +271,8 @@ int CALLBACK WinMain(
 		printf("No custom game directory specified\n");
 		gameDirectory = ZGAME_BASE_DIRECTORY;
 	}
+
+	PrintExecutablePath();
 	
 	// find 'known' folder for local storage
 	/*
@@ -269,8 +295,18 @@ int CALLBACK WinMain(
 	sys.GetScreenInfo = Window_GetInfo;
 	sys.Fatal = Platform_Fatal;
 	sys.RegisterCrashDumpFunction = RegisterCrashDumpFunction;
+
+	ZFileIO io = {};
+	io.WriteFile = Platform_WriteFile;
+	io.StageFile = Platform_StageFile;
 	
-	ZEngine_Init(sys, Win_LinkToGameDLL(gameDirectory));
+	err = ZEngine_Init(sys, io, Win_LinkToGameDLL(gameDirectory));
+	if (err != ZE_ERROR_NONE)
+	{
+		printf("Error in ZEngine_Init - aborting\n");
+		Platform_Fatal("Error in zengine init");
+		return 1;
+	}
 	ZWindow_Init();
 	ZE_StartLoop();
 	printf("Exited loop\n");

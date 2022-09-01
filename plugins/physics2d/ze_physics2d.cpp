@@ -59,9 +59,22 @@ class AABBCallback: public b2QueryCallback
 		{
 			return true;
 		}
-		zeHandle volId = (zeHandle)body->GetUserData().pointer;
-		results[numResults].volumeId = volId;
+
+		ZAABBResult* r = &results[numResults];
 		numResults += 1;
+		*r = {};
+		zeHandle volId = (zeHandle)body->GetUserData().pointer;
+		ZPVolume2d* vol = (ZPVolume2d*)ZP_GetVolume(volId);
+		if (vol != NULL)
+		{
+			r->volumeId = vol->id;
+			r->externalId = vol->externalId;
+		}
+		else
+		{
+			r->volumeId = ZP_EMPTY_ID;
+			r->externalId = ZP_EMPTY_ID;
+		}
 		if (numResults >= maxResults)
 		{
 			return false;
@@ -118,8 +131,8 @@ class RaycastCallback: public b2RayCastCallback
 		}
 		else
 		{
-			r->volumeId = 0;
-			r->externalId = 0;
+			r->volumeId = ZP_EMPTY_ID;
+			r->externalId = ZP_EMPTY_ID;
 		}
 		return fraction;
 	}

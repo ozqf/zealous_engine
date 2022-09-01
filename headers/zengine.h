@@ -112,13 +112,19 @@ struct ZTextCommand
 
 struct ZFileIO
 {
+    // TODO: Just slamming any file read directly into RAM at the moment
+
+    // reading
 	// if handle == 0, open failed
-	zeHandle	(*Open)(char* path);
-	void		(*Close)(zeHandle fileHandle);
-	u32			(*Measure)(zeHandle fileHandle);
-	void		(*Seek)(zeHandle fileHandle, u32 position);
-    i32         (*Read)(zeHandle fileHandle, i32 numBytes, ZEBuffer* target);
-	
+	//zeHandle	(*Open)(char* path);
+	//void		(*Close)(zeHandle fileHandle);
+	//u32			(*Measure)(zeHandle fileHandle);
+	//void		(*Seek)(zeHandle fileHandle, u32 position);
+    //i32         (*Read)(zeHandle fileHandle, i32 numBytes, ZEBuffer* target);
+    ZEBuffer (*StageFile)(const char* path);
+
+    // writing
+    zErrorCode  (*WriteFile)(const char* path, void* data, zeSize numBytes);
 };
 
 struct ZInput

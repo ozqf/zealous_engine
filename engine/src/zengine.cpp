@@ -71,7 +71,7 @@ ze_external i32 GetSingleFrameMode()
 	return g_bSingleFrame;
 }
 
-ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunction gameLink)
+ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZFileIO ioFunctions, ZGame_LinkupFunction gameLink)
 {
 	i32 tokenIndex = ZCFG_FindParamIndex("--single", "--single", 0);
 	if (tokenIndex != ZE_ERROR_BAD_INDEX)
@@ -81,6 +81,7 @@ ze_external zErrorCode ZEngine_Init(ZSystem systemFunctions, ZGame_LinkupFunctio
 
 	// grab everyone's export functions
 	g_engine.system = systemFunctions;
+	g_engine.io = ioFunctions;
 	g_engine.cfg = ZCFG_RegisterFunctions();
 	g_engine.assets = ZAssets_RegisterFunctions();
 	g_engine.scenes = ZScene_RegisterFunctions();

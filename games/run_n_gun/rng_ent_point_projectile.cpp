@@ -70,6 +70,32 @@ ze_internal void Remove(Ent2d* ent)
 	Sim_RemoveEntityBase(ent);
 }
 
+// return yes if hit should destroy the prjectile
+ze_internal i32 HitEnt(Ent2d* self, i32 entId, i32 volumeId, DamageHit* dmg)
+{
+	Ent2d* victim = Sim_GetEntById(entId);
+	if (victim == NULL)
+	{
+		if (volumeId != 0)
+		{
+			BodyState hitBody = ZP_GetBodyState(volumeId);
+			RNGPRINT("PRJ hit volume %d with no ent. External Id %d\n",
+				volumeId, entId);
+		}
+		Sim_SpawnGfx(dmg->pos, 0);
+		return YES;
+	}
+	EntHitResponse response = Ent_Hit(self, victim, dmg);
+	//RNGPRINT("PRJ on team %d hit ent %d: response %d\n",
+	//	prj->data.teamId, victim->id, response.responseType);
+	if (response.responseType != ENT_HIT_RESPONSE_NONE)
+	{
+		Sim_SpawnGfx(dmg->pos, 0);
+		return YES;
+	}
+	return NO;
+}
+
 ze_internal void Tick(Ent2d* ent, f32 delta)
 {
 	EntPointProjectile* prj = GetPointPrj(ent);
@@ -88,23 +114,60 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 		speed = 7.5f;
 		break;
 	}
+
 	dir.x = cosf(prj->data.radians);
 	dir.y = sinf(prj->data.radians);
 	move = Vec2_Mul(dir, speed);
 	// move.x = cosf(prj->data.radians) * speed;
 	// move.y = sinf(prj->data.radians) * speed;
 	Vec2 dest = Vec2_Add(prj->data.pos, Vec2_Mul(move, delta));
-	ZPRaycastResult results[16];
+
+	
+	// prepare data if we need to hit something
+	DamageHit dmg = {};
+	dmg.damage = 10;
+	dmg.teamId = prj->data.teamId;
+	dmg.normal = Vec2_Mul(dir, -1);
+	dmg.dir = dir;
+
+	// raycasts ignore any shapes they start in, so do a point test first to find anything that
+	// moved into our position during the last physics step
+	const i32 maxResults = 16;
+	i32 numResults = 0;
 	i32 bCull = NO;
 	u16 mask = PHYSICS_LAYER_BIT_WORLD | PHYSICS_LAYER_BIT_MOBS | PHYSICS_LAYER_BIT_PLAYER | PHYSICS_LAYER_BIT_DEBRIS;
-	i32 numResults = ZP_Raycast(prj->data.pos, dest, results, 16, mask);
+	/*
+	ZAABBResult aabbs[maxResults];
+	Vec2 min, max;
+	min.x = prj->data.pos.x - 0.05f;
+	min.y = prj->data.pos.y - 0.05f;
+	max.x = prj->data.pos.x + 0.05f;
+	max.y = prj->data.pos.y + 0.05f;
+	numResults = ZP_AABBCast(min, max, aabbs, maxResults, mask);
+	if (numResults > 0)
+	{
+		ZAABBResult* hit = &aabbs[numResults - 1];
+		dmg.pos = prj->data.pos;
+		bCull = HitEnt(ent, hit->externalId, hit->volumeId, &dmg);
+		if (bCull)
+		{
+			Remove(ent);
+			return;
+		}
+	}
+	*/
+	ZPRaycastResult results[maxResults];
+	numResults = ZP_Raycast(prj->data.pos, dest, results, maxResults, mask);
 	if (numResults > 0)
 	{
 		ZPRaycastResult* hit = &results[numResults - 1];
+		dmg.pos = hit->pos;
+		bCull = HitEnt(ent, hit->externalId, hit->volumeId, &dmg);
 		// RNGPRINT("Prj raycast got %d result, hit volumeId %d (external %d)\n",
 		// 	numResults,
 		// 	hit->volumeId,
 		// 	hit->externalId);
+		/*
 		Ent2d* victim = Sim_GetEntById(hit->externalId);
 		if (victim == NULL)
 		{
@@ -119,13 +182,6 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 		}
 		else
 		{
-			DamageHit dmg = {};
-			dmg.damage = 10;
-			dmg.teamId = prj->data.teamId;
-			dmg.pos = hit->pos;
-			dmg.normal = hit->normal;
-			dmg.dir = dir;
-			
 			EntHitResponse response = Ent_Hit(ent, victim, &dmg);
 			//RNGPRINT("PRJ on team %d hit ent %d: response %d\n",
 			//	prj->data.teamId, victim->id, response.responseType);
@@ -135,6 +191,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 				bCull = YES;
 			}
 		}
+		*/
 	}
 	if (bCull)
 	{
