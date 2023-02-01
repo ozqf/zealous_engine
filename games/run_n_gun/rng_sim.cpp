@@ -146,6 +146,18 @@ ze_external Ent2d* Sim_GetEntById(i32 id)
 	return (Ent2d*)g_entities.GetById(id);
 }
 
+ze_external i32 Sim_CheckLos(Vec2 a, Vec2 b)
+{
+	u16 mask = PHYSICS_LAYER_BIT_WORLD;
+	const i32 maxResults = 16;
+	i32 numResults = 0;
+	ZPRaycastResult results[maxResults];
+	numResults = ZP_Raycast(a, b, results, maxResults, mask);
+	// RNGPRINT("Check LoS From %.3f, %.3f to %.3f, %.3f: %d\n",
+	// 	a.x, a.y, b.x, b.y, numResults);
+	return (numResults == 0);
+}
+
 /*
 Function to cleanup basic entity components.
 Should only be called from within an EntityType's remove function.
@@ -185,6 +197,17 @@ ze_external EntityType* Sim_GetEntityType(i32 typeId)
 ///////////////////////////////////////////////////////
 // static geometry creation
 ///////////////////////////////////////////////////////
+ze_internal void ClearWorldVolumes()
+{
+	for (i32 i = 0; i < g_numWorldVolumes; ++i)
+	{
+		WorldVolume* vol = &g_worldVolumes[g_numWorldVolumes];
+		ZP_RemoveBody(vol->bodyId);
+		g_engine.scenes.RemoveObject(g_scene, vol->drawObjId);
+	}
+	g_numWorldVolumes = 0;
+}
+
 ze_internal WorldVolume* GetFreeWorldVolume()
 {
 	WorldVolume* vol = &g_worldVolumes[g_numWorldVolumes];
@@ -257,7 +280,8 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 	// TODO: cleanup previous scene here!
 	
 	g_staticSceneIndex = index;
-	
+	RNGPRINT("Restore static scene %d\n", index);
+	/*
 	// AddStatic({ 0, -1 }, { 8, 1 });
 	AddStaticAABB({ -4, -1 }, { 8, 1});
 	// AddStatic({ 0, -4 }, { 8, 1 });
@@ -274,26 +298,32 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 	// left and right border
 	AddStatic({ -12, 0 }, { 1, 16 });
 	AddStatic({ 12, 0 }, { 1, 16 });
+	*/
 }
 
 ze_internal void ReadMap2dEnt(Map2dReader* reader, Map2dEntity* mapEnt)
 {
 	char* typeStr = (char*)(reader->chars + mapEnt->typeStrOffset);
 	printf("Read typestr %s\n", typeStr);
+	Vec2 pos = { mapEnt->pos.x, mapEnt->pos.y };
 	if (ZStr_Equal(typeStr, "start"))
 	{
-		Sim_SpawnPlayer({mapEnt->pos.x, mapEnt->pos.y});
+		Sim_SpawnPlayer(pos);
 	}
 	else if (ZStr_Equal(typeStr, "spawner"))
 	{
-		Sim_SpawnSpawner({mapEnt->pos.x, mapEnt->pos.y});
+		Sim_SpawnSpawner(pos);
+	}
+	else if (ZStr_Equal(typeStr, "grunt"))
+	{
+		Sim_SpawnEnemyGrunt(pos, 0);
 	}
 }
 
 ///////////////////////////////////////////////////////
 // start a new level
 ///////////////////////////////////////////////////////
-ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
+ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames, const char* mapName)
 {
 	// --- clear frames array ---
 	frames->Clear(NO);
@@ -309,10 +339,13 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	
 	// static scene
 	// test read mapfile
-	Map2d* mapData = Map2d_ReadEmbedded(0);
+	i32 mapIndex = atoi(mapName);
+	RNGPRINT("Read map index %d\n", mapIndex);
+	Map2d* mapData = Map2d_ReadEmbedded(mapIndex);
 	Map2d_DebugDump(mapData);
 	Map2dReader reader = Map2d_CreateReader(mapData);
 
+	ClearWorldVolumes();
 	// volumes
 	for (i32 i = 0; i < reader.numAABBs; ++i)
 	{
@@ -388,9 +421,9 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames)
 	return header;
 }
 
-ze_external void Sim_StartNewGame(char* map)
+ze_external void Sim_StartNewGame(char* mapName)
 {
-	FrameHeader* frame = WriteNewSession(&g_frames);
+	FrameHeader* frame = WriteNewSession(&g_frames, mapName);
 	Sim_DebugScanFrameData(0, 0);
 	Sim_RestoreFrame(frame);
 	
@@ -776,7 +809,7 @@ ze_external void Sim_Init(ZEngine engine, zeHandle sceneId)
 	InitEntityTypes();
 	Map2d_Init(engine);
 
-	Sim_StartNewGame("e1m1");
+	Sim_StartNewGame("3");
 
 	UpdateDebugText();
 }

@@ -202,6 +202,7 @@ struct EntGrunt
 	// state
 	i32 state;
 	f32 tick;
+	i32 tock;
 	f32 aimDegrees;
 	i32 targetId;
 	i32 sourceId;
@@ -220,6 +221,7 @@ struct EntGruntSave
 	// state
 	i32 state;
 	f32 tick;
+	i32 tock;
 	f32 aimDegrees;
 	i32 targetId;
 	i32 sourceId;
@@ -454,6 +456,7 @@ ze_external void Sim_SpawnSpawner(Vec2 pos);
 ze_external EntHitResponse Ent_Hit(
 	Ent2d* attacker, Ent2d* victim, DamageHit* hit);
 ze_external void Ent_MessageOnDeathById(i32 targetId, i32 victimId);
+ze_external i32 Sim_CheckLos(Vec2 a, Vec2 b);
 
 // registration
 ze_external void EntNull_Register(EntityType* type);

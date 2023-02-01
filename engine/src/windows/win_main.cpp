@@ -22,6 +22,10 @@ internal int g_bConsoleInit = FALSE;
 internal HWND consoleHandle;
 internal HMODULE g_appDLL;
 
+#define MAX_CUSTOM_MODULES 16
+internal HMODULE g_customModules[MAX_CUSTOM_MODULES];
+static i32 g_nextCustomerModule = 0;
+
 // performance counts per second
 // Read Quad Part for a complete 64 bit integer
 static LARGE_INTEGER g_timerFrequency;
@@ -131,6 +135,42 @@ internal ZGame_LinkupFunction* Win_LinkToGameDLL(char* customDir)
 		return &ZGame_StubLinkup;
 	}
 	return linkUpPtr;
+}
+
+////////////////////////////////////////////////////////
+// Game DLL link
+////////////////////////////////////////////////////////
+
+internal void* GetCustomModuleProcAddress(i32 moduleIndex, char* funcName)
+{
+	if (moduleIndex < 0 || moduleIndex >= g_nextCustomerModule)
+	{
+		printf("Module index %d is not out of bounds\n", moduleIndex);
+		return NULL;
+	}
+	HMODULE dll = g_customModules[moduleIndex];
+	void* ptr = GetProcAddress(dll, funcName);
+	if (ptr == NULL)
+	{
+		printf("Failed to find function %s in module index %d\n", funcName, moduleIndex);
+	}
+	return ptr;
+}
+
+// returns index of hmodule or -1 if failed
+internal i32 LinkToCustomModule(char* dllName)
+{
+	char targetPath[255];
+	i32 strLen = sprintf_s(targetPath, 255, dllName);
+	i32 i = g_nextCustomerModule;
+	g_customModules[i] = LoadLibraryA(targetPath);
+	if (g_customModules[i] == NULL)
+	{
+		printf("\tFailed to link to DLL %s\n", dllName);
+		return -1;
+	}
+	g_nextCustomerModule += 1;
+	return i;
 }
 
 ////////////////////////////////////////////////////////
@@ -299,6 +339,26 @@ int CALLBACK WinMain(
 	ZFileIO io = {};
 	io.WriteFile = Platform_WriteFile;
 	io.StageFile = Platform_StageFile;
+
+	i32 zpg = LinkToCustomModule("zpg.dll");
+	if (zpg >= 0)
+	{
+		printf("Found zpg dll\n");
+		void* zpgInitFn = GetCustomModuleProcAddress(zpg, "ZPG_Init");
+		if (zpgInitFn != NULL)
+		{
+			printf("Found zpg init function\n");
+		}
+		else
+		{
+			printf("Failed to find ZPG init function\n");
+		}
+	}
+	else
+	{
+		printf("Failed to find zpg dll\n");
+	}
+	
 	
 	err = ZEngine_Init(sys, io, Win_LinkToGameDLL(gameDirectory));
 	if (err != ZE_ERROR_NONE)

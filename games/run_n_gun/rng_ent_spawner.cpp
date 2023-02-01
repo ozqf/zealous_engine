@@ -84,7 +84,7 @@ ze_external void Sim_SpawnSpawner(Vec2 pos)
 	save.data.maxAlive = 3;
 	save.data.pos = pos;
 	save.data.spawnType = ENT_TYPE_ENEMY_GRUNT;
-	save.data.tick = 0;
+	save.data.tick = save.data.delay;
 	save.data.totalSpawns = 10;
 
 	Sim_RestoreEntity(&save.header);

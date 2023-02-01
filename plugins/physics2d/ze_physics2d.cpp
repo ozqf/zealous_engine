@@ -104,15 +104,24 @@ class RaycastCallback: public b2RayCastCallback
 		numResults = 0;
 	}
 
+	// Called for each fixture found in the query. You control how the ray cast proceeds by the return value:
+	// return -1: ignore this fixture and continue
+	// return 0: terminate the ray cast
+	// return fraction: clip the ray to this point
+	// return 1: don't clip the ray and continue
 	f32 ReportFixture(b2Fixture* fixture, const b2Vec2& point, const b2Vec2& normal, f32 fraction)
 	{
 		// printf("Ray hit, fraction %.3f\n", fraction);
-		if (numResults == maxResults) { return fraction; }
+		if (numResults == maxResults) { return 0; }
 
+		u16 categoryBits = fixture->GetFilterData().categoryBits;
 		// filter
-		if ((fixture->GetFilterData().categoryBits & this->mask) == 0)
+		if ((categoryBits & this->mask) == 0)
 		{
-			return fraction;
+			// printf("Filter mismatch: %d vs query %d\n",
+			// 	categoryBits, mask);
+			// return fraction;
+			return -1;
 		}
 
 		ZPRaycastResult* r = &results[numResults];
@@ -121,7 +130,7 @@ class RaycastCallback: public b2RayCastCallback
 		r->pos = Vec2_FromB2Vec2(point);
 		r->normal = Vec2_FromB2Vec2(normal);
 		r->fraction = fraction;
-		r->categoryBits = fixture->GetFilterData().categoryBits;
+		r->categoryBits = categoryBits;
 		zeHandle volId = (zeHandle)fixture->GetBody()->GetUserData().pointer;
 		ZPVolume2d* vol = (ZPVolume2d*)ZP_GetVolume(volId);
 		if (vol != NULL)

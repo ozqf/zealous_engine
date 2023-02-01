@@ -107,7 +107,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	}
 	Vec2 dir;
 	Vec2 move;
-	f32 speed = 30.f;
+	f32 speed = 50.f;
 	switch (prj->data.templateId)
 	{
 		case PRJ_TEMPLATE_ENEMY_DEFAULT:
@@ -227,6 +227,7 @@ ze_external void Sim_SpawnProjectile(Vec2 pos, f32 degrees, i32 teamId, i32 temp
 
 	// instance info
 	prj.data.pos = pos;
+	prj.data.depth = 0.1f;
 	prj.data.teamId = teamId;
 	prj.data.radians = degrees * DEG2RAD;
 	Sim_GetEntityType(ENT_TYPE_POINT_PRJ)->Restore(&prj.header, Sim_GetRestoreTick());

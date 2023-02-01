@@ -1,4 +1,5 @@
 #include "../ze_map2d.h"
+#include "map_gunn_test_a.h"
 
 #define READ_MODE_NONE 0
 #define READ_MODE_AABBS 1
@@ -12,6 +13,14 @@ char buf[bufSize]; \
 char* tokens[maxTokens]; \
 i32 numTokens = ZStr_Tokenise(charPtrToTokenise, buf, tokens, maxTokens);
 
+/*
+aabbs
+id, type, minX, minY, maxX, maxY
+lines
+id, type, aX, aY, bX, bY
+ents
+typeStr, id, x, y
+*/
 static const char* g_map_0 =
 "aabbs\n"
 "0 0 -13 7 13 7\n"      // top
@@ -25,7 +34,8 @@ static const char* g_map_0 =
 "\n"
 "ents\n"
 "spawner 100 -10 4\n"
-"spawner 101 10 4\n"
+"spawner 101 7 4\n"
+"grunt 101 -8 4\n"
 "start 102 0 -2\n"
 "\n"
 ;
@@ -44,8 +54,23 @@ static const char* g_map_1 =
 "0 0 -9 -5 9 -5\n"
 "\n"
 "ents\n"
+"grunt 100 -10 4\n"
+"grunt 101 10 4\n"
+"grunt 102 11 4\n"
+"start 103 0 -2\n"
+"\n"
+;
+
+static const char* g_map_2 =
+"aabbs\n"
+"0 0 -13 7 13 7\n"
+"0 0 -13 -8 13 -8\n"
+"0 0 -14 -8 -14 7\n"
+"0 0 14 -8 14 7\n"
+"\n"
+"\n"
+"ents\n"
 "spawner 100 -10 4\n"
-"spawner 101 10 4\n"
 "start 102 0 -2\n"
 "\n"
 ;
@@ -323,11 +348,17 @@ ze_external Map2d* Map2d_ReadEmbedded(i32 index)
         case 1:
         source = (char*)g_map_1;
         break;
+        case 2:
+        source = (char*)g_map_2;
+        break;
+        case 3:
+        source = (char*)g_gunn_test_a;
+        break;
         default:
         source = (char*)g_map_0;
         break;
     }
-    err = Map2d_FromAscii((char*)g_map_0, &map);
+    err = Map2d_FromAscii(source, &map);
     return map;
 }
 

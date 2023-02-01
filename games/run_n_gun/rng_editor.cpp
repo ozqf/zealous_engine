@@ -10,6 +10,12 @@
 #define ED_MODIFIER_1 "ed_modifier_1"
 #define ED_DELETE "ed_delete"
 
+#define ED_SOLID_GEOMETRY_MODE "ed_solid_geometry_mode"
+#define ED_LINE_GEOMETRY_MODE "ed_line_geometry_mode"
+#define ED_ENTITY_MODE "ed_entity_mode"
+
+#define ED_NEXT_ENTITY_TYPE
+
 #define DRAG_CORNER_NONE 0
 #define DRAG_CORNER_NW 1
 #define DRAG_CORNER_NE 2
@@ -31,13 +37,41 @@ struct WorldVolume
 	f32 fracY;
 };
 
+struct EdInput
+{
+	u8 moveUp;
+	u8 moveDown;
+	u8 moveLeft;
+	u8 moveRight;
+	
+	u8 mouse1;
+	u8 mouse2;
+	
+	u8 modifier1;
+	u8 del;
+
+	u8 mode1;
+	u8 mode2;
+	u8 mode3;
+};
+
+struct EdTickData
+{
+	float delta;
+	EdInput input;
+	EdInput lastInput;
+	Vec2 mouseScreenPos;
+	frameInt frameNumber;
+};
+
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_edScene = ZE_EMPTY_HANDLE;
 ze_internal zeHandle g_pointCursor = ZE_EMPTY_HANDLE;
 ze_internal zeHandle g_gridCursor = ZE_EMPTY_HANDLE;
 ze_internal ZEBlobStore g_volumes = {};
+ze_internal EdTickData g_tick = {};
 ze_internal i32 g_nextVolumeId = 1;
-ze_internal i32 g_clickMode = 0;
+ze_internal i32 g_editMode = 0;
 ze_internal i32 g_selectedVolumeId = 0;
 ze_internal Vec2 g_mouseWorldPos;
 ze_internal i32 g_dragCorner = 0;
@@ -424,8 +458,37 @@ ze_internal void Ed_UpdateDebugText()
 	}
 }
 
+ze_internal EdInput GetEdInput()
+{
+	EdInput input = {};
+	
+	input.moveUp = g_engine.input.GetActionValue(ED_MOVE_UP) > 0;
+	input.moveDown = g_engine.input.GetActionValue(ED_MOVE_DOWN) > 0;
+	input.moveLeft = g_engine.input.GetActionValue(ED_MOVE_LEFT) > 0;
+	input.moveRight = g_engine.input.GetActionValue(ED_MOVE_RIGHT) > 0;
+
+	input.mouse1 = g_engine.input.GetActionValue(ED_MOUSE_1) > 0;
+	input.mouse2 = g_engine.input.GetActionValue(ED_MOUSE_2) > 0;
+
+	input.modifier1 = g_engine.input.GetActionValue(ED_MODIFIER_1) > 0;
+	input.del = g_engine.input.GetActionValue(ED_DELETE) > 0;
+
+	input.mode1 = g_engine.input.GetActionValue(ED_SOLID_GEOMETRY_MODE) > 0;
+	input.mode2 = g_engine.input.GetActionValue(ED_LINE_GEOMETRY_MODE) > 0;
+	input.mode3 = g_engine.input.GetActionValue(ED_ENTITY_MODE) > 0;
+
+	return input;
+}
+
 ze_external void Ed_Tick(ZEFrameTimeInfo timing)
 {
+	// read input
+	g_tick.lastInput = g_tick.input;
+	g_tick.input = GetEdInput();
+	g_tick.delta = (f32)timing.interval;
+	g_tick.mouseScreenPos = App_GetCursorScreenPos();
+	g_tick.frameNumber = timing.frameNumber;
+
 	// move camera
 	f32 camSpeed = 15.f;
 	f32 camStep = camSpeed * (f32)timing.interval;
@@ -444,6 +507,28 @@ ze_external void Ed_Tick(ZEFrameTimeInfo timing)
 	ZRDrawObj* obj = g_engine.scenes.GetObject(g_edScene, g_pointCursor);
 	obj->t.pos.x = g_mouseWorldPos.x;
 	obj->t.pos.y = g_mouseWorldPos.y;
+	
+	/*
+	#define ED_SOLID_GEOMETRY_MODE "ed_solid_geometry_mode"
+	#define ED_LINE_GEOMETRY_MODE "ed_line_geometry_mode"
+	#define ED_ENTITY_MODE "ed_entity_mode"
+	
+	g_engine.input.HasActionToggledOn(ED_MOUSE_1, frameNumber)
+	*/
+	if (g_engine.input.HasActionToggledOn(ED_SOLID_GEOMETRY_MODE, timing.frameNumber))
+	{
+		g_editMode = 1;
+	}
+	else if (g_engine.input.HasActionToggledOn(ED_LINE_GEOMETRY_MODE, timing.frameNumber))
+	{
+		g_editMode = 2;
+	}
+	else if (g_engine.input.HasActionToggledOn(ED_ENTITY_MODE, timing.frameNumber))
+	{
+		g_editMode = 3;
+	}
+	
+	
 
 	TickWorldEdit((f32)timing.interval, g_mouseWorldPos, timing.frameNumber);
 	Ed_UpdateDebugText();
@@ -513,7 +598,16 @@ ze_external void Ed_Init(ZEngine engine)
 
 	g_engine.input.AddAction(Z_INPUT_CODE_LEFT_SHIFT, Z_INPUT_CODE_NULL, ED_MODIFIER_1);
 	g_engine.input.AddAction(Z_INPUT_CODE_DELETE, Z_INPUT_CODE_NULL, ED_DELETE);
-
+	
+	/*
+	#define ED_SOLID_GEOMETRY_MODE "ed_solid_geometry_mode"
+	#define ED_LINE_GEOMETRY_MODE "ed_line_geometry_mode"
+	#define ED_ENTITY_MODE "ed_entity_mode"
+	*/
+	g_engine.input.AddAction(Z_INPUT_CODE_1, Z_INPUT_CODE_NULL, ED_SOLID_GEOMETRY_MODE);
+	g_engine.input.AddAction(Z_INPUT_CODE_2, Z_INPUT_CODE_NULL, ED_LINE_GEOMETRY_MODE);
+	g_engine.input.AddAction(Z_INPUT_CODE_3, Z_INPUT_CODE_NULL, ED_ENTITY_MODE);
+	
 	// Create editor components
     BuildGrid();
 

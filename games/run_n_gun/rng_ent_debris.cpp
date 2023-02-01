@@ -132,7 +132,7 @@ ze_external void Sim_SpawnDebris(Vec2 pos, Vec2 velocity, f32 spin)
 		sizeof(DebrisEntSave)
 	);
 	debris.pos = pos;
-	debris.depth = 0;
+	debris.depth = -0.1f;
 	debris.velocity = velocity;
 	debris.angularVelocity = spin;
 	Sim_GetEntityType(ENT_TYPE_DEBRIS)->Restore(&debris.header, Sim_GetRestoreTick());
