@@ -3,7 +3,7 @@ Basic ground based enemy with simple projectile attack.
 */
 #include "rng_internal.h"
 
-#define GRUNT_THINK_TIME 2.f
+#define GRUNT_THINK_TIME 3.f
 #define GRUNT_WALK_SPEED 4.f
 
 #define AI_STATE_IDLE 0

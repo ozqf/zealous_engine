@@ -141,6 +141,7 @@ internal void Init()
 	g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, ACTION_TIME_FAST_REWIND);
 
 	g_engine.input.AddAction(Z_INPUT_CODE_ESCAPE, Z_INPUT_CODE_NULL, ACTION_MENU);
+	g_engine.input.AddAction(Z_INPUT_CODE_F1, Z_INPUT_CODE_NULL, ACTION_TOGGLE_DEBUG);
 
 	// init sub-state module
 	Ed_Init(g_engine);
@@ -392,6 +393,21 @@ internal void Game_Tick(ZEFrameTimeInfo timing)
 internal void Tick(ZEFrameTimeInfo timing)
 {
 	UpdateCursor();
+	if (g_engine.input.HasActionToggledOn(ACTION_TOGGLE_DEBUG, timing.frameNumber))
+	{
+		u32 flags = g_engine.scenes.GetSceneFlags(g_uiScene);
+		if (IF_BIT(flags, ZSCENE_FLAG_NO_DRAW))
+		{
+			g_engine.scenes.SetSceneFlag(g_uiScene, ZSCENE_FLAG_NO_DRAW, 0);
+		}
+		else
+		{
+			g_engine.scenes.SetSceneFlag(g_uiScene, ZSCENE_FLAG_NO_DRAW, 1);
+		}
+		// flags ^= ~ZSCENE_FLAG_NO_DRAW;
+		// g_engine.scenes.SetSceneFlags(g_uiScene, flags);
+		
+	}
 	if (g_bAppMenuOpen == YES)
 	{
 		Menu_Tick(timing);

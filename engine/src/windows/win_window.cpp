@@ -36,6 +36,9 @@ internal i32 g_requestedMonitorIndex = 0;
 internal i32 g_bLeftShiftOn = NO;
 internal i32 g_bRightShiftOn = NO;
 
+internal Vec2 g_mouseAccumulator = {};
+internal Vec2 g_mouseLastPos = {};
+
 ze_internal ZEBuffer g_events;
 
 // TODO: App thread can cause a 'GLFW is not initialised' error here
@@ -289,6 +292,13 @@ static void mouse_position_callback(
 	double posY)
 {
     // printf("Mouse move %.3f, %.3f\n", posX, posY);
+    g_mouseAccumulator = {};
+    g_mouseAccumulator.x += (f32)posX - g_mouseLastPos.x;
+    g_mouseAccumulator.y += (f32)posY - g_mouseLastPos.y;
+    g_mouseLastPos.x = (f32)posX;
+    g_mouseLastPos.y = (f32)posY;
+    // printf("Mouse Accumulator %.3f, %.3f\n",
+    //     g_mouseAccumulator.x, g_mouseAccumulator.y);
     // Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_X, 0, (f32)posX);
     // Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_Y, 0, (f32)posY);
 }
@@ -499,6 +509,12 @@ ze_external zErrorCode SpawnWindow()
     // check mouse state that may have been set by app before this point
     Window_SetCursorLock(g_bCursorLocked);
 
+    // enable raw mouse if available
+    if (glfwRawMouseMotionSupported())
+    {
+        glfwSetInputMode(g_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    }
+
     #if 0
     // Initialise the renderer itself
     ErrorCode err = ZRGL_Init(g_windowSize.width, g_windowSize.height);
@@ -538,6 +554,16 @@ ze_external zErrorCode ZWindow_Init()
     return 0;
 }
 
+// returns normalised mouse movement and resets accumulator
+ze_internal Vec2 ReadMouseAccumulator()
+{
+    Vec2 result = g_mouseAccumulator;
+    g_mouseAccumulator = {};
+    result.x = (f32)result.x / g_windowSize[0];
+    result.y = (f32)result.y / g_windowSize[1];
+    return result;
+}
+
 ze_external void Platform_PollEvents()
 {
     g_events.Clear(NO);
@@ -548,14 +574,27 @@ ze_external void Platform_PollEvents()
     //     printf("Read %d bytes of platform events\n", bytesRead);
     // }
     // ...broadcast events here?
+
+    // Write mouse position
     f64 posX, posY;
     glfwGetCursorPos(g_window, &posX, &posY);
-    f32 nX = (f32)posX / g_windowSize[0];
-    f32 nY = (f32)posY / g_windowSize[1];
+    f32 nX = (f32)posX / (f32)g_windowSize[0];
+    f32 nY = (f32)posY / (f32)g_windowSize[1];
     nX = (nX * 2.f) - 1.f;
     nY = (nY * 2.f) - 1.f;
     Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_X, (i32)posX, nX, ZEngine_GetFrameNumber());
     Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_POS_Y, (i32)posY, nY, ZEngine_GetFrameNumber());
+
+    // write mouse movement
+    Vec2 mouseMove = g_mouseAccumulator;
+    g_mouseAccumulator = {};
+    Vec2 mouseMoveNormal;
+    mouseMoveNormal.x = mouseMove.x / (f32)g_windowSize[0];
+    mouseMoveNormal.y = mouseMove.y / (f32)g_windowSize[1];
+
+    Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_MOVE_X, (i32)mouseMove.x, mouseMoveNormal.x, ZEngine_GetFrameNumber());
+    Sys_WriteInputEvent(&g_events, Z_INPUT_CODE_MOUSE_MOVE_Y, (i32)mouseMove.y, mouseMoveNormal.y, ZEngine_GetFrameNumber());
+
     //ZEBuffer* buf = &g_events;
     BUF_BLOCK_BEGIN_READ((&g_events), header)
         if (header->type == ZE_SYS_EVENT_TYPE_INPUT)

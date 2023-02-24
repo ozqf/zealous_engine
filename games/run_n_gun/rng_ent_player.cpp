@@ -61,6 +61,19 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		ent->d.player.physicsBodyId = ZP_AddBody(def);
 		RNGPRINT("Player body Id: %d\n", ent->d.player.physicsBodyId);
 		
+		// add hitbox
+		def = {};
+		def.bIsStatic = YES;
+		def.bLockRotation = YES;
+		def.friction = 0;
+		def.resitition = 0;
+		def.externalId = ent->id;
+		def.categoryBits = PHYSICS_LAYER_BIT_PLAYER_HITBOX;
+		def.maskBits = PHYSICS_LAYER_BIT_PLAYER_HITBOX;
+		def.shape.radius = { 0.1f, 0.1f, };
+		def.shape.pos = state->pos;
+		ent->d.player.hitboxBodyId = ZP_AddBody(def);
+		
 		// restore state
 		ent->d.player.aimDegrees = state->aimDegrees;
 		ent->d.player.buttons = state->buttons;
@@ -144,6 +157,8 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 
 	BodyState body = ZP_GetBodyState(player->physicsBodyId);
 
+	ZP_SetBodyPosition(player->hitboxBodyId, body.t.pos);
+
 	// query ground
 	//ZPShapeDef shape = ZP_GetBodyShape(player->physicsBodyId);
 	//Vec2 groundQuery = Vec2_Add(body.t.pos, { 0, shape.radius.y - 0.01f });
@@ -163,8 +178,8 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	
 	Vec2 v = body.velocity;
 
-	// if holding down or moving up, disable platform collisions
-	if (inputDir.y < 0 || v.y > 0.f)
+	// if holding down (or up!) or moving up, disable platform collisions
+	if (inputDir.y != 0 || v.y > 0.f)
 	{
 		ZP_SetBodyMaskBit(player->physicsBodyId, PHYSICS_LAYER_BIT_PLATFORM, NO);
 	}

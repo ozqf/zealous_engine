@@ -285,6 +285,20 @@ internal void TickPlayer(Entity* ent, f32 delta)
 
     ent->t.pos = ZE_BoundaryPointCheck(ent->t.pos, &g_arenaBounds);
 
+    f32 mouseX = g_engine.input.GetActionValueNormalised("mouse_x");
+    const float sensitivity = 100;
+    mouseX *= sensitivity;
+
+    // M3x3_RotateY(ent->t.rotation.cells, mouseX);
+    M3x3_RotateByAxis(ent->t.rotation.cells, mouseX, 0, 1, 0);
+    Vec3 euler = M3x3_GetEulerAnglesRadians(ent->t.rotation.cells);
+    
+    if (mouseX != 0)
+    {
+        printf("r3d mouseX %.3f euler - %.3f, %.3f, %.3f\n",
+            mouseX, euler.x, euler.y, euler.z);
+    }
+    
     SyncEntityDrawObj(ent);
     
     if (ent->tick > 0)
@@ -390,6 +404,7 @@ ZCMD_CALLBACK(Exec_LoadLevel)
 
 internal void Init()
 {
+	g_engine.input.SetCursorLocked(YES);
     // register inputs
     g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, "move_left");
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, "move_right");
@@ -403,6 +418,9 @@ internal void Init()
 
     g_engine.input.AddAction(Z_INPUT_CODE_SPACE, Z_INPUT_CODE_NULL, "menu_confirm");
     g_engine.input.AddAction(Z_INPUT_CODE_R, Z_INPUT_CODE_NULL, "debug_spawn");
+
+    g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_MOVE_X, Z_INPUT_CODE_NULL, "mouse_x");
+    g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_MOVE_X, Z_INPUT_CODE_NULL, "mouse_y");
 
     // register custom console command callbacks
     g_engine.textCommands.RegisterCommand(

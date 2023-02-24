@@ -39,6 +39,7 @@ printf(fmt, __VA_ARGS__)
 #define PHYSICS_LAYER_BIT_MOBS (1 << 2)
 #define PHYSICS_LAYER_BIT_PLAYER (1 << 3)
 #define PHYSICS_LAYER_BIT_DEBRIS (1 << 4)
+#define PHYSICS_LAYER_BIT_PLAYER_HITBOX (1 << 5)
 
 #define PRJ_TEMPLATE_ENEMY_DEFAULT 0
 #define PRJ_TEMPLATE_PLAYER_DEFAULT 1
@@ -63,6 +64,7 @@ printf(fmt, __VA_ARGS__)
 #define ACTION_TIME_FAST_REWIND "fast_rewind"
 
 #define ACTION_MENU "menu"
+#define ACTION_TOGGLE_DEBUG "toggle_debug"
 
 // button bits
 #define INPUT_BIT_LEFT (1 << 0)
@@ -173,6 +175,7 @@ struct EntPlayer
 	zeHandle bodyDrawId = 0;
 	zeHandle gunDrawId = 0;
 	zeHandle physicsBodyId = 0;
+	zeHandle hitboxBodyId = 0;
 };
 
 struct PlayerEntSave

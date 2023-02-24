@@ -623,7 +623,7 @@ inline void M3x3_BuildRotateByAxis(f32 *m, f32 radians, f32 x, f32 y, f32 z)
 // Rotate m radians degrees around the axis x/y/z
 inline void M3x3_RotateByAxis(f32 *m, f32 radians, f32 x, f32 y, f32 z)
 {
-	f32 temp[16];
+	f32 temp[9];
 	M3x3_BuildRotateByAxis(temp, radians, x, y, z);
 	M3x3_Multiply(m, temp, m);
 }

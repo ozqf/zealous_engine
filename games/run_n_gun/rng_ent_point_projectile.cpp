@@ -135,7 +135,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	const i32 maxResults = 16;
 	i32 numResults = 0;
 	i32 bCull = NO;
-	u16 mask = PHYSICS_LAYER_BIT_WORLD | PHYSICS_LAYER_BIT_MOBS | PHYSICS_LAYER_BIT_PLAYER | PHYSICS_LAYER_BIT_DEBRIS;
+	u16 mask = PHYSICS_LAYER_BIT_WORLD | PHYSICS_LAYER_BIT_MOBS | PHYSICS_LAYER_BIT_PLAYER_HITBOX | PHYSICS_LAYER_BIT_DEBRIS;
 	/*
 	ZAABBResult aabbs[maxResults];
 	Vec2 min, max;
