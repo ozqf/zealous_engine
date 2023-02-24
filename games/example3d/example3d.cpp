@@ -166,6 +166,7 @@ internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir)
 
 internal Entity* CreatePlayer(Vec3 pos, f32 yaw)
 {
+	g_engine.input.SetCursorLocked(YES);
     Entity* ent = CreateEntity(ENT_TYPE_PLAYER);
     if (ent == NULL) { return NULL; }
     ent->t.pos = pos;
@@ -289,15 +290,36 @@ internal void TickPlayer(Entity* ent, f32 delta)
     const float sensitivity = 100;
     mouseX *= sensitivity;
 
+    // flip so +x on mouse == -y (anti-clockwise) on subject
+    mouseX = -mouseX;
+
     // M3x3_RotateY(ent->t.rotation.cells, mouseX);
     M3x3_RotateByAxis(ent->t.rotation.cells, mouseX, 0, 1, 0);
     Vec3 euler = M3x3_GetEulerAnglesRadians(ent->t.rotation.cells);
+
+    // move camera
+    Vec3 camPos = ent->t.pos;
+    Vec3 z = ent->t.rotation.zAxis;
+
+    z.x *= 2.5f;
+    z.y = 6;
+    z.z *= 2.5f;
+
+    camPos = Vec3_Add(camPos, z);
+    g_camera.pos = camPos;
+
+    printf("ZAxis %.3f, %.3f, %.3f\n", z.x, z.y, z.z);
+    // camPos = Vec3_Subtract(camPos, Vec3_MulF(ent->t.rotation.zAxis, 2.5f));
+    // camPos.z += 2.5f;
+    // g_camera.pos = camPos;
+    Transform_SetRotation(&g_camera, -75.f * DEG2RAD, euler.y, 0);
+    g_engine.scenes.SetCamera(g_gameScene, g_camera);
     
-    if (mouseX != 0)
-    {
-        printf("r3d mouseX %.3f euler - %.3f, %.3f, %.3f\n",
-            mouseX, euler.x, euler.y, euler.z);
-    }
+    // if (mouseX != 0)
+    // {
+    //     printf("r3d mouseX %.3f euler - %.3f, %.3f, %.3f\n",
+    //         mouseX, euler.x, euler.y, euler.z);
+    // }
     
     SyncEntityDrawObj(ent);
     
@@ -404,7 +426,6 @@ ZCMD_CALLBACK(Exec_LoadLevel)
 
 internal void Init()
 {
-	g_engine.input.SetCursorLocked(YES);
     // register inputs
     g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, "move_left");
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, "move_right");

@@ -484,7 +484,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_4()
     if (engine.input.GetActionValue("move_down")) { move.y -= 1; }
 
     Vec3 moveDir = M3x3_Calculate3DMove(&camera.rotation, move);
-    Vec3_MulF(&moveDir, 10.f * delta);
+    Vec3_MulFPtr(&moveDir, 10.f * delta);
     Vec3_AddTo(&camera.pos, moveDir);
 
     if (engine.input.GetActionValue("move_forward"))

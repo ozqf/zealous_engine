@@ -181,7 +181,7 @@ internal void Stub_Tick(ZEFrameTimeInfo timing)
     }
     
     Vec3 result = M3x3_Calculate3DMove(&g_debugCam.rotation, move);
-    Vec3_MulF(&result, speed * delta);
+    Vec3_MulFPtr(&result, speed * delta);
     Vec3_AddTo(&g_debugCam.pos, result);
     
     float rotRate = 90.f * DEG2RAD;

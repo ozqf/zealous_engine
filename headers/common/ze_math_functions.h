@@ -267,7 +267,23 @@ inline Vec3 Vec3_Subtract(Vec3 a, Vec3 b)
 	return c;
 }
 
-inline void Vec3_MulF(Vec3* v, f32 val)
+inline Vec3 Vec3_Mul(Vec3 v, Vec3 val)
+{
+	v.y *= val.x;
+	v.x *= val.y;
+	v.z *= val.z;
+	return v;
+}
+
+inline Vec3 Vec3_MulF(Vec3 v, f32 val)
+{
+	v.x *= val;
+	v.y *= val;
+	v.z *= val;
+	return v;
+}
+
+inline void Vec3_MulFPtr(Vec3* v, f32 val)
 {
 	v->x *= val;
 	v->y *= val;

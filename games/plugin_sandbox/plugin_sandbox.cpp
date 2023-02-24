@@ -24,7 +24,7 @@ internal void RunMapParseTest()
 	for (int i = 0; i < output->numVerts; ++i)
 	{
 		Vec3 pos = output->verts[i];
-		Vec3_MulF(&pos, 0.25f);
+		Vec3_MulFPtr(&pos, 0.25f);
 		ZRDrawObj* obj = g_engine.scenes.AddCube(g_gameScene, NULL);
 		obj->t.pos = pos;
 	}
@@ -111,7 +111,7 @@ internal void TickCamera(f32 delta)
     }
     
     Vec3 result = M3x3_Calculate3DMove(&g_debugCam.rotation, move);
-    Vec3_MulF(&result, speed * delta);
+    Vec3_MulFPtr(&result, speed * delta);
     Vec3_AddTo(&g_debugCam.pos, result);
     
     float rotRate = 90.f * DEG2RAD;
