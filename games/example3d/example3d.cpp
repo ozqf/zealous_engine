@@ -5,6 +5,9 @@
 // for rand()
 #include <stdlib.h>
 
+#define GAME_SCENE_CAPACITY 2048
+#define UI_SCENE_CAPACITY 1024
+
 #define MOVE_LEFT "move_left"
 #define MOVE_RIGHT "move_right"
 #define MOVE_UP "move_up"
@@ -16,6 +19,8 @@
 #define SHOOT_UP "shoot_up"
 #define SHOOT_DOWN "shoot_down"
 
+#define ENEMY_SPAWN_SCALE { 0.1f, 10.f, 0.1f }
+
 #define ENT_FLAG_COLLISION_SOLID (1 << 0)
 
 #define MAX_ENTITIES 256
@@ -23,11 +28,16 @@
 #define ENT_TYPE_NONE 0
 #define ENT_TYPE_PLAYER 1
 #define ENT_TYPE_PLAYER_PROJECTILE 2
-#define ENT_TYPE_ENEMY 3
+#define ENT_TYPE_ENEMY_BOUNCER 3
 #define ENT_TYPE_SPAWNER 4
+#define ENT_TYPE_ENEMY_CHASER 5
+
+#define ENT_CATEGORY_NONE 0
+#define ENT_CATEGORY_ENEMY 1
 
 #define ENT_STATE_NONE 0
 #define ENT_STATE_DEAD 1 // do not interact with anything that is dead!
+#define ENT_STATE_SPAWNING 2
 
 #define GAME_STATE_TITLE 0
 #define GAME_STATE_STARTUP 1
@@ -45,11 +55,13 @@ struct Entity
 {
     i32 id;
     i32 type;
+	i32 category;
     i32 state;
     f32 tick;
     i32 flags;
     Transform t;
     Vec3 velocity;
+	Vec3 baseScale;
     AABB aabb;
     zeHandle drawObj;
     EntityTick* tickFunction;
@@ -62,12 +74,14 @@ struct Entity
 // add/remove entity definitions
 internal Entity* CreateEntity(i32 entType);
 internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir);
-internal Entity* CreateEnemy(Vec3 pos, f32 yaw);
+internal Entity* CreateBouncer(Vec3 pos, f32 yaw);
+internal Entity* CreateChaser(Vec3 pos, f32 yaw);
+internal Entity* CreateTank(Vec3 pos, f32 yaw);
 
 // entity update functions
 internal void TickPlayer(Entity* ent, f32 delta);
 internal void TickProjectile(Entity *ent, f32 delta);
-internal void TickEnemy(Entity* ent, f32 delta);
+internal void TickEnemyBouncer(Entity* ent, f32 delta);
 
 internal i32 g_gameState = 0;
 internal i32 g_pendingState = -1;
@@ -89,10 +103,19 @@ internal ZRMeshObjData g_wallMeshObjData;
 internal ZRMeshObjData g_projMeshObjData;
 internal ZRMeshObjData g_enemyMeshObjData;
 
+// test spawn modes
+internal i32 g_spawnMode = 0;
+internal i32 g_activeMobCount = 0;
+internal f32 g_mobSpawnTick = 0;
 
 ///////////////////////////////////////////////////
 // implementations
 ///////////////////////////////////////////////////
+
+internal f32 RandF32()
+{
+    return (f32)rand() / RAND_MAX;
+}
 
 internal Entity* CreateEntity(i32 entType)
 {
@@ -144,15 +167,27 @@ internal void SyncEntityDrawObj(Entity* ent)
     ZRDrawObj *obj = g_engine.scenes.GetObject(g_gameScene, ent->drawObj);
     if (obj == NULL) { return; }
     obj->t.pos = ent->t.pos;
+	obj->t.scale = ent->t.scale;
     obj->t.rotation = ent->t.rotation;
 }
 
+internal void BeginSpawning(Entity* ent)
+{
+	ent->flags &= ~ENT_FLAG_COLLISION_SOLID;
+	ent->state = ENT_STATE_SPAWNING;
+	ent->t.scale = ENEMY_SPAWN_SCALE;
+	ent->tick = 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Create Entities
+//////////////////////////////////////////////////////////////////////////////
 internal Entity* CreatePlayerProjectile(Vec3 pos, Vec3 dir)
 {
     Entity *ent = CreateEntity(ENT_TYPE_PLAYER_PROJECTILE);
     if (ent == NULL) { return NULL; }
     ent->tickFunction = TickProjectile;
-    Vec3_SetMagnitude(&dir, 10);
+    Vec3_SetMagnitude(&dir, 20);
     ent->t.pos = pos;
     ent->velocity = dir;
     ent->t.scale = {0.2f, 0.2f, 0.2f};
@@ -183,21 +218,82 @@ internal Entity* CreatePlayer(Vec3 pos, f32 yaw)
     return ent;
 }
 
-internal Entity* CreateEnemy(Vec3 pos, f32 yaw)
+internal Entity* CreateGenericEnemy(
+	Vec3 pos,
+	f32 yaw,
+	int entType,
+	EntityTick* tickFunction)
 {
-    // if entity list is filling up leave a little space in
+	// if entity list is filling up leave a little space in
     // entity capacity for projectiles to be spawned!
     if (g_entities.FreeSlotCount() < 12) { return NULL; }
-    Entity* ent = CreateEntity(ENT_TYPE_ENEMY);
+    Entity* ent = CreateEntity(entType);
     if (ent == NULL) { return NULL; }
-    ent->tickFunction = TickEnemy;
+	ent->category = ENT_CATEGORY_ENEMY;
+    ent->tickFunction = tickFunction;
     ent->t.pos = pos;
     ent->t.scale = { 0.5f, 0.5f, 0.5f };
+	ent->baseScale = ent->t.scale;
     ent->flags |= ENT_FLAG_COLLISION_SOLID;
     ent->aabb.min = { -0.25f, -0.25f, -0.25f };
     ent->aabb.max = { 0.25f, 0.25f, 0.25f };
     AttachModelToEntity(ent, g_enemyMeshObjData, {});
+	
+	BeginSpawning(ent);
+	
     return ent;
+}
+
+internal Entity* CreateBouncer(Vec3 pos, f32 yaw)
+{
+    // if entity list is filling up leave a little space in
+    // entity capacity for projectiles to be spawned!
+    /*
+	if (g_entities.FreeSlotCount() < 12) { return NULL; }
+    Entity* ent = CreateEntity(ENT_TYPE_ENEMY_BOUNCER);
+    if (ent == NULL) { return NULL; }
+	ent->category = ENT_CATEGORY_ENEMY;
+    ent->tickFunction = TickEnemyBouncer;
+    ent->t.pos = pos;
+    ent->t.scale = { 0.5f, 0.5f, 0.5f };
+	ent->baseScale = ent->t.scale;
+    ent->flags |= ENT_FLAG_COLLISION_SOLID;
+    ent->aabb.min = { -0.25f, -0.25f, -0.25f };
+    ent->aabb.max = { 0.25f, 0.25f, 0.25f };
+    AttachModelToEntity(ent, g_enemyMeshObjData, {});
+	*/
+	Entity* ent = CreateGenericEnemy(pos, yaw, ENT_TYPE_ENEMY_BOUNCER, TickEnemyBouncer);
+	BeginSpawning(ent);
+	
+    return ent;
+}
+
+
+internal Entity* CreateChaser(Vec3 pos, f32 yaw)
+{
+	Entity* ent = CreateGenericEnemy(pos, yaw, ENT_TYPE_ENEMY_CHASER, TickEnemyBouncer);
+	BeginSpawning(ent);
+}
+
+internal Entity* CreateTank(Vec3 pos, f32 yaw)
+{
+	
+}
+
+internal void SpawnTestEnemy()
+{
+    f32 rX = (f32)rand() / RAND_MAX;
+    // f32 rY = (f32)rand() / RAND_MAX;
+    f32 rZ = (f32)rand() / RAND_MAX;
+    Vec3 p = AABB_RandomInside(g_arenaBounds, rX, 0.5f, rZ);
+    // printf("Random: %.3f, %.3f, %.3f\n",
+    //     p.x, p.y, p.z);
+    Entity* ent = CreateBouncer(p, 0);
+	f32 radians = RandF32() * 360.f;
+    radians = radians * DEG2RAD;
+    ent->velocity.x = cosf(radians) * 2.f;
+    ent->velocity.z = sinf(radians) * 2.f;
+    // printf("Spawn enemy, ent count %d\n", g_entities.Count());
 }
 
 internal i32 TouchEntities(Entity* a, Entity* b)
@@ -205,7 +301,8 @@ internal i32 TouchEntities(Entity* a, Entity* b)
     return 0;
 }
 
-internal void CheckCollision(
+// No broadphase!
+internal void FindOverlaps(
     Entity *subject, i32* resultIds, i32* numResults, i32 maxResults)
 {
     for (i32 i = 0; i < g_entities.m_array->m_numBlobs; ++i)
@@ -220,7 +317,7 @@ internal void CheckCollision(
         if ((ent->flags & ENT_FLAG_COLLISION_SOLID) == 0) { continue; }
 
         // TODO - remove me - filtering to just enemies
-        if (ent->type != ENT_TYPE_ENEMY) { continue; }
+        if (ent->type != ENT_TYPE_ENEMY_BOUNCER) { continue; }
 
         // test
         AABB mobAABB = ZE_CreateWorldAABB(ent->t.pos, &ent->aabb);
@@ -236,21 +333,47 @@ internal void CheckCollision(
     }
 }
 
-internal void SpawnTestEnemy()
+//////////////////////////////////////////////////////////////////////////////
+// Entity Ticks
+//////////////////////////////////////////////////////////////////////////////
+internal void TickEnemyBouncer(Entity* ent, f32 delta)
 {
-    f32 rX = (f32)rand() / RAND_MAX;
-    // f32 rY = (f32)rand() / RAND_MAX;
-    f32 rZ = (f32)rand() / RAND_MAX;
-    Vec3 p = AABB_RandomInside(g_arenaBounds, rX, 0.5f, rZ);
-    // printf("Random: %.3f, %.3f, %.3f\n",
-    //     p.x, p.y, p.z);
-    CreateEnemy(p, 0);
-    // printf("Spawn enemy, ent count %d\n", g_entities.Count());
+	switch (ent->state)
+	{
+		case ENT_STATE_NONE:
+		{
+			ent->t.pos.x += ent->velocity.x * delta;
+			ent->t.pos.z += ent->velocity.z * delta;
+			ZE_SimpleBoundaryBounce1D(&ent->t.pos.x, &ent->velocity.x, g_arenaBounds.min.x, g_arenaBounds.max.x);
+			ZE_SimpleBoundaryBounce1D(&ent->t.pos.z, &ent->velocity.z, g_arenaBounds.min.z, g_arenaBounds.max.z);
+		}
+		break;
+		
+		case ENT_STATE_SPAWNING:
+		{
+			// activate?
+			if (ent->tick >= 1)
+			{
+				ent->t.scale = ent->baseScale;
+				ent->tick = 0;
+				ent->state = ENT_STATE_NONE;
+				ent->flags |= ENT_FLAG_COLLISION_SOLID;
+			}
+			else
+			{
+				f32 weight = ent->tick / 1.f;
+				ent->t.scale = Vec3_Lerp(ENEMY_SPAWN_SCALE, ent->baseScale, weight);
+				ent->tick += delta;
+			}
+		}
+		break;
+	}
+    SyncEntityDrawObj(ent);
 }
 
-internal void TickEnemy(Entity* ent, f32 delta)
+internal void TickChaser(Entity* ent, f32 delta)
 {
-    ent->t.pos = ZE_BoundaryPointCheck(ent->t.pos, &g_arenaBounds);
+    SyncEntityDrawObj(ent);
 }
 
 internal void TickPlayer(Entity* ent, f32 delta)
@@ -275,19 +398,27 @@ internal void TickPlayer(Entity* ent, f32 delta)
     }
 
     Vec3_Normalise(&moveDir);
-    moveDir.x *= MOVE_SPEED * delta;
-    moveDir.y *= MOVE_SPEED * delta;
-    moveDir.z *= MOVE_SPEED * delta;
-
-    
-    ent->t.pos.x += moveDir.x;
-    ent->t.pos.y += moveDir.y;
-    ent->t.pos.z += moveDir.z;
+	
+	Vec3 push = M3x3_Calculate3DMove(&ent->t.rotation, moveDir);
+	
+	float stepDist = MOVE_SPEED * delta;
+	
+	push = Vec3_MulF(push, stepDist);
+	ent->t.pos = Vec3_Add(ent->t.pos, push);
+	
+    // moveDir.x *= MOVE_SPEED * delta;
+    // moveDir.y *= MOVE_SPEED * delta;
+    // moveDir.z *= MOVE_SPEED * delta;
+	
+    // ent->t.pos.x += moveDir.x;
+    // ent->t.pos.y += moveDir.y;
+    // ent->t.pos.z += moveDir.z;
 
     ent->t.pos = ZE_BoundaryPointCheck(ent->t.pos, &g_arenaBounds);
 
     f32 mouseX = g_engine.input.GetActionValueNormalised("mouse_x");
-    const float sensitivity = 100;
+    
+	const float sensitivity = 5;
     mouseX *= sensitivity;
 
     // flip so +x on mouse == -y (anti-clockwise) on subject
@@ -300,19 +431,21 @@ internal void TickPlayer(Entity* ent, f32 delta)
     // move camera
     Vec3 camPos = ent->t.pos;
     Vec3 z = ent->t.rotation.zAxis;
-
-    z.x *= 2.5f;
+	
+	f32 camDist = 1.5f;
+	
+    z.x *= camDist;
     z.y = 6;
-    z.z *= 2.5f;
+    z.z *= camDist;
 
     camPos = Vec3_Add(camPos, z);
     g_camera.pos = camPos;
 
-    printf("ZAxis %.3f, %.3f, %.3f\n", z.x, z.y, z.z);
+    //printf("ZAxis %.3f, %.3f, %.3f\n", z.x, z.y, z.z);
     // camPos = Vec3_Subtract(camPos, Vec3_MulF(ent->t.rotation.zAxis, 2.5f));
     // camPos.z += 2.5f;
     // g_camera.pos = camPos;
-    Transform_SetRotation(&g_camera, -75.f * DEG2RAD, euler.y, 0);
+    Transform_SetRotation(&g_camera, -60.f * DEG2RAD, euler.y, 0);
     g_engine.scenes.SetCamera(g_gameScene, g_camera);
     
     // if (mouseX != 0)
@@ -350,6 +483,12 @@ internal void TickPlayer(Entity* ent, f32 delta)
         shootDir.z += 1;
         bShoot = YES;
     }
+	if (g_engine.input.GetActionValue("shoot_forward"))
+	{
+		shootDir = ent->t.rotation.zAxis;
+		shootDir = Vec3_Flipped(shootDir);
+		bShoot = YES;
+	}
     if (bShoot == YES && ent->tick <= 0)
     {
         ent->tick = 0.1f;
@@ -361,10 +500,20 @@ internal void TickPlayer(Entity* ent, f32 delta)
     i32 touchResults[maxTouchResults];
     i32 numTouchResults = 0;
 
-    CheckCollision(ent, touchResults, &numTouchResults, maxTouchResults);
-    if (numTouchResults > 0)
+    FindOverlaps(ent, touchResults, &numTouchResults, maxTouchResults);
+	int numEnemyOverlaps = 0;
+	for (int i = 0; i < numTouchResults; ++i)
+	{
+		Entity *other = (Entity *)g_entities.GetByIndex(i);
+		if (other->type == ENT_TYPE_ENEMY_BOUNCER)
+		{
+			numEnemyOverlaps += 1;
+		}
+	}
+	
+    if (numEnemyOverlaps > 0)
     {
-        printf("Player touching %d ents\n", numTouchResults);
+        printf("Player touching %d enemies\n", numTouchResults);
     }
 }
 
@@ -393,7 +542,7 @@ internal void TickProjectile(Entity* ent, f32 delta)
     i32 touchResults[maxTouchResults];
     i32 numTouchResults = 0;
 
-    CheckCollision(ent, touchResults, &numTouchResults, maxTouchResults);
+    FindOverlaps(ent, touchResults, &numTouchResults, maxTouchResults);
     // if (numTouchResults > 0)
     // {
     //     printf("Projectile touching %d ents\n", numTouchResults);
@@ -436,12 +585,18 @@ internal void Init()
     g_engine.input.AddAction(Z_INPUT_CODE_RIGHT, Z_INPUT_CODE_NULL, "shoot_right");
     g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, "shoot_up");
     g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, "shoot_down");
+	
+    g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_1, Z_INPUT_CODE_NULL, "shoot_forward");
 
     g_engine.input.AddAction(Z_INPUT_CODE_SPACE, Z_INPUT_CODE_NULL, "menu_confirm");
     g_engine.input.AddAction(Z_INPUT_CODE_R, Z_INPUT_CODE_NULL, "debug_spawn");
 
     g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_MOVE_X, Z_INPUT_CODE_NULL, "mouse_x");
     g_engine.input.AddAction(Z_INPUT_CODE_MOUSE_MOVE_X, Z_INPUT_CODE_NULL, "mouse_y");
+	
+    g_engine.input.AddAction(Z_INPUT_CODE_0, Z_INPUT_CODE_NULL, "slot_0");
+    g_engine.input.AddAction(Z_INPUT_CODE_1, Z_INPUT_CODE_NULL, "slot_1");
+    g_engine.input.AddAction(Z_INPUT_CODE_2, Z_INPUT_CODE_NULL, "slot_2");
 
     // register custom console command callbacks
     g_engine.textCommands.RegisterCommand(
@@ -452,7 +607,7 @@ internal void Init()
     //////////////////////////////////////////////////////////////
 
     // register a visual scene
-    g_gameScene = g_engine.scenes.AddScene(0, 1024, 0);
+    g_gameScene = g_engine.scenes.AddScene(0, GAME_SCENE_CAPACITY, 0);
 
     // setup camera and projection
     g_engine.scenes.SetProjection3D(g_gameScene, ZR_DEFAULT_FOV);
@@ -467,15 +622,17 @@ internal void Init()
     // Create UI scene
     //////////////////////////////////////////////////////////////
 
-	g_uiScene = g_engine.scenes.AddScene(0, 1024, 0);
+	g_uiScene = g_engine.scenes.AddScene(0, UI_SCENE_CAPACITY, 0);
     g_engine.scenes.SetProjectionOrtho(g_uiScene, 8);
     
 	// find charsheet texture
 	i32 textureId = g_engine.assets.GetTexByName(
         FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME)->header.id;
 	ZRDrawObj* textObj = g_engine.scenes.AddObject(g_uiScene);
-	textObj->data.SetAsText("Test Text.", textureId, COLOUR_U32_GREEN, COLOUR_U32_EMPTY, 0);
-	textObj->t.scale = { 0.25f, 0.25f, 0.25f };
+	textObj->data.SetAsText(
+		"Space - Start.\nR - spawn a mob in spawn mode 0.\nNumber keys to change spawn mode.",
+		textureId, COLOUR_U32_GREEN, COLOUR_U32_EMPTY, 0);
+	textObj->t.scale = { 0.2f, 0.2f, 0.2f };
 	textObj->t.pos = { -8, 7, 0 };
 
     //////////////////////////////////////////////////////////////
@@ -638,7 +795,7 @@ internal void ChangeState(i32 newState)
     }
 }
 
-internal void TickTitle(ZEFrameTimeInfo timing)
+internal void GameTickTitle(ZEFrameTimeInfo timing)
 {
     if (g_engine.input.GetActionValue("menu_confirm") != 0)
     {
@@ -646,20 +803,46 @@ internal void TickTitle(ZEFrameTimeInfo timing)
     }
 }
 
-internal void TickStarting(ZEFrameTimeInfo timing)
+internal void GameTickStarting(ZEFrameTimeInfo timing)
 {
     ChangeState(GAME_STATE_PLAYING);
 }
 
-internal void TickPlaying(ZEFrameTimeInfo timing)
+internal void GameTickPlaying(ZEFrameTimeInfo timing)
 {
-    if (g_engine.input.GetActionValue("debug_spawn"))
-    {
-        SpawnTestEnemy();
-    }
+	if (g_engine.input.GetActionValue("slot_0"))
+	{
+		g_spawnMode = 0;
+	}
+	if (g_engine.input.GetActionValue("slot_1"))
+	{
+		g_spawnMode = 1;
+	}
+	
+	switch (g_spawnMode)
+	{
+		case 1:
+		{
+			g_mobSpawnTick -= (f32)timing.interval;
+			if (g_mobSpawnTick <= 0.0)
+			{
+				g_mobSpawnTick = 0.25f;
+				SpawnTestEnemy();
+			}
+		}
+		break;
+		default:
+		{
+			if (g_engine.input.GetActionValue("debug_spawn"))
+			{
+				SpawnTestEnemy();
+			}
+		}
+		break;
+	}
 }
 
-internal void TickDead(ZEFrameTimeInfo timing)
+internal void GameTickDead(ZEFrameTimeInfo timing)
 {
     
 }
@@ -675,16 +858,16 @@ internal void Tick(ZEFrameTimeInfo timing)
     switch (g_gameState)
     {
         case GAME_STATE_PLAYING:
-        TickPlaying(timing);
+        GameTickPlaying(timing);
         break;
         case GAME_STATE_STARTUP:
-        TickStarting(timing);
+        GameTickStarting(timing);
         break;
         case GAME_STATE_DEAD:
-        TickDead(timing);
+        GameTickDead(timing);
         break;
         case GAME_STATE_TITLE:
-        TickTitle(timing);
+        GameTickTitle(timing);
         break;
         default:
         SetPendingState(GAME_STATE_TITLE);

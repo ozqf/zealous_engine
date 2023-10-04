@@ -63,6 +63,13 @@ struct ZPRaycastResult
     u16 categoryBits;
 };
 
+struct ZPStats
+{
+    int numRegisteredDynamic;
+    int numRegisteredStatic;
+    int numBodies;
+};
+
 // construct
 // ze_external zeHandle ZP_AddDynamicVolume(ZPShapeDef def);
 ze_external zeHandle ZP_AddStaticVolume(
@@ -93,5 +100,6 @@ ze_external i32 ZP_GroundTest(zeHandle physicsBody, u16 mask);
 // lifetime
 ze_external void ZPhysicsInit(ZEngine engine);
 ze_external void ZPhysicsTick(f32 delta);
+ze_external ZPStats ZPhysicsStats();
 
 #endif ZE_PHYSICS2D_H

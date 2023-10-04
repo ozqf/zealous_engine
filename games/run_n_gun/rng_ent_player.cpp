@@ -130,6 +130,7 @@ ze_internal void Remove(Ent2d* ent)
 	g_engine.scenes.RemoveObject(g_scene, ent->d.player.gunDrawId);
 	
 	ZP_RemoveBody(ent->d.player.physicsBodyId);
+	ZP_RemoveBody(ent->d.player.hitboxBodyId);
 	
 	ent->type = ENT_TYPE_NONE;
 	Sim_RemoveEntityBase(ent);
@@ -275,6 +276,7 @@ ze_internal void Sync(Ent2d* ent)
 	obj->data.quad.colour = c;
 	
 	// camera
+	// TODO - camera should have it's own logic not just force set here!
 	#if 1
 	Transform camera = g_engine.scenes.GetCamera(g_scene);
 	camera.pos.x = body.t.pos.x;

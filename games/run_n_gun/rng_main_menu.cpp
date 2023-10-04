@@ -165,7 +165,7 @@ ze_external void Menu_Tick(ZEFrameTimeInfo timing)
 		}
 		else if (ZStr_Compare(item, "start") == 0)
 		{
-			g_engine.textCommands.QueueCommand("map e1m1");
+			g_engine.textCommands.QueueCommand("map 3");
 		}
 	}
 

@@ -181,6 +181,7 @@ ze_internal void ZScene_RemoveObject(zeHandle sceneHandle, zeHandle objectId)
 
 ze_internal ZRDrawObj* ZScene_GetObjectById(zeHandle sceneHandle, zeHandle objectId)
 {
+    if (objectId == 0) { return NULL; }
     ZRScene* scene = GetSceneByHandle(sceneHandle);
     if (scene == NULL) { return NULL; }
     ZRDrawObj *obj = (ZRDrawObj *)scene->objects.GetById(objectId);

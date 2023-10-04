@@ -1,4 +1,12 @@
+#ifndef ZE_MAP2D_H
+#define ZE_MAP2D_H
+
 #include "../../headers/zengine.h"
+
+#define MAP2D_EMBEDDED_MAP_0 0
+#define MAP2D_EMBEDDED_MAP_1 1
+#define MAP2D_EMBEDDED_MAP_2 2
+#define MAP2D_EMBEDDED_MAP_GUNN_TEST_A 3
 
 struct Map2dAABB
 {
@@ -63,3 +71,5 @@ ze_external Map2dReader Map2d_CreateReader(Map2d* map);
 ze_external void Map2d_Free(Map2d* map);
 ze_external void Map2d_Init(ZEngine engine);
 ze_external void Map2d_DebugDump(Map2d* map);
+
+#endif // ZE_MAP2D_H

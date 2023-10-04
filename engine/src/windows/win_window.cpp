@@ -406,6 +406,7 @@ ze_external void Window_SetCursorLock(i32 bLocked)
 //////////////////////////////////////////////////////////////////
 ze_external zErrorCode SpawnWindow()
 {
+    printf("-- Create Window --\n");
     //////////////////////////////////////////////////////////////////
     // GLFW - Build opengl context, window and callbacks
     //////////////////////////////////////////////////////////////////
@@ -414,6 +415,7 @@ ze_external zErrorCode SpawnWindow()
     // Check glfw is okay
     if (!glfwInit())
     {
+        printf("GLFW init failed\n");
         exit(EXIT_FAILURE);
     }
     // global window settings
@@ -559,8 +561,8 @@ ze_internal Vec2 ReadMouseAccumulator()
 {
     Vec2 result = g_mouseAccumulator;
     g_mouseAccumulator = {};
-    result.x = (f32)result.x / g_windowSize[0];
-    result.y = (f32)result.y / g_windowSize[1];
+    result.x = (f32)result.x / (f32)g_windowSize[0];
+    result.y = (f32)result.y / (f32)g_windowSize[1];
     return result;
 }
 

@@ -136,7 +136,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	i32 numResults = 0;
 	i32 bCull = NO;
 	u16 mask = PHYSICS_LAYER_BIT_WORLD | PHYSICS_LAYER_BIT_MOBS | PHYSICS_LAYER_BIT_PLAYER_HITBOX | PHYSICS_LAYER_BIT_DEBRIS;
-	/*
+	
 	ZAABBResult aabbs[maxResults];
 	Vec2 min, max;
 	min.x = prj->data.pos.x - 0.05f;
@@ -155,7 +155,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 			return;
 		}
 	}
-	*/
+	
 	ZPRaycastResult results[maxResults];
 	numResults = ZP_Raycast(prj->data.pos, dest, results, maxResults, mask);
 	if (numResults > 0)
@@ -163,35 +163,6 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 		ZPRaycastResult* hit = &results[numResults - 1];
 		dmg.pos = hit->pos;
 		bCull = HitEnt(ent, hit->externalId, hit->volumeId, &dmg);
-		// RNGPRINT("Prj raycast got %d result, hit volumeId %d (external %d)\n",
-		// 	numResults,
-		// 	hit->volumeId,
-		// 	hit->externalId);
-		/*
-		Ent2d* victim = Sim_GetEntById(hit->externalId);
-		if (victim == NULL)
-		{
-			if (hit->volumeId != 0)
-			{
-				BodyState hitBody = ZP_GetBodyState(hit->volumeId);
-				RNGPRINT("PRJ on team %d hit volume %d with no ent. External Id %d\n",
-					prj->data.teamId, hit->volumeId, hitBody.externalId);
-			}
-			Sim_SpawnGfx(hit->pos, 0);
-			bCull = YES;
-		}
-		else
-		{
-			EntHitResponse response = Ent_Hit(ent, victim, &dmg);
-			//RNGPRINT("PRJ on team %d hit ent %d: response %d\n",
-			//	prj->data.teamId, victim->id, response.responseType);
-			if (response.responseType != ENT_HIT_RESPONSE_NONE)
-			{
-				Sim_SpawnGfx(hit->pos, 0);
-				bCull = YES;
-			}
-		}
-		*/
 	}
 	if (bCull)
 	{

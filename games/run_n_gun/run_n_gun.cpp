@@ -2,21 +2,23 @@
 
 const i32 screenSize = 8;
 ze_internal ZEngine g_engine;
-ze_internal zeHandle g_scene;
-ze_internal zeHandle g_uiScene;
-ze_internal zeHandle g_debugTextObj;
-ze_internal zeHandle g_playerId;
-ze_internal zeHandle g_playerGunId;
-ze_internal zeHandle g_cursorId;
+ze_internal zeHandle g_scene = 0;
+ze_internal zeHandle g_uiScene = 0;
+ze_internal zeHandle g_debugTextObj = 0;
+ze_internal zeHandle g_playerId = 0;
+ze_internal zeHandle g_playerGunId = 0;
+ze_internal zeHandle g_cursorId = 0;
 ze_internal Vec2 g_mousePos;
 ze_internal Vec2 g_mouseWorldPos;
 ze_internal i32 g_platformTexture;
+ze_internal i32 g_cursorTexture;
 
 ze_internal i32 g_applicationState = -1;
 ze_internal i32 g_bAppMenuOpen = NO;
 ze_internal i32 g_gameState = GAME_STATE_PLAYING;
 
 ze_internal void App_SetAppState(int newState);
+internal void CreateCursor();
 
 ZCMD_CALLBACK(Exec_MapCommand)
 {
@@ -29,6 +31,9 @@ ZCMD_CALLBACK(Exec_MapCommand)
 	g_gameState = GAME_STATE_PLAYING;
 	App_SetAppState(APP_STATE_GAME);
 	Sim_StartNewGame(tokens[1]);
+	
+	// TODO: Cursor is created in the world scene which is wiped on map load!
+	CreateCursor();
 }
 
 ZCMD_CALLBACK(Exec_RNGCommand)
@@ -66,6 +71,23 @@ ZCMD_CALLBACK(Exec_RNGCommand)
 	{
 		RNGPRINT("Unknown rng parameter %s\n", tokens[1]);
 	}
+}
+
+internal void CreateCursor()
+{
+	/*RNGPRINT("Create cursor\n");
+	ZRDrawObj *cursor = g_engine.scenes.GetObject(g_scene, g_cursorId);
+	if (cursor != NULL) { return; }
+	
+	// ZRTexture* cursorTex = g_engine.assets.AllocTexture(8, 8, TEX_CURSOR);
+	// ZGen_FillTexture(cursorTex, COLOUR_U32_GREEN);
+	cursor = g_engine.scenes.AddFullTextureQuad(
+		g_scene,
+		FALLBACK_TEXTURE_WHITE,
+		{0.2f, 0.2f},
+		COLOUR_F32_GREEN);
+	g_cursorId = cursor->id;*/
+
 }
 
 internal void Init()
@@ -111,15 +133,17 @@ internal void Init()
 	ZGen_FillTextureRect(tex, COLOUR_U32_EMPTY, { 1, 1 }, { 14, 14 });
 	
 	// cursor
-	ZRTexture* cursorTex = g_engine.assets.AllocTexture(8, 8, TEX_CURSOR);
+	CreateCursor();
+	// old:
+	/*ZRTexture* cursorTex = g_engine.assets.AllocTexture(8, 8, TEX_CURSOR);
 	ZGen_FillTexture(cursorTex, COLOUR_U32_GREEN);
 	ZRDrawObj *cursor = g_engine.scenes.AddFullTextureQuad(
 		g_scene,
 		FALLBACK_TEXTURE_WHITE,
 		{0.2f, 0.2f},
 		COLOUR_F32_GREEN);
-	g_cursorId = cursor->id;
-
+	g_cursorId = cursor->id;*/
+	
 	// register inputs
 	g_engine.input.AddAction(Z_INPUT_CODE_A, Z_INPUT_CODE_NULL, MOVE_LEFT);
     g_engine.input.AddAction(Z_INPUT_CODE_D, Z_INPUT_CODE_NULL, MOVE_RIGHT);
@@ -171,8 +195,7 @@ internal void UpdateCursor()
 
 internal void UpdateGameCursor(zeHandle worldSceneId)
 {
-	ZRDrawObj *cursor = g_engine.scenes.GetObject(worldSceneId, g_cursorId);
-	if (cursor == NULL) { return; }
+	// update world position for cursor
 	g_mouseWorldPos = g_mousePos;
 	
 	// offset by camera position
@@ -180,6 +203,11 @@ internal void UpdateGameCursor(zeHandle worldSceneId)
 	g_mouseWorldPos.x += camera.pos.x;
 	g_mouseWorldPos.y += camera.pos.y;
 
+	// update visual of cursor
+	ZRDrawObj *cursor = g_engine.scenes.GetObject(worldSceneId, g_cursorId);
+	if (cursor == NULL) { return; }
+	printf("Cursor global Id %d, obj id %d\n", g_cursorId, cursor->id);
+	
 	// position crosshair
 	cursor->t.pos.x = g_mouseWorldPos.x;
 	cursor->t.pos.y = g_mouseWorldPos.y;

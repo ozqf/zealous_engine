@@ -84,6 +84,7 @@ struct Map2dCounts
 };
 
 static i32 g_bInitialised = NO;
+static i32 g_bVerboseLoad = NO;
 static ZEngine g_ze;
 
 ZCMD_CALLBACK(Exec_Map2dCommand)
@@ -124,8 +125,11 @@ ze_internal Map2dCounts Map2d_CountMapComponentsInAscii(char* txt)
             // read the first token as this will be a string we want to store later.
             // counts.totalStringChars += ZStr_Len(buf);
             Point2 token = ZStr_FindToken(buf, 0, ' ');
-            printf("Found First token at %d to %d (%c and %c) in \"%s\"\n",
+            if (g_bVerboseLoad)
+            {
+                printf("Found First token at %d to %d (%c and %c) in \"%s\"\n",
                 token.x, token.y, buf[token.x], buf[token.y], buf);
+            }
             // add terminator
             counts.totalStringChars += (token.y - token.x) + 1;
         }
@@ -202,7 +206,8 @@ ze_internal zeSize Map2d_AppendString(Map2d* map, char* str)
 ze_internal void Map2d_EntFromAscii(
     Map2d* map, Map2dEntity* ent, char* txt)
 {
-	printf("Read Ent from \"%s\"\n", txt);
+    if (g_bVerboseLoad)
+	{printf("Read Ent from \"%s\"\n", txt);}
 	*ent = {};
     TOKENISE_STR(txt)
     if (numTokens != 4)
@@ -216,14 +221,16 @@ ze_internal void Map2d_EntFromAscii(
     ent->pos.y = (f32)atof(tokens[3]);
     ent->typeStrOffset = 0;
     ent->typeStrOffset = Map2d_AppendString(map, tokens[0]);
-    printf("\tEnt read type at offset %lld\n", ent->typeStrOffset);
+    if (g_bVerboseLoad)
+    {printf("\tEnt read type at offset %lld\n", ent->typeStrOffset);}
 }
 
 ze_internal zErrorCode Map2d_FromAscii(char* txt, Map2d** result)
 {
 	Map2dCounts counts = Map2d_CountMapComponentsInAscii(txt);
-    printf("Map2d: Read %d AABBs, %d lines, %d ents, %zd chars\n",
-        counts.numAABBs, counts.numLines, counts.numEnts, counts.totalStringChars);
+    if (g_bVerboseLoad)
+    {printf("Map2d: Read %d AABBs, %d lines, %d ents, %zd chars\n",
+        counts.numAABBs, counts.numLines, counts.numEnts, counts.totalStringChars);}
     
     i32 headerBytes = sizeof(Map2d);
     i32 aabbBytes = sizeof(Map2dAABB) * counts.numAABBs;
@@ -232,8 +239,9 @@ ze_internal zErrorCode Map2d_FromAscii(char* txt, Map2d** result)
     zeSize stringPadding = 256; // additional space for 'none' type and other stuff
     zeSize stringBytes = counts.totalStringChars + stringPadding;
 	
-	printf("Measured map2d bytes: %d Header, %d aabbs, %d lines, %d ents, strings %d\n",
-		headerBytes, aabbBytes, lineBytes, entBytes, i32(stringBytes));
+    if (g_bVerboseLoad)
+	{printf("Measured map2d bytes: %d Header, %d aabbs, %d lines, %d ents, strings %d\n",
+		headerBytes, aabbBytes, lineBytes, entBytes, i32(stringBytes));}
     
     zeSize total =
         headerBytes
@@ -345,13 +353,16 @@ ze_external Map2d* Map2d_ReadEmbedded(i32 index)
     char* source = NULL;
     switch (index)
     {
-        case 1:
+        case MAP2D_EMBEDDED_MAP_0:
+        source = (char*)g_map_0;
+        break;
+        case MAP2D_EMBEDDED_MAP_1:
         source = (char*)g_map_1;
         break;
-        case 2:
+        case MAP2D_EMBEDDED_MAP_2:
         source = (char*)g_map_2;
         break;
-        case 3:
+        case MAP2D_EMBEDDED_MAP_GUNN_TEST_A:
         source = (char*)g_gunn_test_a;
         break;
         default:

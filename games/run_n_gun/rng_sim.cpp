@@ -37,6 +37,8 @@ struct FrameFooter
 
 ze_internal u32 g_restoreTick = 1;
 
+ze_internal i32 g_bVerboseLoad = NO;
+
 ze_internal EntityType g_types[ENT_TYPE__COUNT];
 
 ze_internal ZEngine g_engine;
@@ -199,6 +201,7 @@ ze_external EntityType* Sim_GetEntityType(i32 typeId)
 ///////////////////////////////////////////////////////
 ze_internal void ClearWorldVolumes()
 {
+	RNGPRINT("Clearing %d world volumes\n", g_numWorldVolumes);
 	for (i32 i = 0; i < g_numWorldVolumes; ++i)
 	{
 		WorldVolume* vol = &g_worldVolumes[g_numWorldVolumes];
@@ -238,8 +241,11 @@ ze_internal void AddPlatform(Vec2 pos, f32 width)
 
 ze_internal void AddStatic(Vec2 pos, Vec2 size)
 {
-	RNGPRINT("Create world vol at %.3f, %.3f - %.3f by %.3f\n",
-		pos.x, pos.y, size.x, size.y);
+	if (g_bVerboseLoad)
+	{
+		RNGPRINT("Create world vol at %.3f, %.3f - %.3f by %.3f\n",
+			pos.x, pos.y, size.x, size.y);
+	}
 	WorldVolume* vol = GetFreeWorldVolume();
 	ZRDrawObj *platform = g_engine.scenes.AddFullTextureQuad(
 		g_scene,
@@ -255,7 +261,10 @@ ze_internal void AddStatic(Vec2 pos, Vec2 size)
 		PHYSICS_LAYER_BIT_DEBRIS;
 	vol->bodyId = ZP_AddStaticVolume(
 		pos, size, PHYSICS_LAYER_BIT_WORLD, mask);
-	RNGPRINT("Platform %d assigned body %d\n", platform->id, vol->bodyId);
+	if (g_bVerboseLoad)
+	{
+		RNGPRINT("Platform %d assigned body %d\n", platform->id, vol->bodyId);
+	}
 }
 
 ze_internal void AddStaticAABB(Point2 topLeftTile, Point2 size)
@@ -266,7 +275,10 @@ ze_internal void AddStaticAABB(Point2 topLeftTile, Point2 size)
 	Vec2 pos;
 	pos.x = f32(topLeftTile.x) + (sizef.x * 0.5f);
 	pos.y = f32(topLeftTile.y) + (sizef.y * 0.5f);
-	RNGPRINT("Create static AABB at %.3f, %.3f\n", pos.x, pos.y);
+	if (g_bVerboseLoad)
+	{
+		RNGPRINT("Create static AABB at %.3f, %.3f\n", pos.x, pos.y);
+	}
 	AddStatic(pos, sizef);
 }
 
@@ -304,7 +316,7 @@ ze_external void Sim_RestoreStaticScene(i32 index)
 ze_internal void ReadMap2dEnt(Map2dReader* reader, Map2dEntity* mapEnt)
 {
 	char* typeStr = (char*)(reader->chars + mapEnt->typeStrOffset);
-	printf("Read typestr %s\n", typeStr);
+	//printf("Read typestr %s\n", typeStr);
 	Vec2 pos = { mapEnt->pos.x, mapEnt->pos.y };
 	if (ZStr_Equal(typeStr, "start"))
 	{
@@ -342,7 +354,10 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames, const char* mapName)
 	i32 mapIndex = atoi(mapName);
 	RNGPRINT("Read map index %d\n", mapIndex);
 	Map2d* mapData = Map2d_ReadEmbedded(mapIndex);
-	Map2d_DebugDump(mapData);
+	if (g_bVerboseLoad)
+	{
+		Map2d_DebugDump(mapData);
+	}
 	Map2dReader reader = Map2d_CreateReader(mapData);
 
 	ClearWorldVolumes();
@@ -378,8 +393,11 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames, const char* mapName)
 		f32 halfWidth = (line->b.x - line->a.x) / 2.f;
 		Vec2 pos = line->a;
 		pos.x += halfWidth;
-		RNGPRINT("Add platform at %.3f, %3f, width %.3f\n",
-			pos.x, pos.y, (halfWidth * 2.f));
+		if (g_bVerboseLoad)
+		{
+			RNGPRINT("Add platform at %.3f, %3f, width %.3f\n",
+				pos.x, pos.y, (halfWidth * 2.f));
+		}
 		AddPlatform(pos, halfWidth * 2.f);
 
 	}
@@ -388,8 +406,11 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames, const char* mapName)
 	for (i32 i = 0; i < reader.numEnts; ++i)
 	{
 		Map2dEntity* ent = &reader.ents[i];
-		RNGPRINT("Read ent type %s pos %.3f, %.3f\n",
-			(reader.chars + ent->typeStrOffset), ent->pos.x, ent->pos.y);
+		if (g_bVerboseLoad)
+		{
+			RNGPRINT("Read ent type %s pos %.3f, %.3f\n",
+				(reader.chars + ent->typeStrOffset), ent->pos.x, ent->pos.y);
+		}
 		ReadMap2dEnt(&reader, ent);
 	}
 
@@ -424,7 +445,10 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames, const char* mapName)
 ze_external void Sim_StartNewGame(char* mapName)
 {
 	FrameHeader* frame = WriteNewSession(&g_frames, mapName);
-	Sim_DebugScanFrameData(0, 0);
+	if (g_bVerboseLoad)
+	{
+		Sim_DebugScanFrameData(0, 0);
+ 	}
 	Sim_RestoreFrame(frame);
 	
 	g_currentFrame = 0;
@@ -584,6 +608,7 @@ ze_internal void UpdateDebugText()
 	f32 secondsRecorded = g_lastFrame / 60.f;
 	f32 secondsToNow = g_currentFrame / 60.f;
 	i32 playerStatus = Sim_GetPlayerStatus();
+	ZPStats physics = ZPhysicsStats();
 
 	g_debugText.Clear(YES);
 	char* write = (char*)g_debugText.cursor;
@@ -592,7 +617,14 @@ ze_internal void UpdateDebugText()
 		write,
 		end - write,
 		"Cursor tile %d,%d. Player pos %.3f, %.3f\n",
-		cursorTile.x, cursorTile.y, playerPos.x, playerPos.y );
+		cursorTile.x, cursorTile.y, playerPos.x, playerPos.y);
+	
+	write += sprintf_s(
+		write,
+		end - write,
+		"Physics: Bodies %d, registered, dynamic: %d, static %d\n",
+		physics.numBodies, physics.numRegisteredDynamic, physics.numRegisteredStatic);
+	
 	write += sprintf_s(
 		write,
 		end - write,

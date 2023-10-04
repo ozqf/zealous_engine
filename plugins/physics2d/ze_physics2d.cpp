@@ -199,10 +199,11 @@ ze_external zErrorCode ZP_RemoveBody(zeHandle bodyId)
 	}
 	else
 	{
+		printf("Destroying static body %d\n", bodyId);
 		g_staticBodies.MarkForRemoval(bodyId);
 		// TODO: This Truncate could break stuff if Remove is called during iteration
 		// of bodies. Consider flagging bodies and removing them before the next world step
-		g_dynamicBodies.Truncate();
+		g_staticBodies.Truncate();
 	}
 	return ZE_ERROR_NONE;
 }
@@ -470,4 +471,18 @@ ze_external void ZPhysicsTick(f32 delta)
 	// cleanup blob stores
 	g_dynamicBodies.Truncate();
 	g_staticBodies.Truncate();
+}
+
+ze_external ZPStats ZPhysicsStats()
+{
+	ZPStats stats = {};
+	stats.numRegisteredDynamic = g_dynamicBodies.Count();
+	stats.numRegisteredStatic = g_staticBodies.Count();
+	stats.numBodies = g_world.GetBodyCount();
+	return stats;
+}
+
+ze_external void ZPhysicsClearAll()
+{
+
 }
