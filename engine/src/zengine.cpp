@@ -160,7 +160,16 @@ ze_external i32 ZE_StartLoop()
 			}
 
 			ZScene_PostFrameTick();
-			ZScene_Draw();
+
+			if (g_gameDef.flags & GAME_DEF_FLAG_MANUAL_RENDER)
+			{
+				if (g_game.Draw != NULL) { g_game.Draw(); }
+        		Platform_SubmitFrame();
+			}
+			else
+			{
+				ZScene_Draw();
+			}
 		}
 		// ignore game and scene manager, call render test.
 		else

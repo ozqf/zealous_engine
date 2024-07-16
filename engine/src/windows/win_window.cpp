@@ -207,7 +207,7 @@ static i32 handle_engine_key_event(GLFWwindow* window, int key, int scancode, in
     }
     //////////////////////////////////////////
     // Platform 
-	if ((key == GLFW_KEY_ESCAPE && !GetGameDef().bOverrideEscapeKey)
+	if ((key == GLFW_KEY_ESCAPE && !(GetGameDef().flags & GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY))
 		|| key == GLFW_KEY_F8)
 	{
         if (action == GLFW_PRESS)

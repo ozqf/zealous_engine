@@ -48,6 +48,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		grunt->health = save->health;
 		grunt->sourceId = save->sourceId;
 		grunt->dirX = save->dirX;
+		grunt->hitFlashTick = save->hitFlashTick;
 	}
 	else
 	{
@@ -82,6 +83,7 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		grunt->health = save->health;
 		grunt->sourceId = save->sourceId;
 		grunt->dirX = 1;
+		grunt->hitFlashTick = 0;
 
 		// add sprites
 		ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
@@ -119,6 +121,7 @@ ze_internal void Write(Ent2d* ent, ZEBuffer* buf)
 	save->health = grunt->health;
 	save->sourceId = grunt->sourceId;
 	save->dirX = grunt->dirX;
+	save->hitFlashTick = grunt->hitFlashTick;
 	
 	// components
 	ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, grunt->bodyDrawId);
@@ -275,6 +278,10 @@ ze_internal void TickIdle(Ent2d* ent, EntGrunt* grunt, f32 delta)
 ze_internal void Tick(Ent2d* ent, f32 delta)
 {
 	EntGrunt* grunt = &ent->d.grunt;
+	if (grunt->hitFlashTick > 0)
+	{
+		grunt->hitFlashTick -= delta;
+	}
 	switch (grunt->state)
 	{
 		case AI_STATE_STUNNED:
@@ -298,19 +305,31 @@ ze_internal void Sync(Ent2d* ent)
 	EntGrunt* grunt = (EntGrunt*)&ent->d.grunt;
 	Sim_SyncDrawObjToPhysicsObj(grunt->bodyDrawId, grunt->physicsBodyId);
 
+	// body colour
+	ZRDrawObj* bodyObj = g_engine.scenes.GetObject(g_scene, grunt->bodyDrawId);
+
+	if (grunt->hitFlashTick > 0.0)
+	{
+		bodyObj->data.quad.colour = COLOUR_F32_WHITE;
+	}
+	else
+	{
+		bodyObj->data.quad.colour = COLOUR_F32_RED;
+	}
 
 	// point gun
 	f32 radians = grunt->aimDegrees * DEG2RAD;
 	BodyState body = ZP_GetBodyState(grunt->physicsBodyId);
 	Vec3 pos = Vec3_FromVec2(body.t.pos, 0);
 
+	ZRDrawObj* gunObj = g_engine.scenes.GetObject(g_scene, grunt->gunDrawId);
+	
 	pos.x += cosf(radians) * 0.5f;
 	pos.y += sinf(radians) * 0.5f;
 
-	ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, grunt->gunDrawId);
-	obj->t.pos = pos;
-	M3x3_SetToIdentity(obj->t.rotation.cells);
-	M3x3_RotateZ(obj->t.rotation.cells, radians);
+	gunObj->t.pos = pos;
+	M3x3_SetToIdentity(gunObj->t.rotation.cells);
+	M3x3_RotateZ(gunObj->t.rotation.cells, radians);
 }
 
 ze_external EntHitResponse GruntHit(Ent2d* victim, DamageHit* hit)
@@ -338,6 +357,7 @@ ze_external EntHitResponse GruntHit(Ent2d* victim, DamageHit* hit)
 		}
 		else
 		{
+			grunt->hitFlashTick = 0.05f;
 			response.damageDone = hit->damage;
 			response.responseType = ENT_HIT_RESPONSE_DAMAGED;
 			grunt->state = AI_STATE_STUNNED;

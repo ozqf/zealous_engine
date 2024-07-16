@@ -20,6 +20,11 @@
 !/bin/fmodstudio.dll
 !/bin/base/config.ini
 
+/bin/run_n_gun/*
+!/bin/run_n_gun
+!/bin/run_n_gun/player_placeholder.png
+!/bin/run_n_gun/spritesheet_primitives.png
+
 # single-shot mode places screenshots as results whereever
 # it ran from
 /bin/screenshot.png
@@ -31,6 +36,8 @@
 !/bin_tools/config.ini
 !/bin_tools/map_format_example_16x16x8_cube.map
 !/bin_tools/map_format_example_128x128x32_cube.map
+*sandbox_shaders.h
+*zrgl_embedded_shaders.h
 
 # Shaders file is auto-generated
 /lib/shaders.h

@@ -6,6 +6,7 @@
 // ze_internal ZRMaterial* g_fallbackMaterial = NULL;
 
 ze_internal ZEHashTable* g_table;
+ze_internal ZEBuffer g_assetNames;
 
 ze_internal char* GetAssetTypeLabel(i32 type)
 {
@@ -31,8 +32,13 @@ ze_external void ZAssets_PrintAll()
         ZEHashTableKey* key = &g_table->m_keys[i];
         if (key->id == 0) { continue; }
         ZRAsset* asset = (ZRAsset*)key->data.ptr;
-        printf("AssetId %d - type %d (%s) - size %lldKB",
-            asset->id, asset->type, GetAssetTypeLabel(asset->type), asset->totalSize / 1024);
+        char* name = (char*)g_assetNames.GetAtOffset(asset->nameOffset);
+        printf("> AssetId %d - type %d (%s) - size %lldKB - %s",
+            asset->id,
+            asset->type,
+            GetAssetTypeLabel(asset->type),
+            asset->totalSize / 1024,
+            name);
         totalBytes += asset->totalSize;
         if (asset->sentinel != ZE_SENTINEL)
         {
@@ -51,8 +57,50 @@ ZCMD_CALLBACK(Exec_Manifest)
 ze_external zErrorCode ZAssets_Init()
 {
     g_table = ZE_HashTable_Create(Platform_Alloc, 2048, NULL);
+	
+	g_assetNames = Buf_FromMalloc(Platform_Alloc, 2);
+	
     ZCmdConsole_RegisterInternalCommand("manifest", "List asset db contents", Exec_Manifest);
     return ZE_ERROR_NONE;
+}
+
+/////////////////////////////////////////////////////////////
+// Name register
+/////////////////////////////////////////////////////////////
+
+ze_internal zMemOffset ZAssets_RegisterName(char* name)
+{
+	i32 len = ZStr_Len(name);
+	while (g_assetNames.Space() < len)
+	{
+        zeSize newCapacity = g_assetNames.capacity * 2;
+        printf("Expanding asset name register capacity to %lld\n", newCapacity);
+		// expand names
+		ZEBuffer newBuffer = Buf_FromMalloc(Platform_Alloc, newCapacity);
+		Buf_CopyAll(&g_assetNames, &newBuffer);
+		Platform_Free(g_assetNames.start);
+		g_assetNames = newBuffer;
+	}
+	zMemOffset offset = g_assetNames.CursorOffset();
+	g_assetNames.WriteString(name);
+	return offset;
+}
+
+ze_internal void ZAssets_InitHeader(
+    ZRAsset* target,
+    i32 id,
+    i32 type,
+    zeSize totalBytes,
+    char* name)
+{
+	target->id = id;
+    target->type = type;
+    target->totalSize = totalBytes;
+    target->nameOffset = ZAssets_RegisterName(name);
+
+    // defaults
+    target->sentinel = ZE_SENTINEL;
+    target->bIsDirty = YES;
 }
 
 /////////////////////////////////////////////////////////////
@@ -194,12 +242,9 @@ ze_external ZRTexture *ZAssets_AllocTex(i32 width, i32 height, char* name)
     ZRTexture* tex = (ZRTexture*)mem;
     *tex = {};
     tex->data = (ColourU32 *)((u8 *)mem + sizeof(ZRTexture));
-
-    tex->header.id = id;
-    tex->header.type = ZE_ASSET_TYPE_TEXTURE;
-    tex->header.bIsDirty = YES;
-    tex->header.sentinel = ZE_SENTINEL;
-    tex->header.totalSize = totalBytes;
+    
+    ZAssets_InitHeader(&tex->header, id, ZE_ASSET_TYPE_TEXTURE, totalBytes, name);
+    
     tex->width = width;
     tex->height = height;
     
@@ -224,11 +269,8 @@ ze_external ZRMaterial *ZAssets_AllocMaterial(char *name)
 
     zeSize totalBytes = sizeof(ZRMaterial);
     ZRMaterial *mat = (ZRMaterial *)Platform_Alloc(totalBytes);
-    mat->header.id = id;
-    mat->header.bIsDirty = YES;
-    mat->header.type = ZE_ASSET_TYPE_MATERIAL;
-    mat->header.totalSize = totalBytes;
-    mat->header.sentinel = ZE_SENTINEL;
+    ZAssets_InitHeader(&mat->header, id, ZE_ASSET_TYPE_MATERIAL, totalBytes, name);
+    
     ZEHashTableData d;
     d.ptr = mat;
     g_table->Insert(id, d);
@@ -256,12 +298,8 @@ ze_external ZRBlobAsset* ZAssets_AllocBlob(char* name, zeSize numBytesA, zeSize 
     blob->ptrB = (u8*)blob->ptrA + numBytesA;
     blob->sizeB = numBytesB;
     // setup header
-    blob->header.id = id;
-    blob->header.bIsDirty = YES;
-    blob->header.type = ZE_ASSET_TYPE_BLOB;
-    blob->header.totalSize = totalBytes;
-    blob->header.sentinel = ZE_SENTINEL;
-
+    ZAssets_InitHeader(&blob->header, id, ZE_ASSET_TYPE_BLOB, totalBytes, name);
+    
     // add lookup record
     g_table->InsertPointer(id, blob);
     return blob;
@@ -300,12 +338,8 @@ ze_external ZRMeshAsset* ZAssets_AllocEmptyMesh(char* name, i32 maxVerts)
     ZRMeshAsset *mesh = (ZRMeshAsset *)mem;
     *mesh = {};
     // register
-    mesh->header.id = id;
-    mesh->header.bIsDirty = YES;
-    mesh->header.type = ZE_ASSET_TYPE_MESH;
-    mesh->header.totalSize = totalBytes;
-    mesh->header.sentinel = ZE_SENTINEL;
-
+    ZAssets_InitHeader(&mesh->header, id, ZE_ASSET_TYPE_MESH, totalBytes, name);
+    
     g_table->InsertPointer(id, mesh);
     
     // setup data
@@ -320,8 +354,11 @@ ze_external ZRMeshAsset* ZAssets_AllocEmptyMesh(char* name, i32 maxVerts)
     return mesh;
 }
 
-ze_external zErrorCode ZAssets_LoadTex()
+ze_external zErrorCode ZAssets_LoadTextureFromFile(
+    const char* path,
+    ZRTexture** result)
 {
+    *result = ZAssets_LoadPngTextureFromFile(path);
     return ZE_ERROR_NONE;
 }
 
@@ -331,11 +368,14 @@ ze_external zErrorCode ZAssets_LoadTex()
 ze_external ZAssetManager ZAssets_RegisterFunctions()
 {
     ZAssetManager exportedFunctions = {};
+    
     exportedFunctions.AllocTexture = ZAssets_AllocTex;
     exportedFunctions.AllocEmptyMesh = ZAssets_AllocEmptyMesh;
     exportedFunctions.AllocMaterial = ZAssets_AllocMaterial;
     exportedFunctions.AllocBlob = ZAssets_AllocBlob;
     exportedFunctions.BuildMaterial = ZAssets_BuildMaterial;
+
+    exportedFunctions.LoadTextureFromFile = ZAssets_LoadTextureFromFile;
 
     exportedFunctions.GetTexById = ZAssets_GetTexById;
     exportedFunctions.GetTexByName = ZAssets_GetTexByName;

@@ -138,7 +138,7 @@ ze_external void ZR_Screenshot(char *fileName)
 
 ze_external void ZR_ExecuteCommands(ZEBuffer* commandBuffer)
 {
-    ZE_PRINTF("ZRGL - exec %dKB of commands\n", commandBuffer->Written() / 1024);
+    ZE_PRINTF("ZRGL - exec %lldKB of commands\n", commandBuffer->Written() / 1024);
     TRANSFORM_CREATE(camera);
     M4x4 view;
     Transform_ToM4x4(&camera, &view);

@@ -11,6 +11,9 @@
 ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
 
+ze_internal zeHandle g_playerTex = 0;
+ze_internal const char* g_playerTexName = "run_n_gun\\player_placeholder.png";
+
 ze_internal EntPlayer* GetPlayer(Ent2d* ent)
 {
 	return &ent->d.player;
@@ -81,10 +84,15 @@ ze_internal void Restore(EntStateHeader* stateHeader, u32 restoreTick)
 		ent->d.player.status = state->status;
 		ent->d.player.touchFlags = state->touchFlags;
 		
+		//char* texName = FALLBACK_TEXTURE_WHITE;
+		const char* texName = g_playerTexName;
 		// add sprites
 		ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
-			g_scene, FALLBACK_TEXTURE_WHITE, {0.5f, 0.5f}, COLOUR_F32_GREEN);
-
+			g_scene, (char*)texName, {0.5f, 0.5f}, COLOUR_F32_WHITE);
+		
+		//ZRDrawObj* sprite = g_engine.scenes.AddFullTextureQuad(
+		//	g_scene, (char*)g_playerTexName, {0.5f, 0.5f}, COLOUR_F32_WHITE);
+		
 		printf("Player sprite colour: %.3f, %.3f, %.3f\n",
 			sprite->data.quad.colour.r,
 			sprite->data.quad.colour.g,
@@ -350,4 +358,8 @@ ze_external void EntPlayer_Register(EntityType* type)
 	type->Tick = Tick;
 	type->Sync = Sync;
 	type->Hit = PlayerHit;
+
+	ZRTexture* tex;
+	g_engine.assets.LoadTextureFromFile(g_playerTexName, &tex);
+	g_playerTex = tex->header.id;
 }

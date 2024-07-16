@@ -460,15 +460,21 @@ internal void Tick(ZEFrameTimeInfo timing)
 	UpdateDebugText();
 }
 
+internal void Draw()
+{
+	RNGPRINT("Draw!\n");
+}
+
 Z_GAME_WINDOWS_LINK_FUNCTION
 {
     g_engine = engineImport;
 	gameDef->targetFramerate = 60;
 	gameDef->windowTitle = "Run N Gun";
-	gameDef->bOverrideEscapeKey = YES;
+	gameDef->flags |= GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY;
     gameExport->Init = Init;
     gameExport->Tick = Tick;
     gameExport->Shutdown = Shutdown;
+	gameExport->Draw = Draw;
     gameExport->sentinel = ZE_SENTINEL;
     return ZE_ERROR_NONE;
 }

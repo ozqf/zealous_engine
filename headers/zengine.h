@@ -4,11 +4,6 @@ Zealous Engine public header
 #ifndef ZENGINE_H
 #define ZENGINE_H
 
-#include "ze_common.h"
-#include "engine/zengine_types.h"
-#include "engine/zengine_type_utils.h"
-#include "engine/zengine_asset_gen.h"
-
 ///////////////////////////////////////////////////////////
 // Embedded assets
 ///////////////////////////////////////////////////////////
@@ -26,6 +21,8 @@ Zealous Engine public header
 #define FALLBACK_TEXTURE_WHITE "fallback_texture_white"
 #define FALLBACK_CHARSET_TEXTURE_NAME "fallback_charset"
 #define FALLBACK_CHARSET_SEMI_TRANSPARENT_TEXTURE_NAME "fallback_charset_semi_transparent"
+
+#define DEFAULT_SHADER_FLAG_ALBEDO_COLOUR_ONLY (1 << 0)
 
 // 32 bit colours
 #define COLOUR_U32_EMPTY { 0, 0, 0, 0 }
@@ -61,11 +58,19 @@ Zealous Engine public header
 #define ZR_TEX_SAMPLER_DEFAULT 0
 #define ZR_DEFAULT_FOV 100.f
 
+#include "ze_common.h"
+#include "engine/zengine_types.h"
+#include "engine/zengine_type_utils.h"
+#include "engine/zengine_asset_gen.h"
+
+#define GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY (1 << 0)
+#define GAME_DEF_FLAG_MANUAL_RENDER (1 << 1)
+
 struct ZGameDef
 {
     char* windowTitle;
+    u32 flags;
     i32 targetFramerate;
-	i32 bOverrideEscapeKey;
 };
 
 ///////////////////////////////////////////
@@ -76,6 +81,7 @@ struct ZGame
     void (*Init)();
     void (*Shutdown)();
     void (*Tick)(ZEFrameTimeInfo timing);
+    void (*Draw)();
     i32 sentinel;
 };
 
@@ -200,6 +206,8 @@ struct ZAssetManager
 
     ZRMaterial* (*BuildMaterial)(
         char* name, char* diffuseName, char* emissionName);
+    
+    zErrorCode (*LoadTextureFromFile)(const char* path, ZRTexture** result);
 };
 
 struct ZSystem
@@ -244,5 +252,10 @@ extern "C" zErrorCode __declspec(dllexport) ZGameLinkUp(ZEngine engineImport, ZG
 typedef zErrorCode(ZGame_LinkupFunction)(ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
 
 typedef zErrorCode(ZE_EventCallback)(i32 code, void *data, zeSize dataSize);
+
+extern "C" int ZE_GetVersion();
+extern "C" int ZE_Startup(char* lpCmdLine);
+
+
 
 #endif // ZENGINE_H

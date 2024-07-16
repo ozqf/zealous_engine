@@ -110,6 +110,7 @@ struct ZRAsset
 	// Data has changed - needs to be re-uploaded
 	i32 bIsDirty;
 	zeSize totalSize;
+	zMemOffset nameOffset;
 	char *fileName;
 	i32 sentinel;
 };
@@ -348,6 +349,7 @@ struct ZRMeshObjData
 	i32 meshId;
 	i32 materialId;
 	i32 billboard;
+	ColourF32 albedoColour;
 };
 
 struct ZRBoundingBox
@@ -414,6 +416,7 @@ struct ZRDrawObjData
 		this->type = ZR_DRAWOBJ_TYPE_MESH;
 		this->model.meshId = data.meshId;
 		this->model.materialId = data.materialId;
+		this->model.albedoColour = COLOUR_F32_WHITE;
 	}
 
 	void SetAsBoundingBox(AABB aabb, ColourU32 colour)

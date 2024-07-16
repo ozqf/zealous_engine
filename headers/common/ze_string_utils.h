@@ -154,7 +154,7 @@ internal i32 ZStr_CompareNocase(
  * Copy a string without exceeding the specified limit
  * Will always patch a NULL terminator at the final position
  */
-internal i32 ZStr_CopyLimited(const char *source, char *target, i32 limit)
+internal i32 ZStr_CopyLimited(const char *source, char *target, zeSize limit)
 {
     if (limit < 1) { return 0; }
     i32 written = 0;

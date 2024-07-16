@@ -3,11 +3,13 @@
 @rem /DPARANOID=1 -> enable all asserts
 
 @rem === COMPILER FLAGS ===
+@rem /c -> compile without linking
 @rem -WX -> warnings as errors
 @rem -W4 -> Max warning level that's sane
 @rem -Oi -> enable compiler 'intrinsics'
 @rem -GR -> turn off runtime type information (C++ feature)
 @rem -EHa -> turn off exception handling
+@rem /EHsc -> something something C++ exceptions.
 @rem -nologo -> disable compile command line header
 @rem -wd4100 -> disable warning
 @rem -wd4201 -> disable warning

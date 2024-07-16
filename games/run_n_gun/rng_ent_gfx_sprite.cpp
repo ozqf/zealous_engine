@@ -90,7 +90,7 @@ ze_internal void Sync(Ent2d* ent)
 	obj->t.scale = { size * weight, size * weight, 1.f };
 
 	obj->data.quad.colour = ColourF32Lerp(
-		COLOUR_F32_ORANGE, COLOUR_F32_BLACK, 1.f - weight);
+		{ 1.0f, 1.0f, 0.75f, 1.f }, COLOUR_F32_BLACK, 1.f - weight);
 }
 
 ze_internal EntHitResponse Hit(Ent2d* victim, DamageHit* hit){ return {};}

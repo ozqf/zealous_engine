@@ -34,6 +34,7 @@ typedef f64 timeFloat;
 typedef i32 zErrorCode;
 typedef int ErrorCode; // TODO - replace uses of this typedef
 typedef i32 zeHandle;
+typedef u64 zMemOffset;		// an offset to a position in a buffer.
 #define ZE_EMPTY_HANDLE 0
 
 static_assert(sizeof(char) == 1, "Code requires char size == 1");

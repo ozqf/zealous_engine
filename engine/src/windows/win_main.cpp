@@ -21,6 +21,7 @@ extern "C"
 internal int g_bConsoleInit = FALSE;
 internal HWND consoleHandle;
 internal HMODULE g_appDLL;
+internal char g_exePath[MAX_PATH];
 
 #define MAX_CUSTOM_MODULES 16
 internal HMODULE g_customModules[MAX_CUSTOM_MODULES];
@@ -61,9 +62,31 @@ ze_external void Platform_Free(void *ptr)
 
 ze_internal void PrintExecutablePath()
 {
-	WCHAR path[MAX_PATH];
-	GetModuleFileNameW(NULL, path, MAX_PATH);
-	printf("%ls\n", path);
+	//WCHAR path[MAX_PATH];
+	//GetModuleFileNameW(NULL, path, MAX_PATH);
+	//printf("%ls\n", path);
+
+	memset(g_exePath, 0, MAX_PATH);
+
+	//char path[MAX_PATH];
+	GetModuleFileNameA(NULL, g_exePath, MAX_PATH);
+	// this gives us the exe name too which we don't care about
+	// we just want a base path.
+	zeSize len = ZStr_Len(g_exePath);
+	for (zeSize i = len; i >= 0; --i)
+	{
+		char c = g_exePath[i];
+		if (c != '\\')
+		{
+			g_exePath[i] = '\0';
+		}
+		else
+		{
+			break;
+		}
+	}
+	
+	printf("%s\n", g_exePath);
 }
 
 ////////////////////////////////////////////////////////
@@ -206,8 +229,20 @@ ze_external void Platform_Sleep(i32 milliSeconds)
 ////////////////////////////////////////////////////////
 // I/O
 ////////////////////////////////////////////////////////
-ze_external ZEBuffer Platform_StageFile(const char* path)
+ze_external ZEBuffer Platform_StageFile(const char* relativePath)
 {
+	// construct a full path relative to exe otherwise will use the launch path
+	char path[MAX_PATH];
+	char* end = path + MAX_PATH;
+	memset(path, 0, MAX_PATH);
+	char* cursor = path;
+	cursor += ZE_COPY(g_exePath, cursor, ZStr_LenNoTerminator(g_exePath));
+	cursor += ZE_COPY("\\", cursor, ZStr_LenNoTerminator("\\"));
+	cursor += ZE_COPY(relativePath, cursor, ZStr_LenNoTerminator(relativePath));
+	//cursor = strcpy_s(cursor, MAX_PATH,  g_exePath);
+	//cursor = strcpy(cursor, "\\");
+	//cursor = strcpy(cursor, relativePath);
+
 	FILE* f;
 	errno_t err = fopen_s(&f, path, "rb");
 	if (err != 0)
@@ -216,10 +251,11 @@ ze_external ZEBuffer Platform_StageFile(const char* path)
 		return {};
 	}
 	fseek(f, 0, SEEK_END);
-	i32 size = ftell(f);
+	zeSize size = ftell(f);
 	fseek(f, 0, SEEK_SET);
 	ZEBuffer buf = Buf_FromMalloc(Platform_Alloc, size);
-	fread_s(&buf.start, size, 1, size, f);
+	//fread_s(&buf.start, size, size, 1, f);
+	fread(buf.start, size, 1, f);
 	buf.cursor = buf.start + size;
 	fclose(f);
 	printf("Read %.3fKB from %s\n", (f32)size / 1024.f, path);
@@ -264,20 +300,41 @@ static void InitConsole()
 	printf("[%s] Console initialized.\n", __FILE__);
 }
 
+extern "C" int ZE_GetVersion()
+{
+	return 2;
+}
+
 ////////////////////////////////////////////////////////
 // Windows Entry Point
 ////////////////////////////////////////////////////////
-int CALLBACK WinMain(
+
+extern "C" int ZE_Startup(char* lpCmdLine)
+{
+	InitConsole();
+	printf("ZE init\n");
+	Platform_Sleep(3000);
+	return 0;
+}
+
+#if 1
+extern "C" int CALLBACK WinMain(
     HINSTANCE hInstance,
     HINSTANCE hPrevInstance,
     LPSTR lpCmdLine,
     int nCmdShow)
+#else
+extern "C" int ZE_Startup_Full(char* lpCmdLine)
+#endif
+
 {
 	zErrorCode err;
 	//////////////////////////////////////////
 	// "pre-init" - setup config and read command line
 	err = ZE_InitConfig(lpCmdLine, (const char **)__argv, __argc);
 	ZE_ASSERT(err == ZE_ERROR_NONE, "Error initialising config")
+	i32 bInitConsole = false;
+	i32 bInitLogFile = false;
 	i32 tokenIndex = ZCFG_FindParamIndex("-c", "--console", 0);
 	if (tokenIndex != ZE_ERROR_BAD_INDEX)
 	{

@@ -14,6 +14,11 @@ ZE_MEM_FUNC_INTERNAL u32 SafeTruncateUInt64(u64 value)
 	return result;
 }
 
+ZE_MEM_FUNC_INTERNAL u8* ZE_OffsetToPtr(u8* start, zMemOffset offset)
+{
+	return (start + offset);
+}
+
 ////////////////////////////////////////////////////////////
 // NOTE: None of this handles eddianness
 ////////////////////////////////////////////////////////////

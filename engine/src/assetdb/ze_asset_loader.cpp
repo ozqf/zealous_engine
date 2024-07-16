@@ -37,6 +37,47 @@ ze_internal void CheckAllBlack(i32 width, i32 height, const void *rgbPixels)
 	printf("WARNING: Screenshot is all black!\n");
 }
 
+ze_external ZRTexture* ZAssets_LoadPngTextureFromFile(const char* path)
+{
+	// TODO - so this involves loading the file three times:
+	// staging, stbi and finally the asset db.
+
+	// stage
+	ZEBuffer buffer = Platform_StageFile(path);
+
+	// read to PNG
+	i32 width;
+	i32 height;
+	i32 comp;
+	i32 reqComp = 0;
+	u8* data = stbi_load_from_memory(
+		(u8*)buffer.start,
+		(i32)(buffer.cursor - buffer.start),
+		&width,
+		&height,
+		&comp,
+		reqComp);
+	
+	ZRTexture* tex = ZAssets_AllocTex(width, height, (char*)path);
+	
+	// slam those pixels in
+	i32 numPixels = width * height;
+	i32 i = 0;
+	
+	ColourU32* source = (ColourU32*)data;
+	ColourU32* dest = tex->data;
+	while (i < numPixels)
+	{
+		dest[numPixels - i] = source[i];
+		i++;
+	}
+
+	// cleanup
+	STBI_FREE(data);
+	Platform_Free(buffer.start);
+	return tex;
+}
+
 ze_external void ZAssets_SaveImage(
 	const char *fileName, i32 width, i32 height, const void *rgbPixels)
 {

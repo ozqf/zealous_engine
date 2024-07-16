@@ -896,6 +896,6 @@ Z_GAME_WINDOWS_LINK_FUNCTION
     *gameDef = {};
     gameDef->windowTitle = "Shape Hostility: Devolved";
     gameDef->targetFramerate = 60;
-	gameDef->bOverrideEscapeKey = YES;
+	gameDef->flags |= GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY;
     return ZE_ERROR_NONE;
 }

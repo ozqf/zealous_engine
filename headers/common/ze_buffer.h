@@ -95,7 +95,7 @@ struct ZEBuffer
         return this->cursor - this->start;
     }
 
-    i8 *GetAtOffset(i32 offset)
+    i8 *GetAtOffset(zeSize offset)
     {
         i8 *addr = this->start + offset;
         ZE_ASSERT(addr < this->cursor, "ZEBuffer GetAtOffset out of bounds");

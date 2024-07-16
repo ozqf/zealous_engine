@@ -11,10 +11,16 @@ out vec4 outputColor;
 
 void main()
 {
+#if 1 // output texture
+   vec4 diffuse = texture2D(u_diffuseTex, m_texCoord);
+   diffuse *= u_colour;
+   outputColor = diffuse;
+#endif
+
 #if 0
    outputColor = vec4(1, 1, 1, 1);
 #endif
-#if 1
+#if 0
    outputColor = vec4(m_texCoord.x, m_texCoord.y, 1, 1);
 #endif
 #if 0
@@ -23,10 +29,6 @@ void main()
 #if 0 // Output depth
    float depthValue = gl_FragCoord.z;
    outputColor = vec4(u_colour.x * depthValue, u_colour.y * depthValue, u_colour.z * depthValue, 1);
-#endif
-#if 1 // output texture
-   vec4 diffuse = texture2D(u_diffuseTex, m_texCoord);
-   outputColor = diffuse;
 #endif
 #if 0 // output texture with boolean transparency
    vec4 diffuse = texture2D(u_diffuseTex, m_texCoord);

@@ -6,8 +6,10 @@
 
 #include "tile_map.h"
 
+#ifndef RNGPRINT
 #define RNGPRINT(fmt, ...) \
 printf(fmt, __VA_ARGS__)
+#endif
 
 // for RAND
 #include <stdlib.h>
@@ -208,9 +210,11 @@ struct EntGrunt
 	i32 tock;
 	f32 aimDegrees;
 	i32 targetId;
+
 	i32 sourceId;
 	i32 health;
 	i32 dirX;
+	f32 hitFlashTick;
 
 	// components
 	zeHandle physicsBodyId;
@@ -227,9 +231,11 @@ struct EntGruntSave
 	i32 tock;
 	f32 aimDegrees;
 	i32 targetId;
+	
 	i32 sourceId;
 	i32 health;
 	i32 dirX;
+	f32 hitFlashTick;
 
 	// component data
 	Vec2 pos;

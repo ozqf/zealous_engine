@@ -31,8 +31,8 @@ extern "C" void Platform_Fatal(const char *msg);
 
 #define ZR_MAX_BATCH_SIZE 256
 
+//#define ZE_PRINTF(fmt, ...) printf(fmt, ##__VA_ARGS__##)
 #ifndef ZE_PRINTF
-// #define ZE_PRINTF(fmt, ...) printf(fmt, ##__VA_ARGS__##)
 #define ZE_PRINTF(fmt, ...)
 #endif
 
@@ -274,6 +274,7 @@ ze_external ZRMaterial *ZAssets_GetMaterialById(i32 id);
 ze_external ZRBlobAsset* ZAssets_GetBlobByName(char* name);
 ze_external ZRBlobAsset* ZAssets_GetBlobById(i32 id);
 
+ze_external ZRTexture* ZAssets_LoadPngTextureFromFile(const char* path);
 ze_external void ZAssets_SaveImage(
     const char *fileName, i32 width, i32 height, const void *rgbPixels);
 

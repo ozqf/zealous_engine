@@ -15,7 +15,7 @@ if not exist buildwin_platform mkdir buildwin_platform
 cd buildwin_platform
 del *.* /Q
 @rem === COMPILER SETTINGS ===
-set outputExe=/Fe../bin/zealous.exe
+set outputParam=/Fe../bin/zealous.exe
 @rem main compile flags, elevating warnings
 @REM set compilerFlags=-nologo -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi /O2 -Oi
 set compilerFlags=-nologo -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi
@@ -39,25 +39,62 @@ set compIn5=../engine/src/input/ze_input.cpp ../engine/src/command_console/comma
 @rem set linkStr=/link /SUBSYSTEM:CONSOLE
 
 @rem === LINK SETTINGS === (disable if running win32 console application test)
+set linkStr=/link
 set linkInputA=user32.lib opengl32.lib Gdi32.lib shell32.lib
 @REM set linkInputB=../lib/fmod/fmod_vc.lib ../lib/fmod/fmodstudio_vc.lib
 set linkInputB=
 set linkInputC=../lib/glfw3_vc2019/glfw3_mt.lib ../buildwin_platform_libs/platlibs.lib
-@echo on
-@cl %compilerFlags% %compilerDefines% %outputExe% %compIn1% %compIn2% %compIn3% %compIn4% %compIn5% /link %linkInputA% %linkInputB% %linkInputC%
-@echo off
-set outputExe=
-set compilerFlags=
-set compilerDefines=
-set compIn1=
-set compIn2=
-set compIn3=
-set compIn4=
-set compIn5=
+@rem @cl %compilerFlags% %compilerDefines% %outputParam% %compIn1% %compIn2% %compIn3% %compIn4% %compIn5% %linkStr% %linkInputA% %linkInputB% %linkInputC%
 
-set linkInputA=
-set linkInputB=
-set linkInputC=
+@rem --- build ---
+@REM @echo --- build ---
+@REM cl %compilerFlags% %compilerDefines% %compIn1% %compIn2% %compIn3% %compIn4% %compIn5% %linkStr% %linkInputA% %linkInputB% %linkInputC%
+
+
+@echo --- build objs (no linking) ---
+cl %compilerFlags% %compilerDefines% %compIn1% %compIn2% %compIn3% %compIn4% %compIn5% /c
+
+
+@echo --------------------------------------------------------
+@echo --- build lib ---
+lib -nologo /out:ze.lib command_console.obj config.obj win_main.obj win_window.obj zengine.obj ze_asset_db.obj ze_asset_loader.obj ze_debug.obj ze_embedded_assets.obj ze_events.obj ze_game_stub.obj ze_group_draw_items.obj ze_input.obj ze_opengl.obj ze_opengl_draw_sprites.obj ze_opengl_shaders.obj ze_scene.obj zrgl_data.obj zrgl_draw_mesh.obj zrgl_draw_primitives.obj zrgl_sandbox.obj zrgl_uploader.obj user32.lib opengl32.lib Gdi32.lib shell32.lib
+
+
+
+
+@rem @rem -- lib ---
+@rem @set compIn1=win_main.obj win_window.obj
+@rem @rem opengl renderer
+@rem @set compIn2=ze_opengl.obj ze_opengl_shaders.obj zrgl_uploader.obj zrgl_draw_mesh.obj ze_opengl_draw_sprites.obj zrgl_draw_primitives.obj zrgl_data.obj zrgl_sandbox.obj
+@rem @rem engine + services
+@rem @set compIn3=zengine.obj config.obj ze_asset_db.obj ze_asset_loader.obj ze_debug.obj
+@rem @set compIn4=ze_scene.obj ze_group_draw_items.obj ze_embedded_assets.obj ze_game_stub.obj
+@rem @set compIn5=ze_input.obj command_console.obj ze_events.obj 
+@rem @echo --- lib ---
+@rem lib -nologo /out:ze.lib  %compIn1% %compIn2% %compIn3% %compIn4% %compIn5%
+
+@rem --- link ---
+@rem echo --- link ---
+@rem @cl /link /out:ze.exe win_main.lib user32.lib opengl32.lib Gdi32.lib shell32.lib ../lib/glfw3_vc2019/glfw3_mt.lib ../buildwin_platform_libs/platlibs.lib
+@rem cl -nologo /link /out:ze.exe win_main.lib
+@rem -nologo win_main.lib /out:ze.exe
+
+@rem echo --- lib ---
+@rem lib  -nologo win /out:ze.lib
+
+@set outputParam=
+@set compilerFlags=
+@set compilerDefines=
+@set compIn1=
+@set compIn2=
+@set compIn3=
+@set compIn4=
+@set compIn5=
+
+@set linkStr=
+@set linkInputA=
+@set linkInputB=
+@set linkInputC=
 
 @cd..
 @cd buildwin
