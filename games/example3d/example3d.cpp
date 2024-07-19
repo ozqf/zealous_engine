@@ -752,6 +752,7 @@ internal void TickBackground()
 	
 	ColourU32 colourA = { 0, lerpColour, 0, 255 };
 	// colourA = { 255, 255, 255, 255 };
+    //printf("Colour A: %d, %d, %d\n", colourA.r, colourA.g, colourA.b);
 	
 	ColourU32 colourB = { 0, 0, 0, 255 };
 	// ColourU32 colourB = { 0, antiLerpColour, 0, 255 };

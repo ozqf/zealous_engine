@@ -68,7 +68,7 @@ ze_external u32 ZRGL_GetTextureHandle(i32 assetId)
         }
         // ZRGLHandles *newRecord = (ZRGLHandles *)g_store.GetFreeSlot(assetId);
         tex->header.bIsDirty = NO;
-        // printf("Upload tex %d\n", assetId);
+        //printf("Upload tex %d\n", assetId);
         ZRGL_UploadTexture(
             (u8 *)tex->data, tex->width, tex->height, &handles->data.textureHandle);
         return handles->data.textureHandle;

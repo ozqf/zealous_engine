@@ -21,9 +21,12 @@ ze_external void ZRGL_DrawMesh(
     CHECK_GL_ERR
 
     ZRDrawObj* obj = &meshCmd->obj;
+    Vec4 albedoTint = ColourF32ToVec4(obj->data.model.albedoColour);
+    
 
     // retrieve assets
     ZRMeshAsset *mesh = ZAssets_GetMeshById(obj->data.model.meshId);
+
     ZE_ASSERT(mesh != NULL, "Mesh is null");
 
     // material and textures
@@ -50,6 +53,7 @@ ze_external void ZRGL_DrawMesh(
 
     ZR_SetProgM4x4(g_shader.handle, "u_modelView", modelView.cells);
     ZR_SetProgM4x4(g_shader.handle, "u_projection", projection->cells);
+    ZR_SetProgVec4f(g_shader.handle, "u_colour", albedoTint);
 
     glBindVertexArray(vao);
     CHECK_GL_ERR

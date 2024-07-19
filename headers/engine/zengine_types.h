@@ -409,6 +409,7 @@ struct ZRDrawObjData
 		this->type = ZR_DRAWOBJ_TYPE_MESH;
 		this->model.meshId = meshId;
 		this->model.materialId = materialId;
+		this->model.albedoColour = { 1, 1, 1, 1 };
 	}
 
 	void SetAsMeshFromData(ZRMeshObjData data)

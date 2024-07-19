@@ -58,8 +58,9 @@ static ZRGPUSpecs ZRGL_QueryGPUSpecs()
     ZRGPUSpecs specs = {};
     // this is an invalid enum on old intel integrated graphics.
     // not a biggy as we'll never intend to run properly on that mind.
-    glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &specs.current_mem_kb);
-    CHECK_GL_ERR
+    //glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &specs.current_mem_kb);
+    //CHECK_GL_ERR
+
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &specs.maxTextureSize);
     CHECK_GL_ERR
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &specs.maxCombinedTextureUnits);
