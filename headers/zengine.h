@@ -63,6 +63,87 @@ Zealous Engine public header
 #include "engine/zengine_type_utils.h"
 #include "engine/zengine_asset_gen.h"
 
+/////////////////////////////////////////
+// Render commands
+/////////////////////////////////////////
+#define ZR_DRAW_CMD_NONE 0
+#define ZR_DRAW_CMD_SET_CAMERA 1
+#define ZR_DRAW_CMD_SPRITE_BATCH 2
+#define ZR_DRAW_CMD_MESH 3
+#define ZR_DRAW_CMD_DEBUG_LINES 4
+#define ZR_DRAW_CMD_CLEAR_BUFFER 5
+
+struct ZRDrawCmdSetCamera
+{
+    BufferBlock header;
+    Transform camera;
+    M4x4 projection;
+};
+
+struct ZRDrawCmdMesh
+{
+    BufferBlock header;
+    ZRDrawObj obj;
+};
+
+struct ZRDrawCmdDebugLines
+{
+	BufferBlock header;
+	// if lines are chained, lines will be drawn between verts
+	// otherwise, lines will be drawn independently between vertex pairs
+	// chained: a->b->c->d->e
+	// unchained: a->b c->d (e has no pair and is ignored)
+	i32 bChained;
+	i32 numVerts;
+	ZRLineVertex* verts;
+};
+
+struct ZRDrawCmdClearBuffer
+{
+    BufferBlock header;
+};
+
+struct ZRSpriteBatchItem
+{
+    Vec3 pos;
+    Vec2 size;
+    Vec2 uvMin;
+    Vec2 uvMax;
+    f32 radians;
+    ColourF32 colour;
+};
+
+struct ZRDrawCmdSpriteBatch
+{
+    BufferBlock header;
+    i32 textureId;
+    i32 numItems;
+    ZRSpriteBatchItem* items;
+
+    void AddItem(Vec3 pos, Vec2 size, Vec2 uvMin, Vec2 uvMax, f32 radians, ColourF32 colour)
+    {
+        items[numItems].pos = pos;
+        items[numItems].size = size;
+        items[numItems].uvMin = uvMin;
+        items[numItems].uvMax = uvMax;
+        items[numItems].radians = radians;
+        items[numItems].colour = colour;
+        numItems++;
+    }
+
+    zeSize Finish(ZEBuffer* buf)
+    {
+        this->header.size = sizeof(ZRDrawCmdSpriteBatch) + (sizeof(ZRSpriteBatchItem) * numItems);
+        buf->cursor = (i8*)this + this->header.size;
+        return this->header.size;
+    }
+};
+
+struct ZRenderer
+{
+	void (*ExecuteCommands)(ZEBuffer* commandBuffer);	
+};
+
 #define GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY (1 << 0)
 #define GAME_DEF_FLAG_MANUAL_RENDER (1 << 1)
 
@@ -81,7 +162,7 @@ struct ZGame
     void (*Init)();
     void (*Shutdown)();
     void (*Tick)(ZEFrameTimeInfo timing);
-    void (*Draw)();
+    void (*Draw)(ZRenderer renderer);
     i32 sentinel;
 };
 

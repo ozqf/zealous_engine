@@ -460,9 +460,14 @@ internal void Tick(ZEFrameTimeInfo timing)
 	UpdateDebugText();
 }
 
-internal void Draw()
+internal void Draw(ZRenderer renderer)
 {
 	RNGPRINT("Draw!\n");
+	ZEBuffer buf = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));
+
+	BUF_BLOCK_BEGIN_STRUCT(prjCmd, ZRDrawCmdSetCamera, (&buf), ZR_DRAW_CMD_SET_CAMERA);
+	
+	g_engine.system.Free(buf.start);
 }
 
 Z_GAME_WINDOWS_LINK_FUNCTION
@@ -470,7 +475,7 @@ Z_GAME_WINDOWS_LINK_FUNCTION
     g_engine = engineImport;
 	gameDef->targetFramerate = 60;
 	gameDef->windowTitle = "Run N Gun";
-	gameDef->flags |= GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY;
+	gameDef->flags = GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY | GAME_DEF_FLAG_MANUAL_RENDER;
     gameExport->Init = Init;
     gameExport->Tick = Tick;
     gameExport->Shutdown = Shutdown;

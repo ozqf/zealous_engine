@@ -161,9 +161,12 @@ ze_external i32 ZE_StartLoop()
 
 			ZScene_PostFrameTick();
 
-			if (g_gameDef.flags & GAME_DEF_FLAG_MANUAL_RENDER)
+			// ZRenderer renderer
+			if (g_gameDef.flags & GAME_DEF_FLAG_MANUAL_RENDER && g_game.Draw != NULL)
 			{
-				if (g_game.Draw != NULL) { g_game.Draw(); }
+				ZRenderer r = {};
+				r.ExecuteCommands = ZR_ExecuteCommands;
+				g_game.Draw(r);
         		Platform_SubmitFrame();
 			}
 			else
