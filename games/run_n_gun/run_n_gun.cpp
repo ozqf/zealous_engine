@@ -466,7 +466,13 @@ internal void Draw(ZRenderer renderer)
 	ZEBuffer buf = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));
 
 	BUF_BLOCK_BEGIN_STRUCT(prjCmd, ZRDrawCmdSetCamera, (&buf), ZR_DRAW_CMD_SET_CAMERA);
-	
+	//f32 aspectRatio = Window_GetInfo().aspect;
+	f32 aspectRatio = (16.f / 9.f);
+	f32 extent = 8;
+    ZE_SetupOrthoProjection(prjCmd->projection.cells, extent, aspectRatio);
+	//prjCmd->camera.pos.x = 0;
+
+	renderer.ExecuteCommands(&buf);
 	g_engine.system.Free(buf.start);
 }
 
