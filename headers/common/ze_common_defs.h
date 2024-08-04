@@ -121,6 +121,11 @@ internal f32 ZAbsf(f32 value)
 	return value >= 0 ? value : -value;
 }
 
+internal i32 ZAbsi(i32 value)
+{
+	return value >= 0 ? value : -value;
+}
+
 // convert a 2d position to an index in a linear buffer
 #define ZE_2D_INDEX(positionX, positionY, gridWidth) \
 	positionX + (positionY * gridWidth)

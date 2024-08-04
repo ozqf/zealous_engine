@@ -429,6 +429,7 @@ struct WorldVolume
 	zeHandle bodyId;
 	zeHandle drawObjId;
 	Transform t;
+	u8 type;
 };
 
 ze_external void Sim_Init(ZEngine engine, zeHandle sceneId);

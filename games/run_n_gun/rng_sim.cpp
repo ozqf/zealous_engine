@@ -31,7 +31,7 @@ struct FrameFooter
 
 ze_internal u32 g_restoreTick = 1;
 
-ze_internal i32 g_bVerboseLoad = NO;
+ze_internal i32 g_bVerboseLoad = YES;
 
 ze_internal EntityType g_types[ENT_TYPE__COUNT];
 
@@ -229,6 +229,7 @@ ze_internal void AddPlatform(Vec2 pos, f32 width)
 	pos.y -= (height * 0.5f);
 
 	WorldVolume* vol = GetFreeWorldVolume();
+	vol->type = 1;
 	ZRDrawObj *platform = g_engine.scenes.AddFullTextureQuad(
 		g_scene,
 		FALLBACK_TEXTURE_WHITE,
@@ -249,16 +250,18 @@ ze_internal void AddStatic(Vec2 pos, Vec2 size)
 {
 	if (g_bVerboseLoad)
 	{
-		RNGPRINT("Create world vol at %.3f, %.3f - %.3f by %.3f\n",
+		RNGPRINT("Create world vol at %.3f, %.3f | %.3f by %.3f\n",
 			pos.x, pos.y, size.x, size.y);
 	}
 	WorldVolume* vol = GetFreeWorldVolume();
+	vol->type = 0;
+	vol->t.pos = Vec3_FromVec2(pos, -0.1f);
+	vol->t.scale = {size.x * 0.5f, size.y * 0.5f};
 	ZRDrawObj *platform = g_engine.scenes.AddFullTextureQuad(
 		g_scene,
 		FALLBACK_TEXTURE_WHITE,
-		{size.x * 0.5f, size.y * 0.5f},
+		{ vol->t.scale.x, vol->t.scale.y },
 		COLOUR_F32_LIGHT_GREY);
-	platform->t.pos = Vec3_FromVec2(pos, -0.1f);
 	vol->drawObjId = platform->id;
 	u16 mask = 
 		PHYSICS_LAYER_BIT_WORLD |
@@ -377,8 +380,8 @@ ze_internal FrameHeader* WriteNewSession(ZEBuffer* frames, const char* mapName)
 		max.x = (i32)aabb->max.x;
 		max.y = (i32)aabb->max.y;
 		Point2 size;
-		size.x = max.x - min.x + 1;
-		size.y = max.y - min.y + 1;
+		size.x = ZAbsi(max.x - min.x) + 1;
+		size.y = ZAbsi(max.y - min.y) + 1;
 		if (aabb->type == 1)
 		{
 			// f32 halfWidth = (f32)size.x * 0.5f;

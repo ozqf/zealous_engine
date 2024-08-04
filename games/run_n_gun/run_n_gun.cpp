@@ -505,9 +505,14 @@ internal void Draw(ZRenderer renderer)
     	for (i32 i = 0; i < numVolumes; ++i)
 		{
 			WorldVolume* vol = &volumes[i];
+			
 			Vec2 scale = { vol->t.scale.x, vol->t.scale.y };
-			Vec2 uvMin = { 0, 0 };
-			Vec2 uvMax = { 0.25, 0.25 };
+			Vec2 uvMin = { 0, 0.5 };
+			Vec2 uvMax = { 0.5, 1 };
+			if (vol->type == 0)
+			{
+				RNGPRINT("Block scale %.3f, %.3f\n", scale.x, scale.y);
+			}
 			spriteBatch->AddItem(vol->t.pos, scale, uvMin, uvMax, 0, COLOUR_U32_GREY_DARK);
 		}
 		
