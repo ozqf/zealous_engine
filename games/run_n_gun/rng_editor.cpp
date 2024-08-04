@@ -22,7 +22,7 @@
 #define DRAG_CORNER_SE 3
 #define DRAG_CORNER_SW 4
 
-struct WorldVolume
+struct EdWorldVolume
 {
 	i32 id;
 	Point2 gridMin;
@@ -86,7 +86,7 @@ ze_internal Point2 PosToGrid(Vec2 pos)
 	return p;
 }
 
-ze_internal Point2 GetVolumeSize(WorldVolume* vol)
+ze_internal Point2 GetVolumeSize(EdWorldVolume* vol)
 {
 	Point2 p;
 	// minimum size of 1 cell in each axis.
@@ -95,7 +95,7 @@ ze_internal Point2 GetVolumeSize(WorldVolume* vol)
 	return p;
 }
 
-ze_internal Vec2 GetVolumeCentre(WorldVolume* vol)
+ze_internal Vec2 GetVolumeCentre(EdWorldVolume* vol)
 {
 	Vec2 size = Vec2_FromPoint2(GetVolumeSize(vol));
 	Vec2 centre;
@@ -104,7 +104,7 @@ ze_internal Vec2 GetVolumeCentre(WorldVolume* vol)
 	return centre;
 }
 
-ze_internal void RefreshVolume(WorldVolume* vol)
+ze_internal void RefreshVolume(EdWorldVolume* vol)
 {
 	f32 minX = (f32)vol->gridMin.x, minY = (f32)vol->gridMin.y;
 	f32 width = (f32)vol->gridMax.x - minX;
@@ -128,14 +128,14 @@ ze_internal void RefreshVolume(WorldVolume* vol)
 
 ze_internal void SetSelectedVolume(i32 id)
 {
-	WorldVolume* vol = NULL;
+	EdWorldVolume* vol = NULL;
 	if (g_selectedVolumeId == id)
 	{
 		return;
 	}
 	if (g_selectedVolumeId != 0)
 	{
-		vol = (WorldVolume*)g_volumes.GetById(g_selectedVolumeId);
+		vol = (EdWorldVolume*)g_volumes.GetById(g_selectedVolumeId);
 		vol->bSelected = NO;
 		RefreshVolume(vol);
 		vol = NULL;
@@ -145,7 +145,7 @@ ze_internal void SetSelectedVolume(i32 id)
 	if (id != 0)
 	{
 		g_selectedVolumeId = id;
-		vol = (WorldVolume*)g_volumes.GetById(id);
+		vol = (EdWorldVolume*)g_volumes.GetById(id);
 		vol->bSelected = YES;
 	}
 	if (vol != NULL)
@@ -158,7 +158,7 @@ ze_internal void AddVolumeAt(Point2 gridPos)
 {
 	RNGPRINT("Add volume at %d, %d\n", gridPos.x, gridPos.y);
 	i32 newId = g_nextVolumeId++;
-	WorldVolume* vol = (WorldVolume*)g_volumes.GetFreeSlot(newId);
+	EdWorldVolume* vol = (EdWorldVolume*)g_volumes.GetFreeSlot(newId);
 	*vol = {};
 	vol->id = newId;
 	vol->gridMin = gridPos;
@@ -171,13 +171,13 @@ ze_internal void AddVolumeAt(Point2 gridPos)
 
 ze_internal void RemoveVolume(i32 id)
 {
-	WorldVolume* vol = (WorldVolume*)g_volumes.GetById(id);
+	EdWorldVolume* vol = (EdWorldVolume*)g_volumes.GetById(id);
 	if (vol == NULL) { return; }
 	g_engine.scenes.RemoveObject(g_edScene, vol->drawId);
 	g_volumes.MarkForRemoval(id);
 }
 
-ze_internal i32 TestGridPosVsVolume(Point2 gridPos, WorldVolume* vol)
+ze_internal i32 TestGridPosVsVolume(Point2 gridPos, EdWorldVolume* vol)
 {
 	ZE_ASSERT(vol, "Volume is null");
 	if (gridPos.x < vol->gridMin.x) { return NO; }
@@ -187,12 +187,12 @@ ze_internal i32 TestGridPosVsVolume(Point2 gridPos, WorldVolume* vol)
 	return YES;
 }
 
-ze_internal WorldVolume* FindVolumeAt(Point2 g)
+ze_internal EdWorldVolume* FindVolumeAt(Point2 g)
 {
 	i32 num = g_volumes.Count();
 	for (i32 i = 0; i < num; ++i)
 	{
-		WorldVolume* vol = (WorldVolume*)g_volumes.GetByIndex(i);
+		EdWorldVolume* vol = (EdWorldVolume*)g_volumes.GetByIndex(i);
 		if (vol == NULL) { continue; }
 		if (TestGridPosVsVolume(g, vol))
 		{
@@ -202,7 +202,7 @@ ze_internal WorldVolume* FindVolumeAt(Point2 g)
 	return NULL;
 }
 
-ze_internal i32 SelectDragCorner(Vec2 mouseWorldPos, Point2 gridPos, WorldVolume* vol)
+ze_internal i32 SelectDragCorner(Vec2 mouseWorldPos, Point2 gridPos, EdWorldVolume* vol)
 {
 	Vec2 centre = GetVolumeCentre(vol);
 	f32 fracX = mouseWorldPos.x - (f32)centre.x;
@@ -221,7 +221,7 @@ ze_internal i32 SelectDragCorner(Vec2 mouseWorldPos, Point2 gridPos, WorldVolume
 	}
 }
 
-ze_internal void MouseDragVolume(Vec2 mouseWorldPos, Point2 gridPos, WorldVolume* vol)
+ze_internal void MouseDragVolume(Vec2 mouseWorldPos, Point2 gridPos, EdWorldVolume* vol)
 {
 	switch (g_dragCorner)
 	{
@@ -276,7 +276,7 @@ ze_internal void MouseDragVolume(Vec2 mouseWorldPos, Point2 gridPos, WorldVolume
 ze_internal void TickWorldEdit(f32 delta, Vec2 mouseWorldPos, frameInt frameNumber)
 {
 	Point2 g = PosToGrid(mouseWorldPos);
-	WorldVolume* vol = NULL;
+	EdWorldVolume* vol = NULL;
 	i32 bModifierOn = g_engine.input.GetActionValue(ED_MODIFIER_1) != 0;
 	i32 bDelete = g_engine.input.GetActionValue(ED_DELETE) != 0;
 	if (g_selectedVolumeId != 0)
@@ -288,7 +288,7 @@ ze_internal void TickWorldEdit(f32 delta, Vec2 mouseWorldPos, frameInt frameNumb
 		}
 		else
 		{
-			vol = (WorldVolume*)g_volumes.GetById(g_selectedVolumeId);
+			vol = (EdWorldVolume*)g_volumes.GetById(g_selectedVolumeId);
 		}
 	}
 
@@ -358,7 +358,7 @@ ze_internal void Ed_SaveMap(const char* fileName)
 	i32 numVolumes = g_volumes.Count();
 	for (i32 i = 0; i < numVolumes; ++i)
 	{
-		WorldVolume* vol = (WorldVolume*)g_volumes.GetByIndex(i);
+		EdWorldVolume* vol = (EdWorldVolume*)g_volumes.GetByIndex(i);
 		write += sprintf_s(write, end - write, "%d %d %d %d %d %d\n",
 			vol->id, 0, vol->gridMin.x, vol->gridMin.y, vol->gridMax.x, vol->gridMax.y);
 	}
@@ -441,7 +441,7 @@ ze_internal void Ed_UpdateDebugText()
 	);
 	if (g_selectedVolumeId != 0)
 	{
-		WorldVolume* vol = (WorldVolume*)g_volumes.GetById(g_selectedVolumeId);
+		EdWorldVolume* vol = (EdWorldVolume*)g_volumes.GetById(g_selectedVolumeId);
 		Vec2 pos = GetVolumeCentre(vol);
 		Point2 size = GetVolumeSize(vol);
 		write += sprintf_s(
@@ -615,7 +615,7 @@ ze_external void Ed_Init(ZEngine engine)
 		g_edScene, FALLBACK_TEXTURE_WHITE, { 0.1f, 0.1f }, COLOUR_F32_RED);
 	g_pointCursor = pointCursor->id;
 
-	ZE_InitBlobStore(g_engine.system.Malloc, &g_volumes, 1024, sizeof(WorldVolume), 0);
+	ZE_InitBlobStore(g_engine.system.Malloc, &g_volumes, 1024, sizeof(EdWorldVolume), 0);
 	
 	g_debugText = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));
 

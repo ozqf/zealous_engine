@@ -12,6 +12,7 @@ ze_internal Vec2 g_mousePos;
 ze_internal Vec2 g_mouseWorldPos;
 ze_internal i32 g_platformTexture;
 ze_internal i32 g_cursorTexture;
+ze_internal i32 g_spriteTexture;
 
 ze_internal i32 g_applicationState = -1;
 ze_internal i32 g_bAppMenuOpen = NO;
@@ -102,6 +103,10 @@ internal void Init()
 	g_engine.textCommands.RegisterCommand(
 		"rng", "rng <command> - switch app states", Exec_RNGCommand);
 	
+	ZRTexture* spriteTex;
+	g_engine.assets.LoadTextureFromFile(ASSET_PATH_SPRITES_1, &spriteTex);
+	g_spriteTexture = spriteTex->header.id;
+
 	// setup scene
 	g_scene = g_engine.scenes.AddScene(SCENE_ORDER_GAME, ENTITY_COUNT, sizeof(Ent2d));
 	g_engine.scenes.SetClearColour(COLOUR_F32_BLACK);
@@ -462,11 +467,77 @@ internal void Tick(ZEFrameTimeInfo timing)
 
 internal void Draw(ZRenderer renderer)
 {
-	RNGPRINT("Draw!\n");
+	//RNGPRINT("Draw!\n");
 	ZEBuffer buf = Buf_FromMalloc(g_engine.system.Malloc, MegaBytes(1));
 
 	BUF_BLOCK_BEGIN_STRUCT(prjCmd, ZRDrawCmdSetCamera, (&buf), ZR_DRAW_CMD_SET_CAMERA);
+	//f32 aspectRatio = Window_GetInfo().aspect;
+	f32 aspectRatio = (16.f / 9.f);
+	f32 extent = 8;
+    ZE_SetupOrthoProjection(prjCmd->projection.cells, extent, aspectRatio);
 	
+	Transform camera = g_engine.scenes.GetCamera(g_scene);
+	
+	prjCmd->camera = camera;
+
+	ZRTexture* tex = g_engine.assets.GetTexByName(ASSET_PATH_PLAYER_TEX);
+	i32 texId = g_spriteTexture;
+	/*if (tex != NULL)
+	{
+		texId = tex->header.id;
+	}
+	else
+	{
+		RNGPRINT("no player tex\n");
+	}*/
+
+	WorldVolume* volumes;
+	i32 numVolumes;
+	Sim_GetWorldVolumes(&volumes, &numVolumes);
+	if (numVolumes > 0)
+	{
+		zeSize totalBytes = sizeof(ZRDrawCmdSpriteBatch) + sizeof(ZRQuad);
+		BUF_BLOCK_BEGIN_STRUCT(
+        	spriteBatch, ZRDrawCmdSpriteBatch, (&buf), ZR_DRAW_CMD_SPRITE_BATCH);
+    	
+		spriteBatch->textureId = texId;// quadObj->data.quad.textureId;
+    	spriteBatch->items = (ZRSpriteBatchItem *)buf.cursor;
+    	for (i32 i = 0; i < numVolumes; ++i)
+		{
+			WorldVolume* vol = &volumes[i];
+			Vec2 scale = { vol->t.scale.x, vol->t.scale.y };
+			Vec2 uvMin = { 0, 0 };
+			Vec2 uvMax = { 0.25, 0.25 };
+			spriteBatch->AddItem(vol->t.pos, scale, uvMin, uvMax, 0, COLOUR_U32_GREY_DARK);
+		}
+		
+    	// complete batch command
+    	spriteBatch->Finish(&buf);
+	}
+
+	ZEBlobStore* ents = Sim_GetEnts();
+	#if 1
+	Ent2d* ent = Sim_FindPlayer();
+	if (ent != NULL)
+	{
+		ZRDrawObj* obj = g_engine.scenes.GetObject(g_scene, ent->d.player.bodyDrawId);
+		if (obj != NULL && obj->data.type == ZR_DRAWOBJ_TYPE_QUAD)
+		{
+			//printf("Draw plyr at %.3f, %.3f\n", obj->t.pos.x, obj->t.pos.y);
+			WriteSingleQuadCommand(&buf, obj);
+		}
+		else
+		{
+			printf("No player sprite\n");
+		}
+	}
+	else
+	{
+		printf("No player ent\n");
+	}
+	#endif
+	renderer.ClearFrame({});
+	renderer.ExecuteCommands(&buf);
 	g_engine.system.Free(buf.start);
 }
 

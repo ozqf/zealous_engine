@@ -1,12 +1,6 @@
 #include "rng_internal.h"
 #include "../../plugins/ze_map2d.h"
 
-struct WorldVolume
-{
-	zeHandle bodyId;
-	zeHandle drawObjId;
-};
-
 /*
 FrameHeader
 Ents
@@ -84,6 +78,17 @@ ze_external zeHandle GetGameScene()
 ze_external i32 Sim_GetRestoreTick()
 {
 	return g_restoreTick;
+}
+
+ze_external ZEBlobStore* Sim_GetEnts()
+{
+	return &g_entities;
+}
+
+ze_external void Sim_GetWorldVolumes(WorldVolume** vols, i32* count)
+{
+	*vols = g_worldVolumes;
+	*count = g_numWorldVolumes;
 }
 
 ze_external Ent2d* Sim_FindPlayer()
@@ -230,6 +235,7 @@ ze_internal void AddPlatform(Vec2 pos, f32 width)
 		{width * 0.5f, height * 0.5f},
 		COLOUR_F32_LIGHT_GREY);
 	platform->t.pos = Vec3_FromVec2(pos, -0.1f);
+	vol->t = platform->t;
 	vol->drawObjId = platform->id;
 	u16 mask =
 		PHYSICS_LAYER_BIT_PLATFORM |

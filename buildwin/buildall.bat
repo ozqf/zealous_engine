@@ -10,7 +10,10 @@ cls
 @echo - External libs built - Warnings as Errors start -
 @echo ---------------------------------------------------
 @echo STEP 2 - build engine
-@call build_exe.bat
+@call build_engine_lib.bat
+@echo ---------------------------------------------------
+@echo STEP 2 - build exe
+@call build_exe_light.bat
 @echo ---------------------------------------------------
 @echo STEP 3 - Build plugins
 @call build_plugins.bat

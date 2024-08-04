@@ -121,6 +121,11 @@ printf(fmt, __VA_ARGS__)
 
 #define GROUND_CHECK_MASK (PHYSICS_LAYER_BIT_WORLD | PHYSICS_LAYER_BIT_PLATFORM)
 
+// asset paths
+#define ASSET_PATH_PLAYER_TEX "run_n_gun\\player_placeholder.png"
+#define ASSET_PATH_SPRITES_1 "run_n_gun\\spritesheet_primitives.png"
+
+
 // #define CREATE_ENT_PTR(entPtrName, drawObjPtr) \
 // Ent2d* entPtrName = NULL; \
 // if (drawObjPtr != NULL) { entPtrName = (Ent2d*)drawObjPtr->userData; }
@@ -419,6 +424,13 @@ struct RNGTickInfo
 	Vec2 cursorScreenPos;
 };
 
+struct WorldVolume
+{
+	zeHandle bodyId;
+	zeHandle drawObjId;
+	Transform t;
+};
+
 ze_external void Sim_Init(ZEngine engine, zeHandle sceneId);
 ze_external char* Sim_GetDebugText();
 ze_external void Sim_SyncDrawObjects();
@@ -446,6 +458,8 @@ ze_external void Sim_RestoreEntity(EntStateHeader* header);
 ze_external void Sim_RemoveEntityBase(Ent2d* ent);
 ze_external void Sim_RemoveEntity(Ent2d* ent);
 ze_external void Sim_SyncDrawObjToPhysicsObj(zeHandle drawId, zeHandle bodyId);
+ze_external ZEBlobStore* Sim_GetEnts();
+ze_external void Sim_GetWorldVolumes(WorldVolume** vols, i32* count);
 
 // specific entities
 ze_external Ent2d* Sim_FindPlayer();

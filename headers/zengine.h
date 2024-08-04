@@ -141,8 +141,11 @@ struct ZRDrawCmdSpriteBatch
 
 struct ZRenderer
 {
+    void (*ClearFrame)(ColourF32 clearColour);
 	void (*ExecuteCommands)(ZEBuffer* commandBuffer);	
 };
+
+#include "engine/ze_draw_commands.h"
 
 #define GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY (1 << 0)
 #define GAME_DEF_FLAG_MANUAL_RENDER (1 << 1)

@@ -12,7 +12,7 @@ ze_internal ZEngine g_engine;
 ze_internal zeHandle g_scene;
 
 ze_internal zeHandle g_playerTex = 0;
-ze_internal const char* g_playerTexName = "run_n_gun\\player_placeholder.png";
+ze_internal const char* g_playerTexName = ASSET_PATH_PLAYER_TEX;
 
 ze_internal EntPlayer* GetPlayer(Ent2d* ent)
 {
