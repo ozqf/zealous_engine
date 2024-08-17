@@ -96,10 +96,10 @@ ze_internal i32 HitEnt(Ent2d* self, i32 entId, i32 volumeId, DamageHit* dmg)
 	return NO;
 }
 
-ze_internal void Tick(Ent2d* ent, f32 delta)
+ze_internal void Tick(Ent2d* ent, RNGTickInfo* tickInfo)
 {
 	EntPointProjectile* prj = GetPointPrj(ent);
-	prj->data.tick += delta;
+	prj->data.tick += tickInfo->delta;
 	if (prj->data.tick > 10.0)
 	{
 		//RNGPRINT("prj timeout\n");
@@ -120,7 +120,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	move = Vec2_Mul(dir, speed);
 	// move.x = cosf(prj->data.radians) * speed;
 	// move.y = sinf(prj->data.radians) * speed;
-	Vec2 dest = Vec2_Add(prj->data.pos, Vec2_Mul(move, delta));
+	Vec2 dest = Vec2_Add(prj->data.pos, Vec2_Mul(move, tickInfo->delta));
 
 	
 	// prepare data if we need to hit something

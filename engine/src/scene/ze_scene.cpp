@@ -88,6 +88,7 @@ ze_internal void ZScene_SetFlag(zeHandle handle, i32 mask, i32 bValue)
     {
         scene->flags &= ~mask;
     }
+    printf("Scene %d flags %d\n", handle, scene->flags);
 }
 
 ze_internal void ZScene_ApplyDefaultOrthoProjection(
@@ -256,7 +257,7 @@ ze_internal ZRDrawObj* ZScene_AddCube(zeHandle scene, char* materialName)
 /*
 TODO: scene order value is not implemented, scenes draw in order they were created
 */
-ze_external void ZScene_Draw()
+ze_external void ZScene_Draw(ZRenderer renderer, ZGame game)
 {
     // ZE_PRINTF("=== FRAME ===\n");
     ZR_ClearFrame(g_clearColour);
@@ -272,6 +273,11 @@ ze_external void ZScene_Draw()
         if (key->id == 0) { continue; }
         ZRScene* scene = (ZRScene*)key->data.ptr;
         if (scene->flags & ZSCENE_FLAG_NO_DRAW) { continue; }
+        if (scene->flags & ZSCENE_FLAG_CUSTOM_DRAW && game.DrawScene != NULL)
+        {
+            game.DrawScene(renderer, scene->id);
+            continue;
+        }
         ZScene_WriteDrawCommands(buf, scene);
     }
     f64 cmdEnd = Platform_QueryClock();

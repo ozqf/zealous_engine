@@ -13,10 +13,15 @@ ze_internal Vec2 g_mouseWorldPos;
 ze_internal i32 g_platformTexture;
 ze_internal i32 g_cursorTexture;
 ze_internal i32 g_spriteTexture;
+ze_internal i32 g_lastAimInputWasKeyboard = NO;
+ze_internal RNGTickInfo g_lastTickInfo = {};
 
 ze_internal i32 g_applicationState = -1;
 ze_internal i32 g_bAppMenuOpen = NO;
 ze_internal i32 g_gameState = GAME_STATE_PLAYING;
+
+ze_internal const i32 g_lastDebugMode = 3;
+ze_internal i32 g_uvDebugMode = g_lastDebugMode;
 
 ze_internal void App_SetAppState(int newState);
 internal void CreateCursor();
@@ -68,6 +73,15 @@ ZCMD_CALLBACK(Exec_RNGCommand)
 			? App_SetAppState(APP_STATE_EDITOR)
 			: App_SetAppState(APP_STATE_GAME);
 	}
+	else if (ZStr_Equal(fullString, RNG_CMD_RENDER_MODE))
+	{
+		g_uvDebugMode += 1;
+		if (g_uvDebugMode > g_lastDebugMode)
+		{
+			g_uvDebugMode = 0;
+		}
+		RNGPRINT("rng Debug rmode changed: %d\n", g_uvDebugMode);
+	}
 	else
 	{
 		RNGPRINT("Unknown rng parameter %s\n", tokens[1]);
@@ -111,6 +125,7 @@ internal void Init()
 	g_scene = g_engine.scenes.AddScene(SCENE_ORDER_GAME, ENTITY_COUNT, sizeof(Ent2d));
 	g_engine.scenes.SetClearColour(COLOUR_F32_BLACK);
 	g_engine.scenes.SetProjectionOrtho(g_scene, 8);
+	g_engine.scenes.SetSceneFlag(g_scene, ZSCENE_FLAG_CUSTOM_DRAW, 1);
 	
 	// setup UI scene
 	g_uiScene = g_engine.scenes.AddScene(SCENE_ORDER_UI, 1024, 0);
@@ -172,6 +187,11 @@ internal void Init()
 	g_engine.input.AddAction(Z_INPUT_CODE_ESCAPE, Z_INPUT_CODE_NULL, ACTION_MENU);
 	g_engine.input.AddAction(Z_INPUT_CODE_F1, Z_INPUT_CODE_NULL, ACTION_TOGGLE_DEBUG);
 
+	g_engine.input.AddAction(Z_INPUT_CODE_LEFT, Z_INPUT_CODE_NULL, ACTION_ATTACK_LEFT);
+	g_engine.input.AddAction(Z_INPUT_CODE_RIGHT, Z_INPUT_CODE_NULL, ACTION_ATTACK_RIGHT);
+	g_engine.input.AddAction(Z_INPUT_CODE_UP, Z_INPUT_CODE_NULL, ACTION_ATTACK_UP);
+	g_engine.input.AddAction(Z_INPUT_CODE_DOWN, Z_INPUT_CODE_NULL, ACTION_ATTACK_DOWN);
+
 	// init sub-state module
 	Ed_Init(g_engine);
 	Sim_Init(g_engine, g_scene);
@@ -189,17 +209,42 @@ internal void Shutdown()
 
 internal void UpdateCursor()
 {
-	g_mousePos.x = g_engine.input.GetActionValueNormalised("mouseX");
-	g_mousePos.y = -g_engine.input.GetActionValueNormalised("mouseY");
+	Vec2 newPos;
+	newPos.x = g_engine.input.GetActionValueNormalised("mouseX");
+	newPos.y = -g_engine.input.GetActionValueNormalised("mouseY");
 	// mouse is range -1 to 1, scale up mouse by screen size
 	
 	f32 aspectRatio = g_engine.system.GetScreenInfo().aspect;
-	g_mousePos.x *= screenSize * aspectRatio;
-	g_mousePos.y *= screenSize;
+	newPos.x *= screenSize * aspectRatio;
+	newPos.y *= screenSize;
+
+	if (newPos.x != g_mousePos.x || newPos.y != g_mousePos.y)
+	{
+		g_lastAimInputWasKeyboard = NO;
+	}
+	g_mousePos = newPos;
 }
 
 internal void UpdateGameCursor(zeHandle worldSceneId)
 {
+	Vec2 keyboardDir = {};
+	if (g_lastTickInfo.buttons & INPUT_BIT_ATK_LEFT)
+	{
+		keyboardDir.x -= 1;
+	}
+	if (g_lastTickInfo.buttons & INPUT_BIT_ATK_RIGHT)
+	{
+		keyboardDir.x += 1;
+	}
+	if (g_lastTickInfo.buttons & INPUT_BIT_ATK_UP)
+	{
+		keyboardDir.y += 1;
+	}
+	if (g_lastTickInfo.buttons & INPUT_BIT_ATK_DOWN)
+	{
+		keyboardDir.y -= 1;
+	}
+
 	// update world position for cursor
 	g_mouseWorldPos = g_mousePos;
 	
@@ -214,6 +259,16 @@ internal void UpdateGameCursor(zeHandle worldSceneId)
 	printf("Cursor global Id %d, obj id %d\n", g_cursorId, cursor->id);
 	
 	// position crosshair
+	Ent2d* ent = Sim_FindPlayer();
+	if (g_lastAimInputWasKeyboard && ent != NULL)
+	{
+		cursor->t.pos.x = ent->d.player.stickAimPos.x;
+		cursor->t.pos.y = ent->d.player.stickAimPos.y;
+		g_mouseWorldPos.x = cursor->t.pos.x;
+		g_mouseWorldPos.y = cursor->t.pos.y;
+		return;
+	}
+	
 	cursor->t.pos.x = g_mouseWorldPos.x;
 	cursor->t.pos.y = g_mouseWorldPos.y;
 }
@@ -395,16 +450,31 @@ internal void Game_Tick(ZEFrameTimeInfo timing)
 	SetInputBit(&info.buttons, INPUT_BIT_RIGHT, MOVE_RIGHT);
 	SetInputBit(&info.buttons, INPUT_BIT_UP, MOVE_UP);
 	SetInputBit(&info.buttons, INPUT_BIT_DOWN, MOVE_DOWN);
+
 	SetInputBit(&info.buttons, INPUT_BIT_ATK_1, ACTION_ATTACK_1);
 	SetInputBit(&info.buttons, INPUT_BIT_ATK_2, ACTION_ATTACK_2);
 
+	SetInputBit(&info.buttons, INPUT_BIT_ATK_LEFT, ACTION_ATTACK_LEFT);
+	SetInputBit(&info.buttons, INPUT_BIT_ATK_RIGHT, ACTION_ATTACK_RIGHT);
+	SetInputBit(&info.buttons, INPUT_BIT_ATK_UP, ACTION_ATTACK_UP);
+	SetInputBit(&info.buttons, INPUT_BIT_ATK_DOWN, ACTION_ATTACK_DOWN);
+
+	int keyboardAimMask = (INPUT_BIT_ATK_LEFT | INPUT_BIT_ATK_RIGHT | INPUT_BIT_ATK_UP | INPUT_BIT_ATK_DOWN);
+	if ((info.buttons & keyboardAimMask) != 0)
+	{
+		g_lastAimInputWasKeyboard = YES;
+	}
+
 	info.cursorWorldPos = g_mouseWorldPos;
 	info.cursorScreenPos = g_mousePos;
+	info.bUseStickAim = g_lastAimInputWasKeyboard;
 	// force sim to run at ticks of 60fps!
 	// otherwise jitters in system frame timing create
 	// jitters in playback.
 	// info.delta = (f32)timing.interval;
 	info.delta = 1.f / 60.f;
+
+	g_lastTickInfo = info;
 
 	if (Sim_GetPlayerStatus() == PLAYER_STATUS_DEAD && g_gameState == GAME_STATE_PLAYING)
 	{
@@ -502,17 +572,42 @@ internal void Draw(ZRenderer renderer)
     	
 		spriteBatch->textureId = texId;// quadObj->data.quad.textureId;
     	spriteBatch->items = (ZRSpriteBatchItem *)buf.cursor;
-    	for (i32 i = 0; i < numVolumes; ++i)
+    	
+		for (i32 i = 0; i < numVolumes; ++i)
 		{
 			WorldVolume* vol = &volumes[i];
 			
 			Vec2 scale = { vol->t.scale.x, vol->t.scale.y };
-			Vec2 uvMin = { 0, 0.5 };
-			Vec2 uvMax = { 0.5, 1 };
+			
+			Vec2 uvMin;
+			Vec2 uvMax;
+
+			switch (g_uvDebugMode)
+			{
+				case 1:
+				uvMin = { 0, 0 };
+				uvMax = { 0.5, 0.5 };
+				break;
+				case 2:
+				uvMin = { 0.5, 0.5 };
+				uvMax = { 1, 1 };
+				break;
+				case 3:
+				uvMin = { 0, 0 };
+				uvMax = { 1, 1 };
+				default:
+				// debug - just pixel (top left corner)
+				uvMin = { 0, 1.0 };
+				uvMax = { 0, 1.0 };
+				break;
+			}
+			
+			#if 0
 			if (vol->type == 0)
 			{
 				RNGPRINT("Block scale %.3f, %.3f\n", scale.x, scale.y);
 			}
+			#endif
 			spriteBatch->AddItem(vol->t.pos, scale, uvMin, uvMax, 0, COLOUR_U32_GREY_DARK);
 		}
 		
@@ -546,16 +641,24 @@ internal void Draw(ZRenderer renderer)
 	g_engine.system.Free(buf.start);
 }
 
+internal void DrawScene(ZRenderer renderer, zeHandle scene)
+{
+	//RNGPRINT("rng - draw scene %d\n", scene);
+	Draw(renderer);
+}
+
 Z_GAME_WINDOWS_LINK_FUNCTION
 {
     g_engine = engineImport;
 	gameDef->targetFramerate = 60;
 	gameDef->windowTitle = "Run N Gun";
-	gameDef->flags = GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY | GAME_DEF_FLAG_MANUAL_RENDER;
+	//gameDef->flags = GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY | GAME_DEF_FLAG_MANUAL_RENDER;
+	gameDef->flags = GAME_DEF_FLAG_OVERRIDE_ESCAPE_KEY;
     gameExport->Init = Init;
     gameExport->Tick = Tick;
     gameExport->Shutdown = Shutdown;
 	gameExport->Draw = Draw;
+	gameExport->DrawScene = DrawScene;
     gameExport->sentinel = ZE_SENTINEL;
     return ZE_ERROR_NONE;
 }

@@ -28,6 +28,7 @@ printf(fmt, __VA_ARGS__)
 #define RNG_CMD_GAME "rng game"
 #define RNG_CMD_EDITOR "rng editor"
 #define RNG_CMD_APP_TOGGLE "rng app-toggle"
+#define RNG_CMD_RENDER_MODE "rng rmode"
 
 #define SCENE_ORDER_GAME 0
 #define SCENE_ORDER_UI 1
@@ -65,6 +66,11 @@ printf(fmt, __VA_ARGS__)
 #define ACTION_TIME_FAST_FORWARD "fast_forward"
 #define ACTION_TIME_FAST_REWIND "fast_rewind"
 
+#define ACTION_ATTACK_LEFT "attack_left"
+#define ACTION_ATTACK_RIGHT "attack_right"
+#define ACTION_ATTACK_UP "attack_up"
+#define ACTION_ATTACK_DOWN "attack_down"
+
 #define ACTION_MENU "menu"
 #define ACTION_TOGGLE_DEBUG "toggle_debug"
 
@@ -76,6 +82,10 @@ printf(fmt, __VA_ARGS__)
 #define INPUT_BIT_ATK_1 (1 << 4)
 #define INPUT_BIT_ATK_2 (1 << 5)
 #define INPUT_BIT_USE (1 << 6)
+#define INPUT_BIT_ATK_LEFT (1 << 7)
+#define INPUT_BIT_ATK_RIGHT (1 << 8)
+#define INPUT_BIT_ATK_UP (1 << 9)
+#define INPUT_BIT_ATK_DOWN (1 << 10)
 
 #define ACCLE_FORCE 100
 #define MOVE_SPEED 8
@@ -177,6 +187,7 @@ struct EntPlayer
 	u32 buttons;
 	i32 status;
 	i32 touchFlags;
+	Vec2 stickAimPos;
 
 	// components
 	zeHandle bodyDrawId = 0;
@@ -382,6 +393,29 @@ ze_internal EntStateHeader Ent_SaveHeaderFromRaw(
 // misc
 ////////////////////////////////////////////////
 
+struct RNGShared
+{
+	ZEngine engine;
+	zeHandle scene;
+};
+
+struct RNGTickInfo
+{
+	float delta;
+	u32 buttons;
+	Vec2 cursorWorldPos;
+	Vec2 cursorScreenPos;
+	i32 bUseStickAim;
+};
+
+struct WorldVolume
+{
+	zeHandle bodyId;
+	zeHandle drawObjId;
+	Transform t;
+	u8 type;
+};
+
 struct DamageHit
 {
 	i32 damage;
@@ -404,32 +438,10 @@ struct EntityType
 	void (*Restore)(EntStateHeader* ptr, u32 restoreTick);
 	void (*Write)(Ent2d* ent, ZEBuffer* buf);
 	void (*Remove)(Ent2d* ent);
-	void (*Tick)(Ent2d* ent, f32 delta);
+	void (*Tick)(Ent2d* ent, RNGTickInfo* tickInfo);
 	void (*Sync)(Ent2d* ent);
 	EntHitResponse (*Hit)(Ent2d* victim, DamageHit* hit);
 	void (*Print)(Ent2d* ent);
-};
-
-struct RNGShared
-{
-	ZEngine engine;
-	zeHandle scene;
-};
-
-struct RNGTickInfo
-{
-	float delta;
-	u32 buttons;
-	Vec2 cursorWorldPos;
-	Vec2 cursorScreenPos;
-};
-
-struct WorldVolume
-{
-	zeHandle bodyId;
-	zeHandle drawObjId;
-	Transform t;
-	u8 type;
 };
 
 ze_external void Sim_Init(ZEngine engine, zeHandle sceneId);

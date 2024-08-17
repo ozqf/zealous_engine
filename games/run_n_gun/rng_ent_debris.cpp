@@ -85,7 +85,7 @@ ze_internal void Remove(Ent2d* ent)
 	Sim_RemoveEntityBase(ent);
 }
 
-ze_internal void Tick(Ent2d* ent, f32 delta)
+ze_internal void Tick(Ent2d* ent, RNGTickInfo* tickInfo)
 {
 	if (ent->d.debris.tick >= DEBRIS_LIFE_TIME)
 	{
@@ -93,7 +93,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	}
 	else
 	{
-		ent->d.debris.tick += delta;
+		ent->d.debris.tick += tickInfo->delta;
 	}
 }
 

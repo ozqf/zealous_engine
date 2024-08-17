@@ -166,6 +166,7 @@ struct ZGame
     void (*Shutdown)();
     void (*Tick)(ZEFrameTimeInfo timing);
     void (*Draw)(ZRenderer renderer);
+    void (*DrawScene)(ZRenderer renderer, zeHandle scene);
     i32 sentinel;
 };
 
@@ -328,6 +329,7 @@ struct ZEngine
 #define ZGAME_LINKUP_FUNCTION_NAME "ZGameLinkUp"
 
 #define ZSCENE_FLAG_NO_DRAW (1 << 0)
+#define ZSCENE_FLAG_CUSTOM_DRAW (1 << 1)
 
 #define Z_GAME_WINDOWS_LINK_FUNCTION \
 extern "C" zErrorCode __declspec(dllexport) ZGameLinkUp(ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef)

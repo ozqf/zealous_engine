@@ -660,7 +660,7 @@ ze_external char* Sim_GetDebugText()
 	return (char*)g_debugText.start;
 }
 
-ze_internal void TickEntities(f32 delta)
+ze_internal void TickEntities(RNGTickInfo* info)
 {
 	i32 len = g_entities.Count();
 	for (i32 i = 0; i < len; ++i)
@@ -671,7 +671,7 @@ ze_internal void TickEntities(f32 delta)
 		EntityType* type = &g_types[ent->type];
 		if (type->Tick != NULL)
 		{
-			type->Tick(ent, delta);
+			type->Tick(ent, info);
 		}
 	}
 }
@@ -721,7 +721,7 @@ ze_external void Sim_TickForward(RNGTickInfo info, i32 bInteractive)
 		EntPlayer_SetInput(info);
 		
 		// tick logic and physics
-		TickEntities(info.delta);
+		TickEntities(&info);
 		ZPhysicsTick(info.delta);
 		// write output
 		Sim_WriteFrame(&g_frames, g_currentFrame);

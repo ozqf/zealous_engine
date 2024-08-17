@@ -144,10 +144,10 @@ ze_internal void Remove(Ent2d* ent)
 	Sim_RemoveEntityBase(ent);
 }
 
-ze_internal void Tick(Ent2d* ent, f32 delta)
+ze_internal void Tick(Ent2d* ent, RNGTickInfo* tickInfo)
 {
 	EntPlayer* player = GetPlayer(ent);
-	player->tick -= delta;
+	player->tick -= tickInfo->delta;
 	// input
 	/*
 	INPUT_BIT_LEFT
@@ -163,10 +163,25 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	if (IF_BIT(player->buttons, INPUT_BIT_RIGHT)) { inputDir.x++; }
 	if (IF_BIT(player->buttons, INPUT_BIT_DOWN)) { inputDir.y--; }
 	if (IF_BIT(player->buttons, INPUT_BIT_UP)) { inputDir.y++; }
-
+	
 	BodyState body = ZP_GetBodyState(player->physicsBodyId);
 
 	ZP_SetBodyPosition(player->hitboxBodyId, body.t.pos);
+
+	player->stickAimPos = {};
+	if (IF_BIT(player->buttons, INPUT_BIT_ATK_LEFT)) { player->stickAimPos.x--; }
+	if (IF_BIT(player->buttons, INPUT_BIT_ATK_RIGHT)) { player->stickAimPos.x++; }
+	if (IF_BIT(player->buttons, INPUT_BIT_ATK_DOWN)) { player->stickAimPos.y--; }
+	if (IF_BIT(player->buttons, INPUT_BIT_ATK_UP)) { player->stickAimPos.y++; }
+
+	player->stickAimPos = Vec2_Add(body.t.pos, player->stickAimPos);
+	
+	// force attack 1 if key aim held
+	int keyboardAimMask = (INPUT_BIT_ATK_LEFT | INPUT_BIT_ATK_RIGHT | INPUT_BIT_ATK_UP | INPUT_BIT_ATK_DOWN);
+	if (player->buttons & keyboardAimMask)
+	{
+		player->buttons |= INPUT_BIT_ATK_1;
+	}
 
 	// query ground
 	//ZPShapeDef shape = ZP_GetBodyShape(player->physicsBodyId);
@@ -225,6 +240,10 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 	// update aim pos
 	Vec2 pos = body.t.pos;
 	Vec2 aimPos = Sim_GetTickInfo()->cursorWorldPos;
+	if (tickInfo->bUseStickAim)
+	{
+		aimPos = player->stickAimPos;
+	}
 	f32 radians = Vec2_AngleTo(pos, aimPos);
 	player->aimDegrees = radians * RAD2DEG;
 

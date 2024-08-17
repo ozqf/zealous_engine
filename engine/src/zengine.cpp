@@ -160,19 +160,18 @@ ze_external i32 ZE_StartLoop()
 			}
 
 			ZScene_PostFrameTick();
-
-			// ZRenderer renderer
+			ZRenderer r = {};
+			r.ClearFrame = ZR_ClearFrame;
+			r.ExecuteCommands = ZR_ExecuteCommands;
+				
 			if (g_gameDef.flags & GAME_DEF_FLAG_MANUAL_RENDER && g_game.Draw != NULL)
 			{
-				ZRenderer r = {};
-				r.ClearFrame = ZR_ClearFrame;
-				r.ExecuteCommands = ZR_ExecuteCommands;
 				g_game.Draw(r);
         		Platform_SubmitFrame();
 			}
 			else
 			{
-				ZScene_Draw();
+				ZScene_Draw(r, g_game);
 			}
 		}
 		// ignore game and scene manager, call render test.

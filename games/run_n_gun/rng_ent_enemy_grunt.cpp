@@ -275,17 +275,17 @@ ze_internal void TickIdle(Ent2d* ent, EntGrunt* grunt, f32 delta)
 	}
 }
 
-ze_internal void Tick(Ent2d* ent, f32 delta)
+ze_internal void Tick(Ent2d* ent, RNGTickInfo* tickInfo)
 {
 	EntGrunt* grunt = &ent->d.grunt;
 	if (grunt->hitFlashTick > 0)
 	{
-		grunt->hitFlashTick -= delta;
+		grunt->hitFlashTick -= tickInfo->delta;
 	}
 	switch (grunt->state)
 	{
 		case AI_STATE_STUNNED:
-		grunt->tick -= delta;
+		grunt->tick -= tickInfo->delta;
 		if (grunt->tick <= 0.f)
 		{
 			grunt->tick = 0.2f;
@@ -293,7 +293,7 @@ ze_internal void Tick(Ent2d* ent, f32 delta)
 		}
 		break;
 		default:
-			TickIdle(ent, grunt, delta);
+			TickIdle(ent, grunt, tickInfo->delta);
 			break;
 	}
 

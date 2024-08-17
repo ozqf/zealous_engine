@@ -218,7 +218,7 @@ ze_external zErrorCode ZEmbedded_Init();
 //////////////////////////////////
 // scene manager
 ze_external ZSceneManager ZScene_RegisterFunctions();
-ze_external void ZScene_Draw();
+ze_external void ZScene_Draw(ZRenderer renderer, ZGame game);
 
 ze_external zeHandle ZScene_CreateScene(i32 order, i32 capacity, zeSize userBlobItemSize);
 ze_external ZRDrawObj *ZScene_AddObject(zeHandle sceneHandle);

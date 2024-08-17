@@ -78,7 +78,7 @@ ze_internal void Remove(Ent2d* ent)
 	Sim_RemoveEntityBase(ent);
 }
 
-ze_internal void Tick(Ent2d* ent, f32 delta) { }
+ze_internal void Tick(Ent2d* ent, RNGTickInfo* tickInfo) { }
 ze_internal void Sync(Ent2d* ent) { }
 
 ze_external void EntNull_Register(EntityType* type)

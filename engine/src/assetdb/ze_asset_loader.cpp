@@ -50,6 +50,7 @@ ze_external ZRTexture* ZAssets_LoadPngTextureFromFile(const char* path)
 	i32 height;
 	i32 comp;
 	i32 reqComp = 0;
+	stbi_set_flip_vertically_on_load(YES);
 	u8* data = stbi_load_from_memory(
 		(u8*)buffer.start,
 		(i32)(buffer.cursor - buffer.start),
@@ -68,7 +69,8 @@ ze_external ZRTexture* ZAssets_LoadPngTextureFromFile(const char* path)
 	ColourU32* dest = tex->data;
 	while (i < numPixels)
 	{
-		dest[numPixels - i] = source[i];
+		//dest[numPixels - i] = source[i];
+		dest[i] = source[i];
 		i++;
 	}
 
