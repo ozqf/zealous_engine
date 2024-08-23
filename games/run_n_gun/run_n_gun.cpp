@@ -20,8 +20,8 @@ ze_internal i32 g_applicationState = -1;
 ze_internal i32 g_bAppMenuOpen = NO;
 ze_internal i32 g_gameState = GAME_STATE_PLAYING;
 
-ze_internal const i32 g_lastDebugMode = 3;
-ze_internal i32 g_uvDebugMode = g_lastDebugMode;
+#define LAST_UV_DEBUG_MODE 3
+ze_internal i32 g_uvDebugMode = 0;
 
 ze_internal void App_SetAppState(int newState);
 internal void CreateCursor();
@@ -76,7 +76,7 @@ ZCMD_CALLBACK(Exec_RNGCommand)
 	else if (ZStr_Equal(fullString, RNG_CMD_RENDER_MODE))
 	{
 		g_uvDebugMode += 1;
-		if (g_uvDebugMode > g_lastDebugMode)
+		if (g_uvDebugMode > LAST_UV_DEBUG_MODE)
 		{
 			g_uvDebugMode = 0;
 		}
@@ -585,8 +585,8 @@ internal void Draw(ZRenderer renderer)
 			switch (g_uvDebugMode)
 			{
 				case 1:
-				uvMin = { 0, 0 };
-				uvMax = { 0.5, 0.5 };
+				uvMin = { 0.0, 0.75 };
+				uvMax = { 0.25, 1.0 };
 				break;
 				case 2:
 				uvMin = { 0.5, 0.5 };
@@ -596,9 +596,10 @@ internal void Draw(ZRenderer renderer)
 				uvMin = { 0, 0 };
 				uvMax = { 1, 1 };
 				default:
-				// debug - just pixel (top left corner)
-				uvMin = { 0, 1.0 };
-				uvMax = { 0, 1.0 };
+				//uvMin = { 0, 0 };
+				//uvMax = { 1.0, 1.0 };
+				uvMin = { 0.0, 0.75 };
+				uvMax = { 0.25, 1.0 };
 				break;
 			}
 			
@@ -616,6 +617,65 @@ internal void Draw(ZRenderer renderer)
 	}
 
 	ZEBlobStore* ents = Sim_GetEnts();
+
+	i32 numEnts = ents->Count();
+	if (numEnts > 0)
+	{
+		zeSize totalBytes = sizeof(ZRDrawCmdSpriteBatch) + sizeof(ZRQuad);
+		BUF_BLOCK_BEGIN_STRUCT(
+        	spriteBatch, ZRDrawCmdSpriteBatch, (&buf), ZR_DRAW_CMD_SPRITE_BATCH);
+    	
+		spriteBatch->textureId = texId;// quadObj->data.quad.textureId;
+    	spriteBatch->items = (ZRSpriteBatchItem *)buf.cursor;
+    	for (i32 i = 0; i < numEnts; ++i)
+		{
+			Ent2d* ent = (Ent2d*)ents->GetByIndex(i);
+			if (ent == NULL) { continue; }
+			Vec3 pos = {};
+			Vec2 scale = { 1, 1 };
+			Vec2 uvMin = { 0.0, 0.75 };
+			Vec2 uvMax = { 0.25, 1.0 };
+			f32 radians = 0.0;
+			
+			switch (ent->type)
+			{
+				case ENT_TYPE_POINT_PRJ:
+				pos.x = ent->d.pointPrj.data.pos.x;
+				pos.y = ent->d.pointPrj.data.pos.y;
+				pos.z = ent->d.pointPrj.data.depth;
+				scale.x = 0.25;
+				scale.y = 0.25;
+				uvMin = { 0.0, 0.75 };
+				uvMax = { 0.25, 1.0 };
+			
+				break;
+				case ENT_TYPE_ENEMY_GRUNT:
+				{
+					Transform2d t = ZP_GetBodyPosition(ent->d.grunt.physicsBodyId);
+					pos.x = t.pos.x;
+					pos.y = t.pos.y;
+					scale.x = 0.5;
+					scale.y = 0.5;
+				}
+				break;
+				case ENT_TYPE_DEBRIS:
+				{
+					Transform2d t = ZP_GetBodyPosition(ent->d.debris.physicsBodyId);
+					pos.x = t.pos.x;
+					pos.y = t.pos.y;
+					scale.x = 0.5;
+					scale.y = 0.5;
+					radians = t.radians;
+				}
+				break;
+				default:
+				continue;
+			}
+			
+			spriteBatch->AddItem(pos, scale, uvMin, uvMax, radians, COLOUR_U32_GREY_DARK);
+		}
+	}
+	
 	#if 1
 	Ent2d* ent = Sim_FindPlayer();
 	if (ent != NULL)
