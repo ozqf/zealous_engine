@@ -640,14 +640,15 @@ internal void Draw(ZRenderer renderer)
 			switch (ent->type)
 			{
 				case ENT_TYPE_POINT_PRJ:
-				pos.x = ent->d.pointPrj.data.pos.x;
-				pos.y = ent->d.pointPrj.data.pos.y;
-				pos.z = ent->d.pointPrj.data.depth;
-				scale.x = 0.25;
-				scale.y = 0.25;
-				uvMin = { 0.0, 0.75 };
-				uvMax = { 0.25, 1.0 };
-			
+				{
+					pos.x = ent->d.pointPrj.data.pos.x;
+					pos.y = ent->d.pointPrj.data.pos.y;
+					pos.z = ent->d.pointPrj.data.depth;
+					scale.x = 0.25;
+					scale.y = 0.25;
+					uvMin = { 0.5, 0.75 };
+					uvMax = { 0.75, 1.0 };
+				}
 				break;
 				case ENT_TYPE_ENEMY_GRUNT:
 				{
@@ -656,6 +657,8 @@ internal void Draw(ZRenderer renderer)
 					pos.y = t.pos.y;
 					scale.x = 0.5;
 					scale.y = 0.5;
+					uvMin = { 0.25, 0.75 };
+					uvMax = { 0.5, 1.0 };
 				}
 				break;
 				case ENT_TYPE_DEBRIS:
