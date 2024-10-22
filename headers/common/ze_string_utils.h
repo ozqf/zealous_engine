@@ -84,10 +84,9 @@ internal i32 ZStr_Equal(const char *a, const char *b)
 {
     while (*a == *b)
     {
-        // End of string
         if (*a == '\0')
         {
-            return YES;
+            return (*a == *b);
         }
         ++a;
         ++b;
@@ -105,7 +104,6 @@ internal i32 ZStr_Compare(const char *a, const char *b)
 {
     while (*a == *b)
     {
-        // End of string
         if (*a == '\0')
         {
             return 0;

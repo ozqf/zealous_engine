@@ -112,6 +112,8 @@ internal void Init()
 
 	TilesInit(g_engine);
 
+	RNG_AnimationsInit();
+
 	g_engine.textCommands.RegisterCommand(
 		"map", "Start a new game, eg 'map e1m1'", Exec_MapCommand);
 	g_engine.textCommands.RegisterCommand(
@@ -195,6 +197,9 @@ internal void Init()
 	// init sub-state module
 	Ed_Init(g_engine);
 	Sim_Init(g_engine, g_scene);
+	// prepare visuals for first frame otherwise all ents at 0,0 etc!
+	Sim_SyncDrawObjects();
+	
 	Menu_Init(g_engine);
 	g_engine.textCommands.QueueCommand(RNG_CMD_MENU_ON);
 
@@ -561,6 +566,9 @@ internal void Draw(ZRenderer renderer)
 		RNGPRINT("no player tex\n");
 	}*/
 
+	
+	////////////////////////////////////////////////////////////////////////
+	// world
 	WorldVolume* volumes;
 	i32 numVolumes;
 	Sim_GetWorldVolumes(&volumes, &numVolumes);
@@ -582,6 +590,11 @@ internal void Draw(ZRenderer renderer)
 			Vec2 uvMin;
 			Vec2 uvMax;
 
+			RNGQuadUVs quad = RNG_GetQuadUVs(ANIM_INDEX_WORLD);
+			uvMin = quad.min;
+			uvMax = quad.max;
+
+			/*
 			switch (g_uvDebugMode)
 			{
 				case 1:
@@ -602,7 +615,7 @@ internal void Draw(ZRenderer renderer)
 				uvMax = { 0.25, 1.0 };
 				break;
 			}
-			
+			*/
 			#if 0
 			if (vol->type == 0)
 			{
@@ -616,6 +629,8 @@ internal void Draw(ZRenderer renderer)
     	spriteBatch->Finish(&buf);
 	}
 
+	////////////////////////////////////////////////////////////////////////
+	// entities
 	ZEBlobStore* ents = Sim_GetEnts();
 
 	i32 numEnts = ents->Count();
@@ -646,8 +661,9 @@ internal void Draw(ZRenderer renderer)
 					pos.z = ent->d.pointPrj.data.depth;
 					scale.x = 0.25;
 					scale.y = 0.25;
-					uvMin = { 0.5, 0.75 };
-					uvMax = { 0.75, 1.0 };
+					//uvMin = { 0.5, 0.75 };
+					//uvMax = { 0.75, 1.0 };
+					RNG_SetQuadUVs(ANIM_INDEX_PROJECTILE_1, &uvMin, &uvMax);
 				}
 				break;
 				case ENT_TYPE_ENEMY_GRUNT:
@@ -657,8 +673,9 @@ internal void Draw(ZRenderer renderer)
 					pos.y = t.pos.y;
 					scale.x = 0.5;
 					scale.y = 0.5;
-					uvMin = { 0.25, 0.75 };
-					uvMax = { 0.5, 1.0 };
+					//uvMin = { 0.25, 0.75 };
+					//uvMax = { 0.5, 1.0 };
+					RNG_SetQuadUVs(ANIM_INDEX_ENEMY_GRUNT_1, &uvMin, &uvMax);
 				}
 				break;
 				case ENT_TYPE_DEBRIS:
@@ -669,6 +686,7 @@ internal void Draw(ZRenderer renderer)
 					scale.x = 0.5;
 					scale.y = 0.5;
 					radians = t.radians;
+					RNG_SetQuadUVs(ANIM_INDEX_ENEMY_DEBRIS_1, &uvMin, &uvMax);
 				}
 				break;
 				default:
@@ -679,6 +697,8 @@ internal void Draw(ZRenderer renderer)
 		}
 	}
 	
+	////////////////////////////////////////////////////////////////////////
+	// player
 	#if 1
 	Ent2d* ent = Sim_FindPlayer();
 	if (ent != NULL)

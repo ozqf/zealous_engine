@@ -105,6 +105,16 @@ ze_internal void MoveInMenu(TextMenu* menu,i32 dir)
 	}
 }
 
+/*
+Returns true if successful
+*/
+ze_internal i32 MoveInMenuByIndex(TextMenu* menu, i32 i)
+{
+	if (i < 0 || i >= menu->itemCount) { return NO; }
+	menu->index = i;
+	return YES;
+}
+
 ze_internal char* GetMenuTag(TextMenu* menu)
 {
 	if (menu->index < 0)
@@ -126,6 +136,11 @@ ze_external void Menu_Hide()
 	u32 sceneFlags = g_engine.scenes.GetSceneFlags(g_menuScene);
 	sceneFlags |= ZSCENE_FLAG_NO_DRAW;
 	g_engine.scenes.SetSceneFlags(g_menuScene, sceneFlags);
+}
+
+ze_internal i32 Menu_TryByIndex(char* inputName, frameInt frame, TextMenu* menu, i32 index)
+{
+	return g_engine.input.HasActionToggledOn(inputName, frame) && MoveInMenuByIndex(menu, index);
 }
 
 ze_external void Menu_Tick(ZEFrameTimeInfo timing)
@@ -150,22 +165,44 @@ ze_external void Menu_Tick(ZEFrameTimeInfo timing)
 		bDirty = YES;
 	}
 
+	i32 bForceSelect = NO;
+
+	// direct select by slot
+	if (Menu_TryByIndex("menu_option_1", timing.frameNumber, menu, 0)) { bForceSelect = YES; }
+	if (Menu_TryByIndex("menu_option_2", timing.frameNumber, menu, 1)) { bForceSelect = YES; }
+	if (Menu_TryByIndex("menu_option_3", timing.frameNumber, menu, 2)) { bForceSelect = YES; }
+	if (Menu_TryByIndex("menu_option_4", timing.frameNumber, menu, 3)) { bForceSelect = YES; }
+	if (Menu_TryByIndex("menu_option_5", timing.frameNumber, menu, 4)) { bForceSelect = YES; }
+	if (Menu_TryByIndex("menu_option_6", timing.frameNumber, menu, 5)) { bForceSelect = YES; }
+	if (Menu_TryByIndex("menu_option_7", timing.frameNumber, menu, 6)) { bForceSelect = YES; }
+	if (Menu_TryByIndex("menu_option_8", timing.frameNumber, menu, 7)) { bForceSelect = YES; }
+	if (Menu_TryByIndex("menu_option_9", timing.frameNumber, menu, 8)) { bForceSelect = YES; }
+	if (Menu_TryByIndex("menu_option_0", timing.frameNumber, menu, 9)) { bForceSelect = YES; }
+	
+	// select specific option
 	if (g_engine.input.HasActionToggledOn("menu_select", timing.frameNumber))
+	{
+		bForceSelect = YES;
+	}
+
+	if (bForceSelect)
 	{
 		bDirty = YES;
 		char* item = GetMenuTag(menu);
-		if (ZStr_Compare(item, "quit") == 0)
+		
+		if (ZStr_Equal(item, "quit"))
 		{
 			g_engine.textCommands.QueueCommand("quit");
 		}
-		else if (ZStr_Compare(item, "toggle_mode") == 0)
+		else if (ZStr_Equal(item, "toggle_mode"))
 		{
 			RNGPRINT("Toggle game/editor mode\n");
 			g_engine.textCommands.QueueCommand(RNG_CMD_APP_TOGGLE);
 		}
-		else if (ZStr_Compare(item, "start") == 0)
+		else if (ZStr_Equal(item, "start"))
 		{
 			g_engine.textCommands.QueueCommand("map 3");
+			Menu_Hide();
 		}
 	}
 
@@ -185,6 +222,16 @@ ze_external void Menu_Init(ZEngine engine)
 	g_engine.input.AddAction(Z_INPUT_CODE_W, Z_INPUT_CODE_NULL, "menu_up");
 	g_engine.input.AddAction(Z_INPUT_CODE_S , Z_INPUT_CODE_NULL, "menu_down");
 	g_engine.input.AddAction(Z_INPUT_CODE_SPACE, Z_INPUT_CODE_NULL, "menu_select");
+	g_engine.input.AddAction(Z_INPUT_CODE_1, Z_INPUT_CODE_NULL, "menu_option_1");
+	g_engine.input.AddAction(Z_INPUT_CODE_2, Z_INPUT_CODE_NULL, "menu_option_2");
+	g_engine.input.AddAction(Z_INPUT_CODE_3, Z_INPUT_CODE_NULL, "menu_option_3");
+	g_engine.input.AddAction(Z_INPUT_CODE_4, Z_INPUT_CODE_NULL, "menu_option_4");
+	g_engine.input.AddAction(Z_INPUT_CODE_5, Z_INPUT_CODE_NULL, "menu_option_5");
+	g_engine.input.AddAction(Z_INPUT_CODE_6, Z_INPUT_CODE_NULL, "menu_option_6");
+	g_engine.input.AddAction(Z_INPUT_CODE_7, Z_INPUT_CODE_NULL, "menu_option_7");
+	g_engine.input.AddAction(Z_INPUT_CODE_8, Z_INPUT_CODE_NULL, "menu_option_8");
+	g_engine.input.AddAction(Z_INPUT_CODE_9, Z_INPUT_CODE_NULL, "menu_option_9");
+	g_engine.input.AddAction(Z_INPUT_CODE_0, Z_INPUT_CODE_NULL, "menu_option_0");
 
 	AllocTextMenu(&g_mainMenu, 16, MAIN_MENU_BUF_SIZE);
 	g_mainMenu.header = MAIN_MENU_HEADER;

@@ -329,6 +329,7 @@ ze_internal void ReadMap2dEnt(Map2dReader* reader, Map2dEntity* mapEnt)
 	Vec2 pos = { mapEnt->pos.x, mapEnt->pos.y };
 	if (ZStr_Equal(typeStr, "start"))
 	{
+		pos.y += 0.5;
 		Sim_SpawnPlayer(pos);
 	}
 	else if (ZStr_Equal(typeStr, "spawner"))

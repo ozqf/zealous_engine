@@ -144,6 +144,11 @@ ze_internal void Remove(Ent2d* ent)
 	Sim_RemoveEntityBase(ent);
 }
 
+ze_internal i32 FeetNearPlayformCheck(Vec2 origin)
+{
+	return NO;
+}
+
 ze_internal void Tick(Ent2d* ent, RNGTickInfo* tickInfo)
 {
 	EntPlayer* player = GetPlayer(ent);
@@ -209,18 +214,21 @@ ze_internal void Tick(Ent2d* ent, RNGTickInfo* tickInfo)
 	}
 	else
 	{
-		ZP_SetBodyMaskBit(player->physicsBodyId, PHYSICS_LAYER_BIT_PLATFORM, YES);
+		ZP_SetBodyMaskBit(player->physicsBodyId, PHYSICS_LAYER_BIT_PLATFORM, bGrounded);
 	}
 
 	v.x = 8.f * inputDir.x;
 
-	if (inputDir.y > 0 && v.y <= 0)
+	// jump logic arranged so that just holding jump will push the player up
+	// through platforms above continuously.
+	// similarly holding jump will perform a double jump automatically
+	if (inputDir.y > 0)
 	{
 		if (bGrounded)
 		{
 			v.y = JUMP_VELOCITY;
 		}
-		else
+		else if (v.y <= 0)
 		{
 			if ((player->touchFlags & TOUCH_BIT_DOUBLE_JUMP) == 0)
 			{
@@ -230,6 +238,7 @@ ze_internal void Tick(Ent2d* ent, RNGTickInfo* tickInfo)
 			
 		}
 	}
+	// jump velocity cancel
 	else if (inputDir.y < 0 && v.y > -3.f)
 	{
 		v.y = -3.f;

@@ -140,6 +140,19 @@ printf(fmt, __VA_ARGS__)
 // Ent2d* entPtrName = NULL; \
 // if (drawObjPtr != NULL) { entPtrName = (Ent2d*)drawObjPtr->userData; }
 
+#define ANIM_INDEX_WORLD 0
+#define ANIM_INDEX_PLAYER_1 1
+#define ANIM_INDEX_PROJECTILE_1 2
+#define ANIM_INDEX_ENEMY_GRUNT_1 3
+#define ANIM_INDEX_ENEMY_DEBRIS_1 4
+#define ANIM_INDEX_LAST 5
+
+struct RNGQuadUVs
+{
+	Vec2 min;
+	Vec2 max;
+};
+
 struct EntStateHeader
 {
 	i32 id;
@@ -519,5 +532,10 @@ ze_external void Menu_Init(ZEngine engine);
 ze_external void Menu_Show(int pageOverride);
 ze_external void Menu_Hide();
 ze_external void Menu_Tick(ZEFrameTimeInfo timing);
+
+// assets
+ze_external RNGQuadUVs RNG_GetQuadUVs(i32 index);
+ze_external void RNG_SetQuadUVs(i32 index, Vec2* min, Vec2* max);
+ze_external void RNG_AnimationsInit();
 
 #endif // RNG_INTERNAL_H
