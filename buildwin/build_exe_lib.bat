@@ -32,8 +32,10 @@ set compIn1=../engine/src/windows/win_window.cpp
 set compIn2=../engine/src/opengl/ze_opengl.cpp ../engine/src/opengl/ze_opengl_shaders.cpp ../engine/src/opengl/zrgl_uploader.cpp ../engine/src/opengl/draw/zrgl_draw_mesh.cpp ../engine/src/opengl/draw/ze_opengl_draw_sprites.cpp ../engine/src/opengl/draw/zrgl_draw_primitives.cpp ../engine/src/opengl/zrgl_data.cpp ../engine/src/opengl/sandbox/zrgl_sandbox.cpp
 @rem engine + services
 set compIn3=../engine/src/zengine.cpp ../engine/src/config/config.cpp ../engine/src/assetdb/ze_asset_db.cpp ../engine/src/assetdb/ze_asset_loader.cpp ../engine/src/debug/ze_debug.cpp
-set compIn4=../engine/src/scene/ze_scene.cpp ../engine/src/scene/ze_group_draw_items.cpp ../engine/src/embedded_assets/ze_embedded_assets.cpp ../engine/src/game_stub/ze_game_stub.cpp
+set compIn4=../engine/src/scene/ze_scene.cpp ../engine/src/scene/ze_group_draw_items.cpp ../engine/src/embedded_assets/ze_embedded_assets.cpp
 set compIn5=../engine/src/input/ze_input.cpp ../engine/src/command_console/command_console.cpp ../engine/src/events/ze_events.cpp
+set compIn5=../engine/src/game_stub/ze_game_stub.cpp
+@rem set compIn5=
 
 @rem === Compile Testing Win32 Console application
 @rem set compilerInput=../src/Platform/win32_consoleApp.cpp
@@ -53,7 +55,7 @@ set linkInputC=../lib/glfw3_vc2019/glfw3_mt.lib ../buildwin_platform_libs/platli
 
 
 @echo --- build objs (no linking) ---
-cl %compilerFlags% %compilerDefines% %compIn1% %compIn2% %compIn3% %compIn4% %compIn5% /c
+cl %compilerFlags% %compilerDefines% %compIn1% %compIn2% %compIn3% %compIn4% %compIn5% %compIn6% /c
 
 
 @echo --------------------------------------------------------
@@ -61,8 +63,10 @@ cl %compilerFlags% %compilerDefines% %compIn1% %compIn2% %compIn3% %compIn4% %co
 @rem with libs
 @rem lib -nologo /out:ze.lib command_console.obj config.obj win_main.obj win_window.obj zengine.obj ze_asset_db.obj ze_asset_loader.obj ze_debug.obj ze_embedded_assets.obj ze_events.obj ze_game_stub.obj ze_group_draw_items.obj ze_input.obj ze_opengl.obj ze_opengl_draw_sprites.obj ze_opengl_shaders.obj ze_scene.obj zrgl_data.obj zrgl_draw_mesh.obj zrgl_draw_primitives.obj zrgl_sandbox.obj zrgl_uploader.obj user32.lib opengl32.lib Gdi32.lib shell32.lib
 @rem without libs
-lib -nologo /out:ze.lib command_console.obj config.obj win_main.obj win_window.obj zengine.obj ze_asset_db.obj ze_asset_loader.obj ze_debug.obj ze_embedded_assets.obj ze_events.obj ze_game_stub.obj ze_group_draw_items.obj ze_input.obj ze_opengl.obj ze_opengl_draw_sprites.obj ze_opengl_shaders.obj ze_scene.obj zrgl_data.obj zrgl_draw_mesh.obj zrgl_draw_primitives.obj zrgl_sandbox.obj zrgl_uploader.obj
-
+@rem lib -nologo /out:ze.lib command_console.obj config.obj win_main.obj win_window.obj zengine.obj ze_asset_db.obj ze_asset_loader.obj ze_debug.obj ze_embedded_assets.obj ze_events.obj ze_game_stub.obj ze_group_draw_items.obj ze_input.obj ze_opengl.obj ze_opengl_draw_sprites.obj ze_opengl_shaders.obj ze_scene.obj zrgl_data.obj zrgl_draw_mesh.obj zrgl_draw_primitives.obj zrgl_sandbox.obj zrgl_uploader.obj
+@echo on
+lib -nologo /out:ze.lib *.obj
+@echo off
 
 
 @rem @rem -- lib ---

@@ -57,8 +57,9 @@ cl %compilerFlags% %compilerDefines% %compIn1% %compIn2% %compIn3% %compIn4% %co
 
 @echo --------------------------------------------------------
 @echo --- build lib ---
+@echo on
 lib -nologo /out:ze.lib command_console.obj config.obj win_main.obj win_window.obj zengine.obj ze_asset_db.obj ze_asset_loader.obj ze_debug.obj ze_embedded_assets.obj ze_events.obj ze_game_stub.obj ze_group_draw_items.obj ze_input.obj ze_opengl.obj ze_opengl_draw_sprites.obj ze_opengl_shaders.obj ze_scene.obj zrgl_data.obj zrgl_draw_mesh.obj zrgl_draw_primitives.obj zrgl_sandbox.obj zrgl_uploader.obj user32.lib opengl32.lib Gdi32.lib shell32.lib
-
+@echo off
 
 
 

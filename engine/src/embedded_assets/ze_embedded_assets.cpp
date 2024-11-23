@@ -39,7 +39,7 @@ ze_external zErrorCode ZEmbedded_Init()
 		tex->data,
 		bw_charset_width,
 		bw_charset_height,
-		COLOUR_U32_WHITE, COLOUR_U32_BLACK);
+		COLOUR_U32_CYAN, COLOUR_U32_BLACK);
 
 	// embedded black and white charset
 	tex = ZAssets_AllocTex(

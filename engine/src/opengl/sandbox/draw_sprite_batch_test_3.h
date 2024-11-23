@@ -1,3 +1,23 @@
+/*
+Draw an instance batch of quads via a data texture.
+texture is float vectors.
+
+texture capacity and memory consumption napkin calculations
+eg: 512x512 vec4 texture
+(512 * 512 * 4) / 1024 == 1024KB for raw texture.
+512 * 512 == 262144 pixels, each a vectors with four data items.
+
+example data
+pixel 0 is x/y/z/rotation (we're just draw sprites here, want z for depth)
+pixel 1 is UVs minX/minY/maxX/maxY - the primitive is always a quad
+pixel 2 is scaleX/scaleY
+
+3 data pixels (stride) per item
+(512 * 512) / 3 == 87381 batch items.
+
+The shader will convert its instance index into the first pixel in
+its data and then offset from there. 
+*/
 #include "../ze_opengl_internal.h"
 
 // for rand()
@@ -138,9 +158,6 @@ ze_external void ZRSandbox_DrawSpriteBatch_3()
         printf("Drawing %d instances of %d max\n", g_instanceCount, batchMax);
         printf("\tData texture is %lldKB\n", (totalDataPixels * sizeof(Vec4)) / 1024);
 
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize, GL_RGBA, GL_FLOAT, g_dataPixels);
-        CHECK_GL_ERR
-
         // Samplers for data textures
         // Make sure filtering and mip-mapping are disabled!
         glGenSamplers(1, &g_samplerDataTex2D);
@@ -154,6 +171,12 @@ ze_external void ZRSandbox_DrawSpriteBatch_3()
     //////////////////////////////////////////////////
     // execute
     //////////////////////////////////////////////////
+
+	// we're not changing the batch data but assume we have, and upload every tick
+	// otherwise it is not a fair test of performance.
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, dataTextureSize, dataTextureSize, GL_RGBA, GL_FLOAT, g_dataPixels);
+    CHECK_GL_ERR
+
 
     // calculate delta
     f64 now = Platform_QueryClock();
