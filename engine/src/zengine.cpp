@@ -32,7 +32,7 @@ ze_external zErrorCode ZE_InitConfig(const char *cmdLine, const char **argv, con
 	return ZCFG_Init(cmdLine, argv, argc);
 }
 
-ze_external ZEngine GetEngine()
+ze_external ZEngine GetZealousEngine()
 {
 	return g_engine;
 }

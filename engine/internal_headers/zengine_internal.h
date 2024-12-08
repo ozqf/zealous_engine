@@ -112,12 +112,6 @@ static void Sys_PrepareEvent(SysEvent *ev, i32 type, i32 size)
 */
 
 //////////////////////////////////
-ze_external ZEngine GetEngine();
-ze_external ZGameDef GetGameDef();
-ze_external frameInt ZEngine_GetFrameNumber();
-ze_external i32 GetSingleFrameMode();
-
-//////////////////////////////////
 // platform
 ze_external void Platform_PollEvents();
 ze_external void Platform_SubmitFrame();
@@ -139,6 +133,8 @@ ze_external ZScreenInfo Window_GetInfo();
 
 //////////////////////////////////
 // game module linkup
+ze_external zErrorCode ZGame_Linkup(
+    ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
 ze_external zErrorCode ZGame_StubLinkup(
     ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
 ze_external zErrorCode ZEngine_Init(

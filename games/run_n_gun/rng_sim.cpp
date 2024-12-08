@@ -64,12 +64,12 @@ ze_internal ZEBuffer g_debugText;
 
 ze_external FrameHeader* Sim_WriteFrame(ZEBuffer* buf, i32 frameNumber);
 ze_external void Sim_RestoreFrame(FrameHeader* header);
-
+/*
 ze_external ZEngine GetEngine()
 {
 	return g_engine;
 }
-
+*/
 ze_external zeHandle GetGameScene()
 {
 	return g_scene;

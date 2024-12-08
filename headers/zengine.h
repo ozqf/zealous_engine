@@ -323,6 +323,15 @@ struct ZEngine
     i32 sentinel;
 };
 
+
+//////////////////////////////////
+ze_external ZEngine GetZealousEngine();
+ze_external ZGameDef GetGameDef();
+ze_external frameInt ZEngine_GetFrameNumber();
+ze_external i32 GetSingleFrameMode();
+ze_external zErrorCode ZGame_Linkup(
+    ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef);
+
 // if no game directory parameter is provided, look in this dir for a game dll
 #define ZGAME_BASE_DIRECTORY "base"
 #define ZGAME_DLL_NAME "game.dll"

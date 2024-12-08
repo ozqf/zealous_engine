@@ -140,6 +140,8 @@ ze_external void Platform_DebugBreak()
 ////////////////////////////////////////////////////////
 internal ZGame_LinkupFunction* Win_LinkToGameDLL(char* customDir)
 {
+	return ZGame_Linkup;
+	#if 0
 	char targetPath[255];
 	i32 strLen = sprintf_s(targetPath, 255, "%s\\%s", customDir, ZGAME_DLL_NAME);
 	ZGame_LinkupFunction* linkUpPtr = NULL;
@@ -158,6 +160,7 @@ internal ZGame_LinkupFunction* Win_LinkToGameDLL(char* customDir)
 		return &ZGame_StubLinkup;
 	}
 	return linkUpPtr;
+	#endif
 }
 
 ////////////////////////////////////////////////////////

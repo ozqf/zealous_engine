@@ -72,15 +72,15 @@ ze_external void ZRSandbox_DrawSpriteBatch_2()
 
         g_meshId = ZAssets_GetMeshByName(ZE_EMBEDDED_QUAD_NAME)->header.id;
 
-        GetEngine().input.AddAction(Z_INPUT_CODE_LEFT, 0, "turn_left");
-        GetEngine().input.AddAction(Z_INPUT_CODE_RIGHT, 0, "turn_right");
+        GetZealousEngine().input.AddAction(Z_INPUT_CODE_LEFT, 0, "turn_left");
+        GetZealousEngine().input.AddAction(Z_INPUT_CODE_RIGHT, 0, "turn_right");
 
-        GetEngine().input.AddAction(Z_INPUT_CODE_W, 0, "move_forward");
-        GetEngine().input.AddAction(Z_INPUT_CODE_S, 0, "move_backward");
-        GetEngine().input.AddAction(Z_INPUT_CODE_A, 0, "move_left");
-        GetEngine().input.AddAction(Z_INPUT_CODE_D, 0, "move_right");
+        GetZealousEngine().input.AddAction(Z_INPUT_CODE_W, 0, "move_forward");
+        GetZealousEngine().input.AddAction(Z_INPUT_CODE_S, 0, "move_backward");
+        GetZealousEngine().input.AddAction(Z_INPUT_CODE_A, 0, "move_left");
+        GetZealousEngine().input.AddAction(Z_INPUT_CODE_D, 0, "move_right");
 
-        GetEngine().input.AddAction(Z_INPUT_CODE_R, 0, "reset");
+        GetZealousEngine().input.AddAction(Z_INPUT_CODE_R, 0, "reset");
 
         // create a little sprite sheet
         ZRTexture *tex = ZAssets_AllocTex(32, 32, "sprite_batch_test_atlas_2");
@@ -280,7 +280,7 @@ ze_external void ZRSandbox_DrawSpriteBatch_2()
     Transform_SetRotation(&camera, rot.x, rot.y, rot.z);
 #endif
     #if 1
-    ZEngine engine = GetEngine();
+    ZEngine engine = GetZealousEngine();
     if (engine.input.GetActionValue("reset"))
     {
         Transform_SetToIdentity(&camera);

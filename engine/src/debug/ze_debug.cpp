@@ -9,7 +9,7 @@ ze_external zErrorCode ZDebug_Init_1()
 
 ze_external zErrorCode ZDebug_Init_2()
 {
-	ZEngine engine = GetEngine();
+	ZEngine engine = GetZealousEngine();
     // find some assets to use on our objects
     i32 textureId = ZAssets_GetTexByName(
         FALLBACK_CHARSET_TEXTURE_NAME)->header.id;

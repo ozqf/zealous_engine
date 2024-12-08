@@ -51,7 +51,7 @@ set compilerFlags=-nologo -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi
 set compilerDefines=/DPARANOID=1 /DGLFW_USE_HYBRID_HPG
 set linkInputA=user32.lib opengl32.lib Gdi32.lib shell32.lib
 set linkInputB=../lib/glfw3_vc2019/glfw3_mt.lib ../buildwin_platform_libs/platlibs.lib
-set linkInputC=../buildwin_platform/ze.lib ../buildwin_game/game.lib
+set linkInputC=../buildwin_platform/ze.lib ../buildwin_game/game.lib ../lib/box2d/box2d.lib
 @echo on
 @cl %compilerFlags% %compilerDefines% %outputExe% ../engine/src/windows/win_main.cpp /link %linkInputA% %linkInputB% %linkInputC%
 @echo off

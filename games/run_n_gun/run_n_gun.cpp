@@ -42,6 +42,11 @@ ZCMD_CALLBACK(Exec_MapCommand)
 	CreateCursor();
 }
 
+ze_external ZEngine GetEngine()
+{
+	return g_engine;
+}
+
 ZCMD_CALLBACK(Exec_RNGCommand)
 {
 	if (numTokens < 2)
@@ -744,4 +749,10 @@ Z_GAME_WINDOWS_LINK_FUNCTION
 	gameExport->DrawScene = DrawScene;
     gameExport->sentinel = ZE_SENTINEL;
     return ZE_ERROR_NONE;
+}
+
+ze_external zErrorCode ZGame_Linkup(
+    ZEngine engineImport, ZGame *gameExport, ZGameDef *gameDef)
+{
+	return ZGameLinkUp(engineImport, gameExport, gameDef);
 }
